@@ -2214,14 +2214,14 @@ inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType >
 
 
 
-extern template class PropagatorSettings< double >;
-extern template class SingleArcPropagatorSettings< double >;
-extern template class MultiArcPropagatorSettings< double >;
-extern template class TranslationalStatePropagatorSettings< double >;
-extern template class RotationalStatePropagatorSettings< double >;
-extern template class MassPropagatorSettings< double >;
-extern template class CustomStatePropagatorSettings< double >;
-extern template class MultiTypePropagatorSettings< double >;
+//extern template class PropagatorSettings< double >;
+//extern template class SingleArcPropagatorSettings< double >;
+//extern template class MultiArcPropagatorSettings< double >;
+//extern template class TranslationalStatePropagatorSettings< double >;
+//extern template class RotationalStatePropagatorSettings< double >;
+//extern template class MassPropagatorSettings< double >;
+//extern template class CustomStatePropagatorSettings< double >;
+//extern template class MultiTypePropagatorSettings< double >;
 
 
 //! Function to retrieve list of accelerations from propagator settings

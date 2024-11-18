@@ -6,7 +6,7 @@ namespace tudat
 namespace ephemerides
 {
 
-template class TabulatedRotationalEphemeris< double, double >;
+//template class TabulatedRotationalEphemeris< double, double >;
 
 
 //! Function to check whether an ephemeris is a (type of) tabulated ephemeris
