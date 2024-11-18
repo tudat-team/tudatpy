@@ -424,9 +424,9 @@ private:
 };
 
 
-extern template class CubicSplineInterpolator< double, Eigen::VectorXd >;
-extern template class CubicSplineInterpolator< double, Eigen::Vector6d >;
-extern template class CubicSplineInterpolator< double, Eigen::MatrixXd >;
+//extern template class CubicSplineInterpolator< double, Eigen::VectorXd >;
+//extern template class CubicSplineInterpolator< double, Eigen::Vector6d >;
+//extern template class CubicSplineInterpolator< double, Eigen::MatrixXd >;
 
 //! Typedef for cubic spline interpolator with (in)dependent = double.
 typedef CubicSplineInterpolator< double, double > CubicSplineInterpolatorDouble;

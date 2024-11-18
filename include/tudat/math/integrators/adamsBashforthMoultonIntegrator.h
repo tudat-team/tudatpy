@@ -1052,9 +1052,9 @@ protected:
     StateDerivativeType lastDerivative_;
 };
 
-extern template class AdamsBashforthMoultonIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-extern template class AdamsBashforthMoultonIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
-extern template class AdamsBashforthMoultonIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+//extern template class AdamsBashforthMoultonIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+//extern template class AdamsBashforthMoultonIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+//extern template class AdamsBashforthMoultonIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 
 //! Typedef of Adam-Bashforh-Moulton integrator (state/state derivative = VectorXd, independent variable = double).

@@ -392,7 +392,7 @@ protected:
 };
 
 
-extern template class RotationalMotionStateDerivative< double, double >;
+//extern template class RotationalMotionStateDerivative< double, double >;
 
 
 } // namespace propagators

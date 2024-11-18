@@ -634,11 +634,11 @@ class ObservationModel
     //! Pre-define list of states used when calling function returning link-end states/times from interface function.
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 };
-
-extern template class ObservationModel< 1, double, double >;
-extern template class ObservationModel< 2, double, double >;
-extern template class ObservationModel< 3, double, double >;
-extern template class ObservationModel< 6, double, double >;
+//
+//extern template class ObservationModel< 1, double, double >;
+//extern template class ObservationModel< 2, double, double >;
+//extern template class ObservationModel< 3, double, double >;
+//extern template class ObservationModel< 6, double, double >;
 
 //! Function to compute an observation of size 1 at double precision, with double precision input
 /*!

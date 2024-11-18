@@ -119,7 +119,7 @@ int getGeneralizedAccelerationSize( const IntegratedStateType stateType )
 }
 
 
-template class SingleStateTypeDerivative< double, double >;
+//template class SingleStateTypeDerivative< double, double >;
 
 }
 

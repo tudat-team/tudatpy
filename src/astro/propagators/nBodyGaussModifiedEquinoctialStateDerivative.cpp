@@ -74,7 +74,7 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
     return stateDerivative;
 }
 
-template class NBodyGaussModifiedEquinictialStateDerivative< double, double >;
+//template class NBodyGaussModifiedEquinictialStateDerivative< double, double >;
 
 } // namespace propagators
 

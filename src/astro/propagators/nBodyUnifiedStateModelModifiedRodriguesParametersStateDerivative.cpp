@@ -121,7 +121,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
 }
 
 
-template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< double, double >;
+//template class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< double, double >;
 
 
 } // namespace propagators
