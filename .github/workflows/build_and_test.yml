@@ -73,8 +73,8 @@ jobs:
       uses: conda-incubator/setup-miniconda@v3
       with:
            activate-environment: tudat
+           auto-activate-base: false
            conda-version: 'latest'
-
 
 
     - name: Get date
