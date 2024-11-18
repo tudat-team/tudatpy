@@ -282,7 +282,7 @@ private:
 };
 
 
-extern template class NBodyUnifiedStateModelQuaternionsStateDerivative< double, double >;
+//extern template class NBodyUnifiedStateModelQuaternionsStateDerivative< double, double >;
 
 
 

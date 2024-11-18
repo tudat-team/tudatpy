@@ -85,9 +85,9 @@ protected:
 
 };
 
-extern template class RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-extern template class RungeKutta4Integrator < double, Eigen::Vector6d, Eigen::Vector6d >;
-extern template class RungeKutta4Integrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+//extern template class RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+//extern template class RungeKutta4Integrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+//extern template class RungeKutta4Integrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 
 //! Typedef of RK4 integrator (state/state derivative = VectorXd, independent variable = double).

@@ -166,13 +166,66 @@ public:
           updateLaplacianOfPotential_( updateLaplacianOfGravitationalPotential )
     { }
 
+    ~PolyhedronGravitationalAccelerationModel( ){ }
+
     //! Update class members.
     /*!
      * Updates all the base class members to their current values and also updates the class members of this class.
      * The potential and laplacian of potential are only updated if the associated flags indicate so.
      * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( const double currentTime = TUDAT_NAN );
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        if( !( this->currentTime_ == currentTime ) )
+        {
+
+            rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
+
+            subjectPositionFunction_( positionOfBodySubjectToAcceleration_ );
+            sourcePositionFunction_( positionOfBodyExertingAcceleration_ );
+            currentInertialRelativePosition_ =
+                positionOfBodySubjectToAcceleration_ - positionOfBodyExertingAcceleration_ ;
+
+            currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * currentInertialRelativePosition_;
+
+            polyhedronCache_->update( currentRelativePosition_ );
+
+            // Compute the current acceleration
+            currentAccelerationInBodyFixedFrame_ = basic_mathematics::calculatePolyhedronGradientOfGravitationalPotential(
+                gravitationalParameterFunction_() / volumeFunction_(),
+                polyhedronCache_->getVerticesCoordinatesRelativeToFieldPoint(),
+                getVerticesDefiningEachFacet_(),
+                getVerticesDefiningEachEdge_(),
+                getFacetDyads_(),
+                getEdgeDyads_(),
+                polyhedronCache_->getPerFacetFactor(),
+                polyhedronCache_->getPerEdgeFactor() );
+
+            currentAcceleration_ = rotationToIntegrationFrame_ * currentAccelerationInBodyFixedFrame_;
+
+            // Compute the current gravitational potential
+            if ( updatePotential_ )
+            {
+                currentPotential_ = basic_mathematics::calculatePolyhedronGravitationalPotential(
+                    gravitationalParameterFunction_( ) / volumeFunction_( ),
+                    polyhedronCache_->getVerticesCoordinatesRelativeToFieldPoint( ),
+                    getVerticesDefiningEachFacet_( ),
+                    getVerticesDefiningEachEdge_( ),
+                    getFacetDyads_( ),
+                    getEdgeDyads_( ),
+                    polyhedronCache_->getPerFacetFactor( ),
+                    polyhedronCache_->getPerEdgeFactor( ) );
+            }
+
+            // Compute the current laplacian
+            if ( updateLaplacianOfPotential_ )
+            {
+                currentLaplacianOfPotential_ = basic_mathematics::calculatePolyhedronLaplacianOfGravitationalPotential(
+                    gravitationalParameterFunction_( ) / volumeFunction_( ),
+                    polyhedronCache_->getPerFacetFactor( ) );
+            }
+        }
+    }
 
     //! Function to return current position vector from body exerting acceleration to body undergoing acceleration, in frame
     //! fixed to body undergoing acceleration

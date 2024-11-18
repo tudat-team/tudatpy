@@ -178,7 +178,7 @@ double computeGravitationalPotential(
 
 //! Template class for central gravitational acceleration model.
 /*!
- * This template class implements a central gravitational acceleration model, i.e., only the
+ * This //template class implements a central gravitational acceleration model, i.e., only the
  * central term of the general spherical harmonics expansion.
  * \tparam StateMatrix Data type for state matrix (default = Eigen::Vector3d).
  */
