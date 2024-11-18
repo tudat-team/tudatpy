@@ -1187,6 +1187,10 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                                 jupiterIndex = 3;
                                 spacecraftIndex = 2;
                             }
+                            else
+                            {
+                                throw std::runtime_error( "Error, did not find correct link end in 2-way viability settings test" );
+                            }
                         }
 
 
