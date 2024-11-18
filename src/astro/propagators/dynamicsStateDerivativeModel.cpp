@@ -74,7 +74,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
 }
 #endif
 
-template class DynamicsStateDerivativeModel< double, double >;
+//template class DynamicsStateDerivativeModel< double, double >;
 
 
 } // namespace propagators
