@@ -75,7 +75,8 @@ jobs:
            activate-environment: tudat
            auto-activate-base: false
 
-
+    - name: Print conda environment information
+      run: conda info --envs
 
     - name: Get date
       # Get the current date and time in UTC format. This step is used to create a unique cache key for the conda environment cache by appending the date to the cache key.
@@ -84,6 +85,8 @@ jobs:
       run: echo "today=$(/bin/date -u '+%Y%m%d')" >> $GITHUB_OUTPUT
       shell: bash
 
+    - name: Debug conda environment path
+      run: ls -la ${{ matrix.path_conda_env }}
 
     - name: Cache conda environment
       # Cache the conda environment to avoid re-installing the same packages every time the workflow runs. The cache key is based on the environment.yml file, the operating system, and the date. The cache is restored if the cache key matches the cache key of the previous run.
