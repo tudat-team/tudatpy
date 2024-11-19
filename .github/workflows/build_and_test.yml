@@ -39,12 +39,12 @@ jobs:
             c_compiler: cl
             cpp_compiler: cl
             label: win-64
-            path_conda_env: C:\Miniconda3\envs\tudat
+            path_conda_env: C:\Miniconda\envs\tudat
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
             label: linux-64
-            path_conda_env: /usr/share/miniconda3/envs/tudat
+            path_conda_env: /usr/share/miniconda/envs/tudat
           - os: macos-latest
             c_compiler: clang
             cpp_compiler: clang++
@@ -85,8 +85,6 @@ jobs:
       run: echo "today=$(/bin/date -u '+%Y%m%d')" >> $GITHUB_OUTPUT
       shell: bash
 
-    - name: Debug conda environment path
-      run: ls -la ${{ matrix.path_conda_env }}
 
     - name: Cache conda environment
       # Cache the conda environment to avoid re-installing the same packages every time the workflow runs. The cache key is based on the environment.yml file, the operating system, and the date. The cache is restored if the cache key matches the cache key of the previous run.
