@@ -75,8 +75,6 @@ jobs:
            activate-environment: tudat
            auto-activate-base: false
 
-    - name: Print conda environment information
-      run: conda info --envs
 
     - name: Get date
       # Get the current date and time in UTC format. This step is used to create a unique cache key for the conda environment cache by appending the date to the cache key.
