@@ -17,6 +17,7 @@ from tudatpy.kernel.numerical_simulation.propagation_setup.propagator import \
      cpu_time_termination, \
      custom_state, \
      custom_termination, \
+     custom_termination_with_state_input, \
      dependent_variable_termination, \
      hybrid_arc, \
      hybrid_termination, \
