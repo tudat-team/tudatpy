@@ -66,9 +66,11 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
 
     // If specific link end is specified
     std::string groundStationNameToUse;
+    LinkEndId linkEndToCheck;
     if( observationViabilitySettings->getAssociatedLinkEnd( ).second != "" )
     {
         groundStationNameToUse = observationViabilitySettings->getAssociatedLinkEnd( ).second;
+        linkEndToCheck = observationViabilitySettings->getAssociatedLinkEnd( );
         if( groundStationNameToUse != stationName )
         {
             throw std::runtime_error( "Error when making minimum elevation angle calculator, inconsistent station input" );
@@ -77,6 +79,7 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
     else
     {
         groundStationNameToUse = stationName;
+        linkEndToCheck = LinkEndId(  observationViabilitySettings->getAssociatedLinkEnd( ).first, stationName );
     }
 
     if( bodies.count( observationViabilitySettings->getAssociatedLinkEnd( ).first ) == 0 )
@@ -94,7 +97,7 @@ std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCa
     double minimumElevationAngle = observationViabilitySettings->getDoubleParameter( );
     return std::make_shared< MinimumElevationAngleCalculator >(
                 getLinkStateAndTimeIndicesForLinkEnd(
-                    linkEnds,observationType, observationViabilitySettings->getAssociatedLinkEnd( ) ),
+                    linkEnds,observationType, linkEndToCheck ),
                 minimumElevationAngle, pointingAngleCalculator );
 }
 
