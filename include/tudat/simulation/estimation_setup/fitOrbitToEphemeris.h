@@ -48,8 +48,8 @@ std::shared_ptr< observation_models::ObservationCollection< StateScalarType, Tim
     using namespace observation_models;
 
     std::vector< TimeType > observationTimes;
-    TimeType currentTime = initialTime;
-    while( currentTime < finalTime )
+    TimeType currentTime = initialTime + 3600.0;
+    while( currentTime < finalTime - 3600.0 )
     {
         observationTimes.push_back( currentTime );
         currentTime += static_cast< double >( dataPointInterval );
@@ -96,7 +96,8 @@ std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > createBestFitTo
     const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > additionalParameterNames =
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >( ),
     const int numberOfIterations = 3,
-    const bool reintegrateVariationalEquations = true )
+    const bool reintegrateVariationalEquations = true,
+    const double resultsPrintFrequency = 0.0 )
 {
     using namespace observation_models;
     using namespace estimatable_parameters;
@@ -111,6 +112,10 @@ std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > createBestFitTo
         std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
         ( centralBodies, accelerationModelMap, bodiesToPropagate, initialState, initialPropagationTime, integratorSettings,
             std::make_shared< PropagationTimeTerminationSettings >( finalTime ) );
+    if ( resultsPrintFrequency > 0.0 )
+    {
+        propagatorSettings->getPrintSettings( )->setResultsPrintFrequencyInSteps( resultsPrintFrequency );
+    }
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
         getInitialStateParameterSettings< StateScalarType, TimeType >( propagatorSettings, bodies );
@@ -118,6 +123,7 @@ std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > createBestFitTo
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
         createParametersToEstimate< StateScalarType, TimeType >( parameterNames, bodies, propagatorSettings );
+    printEstimatableParameterEntries( parametersToEstimate );
 
 
     std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
