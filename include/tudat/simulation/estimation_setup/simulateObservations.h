@@ -140,7 +140,7 @@ simulateObservationsWithCheck(
         const std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator = nullptr,
         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
-    std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
+    std::multimap< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
     std::tuple< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool, Eigen::VectorXd > simulatedObservation;
     std::vector< Eigen::VectorXd > dependentVariables;
 
@@ -154,14 +154,14 @@ simulateObservationsWithCheck(
         if( std::get< 1 >( simulatedObservation ) )
         {
             // If viable, add observable and time to vector of simulated data.
-            observations[ observationTimes[ i ] ] = std::get< 0 >( simulatedObservation );
+            observations.insert( { observationTimes[ i ], std::get< 0 >( simulatedObservation ) } );
             dependentVariables.push_back( std::get< 2 >( simulatedObservation ) );
         }
     }
 
     // Return pair of simulated ranges and reception times.
-    return std::make_tuple( utilities::createVectorFromMapValues( observations ),
-                            utilities::createVectorFromMapKeys( observations ),
+    return std::make_tuple( utilities::createVectorFromMultiMapValues( observations ),
+                            utilities::createVectorFromMultiMapKeys( observations ),
                             dependentVariables );
 }
 
@@ -193,7 +193,6 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
             simulateObservationsWithCheck< ObservationSize, ObservationScalarType, TimeType >(
                 observationTimes, observationModel, referenceLinkEnd, linkViabilityCalculators,
                 noiseFunction, dependentVariableCalculator, ancilliarySettings );
-
     return std::make_shared< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >(
                 observationModel->getObservableType( ), observationModel->getLinkEnds( ),
                 std::get< 0 >( simulatedObservations ), std::get< 1 >( simulatedObservations ), referenceLinkEnd, std::get< 2 >( simulatedObservations ),
