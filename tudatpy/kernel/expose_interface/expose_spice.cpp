@@ -199,6 +199,14 @@ namespace spice {
               &tudat::spice_interface::clearSpiceKernels,
               get_docstring("clear_kernels").c_str());
 
+        m.def("continue_after_errors",
+              &tudat::spice_interface::toggleErrorReturn,
+              get_docstring("continue_after_errors").c_str());
+
+        m.def("suppress_error_output",
+              &tudat::spice_interface::suppressErrorOutput,
+              get_docstring("suppress_error_output").c_str());
+
 //      py::class_<tudat::ephemerides::SpiceEphemeris,
 //            std::shared_ptr<tudat::ephemerides::SpiceEphemeris>>(m, "SpiceEphemeris",
 //                                    get_docstring("SpiceEphemeris").c_str())
