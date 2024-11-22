@@ -136,6 +136,18 @@ std::vector<std::string> getStandardSpiceKernels(const std::vector<std::string> 
 void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemerisKernels =
                                   std::vector<std::string>());
 
+void toggleErrorReturn( );
+
+void toggleErrorAbort( );
+
+void suppressErrorOutput( );
+
+std::string getErrorMessage( );
+
+bool checkFailure( );
+
+
+
 }// namespace spice_interface
 }// namespace tudat
 
