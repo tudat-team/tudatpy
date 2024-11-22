@@ -16,9 +16,11 @@
 
 #include <math.h>
 
-namespace tudat {
-namespace spice_interface {
-using Eigen::Vector6d;
+namespace tudat 
+{
+
+namespace spice_interface 
+{
 
 std::string getCorrectedTargetBodyName(
         const std::string &targetBodyName )
@@ -60,34 +62,45 @@ double convertDateStringToEphemerisTime(const std::string &dateString) {
 }
 
 //! Get Cartesian state of a body, as observed from another body.
-Vector6d getBodyCartesianStateAtEpoch(
+Eigen::Vector6d getBodyCartesianStateAtEpoch(
         const std::string &targetBodyName, const std::string &observerBodyName,
         const std::string &referenceFrameName, const std::string &aberrationCorrections,
-        const double ephemerisTime) {
+        const double ephemerisTime)
+{
 
 
-    if( !( ephemerisTime == ephemerisTime )  )
+    if ( !( ephemerisTime == ephemerisTime ))
     {
-        throw std::invalid_argument( "Error when retrieving Cartesian state from Spice, input time is " + std::to_string(ephemerisTime) );
+        throw std::invalid_argument(
+            "Error when retrieving Cartesian state from Spice, input time is " + std::to_string( ephemerisTime ));
     }
     // Declare variables for cartesian state and light-time to be determined by Spice.
     double stateAtEpoch[6];
     double lightTime;
 
     // Call Spice function to calculate state and light-time.
-    spkezr_c(getCorrectedTargetBodyName( targetBodyName ).c_str(), ephemerisTime, referenceFrameName.c_str(),
-             aberrationCorrections.c_str(),
-             getCorrectedTargetBodyName( observerBodyName ).c_str(), stateAtEpoch,
-             &lightTime);
+    spkezr_c( getCorrectedTargetBodyName( targetBodyName ).c_str( ), ephemerisTime, referenceFrameName.c_str( ),
+              aberrationCorrections.c_str( ),
+              getCorrectedTargetBodyName( observerBodyName ).c_str( ), stateAtEpoch,
+              &lightTime );
 
     // Put result in Eigen Vector.
-    Vector6d cartesianStateVector;
-    for (unsigned int i = 0; i < 6; i++) {
-        cartesianStateVector(i) = stateAtEpoch[i];
+    Eigen::Vector6d cartesianStateVector;
+    if ( !checkFailure( ) )
+    {
+        for ( unsigned int i = 0; i < 6; i++ )
+        {
+            cartesianStateVector( i ) = stateAtEpoch[ i ];
+        }
+    }
+    else
+    {
+        cartesianStateVector.setZero( );
     }
 
+
     // Convert from km(/s) to m(/s).
-    return unit_conversions::convertKilometersToMeters<Vector6d>(
+    return unit_conversions::convertKilometersToMeters<Eigen::Vector6d>(
                 cartesianStateVector);
 }
 
@@ -114,8 +127,17 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyNam
 
     // Put result in Eigen Vector.
     Eigen::Vector3d cartesianPositionVector;
-    for (unsigned int i = 0; i < 3; i++) {
-        cartesianPositionVector(i) = positionAtEpoch[i];
+
+    if ( !checkFailure( ) )
+    {
+        for (unsigned int i = 0; i < 3; i++)
+        {
+            cartesianPositionVector(i) = positionAtEpoch[i];
+        }
+    }
+    else
+    {
+        cartesianPositionVector.setZero( );
     }
 
     // Convert from km to m.
@@ -124,7 +146,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyNam
 }
 
 //! Get Cartesian state of a satellite from its two-line element set at a specified epoch.
-Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ephemerides::Tle> tle) {
+Eigen::Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ephemerides::Tle> tle) {
     if( !( epoch == epoch ))
     {
         throw std::invalid_argument( "Error when retrieving TLE from Spice, input time is " + std::to_string(epoch) );
@@ -153,13 +175,21 @@ Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ephemerid
     ev2lin_(&epoch, physicalConstants, elements, stateAtEpoch);
 
     // Put result in Eigen Vector.
-    Vector6d cartesianStateVector;
-    for (unsigned int i = 0; i < 6; i++) {
-        cartesianStateVector(i) = stateAtEpoch[i];
+    Eigen::Vector6d cartesianStateVector;
+    if ( !checkFailure( ) )
+    {
+        for (unsigned int i = 0; i < 6; i++)
+        {
+            cartesianStateVector(i) = stateAtEpoch[i];
+        }
+    }
+    else
+    {
+        cartesianStateVector.setZero( );
     }
 
     // Convert from km to m.
-    return unit_conversions::convertKilometersToMeters<Vector6d>(cartesianStateVector);
+    return unit_conversions::convertKilometersToMeters<Eigen::Vector6d>(cartesianStateVector);
 }
 
 //! Compute quaternion of rotation between two frames.
@@ -179,10 +209,17 @@ Eigen::Quaterniond computeRotationQuaternionBetweenFrames(const std::string &ori
 
     // Put rotation matrix in Eigen Matrix3d.
     Eigen::Matrix3d rotationMatrix;
-    for (unsigned int i = 0; i < 3; i++) {
-        for (unsigned int j = 0; j < 3; j++) {
-            rotationMatrix(i, j) = rotationArray[i][j];
+    if ( !checkFailure( ) )
+    {
+        for (unsigned int i = 0; i < 3; i++) {
+            for (unsigned int j = 0; j < 3; j++) {
+                rotationMatrix(i, j) = rotationArray[i][j];
+            }
         }
+    }
+    else
+    {
+        rotationMatrix.setIdentity( );
     }
 
     // Convert matrix3d to Quaternion.
@@ -213,11 +250,21 @@ Eigen::Matrix6d computeStateRotationMatrixBetweenFrames(const std::string &origi
 
     // Put rotation matrix in Eigen Matrix6d
     Eigen::Matrix6d stateTransitionMatrix = Eigen::Matrix6d::Zero();
-    for (unsigned int i = 0; i < 6; i++) {
-        for (unsigned int j = 0; j < 6; j++) {
-            stateTransitionMatrix(i, j) = stateTransition[i][j];
+    if ( !checkFailure( ) )
+    {
+        for (unsigned int i = 0; i < 6; i++)
+        {
+            for (unsigned int j = 0; j < 6; j++)
+            {
+                stateTransitionMatrix(i, j) = stateTransition[i][j];
+            }
         }
     }
+    else
+    {
+        stateTransitionMatrix.setIdentity( );
+    }
+
 
     return stateTransitionMatrix;
 }
@@ -239,10 +286,19 @@ Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames(const std::string &
 
     // Put rotation matrix derivative in Eigen Matrix3d
     Eigen::Matrix3d matrixDerivative = Eigen::Matrix3d::Zero();
-    for (unsigned int i = 0; i < 3; i++) {
-        for (unsigned int j = 0; j < 3; j++) {
-            matrixDerivative(i, j) = stateTransition[i + 3][j];
+    if ( !checkFailure( ) )
+    {
+        for (unsigned int i = 0; i < 3; i++)
+        {
+            for (unsigned int j = 0; j < 3; j++)
+            {
+                matrixDerivative(i, j) = stateTransition[i + 3][j];
+            }
         }
+    }
+    else
+    {
+        matrixDerivative.setZero( );
     }
 
     return matrixDerivative;
@@ -269,7 +325,14 @@ Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame(const std::string
     // Calculate angular velocity vector.
     xf2rav_c(stateTransition, rotation, angularVelocity);
 
-    return (Eigen::Vector3d() << angularVelocity[0], angularVelocity[1], angularVelocity[2]).finished();
+    if ( !checkFailure( ) )
+    {
+        return (Eigen::Vector3d() << angularVelocity[0], angularVelocity[1], angularVelocity[2]).finished();
+    }
+    else
+    {
+        return Eigen::Vector3d::Zero( );
+    }
 }
 
 std::pair<Eigen::Quaterniond, Eigen::Matrix3d> computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(
@@ -285,13 +348,23 @@ std::pair<Eigen::Quaterniond, Eigen::Matrix3d> computeRotationQuaternionAndRotat
 
     Eigen::Matrix3d matrixDerivative;
     Eigen::Matrix3d rotationMatrix;
-
-    for (unsigned int i = 0; i < 3; i++) {
-        for (unsigned int j = 0; j < 3; j++) {
-            rotationMatrix(i, j) = stateTransition[i][j];
-            matrixDerivative(i, j) = stateTransition[i + 3][j];
+    if ( !checkFailure( ) )
+    {
+        for (unsigned int i = 0; i < 3; i++)
+        {
+            for (unsigned int j = 0; j < 3; j++)
+            {
+                rotationMatrix(i, j) = stateTransition[i][j];
+                matrixDerivative(i, j) = stateTransition[i + 3][j];
+            }
         }
     }
+    else
+    {
+        rotationMatrix.setIdentity( );
+        matrixDerivative.setZero( );
+    }
+
     return std::make_pair(Eigen::Quaterniond(rotationMatrix), matrixDerivative);
 }
 
@@ -475,5 +548,47 @@ void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemeri
     loadSpiceKernelInTudat(kernelPath + "/naif0012.tls");
 }
 
+void toggleErrorReturn( )
+{
+    erract_c ( "SET", 0, "RETURN" );
+}
+
+void toggleErrorAbort( )
+{
+    errdev_c ( "SET", 0, "ABORT" );
+}
+
+void suppressErrorOutput( )
+{
+    errdev_c ( "SET", 0, "NULL" );
+}
+
+std::string getErrorMessage( )
+{
+    if( failed_c( ) )
+    {
+        SpiceChar message[1841];
+        getmsg_c( "LONG", 1841, message );
+        return static_cast< std::string >( message );
+    }
+    else
+    {
+        return "";
+    }
+}
+
+bool checkFailure( )
+{
+    if ( failed_c( ) )
+    {
+        reset_c( );
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
+}
 }// namespace spice_interface
 }// namespace tudat
