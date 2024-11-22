@@ -120,6 +120,7 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
     // If all exponents are integer calculate integral of electron density analytically
     if ( exponentsAreIntegers_ && std::abs( receiverSunTransmitterAngle ) > 0.1 * mathematical_constants::PI / 180.0 )
     {
+        std::cout<<"Is integer"<<std::endl;
         // Reset analytical integrals
         cosinePowersIntegralsCache_.clear( );
         for ( unsigned int i = 0; i < coefficients_.size( ); ++i )
@@ -143,6 +144,10 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
             transmitterPositionWrtSun, receiverPositionWrtSun, ( legReceptionTime + legTransmissionTime ) / 2.0 );
     }
 
+    std::cout<<"Correction "<<sign_ * criticalPlasmaDensityDelayCoefficient_ / std::pow( getCurrentFrequency( ancillarySettings, linkEndsTimes.front( ) ), 2.0 ) *
+                              electronDensityIntegral / physical_constants::getSpeedOfLight< double >( )<<std::endl;
+    std::cout<<"Correction components "<<sign_<<" "<<criticalPlasmaDensityDelayCoefficient_<<" "<<getCurrentFrequency( ancillarySettings, linkEndsTimes.front( ) )<<" "<<
+    electronDensityIntegral<<" "<<physical_constants::getSpeedOfLight< double >( )<<std::endl;
     // Verma et al. (2013), eq. 1
     return sign_ * criticalPlasmaDensityDelayCoefficient_ / std::pow( getCurrentFrequency( ancillarySettings, linkEndsTimes.front( ) ), 2.0 ) *
         electronDensityIntegral / physical_constants::getSpeedOfLight< double >( );
