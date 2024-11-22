@@ -870,6 +870,10 @@ public:
             linkEndsDelays_ = ancillarySettings->getAncilliaryDoubleVectorData(
                     link_ends_delays, false );
         }
+        linkEndsDelays_.clear( );
+        linkEndsDelays_.push_back( 0.0);
+        linkEndsDelays_.push_back( 1.4149E-6 );
+        linkEndsDelays_.push_back( 0.0 );
         if ( !linkEndsDelays_.empty( ) )
         {
             // Delays vector already including delays at receiving and transmitting stations
@@ -1034,10 +1038,12 @@ private:
         // Move 'backwards' from reference link end to transmitter.
         for( unsigned int currentDownIndex = startLinkEndIndex; currentDownIndex > 0; --currentDownIndex )
         {
+            std::cout<<"Calculator down"<<currentDownIndex<<std::endl;
             unsigned int transmitterIndex = 2 * ( currentDownIndex - 1 );
             currentLightTime = lightTimeCalculators_.at( currentDownIndex - 1 )->calculateLightTimeWithMultiLegLinkEndsStates(
                         linkEndStates, linkEndTimes, currentLinkEndReceptionTime, true, transmitterIndex,
                         ancillarySettings, computeLightTimeCorrections );
+            std::cout<<"Delay down"<<linkEndsDelays_.at( currentDownIndex - 1 )<<std::endl;
 
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += linkEndsDelays_.at( currentDownIndex - 1 );
@@ -1053,6 +1059,7 @@ private:
         // Move 'forwards' from reference link end to receiver.
         for( unsigned int currentUpIndex = startLinkEndIndex; currentUpIndex < numberOfLinkEnds_ - 1; ++currentUpIndex )
         {
+            std::cout<<"Calculator up"<<currentUpIndex<<std::endl;
             unsigned int transmitterIndex = 2 * currentUpIndex;
             currentLightTime = lightTimeCalculators_.at( currentUpIndex )->calculateLightTimeWithMultiLegLinkEndsStates(
                         linkEndStates, linkEndTimes, currentLinkEndTransmissionTime, false, transmitterIndex,
@@ -1060,6 +1067,8 @@ private:
 
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += linkEndsDelays_.at( currentUpIndex + 1 );
+            std::cout<<"Delay up"<<linkEndsDelays_.at( currentUpIndex + 1 )<<std::endl;
+
             currentLinkEndTransmissionTime += currentLightTime;
 
             // Add computed light-time to total time and move to next leg

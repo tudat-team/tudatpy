@@ -136,9 +136,11 @@ public:
         FrequencyBands uplinkBand = frequencyBands.at( 0 );
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
+        std::cout<<std::setprecision( 16 )<<"Pre-compute"<<std::endl;
         TimeType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
             time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates,
                 ancillarySettings );
+        std::cout<<std::setprecision( 16 )<<"Post-compute "<<lightTime<<std::endl;
 
         Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 ) ?
                                                        Eigen::Vector3d::Zero( ) : stationStates_.at( receiver )->getNominalCartesianPosition( );
