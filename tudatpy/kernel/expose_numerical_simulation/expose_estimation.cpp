@@ -566,6 +566,7 @@ void expose_estimation(py::module &m) {
           py::arg("additional_parameter_names") = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
           py::arg("number_of_iterations") = 3,
           py::arg("reintegrate_variational_equations") = true,
+          py::arg("results_print_frequency") = 0.0,
           get_docstring("create_best_fit_to_ephemeris").c_str() );
 
     m.def("set_existing_observations",
@@ -937,10 +938,12 @@ void expose_estimation(py::module &m) {
     m.def("split_observation_set",
           py::overload_cast<
                   const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                  const std::shared_ptr< tom::ObservationSetSplitterBase > >(
+                  const std::shared_ptr< tom::ObservationSetSplitterBase >,
+                  const bool >(
                   &tom::splitObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > ),
           py::arg( "original_observation_set" ),
           py::arg( "observation_splitter" ),
+          py::arg( "print_warning" ) = true,
           get_docstring( "split_observation_set" ).c_str( ) );
 
     py::class_< tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>,
