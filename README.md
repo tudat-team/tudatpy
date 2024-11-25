@@ -149,6 +149,145 @@ recommended to start at `-j2` and work your way up with further builds, ensuring
 
 9. `Build > Build Project`
 
+### Alternative build: VSCode
+
+This section explains how to configure VSCode with CMake presets to build and manage your `tudat` build. The configuration supports parallel builds, switching between Debug and Release modes, enabling/disabling tests, and cleaning build directories. 
+
+#### Requirements
+
+1. **VSCode** with the following extensions:
+   - [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
+   - [C++ Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+   
+2. **CMake** installed on your system (minimum version 3.19).
+   
+3. **Conda** environment for managing dependencies.
+
+4. **Make/Ninja** installed based on your operating system for build generation.
+
+#### Steps to Configure VSCode
+
+1. **Create the `CMakePresets.json` file** in the root directory of your project. Use the following template with necessary adjustments:
+
+```json
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 19,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "hidden": false,
+      "generator": "Unix Makefiles", // Set this based on the OS: "Unix Makefiles" for Linux/macOS, "Ninja" or "Visual Studio" for Windows
+      "binaryDir": "${sourceDir}/build", // Build directory
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "/path/to/your/conda/environment", // <--- CHANGE THIS: Set this to your conda environment or other toolchain path
+        "CMAKE_INSTALL_PREFIX": "/path/to/your/conda/environment", // <--- CHANGE THIS
+        "CMAKE_CXX_STANDARD": "14", // The C++ standard to use
+        "Boost_NO_BOOST_CMAKE": "ON", // Ensures that the system-installed Boost CMake files are not used
+        "CMAKE_BUILD_TYPE": "Release", // Default to Release build
+        "TUDAT_BUILD_TESTS": "ON" // Set to ON to build tests by default
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "default",
+      "description": "Debug build configuration",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug" // Use Debug mode for this preset
+      }
+    },
+    {
+      "name": "no-tests",
+      "inherits": "default",
+      "description": "Build without tests",
+      "cacheVariables": {
+        "TUDAT_BUILD_TESTS": "OFF" // Disable test building in this preset
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "hidden": false,
+      "configurePreset": "default", // Use the default configuration preset
+      "jobs": 8, //<--- CHANGE THIS: Parallel build with N cores
+      "targets": [
+        "all" // Build the default target (usually all)
+      ]
+    },
+    {
+      "name": "debug-build",
+      "configurePreset": "debug", // Use the debug configuration preset
+      "jobs": 8, //<--- CHANGE THIS: Parallel build with N cores
+      "targets": [
+        "all"
+      ]
+    },
+    {
+      "name": "build-no-tests",
+      "configurePreset": "no-tests", // Use the no-tests configuration preset
+      "jobs": 8, //<--- CHANGE THIS: Parallel build with N cores
+      "targets": [
+        "all"
+      ]
+    },
+    {
+      "name": "clean",
+      "configurePreset": "default",
+      "jobs": 8, //<--- CHANGE THIS: Parallel build with N cores
+      "targets": [
+        "clean" // Run the clean target
+      ]
+    }
+  ]
+}
+```
+
+##### Comments on the Configuration
+
+- **CMAKE_PREFIX_PATH**: Set the `CMAKE_PREFIX_PATH` and `CMAKE_INSTALL_PREFIX` to your `tudat-bundle` environment. This is critical to ensure CMake can find the necessary libraries and dependencies.
+  
+- **Generator**: Depending on your OS, the generator should be:
+  - `"Unix Makefiles"` for **macOS** and **Linux**.
+  - `"Ninja"` for **Windows** (if Ninja is installed).
+  - `"Visual Studio"` for **Windows** if using Visual Studio.
+
+- **Parallel Jobs**: The `jobs` key is used to specify the number of jobs for parallel builds. Set the number of cores to be used for the build.
+
+- **Presets**:
+  - `default`: Builds the project in Release mode with tests.
+  - `debug`: Builds the project in Debug mode.
+  - `no-tests`: Builds the project without tests.
+  - `clean`: Cleans the build directory.
+
+#### How to Use Presets in VSCode
+
+1. **Open VSCode** in your project directory.
+   
+2. Open the Command Palette (`F1` or `Ctrl+Shift+P`) and run the command `CMake: Select Configure Preset`.
+
+3. Choose one of the configure presets:
+   - `default`: for Release builds.
+   - `debug`: for Debug builds.
+   - `no-tests`: to skip building tests.
+
+4. Once configured, run the command `CMake: Select Build Preset` from the Command Palette, and choose one of the build presets:
+   - `default`: to build the project.
+   - `debug-build`: to build in Debug mode.
+   - `build-no-tests`: to build without tests.
+   - `clean`: to clean the build directory.
+
+5. To start the build, run `CMake: Build` from the Command Palette or use the build button in the status bar.
+
+#### Troubleshooting
+
+- **CMake Errors**: If CMake cannot find dependencies, check that the `CMAKE_PREFIX_PATH` and `CMAKE_INSTALL_PREFIX` are set correctly in the `CMakePresets.json` file.
+- **Wrong Generator**: If the build fails due to an unsupported generator, change the `"generator"` field in the preset to match your OS and toolchain.
+
 <!--
 The following line can also be edited if you wish to build tudatpy with its debug info (switching from `Release` to `RelWithDebInfo`; note that `Debug` is also available):
 ````
@@ -203,6 +342,68 @@ Desired result:
 ````
 =========================================== 6 passed in 1.78s ============================================
 ````
+
+## C++ Code Formatting with Clang-Format
+`tudat-bundle` uses `clang-format` to enforce a consistent code style. The configuration file is located in the root of the repository as `.clang-format`.
+
+### Prerequisites
+
+Ensure `clang-format` is installed. You can check the installation by running:
+
+```bash
+clang-format --version
+```
+
+If it's not installed, install `clang-format` using a package manager:
+
+- **On Ubuntu/Debian**: `sudo apt install clang-format`
+- **On macOS**: `brew install clang-format`
+- **On Windows**: Download and install from [LLVM's official site](https://releases.llvm.org/).
+
+### Configuration File
+
+This `.clang-format` file configures formatting settings, including indentation width, brace wrapping, spacing rules, and alignment settings. These settings will ensure your code remains organized, readable, and consistent with `tudat` code style.
+
+### Usage
+
+#### 1. Running Clang-Format on a Single File
+
+To format a single file, run:
+
+```bash
+clang-format -i path/to/your/file.cpp
+```
+
+The `-i` flag formats the file in place.
+
+#### 2. Running Clang-Format on Multiple Files
+
+To format all `.cpp` and `.h` files in your project directory:
+
+```bash
+find path/to/your/project -name '*.cpp' -o -name '*.h' | xargs clang-format -i
+```
+
+Alternatively, if you're using an IDE like Visual Studio Code, you can configure it to automatically format on save.
+
+#### 3. Setting Up Automatic Formatting in VSCode
+
+If you’re using Visual Studio Code, you can automate code formatting:
+
+1. Install the **Clang-Format** extension from the marketplace.
+2. Open your project’s **Settings** (File > Preferences > Settings).
+3. Search for `Clang-Format` and set the path to your `.clang-format` file.
+4. Enable **Format on Save** by setting `"editor.formatOnSave": true` in your `settings.json`.
+
+#### 4. Checking Format Without Applying
+
+To preview formatting changes without modifying files, run:
+
+```bash
+clang-format -output-replacements-xml path/to/your/file.cpp
+```
+
+This will show XML output if there are any format issues. You can then decide to apply formatting manually.
 
 <!-- ## Use your build
 The path of the TudatPy kernel that has been manually compiled needs to be added before importing any `tudatpy.kernel` module.
