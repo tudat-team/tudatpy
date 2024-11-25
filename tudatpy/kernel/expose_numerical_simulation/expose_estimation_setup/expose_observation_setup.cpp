@@ -302,12 +302,12 @@ void expose_observation_setup( py::module& m )
             .value( "n_way_averaged_doppler_type", tom::ObservableType::n_way_differenced_range )
             .value( "euler_angle_313_observable_type",
                     tom::ObservableType::euler_angle_313_observable )
-            .value( "dsn_one_way_averaged_doppler",
+            .value( "dsn_one_way_averaged_doppler_type",
                     tom::ObservableType::dsn_one_way_averaged_doppler )
-            .value( "dsn_n_way_averaged_doppler", tom::ObservableType::dsn_n_way_averaged_doppler )
+            .value( "dsn_n_way_averaged_doppler_type", tom::ObservableType::dsn_n_way_averaged_doppler )
             .value( "doppler_measured_frequency_type",
                     tom::ObservableType::doppler_measured_frequency )
-            .value( "dsn_n_way_range", tom::ObservableType::dsn_n_way_range )
+            .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range )
             .export_values( );
 
     py::class_< tom::DopplerProperTimeRateSettings,
@@ -573,7 +573,7 @@ void expose_observation_setup( py::module& m )
            py::arg( "subtract_doppler_signature" ) = true,
            get_docstring( "dsn_n_way_doppler_averaged_from_one_way_links" ).c_str( ) );
 
-    m.def( "dsn_n_way_Range",
+    m.def( "dsn_n_way_range",
            py::overload_cast<
                    const tom::LinkDefinition&,
                    const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
