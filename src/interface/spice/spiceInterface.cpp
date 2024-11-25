@@ -95,7 +95,7 @@ Eigen::Vector6d getBodyCartesianStateAtEpoch(
     }
     else
     {
-        cartesianStateVector.setZero( );
+        cartesianStateVector.setConstant( 1.0E12 );
     }
 
 
@@ -137,7 +137,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyNam
     }
     else
     {
-        cartesianPositionVector.setZero( );
+        cartesianPositionVector.setConstant( 1.0E12 );
     }
 
     // Convert from km to m.
@@ -185,7 +185,7 @@ Eigen::Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ep
     }
     else
     {
-        cartesianStateVector.setZero( );
+        cartesianStateVector.setConstant( 1.0E12 );
     }
 
     // Convert from km to m.
