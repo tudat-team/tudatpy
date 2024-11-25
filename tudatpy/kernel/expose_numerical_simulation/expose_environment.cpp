@@ -743,8 +743,8 @@ void expose_environment(py::module &m) {
      */
 
     py::class_<tba::BodyShapeModel,
-            std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel", ,
-                get_docstring("AtmosphereModel").c_str() )
+            std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel",
+                get_docstring("ShapeModel").c_str() )
             .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
             .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
 
