@@ -99,12 +99,12 @@ namespace aerodynamic_coefficients {
                 tss::AerodynamicCoefficientSettings>(
                         m, "CustomAerodynamicCoefficientSettings",
                         get_docstring("CustomAerodynamicCoefficientSettings").c_str());
-
-        py::class_<tss::TabulatedAerodynamicCoefficientSettings,
-                std::shared_ptr<tss::TabulatedAerodynamicCoefficientSettings>,
-                tss::AerodynamicCoefficientSettings>(
-                        m, "TabulatedAerodynamicCoefficientSettings",
-                        get_docstring("TabulatedAerodynamicCoefficientSettings").c_str());
+//
+//        py::class_<tss::TabulatedAerodynamicCoefficientSettings,
+//                std::shared_ptr<tss::TabulatedAerodynamicCoefficientSettings>,
+//                tss::AerodynamicCoefficientSettings>(
+//                        m, "TabulatedAerodynamicCoefficientSettings",
+//                        get_docstring("TabulatedAerodynamicCoefficientSettings").c_str());
 
         py::class_<tss::ScaledAerodynamicCoefficientInterfaceSettings,
                 std::shared_ptr<tss::ScaledAerodynamicCoefficientInterfaceSettings>,
