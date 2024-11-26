@@ -23,6 +23,7 @@ class LoadPDS:
 
     def __init__(self):  
         self.check = False
+        
         self.supported_patterns = {
             "juice":
                 {"ck": r"^(?P<mission>juice)_(?P<instrument>(sc|mga|sa))_(?P<data_type>(meas|crema_\w+_baseline))?_?(?P<reference_file>[a-zA-Z]+)?_?(?P<prod_ID>[a-zA-Z]+)?_?(?P<start_date_file>(\d{6}|\d{8}))?_?(?P<end_date_file>\d{6})?_?(?P<sclk>(s|t|f)\d{6})?_?(?P<version>v\d{2})(?P<extension>\.bc)$",
@@ -57,8 +58,7 @@ class LoadPDS:
              "dps": r'^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.tab$)'}
         }
 
-        # The following dictionary (Cassini Titan flybys), the dates refer to START OF TRACKING 
-        # The dictionary closely follows the Cassini Titan Gravity Science Table
+
         self.titan_flyby_dict = {
             'T011': {
                 'experiment': 'tigr3',
@@ -155,6 +155,18 @@ class LoadPDS:
 #########################################################################################################
 
     def print_titan_flyby_table(self):
+
+        """
+        Description:
+        This method prints a table displaying the Titan flyby data in a readable format. It iterates over the `titan_flyby_dict`, extracts relevant information for each flyby, and constructs a table. The table is formatted with headers and colored using the `colorama` library for enhanced readability.
+        
+        Input:
+            None.
+        
+        Output:
+            None: This method prints the formatted table to the console.
+        """
+        
         data = []
         for key, value in self.titan_flyby_dict.items():
             row = [
@@ -183,12 +195,25 @@ class LoadPDS:
     def transfer2binary(self, input_file, timeout = 5):
 
         """ 
+        Description:
+            Converts transfer-file format SPICE kernels (e.g., `.ckf`, `.spk`) 
+            into binary SPICE kernels (e.g., `.ck`, `.bsp`) using the SPACIT utility. 
+            This is necessary for loading the kernels with `spice.load_kernels`. 
+            The function handles the conversion by running the SPACIT tool as a subprocess and 
+            manages timeouts during the conversion process.
         
-        This function is used in get_mission_files after get_cassini_flyby_files. 
-        It converts transfer-file format spice kernels into binary spice kernels, and it does so using the SPACIT utility.
-        If not converted, the ckf and spk files cannot be loaded by spice.load_kernels.
+        Input:
+            - `input_file` (`str`): The path to the SPICE kernel file to be converted. It must have either a `.ckf` or `.spk` extension.
+            - `timeout` (`int`, optional): The timeout duration for the SPACIT process, default is 5 seconds.
         
+        Output:
+            - `str`: The path to the output file (either `.ck` or `.bsp`), depending on the input file type. 
+            If the output file already exists, the function returns the existing output file path.
+        
+        Notes:
+            If the conversion fails or times out, an error message is printed.
         """
+        
         if input_file.lower().endswith('.ckf'):
             output_file = input_file.split('.')[0] + '.ck'
         elif input_file.lower().endswith('.spk'):
@@ -232,16 +257,25 @@ class LoadPDS:
                         
     def generic_strptime(self, date):
 
-        """ 
-        Given a list of supported time formats, try to convert it with strptime.
-        This function is used throughout the code. 
-        
-        For instance: 
-          juice and mro orientation files support %y%m%d,
-          lro supports %Y%j,
-          other mro kernels might support %Y_%j,
-          etc...
         """
+        Description:
+            Attempts to convert a given date string into a `datetime` object using multiple supported time formats. The function iterates over a list of predefined date formats (e.g., `%y%m%d`, `%Y%j`, `%Y_%j`) and tries each format until it successfully parses the date. This is used throughout the code to handle various date formats from different mission data files.
+        
+        Input:
+            - `date` (`str`): The date string to be parsed.
+        
+        Output:
+            - `datetime`: The parsed `datetime` object if a matching format is found, or `None` if no format matches.
+        
+        Notes:
+            The function supports multiple date formats, such as:
+            - `YYMMDD` (e.g., `220101`)
+            - `YYYYjjj` (e.g., `2022323`)
+            - `YYYY_MM_DD` (e.g., `2022_03_15`)
+            - And others, tailored for specific mission data.
+            If no matching format is found, the function silently skips to the next format without throwing an error.
+        """
+
         self.supported_time_formats = {
             "YYMMDD": (
                 r"%y%m%d"
@@ -285,10 +319,22 @@ class LoadPDS:
     def generic_strftime(self, date, format_key):
 
         """
-        Convert a datetime object to a string based on a supported format.
-        :param date_obj: datetime object to format.
-        :param format_key: Key from supported_time_formats for desired output format.
-        :return: Formatted date string.
+        Description:
+            Converts a `datetime` object to a string based on a specified format key from a list of supported formats. The function maps the provided format key (e.g., "YYMMDD", "YYYY-jjj") to a corresponding `strftime` format string and then formats the given `datetime` object accordingly.
+        
+        Input:
+            - `date` (`datetime`): The `datetime` object to be formatted.
+            - `format_key` (`str`): A key from the `supported_time_formats` dictionary that specifies the desired output format.
+        
+        Output:
+            - `str`: The formatted date string according to the specified format key.
+        
+        Notes:
+            The function supports several predefined date formats, such as:
+            - `"YYMMDD"`: e.g., `220101`
+            - `"YYYYjjj"`: e.g., `2022323`
+            - `"YYYY-MM-DD"`: e.g., `2022-03-15`
+            If the provided `format_key` is not in the supported formats, an error message is printed.
         """
 
         self.supported_time_formats = {
@@ -328,17 +374,19 @@ class LoadPDS:
 #########################################################################################################
 
     def get_kernels(self, input_mission, url, wanted_files, local_folder):
-
+        
         """
-        Download specific kernel files from a given URL if they do not already exist locally.
-    
-        Parameters:
-        - input_mission (str): Name of the mission (for display purposes).
-        - url (str): Base URL where the files are hosted.
-        - wanted_files (list): List of filenames to download.
-        - local_folder (str): Path to the local directory where files should be stored.
-        - start_date (str, optional): Start date for filtering files (not used here but placeholder for future use).
-        - end_date (str, optional): End date for filtering files (not used here but placeholder for future use).
+        Description:
+            Downloads specific SPICE kernel files from a given URL to a local directory if they do not already exist locally. The method ensures that the necessary local directory structure is created and checks for existing files before downloading new ones.
+        
+        Input:
+            - `input_mission` (`str`): The name of the mission (for display purposes).
+            - `url` (`str`): The base URL where the kernel files are hosted.
+            - `wanted_files` (`list`): A list of filenames to be downloaded from the URL.
+            - `local_folder` (`str`): The local directory where the downloaded files will be stored.
+        
+        Output:
+            - `list`: A list of full file paths for the downloaded (or already existing) kernel files.
         """
         # Print information about the download process
         data_type = url.split('/')[-2]
@@ -363,14 +411,20 @@ class LoadPDS:
 #########################################################################################################
     
     def add_custom_mission_pattern(self, input_mission, custom_pattern):
+        """        
+        Description:
+            Allows users to define and add custom regex patterns for a specific mission to the list of supported patterns. Once added, the custom pattern can be used for mission data file matching.
         
-        """
-        THE IDEA OF THIS FUNCTION IS TO ALLOW FOR USERS TO DEFINE THEIR OWN CUSTOMISED PATTERN.
-        ONCE THE PATTERN IS DEFINED, this can be added to the supported ones via:
+        Input:
+            - `input_mission` (`str`): The name of the mission for which the custom pattern is defined.
+            - `custom_pattern` (`str`): The regular expression pattern that will be associated with the mission.
         
-        object = LoadPDS()
-        object.add_custom_mission_pattern('custom_mission', 'regex_pattern')
+        Output:
+            - `dict`: The updated `supported_patterns` dictionary containing the new custom pattern.
         
+        Notes:
+            - This function updates the `supported_patterns` dictionary with the new mission and its associated pattern.
+            - Custom patterns can be added dynamically at runtime.
         """
         custom_dict = {}
         custom_dict[input_mission] = custom_pattern
@@ -383,11 +437,15 @@ class LoadPDS:
     def is_date_in_intervals(self, date, intervals):
 
         """
+        Description:
+            Checks if a given date falls within any of the specified date intervals.
         
-        This functions checks whether a given (wanted) date 
-        falls within the time interval specified in the filename. 
-        It is used to download the ck spice kernels, containing an interval of dates in their name.  
+        Input:
+            - `date` (`datetime`): The date to check.
+            - `intervals` (`list` of tuples): A list of tuples, where each tuple contains two `datetime` objects representing the start and end of an interval.
         
+        Output:
+            - `bool`: `True` if the date falls within any of the intervals, otherwise `False`.
         """
         self.in_intervals = False
         for interval in intervals:
@@ -398,6 +456,18 @@ class LoadPDS:
 #########################################################################################################
     
     def clean_mission_archive(self, local_folder):
+    
+        """
+        Description:
+            Cleans up the mission archive by removing empty subdirectories within the specified local folder.
+        
+        Input:
+            - `local_folder` (`str`): Path to the local folder where the archive is stored.
+        
+        Output:
+            - `None`: This function does not return any value. It performs in-place directory cleanup.
+        """
+
         print(f'Cleaning Mission Archive...')
         if os.path.exists(local_folder):
             for directory in os.listdir(local_folder):
@@ -409,6 +479,18 @@ class LoadPDS:
 #########################################################################################################
     
     def match_type_extension(self, data_type, filename):
+
+        """
+        Description:
+            Checks if the extension of a given file matches the expected extension for the specified data type.
+        
+        Input:
+            - `data_type` (`str`): The data type (e.g., 'ck', 'spk', 'odf', etc.).
+            - `filename` (`str`): The filename whose extension is to be checked.
+        
+        Output:
+            - `bool`: `True` if the file extension matches the expected extension for the given data type, otherwise `False`.
+        """
         
         extension = (filename.split(".")[-1]).lower()
         supported_radio_science_types = ['odf', 'ifms', 'dp2', 'dpx', 'dps']
@@ -443,6 +525,18 @@ class LoadPDS:
 #########################################################################################################
 
     def get_extension_for_data_type(self, data_type):
+
+        """
+        Description:
+            Returns the file extension corresponding to a given data type.
+        
+        Input:
+            - `data_type` (`str`): The data type (e.g., 'ck', 'spk', 'odf', etc.).
+        
+        Output:
+            - `str` or `None`: The corresponding file extension for the data type if supported, otherwise `None`.
+        """
+
         # Mapping each data type to its corresponding extension
         type_to_extension = {
             'ck': 'bc',
@@ -469,18 +563,22 @@ class LoadPDS:
 #########################################################################################################
     
     def dynamic_download_url_files_single_time(self, input_mission, local_path, start_date, end_date, url):
+        
         """
-        This function downloads files for a single time interval based on specified mission parameters and date range.
-        Parameters:
-        - input_mission: Name of the mission (string).
-        - local_path: Directory path where files are stored (string).
-        - filename_format: The format of the filename to match (string).
-        - start_date: The start date of the time interval (datetime).
-        - end_date: The end date of the time interval (datetime).
-        - url: The base URL for downloading files (string).
-        - time_format: Format for the specified date (string).
-        Returns:
-        - self.relevant_files: List of relevant files that were found or downloaded.
+        Description:
+            Downloads files for a single time interval based on specified mission parameters and date range. 
+            It checks if the files already exist locally, and if not, attempts to download them from the specified URL.
+            The filenames are matched to supported patterns, and relevant files are downloaded if they are not already present.
+        
+        Inputs:
+            - input_mission (`str`): The name of the mission (e.g., 'cassini', 'mro').
+            - local_path (`str`): The local directory where the files should be saved.
+            - start_date (`datetime`): The start date of the time interval for which files are required.
+            - end_date (`datetime`): The end date of the time interval for which files are required.
+            - url (`str`): The base URL where the files are hosted.
+        
+        Outputs:
+            - `self.relevant_files` (`list`): A list of paths to the files that were either already present or successfully downloaded.
         """
 
         self.relevant_files = []
@@ -586,6 +684,24 @@ class LoadPDS:
 #########################################################################################################
     
     def check_existing_files(self, input_mission, data_type, local_subfolder, supported_pattern, start_date, end_date):
+
+        """
+        Description:
+            Checks the local directory for files that match a given pattern and fall within a specified date range. 
+            This function filters and returns the files that already exist locally, based on their extensions and matching patterns.
+        
+        Inputs:
+            - input_mission (`str`): The name of the mission (e.g., 'cassini', 'mro').
+            - data_type (`str`): The type of data (e.g., 'ck', 'spk').
+            - local_subfolder (`str`): Path to the local directory where the files are stored.
+            - supported_pattern (`str`): A regex pattern to match filenames.
+            - start_date (`datetime`): The start date of the time interval for which files are required.
+            - end_date (`datetime`): The end date of the time interval for which files are required.
+        
+        Outputs:
+            - `self.existing_files` (`list`): A list of paths to the files that already exist and match the given pattern.
+        """
+        
         # Prepare the date range for searching existing files
         all_dates = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
 
@@ -600,17 +716,19 @@ class LoadPDS:
     
     def dynamic_download_url_files_time_interval(self, input_mission, local_path, start_date, end_date, url): 
         """
-        Downloads files within a specified time interval if they are not already present in the local path.
-    
-        Parameters:
-        - input_mission: Name of the mission (string).
-        - local_path: Directory path of mission where subfolders are stored (string).
-        - start_date: The start date of the time interval (datetime).
-        - end_date: The end date of the time interval (datetime).
-        - url: The base URL(s) for downloading files (string).
-    
-        Returns:
-        - List of files that were found or downloaded.
+        Description:
+            Downloads files within a specified time interval from a given URL, checking if the files already exist locally before downloading them. 
+            This function is typically used to download mission data files for a specific time range, ensuring that files are only downloaded if they are not already present.
+        
+        Inputs:
+            - input_mission (`str`): The name of the mission (e.g., 'cassini', 'mro').
+            - local_path (`str`): The directory path where files will be stored locally.
+            - start_date (`datetime`): The start date of the time interval for which files are required.
+            - end_date (`datetime`): The end date of the time interval for which files are required.
+            - url (`str`): The base URL for downloading the files.
+        
+        Outputs:
+            - `self.relevant_files` (`list`): A list of local file paths for the files that were either found or successfully downloaded.
         """
 
         self.relevant_files = []     
@@ -703,6 +821,25 @@ class LoadPDS:
     
     def parse_filename(self, input_mission, data_type, filename):
         
+        """
+        Description:
+        This function parses a filename into its components based on the mission and data type patterns. 
+        It uses regular expressions to match the filename against predefined patterns for different mission types. 
+        It then returns the parsed components as a dictionary, along with the indices of underscores within the matched groups.
+        
+        Inputs:
+            - input_mission (`str`): The mission name (e.g., 'cassini', 'mro', etc.).
+            - data_type (`str`): The type of data (e.g., "radioscience", "kernels", "all").
+            - filename (`str`): The filename to be parsed.
+        
+        Outputs:
+            - (`dict`, `list`): A tuple containing:
+              - `dictionary` (`dict`): A dictionary where the keys are the component names 
+              (e.g., 'date', 'purpose', etc.), and the values are the parsed values from the filename.
+              - `underscore_indices` (`list`): A list of indices representing 
+              the positions of underscores in the matched groups.
+        """
+
         data_type_lower = data_type.lower()
         supported_radio_science_types = ['odf', 'ifms', 'dp2', 'dps', 'dpx']
         supported_spice_kernels_types = ['ck', 'dsk', 'spk', 'fk', 'mk', 'ik', 'lsk', 'pck', 'sclk']
@@ -731,11 +868,6 @@ class LoadPDS:
 
         else:
             print(f'Specified data type: {data_type} not supported.')
-        
-        """ 
-        This function parses the filename into its components and tracks the position of underscores. 
-        The underscore position is indexed based on the groups' placement.
-        """
 
         # Initialize the dictionary and underscore index list
         dictionary = {}
@@ -802,14 +934,19 @@ class LoadPDS:
 #########################################################################################################
 
     def reconstruct_filename(self, dictionary, underscore_indices):
+        
         """ 
-        This function reconstructs the original filename based on the parsed groups and underscore indices.
-        Args:
-            dictionary (dict): Dictionary with the parsed components of the filename.
-            underscore_indices (list): List of group indices where underscores should be placed.
-        Returns:
-            str: The reconstructed filename.
+        Description:
+            This function reconstructs the original filename by combining the parsed components (from the `dictionary`) and placing underscores at the specified indices (from the `underscore_indices`). It takes into account the specific format of the filename, ensuring the proper placement of underscores.
+        
+        Inputs:
+            - dictionary (`dict`): A dictionary containing the parsed components of the filename, where the keys are the component names and the values are the corresponding values extracted from the filename.
+            - underscore_indices (`list`): A list of indices where underscores should be placed in the reconstructed filename. These indices correspond to the position of the groups in the parsed dictionary.
+        
+        Outputs:
+            - (`str`): The reconstructed filename as a string, with underscores placed at the specified positions.
         """
+        
         # Extract the keys (group names) from the dictionary in order
         group_values = list(dictionary.values())
         
@@ -831,7 +968,37 @@ class LoadPDS:
 #########################################################################################################
 
     def get_mission_files(self, input_mission, start_date = None, end_date = None, flyby_IDs = None, custom_output = None):
-     
+
+        """
+        Description:
+        This function downloads and organizes mission-specific data files (kernels, radio science files, and ancillary files) 
+        for a specified space mission. It supports downloading data for multiple missions such as Cassini, MEX, JUICE, and MRO. 
+        The function also allows for downloading files within a specific date range or for specific flybys (in the case of Cassini). 
+        It automatically creates the necessary folder structure for storing the downloaded data and loads the files into the SPICE kernel system.
+        
+        Inputs:
+            - input_mission (`str`): The name of the space mission for which to download the data. Valid values include:
+                - 'cassini'
+                - 'mex'
+                - 'juice'
+                - 'mro'
+            - start_date (`datetime`, optional): The start date for downloading data. If not provided, data is not filtered by date.
+            - end_date (`datetime`, optional): The end date for downloading data. If not provided, data is not filtered by date.
+            - flyby_IDs (`list` or `str`, optional): A list of flyby IDs (e.g., ['T101', 'E303']) for Cassini missions. 
+                It can also include special values like 'ALL_TITAN' or 'ALL_ENCELADUS' to download all flybys for Titan or Enceladus.
+            - custom_output (`str`, optional): A custom path where the downloaded files will be stored. If not provided, 
+                the default folder structure is used based on the mission name.
+        
+        Outputs:
+            - (`dict`, `dict`, `dict`): A tuple containing:
+                - `all_kernel_files` (`dict`): A dictionary where keys are kernel types (e.g., 'ck', 'spk') and values are 
+                  lists of paths to the successfully loaded kernel files.
+                - `all_radio_science_files` (`dict`): A dictionary where keys are radio science data types and values are 
+                  lists of paths to the successfully loaded radio science files.
+                - `all_ancillary_files` (`dict`): A dictionary where keys are ancillary data types and values are 
+                  lists of paths to the successfully loaded ancillary files.
+        """
+
         spice.clear_kernels()
 
         self.all_kernel_files = {}
@@ -1014,6 +1181,34 @@ class LoadPDS:
     
     def get_mex_files(self, local_folder, start_date, end_date):
 
+        """
+        Description:
+        This function downloads and organizes various types of SPICE kernels and 
+        radio science files for the MEX (Mars Express) mission. 
+        It supports downloading kernel files related to radio science, clock data, frame data, 
+        SPK (spacecraft position) data, CK (orientation) data, and tropospheric/ionospheric correction files. 
+        The function interacts with remote FTP servers to retrieve the data and organizes them into the specified local folder. 
+        The data is filtered by a given date range, and the function returns the downloaded files for further use.
+        
+        Inputs:
+            - local_folder (`str`): The local directory where the downloaded files will be saved.
+            - start_date (`datetime`): The start date for downloading data. 
+              This will filter the data to include only those within the date range.
+            - end_date (`datetime`): The end date for downloading data. 
+              This will filter the data to include only those within the date range.
+        
+        Outputs:
+            - (`dict`, `dict`, `dict`): A tuple containing:
+                - `kernel_files_to_load` (`dict`): A dictionary where the keys are kernel types 
+                (e.g., 'ck', 'spk', 'fk', 'sclk') and values are lists of paths to the successfully downloaded and loaded kernel files.
+                - `radio_science_files_to_load` (`dict`): A dictionary where keys are categories of 
+                radio science data (e.g., 'ifms_dp2', 'dsn_dps') and values are lists of paths 
+                to the successfully downloaded radio science files.
+                - `ancillary_files_to_load` (`dict`): A dictionary where keys are categories 
+                of ancillary data (e.g., 'ion', 'tropospheric') and values are lists of paths 
+                to the successfully downloaded ancillary files, such as tropospheric and ionospheric corrections.
+        """
+
         self.radio_science_files_to_load = {}
         self.kernel_files_to_load = {}
         self.ancillary_files_to_load = {} #empty for now
@@ -1183,6 +1378,25 @@ class LoadPDS:
 #########################################################################################################  
     
     def get_mex_volume_ID_mapping(self, url):
+
+        """
+        Description:
+        Fetches data from a given URL and extracts volume ID, date range, and observation type 
+        for the Mars Express mission. The data is returned as a dictionary mapping date intervals 
+        to volume IDs and metadata.
+        
+        Inputs:
+            - url (`str`): The URL from which to fetch the data (plain text format).
+        
+        Outputs:
+            - `mapping_dict` (`dict`): A dictionary where keys are tuples of (start_date_utc, end_date_utc),
+              and values are dictionaries with:
+                - `volume_id` (`str`): The volume ID.
+                - `start_date_file` (`str`): Start date (YYYY-MM-DD).
+                - `end_date_file` (`str`): End date (YYYY-MM-DD).
+                - `observation_type` (`str`): Type of observation.
+        """
+
         # Step 1: Fetch content from the URL
         response = requests.get(url)
         response.raise_for_status()  # Check for request errors
@@ -1223,6 +1437,23 @@ class LoadPDS:
 ########################################################################################################################################
 
     def get_juice_files(self, local_folder, start_date, end_date):
+
+        """
+        Description:
+        Downloads various SPICE kernel and ancillary files for the JUICE mission, including clock, frame, 
+        orientation, and SPK kernels, based on a specified date range. Files are saved in the provided local folder.
+        
+        Inputs:
+            - local_folder (`str`): Path to the local folder where files will be saved.
+            - start_date (`datetime`): The start date for the data retrieval.
+            - end_date (`datetime`): The end date for the data retrieval.
+        
+        Outputs:
+            - `kernel_files_to_load` (`dict`): A dictionary containing the loaded kernel files, categorized by type 
+              (e.g., 'sclk', 'fk', 'ck', 'spk').
+            - `radio_science_files_to_load` (`dict`): An empty dictionary for now, intended for radio science files.
+            - `ancillary_files_to_load` (`dict`): An empty dictionary for now, intended for ancillary files.
+        """
 
         self.radio_science_files_to_load = {} #empty for now, since we need fdets
         self.kernel_files_to_load = {}
@@ -1371,6 +1602,24 @@ class LoadPDS:
 
     def get_mro_files(self,local_folder, start_date, end_date):
 
+        """
+        Description:
+        Downloads various SPICE kernel and ancillary files for the JUICE mission, including clock, frame, 
+        orientation, and SPK kernels, based on a specified date range. Files are saved in the provided local folder.
+        
+        Inputs:
+            - local_folder (`str`): Path to the local folder where files will be saved.
+            - start_date (`datetime`): The start date for the data retrieval.
+            - end_date (`datetime`): The end date for the data retrieval.
+        
+        Outputs:
+            - `kernel_files_to_load` (`dict`): A dictionary containing the loaded kernel files, categorized by type 
+              (e.g., 'sclk', 'fk', 'ck', 'spk').
+            - `radio_science_files_to_load` (`dict`): An empty dictionary for now, intended for radio science files.
+            - `ancillary_files_to_load` (`dict`): An empty dictionary for now, intended for ancillary files.
+        """
+
+
         self.radio_science_files_to_load = {}
         self.kernel_files_to_load = {}
         self.ancillary_files_to_load = {}
@@ -1486,6 +1735,20 @@ class LoadPDS:
 ########################################################################################################################################
 
     def get_mapping_dict_spk_mro(self,url):
+
+        """
+        Description:
+        Fetches and parses phase information for MRO SPK kernels from a given URL. It extracts the phase name 
+        along with the associated start and end dates, and returns a dictionary mapping date intervals to phase names.
+        
+        Inputs:
+            - url (`str`): The URL from which to fetch the phase information.
+        
+        Outputs:
+            - `phase_dict` (`dict`): A dictionary where the keys are tuples representing date intervals 
+              (start_date, end_date), and the values are dictionaries containing the SPK phase ID (`spk_ID`).
+        """
+
         # Step 1: Fetch content from the URL
         response = requests.get(url)
         response.raise_for_status()  # Check for request errors
@@ -1518,6 +1781,25 @@ class LoadPDS:
 ########################################################################################################################################
 
     def get_mro_spk_ID(self, start_date, end_date, mapping_dict):
+
+        """
+        Description:
+        Checks if the given date interval overlaps with any of the date intervals in the mapping dictionary,
+        and returns a list of SPK IDs associated with those overlapping intervals.
+        
+        Inputs:
+            - start_date (`datetime`): The start date of the input interval.
+            - end_date (`datetime`): The end date of the input interval.
+            - mapping_dict (`dict`): A dictionary mapping date intervals (as tuples of start and end dates) 
+              to SPK phase IDs (`spk_ID`).
+        
+        Outputs:
+            - `spk_id_list` (`list`): A list of SPK IDs associated with the overlapping intervals.
+        
+        Raises:
+            - `ValueError`: If no SPK IDs are found for the given date interval.
+        """
+
         self.spk_id_list = []
         for (key_start, key_end), item in mapping_dict.items():
             # Check if either start or end of the input interval overlaps with the dictionary interval
@@ -1532,6 +1814,23 @@ class LoadPDS:
 ########################################################################################################################################
 
     def get_url_mro_spk_files(self, start_date, end_date):
+        
+        """
+        Description:
+        Fetches the SPK file URLs associated with the given date range for the MRO mission. It first retrieves
+        a mapping of SPK phases to date intervals, identifies the SPK IDs that overlap with the input interval, 
+        and then constructs the corresponding SPK file URLs.
+        
+        Inputs:
+            - start_date (`datetime`): The start date of the input interval.
+            - end_date (`datetime`): The end date of the input interval.
+        
+        Outputs:
+            - `spk_ID_urls` (`list`): A list of SPK file URLs corresponding to the overlapping SPK IDs.
+        
+        Raises:
+            - `ValueError`: If no SPK file URLs are found for the given date range.
+        """
 
         url = "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/mrosp_1000/data/spk/spkinfo.txt"
         mapping_dict = self.get_mapping_dict_spk_mro(url)
@@ -1559,7 +1858,23 @@ class LoadPDS:
 ########################################################################################################################################
     
     def get_cassini_flyby_files(self, local_folder):
+
+        """
+        Description:
+        Downloads Cassini mission data files related to a specific flyby, including kernel, ancillary, and 
+        radio science files. The function fetches the cumulative index table and identifies the relevant 
+        files for download based on the provided flyby ID. It handles the file download process, ensuring 
+        that files are downloaded only if they are not already present in the specified local folder.
         
+        Inputs:
+            - local_folder (`str`): The path to the local directory where files should be downloaded.
+        
+        Outputs:
+            - kernel_files_to_load (`dict`): A dictionary containing kernel files (e.g., `ck`, `spk`).
+            - radio_science_files_to_load (`dict`): A dictionary containing radio science files (e.g., `odf`).
+            - ancillary_files_to_load (`dict`): A dictionary containing ancillary files (e.g., `ion`, `tro`, `eop`).
+        """
+
         input_mission = 'cassini'
 
         self.radio_science_files_to_load = {}
@@ -1666,6 +1981,20 @@ class LoadPDS:
 ########################################################################################################################################
 
     def flyby2experiment(self, flyby_ID):
+        """
+        Description:
+        Returns the experiment data for a given flyby ID from the `titan_flyby_dict`. If the provided 
+        flyby ID exists in the dictionary, it retrieves the corresponding data; otherwise, it returns a 
+        message indicating that the flyby ID was not found.
+        
+        Inputs:
+            - flyby_ID (`str`): The identifier for a specific flyby.
+        
+        Outputs:
+            - `dict` or `str`: The experiment data associated with the provided flyby ID if found, 
+              otherwise a message stating that the flyby ID was not found.
+        """
+
         # Check if the flyby_ID exists in the dictionary
         if flyby_ID in self.titan_flyby_dict:
             # Return the corresponding data for the given flyby_ID
@@ -1678,13 +2007,19 @@ class LoadPDS:
 
     def get_full_moon_flybys_list(self, MOON):
         """
-        Returns a list of keys corresponding to the flyby entries for either Titan or Enceladus.
-
-        Args:
-            moon (str): The name of the moon ('titan' or 'enceladus').
-
-        Returns:
-            list: A list of flyby IDs (e.g., ['T011', 'T022', ...]) corresponding to the given moon.
+        Description:
+        Returns a list of flyby IDs corresponding to either Titan or Enceladus. If the provided 
+        moon name is 'titan', it returns the flyby IDs from the `titan_flyby_dict`; if the name is 
+        'enceladus', it returns the flyby IDs from the `enceladus_flyby_dict`. If the input moon name 
+        is invalid, an error is raised.
+    
+        Inputs:
+            - MOON (`str`): The name of the moon ('titan' or 'enceladus') for which flyby IDs should 
+              be retrieved.
+    
+        Outputs:
+            - `list`: A list of flyby IDs corresponding to the provided moon. If the moon name is invalid, 
+              a `ValueError` is raised.
         """
         if MOON.lower() == 'titan':
             # Return the keys of the titan_flyby_dict
@@ -1698,6 +2033,24 @@ class LoadPDS:
 ########################################################################################################################################
             
     def get_flyby_volume_url(self, flyby_dict): 
+
+        """
+        Description:
+        Retrieves the PDS (Planetary Data System) repository URL for a given flyby experiment. The function 
+        extracts the 'experiment' value from the provided `flyby_dict` and constructs the URL based on that 
+        information. It then checks whether the constructed URL exists by sending a HEAD request. If the URL 
+        is valid (status code 200), the function returns the URL; otherwise, it returns `None` and prints 
+        an error message.
+    
+        Inputs:
+            - flyby_dict (`dict`): A dictionary containing data for a specific flyby, including the 'experiment' 
+              key used to construct the URL.
+    
+        Outputs:
+            - `str` or `None`: The constructed PDS repository URL if it exists; otherwise, `None` if the URL 
+              is not found or an error occurs.
+        """
+        
         # Extract the 'experiment' value from the flyby_dict
         experiment = flyby_dict['experiment']
         
@@ -1706,7 +2059,7 @@ class LoadPDS:
         
         # Check if the URL exists by sending a HEAD request
         try:
-            response = requests.head(pds_repo_url, allow_redirects=True)  # Sends a HEAD request
+            response = requests.head(pds_repo_url, allow_redirects=True)
             
             if response.status_code == 200:
                 # If the status code is 200, the URL exists
@@ -1715,17 +2068,34 @@ class LoadPDS:
             else:
                 # If the status code is not 200, URL doesn't exist
                 print(f"URL not found: {pds_repo_url}. Please check the template URL in: get_flyby_volume_url")
-                return None  # Or return an appropriate message indicating the issue
+                return None 
                 
         except requests.exceptions.RequestException as e:
             # Catch any exceptions (e.g., network errors, invalid URL)
             print(f"Error checking URL: {e}")
-            return None  # Or return an error message
+            return None
             
 ########################################################################################################################################
 
     def get_flyby_cumindex_url(self, flyby_dict):
-        
+
+        """
+        Description:
+        Constructs the URL for the cumulative index (CUMINDEX.TAB) file associated with a specific flyby 
+        experiment. The function extracts the 'experiment' and 'cumindex_repo' (or 'pds_repo') values from 
+        the provided `flyby_dict` to build the URL. It then checks if the URL exists by sending a HEAD request. 
+        If the URL is valid (status code 200), it returns the URL; otherwise, it attempts an alternative URL and 
+        returns it if valid. If neither URL is found, it returns `None` and prints an error message.
+    
+        Inputs:
+            - flyby_dict (`dict`): A dictionary containing data for a specific flyby, including the 'experiment' 
+              and 'cumindex_repo' (or 'pds_repo') keys used to construct the cumulative index URL.
+    
+        Outputs:
+            - `str` or `None`: The constructed cumulative index URL if it exists; otherwise, `None` if the URL 
+              is not found or an error occurs.
+        """
+            
         # Extract the 'experiment' value from the flyby_dict
         experiment = flyby_dict['experiment']
         cumindex_repo = flyby_dict['cumindex_repo'] if flyby_dict['cumindex_repo'] is not None else flyby_dict['pds_repo']
@@ -1761,6 +2131,24 @@ class LoadPDS:
 ########################################################################################################################################
 
     def get_volume_cumindex_table(self, cumindex_url):
+    
+        """
+        Description:
+        Constructs the URL for the cumulative index (CUMINDEX.TAB) file associated with a specific flyby 
+        experiment. The function extracts the 'experiment' and 'cumindex_repo' (or 'pds_repo') values from 
+        the provided `flyby_dict` to build the URL. It then checks if the URL exists by sending a HEAD request. 
+        If the URL is valid (status code 200), it returns the URL; otherwise, it attempts an alternative URL and 
+        returns it if valid. If neither URL is found, it returns `None` and prints an error message.
+    
+        Inputs:
+            - flyby_dict (`dict`): A dictionary containing data for a specific flyby, including the 'experiment' 
+              and 'cumindex_repo' (or 'pds_repo') keys used to construct the cumulative index URL.
+    
+        Outputs:
+            - `str` or `None`: The constructed cumulative index URL if it exists; otherwise, `None` if the URL 
+              is not found or an error occurs.
+        """
+
         # Fetch the .tab file content from the URL
         response = requests.get(cumindex_url)
         response.raise_for_status()  # Ensure the request was successful
