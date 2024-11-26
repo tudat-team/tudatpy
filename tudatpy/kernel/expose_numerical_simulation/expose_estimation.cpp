@@ -566,6 +566,7 @@ void expose_estimation(py::module &m) {
           py::arg("additional_parameter_names") = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
           py::arg("number_of_iterations") = 3,
           py::arg("reintegrate_variational_equations") = true,
+          py::arg("results_print_frequency") = 0.0,
           get_docstring("create_best_fit_to_ephemeris").c_str() );
 
     m.def("set_existing_observations",
