@@ -2,8 +2,6 @@
 # coding: utf-8
 
 ### Import Relevant (Sub)Modules
-import sys
-import numpy as np
 import requests
 from bs4 import BeautifulSoup
 import os
@@ -57,7 +55,6 @@ class LoadPDS:
              "dpx": r'^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.tab$)',
              "dps": r'^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.tab$)'}
         }
-
 
         self.titan_flyby_dict = {
             'T011': {
@@ -373,14 +370,13 @@ class LoadPDS:
             print("Format key not supported")   
 #########################################################################################################
 
-    def get_kernels(self, input_mission, url, wanted_files, local_folder):
+    def get_kernels(self, url, wanted_files, local_folder):
         
         """
         Description:
             Downloads specific SPICE kernel files from a given URL to a local directory if they do not already exist locally. The method ensures that the necessary local directory structure is created and checks for existing files before downloading new ones.
         
         Input:
-            - `input_mission` (`str`): The name of the mission (for display purposes).
             - `url` (`str`): The base URL where the kernel files are hosted.
             - `wanted_files` (`list`): A list of filenames to be downloaded from the URL.
             - `local_folder` (`str`): The local directory where the downloaded files will be stored.
@@ -593,7 +589,7 @@ class LoadPDS:
         except:
             raise ValueError('Pattern not found among supported patterns.')
 
-        existing_files = self.check_existing_files(input_mission, data_type, local_subfolder, supported_pattern, start_date, end_date)
+        existing_files = self.check_existing_files(data_type, local_subfolder, start_date, end_date)
 
         if existing_files and self.check == False:
             print(f'--------------------------------------- EXISTING FILES CHECK ----------------------------------------------')
@@ -683,7 +679,7 @@ class LoadPDS:
 
 #########################################################################################################
     
-    def check_existing_files(self, input_mission, data_type, local_subfolder, supported_pattern, start_date, end_date):
+    def check_existing_files(self, data_type, local_subfolder, start_date, end_date):
 
         """
         Description:
@@ -691,10 +687,8 @@ class LoadPDS:
             This function filters and returns the files that already exist locally, based on their extensions and matching patterns.
         
         Inputs:
-            - input_mission (`str`): The name of the mission (e.g., 'cassini', 'mro').
             - data_type (`str`): The type of data (e.g., 'ck', 'spk').
             - local_subfolder (`str`): Path to the local directory where the files are stored.
-            - supported_pattern (`str`): A regex pattern to match filenames.
             - start_date (`datetime`): The start date of the time interval for which files are required.
             - end_date (`datetime`): The end date of the time interval for which files are required.
         
@@ -744,7 +738,7 @@ class LoadPDS:
         except:
             raise ValueError(f'Pattern not found among supported patterns.')
 
-        existing_files = self.check_existing_files(input_mission, data_type, local_subfolder, supported_pattern, start_date, end_date)
+        existing_files = self.check_existing_files(data_type, local_subfolder, start_date, end_date)
         if existing_files and self.check == False:
             print(f'--------------------------------------- EXISTING FILES CHECK ---------------------------------------------\n')
             print(f'The following files already exist in the folder:\n\n {existing_files}\n\n and will not be downloaded.')
@@ -1235,7 +1229,7 @@ class LoadPDS:
         print(f'Download {input_mission.upper()} Clock Kernels:')
         url_clock_files="https://spiftp.esac.esa.int/data/SPICE/MARS-EXPRESS/kernels/sclk/"
         wanted_clock_files = ["MEX_241031_STEP.TSC"] #latest mex tsc file
-        clock_files_to_load = self.get_kernels(input_mission, url_clock_files, wanted_clock_files, local_folder)
+        clock_files_to_load = self.get_kernels(url_clock_files, wanted_clock_files, local_folder)
         
         if clock_files_to_load:
             self.kernel_files_to_load['sclk'] = clock_files_to_load
@@ -1249,7 +1243,7 @@ class LoadPDS:
                               "MEX_RELAY_LOCATIONS_V03.TF",
                               "MEX_DSK_SURFACES_V04.TF",
                               "MEX_PFS_ROIS_V02.TF"] 
-        frame_files_to_load = self.get_kernels(input_mission, url_frame_files, wanted_frame_files, local_folder)
+        frame_files_to_load = self.get_kernels(url_frame_files, wanted_frame_files, local_folder)
 
         if frame_files_to_load:
             self.kernel_files_to_load['fk'] = frame_files_to_load
@@ -1324,7 +1318,7 @@ class LoadPDS:
                         href = link.get('href')
                         if href.endswith('.tab') or href.endswith('.aux') :
                             wanted_tropo_files.append(href.split('/')[-1])
-                    tropo_files_to_load = self.get_kernels(input_mission, url_tropo_file, wanted_tropo_files, local_folder)
+                    tropo_files_to_load = self.get_kernels(url_tropo_file, wanted_tropo_files, local_folder)
                 else:
                     print(f'URL: {url_tropo_file} does not exist.') 
                     continue
@@ -1468,7 +1462,7 @@ class LoadPDS:
         print(f'Download {input_mission.upper()} Clock Files:')
         url_clock_files="https://spiftp.esac.esa.int/data/SPICE/JUICE/kernels/sclk/"
         wanted_clock_files =["juice_step_20160326_v03.tsc", "juice_fict_160326_v02.tsc"] #latest fict and step tsc files
-        clock_files_to_load = self.get_kernels(input_mission, url_clock_files, wanted_clock_files, local_folder)
+        clock_files_to_load = self.get_kernels(url_clock_files, wanted_clock_files, local_folder)
         
         if clock_files_to_load:
             self.kernel_files_to_load['sclk'] = clock_files_to_load
@@ -1487,7 +1481,7 @@ class LoadPDS:
                                            "juice_sci_v17.tf",
                                            "juice_roi_v02.tf"] 
         
-        frame_files_to_load = self.get_kernels(input_mission, url_frame_files, wanted_frame_files, local_folder)
+        frame_files_to_load = self.get_kernels(url_frame_files, wanted_frame_files, local_folder)
         if frame_files_to_load:
             self.kernel_files_to_load['fk'] = frame_files_to_load
         else:
@@ -1501,7 +1495,7 @@ class LoadPDS:
                                            "juice_sc_crema_5_1_150lb_23_1_baseline_v03.bc",] 
         
         url_planned_ck_files="https://spiftp.esac.esa.int/data/SPICE/JUICE/kernels/ck/"
-        planned_ck_files_to_load = self.get_kernels(input_mission, url_planned_ck_files, wanted_ck_files, local_folder)
+        planned_ck_files_to_load = self.get_kernels(url_planned_ck_files, wanted_ck_files, local_folder)
         
         if planned_ck_files_to_load:
             for file in planned_ck_files_to_load:
@@ -1649,7 +1643,7 @@ class LoadPDS:
         print(f'Download {input_mission.upper()} Clock Kernels:')
         url_clock_files = "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/mrosp_1000/data/sclk/"
         wanted_clock_files= ["mro_sclkscet_00112_65536.tsc"]
-        clock_files_to_load = self.get_kernels(input_mission, url_clock_files, wanted_clock_files, local_folder)
+        clock_files_to_load = self.get_kernels(url_clock_files, wanted_clock_files, local_folder)
 
         if clock_files_to_load:
             self.kernel_files_to_load['sclk'] = clock_files_to_load
@@ -1661,7 +1655,7 @@ class LoadPDS:
         print(f'Download {input_mission.upper()} Frame Kernels:')
         url_frame_files="https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/mrosp_1000/data/fk/"
         wanted_frame_files=["mro_v16.tf"] 
-        frame_files_to_load = self.get_kernels(input_mission, url_frame_files, wanted_frame_files, local_folder)
+        frame_files_to_load = self.get_kernels(url_frame_files, wanted_frame_files, local_folder)
 
         if frame_files_to_load:
             self.kernel_files_to_load['fk'] = frame_files_to_load
@@ -1673,9 +1667,9 @@ class LoadPDS:
         print(f'Download {input_mission.upper()} SPK Kernels:')
         url_spk_files ="https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/mrosp_1000/data/spk/"
         wanted_spk_files = self.get_url_mro_spk_files(start_date, end_date)
-        spk_files_to_load = self.get_kernels(input_mission, url_spk_files, wanted_spk_files, local_folder)
+        spk_files_to_load = self.get_kernels(url_spk_files, wanted_spk_files, local_folder)
         wanted_struct_files = ["mro_struct_v10.bsp"]
-        struct_files_to_load = self.get_kernels(input_mission, url_spk_files, wanted_struct_files, local_folder)  
+        struct_files_to_load = self.get_kernels(url_spk_files, wanted_struct_files, local_folder)
         spk_files_to_load.extend(struct_files_to_load)
         
         if spk_files_to_load:
@@ -1969,7 +1963,7 @@ class LoadPDS:
         print(f'Download {input_mission.upper()} Frame Kernels from NAIF:')
         url_frame_files="https://naif.jpl.nasa.gov/pub/naif/CASSINI/kernels/fk/"
         wanted_frame_files=["cas_v43.tf"] 
-        frame_files_to_load = self.get_kernels(input_mission, url_frame_files, wanted_frame_files, local_folder)
+        frame_files_to_load = self.get_kernels(url_frame_files, wanted_frame_files, local_folder)
 
         if frame_files_to_load:
             self.kernel_files_to_load['fk'] = frame_files_to_load
