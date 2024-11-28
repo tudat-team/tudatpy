@@ -32,4 +32,7 @@ from tudatpy.kernel.numerical_simulation.environment_setup.aerodynamic_coefficie
 from tudatpy.kernel.numerical_simulation.environment_setup.aerodynamic_coefficients import \
      AerodynamicCoefficientSettings, \
      ConstantAerodynamicCoefficientSettings, \
-     ControlSurfaceIncrementAerodynamicCoefficientSettings
+     ControlSurfaceIncrementAerodynamicCoefficientSettings, \
+     CustomAerodynamicCoefficientSettings, \
+     CustomControlSurfaceIncrementAerodynamicCoefficientSettings, \
+     ScaledAerodynamicCoefficientInterfaceSettings
