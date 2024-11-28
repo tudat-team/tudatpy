@@ -32,6 +32,7 @@ from tudatpy.kernel.numerical_simulation.environment import \
      AerodynamicCoefficientsIndependentVariables, \
      AerodynamicsReferenceFrameAngles, \
      AerodynamicsReferenceFrames, \
+     AtmosphereModel, \
      AtmosphericFlightConditions, \
      Body, \
      ConstantEphemeris, \

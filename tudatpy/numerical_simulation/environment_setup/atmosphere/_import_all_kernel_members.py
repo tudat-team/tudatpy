@@ -30,9 +30,13 @@ from tudatpy.kernel.numerical_simulation.environment_setup.atmosphere import \
 from tudatpy.kernel.numerical_simulation.environment_setup.atmosphere import \
      AtmosphereDependentVariables, \
      AtmosphereSettings, \
+     ConstantWindModelSettings, \
+     CustomConstantTemperatureAtmosphereSettings, \
+     CustomWindModelSettings, \
      ExponentialAtmosphereSettings, \
      NRLMSISE00Atmosphere, \
      NRLMSISE00Input, \
+     ScaledAtmosphereSettings, \
      WindModelSettings, \
      tabulated_density, \
      tabulated_gas_constant, \
