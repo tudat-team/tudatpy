@@ -36,9 +36,6 @@
 from tudatpy.kernel.data import *
 from tudatpy.data._import_all_kernel_members import *
 
-from . import mpc
 from . import horizons
 from . import sbdb
 from ._support import *
-from ._biases import get_biases_EFCC18, get_weights_VFCC17
-
