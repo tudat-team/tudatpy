@@ -12,7 +12,9 @@ to read inputs from other softwares and integrate them with Tudat(py).
    :maxdepth: 2
    :caption: Modules
 
+   horizons
    mpc
+   sbdb
 
 
 
