@@ -1,17 +1,17 @@
 # This file, by virtue of the import statement below, merges
-# the Tudat kernel module `tudatpy.kernel.data` with
-# its Python extensions defined in `tudatpy/data`.
+# the Tudat kernel module `tudatpy.kernel.data.mpc` with
+# its Python extensions defined in `tudatpy/data/mpc`.
 # 
 # This allows the import of all the C++ and Python submodules of the 
-# `data` kernel module directly from tudatpy:
+# `data.mpc` kernel module directly from tudatpy:
 # 
-#     from tudatpy.data import <any>
+#     from tudatpy.data.mpc import <any>
 # 
-# Without the statement below, importing the `data` kernel module
+# Without the statement below, importing the `data.mpc` kernel module
 # would only be possible as follows, and hybrid Python/C++ modules would not
 # be posible in tudatpy.
 # 
-#     from tudatpy.kernel.data import <any>
+#     from tudatpy.kernel.data.mpc import <any>
 # 
 # The reason why C++ kernel modules can only be imported as written above 
 # is an issue with the `def_submodule` function of pybind11. The issue is discussed
@@ -33,9 +33,5 @@
 # An added benefit of this method is that it makes it possible to write Python extensions 
 # and add them to the kernel modules simply by placing them inside this module!
 
-from tudatpy.kernel.data import *
-from tudatpy.data._import_all_kernel_members import *
-
-from . import horizons
-from . import sbdb
-from ._support import *
+from tudatpy.kernel.data.mpc import *
+from tudatpy.data.mpc.mpc import BatchMPC

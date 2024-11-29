@@ -9,6 +9,9 @@
  */
 
 #include "expose_data.h"
+#include "expose_data/expose_mpc.h"
+#include "expose_data/expose_horizons.h"
+#include "expose_data/expose_sbdb.h"
 
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
@@ -31,7 +34,18 @@ namespace tudatpy {
 
     namespace data {
 
-        void expose_data(py::module &m) {
+        void expose_data(py::module &m)
+        {
+
+            auto mpc = m.def_submodule("mpc");
+            mpc::expose_mpc(mpc);
+
+            auto horizons = m.def_submodule("horizons");
+            horizons::expose_horizons(horizons);
+
+            auto sbdb = m.def_submodule("sbdb");
+            sbdb::expose_sbdb(sbdb);
+
             m.def("get_resource_path", &tudat::paths::get_resource_path,
                   get_docstring("get_resource_path").c_str());
             m.def("get_ephemeris_path",
