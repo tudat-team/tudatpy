@@ -34,4 +34,4 @@
 # and add them to the kernel modules simply by placing them inside this module!
 
 from tudatpy.kernel.data.mpc import *
-from tudatpy.data.mpc.mpc_wrapper import BatchMPC
+from tudatpy.data.mpc.mpc import BatchMPC
