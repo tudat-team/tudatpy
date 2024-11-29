@@ -246,7 +246,7 @@ namespace ephemeris {
         m.def("approximate_jpl_model",
               py::overload_cast<const std::string>(&tss::approximateJplEphemerisSettings),
               py::arg("body_name"),
-              get_docstring("approximate_jpl_model", 0).c_str());
+              get_docstring("approximate_jpl_model").c_str());
 
         m.def("direct_spice",
               py::overload_cast<const std::string, const std::string, const std::string>(
@@ -300,7 +300,7 @@ namespace ephemeris {
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_constant"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled_by_constant", 0).c_str());
+              get_docstring("scaled_by_constant").c_str());
 
         m.def("scaled_by_vector",
               py::overload_cast<const std::shared_ptr<tss::EphemerisSettings>,
@@ -308,7 +308,7 @@ namespace ephemeris {
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_vector"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled_by_vector", 0).c_str());
+              get_docstring("scaled_by_vector").c_str());
 
         m.def("scaled_by_vector_function",
               py::overload_cast<const std::shared_ptr<tss::EphemerisSettings>,
@@ -316,7 +316,7 @@ namespace ephemeris {
               py::arg("unscaled_ephemeris_settings"),
               py::arg("scaling_vector_function"),
               py::arg("is_scaling_absolute") = false,
-              get_docstring("scaled_by_vector_function", 0).c_str());
+              get_docstring("scaled_by_vector_function").c_str());
 
         m.def("custom_ephemeris",
               &tss::customEphemerisSettings,
