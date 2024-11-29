@@ -9,6 +9,7 @@
  */
 
 #include "expose_data.h"
+#include "expose_data/expose_mpc.h"
 
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
@@ -31,7 +32,12 @@ namespace tudatpy {
 
     namespace data {
 
-        void expose_data(py::module &m) {
+        void expose_data(py::module &m)
+        {
+
+            auto mpc = m.def_submodule("mpc");
+            mpc::expose_mpc(mpc);
+
             m.def("get_resource_path", &tudat::paths::get_resource_path,
                   get_docstring("get_resource_path").c_str());
             m.def("get_ephemeris_path",
