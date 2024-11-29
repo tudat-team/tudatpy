@@ -26,9 +26,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/_version.py.in" "${CMAKE_CURRENT_BIN
 # The list of pygmo's Python files.
 set(TUDATPY_PYTHON_FILES
         __init__.py
-#        elements.py
-        prototype.py
-#        io.py
         )
 
 # Copy the python files in the current binary dir,
