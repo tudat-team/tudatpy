@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2020, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,18 +8,23 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_utils/expose_data.h"
+#include "expose_horizons.h"
+
+#include <pybind11/eigen.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace utils {
+namespace data {
+namespace horizons {
 
-void expose_utils(py::module &m) {
+    void expose_horizons(py::module &m) {
 
-//  auto data = m.def_submodule("data");
-//  data::expose_data(data);
-}
+    };
 
-} // namespace utils
-} // namespace tudatpy
+}// namespace horizons
+}// namespace data
+}// namespace tudatpy
