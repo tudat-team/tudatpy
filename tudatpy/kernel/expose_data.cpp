@@ -12,6 +12,8 @@
 #include "expose_data/expose_mpc.h"
 #include "expose_data/expose_horizons.h"
 #include "expose_data/expose_sbdb.h"
+#include "expose_data/expose_mission_data_downloader.h"
+
 
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
@@ -45,6 +47,9 @@ namespace tudatpy {
 
             auto sbdb = m.def_submodule("sbdb");
             sbdb::expose_sbdb(sbdb);
+
+            auto mission_data_downloader = m.def_submodule("mission_data_downloader");
+            mission_data_downloader::expose_mission_data_downloader(mission_data_downloader);
 
             m.def("get_resource_path", &tudat::paths::get_resource_path,
                   get_docstring("get_resource_path").c_str());
