@@ -8,12 +8,13 @@ to other softwares such as MATLAB, to post-process results. A set of methods are
 to read inputs from other softwares and integrate them with Tudat(py).
 
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Modules
 
-
-
-
-
-
+   horizons
+   mpc
+   sbdb
 
 
 
