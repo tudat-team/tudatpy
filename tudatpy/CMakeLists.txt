@@ -26,9 +26,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/_version.py.in" "${CMAKE_CURRENT_BIN
 # The list of pygmo's Python files.
 set(TUDATPY_PYTHON_FILES
         __init__.py
-#        elements.py
-        prototype.py
-#        io.py
         )
 
 # Copy the python files in the current binary dir,
@@ -73,11 +70,13 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_interface.cpp
         kernel/expose_interface/expose_spice.cpp
 
-        #        kernel/expose_interface/expose_json_interface.cpp
-        #        kernel/expose_interface/expose_sofa_interface.cpp
+
 
         # kernel/data
         kernel/expose_data.cpp
+        kernel/expose_data/expose_mpc.cpp
+        kernel/expose_data/expose_horizons.cpp
+        kernel/expose_data/expose_sbdb.cpp
 
         # kernel/math
         kernel/expose_math.cpp
