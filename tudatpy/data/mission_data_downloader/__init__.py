@@ -33,5 +33,5 @@
 # An added benefit of this method is that it makes it possible to write Python extensions
 # and add them to the kernel modules simply by placing them inside this module!
 
-from tudatpy.kernel.data.mission_data_downloader import *
+from tudatpy.data.mission_data_downloader import *
 from tudatpy.data.mission_data_downloader.mission_data_downloader import *
