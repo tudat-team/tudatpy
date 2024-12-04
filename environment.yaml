@@ -21,6 +21,7 @@ dependencies:
   - tqdm       # for tudatpy.trajectory_design.porkchop
   - astropy    # for tudatpy.data.mpc
   - astropy-healpix  # for tudatpy.data._biases
+  - spiceypy # for automatic data downloader and kernel converter
   # Documentation
   - jinja2
   - pyyaml
