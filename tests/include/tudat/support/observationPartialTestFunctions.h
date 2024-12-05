@@ -201,6 +201,11 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        if( observableType == observation_models::doppler_measured_frequency && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
         // Remove retransmission delay from the retransmitting reference link end: computation of multi-leg light currently doesn't support
         // retransmission delays at the reference link end
         std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > modifiedAncilliarySettings;
@@ -256,7 +261,7 @@ void testObservationPartials(
 
                 for (unsigned int i = 0; i < analyticalObservationPartials.size(); i++)
                 {
-                    if (observableType == two_way_doppler)
+                    if (observableType == two_way_doppler || observableType == doppler_measured_frequency )
                     {
                         std::vector<double> currentTimes = expectedPartialTimes.at( i );
                         if (currentTimes.size() == 2)
@@ -320,6 +325,7 @@ void testObservationPartials(
                     if ( ( observableType != angular_position ) && ( observableType != relative_angular_position ) )
                     {
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(bodyPositionPartial, (numericalPartialWrtBodyPosition), tolerance);
+                        std::cout<<"Error ratio "<<std::endl<<bodyPositionPartial.cwiseQuotient( numericalPartialWrtBodyPosition )<<std::endl;
                     }
                     else
                     {
