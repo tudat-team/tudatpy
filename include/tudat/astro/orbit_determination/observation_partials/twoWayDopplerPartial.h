@@ -180,9 +180,12 @@ public:
                           const std::map< int, std::shared_ptr< ObservationPartial< 1 > > >& dopplerPartialList,
                           const std::map< int, std::shared_ptr< ObservationPartial< 1 > > >& rangePartialList,
                           const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-                          const int numberOfLinkEnds ):
+                          const int numberOfLinkEnds,
+                          const std::function< double(
+                              const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
+                              const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > scalingFactorFunction = nullptr ):
         ObservationPartial< 1 >( parameterIdentifier ), twoWayDopplerScaler_( twoWayDopplerScaler ), dopplerPartialList_( dopplerPartialList ),
-        rangePartialList_( rangePartialList ), numberOfLinkEnds_( numberOfLinkEnds ){ }
+        rangePartialList_( rangePartialList ), numberOfLinkEnds_( numberOfLinkEnds ), scalingFactorFunction_( scalingFactorFunction ){ }
 
     //! Destructor
     ~TwoWayDopplerPartial( ) { }
@@ -226,6 +229,11 @@ protected:
 
     //! Number of link ends in two-way observable
     int numberOfLinkEnds_;
+
+    std::function< double(
+        const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
+        const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > scalingFactorFunction_;
+
 };
 
 }
