@@ -5,7 +5,6 @@
 import requests
 from bs4 import BeautifulSoup
 import os
-from urllib.parse import urljoin
 from urllib.request import urlretrieve
 from datetime import datetime, timedelta
 import glob
@@ -1321,7 +1320,7 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def get_mission_files(self, input_mission, start_date = None, end_date = None, flyby_IDs = None, custom_output = None, all_meta_kernel_files = None):
+    def get_mission_files(self, input_mission, start_date = None, end_date = None, flyby_IDs = None, custom_output = None, all_meta_kernel_files = None, load_kernels = None):
 
         """
         Description:
@@ -1513,61 +1512,64 @@ class LoadPDS:
                 else:
                     kernel_files_to_load, radio_science_files_to_load, ancillary_files_to_load = self.get_grail_b_files(local_folder, start_date, end_date)
 
-        if kernel_files_to_load:
-            for kernel_type, kernel_files in kernel_files_to_load.items():
-                for kernel_file in kernel_files:
-                    converted_kernel_file = self.spice_transfer2binary(kernel_file)
-                    try:
-                        spice.load_kernel(converted_kernel_file)
-                        if kernel_type not in self.all_kernel_files.keys():
-                            self.all_kernel_files[kernel_type] = [converted_kernel_file]
+        if load_kernels: #only load downloaded kernels if load_kernels = True
+            print('Loading Spice Kernels...')
+            if kernel_files_to_load:
+                for kernel_type, kernel_files in kernel_files_to_load.items():
+                    for kernel_file in kernel_files:
+                        converted_kernel_file = self.spice_transfer2binary(kernel_file)
+                        try:
+                            spice.load_kernel(converted_kernel_file)
+                            if kernel_type not in self.all_kernel_files.keys():
+                                self.all_kernel_files[kernel_type] = [converted_kernel_file]
 
+                            else:
+                                self.all_kernel_files[kernel_type].append(converted_kernel_file)
+
+                        except Exception as e:
+                            print(f"Failed to load kernel: {converted_kernel_file}, Error: {e}")
+            else:
+                print('No Kernel Files to Load.')
+
+            if ancillary_files_to_load:
+                for ancillary_type, ancillary_files in ancillary_files_to_load.items():
+                    for ancillary_file in ancillary_files:  # Iterate over each file in the list]
+                        try:
+                            spice.load_kernel(ancillary_file)  # Load each file individually
+                            if ancillary_type not in self.all_ancillary_files.keys():
+                                self.all_ancillary_files[ancillary_type] = [ancillary_file]
+                            else:
+                                self.all_ancillary_files[ancillary_type].append(ancillary_file)
+
+                        except Exception as e:
+                            print(f"Failed to load kernel: {ancillary_file}, Error: {e}")
+            else:
+                print('No Ancillary Files to Load.')
+
+            if radio_science_files_to_load:
+                for radio_science_type, radio_science_files in radio_science_files_to_load.items():
+                    for radio_science_file in radio_science_files:  # Iterate over each file in the list]
+                        if radio_science_type not in self.all_radio_science_files.keys():
+                            self.all_radio_science_files[radio_science_type] = [radio_science_file]
                         else:
-                            self.all_kernel_files[kernel_type].append(converted_kernel_file)
+                            self.all_radio_science_files[radio_science_type].append(radio_science_file)
+            else:
+                print('No Radio Science Files to Load.')
 
-                    except Exception as e:
-                        print(f"Failed to load kernel: {converted_kernel_file}, Error: {e}")
-        else:
-            print('No Kernel Files to Load.')
+            print('All kernels have been loaded.\n')
 
-        if ancillary_files_to_load:
-            for ancillary_type, ancillary_files in ancillary_files_to_load.items():
-                for ancillary_file in ancillary_files:  # Iterate over each file in the list]
-                    try:
-                        spice.load_kernel(ancillary_file)  # Load each file individually
-                        if ancillary_type not in self.all_ancillary_files.keys():
-                            self.all_ancillary_files[ancillary_type] = [ancillary_file]
-                        else:
-                            self.all_ancillary_files[ancillary_type].append(ancillary_file)
-
-                    except Exception as e:
-                        print(f"Failed to load kernel: {ancillary_file}, Error: {e}")
-        else:
-            print('No Ancillary Files to Load.')
-
-        if radio_science_files_to_load:
-            for radio_science_type, radio_science_files in radio_science_files_to_load.items():
-                for radio_science_file in radio_science_files:  # Iterate over each file in the list]
-                    if radio_science_type not in self.all_radio_science_files.keys():
-                        self.all_radio_science_files[radio_science_type] = [radio_science_file]
-                    else:
-                        self.all_radio_science_files[radio_science_type].append(radio_science_file)
-        else:
-            print('No Radio Science Files to Load.')
-
-
-        n_kernels = spice.get_total_count_of_kernels_loaded()
-        if not self.flag_load_standard_kernels:
-            print(f'===============================================================================================================')
-            print(f'Number of Loaded Existing + Downloaded Kernels: {n_kernels}')
-            std_kernels = spice.load_standard_kernels()
-            self.flag_load_standard_kernels = True
-            n_standard_kernels = spice.get_total_count_of_kernels_loaded() - n_kernels
-            print(f'Number of Loaded Standard Kernels: {n_standard_kernels}')
-            print(f'===============================================================================================================')
-        else:
-            print(f'Number of Loaded Existing + Downloaded + Standard Kernels: {n_kernels}')
-            print(f'===============================================================================================================')
+            n_kernels = spice.get_total_count_of_kernels_loaded()
+            if not self.flag_load_standard_kernels:
+                print(f'===============================================================================================================')
+                print(f'Number of Loaded Existing + Downloaded Kernels: {n_kernels}')
+                std_kernels = spice.load_standard_kernels()
+                self.flag_load_standard_kernels = True
+                n_standard_kernels = spice.get_total_count_of_kernels_loaded() - n_kernels
+                print(f'Number of Loaded Standard Kernels: {n_standard_kernels}')
+                print(f'===============================================================================================================')
+            else:
+                print(f'Number of Loaded Existing + Downloaded + Standard Kernels: {n_kernels}')
+                print(f'===============================================================================================================')
 
 
         self.clean_mission_archive(local_folder)
