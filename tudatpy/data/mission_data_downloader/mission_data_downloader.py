@@ -12,7 +12,6 @@ import re
 from tudatpy.interface import spice
 from dateutil.relativedelta import relativedelta
 import subprocess
-import pandas as pd
 from tabulate import tabulate
 from colorama import Fore
 from collections import defaultdict
@@ -39,15 +38,16 @@ class LoadPDS:
                  "tro": r"^(?P<mission>mro)(?P<dataset>magr)(?P<start_date_file>\d{4}_\d{3})_(?P<end_date_file>\d{4}_\d{3})(?P<extension>\.tro)$",
                  "ion": r"^(?P<mission>mro)(?P<dataset>magr)(?P<start_date_file>\d{4}_\d{3})_(?P<end_date_file>\d{4}_\d{3})(?P<extension>\.ion)$"
                  },
+
             "lro":
                 {"ck": r"^(?P<mission>lro)(?P<instrument>(sc|hg|sa|dv|))_(?P<start_date_file>\d{7})_(?P<end_date_file>\d{7})_(?P<version>v\d{2})(?P<extension>\.bc)$"},
 
             "cassini":
                 {"ck": r"^(?P<start_date_file>\d{5})_(?P<end_date_file>\d{5})(?P<type>(p|r))(?P<version>[a-z])(?P<freeform>\w+)?(?P<extension>\.bc)$"},
+
             "insight":
                 {"ck": r"^(?P<mission>insight)_(?P<purpose>(cru_rec|edl_rec|surf_ops|))_(?P<start_date_file>\d{6})_(?P<end_date_file>\d{6})_(?P<version>v\d{2})(?P<extension>\.bc)"
                  },
-
             "mex":
                 {"ck": r"^(?P<mission>MEX)?_?(?P<data>ATNM)?_?(?P<purpose>(MEASURED|T6|SA))?_?(?P<start_date_file>(\d{4}|\d{6}|P\d{12}))?_?(?P<end_date_file>\d{6})?_?(?P<sclk>S\d{6})?_?(?P<version>(V\d+|\d+))?(?P<extension>\.BC)?$",
                  "spk": "^(?P<data>(ORMM|ORMF))_(?P<SPK_type>T19)_(?P<start_date_file>\d{6})_?(?P<end_date_file>\d{6})_(?P<version>\d{5})(?P<extension>\.BSP)?$",
@@ -172,7 +172,7 @@ class LoadPDS:
         self.type_to_extension = {
             'ck': 'bc', 'dsk': 'bds', 'spk': 'bsp', 'fk': 'tpc', 'mk': 'tm', 'ik': 'ti',
             'lsk': 'tls', 'pck': 'bpc', 'sclk': 'tsc', 'odf': 'odf', 'ifms': 'tab',
-            'dp2': 'tab', 'dps': 'tab', 'dpx': 'tab', 'ion': 'ion', 'tro': 'tro', 'eop':'eop', 'manoeuver':'asc',
+            'dp2': 'tab', 'dps': 'tab', 'dpx': 'tab', 'ion': 'ion', 'tro': 'tro', 'eop':'eop', 'maneuver':'asc',
             'antenna_switch': 'asc'
         }
         # Mapping of data types to their expected file extensions
@@ -506,6 +506,8 @@ class LoadPDS:
             - `list`: A list of full file paths for the downloaded (or already existing) kernel files.
         """
 
+        input_mission = input_mission.lower()
+        print('input mission lower', input_mission)
         # Determine data type and file extension
         data_type = url.split('/')[-2]
         ext = self.get_extension_for_data_type(data_type)
@@ -513,22 +515,25 @@ class LoadPDS:
         if not ext and wanted_files:
             ext = wanted_files[0].split('.')[-1]
             if ext == 'asc':
-                data_type = 'manoeuver'
+                data_type = 'maneuver'
+            elif ext == 'level_1b':
+                data_type = 'antenna_switch'
+            elif ext == 'level_0':
+                data_type = 'maneuver'
 
         if custom_output:
-            if input_mission.lower() == 'grail-a' or input_mission.lower() == 'grail-b': #both grail-a and -b found in grail archive
+            if input_mission in {'grail-a', 'grail-b'}:  #both grail-a and -b found in grail archive
                 base_folder = f'{custom_output}/{input_mission}'
             else:
                 base_folder = f'{custom_output}'
 
         else:
-            if input_mission.lower() == 'grail-a' or input_mission.lower() == 'grail-b': #both grail-a and -b found in grail archive
+            if input_mission in {'grail-a', 'grail-b'}: #both grail-a and -b found in grail archive
                 base_folder = f'grail_archive/{input_mission}'
             else:
                 base_folder = f'{input_mission}_archive/'
 
         os.makedirs(os.path.join(base_folder, data_type), exist_ok=True)
-
 
         # Retrieve files matching pattern if specified
         matched_files_list = []
@@ -549,13 +554,11 @@ class LoadPDS:
         # Combine explicitly specified files and pattern-matched files
         all_files_to_download = set(wanted_files or []) | set(matched_files_list)
 
-        # Create full paths for each file to load locally
         self.files_to_load = [os.path.join(base_folder, data_type, file) for file in all_files_to_download]
-
         # Download each file if not already present
         for file, local_file in zip(all_files_to_download, self.files_to_load):
             if not os.path.exists(local_file):
-                full_url = os.path.join(url, file)
+                full_url = str(os.path.join(url, file))
                 print(f'Downloading File: {full_url} to: {local_file}')
                 urlretrieve(full_url, local_file)
             else:
@@ -582,6 +585,7 @@ class LoadPDS:
             - This function updates the `supported__kernel_patterns` dictionary with the new mission and its associated pattern.
             - Custom patterns can be added dynamically at runtime.
         """
+        input_mission = input_mission.lower()
         custom_dict = {}
         custom_dict[input_mission] = {custom_kernel_type: custom_pattern}
         self.supported_patterns.update(custom_dict)
@@ -604,6 +608,8 @@ class LoadPDS:
             - This function updates the `supported_mission_meta_kernel_url` dictionary with the new mission and its associated pattern.
             - Custom patterns can be added dynamically at runtime.
         """
+
+        input_mission = input_mission.lower()
         custom_dict = {}
         custom_dict[input_mission] = url
         self.supported_mission_meta_kernel_url.update(custom_dict)
@@ -626,6 +632,7 @@ class LoadPDS:
             - This function updates the `supported_mission_kernels_url` dictionary with the new mission and its associated pattern.
             - Custom patterns can be added dynamically at runtime.
         """
+        input_mission = input_mission.lower()
         custom_dict = {}
         custom_dict[input_mission] = url
         self.supported_mission_kernels_url.update(custom_dict)
@@ -648,6 +655,8 @@ class LoadPDS:
             - This function updates the `supported_mission_kernel_pattern` dictionary with the new mission and its associated pattern.
             - Custom patterns can be added dynamically at runtime.
         """
+
+        input_mission = input_mission.lower()
         custom_dict = {}
         custom_dict[input_mission] = re.compile(f'{custom_pattern}')
         self.supported_mission_meta_kernel_pattern.update(custom_dict)
@@ -755,6 +764,7 @@ class LoadPDS:
             - `self.relevant_files` (`list`): A list of paths to the files that were either already present or successfully downloaded.
         """
 
+        input_mission = input_mission.lower()
         self.relevant_files = []
         print('Checking URL:', url)
         data_type = url.split('/')[-2]
@@ -802,7 +812,7 @@ class LoadPDS:
                             RS_dict, RS_underscores = self.parse_filename(input_mission, data_type, filename)
                             filename_to_download = self.reconstruct_filename(RS_dict, RS_underscores)
                             # Determine the date string format
-                            date_key = RS_dict["date_file"][:5] if input_mission.lower() == 'mex' else RS_dict["date_file"][:8]
+                            date_key = RS_dict["date_file"][:5] if input_mission == 'mex' else RS_dict["date_file"][:8]
                             files_url_dict[date_key] = filename_to_download
 
                             # Downloading only the latest version of a file
@@ -835,13 +845,13 @@ class LoadPDS:
 
         # Download missing files
         for date in all_dates:
-            if input_mission.lower() == 'mex' :
+            if input_mission == 'mex' :
                 date_string = f"{date.year % 100:02d}{date.timetuple().tm_yday:03d}"
 
             else:
-                if input_mission.lower() in self.supported_mission_odf_time_formats.keys():
-                    format_key = self.supported_mission_odf_time_formats[input_mission.lower()]
-                    date_string = LoadPDS.format_datetime_to_string(LoadPDS,date, format_key)
+                if input_mission in self.supported_mission_odf_time_formats.keys():
+                    format_key = self.supported_mission_odf_time_formats[input_mission]
+                    date_string = self.format_datetime_to_string(date, format_key)
                 else:
                     print(f'No ODF time format associated to input mission: {input_mission}. Please provide it in self.supported_mission_odf_time_formats.')
 
@@ -891,10 +901,6 @@ class LoadPDS:
         Outputs:
             - `self.existing_files` (`list`): A list of paths to the files that already exist and match the given pattern.
         """
-
-        # Prepare the date range for searching existing files
-        all_dates = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
-
         # Get all existing files that match the filename format
         ext = self.get_extension_for_data_type(data_type)
         self.existing_files = [f for f in glob.glob(f'{local_subfolder}/*') if re.search(rf'\.{ext}$', f, re.IGNORECASE)]
@@ -919,7 +925,7 @@ class LoadPDS:
         Outputs:
             - `self.relevant_files` (`list`): A list of local file paths for the files that were either found or successfully downloaded.
         """
-
+        input_mission = input_mission.lower()
         self.relevant_files = []
         print('Checking URL:', url)
         data_type = url.split('/')[-2]
@@ -1028,6 +1034,151 @@ class LoadPDS:
 
         return self.relevant_files
 
+
+    def download_url_files_time(self, local_path, filename_format, start_date, end_date, url, time_format,
+                                indices_date_filename ):
+
+        """
+        Description:
+            Downloads files within a specified time interval from a given URL. The function checks for existing files locally,
+            identifies missing files for the given time interval, and downloads them if necessary.
+            It handles cases where files are organized in nested folders at the target URL.
+
+        Inputs:
+            - local_path (`str`): The local directory path where files will be stored.
+            - filename_format (`str`): The format of the filenames to be downloaded, with date placeholders and optional folder structure.
+            - start_date (`datetime`): The start date of the time interval for which files are needed.
+            - end_date (`datetime`): The end date of the time interval for which files are needed.
+            - url (`str`): The base URL from which the files will be downloaded.
+            - time_format (`str`): The format string used to represent dates in the filenames (e.g., '%Y%m%d').
+            - indices_date_filename (`list[int]`): A list of indices indicating where date strings are embedded within the filename format.
+
+        Outputs:
+            - `self.relevant_files` (`list`): A list of local file paths for files that were either already present or successfully downloaded.
+
+        Raises:
+            - `Exception`: If the `filename_format` contains more than one folder.
+
+        """
+        # Retrieve all dates contained within the time interval defined by the start and end dates provided as inputs
+        all_dates = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
+
+        # Split the file name at the symbol "/", to separate between the name of the file and the folder in which it might be contained
+        filename_split = filename_format.split('/')
+        folder = ''
+        if (len(filename_split)>2):
+            raise Exception("In the current implementation, the filename format cannot contain more than one folder.")
+        elif (len(filename_split) == 2):
+            folder = filename_split[0]
+
+        # In the reduced file name (after removing the folder part), replace the wildcards - indicated by "\w" - by "*", which will later allow the
+        # BeautifulSoup package to look for all pattern-matching names at the targeted url (without any a priori information on the date and/or
+        # wildcard present in the file name)
+        reduced_filename = filename_split[-1]
+        reduced_filename = reduced_filename.replace('\w', '*')
+
+        # Retrieve all filenames present at the "local_path" location that match the specified filename format
+
+        existing_files = glob.glob(local_path + reduced_filename)
+        if len(existing_files) > 0:
+            print(f'The following files already exist in the folder:\n\n {existing_files}\n\n and will not be downloaded.')
+
+        # Identify dates of interest that are not covered by existing files
+        self.relevant_files = []
+        dates_without_file = []
+        for date in all_dates:
+            # Create string object corresponding to the date under investigation
+            date_str = date.strftime(time_format)
+
+            # Reconstruct the expected filename for this particular date
+            current_filename = ''
+            index = 0
+            for ind in indices_date_filename:
+                current_filename += filename_format[index:ind] + date_str
+                index = ind+1
+            current_filename += filename_format[index:]
+
+            # Parse existing files and check whether the current file name can be found
+            current_files = [x for x in existing_files if re.match(local_path + current_filename.split('/')[-1], x)]
+            # If so, add the identified file to the list of relevant files to be loaded
+            if len(current_files) > 0:
+                for file in current_files:
+                    self.relevant_files.append(current_files[0])
+            # If not, mark the current date as non-covered by any file yet (i.e., date for which a file is missing)
+            else:
+                dates_without_file.append(date)
+
+        # Retrieve the missing files from the specified url
+        if len(dates_without_file) > 0:
+
+            # List containing the names of the files to be downloaded
+            files_url = []
+
+            # Parse all files contained at the targeted url
+            reqs = requests.get(url)
+            for link in BeautifulSoup(reqs.text, 'html.parser').find_all('a'):
+
+                # Retrieve full url link for each of these files
+                full_link = link.get('href')
+
+                # Check whether the file of interest is nested within an additional folder
+                if len(folder)==0:
+                    current_filename = full_link.split("/")[-1]
+                else:
+                    current_filename = full_link.split("/")[-2]
+
+                # Store the name of the file to be downloaded
+                files_url.append(current_filename)
+
+
+        # Parse all dates for which a file was originally missing and download missing files from the specified url.
+        for date in dates_without_file:
+
+            # List of the files to be downloaded
+            files_to_download = []
+
+            # Reconstruct expected filename for the date under consideration
+            date_str = date.strftime(time_format)
+            current_filename = ''
+            index = 0
+            for ind in indices_date_filename:
+                current_filename += filename_format[index:ind] + date_str
+                index = ind + 1
+            current_filename += filename_format[index:]
+
+            # Check whether a matching file was found at the targeted url for this specific date, and split the filename at "/"
+            # to account for the possibility that the targeted file is stored in a nested folder
+            file_to_download = [x for x in files_url if re.match(current_filename.split('/')[0], x)]
+
+            # If the file is directly stored at the specified url (no nested folder), then the filename can be stored directly
+            if (len(folder)==0):
+                files_to_download = file_to_download
+
+            # Otherwise, explore additional folder layer
+            if (len(folder)>0 and len(file_to_download)>0):
+                reqs2 = requests.get(url + file_to_download[0])
+
+                # Parse all files within the current folder
+                for nested_link in BeautifulSoup(reqs2.text, 'html.parser').find_all('a'):
+                    nested_file = nested_link.get('href')
+
+                    # Retrieve all matching file names within the current folder
+                    relevant_link = [x for x in [nested_file] if re.match(current_filename.split('/')[-1], x.split('/')[-1])]
+
+                    # If a match is found, store the filename that should be downloaded (now including the extra folder layer)
+                    if (len(relevant_link) == 1):
+                        files_to_download.append(file_to_download[0] + "/" + relevant_link[0].split("/")[-1])
+
+
+            # Download all relevant files from the targeted url
+            for file in files_to_download:
+                print('Downloading ', url + file)
+                urlretrieve(url + file, local_path + file.split("/")[-1])
+                self.relevant_files.append(local_path + file.split("/")[-1])
+
+        # Return the list of all relevant files that should be loaded to cover the time interval of interest
+        return self.relevant_files
+
     #########################################################################################################
 
     def parse_filename(self, input_mission, data_type, filename):
@@ -1051,6 +1202,7 @@ class LoadPDS:
               the positions of underscores in the matched groups.
         """
 
+        input_mission = input_mission.lower()
         data_type_lower = data_type.lower()
         all_supported_types = list(self.type_to_extension.keys())
 
@@ -1075,7 +1227,6 @@ class LoadPDS:
             print(f'Specified data type: {data_type} not supported.')
 
         # Initialize the dictionary and underscore index list
-        dictionary = {}
         underscore_indices = []
 
         if type(level_one_object) is not str: #deals with multiple keys
@@ -1183,6 +1334,8 @@ class LoadPDS:
         Returns:
             dict: A dictionary categorizing kernel files by type based on `type_to_extension`.
         """
+
+        input_mission = input_mission.lower()
         self.kernel_files_names = defaultdict(list)
 
         meta_kernel_url = self.get_latest_meta_kernel(input_mission)
@@ -1205,7 +1358,7 @@ class LoadPDS:
                     end_idx = line.rfind("'") if "'" in line else line.rfind('"')
                     if start_idx != -1 and end_idx != -1:
                         relative_kernel_path = line[start_idx + 1:end_idx]
-                        full_kernel_path = relative_kernel_path.replace('$KERNELS/', self.supported_mission_kernels_url[input_mission.lower()])
+                        full_kernel_path = relative_kernel_path.replace('$KERNELS/', self.supported_mission_kernels_url[input_mission])
                         # Extract the file extension
                         file_extension = full_kernel_path.split('.')[-1].lower()
                         # Categorize based on the type-to-extension mapping
@@ -1228,6 +1381,7 @@ class LoadPDS:
 
     def download_kernels_from_meta_kernel(self, input_mission, local_folder):
 
+        input_mission = input_mission.lower()
         self.kernel_files_to_load = self.extract_kernels_from_meta_kernel(input_mission)
 
         for kernel_type, kernel_urls in self.kernel_files_to_load.items():
@@ -1260,9 +1414,9 @@ class LoadPDS:
         Returns:
             str: The URL of the most recent meta-kernel file.
         """
-
-        base_url = self.supported_mission_meta_kernel_url[input_mission.lower()]
-        meta_kernel_pattern = self.supported_mission_meta_kernel_pattern[input_mission.lower()] #the pattern for mex and juice is an exact name
+        input_mission = input_mission.lower()
+        base_url = self.supported_mission_meta_kernel_url[input_mission]
+        meta_kernel_pattern = self.supported_mission_meta_kernel_pattern[input_mission] #the pattern for mex and juice is an exact name
 
         try:
             # Fetch the HTML page
@@ -1301,6 +1455,8 @@ class LoadPDS:
     #########################################################################################################
 
     def get_latest_clock_kernel_name(self, input_mission):
+
+        input_mission = input_mission.lower()
         kernels_from_meta_kernel = self.extract_kernels_from_meta_kernel(input_mission)
 
         clock_files_list = []
@@ -1351,7 +1507,7 @@ class LoadPDS:
                 - `all_ancillary_files` (`dict`): A dictionary where keys are ancillary data types and values are
                   lists of paths to the successfully loaded ancillary files.
         """
-
+        input_mission = input_mission.lower()
         self.all_kernel_files = {}
         self.all_radio_science_files = {}
         self.all_ancillary_files = {}
@@ -1361,84 +1517,88 @@ class LoadPDS:
         print(f'======================================= Downloading {input_mission.upper()} Data ==============================================\n')
 
         if custom_output:
-            if input_mission.lower() == 'grail-a' or input_mission.lower() == 'grail-b': #both grail-a and -b found in grail archive
+            if input_mission == 'grail-a' or input_mission == 'grail-b': #both grail-a and -b found in grail archive
                 base_folder = f'{custom_output}/{input_mission}'
             else:
                 base_folder = f'{custom_output}'
 
         else:
-            if input_mission.lower() == 'grail-a' or input_mission.lower() == 'grail-b': #both grail-a and -b found in grail archive
+            if input_mission == 'grail-a' or input_mission == 'grail-b': #both grail-a and -b found in grail archive
                 base_folder = f'grail_archive/{input_mission}'
             else:
                 base_folder = f'{input_mission}_archive/'
 
         local_folder_list = [] #this will be a multiple-element list (length != 1)ONLY if "Cassini" and ONLY if len(flyby_IDs) > 1
-        if input_mission.lower() == 'cassini':
+        if input_mission == 'cassini':
             if not flyby_IDs:
                 self.print_titan_flyby_table()
-                flyby_ID = input(f'You are about to download data for the Cassini Spacecraft. What flyby would you like to download? (Check Provided Table for Reference.)\n')
+                flyby_IDs = input(f'You are about to download data for the Cassini Spacecraft. What flyby would you like to download? (Check Provided Table for Reference.)\n')
+                # Split the input string by commas and remove any leading/trailing spaces from each item
+                flyby_IDs = [flyby.strip() for flyby in flyby_IDs.split(',')]
+                # Output the list of flyby IDs
+                print(f'You selected the following flyby_IDs: {flyby_IDs}.')
+
+            if isinstance(flyby_IDs, list):
+                # Create a flag to track if Titan or Enceladus has been processed
+                processed_moons = []
+
+                # Process Titan flybys if 'ALL_TITAN' is in the list
+                if 'ALL_TITAN' in flyby_IDs:
+                    print('removing')
+                    flyby_IDs.remove('ALL_TITAN')  # Remove 'ALL_TITAN'
+                    full_moon_flybys_list = self.get_cassini_full_moon_flybys_list('TITAN')
+                    flyby_IDs.extend(full_moon_flybys_list)
+                    # Remove duplicates
+                    flyby_IDs = list(dict.fromkeys(flyby_IDs))
+                    # Add Titan folder creation to the list
+                    processed_moons.append('TITAN')
+
+                # Process Enceladus flybys if 'ALL_ENCELADUS' is in the list
+                if 'ALL_ENCELADUS' in flyby_IDs:
+                    flyby_IDs.remove('ALL_ENCELADUS')  # Remove 'ALL_ENCELADUS'
+                    full_moon_flybys_list = self.get_cassini_full_moon_flybys_list('ENCELADUS')
+                    flyby_IDs.extend(full_moon_flybys_list)
+                    # Remove duplicates
+                    flyby_IDs = list(dict.fromkeys(flyby_IDs))
+                    # Add Enceladus folder creation to the list
+                    processed_moons.append('ENCELADUS')
+
+                # At this point, `flyby_IDs` contains the full list of flyby IDs without 'ALL_TITAN' or 'ALL_ENCELADUS'
+                # Now create the local folders
+
+                if len(processed_moons) != 0:
+                    for moon in processed_moons:
+                        for flyby_ID in flyby_IDs:
+                            local_folder = os.path.join(base_folder, moon, flyby_ID)
+                            local_folder_list.append(local_folder)  # Append to local_folder_list
+                else:
+                    for flyby_ID in flyby_IDs:
+                        if flyby_ID.startswith('T'):
+                            moon = 'TITAN'
+                        elif flyby_ID.startswith('E'):
+                            moon = 'ENCELADUS'
+                        local_folder = os.path.join(base_folder, moon, flyby_ID)
+                        local_folder_list.append(local_folder)  # Append to local_folder_list
 
             else:
-                if isinstance(flyby_IDs, list):
-                    # Create a flag to track if Titan or Enceladus has been processed
-                    processed_moons = []
-
-                    # Process Titan flybys if 'ALL_TITAN' is in the list
-                    if 'ALL_TITAN' in flyby_IDs:
-                        flyby_IDs.remove('ALL_TITAN')  # Remove 'ALL_TITAN'
-                        full_moon_flybys_list = self.get_cassini_full_moon_flybys_list('TITAN')
+                for moon in ['TITAN', 'ENCELADUS']:
+                    if f'ALL_{moon}' == flyby_IDs:
+                        flyby_IDs.remove(f'ALL_{moon}')
+                        full_moon_flybys_list= self.get_cassini_full_moon_flybys_list(moon)
                         flyby_IDs.extend(full_moon_flybys_list)
-                        # Remove duplicates
-                        flyby_IDs = list(dict.fromkeys(flyby_IDs))
-                        # Add Titan folder creation to the list
-                        processed_moons.append('TITAN')
+                        flyby_IDs = list(set(flyby_IDs))  # This removes duplicates
 
-                    # Process Enceladus flybys if 'ALL_ENCELADUS' is in the list
-                    if 'ALL_ENCELADUS' in flyby_IDs:
-                        flyby_IDs.remove('ALL_ENCELADUS')  # Remove 'ALL_ENCELADUS'
-                        full_moon_flybys_list = self.get_cassini_full_moon_flybys_list('ENCELADUS')
-                        flyby_IDs.extend(full_moon_flybys_list)
-                        # Remove duplicates
-                        flyby_IDs = list(dict.fromkeys(flyby_IDs))
-                        # Add Enceladus folder creation to the list
-                        processed_moons.append('ENCELADUS')
-
-                    # At this point, `flyby_IDs` contains the full list of flyby IDs without 'ALL_TITAN' or 'ALL_ENCELADUS'
-                    # Now create the local folders
-
-                    if len(processed_moons) != 0:
-                        for MOON in processed_moons:
-                            for flyby_ID in flyby_IDs:
-                                local_folder = os.path.join(base_folder, MOON, flyby_ID)
-                                local_folder_list.append(local_folder)  # Append to local_folder_list
-                    else:
                         for flyby_ID in flyby_IDs:
-                            if flyby_ID.startswith('T'):
-                                MOON = 'TITAN'
-                            elif flyby_ID.startswith('E'):
-                                MOON = 'ENCELADUS'
-                            local_folder = os.path.join(base_folder, MOON, flyby_ID)
-                            local_folder_list.append(local_folder)  # Append to local_folder_list
+                            local_folder = os.path.join(base_folder, moon, flyby_ID)
+                            local_folder_list.append(local_folder) # append to local_folder_list
 
-                else:
-                    for MOON in ['TITAN', 'ENCELADUS']:
-                        if f'ALL_{MOON}' == flyby_IDs:
-                            flyby_IDs.remove(f'ALL_{MOON}')
-                            full_moon_flybys_list= self.get_cassini_full_moon_flybys_list(MOON)
-                            flyby_IDs.extend(full_moon_flybys_list)
-                            flyby_IDs = list(set(flyby_IDs))  # This removes duplicates
+                if flyby_IDs.startswith('T'):
+                    moon = 'TITAN'
+                elif flyby_IDs.startswith('E'):
+                    moon = 'ENCELADUS'
 
-                            for flyby_ID in flyby_IDs:
-                                local_folder = os.path.join(base_folder, MOON, flyby_ID)
-                                local_folder_list.append(local_folder) # append to local_folder_list
-
-                    if flyby_IDs.startswith('T'):
-                        MOON = 'TITAN'
-                    elif flyby_IDs.startswith('E'):
-                        MOON = 'ENCELADUS'
-
-                    local_folder= os.path.join(base_folder, MOON, flyby_IDs)
-                    local_folder_list.append(local_folder) #in this case, it is just a single folder
+                local_folder= os.path.join(base_folder, moon, flyby_IDs)
+                local_folder_list.append(local_folder) #in this case, it is just a single folder
         else:
             local_folder_list.append(base_folder) # in this case, it is just a single folder
 
@@ -1469,7 +1629,7 @@ class LoadPDS:
         kernel_files_to_load = None
         for local_folder in local_folder_list:
             self.flag_check_existing_files = False
-            if all_meta_kernel_files == True:
+            if all_meta_kernel_files:
                 print(f"Downloading all Kernels from {input_mission} Latest Meta-Kernel File...")
                 kernel_files_to_load = self.download_kernels_from_meta_kernel(input_mission, local_folder)
             if input_mission == 'mex':
@@ -1534,16 +1694,16 @@ class LoadPDS:
 
         if ancillary_files_to_load:
             for ancillary_type, ancillary_files in ancillary_files_to_load.items():
-                for ancillary_file in ancillary_files:  # Iterate over each file in the list]
+                for ancillary_file in ancillary_files:  # Iterate over each file in the list
                     try:
                         if ancillary_type not in self.all_ancillary_files.keys():
                             self.all_ancillary_files[ancillary_type] = [ancillary_file]
                             if load_kernels:
-                                spice.load_kernel(converted_kernel_file)
+                                spice.load_kernel(ancillary_file)
                         else:
                             self.all_ancillary_files[ancillary_type].append(ancillary_file)
                             if load_kernels:
-                                spice.load_kernel(converted_kernel_file)
+                                spice.load_kernel(ancillary_file)
 
                     except Exception as e:
                         print(f"Failed to load kernel: {ancillary_file}, Error: {e}")
@@ -1552,7 +1712,7 @@ class LoadPDS:
 
         if radio_science_files_to_load:
             for radio_science_type, radio_science_files in radio_science_files_to_load.items():
-                for radio_science_file in radio_science_files:  # Iterate over each file in the list]
+                for radio_science_file in radio_science_files:  # Iterate over each file in the list
                     if radio_science_type not in self.all_radio_science_files.keys():
                         self.all_radio_science_files[radio_science_type] = [radio_science_file]
                     else:
@@ -1560,23 +1720,22 @@ class LoadPDS:
         else:
             print('No Radio Science Files to Load.')
 
-        print('All kernels have been loaded.\n')
-
         n_kernels = spice.get_total_count_of_kernels_loaded()
         if not self.flag_load_standard_kernels:
-            print(f'===============================================================================================================')
-            print(f'Number of Loaded Existing + Downloaded Kernels: {n_kernels}')
-            std_kernels = spice.load_standard_kernels()
-            self.flag_load_standard_kernels = True
-            n_standard_kernels = spice.get_total_count_of_kernels_loaded() - n_kernels
-            print(f'Number of Loaded Standard Kernels: {n_standard_kernels}')
-            print(f'===============================================================================================================')
+            if load_kernels:
+                print(f'===============================================================================================================')
+                print(f'Number of Loaded Existing + Downloaded Kernels: {n_kernels}')
+                std_kernels = spice.load_standard_kernels()
+                self.flag_load_standard_kernels = True
+                n_standard_kernels = spice.get_total_count_of_kernels_loaded() - n_kernels
+                print(f'Number of Loaded Standard Kernels: {n_standard_kernels}')
+                print(f'===============================================================================================================')
         else:
             print(f'Number of Loaded Existing + Downloaded + Standard Kernels: {n_kernels}')
             print(f'===============================================================================================================')
 
-
         self.clean_mission_archive(local_folder)
+
         return self.all_kernel_files, self.all_radio_science_files, self.all_ancillary_files
 
     ########################################################################################################################################
@@ -1618,7 +1777,6 @@ class LoadPDS:
         self.ancillary_files_to_load = {} #empty for now
 
         input_mission = 'mex'
-        all_dates = [start_date+timedelta(days=x) for x in range((end_date-start_date).days+1)]
         print(f'===========================================================================================================')
         print(f'Download {input_mission.upper()} Radio Science Kernels:')
         url_radio_science_files = self.get_url_mex_radio_science_files(start_date, end_date)
@@ -1642,7 +1800,7 @@ class LoadPDS:
         clock_files_to_load = self.get_kernels(
             input_mission = input_mission,
             url = url_clock_files,
-            wantred_files =  wanted_clock_files,
+            wanted_files =  wanted_clock_files,
             custom_output = local_folder)
 
         if clock_files_to_load:
@@ -1726,7 +1884,6 @@ class LoadPDS:
                 response = requests.get(url_tropo_file)
                 if response.status_code == 200:
                     url_flag = True
-                    key = folder_type.split('/')[-2]
                     html = response.text
                     # Parse the HTML with BeautifulSoup
                     soup = BeautifulSoup(html, 'html.parser')
@@ -1827,8 +1984,8 @@ class LoadPDS:
             volume_id = match.group(1)
             start_date_file = match.group(2)
             end_date_file = match.group(3)
-            start_date_utc = LoadPDS.format_string_to_datetime(LoadPDS, match.group(2))
-            end_date_utc = LoadPDS.format_string_to_datetime(LoadPDS, match.group(3))
+            start_date_utc = self.format_string_to_datetime(match.group(2))
+            end_date_utc = self.format_string_to_datetime(match.group(3))
             interval_key_for_retrieval = (start_date_utc, end_date_utc)
             observation_type = match.group(4).strip()
 
@@ -1876,10 +2033,7 @@ class LoadPDS:
         self.ancillary_files_to_load = {} #empty for now
 
         input_mission = 'juice'
-        all_dates = [start_date+timedelta(days=x) for x in range((end_date-start_date).days+1)]
-
         # Clock files
-
         print(f'===========================================================================================================')
         print(f'Download {input_mission.upper()} Clock Files:')
         url_clock_files="https://spiftp.esac.esa.int/data/SPICE/JUICE/kernels/sclk/"
@@ -1909,7 +2063,7 @@ class LoadPDS:
 
         frame_files_to_load = self.get_kernels(
             input_mission = input_mission,
-            utl = url_frame_files,
+            url = url_frame_files,
             wanted_files = wanted_frame_files,
             custom_output = local_folder)
 
@@ -1926,10 +2080,10 @@ class LoadPDS:
                          "juice_sc_crema_5_1_150lb_23_1_baseline_v03.bc",]
 
         url_planned_ck_files="https://spiftp.esac.esa.int/data/SPICE/JUICE/kernels/ck/"
-        planned_ck_files_to_load = self.new_et_kernels(
+        planned_ck_files_to_load = self.get_kernels(
             input_mission = input_mission,
             url = url_planned_ck_files,
-            wantred_files = wanted_ck_files,
+            wanted_files = wanted_ck_files,
             custom_output = local_folder)
 
         if planned_ck_files_to_load:
@@ -2054,8 +2208,6 @@ class LoadPDS:
         self.ancillary_files_to_load = {}
 
         input_mission = 'mro'
-        all_dates = [start_date+timedelta(days=x) for x in range((end_date-start_date).days+1)]
-
         # ODF files
         print(f'===========================================================================================================')
         print(f'Download {input_mission.upper()} ODF files:')
@@ -2135,7 +2287,6 @@ class LoadPDS:
             print('No spk files to download this time.')
 
             # Orientation Kernels
-        ck_files_to_load = []
         print(f'===========================================================================================================')
         print(f'Download {input_mission.upper()} Orientation Kernels:')
         measured_url_ck_files =["https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/mrosp_1000/data/ck/"]
@@ -2464,7 +2615,7 @@ class LoadPDS:
             return f"Flyby ID {flyby_ID} not found."
     ########################################################################################################################################
 
-    def get_cassini_full_moon_flybys_list(self, MOON):
+    def get_cassini_full_moon_flybys_list(self, moon):
         """
         Description:
         Returns a list of flyby IDs corresponding to either Titan or Enceladus. If the provided
@@ -2473,17 +2624,17 @@ class LoadPDS:
         is invalid, an error is raised.
 
         Inputs:
-            - MOON (`str`): The name of the moon ('titan' or 'enceladus') for which flyby IDs should
+            - moon (`str`): The name of the moon ('titan' or 'enceladus') for which flyby IDs should
               be retrieved.
 
         Outputs:
             - `list`: A list of flyby IDs corresponding to the provided moon. If the moon name is invalid,
               a `ValueError` is raised.
         """
-        if MOON.lower() == 'titan':
+        if moon.lower() == 'titan':
             # Return the keys of the cassini_titan_flyby_dict
             return list(self.cassini_titan_flyby_dict.keys())
-        elif MOON.lower() == 'enceladus':
+        elif moon.lower() == 'enceladus':
             # Return the keys of the enceladus_flyby_dict
             return list(self.enceladus_flyby_dict.keys())
         else:
@@ -2713,7 +2864,6 @@ class LoadPDS:
         self.ancillary_files_to_load = {}
 
         input_mission = 'grail-a'
-        all_dates = [start_date+timedelta(days=x) for x in range((end_date-start_date).days+1)]
 
         # ODF files
         print(f'===========================================================================================================')
@@ -2741,7 +2891,7 @@ class LoadPDS:
             input_mission = input_mission,
             url = url_clock_files,
             wanted_files = wanted_clock_files,
-            custom_output = local_folder)
+            custom_output = './grail_archive')
 
         if clock_files_to_load:
             self.kernel_files_to_load['sclk'] = clock_files_to_load
@@ -2757,29 +2907,46 @@ class LoadPDS:
             input_mission = input_mission,
             url = url_frame_files,
             wanted_files = wanted_frame_files,
-            custom_output = local_folder)
+            custom_output = './grail_archive')
 
         if frame_files_to_load:
             self.kernel_files_to_load['fk'] = frame_files_to_load
         else:
             print('No fk files to download this time.')
 
-            #Manoeuver Files
+            #maneuver Files
         print(f'===========================================================================================================')
-        print(f'Download {input_mission.upper()} Manoeuver Files:')
+        print(f'Download {input_mission.upper()} Maneuver Files:')
         url_man_files="https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-2-edr-v1/grail_0001/level_0/2012_04_06/"
         wanted_man_files=["mas00_2012_04_06_a_04.asc"]
         man_files_to_load = self.get_kernels(
             input_mission = input_mission,
             url = url_man_files,
             wanted_files = wanted_man_files,
-            custom_output = local_folder)
+            custom_output = './grail_archive')
 
-        if frame_files_to_load:
-            self.ancillary_files_to_load['manoeuver'] = man_files_to_load
+        if man_files_to_load:
+            self.ancillary_files_to_load['maneuver'] = man_files_to_load
         else:
-            print('No manoeuver files to download this time.')
+            print('No maneuver files to download this time.')
 
+            #Antenna Switch Files
+        print(f'===========================================================================================================')
+        print(f'Download {input_mission.upper()} Antenna Switch Files:')
+
+        url_antenna_switch_files = ("https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-3-cdr-v1/grail_0101/level_1b/")
+        antenna_switch_files_to_load = self.download_url_files_time(
+            local_path=os.path.join(local_folder, 'antenna_switch/'),
+            filename_format='*/vgs1b_*_a_04.asc',
+            start_date=start_date,
+            end_date=end_date,
+            url=url_antenna_switch_files,
+            time_format='%Y_%m_%d', indices_date_filename=[0,8])
+
+        if antenna_switch_files_to_load:
+            self.ancillary_files_to_load['antenna_switch'] = antenna_switch_files_to_load
+        else:
+            print('No Antenna Switch files to download this time.')
 
             # Planetary and Ephemeris Kernels
         spk_files_to_load = []
@@ -2803,7 +2970,6 @@ class LoadPDS:
 
 
             # Orientation Kernels
-        ck_files_to_load = []
         print(f'===========================================================================================================')
         print(f'Download {input_mission.upper()} Orientation Kernels:')
         measured_url_ck_files =["https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/grlsp_1000/data/ck/"]
@@ -2884,7 +3050,6 @@ class LoadPDS:
         self.ancillary_files_to_load = {}
 
         input_mission = 'grail-b'
-        all_dates = [start_date+timedelta(days=x) for x in range((end_date-start_date).days+1)]
 
         # ODF files
         print(f'===========================================================================================================')
@@ -2935,10 +3100,10 @@ class LoadPDS:
         else:
             print('No fk files to download this time.')
 
-            #Manoeuver Files
+            #maneuver Files
         print(f'===========================================================================================================')
-        print(f'Download {input_mission.upper()} Manoeuver Files:')
-        url_man_files="https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-2-edr-v1/grail_0001/level_0/2012_04_06/"
+        print(f'Download {input_mission.upper()} Maneuver Files:')
+        url_man_files="https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-2-edr-v1/grail_0001/level_0/"
         wanted_man_files=["mas00_2012_04_06_a_04.asc"]
         man_files_to_load = self.get_kernels(
             input_mission = input_mission,
@@ -2946,11 +3111,23 @@ class LoadPDS:
             wanted_files_patterns = wanted_man_files,
             custom_output = local_folder)
 
-        if frame_files_to_load:
-            self.ancillary_files_to_load['manoeuver'] = man_files_to_load
+        if man_files_to_load:
+            self.ancillary_files_to_load['maneuver'] = man_files_to_load
         else:
-            print('No manoeuver files to download this time.')
+            print('No maneuver files to download this time.')
 
+        url_antenna_switch_files = ("https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-3-cdr-v1/grail_0101/level_1b/")
+        wanted_antenna_switch_files_patterns =['*/vgs1b_*_a_04.asc']
+        antenna_switch_files_to_load = self.get_kernels(
+            input_mission = input_mission,
+            url = url_antenna_switch_files,
+            wanted_files_patterns = wanted_antenna_switch_files_patterns,
+            custom_output = local_folder)
+
+        if antenna_switch_files_to_load:
+            self.ancillary_files_to_load['antenna_switch'] = antenna_switch_files_to_load
+        else:
+            print('No Antenna Switch files to download this time.')
 
             # Planetary and Ephemeris Kernels
         spk_files_to_load = []
@@ -2974,7 +3151,6 @@ class LoadPDS:
 
 
             # Orientation Kernels
-        ck_files_to_load = []
         print(f'===========================================================================================================')
         print(f'Download {input_mission.upper()} Orientation Kernels:')
         measured_url_ck_files =["https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/grlsp_1000/data/ck/"]
