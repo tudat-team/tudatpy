@@ -123,8 +123,6 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         frequencyScaling = scalingFactorFunction_( linkEndOfFixedTime, states, times, ancillarySettings );
     }
 
-    std::cout<<"Scaling "<<frequencyScaling<<std::endl;
-
     for( dopplerPartialIterator_ = dopplerPartialList_.begin( ); dopplerPartialIterator_ != dopplerPartialList_.end( );
          dopplerPartialIterator_++ )
     {
@@ -178,8 +176,6 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
             }
         }
     }
-
-    std::cout<<"Compute partial "<<std::endl;
 
     return completePartialSet;
 }
