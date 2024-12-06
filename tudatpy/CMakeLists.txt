@@ -77,6 +77,8 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_data/expose_mpc.cpp
         kernel/expose_data/expose_horizons.cpp
         kernel/expose_data/expose_sbdb.cpp
+        kernel/expose_data/expose_mission_data_downloader.cpp
+
 
         # kernel/math
         kernel/expose_math.cpp
