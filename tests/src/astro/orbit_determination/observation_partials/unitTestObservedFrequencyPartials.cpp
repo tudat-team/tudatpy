@@ -92,18 +92,27 @@ public:
 
 void testPartials(
     const std::shared_ptr< observation_models::ObservationModel< 1, double, double > >  observationModel,
-    const double testObservationTime )
+    const std::shared_ptr< ObservationPartial< 1 > > observationPartial,
+    const std::shared_ptr< PositionPartialScaling > observationPartialScaling,
+    LinearStateWrapper& stateWrapper,
+    const double testObservationTime,
+    const std::shared_ptr<ObservationAncilliarySimulationSettings> ancilliarySettings = nullptr )
 {
     std::vector< Eigen::Vector6d > vectorOfStates;
     std::vector< double > vectorOfTimes;
 
+    // Compute nominal observation
     Eigen::Matrix< double, 1, 1 > currentObservation = observationModel->computeObservationsWithLinkEndData(
-        testObservationTime, receiver, vectorOfTimes, vectorOfStates );
-    twoWayDopplerScaling->update( vectorOfStates, vectorOfTimes, receiver, currentObservation );
+        testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancilliarySettings );
+
+    // Update scaling
+    observationPartialScaling->update( vectorOfStates, vectorOfTimes, receiver, currentObservation );
+
+    // Compute partial
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > singlePartialSet =
-    twoWayDopplerPartial->calculatePartial(
-    vectorOfStates, vectorOfTimes, receiver, nullptr, currentObservation.template cast< double >( ) );
-    std::cout<<singlePartialSet.size( )<<std::endl;
+        observationPartial->calculatePartial( vectorOfStates, vectorOfTimes, receiver, ancilliarySettings, currentObservation.template cast< double >( ) );
+
+    // Combine partial
     Eigen::Matrix< double, 1, 6 > totalPartial;
     totalPartial.setZero( );
     for( int i = 0; i < singlePartialSet.size( ); i++ )
@@ -112,26 +121,29 @@ void testPartials(
         totalPartial += singlePartialSet.at( i ).first;
     }
 
+    // Initialize numerical aprtial
     Eigen::Vector6d numericalPartial = Eigen::Vector6d::Zero( );
-    double positionPerturbation = 1000.0;
+    double positionPerturbation = 10000.0;
     double velocityPerturbation = 1.0;
 
+    // Compute numerical state partials
     Eigen::Vector6d nominalReferenceState = stateWrapper.getState( );
     Eigen::Vector6d perturbedReferenceState = nominalReferenceState;
-
     for( int i = 0; i < 3; i++ )
     {
+        // Perturb parameter up
         perturbedReferenceState = nominalReferenceState;
         perturbedReferenceState( i ) += positionPerturbation;
         stateWrapper.setState( perturbedReferenceState );
         Eigen::Matrix< double, 1, 1 > upperturbedObservation = observationModel->computeObservationsWithLinkEndData(
-            testObservationTime, receiver, vectorOfTimes, vectorOfStates );
+            testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancilliarySettings );
 
+        // Perturb parameter down
         perturbedReferenceState = nominalReferenceState;
         perturbedReferenceState( i ) -= positionPerturbation;
         stateWrapper.setState( perturbedReferenceState );
         Eigen::Matrix< double, 1, 1 > downperturbedObservation = observationModel->computeObservationsWithLinkEndData(
-            testObservationTime, receiver, vectorOfTimes, vectorOfStates );
+            testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancilliarySettings );
         numericalPartial( i ) = ( upperturbedObservation( 0 ) - downperturbedObservation( 0 ) ) / ( 2.0 * positionPerturbation );
 
 
@@ -139,25 +151,27 @@ void testPartials(
         perturbedReferenceState( i + 3 ) += velocityPerturbation;
         stateWrapper.setState( perturbedReferenceState );
         upperturbedObservation = observationModel->computeObservationsWithLinkEndData(
-            testObservationTime, receiver, vectorOfTimes, vectorOfStates );
+            testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancilliarySettings );
 
         perturbedReferenceState = nominalReferenceState;
         perturbedReferenceState( i + 3 ) -= velocityPerturbation;
         stateWrapper.setState( perturbedReferenceState );
         downperturbedObservation = observationModel->computeObservationsWithLinkEndData(
-            testObservationTime, receiver, vectorOfTimes, vectorOfStates );
+            testObservationTime, receiver, vectorOfTimes, vectorOfStates, ancilliarySettings );
         stateWrapper.referenceState_( i + 3 ) += velocityPerturbation;
         numericalPartial( i + 3 ) = ( upperturbedObservation( 0 ) - downperturbedObservation( 0 ) ) / ( 2.0 * velocityPerturbation );
     }
-    std::cout<<"ANA: "<<totalPartial<<std::endl;
-    std::cout<<"NUM: "<<numericalPartial.transpose( )<<std::endl;
-    }
+//    std::cout<<"ANA: "<<totalPartial<<std::endl;
+//    std::cout<<"NUM: "<<numericalPartial.transpose( )<<std::endl;
+    std::cout<<"Relative error "<<( totalPartial - numericalPartial.transpose( ) ).cwiseQuotient( totalPartial )<<std::endl<<std::endl;
+
 }
+
 //! Test partial derivatives of observed frequency observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
 {
     // Define reference time
-    double testObsevationTime = 777447060.682842;
+    double referenceTime = 777447060.682842;
 
     // Load Spice kernels
     std::string kernelsPath = paths::getSpiceKernelPath( );
@@ -232,6 +246,11 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
             ObservationModelCreator<1, double, double>::createObservationModel(
                 std::make_shared<ObservationModelSettings>( doppler_measured_frequency, linkEnds, lightTimeCorrectionsList   ), bodies ));
 
+    // Create ancilliary settings
+    std::shared_ptr<ObservationAncilliarySimulationSettings> ancillarySettings =
+        std::make_shared<ObservationAncilliarySimulationSettings>( );
+    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+
     // Create Doppler model (frequency)
     std::shared_ptr<TwoWayDopplerObservationModel<double, double> > twoWayDopplerObservationModel =
         std::dynamic_pointer_cast<TwoWayDopplerObservationModel<double, double>>(
@@ -254,14 +273,14 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
         bodies, accelerationMap, bodiesToEstimate, centralBodies );
 
     // Get initial state from Spice kernel
-    Eigen::VectorXd initialState = getInitialStateOfBody( "JUICE", "Earth", bodies, observationTimes.at( 0 ) );
+    Eigen::VectorXd initialState = getInitialStateOfBody( "JUICE", "Earth", bodies, referenceTime );
 
     // Define propagator settings
     std::shared_ptr<TranslationalStatePropagatorSettings<double, double> > propagatorSettings =
         std::make_shared<TranslationalStatePropagatorSettings<double, double> >
             ( centralBodies, accelerationModelMap, bodiesToEstimate, initialState.template cast<double>( ),
-              double( observationTimes.at( 0 ) ), numerical_integrators::rungeKuttaFixedStepSettings<double>( 10.0, numerical_integrators::rungeKuttaFehlberg78 ),
-              std::make_shared<PropagationTimeTerminationSettings>( observationTimes.at( observationTimes.size( ) - 1 ) ));
+              double( referenceTime ), numerical_integrators::rungeKuttaFixedStepSettings<double>( 10.0, numerical_integrators::rungeKuttaFehlberg78 ),
+              std::make_shared<PropagationTimeTerminationSettings>( referenceTime + 3600.0 ));
 
     // Create parameters
     std::vector<std::shared_ptr<EstimatableParameterSettings> > parameterNames = getInitialStateParameterSettings<double, double>( propagatorSettings, bodies );
@@ -289,73 +308,8 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
     std::shared_ptr< PositionPartialScaling > frequencyDopplerScaling = frequencyDopplerObservationPartialsAndScaler.begin( )->second.second;
 
     // Compute manual
-    testPartials( twoWayDopplerObservationModel );
-
-    std::cout<<observationTimes.at( 0 )<<std::endl;
-    {
-        std::shared_ptr<ObservationAncilliarySimulationSettings> ancillarySettings =
-            std::make_shared<ObservationAncilliarySimulationSettings>( );
-        ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { x_band, x_band } );
-
-        std::vector< Eigen::Vector6d > vectorOfStates;
-        std::vector< double > vectorOfTimes;
-
-        Eigen::Matrix< double, 1, 1 > currentObservation = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(
-            observationTimes.at( 0 ), receiver, vectorOfTimes, vectorOfStates, ancillarySettings );
-        frequencyDopplerScaling->update( vectorOfStates, vectorOfTimes, receiver, currentObservation );
-        std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > singlePartialSet =
-            frequencyDopplerPartial->calculatePartial(
-                vectorOfStates, vectorOfTimes, receiver, ancillarySettings, currentObservation.template cast< double >( ) );
-        std::cout<<singlePartialSet.size( )<<std::endl;
-        Eigen::Matrix< double, 1, 6 > totalPartial;
-        totalPartial.setZero( );
-        for( int i = 0; i < singlePartialSet.size( ); i++ )
-        {
-            std::cout<<singlePartialSet.at( i ).first<<" "<<singlePartialSet.at( i ).second - observationTimes.at( 0 )<<std::endl;
-            totalPartial += singlePartialSet.at( i ).first;
-        }
-
-        Eigen::Vector6d numericalPartial = Eigen::Vector6d::Zero( );
-        double positionPerturbation = 1000.0;
-        double velocityPerturbation = 1.0;
-
-        Eigen::Vector6d nominalReferenceState = stateWrapper.getState( );
-        Eigen::Vector6d perturbedReferenceState = nominalReferenceState;
-
-        for( int i = 0; i < 3; i++ )
-        {
-            perturbedReferenceState = nominalReferenceState;
-            perturbedReferenceState( i ) += positionPerturbation;
-            stateWrapper.setState( perturbedReferenceState );
-            Eigen::Matrix< double, 1, 1 > upperturbedObservation = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(
-                observationTimes.at( 0 ), receiver, vectorOfTimes, vectorOfStates, ancillarySettings );
-
-            perturbedReferenceState = nominalReferenceState;
-            perturbedReferenceState( i ) -= positionPerturbation;
-            stateWrapper.setState( perturbedReferenceState );
-            Eigen::Matrix< double, 1, 1 > downperturbedObservation = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(
-                observationTimes.at( 0 ), receiver, vectorOfTimes, vectorOfStates, ancillarySettings );
-            numericalPartial( i ) = ( upperturbedObservation( 0 ) - downperturbedObservation( 0 ) ) / ( 2.0 * positionPerturbation );
-
-
-            perturbedReferenceState = nominalReferenceState;
-            perturbedReferenceState( i + 3 ) += velocityPerturbation;
-            stateWrapper.setState( perturbedReferenceState );
-            upperturbedObservation = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(
-                observationTimes.at( 0 ), receiver, vectorOfTimes, vectorOfStates, ancillarySettings );
-
-            perturbedReferenceState = nominalReferenceState;
-            perturbedReferenceState( i + 3 ) -= velocityPerturbation;
-            stateWrapper.setState( perturbedReferenceState );
-            downperturbedObservation = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(
-                observationTimes.at( 0 ), receiver, vectorOfTimes, vectorOfStates, ancillarySettings );
-            stateWrapper.referenceState_( i + 3 ) += velocityPerturbation;
-            numericalPartial( i + 3 ) = ( upperturbedObservation( 0 ) - downperturbedObservation( 0 ) ) / ( 2.0 * velocityPerturbation );
-        }
-        std::cout<<"ANA: "<<totalPartial<<std::endl;
-        std::cout<<"NUM: "<<numericalPartial.transpose( )<<std::endl;
-    }
-
+    testPartials( twoWayDopplerObservationModel, twoWayDopplerPartial, twoWayDopplerScaling, stateWrapper, referenceTime );
+    testPartials( dopplerFrequencyObservationModel, frequencyDopplerPartial, frequencyDopplerScaling, stateWrapper, referenceTime, ancillarySettings );
 
 }
 
