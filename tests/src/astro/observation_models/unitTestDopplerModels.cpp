@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
         for( unsigned testCase = 0; testCase < 3; testCase++ )
         {
 
-            for( unsigned int normalizeObservable = 0; normalizeObservable < 2 ; normalizeObservable++ )
+            for( unsigned int normalizeObservable = 0; normalizeObservable < 2; normalizeObservable++ )
             {
                 if( normalizeObservable == 0 )
                 {

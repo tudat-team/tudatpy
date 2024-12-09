@@ -104,10 +104,10 @@ ObservationScalarType calculateLineOfSightVelocityAsCFractionFromReceiverStateFu
  */
 template< typename ObservationScalarType = double >
 ObservationScalarType computeOneWayFirstOrderDopplerTaylorSeriesExpansion(
-        Eigen::Matrix< ObservationScalarType, 6, 1 >& transmitterState,
-        Eigen::Matrix< ObservationScalarType, 6, 1 >& receiverState,
-        Eigen::Matrix< ObservationScalarType, 1, 3 >& lightTimeWrtTransmitterPositionPartial,
-        Eigen::Matrix< ObservationScalarType, 1, 3 >& lightTimeWrtReceiverPositionPartial,
+        const Eigen::Matrix< ObservationScalarType, 6, 1 >& transmitterState,
+        const Eigen::Matrix< ObservationScalarType, 6, 1 >& receiverState,
+        const Eigen::Matrix< ObservationScalarType, 1, 3 >& lightTimeWrtTransmitterPositionPartial,
+        const Eigen::Matrix< ObservationScalarType, 1, 3 >& lightTimeWrtReceiverPositionPartial,
         const int taylorSeriesOrder )
 {
     // Compute projected velocity components
@@ -539,29 +539,24 @@ public:
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
 
         // Compute light time
-        switch( linkEndAssociatedWithTime )
+        switch ( linkEndAssociatedWithTime )
         {
         case receiver:
             lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState_, transmitterState_, time, true, ancilliarySetings );
+                receiverState_, transmitterState_, time, true, ancilliarySetings );
             transmissionTime = time - lightTime;
             receptionTime = time;
             break;
 
         case transmitter:
             lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState_, transmitterState_, time, false, ancilliarySetings );
+                receiverState_, transmitterState_, time, false, ancilliarySetings );
             transmissionTime = time;
             receptionTime = time + lightTime;
             break;
         default:
             throw std::runtime_error(
-                        "Error when calculating one way Doppler observation, link end is not transmitter or receiver" );
-        }
-
-        if( ancilliarySetings != nullptr )
-        {
-            throw std::runtime_error( "Error, calling one-way Doppler observable with ancilliary settings, but none are supported." );
+                "Error when calculating one way Doppler observation, link end is not transmitter or receiver" );
         }
 
         linkEndTimes.clear( );
@@ -573,6 +568,21 @@ public:
 
         linkEndStates.push_back( transmitterState_.template cast< double >( ) );
         linkEndStates.push_back( receiverState_.template cast< double >( ) );
+
+        return computeIdealDopplerWithLinkEndData(
+            linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+    }
+
+    Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealDopplerWithLinkEndData(
+        const LinkEndType linkEndAssociatedWithTime,
+        const std::vector< double >& linkEndTimes,
+        const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr  )
+    {
+        if( ancilliarySetings != nullptr )
+        {
+            throw std::runtime_error( "Error, calling one-way Doppler observable with ancilliary settings, but none are supported." );
+        }
 
         // Compute transmitter and receiver proper time rate
         ObservationScalarType transmitterProperTimeDifference =
@@ -598,17 +608,17 @@ public:
                     transmitterProperTimeDifference, receiverProperTimeDifference, taylorSeriesExpansionOrder_ );
 
 
-                 // Compute first-order (geometrical) one-way Doppler contribution
+        // Compute first-order (geometrical) one-way Doppler contribution
         lightTimePartialWrtReceiverPosition_ =
                 lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
-                    transmitterState_, receiverState_, transmissionTime, receptionTime, true );
+                    linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true );
         lightTimePartialWrtTransmitterPosition_ =
                 lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
-                    transmitterState_, receiverState_, transmissionTime, receptionTime, false );
+                    linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
         ObservationScalarType firstOrderDopplerObservable =
                 computeOneWayFirstOrderDopplerTaylorSeriesExpansion<
                 ObservationScalarType >(
-                    transmitterState_, receiverState_,
+                    linkEndStates.at( 0 ), linkEndStates.at( 1 ),
                     lightTimePartialWrtTransmitterPosition_, lightTimePartialWrtReceiverPosition_,
                     taylorSeriesExpansionOrder_ );
 

@@ -1021,6 +1021,7 @@ private:
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             bool computeLightTimeCorrections = true )
     {
+
         // Define objects to keep light times
         ObservationScalarType totalLightTime = 0.0;
         ObservationScalarType currentLightTime;
