@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(testJuiceMeasuredFrequency)
         std::shared_ptr<DopplerMeasuredFrequencyObservationModel<double, Time> > dopplerFrequencyObservationModel =
             std::dynamic_pointer_cast<DopplerMeasuredFrequencyObservationModel<double, Time>>(
                 ObservationModelCreator<1, double, Time>::createObservationModel(
-                    std::make_shared<ObservationModelSettings>( doppler_measured_frequency, linkEnds, lightTimeCorrectionsList   ), bodies ));
+                    std::make_shared<ObservationModelSettings>( doppler_measured_frequency, linkEnds, lightTimeCorrectionsList  ), bodies ));
         
         // Define link end
         LinkEndType referenceLinkEnd = receiver;
