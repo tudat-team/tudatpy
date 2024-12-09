@@ -713,7 +713,7 @@ public:
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         ObservationModelSettings( two_way_doppler, mergeUpDownLink(
                                       uplinkOneWayDopplerSettings->linkEnds_, downlinkOneWayDopplerSettings->linkEnds_ ),
-                                  std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings, nullptr ),
+                                  std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings, std::make_shared< LightTimeConvergenceCriteria >( ) ),
         uplinkOneWayDopplerSettings_( uplinkOneWayDopplerSettings ),
         downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings )
     {
@@ -1926,35 +1926,62 @@ public:
             std::shared_ptr< TwoWayDopplerObservationSettings > twoWayDopplerSettings =
                     std::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings );
 
-
-            if( twoWayDopplerSettings == nullptr )
+            // Create vector of convergence criteria and light time corrections
+            std::vector< std::shared_ptr< LightTimeConvergenceCriteria > > singleLegsLightTimeConvergenceCriteriaList;
+            std::shared_ptr< LightTimeConvergenceCriteria > multiLegLightTimeConvergenceCriteria =
+                observationSettings->lightTimeConvergenceCriteria_;
+            std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > > lightTimeCorrectionsList;
+            if ( twoWayDopplerSettings != nullptr )
             {
-                observationModel = std::make_shared< TwoWayDopplerObservationModel<
-                        ObservationScalarType, TimeType > >(
-                            linkEnds,
-                            std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
-                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    std::make_shared< ObservationModelSettings >(
-                                        one_way_doppler, uplinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ), bodies, topLevelObservableType ) ),
-                            std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
-                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    std::make_shared< ObservationModelSettings >(
-                                        one_way_doppler, downlinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ), bodies, topLevelObservableType ) ),
-                            observationBias );
+                lightTimeCorrectionsList.push_back( twoWayDopplerSettings->uplinkOneWayDopplerSettings_->lightTimeCorrectionsList_ );
+                lightTimeCorrectionsList.push_back( twoWayDopplerSettings->downlinkOneWayDopplerSettings_->lightTimeCorrectionsList_ );
+
+                singleLegsLightTimeConvergenceCriteriaList.push_back( twoWayDopplerSettings->uplinkOneWayDopplerSettings_->lightTimeConvergenceCriteria_ );
+                singleLegsLightTimeConvergenceCriteriaList.push_back( twoWayDopplerSettings->downlinkOneWayDopplerSettings_->lightTimeConvergenceCriteria_ );
             }
             else
             {
-                observationModel = std::make_shared< TwoWayDopplerObservationModel<
-                        ObservationScalarType, TimeType > >(
-                            linkEnds,
-                            std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
-                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies, topLevelObservableType ) ),
-                            std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
-                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodies, topLevelObservableType ) ),
-                            observationBias, twoWayDopplerSettings->normalizeWithSpeedOfLight_ );
+                for( unsigned int i = 0; i < 2; i++ )
+                {
+                    lightTimeCorrectionsList.push_back( observationSettings->lightTimeCorrectionsList_ );
+                    singleLegsLightTimeConvergenceCriteriaList.push_back( observationSettings->lightTimeConvergenceCriteria_ );
+                }
             }
+
+            // Create multi-leg light time calculator
+            std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
+                multiLegLightTimeCalculator = createMultiLegLightTimeCalculator< ObservationScalarType, TimeType >(
+                linkEnds, bodies, topLevelObservableType, lightTimeCorrectionsList );
+
+            std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > uplinkDopplerCalculator;
+            std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > downlinkDopplerCalculator;
+            if ( twoWayDopplerSettings != nullptr )
+            {
+                uplinkDopplerCalculator = std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                    ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                        twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodies, topLevelObservableType ) );
+
+                downlinkDopplerCalculator = std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                        ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                            twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodies, topLevelObservableType ) );
+            }
+            else
+            {
+                uplinkDopplerCalculator = std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                    ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                        std::make_shared< ObservationModelSettings >(
+                            one_way_doppler, uplinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ), bodies, topLevelObservableType ) );
+                downlinkDopplerCalculator = std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                        ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                            std::make_shared< ObservationModelSettings >(
+                                one_way_doppler, downlinkLinkEnds, observationSettings->lightTimeCorrectionsList_ ), bodies, topLevelObservableType ) );
+            }
+
+            bool normalizeWithSpeedOfLight = false;
+            observationModel = std::make_shared< TwoWayDopplerObservationModel<
+                ObservationScalarType, TimeType > >(
+                linkEnds, multiLegLightTimeCalculator, uplinkDopplerCalculator, downlinkDopplerCalculator,
+                observationBias, normalizeWithSpeedOfLight );
 
             break;
         }
