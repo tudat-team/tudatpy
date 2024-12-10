@@ -303,7 +303,6 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRang
         const std::vector< FrequencyBands > &frequencyBands,
         const double referenceFrequency,
         const double lowestRangingComponent,
-        const double rangeConversionFactor = 0.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 
 {
@@ -314,7 +313,6 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRang
                                                 lowestRangingComponent );
     ancillarySettings->setAncilliaryDoubleData( sequential_range_reference_frequency,
                                                 referenceFrequency );
-    ancillarySettings->setAncilliaryDoubleData( range_conversion_factor, rangeConversionFactor );
 
     ancillarySettings->setAncilliaryDoubleVectorData(
             frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
