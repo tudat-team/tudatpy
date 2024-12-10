@@ -794,6 +794,8 @@ void expose_observation_setup( py::module& m )
             .value( "sequential_range_lowest_ranging_component",
                     tom::ObservationAncilliarySimulationVariable::
                             sequential_range_lowest_ranging_component )
+            .value( "range_conversion_factor",
+                    tom::ObservationAncilliarySimulationVariable::range_conversion_factor )
             .export_values( );
 
     py::class_< tom::ObservationViabilitySettings,
