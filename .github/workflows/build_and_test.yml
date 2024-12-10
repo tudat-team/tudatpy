@@ -39,12 +39,12 @@ jobs:
             c_compiler: cl
             cpp_compiler: cl
             label: win-64
-            path_conda_env: C:\Miniconda3\envs\tudat
+            path_conda_env: C:\Miniconda\envs\tudat
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
             label: linux-64
-            path_conda_env: /usr/share/miniconda3/envs/tudat
+            path_conda_env: /usr/share/miniconda/envs/tudat
           - os: macos-latest
             c_compiler: clang
             cpp_compiler: clang++
@@ -68,14 +68,12 @@ jobs:
     - uses: actions/checkout@v4
 
 
-    - name: Setup conda environment using mamba
-      # This step sets up a conda environment using mamba, a faster alternative to conda. It creates an empty conda environment with the name 'tudat' and activates it. The environment is created using the latest version of Mambaforge, a conda distribution that includes mamba.
+    - name: Setup conda environment
+      # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
       uses: conda-incubator/setup-miniconda@v3
       with:
-         miniforge-variant: Mambaforge
-         miniforge-version: latest
-         activate-environment: tudat
-         use-mamba: true
+           activate-environment: tudat
+           auto-activate-base: false
 
 
     - name: Get date
@@ -97,7 +95,7 @@ jobs:
 
     - name: Create conda environment from environment.yml
       # Update the tudat conda environment created using the environment.yml file if the cache is not restored
-      run: mamba env update -n tudat -f environment.yml
+      run: conda env update -n tudat -f environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
 
 

@@ -646,8 +646,8 @@ public:
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
                 receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 );
         return ( relativePosition.normalized( ) ).transpose( ) *
-                ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) +
-                  currentCorrection_ / relativePosition.norm( ) ) *
+//                ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) +
+//                  currentCorrection_ / relativePosition.norm( ) ) *
                 ( isPartialWrtReceiver ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) :
                                          mathematical_constants::getFloatingInteger< ObservationScalarType >( -1 ) );
     }

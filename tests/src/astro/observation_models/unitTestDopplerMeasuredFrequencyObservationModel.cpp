@@ -183,6 +183,9 @@ BOOST_AUTO_TEST_CASE(testJuiceMeasuredFrequency)
         BOOST_CHECK_SMALL( linear_algebra::getVectorEntryRootMeanSquare( residualVector.segment( 0, 7000 ) ), 2.0 );
         BOOST_CHECK_SMALL( std::fabs( linear_algebra::getVectorEntryMean( residualVector.segment( 0, 7000 ) ) ), 2.0 );
 
+        std::cout<<"RMS "<<linear_algebra::getVectorEntryRootMeanSquare( residualVector.segment( 0, 7000 ) )<<std::endl;
+        std::cout<<"MEAN "<<std::fabs( linear_algebra::getVectorEntryMean( residualVector.segment( 0, 7000 ) ) )<<std::endl;
+
         if( testType == 0 )
         {
             originalResidual = residualVector;
