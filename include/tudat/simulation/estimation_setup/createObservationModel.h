@@ -613,9 +613,14 @@ public:
      * and w.r.t. which the velocity of the point at which proper time rate is computed is taken
      */
     DirectFirstOrderDopplerProperTimeRateSettings(
-            const std::string centralBodyName ):
+            const std::string& centralBodyName ):
         DopplerProperTimeRateSettings( direct_first_order_doppler_proper_time_rate ),
-        centralBodyName_( centralBodyName ){ }
+        centralBodyNames_( { centralBodyName } ){ }
+
+    DirectFirstOrderDopplerProperTimeRateSettings(
+        const std::vector< std::string >& centralBodyNames ):
+        DopplerProperTimeRateSettings( direct_first_order_doppler_proper_time_rate ),
+        centralBodyNames_( centralBodyNames ){ }
 
     //! Destructor.
     ~DirectFirstOrderDopplerProperTimeRateSettings( ){ }
@@ -625,7 +630,7 @@ public:
      * Name of central body, fromw which the mass monopole is retrieved to compute the proper time rate,
      * and w.r.t. which the velocity of the point at which proper time rate is computed is taken
      */
-    std::string centralBodyName_;
+    std::vector< std::string > centralBodyNames_;
 };
 
 //! Class to define the settings for one-way Doppler observable
@@ -1282,6 +1287,8 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
         }
         else
         {
+            std::vector< std::function< double( ) > > gravitationalParameterFunctions;
+
             if( bodies.at( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_ )->getGravityFieldModel( ) == nullptr )
             {
                 throw std::runtime_error( "Error when making DirectFirstOrderDopplerProperTimeRateInterface, no gravity field found for " +
@@ -2291,11 +2298,11 @@ public:
             {
                 auto uplinkOneWaySettings = std::make_shared< OneWayDopplerObservationSettings >(
                     getUplinkFromTwoWayLinkEnds( linkEnds ), observationSettings->lightTimeCorrectionsList_,
-                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ), nullptr );
+                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Sun" ), std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Sun" ) );
                 uplinkOneWaySettings->normalizeWithSpeedOfLight_ = false;
                 auto downlinkOneWaySettings = std::make_shared< OneWayDopplerObservationSettings >(
                     getDownlinkFromTwoWayLinkEnds( linkEnds ), observationSettings->lightTimeCorrectionsList_,
-                    nullptr, std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
+                    std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Sun" ), std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Sun" ) );
                 downlinkOneWaySettings->normalizeWithSpeedOfLight_ = false;
 
                 auto twoWaySettings = std::make_shared< TwoWayDopplerObservationSettings >( uplinkOneWaySettings, downlinkOneWaySettings );

@@ -286,13 +286,13 @@ public:
             const std::function< double( ) > gravitationalParameterFunction,
             const std::string& referenceBody,
             const LinkEndType referencePointLinkEndType = unidentified_link_end,
-            const std::function< Eigen::Vector6d( const double ) > referencePointStateFunction =
-            std::function< Eigen::Vector6d( const double ) >( ) ):
+            const std::vector< std::function< Eigen::Vector6d( const double ) > > referencePointStateFunction =
+            std::vector< std::function< Eigen::Vector6d( const double ) > >( ) ):
         DopplerProperTimeRateInterface( computationPointLinkEndType ),
         gravitationalParameterFunction_( gravitationalParameterFunction ),
         referenceBody_( referenceBody ),
         referencePointLinkEndType_( referencePointLinkEndType ),
-        referencePointStateFunction_( referencePointStateFunction )
+        referencePointStateFunctions_( referencePointStateFunctions )
     {
         // Check input consistency
         if( this->computationPointLinkEndType_ == referencePointLinkEndType )

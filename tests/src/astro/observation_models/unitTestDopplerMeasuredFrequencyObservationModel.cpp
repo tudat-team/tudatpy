@@ -198,9 +198,9 @@ BOOST_AUTO_TEST_CASE(testJuiceMeasuredFrequency)
 //    std::cout<<linear_algebra::getVectorEntryMean( residualVector.segment( 0, 7000 ) )<<std::endl;
 
 //
-//    input_output::writeMatrixToFile( observableVector, "pride_doppler.dat", 16 );
-//    input_output::writeMatrixToFile( residualVector, "pride_residual.dat", 16 );
-//    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector( utilities::staticCastVector< double, Time >( observationTimes ) ), "pride_times.dat", 16 );
+    input_output::writeMatrixToFile( observableVector, "pride_doppler.dat", 16 );
+    input_output::writeMatrixToFile( residualVector, "pride_residual.dat", 16 );
+    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector( utilities::staticCastVector< double, Time >( observationTimes ) ), "pride_times.dat", 16 );
     }
 
 }
