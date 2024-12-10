@@ -1057,9 +1057,10 @@ class DsnNWayRangeObservationSettings : public ObservationModelSettings
     /*!
      * Constructor for different light-time corrections per link
      * \param oneWayRangeObservationSettings List of settings for the one-way range observation
-     * models \param biasSettings Settings for the observation bias model that is to be used
-     * (default none: nullptr) \param lightTimeConvergenceCriteria Settings for the light-time
-     * convergence criteria
+     * models
+     * \param biasSettings Settings for the observation bias model that is to be used (default none:
+     * nullptr)
+     * \param lightTimeConvergenceCriteria Settings for the light-time convergence criteria
      */
     DsnNWayRangeObservationSettings(
             const std::vector< std::shared_ptr< ObservationModelSettings > >
