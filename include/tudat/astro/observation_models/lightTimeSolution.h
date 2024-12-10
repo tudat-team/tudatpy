@@ -871,8 +871,6 @@ public:
                     link_ends_delays, false );
         }
 
-        linkEndsDelays_[1] = 1.4149E-6;
-
         if ( !linkEndsDelays_.empty( ) )
         {
             // Delays vector already including delays at receiving and transmitting stations

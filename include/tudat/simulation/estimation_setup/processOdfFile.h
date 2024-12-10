@@ -1296,6 +1296,34 @@ observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySe
                 observation_models::sequential_range_lowest_ranging_component,
                 sequentialRangeDataBlock->lowestRangingComponent_.at( dataIndex ) );
 
+        // Define the conversion factor based on the value of the uplink frequency band
+        FrequencyBands uplinkBand = frequencyBands.at( 0 );
+
+        double conversionFactor;
+        if( uplinkBand == 0 )  // S-band
+        {
+            conversionFactor = 0.5;
+        }
+        else if( uplinkBand == 1 )  // X-band
+        {
+            conversionFactor = 221.0 / ( 749.0 * 2.0 );
+        }
+        else if( uplinkBand == 2 )  // Ka-band
+        {
+            conversionFactor = 221 / ( 3599 * 2.0 );
+        }
+        else
+        {
+            throw std::runtime_error(
+                    "Unsupported uplink frequency band to compute the range conversion factor" );
+        }
+
+        ancillarySettings.setAncilliaryDoubleData(
+                observation_models::range_conversion_factor,
+                physical_constants::SPEED_OF_LIGHT /
+                        ( sequentialRangeDataBlock->referenceFrequency_.at( dataIndex ) *
+                          conversionFactor ) );
+
         ancillarySettings.setAncilliaryDoubleVectorData(
                 observation_models::link_ends_delays,
                 std::vector< double >{
@@ -1513,7 +1541,6 @@ createOdfObservedObservationCollection(
             sortedObservationSets );
 }
 
-
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > >
 compressDopplerData(
@@ -1536,14 +1563,16 @@ compressDopplerData(
 
     earth_orientation::TerrestrialTimeScaleConverter timeScaleConverter =
             earth_orientation::TerrestrialTimeScaleConverter( );
-    Eigen::Vector3d stationPosition = simulation_setup::getCombinedApproximateGroundStationPositions( ).at(
-        originalDopplerData->getLinkEnds( ).at( receiver ).stationName_ );
+    Eigen::Vector3d stationPosition =
+            simulation_setup::getCombinedApproximateGroundStationPositions( ).at(
+                    originalDopplerData->getLinkEnds( ).at( receiver ).stationName_ );
 
     std::vector< TimeType > originalObservationTimesUtc =
-            timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >( basic_astrodynamics::tdb_scale,
-                                                            basic_astrodynamics::utc_scale,
-                                                            originalObservationTimesTdb,
-                                                            stationPosition );
+            timeScaleConverter.getCurrentTimesFromSinglePosition< TimeType >(
+                    basic_astrodynamics::tdb_scale,
+                    basic_astrodynamics::utc_scale,
+                    originalObservationTimesTdb,
+                    stationPosition );
 
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > compressedObservations;
     std::vector< TimeType > compressedObservationTimesUtc;
@@ -1766,32 +1795,34 @@ void setOdfInformationInBodies(
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createOdfObservedObservationCollectionFromFile(
-    simulation_setup::SystemOfBodies& bodies,
-    const std::vector< std::string >& odfFileNames,
-    const std::string& targetName,
-    const bool verboseOutput = true,
-    const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-    simulation_setup::getApproximateDsnGroundStationPositions( ) )
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > >
+createOdfObservedObservationCollectionFromFile(
+        simulation_setup::SystemOfBodies &bodies,
+        const std::vector< std::string > &odfFileNames,
+        const std::string &targetName,
+        const bool verboseOutput = true,
+        const std::map< std::string, Eigen::Vector3d > &earthFixedGroundStationPositions =
+                simulation_setup::getApproximateDsnGroundStationPositions( ) )
 {
-
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    for( std::string odfFileName : odfFileNames )
+    for( std::string odfFileName: odfFileNames )
     {
-        rawOdfDataVector.push_back( std::make_shared< input_output::OdfRawFileContents>( odfFileName ) );
+        rawOdfDataVector.push_back(
+                std::make_shared< input_output::OdfRawFileContents >( odfFileName ) );
     }
 
     std::shared_ptr< ProcessedOdfFileContents< TimeType > > processedOdfFileContents =
-        std::make_shared< ProcessedOdfFileContents< TimeType > >( rawOdfDataVector, targetName, verboseOutput, earthFixedGroundStationPositions );
+            std::make_shared< ProcessedOdfFileContents< TimeType > >(
+                    rawOdfDataVector, targetName, verboseOutput, earthFixedGroundStationPositions );
     observation_models::setOdfInformationInBodies( processedOdfFileContents, bodies );
 
     // Create observed observation collection
-    return observation_models::createOdfObservedObservationCollection< ObservationScalarType, TimeType >(
-        processedOdfFileContents );
+    return observation_models::createOdfObservedObservationCollection< ObservationScalarType,
+                                                                       TimeType >(
+            processedOdfFileContents );
 }
 
-} // namespace observation_models
-
+}  // namespace observation_models
 
 }  // namespace tudat
 
