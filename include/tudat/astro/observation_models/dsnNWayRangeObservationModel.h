@@ -18,7 +18,6 @@
 #include <stdexcept>
 #include <string>
 
-#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
@@ -197,10 +196,6 @@ class DsnNWayRangeObservationModel : public ObservationModel< 1, ObservationScal
                         ->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
                                 utcTransmissionTime, utcReceptionTime );
         ObservationScalarType rangeUnitIntegral = conversionFactor * transmitterFrequencyIntegral;
-
-        ancillarySettings->setAncilliaryDoubleData(
-                range_conversion_factor,
-                1 / rangeUnitIntegral * physical_constants::SPEED_OF_LIGHT );
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
