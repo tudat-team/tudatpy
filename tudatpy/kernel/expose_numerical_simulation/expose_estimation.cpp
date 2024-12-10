@@ -865,6 +865,12 @@ void expose_estimation(py::module &m) {
                  py::arg("link_end_type"),
                  py::arg("observation_parser") = std::make_shared< tom::ObservationCollectionParser >( ),
                  get_docstring( "set_reference_points" ).c_str( ) )
+            .def("set_transponder_delay",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setTransponderDelay,
+                  py::arg( "spacecraft_name" ),
+                  py::arg( "transponder_delay" ),
+                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+                  get_docstring( "set_transponder_delay" ).c_str( ) )
             .def( "remove_empty_observation_sets",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::removeEmptySingleObservationSets,
                   get_docstring( "remove_empty_observation_sets" ).c_str( ) )
