@@ -29,6 +29,34 @@ namespace tudat
 namespace observation_models
 {
 
+
+inline double getMeasuredFrequencyDopplerScalingFactor(
+    const std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > receivedFrequencyFunction,
+    const observation_models::LinkEndType referenceLinkEnd,
+    const std::vector< Eigen::Vector6d >& linkEndStates,
+    const std::vector< double >& linkEndTimes,
+    const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
+{
+    double integrationTime;
+    std::vector< FrequencyBands > frequencyBands;
+    try
+    {
+        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw std::runtime_error(
+            "Error when retrieving ancillary settings for measured frequency observable: " +
+            std::string( caughtException.what( ) ) );
+    }
+
+    double transmissionTime = linkEndTimes.at( 0 );
+    double frequency = receivedFrequencyFunction( frequencyBands, transmissionTime );
+
+    // Moyer (2000), eq. 13-59
+    return frequency / physical_constants::getSpeedOfLight< double >( );
+}
+
 template< typename ObservationScalarType = double, typename TimeType = Time >
 class DopplerMeasuredFrequencyObservationModel
     : public ObservationModel< 1, ObservationScalarType, TimeType >
@@ -208,7 +236,13 @@ class DopplerMeasuredFrequencyObservationModel
         return observation;
     }
 
-   private:
+
+    std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > getTwoWayDopplerModel( )
+    {
+        return twoWayDopplerModel_;
+    }
+
+
     // Doppler observation model associated with the measurement
     std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > >
             twoWayDopplerModel_;

@@ -170,90 +170,64 @@ class ObservationPartialCreator< 1, ObservationScalarType, TimeType >
                 observationPartials;
         switch( observationModel->getObservableType( ) )
         {
-            case observation_models::one_way_range:
-                observationPartials =
-                        createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >(
-                                observationModel,
-                                bodies,
-                                parametersToEstimate,
-                                isPartialForDifferencedObservable,
-                                isPartialForConcatenatedObservable );
-                break;
-            case observation_models::one_way_doppler:
-                observationPartials =
-                        createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >(
-                                observationModel,
-                                bodies,
-                                parametersToEstimate,
-                                isPartialForDifferencedObservable,
-                                isPartialForConcatenatedObservable );
-                break;
-            case observation_models::two_way_doppler:
-                if( isPartialForConcatenatedObservable )
-                {
-                    throw std::runtime_error(
-                            "Error when requesting partial creation for 2-way Doppler; "
-                            "concatenated partial not supported" );
-                }
-                observationPartials =
-                        createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
-                                observationModel,
-                                bodies,
-                                parametersToEstimate,
-                                isPartialForDifferencedObservable );
-                break;
-            case observation_models::n_way_range:
-                if( isPartialForConcatenatedObservable )
-                {
-                    throw std::runtime_error(
-                            "Error when requesting partial creation for n-way range; concatenated "
-                            "partial not supported" );
-                }
-                observationPartials = createNWayRangePartials< ObservationScalarType >(
-                        observationModel,
-                        bodies,
-                        parametersToEstimate,
-                        isPartialForDifferencedObservable );
-                break;
-            case observation_models::one_way_differenced_range:
-                if( isPartialForConcatenatedObservable )
-                {
-                    throw std::runtime_error(
-                            "Error when requesting partial creation for 1-way averaged Doppler; "
-                            "concatenated partial not supported" );
-                }
-                observationPartials =
-                        createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
-                                observationModel,
-                                bodies,
-                                parametersToEstimate,
-                                isPartialForDifferencedObservable );
-                break;
-            case observation_models::n_way_differenced_range:
-            case observation_models::dsn_n_way_averaged_doppler:
-            case observation_models::doppler_measured_frequency:
-                if( isPartialForDifferencedObservable )
-                {
-                    throw std::runtime_error(
-                            "Error when requesting partial creation for n-way averaged Doppler; "
-                            "differenced partial not supported" );
-                }
-                if( isPartialForConcatenatedObservable )
-                {
-                    throw std::runtime_error(
-                            "Error when requesting partial creation for n-way averaged Doppler; "
-                            "concatenated partial not supported" );
-                }
-                observationPartials =
-                        createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
-                                observationModel, bodies, parametersToEstimate );
-                break;
-            default:
-                std::string errorMessage =
-                        "Error when making observation partial set, could not recognize "
-                        "observable " +
-                        std::to_string( observationModel->getObservableType( ) ) + " of size 1 ";
-                throw std::runtime_error( errorMessage );
+        case observation_models::one_way_range:
+            observationPartials = createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >(
+                        observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable, isPartialForConcatenatedObservable );
+            break;
+        case observation_models::one_way_doppler:
+            observationPartials = createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >(
+                        observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable, isPartialForConcatenatedObservable );
+            break;
+        case observation_models::two_way_doppler:
+            if( isPartialForConcatenatedObservable )
+            {
+                throw std::runtime_error( "Error when requesting partial creation for 2-way Doppler; concatenated partial not supported" );
+            }
+            observationPartials = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
+                        observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
+            break;
+        case observation_models::doppler_measured_frequency:
+            if( isPartialForConcatenatedObservable )
+            {
+                throw std::runtime_error( "Error when requesting partial creation for 2-way frequency Doppler; concatenated partial not supported" );
+            }
+            observationPartials = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
+                observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable, true );
+            break;
+        case observation_models::n_way_range:
+            if( isPartialForConcatenatedObservable )
+            {
+                throw std::runtime_error( "Error when requesting partial creation for n-way range; concatenated partial not supported" );
+            }
+            observationPartials = createNWayRangePartials< ObservationScalarType >(
+                        observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
+            break;
+        case observation_models::one_way_differenced_range:
+            if( isPartialForConcatenatedObservable )
+            {
+                throw std::runtime_error( "Error when requesting partial creation for 1-way averaged Doppler; concatenated partial not supported" );
+            }
+            observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
+                observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable  );
+            break;
+        case observation_models::n_way_differenced_range:
+        case observation_models::dsn_n_way_averaged_doppler:
+            if( isPartialForDifferencedObservable )
+            {
+                throw std::runtime_error( "Error when requesting partial creation for n-way averaged Doppler; differenced partial not supported" );
+            }
+            if( isPartialForConcatenatedObservable )
+            {
+                throw std::runtime_error( "Error when requesting partial creation for n-way averaged Doppler; concatenated partial not supported" );
+            }
+            observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
+                        observationModel, bodies, parametersToEstimate  );
+            break;
+        default:
+            std::string errorMessage =
+                    "Error when making observation partial set, could not recognize observable " +
+                    std::to_string( observationModel->getObservableType( ) ) + " of size 1 ";
+            throw std::runtime_error( errorMessage );
         }
 
         return observationPartials;

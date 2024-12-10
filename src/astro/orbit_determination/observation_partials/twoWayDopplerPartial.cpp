@@ -117,6 +117,11 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
     observation_models::LinkEndType subLinkReference;
 
     double currentPartialMultiplier = TUDAT_NAN;
+    double frequencyScaling = 1.0;
+    if( scalingFactorFunction_ != nullptr )
+    {
+        frequencyScaling = scalingFactorFunction_( linkEndOfFixedTime, states, times, ancillarySettings );
+    }
 
     for( dopplerPartialIterator_ = dopplerPartialList_.begin( ); dopplerPartialIterator_ != dopplerPartialList_.end( );
          dopplerPartialIterator_++ )
@@ -130,7 +135,7 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         subLinkTimes[ 1 ] = times[ 2 * dopplerPartialIterator_->first + 1 ];
 
         // Compute value by which one-way range should be scaled for inclusion into n-way range
-        currentPartialMultiplier = twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( dopplerPartialIterator_->first );
+        currentPartialMultiplier = frequencyScaling * twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( dopplerPartialIterator_->first );
 
         if( dopplerPartialIterator_->first >= referenceStartLinkEndIndex )
         {
