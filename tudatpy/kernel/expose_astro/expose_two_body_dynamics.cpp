@@ -84,7 +84,8 @@ void expose_two_body_dynamics(py::module &m) {
           py::arg("gravitational_param"),
           py::arg("semi_major_axis"),
           py::arg("eccentricity"),
-          py::arg("excess_velocity"));
+          py::arg("excess_velocity"),
+          get_docstring("compute_escape_or_capture_delta_v").c_str( ));
 
     py::class_<tms::PericenterFindingFunctions,
             std::shared_ptr<tms::PericenterFindingFunctions>>(m, "PericenterFindingFunctions")
