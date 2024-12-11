@@ -22,6 +22,9 @@ dependencies:
   - astropy    # for tudatpy.data.mpc
   - astropy-healpix  # for tudatpy.data._biases
   - spiceypy # for automatic data downloader and kernel converter
+  # Data downloader tabular output
+  - tabulate
+  - colorama
   # Documentation
   - jinja2
   - pyyaml
