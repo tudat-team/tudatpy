@@ -135,15 +135,140 @@ std::vector<std::string> getStandardSpiceKernels(const std::vector<std::string> 
 //! @get_docstring(load_standard_kernels)
 void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemerisKernels =
                                   std::vector<std::string>());
-
+/**
+ * @brief Sets the default error handling action of the CSPICE toolkit to "RETURN".
+ *
+ * This function uses the CSPICE function `erract_c` to set the error handling mode
+ * to "RETURN". In this mode, CSPICE routines do not abort when an error is detected.
+ * Instead, they output error messages (if enabled) and immediately return upon entry.
+ *
+ * This mode allows for safe handling of errors in programs where continued execution
+ * without program termination is desired. It is especially useful when multiple
+ * CSPICE routines are called sequentially, as it prevents unexpected crashes and
+ * ensures error messages are retained for later retrieval.
+ *
+ * @note The CSPICE toolkit provides several error handling modes. By using this
+ * function, the error handling is explicitly set to "RETURN". Ensure this behavior
+ * aligns with the error handling strategy of your program.
+ *
+ * Example Usage:
+ * @code
+ * toggleErrorReturn();
+ * // Call CSPICE routines here. Errors will cause immediate returns instead of aborting.
+ * @endcode
+ *
+ * @see erract_c
+ */
 void toggleErrorReturn( );
 
+/**
+ * @brief Sets the CSPICE error output device to "ABORT".
+ *
+ * This function uses the CSPICE function `errdev_c` to configure the error output device
+ * such that errors cause the program to terminate execution immediately. When set to 
+ * "ABORT", CSPICE routines will output error messages (if enabled) and then stop execution.
+ *
+ * This setting is useful for non-interactive programs or applications where errors should
+ * result in immediate termination to avoid undefined behavior or further erroneous operations.
+ *
+ * @note The CSPICE toolkit provides multiple error output options. By using this function,
+ * the error output behavior is explicitly set to "ABORT".
+ *
+ * Example Usage:
+ * @code
+ * toggleErrorAbort();
+ * // CSPICE routines will now terminate the program if errors occur.
+ * @endcode
+ *
+ * @see errdev_c
+ */
 void toggleErrorAbort( );
 
+/**
+ * @brief Suppresses all CSPICE error output.
+ *
+ * This function uses the CSPICE function `errdev_c` to configure the error output device
+ * to "NULL". When set to "NULL", no error messages will be output, effectively silencing
+ * all CSPICE error reporting.
+ *
+ * This setting is useful in scenarios where error messages are not desired, such as when
+ * testing or debugging, or when errors are handled programmatically without needing
+ * console or file outputs.
+ *
+ * @warning Suppressing error output can make debugging difficult, as errors will not be
+ * displayed. Use this setting with caution.
+ *
+ * Example Usage:
+ * @code
+ * suppressErrorOutput();
+ * // CSPICE routines will no longer output error messages.
+ * @endcode
+ *
+ * @see errdev_c
+ */
 void suppressErrorOutput( );
 
+/**
+ * @brief Retrieves the current CSPICE long error message if an error condition exists.
+ *
+ * This function checks for an active error condition using the CSPICE function `failed_c`.
+ * If an error is detected (i.e., `failed_c` returns `SPICETRUE`), it retrieves the detailed
+ * long error message using `getmsg_c` and returns it as a standard C++ string. If no error
+ * condition exists (`failed_c` returns `SPICEFALSE`), the function returns an empty string.
+ *
+ * The long error message provides a detailed explanation of the error, including potentially
+ * specific data about the error's occurrence. This function is useful for debugging and
+ * understanding error causes in CSPICE-based programs.
+ *
+ * @return A string containing the CSPICE long error message if an error exists, or an empty
+ * string if no error condition is present.
+ *
+ * Example Usage:
+ * @code
+ * std::string errorMessage = getErrorMessage();
+ * if (!errorMessage.empty()) {
+ *     std::cerr << "Error: " << errorMessage << std::endl;
+ * }
+ * @endcode
+ *
+ * @note This function does not alter the CSPICE error state. If error handling needs to
+ * continue, ensure that the CSPICE environment is appropriately managed after retrieving
+ * the error message.
+ *
+ * @see failed_c
+ * @see getmsg_c
+ */
 std::string getErrorMessage( );
 
+/**
+ * @brief Checks for a CSPICE error condition and resets the error status if one exists.
+ *
+ * This function uses `failed_c` to check whether a CSPICE error condition has been signaled
+ * (i.e., an error was detected). If an error condition exists (`failed_c` returns `SPICETRUE`),
+ * the function resets the error status using `reset_c` and returns `true`. If no error condition
+ * exists (`failed_c` returns `SPICEFALSE`), the function returns `false`.
+ *
+ * Resetting the error status clears the error messages and re-enables the setting of long
+ * error messages, allowing CSPICE routines to continue normal execution. This function is
+ * particularly useful in applications that use the "RETURN" error action mode, where CSPICE
+ * routines return immediately upon entry if an error condition exists.
+ *
+ * @return `true` if an error condition exists and has been reset, otherwise `false`.
+ *
+ * Example Usage:
+ * @code
+ * if (checkFailure()) {
+ *     std::cerr << "An error occurred and was reset." << std::endl;
+ * }
+ * @endcode
+ *
+ * @note Use this function to handle and reset CSPICE error conditions in cases where
+ *       continued program execution is desired. Ensure that appropriate diagnostic
+ *       actions are taken before calling this function if required.
+ *
+ * @see failed_c
+ * @see reset_c
+ */
 bool checkFailure( );
 
 
