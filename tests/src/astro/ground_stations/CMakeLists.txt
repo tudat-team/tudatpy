@@ -31,6 +31,6 @@ TUDAT_ADD_TEST_CASE(PoleTideDisplacement
         ${Tudat_PROPAGATION_LIBRARIES}
 )
 
-# TUDAT_ADD_TEST_CASE(TransmittingFrequencies
-#     PRIVATE_LINKS
-#     ${Tudat_ESTIMATION_LIBRARIES})
+ TUDAT_ADD_TEST_CASE(TransmittingFrequencies
+     PRIVATE_LINKS
+     ${Tudat_ESTIMATION_LIBRARIES})
