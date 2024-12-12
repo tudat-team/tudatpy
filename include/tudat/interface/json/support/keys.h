@@ -20,8 +20,7 @@ namespace json_interface
 {
 
 //! Special keys (used internally by json_interface, can't be used in JSON files).
-struct SpecialKeys
-{
+struct SpecialKeys {
     static const std::string root;
     static const char dot;
     static const std::string up;
@@ -33,8 +32,7 @@ struct SpecialKeys
 };
 
 //! Keys recognised by json_interface.
-struct Keys
-{
+struct Keys {
     static const std::string simulationType;
     static const std::string initialEpoch;
     static const std::string finalEpoch;
@@ -42,8 +40,7 @@ struct Keys
     static const std::string globalFrameOrientation;
 
     static const std::string spice;
-    struct Spice
-    {
+    struct Spice {
         static const std::string useStandardKernels;
         static const std::string alternativeKernels;
         static const std::string kernels;
@@ -53,8 +50,7 @@ struct Keys
     };
 
     static const std::string bodies;
-    struct Body
-    {
+    struct Body {
         static const std::string useDefaultSettings;
         static const std::string initialState;
         static const std::string initialStateOrigin;
@@ -62,8 +58,7 @@ struct Keys
         static const std::string rotationalState;
         static const std::string referenceArea;
 
-        struct State
-        {
+        struct State {
             static const std::string type;
             // Cartesian
             static const std::string x;
@@ -102,8 +97,7 @@ struct Keys
         };
 
         static const std::string aerodynamics;
-        struct Aerodynamics
-        {
+        struct Aerodynamics {
             static const std::string coefficientsType;
             static const std::string referenceLength;
             static const std::string referenceArea;
@@ -127,8 +121,7 @@ struct Keys
         };
 
         static const std::string atmosphere;
-        struct Atmosphere
-        {
+        struct Atmosphere {
             static const std::string type;
             static const std::string densityScaleHeight;
             static const std::string constantTemperature;
@@ -143,8 +136,7 @@ struct Keys
         };
 
         static const std::string ephemeris;
-        struct Ephemeris
-        {
+        struct Ephemeris {
             static const std::string type;
             static const std::string frameOrigin;
             static const std::string frameOrientation;
@@ -170,8 +162,7 @@ struct Keys
         };
 
         static const std::string gravityField;
-        struct GravityField
-        {
+        struct GravityField {
             static const std::string type;
             static const std::string gravitationalParameter;
             static const std::string referenceRadius;
@@ -187,8 +178,7 @@ struct Keys
         };
 
         static const std::string rotationModel;
-        struct RotationModel
-        {
+        struct RotationModel {
             static const std::string type;
             static const std::string originalFrame;
             static const std::string targetFrame;
@@ -200,8 +190,7 @@ struct Keys
         };
 
         static const std::string shapeModel;
-        struct ShapeModel
-        {
+        struct ShapeModel {
             static const std::string type;
             static const std::string radius;
             static const std::string equatorialRadius;
@@ -209,8 +198,7 @@ struct Keys
         };
 
         static const std::string radiationPressure;
-        struct RadiationPressure
-        {
+        struct RadiationPressure {
             static const std::string type;
             static const std::string sourceBody;
             static const std::string occultingBodies;
@@ -219,8 +207,7 @@ struct Keys
         };
 
         static const std::string gravityFieldVariation;
-        struct GravityFieldVariation
-        {
+        struct GravityFieldVariation {
             static const std::string bodyDeformationType;
             static const std::string deformingBodies;
             static const std::string loveNumbers;
@@ -233,17 +220,14 @@ struct Keys
         };
 
         static const std::string groundStation;
-        struct GroundStation
-        {
+        struct GroundStation {
             static const std::string stationPosition;
             static const std::string positionElementType;
             static const std::string stationName;
         };
     };
 
-
-    struct Variable
-    {
+    struct Variable {
         static const std::string type;
         static const std::string dependentVariableType;
         static const std::string body;
@@ -252,10 +236,10 @@ struct Keys
         static const std::string componentIndices;
         static const std::string useAccelerationNorm;
         static const std::string accelerationType;
-//        static const std::string bodyUndergoingAcceleration;
+        //        static const std::string bodyUndergoingAcceleration;
         static const std::string bodyExertingAcceleration;
         static const std::string torqueType;
-//        static const std::string bodyUndergoingTorque;
+        //        static const std::string bodyUndergoingTorque;
         static const std::string bodyExertingTorque;
         static const std::string baseFrame;
         static const std::string targetFrame;
@@ -267,8 +251,7 @@ struct Keys
     };
 
     static const std::string parametersToEstimate;
-    struct Parameter
-    {
+    struct Parameter {
         static const std::string parameterType;
         static const std::string associatedBody;
         static const std::string secondaryIdentifier;
@@ -290,7 +273,7 @@ struct Keys
         static const std::string linkEnds;
         static const std::string referenceLinkEnd;
 
-        static const std::string componentsToEstimate;        
+        static const std::string componentsToEstimate;
 
         static const std::string degree;
         static const std::string orders;
@@ -298,8 +281,7 @@ struct Keys
     };
 
     static const std::string observations;
-    struct Observation
-    {
+    struct Observation {
         static const std::string observableType;
         static const std::string lightTimeCorrectionSettingsList;
         static const std::string biasSettings;
@@ -309,7 +291,7 @@ struct Keys
 
         static const std::string constantIntegrationTime;
 
-        static const std::string oneWayRangeObsevationSettings;
+        static const std::string oneWayRangeObservationSettings;
         static const std::string retransmissionTimes;
 
         static const std::string uplinkOneWayDopplerSettings;
@@ -331,8 +313,7 @@ struct Keys
     };
 
     static const std::string estimationSettings;
-    struct Estimation
-    {
+    struct Estimation {
         static const std::string inverseAprioriCovariance;
         static const std::string reintegrateEquationsOnFirstIteration;
         static const std::string reintegrateVariationalEquations;
@@ -349,8 +330,7 @@ struct Keys
         static const std::string dataWeights;
     };
 
-    struct ObservationBias
-    {
+    struct ObservationBias {
         static const std::string biasType;
         static const std::string multipleBiasesList;
         static const std::string constantBias;
@@ -358,12 +338,10 @@ struct Keys
         static const std::string arcWiseBiasList;
         static const std::string arcStartTimes;
         static const std::string referenceLinkEnd;
-
     };
 
     static const std::string propagators;
-    struct Propagator
-    {
+    struct Propagator {
         static const std::string integratedStateType;
         static const std::string initialStates;
         static const std::string bodiesToPropagate;
@@ -373,8 +351,7 @@ struct Keys
         static const std::string centralBodies;
 
         static const std::string accelerations;
-        struct Acceleration
-        {
+        struct Acceleration {
             static const std::string type;
             static const std::string maximumDegree;
             static const std::string maximumOrder;
@@ -393,11 +370,9 @@ struct Keys
             static const std::string sineAcceleration;
             static const std::string cosineAcceleration;
 
-            struct Thrust
-            {
+            struct Thrust {
                 static const std::string direction;
-                struct Direction
-                {
+                struct Direction {
                     static const std::string type;
                     static const std::string relativeBody;
                     static const std::string colinearWithVelocity;
@@ -405,8 +380,7 @@ struct Keys
                 };
 
                 static const std::string magnitude;
-                struct Magnitude
-                {
+                struct Magnitude {
                     static const std::string type;
                     static const std::string originID;
                     static const std::string constantMagnitude;
@@ -423,23 +397,20 @@ struct Keys
         };
 
         static const std::string massRateModels;
-        struct MassRateModel
-        {
+        struct MassRateModel {
             static const std::string type;
             static const std::string useAllThrustModels;
             static const std::string associatedThrustSource;
         };
 
         static const std::string torques;
-        struct Torque
-        {
+        struct Torque {
             static const std::string type;
         };
     };
 
     static const std::string termination;
-    struct Termination
-    {
+    struct Termination {
         static const std::string anyOf;
         static const std::string allOf;
         static const std::string variable;
@@ -448,8 +419,7 @@ struct Keys
     };
 
     static const std::string integrator;
-    struct Integrator
-    {
+    struct Integrator {
         static const std::string type;
         static const std::string initialTime;
         static const std::string stepSize;
@@ -472,10 +442,8 @@ struct Keys
         static const std::string maximumOrder;
     };
 
-    struct Interpolation
-    {
-        struct DataMap
-        {
+    struct Interpolation {
+        struct DataMap {
             static const std::string map;
             static const std::string file;
             static const std::string independentVariableValues;
@@ -483,8 +451,7 @@ struct Keys
             static const std::string dependentVariableFirstDerivativeValues;
         };
 
-        struct Interpolator
-        {
+        struct Interpolator {
             static const std::string type;
             static const std::string lookupScheme;
             static const std::string useLongDoubleTimeStep;
@@ -493,14 +460,12 @@ struct Keys
             static const std::string lagrangeBoundaryHandling;
         };
 
-        struct DataInterpolation
-        {
+        struct DataInterpolation {
             static const std::string data;
             static const std::string interpolator;
         };
 
-        struct ModelInterpolation
-        {
+        struct ModelInterpolation {
             static const std::string initialTime;
             static const std::string finalTime;
             static const std::string timeStep;
@@ -509,8 +474,7 @@ struct Keys
     };
 
     static const std::string xport;
-    struct Export
-    {
+    struct Export {
         static const std::string file;
         static const std::string variables;
         static const std::string header;
@@ -522,8 +486,7 @@ struct Keys
     };
 
     static const std::string options;
-    struct Options
-    {
+    struct Options {
         static const std::string notifyOnPropagationStart;
         static const std::string notifyOnPropagationTermination;
         static const std::string statePrintInterval;
@@ -533,7 +496,6 @@ struct Keys
         static const std::string tagOutputFilesIfPropagationFails;
     };
 };
-
 
 //! Get the int-value of an int-convertible key.
 /*!
@@ -545,18 +507,19 @@ int indexFromKey( const std::string& key );
 
 //! Class for specifying a key pat used to access data from `json` objects.
 /*!
- * Class for specifying a key path (key.subkey.subsubkey ...) used to access data from `json` objects.
+ * Class for specifying a key path (key.subkey.subsubkey ...) used to access data from `json`
+ * objects.
  */
 class KeyPath : public std::vector< std::string >
 {
-public:
+   public:
     //! Empty constructor.
     KeyPath( ) : std::vector< std::string >( ) { }
 
     //! Constructor from vector.
     KeyPath( const std::vector< std::string >& vector ) : std::vector< std::string >( )
     {
-        for ( const std::string key : vector )
+        for( const std::string key: vector )
         {
             push_back( key );
         }
@@ -565,7 +528,8 @@ public:
     //! Constructor with a single key path string representation.
     /*!
      * Constructor with a single key path string representation.
-     * \param keyPathStringRepresentation The key path string representation, such as "key", "key.subkey", "key[1]".
+     * \param keyPathStringRepresentation The key path string representation, such as "key",
+     * "key.subkey", "key[1]".
      */
     KeyPath( const std::string& keyPathStringRepresentation );
 
@@ -590,7 +554,7 @@ public:
      */
     bool isAbsolute( ) const
     {
-        if ( size( ) == 0 )
+        if( size( ) == 0 )
         {
             return false;
         }
@@ -600,102 +564,102 @@ public:
     //! Get the canonical representation of the key path.
     /*!
      * Get the canonical representation of the key path, optionally relative to \p basePath.
-     * This method is used to construct absolute paths, also navigating up and removing `SpecialKeys::up`.
-     * \param basePath Key path with respect to which the path is to be constructed.
-     * \return Canonical representation of the key path.
+     * This method is used to construct absolute paths, also navigating up and removing
+     * `SpecialKeys::up`. \param basePath Key path with respect to which the path is to be
+     * constructed. \return Canonical representation of the key path.
      */
     KeyPath canonical( const KeyPath& basePath ) const;
 };
 
 //! String representation for `KeyPath`, as key.subkey.vectorIndex.subsubkey ...
-std::ostream& operator << ( std::ostream& stringRepresentation, KeyPath const& keyPath );
+std::ostream& operator<<( std::ostream& stringRepresentation, KeyPath const& keyPath );
 
-inline KeyPath operator / ( KeyPath path1, const KeyPath& path2 )
+inline KeyPath operator/( KeyPath path1, const KeyPath& path2 )
 {
-    for ( std::string subkey : path2 )
+    for( std::string subkey: path2 )
     {
         path1.push_back( subkey );
     }
     return path1;
 }
 
-inline KeyPath operator / ( const KeyPath& path, const std::string& str )
+inline KeyPath operator/( const KeyPath& path, const std::string& str )
 {
     return path / KeyPath( str );
 }
 
-inline KeyPath operator / ( const std::string& str, const KeyPath& path )
+inline KeyPath operator/( const std::string& str, const KeyPath& path )
 {
     return KeyPath( str ) / path;
 }
 
-inline KeyPath operator / ( const std::string& str1, const std::string& str2 )
+inline KeyPath operator/( const std::string& str1, const std::string& str2 )
 {
     return KeyPath( str1 ) / KeyPath( str2 );
 }
 
-inline KeyPath operator / ( const KeyPath& path, const char* str )
+inline KeyPath operator/( const KeyPath& path, const char* str )
 {
     return path / KeyPath( str );
 }
 
-inline KeyPath operator / ( const char* str, const KeyPath& path )
+inline KeyPath operator/( const char* str, const KeyPath& path )
 {
     return KeyPath( str ) / path;
 }
 
-inline KeyPath operator / ( const KeyPath& path, const unsigned int vectorIndex )
+inline KeyPath operator/( const KeyPath& path, const unsigned int vectorIndex )
 {
     return path / KeyPath( vectorIndex );
 }
 
-inline KeyPath operator / ( const unsigned int vectorIndex, const KeyPath& path )
+inline KeyPath operator/( const unsigned int vectorIndex, const KeyPath& path )
 {
     return KeyPath( vectorIndex ) / path;
 }
 
-inline KeyPath operator / ( const std::string& str, const unsigned int vectorIndex )
+inline KeyPath operator/( const std::string& str, const unsigned int vectorIndex )
 {
     return KeyPath( str ) / vectorIndex;
 }
 
-inline KeyPath operator / ( const unsigned int vectorIndex, const std::string& str )
+inline KeyPath operator/( const unsigned int vectorIndex, const std::string& str )
 {
     return vectorIndex / KeyPath( str );
 }
 
-inline KeyPath operator / ( const KeyPath& path, const int vectorIndex )
+inline KeyPath operator/( const KeyPath& path, const int vectorIndex )
 {
     return path / KeyPath( vectorIndex );
 }
 
-inline KeyPath operator / ( const int vectorIndex, const KeyPath& path )
+inline KeyPath operator/( const int vectorIndex, const KeyPath& path )
 {
     return KeyPath( vectorIndex ) / path;
 }
 
-inline KeyPath operator / ( const std::string& str, const int vectorIndex )
+inline KeyPath operator/( const std::string& str, const int vectorIndex )
 {
     return KeyPath( str ) / vectorIndex;
 }
 
-inline KeyPath operator / ( const int vectorIndex, const std::string& str )
+inline KeyPath operator/( const int vectorIndex, const std::string& str )
 {
     return vectorIndex / KeyPath( str );
 }
 
-inline KeyPath operator / ( const char* str1, const std::string& str2 )
+inline KeyPath operator/( const char* str1, const std::string& str2 )
 {
     return KeyPath( str1 ) / str2;
 }
 
-inline KeyPath operator / ( const std::string& str1, const char* str2 )
+inline KeyPath operator/( const std::string& str1, const char* str2 )
 {
     return str1 / KeyPath( str2 );
 }
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_KEYS_H
+#endif  // TUDAT_JSONINTERFACE_KEYS_H
