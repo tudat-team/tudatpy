@@ -39,6 +39,7 @@ enum ObservationAncilliarySimulationVariable {
     doppler_reference_frequency,
     sequential_range_reference_frequency,
     sequential_range_lowest_ranging_component,
+    range_conversion_factor,
 };
 
 struct ObservationAncilliarySimulationSettings {
@@ -57,6 +58,7 @@ struct ObservationAncilliarySimulationSettings {
             case reception_reference_frequency_band:
             case sequential_range_reference_frequency:
             case sequential_range_lowest_ranging_component:
+            case range_conversion_factor:
                 doubleData_[ variableType ] = variable;
                 break;
             default:
@@ -97,6 +99,7 @@ struct ObservationAncilliarySimulationSettings {
                 case reception_reference_frequency_band:
                 case sequential_range_reference_frequency:
                 case sequential_range_lowest_ranging_component:
+                case range_conversion_factor:
                     returnVariable = doubleData_.at( variableType );
                     break;
                 default:
@@ -186,6 +189,9 @@ struct ObservationAncilliarySimulationSettings {
                 break;
             case sequential_range_lowest_ranging_component:
                 name = "DSN sequential range lowest ranging component";
+                break;
+            case range_conversion_factor:
+                name = "DSN range conversion factor from RU to meter";
                 break;
             default:
                 throw std::runtime_error(
@@ -285,6 +291,28 @@ getDsnNWayAveragedDopplerAncillarySettings(
     ancillarySettings->setAncilliaryDoubleData(
             reception_reference_frequency_band,
             convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
+
+    ancillarySettings->setAncilliaryDoubleVectorData(
+            frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
+
+    return ancillarySettings;
+}
+
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRangeAncillarySettings(
+        const std::vector< FrequencyBands > &frequencyBands,
+        const double referenceFrequency,
+        const double lowestRangingComponent,
+        const std::vector< double > linkEndsDelays = std::vector< double >( ) )
+
+{
+    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncilliarySimulationSettings >( );
+
+    ancillarySettings->setAncilliaryDoubleData( sequential_range_lowest_ranging_component,
+                                                lowestRangingComponent );
+    ancillarySettings->setAncilliaryDoubleData( sequential_range_reference_frequency,
+                                                referenceFrequency );
 
     ancillarySettings->setAncilliaryDoubleVectorData(
             frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
@@ -635,10 +663,10 @@ class ObservationModel
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 };
 //
-//extern template class ObservationModel< 1, double, double >;
-//extern template class ObservationModel< 2, double, double >;
-//extern template class ObservationModel< 3, double, double >;
-//extern template class ObservationModel< 6, double, double >;
+// extern template class ObservationModel< 1, double, double >;
+// extern template class ObservationModel< 2, double, double >;
+// extern template class ObservationModel< 3, double, double >;
+// extern template class ObservationModel< 6, double, double >;
 
 //! Function to compute an observation of size 1 at double precision, with double precision input
 /*!
