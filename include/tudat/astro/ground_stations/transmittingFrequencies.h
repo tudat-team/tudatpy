@@ -16,6 +16,7 @@
 
 #include "tudat/math/quadrature/trapezoidQuadrature.h"
 #include "tudat/math/interpolators.h"
+#include "tudat/astro/basic_astro/dateTime.h"
 
 namespace tudat
 {
@@ -200,20 +201,23 @@ public:
             // If there are discontinuities
             if ( startTimes_.at( i ) != endTimes_.at( i - 1 ) )
             {
-                // If the start and end times are inconsistent throw error
-                if ( endTimes_.at( i - 1 ) > startTimes_.at( i ) )
-                {
-                    throw std::runtime_error(
-                            "Error when creating piecewise linear frequency interpolator: inconsistency between ramp end "
-                            "time (" + std::to_string( double( endTimes_.at( i - 1 ) ) ) + ") and start time of the following ramp (" +
-                            std::to_string( double( startTimes_.at( i ) ) ) + "); the end is smaller than the start time." );
-                }
-                // If there are gaps in the data save that information
-                else
-                {
-                    invalidTimeBlocksStartTimes_.push_back( endTimes_.at( i - 1 ) );
-                    invalidTimeBlocksEndTimes_.push_back( startTimes_.at( i ) );
-                }
+//                // If the start and end times are inconsistent throw error
+//                if ( endTimes_.at( i - 1 ) > startTimes_.at( i ) )
+//                {
+//                    throw std::runtime_error(
+//                            "Error when creating piecewise linear frequency interpolator: inconsistency between ramp end "
+//                            "time (" + std::to_string( double( endTimes_.at( i - 1 ) ) ) + ";" +
+//                            basic_astrodynamics::getCalendarDateFromTime( endTimes_.at( i - 1 ) ).isoString( ) + ") and start time of the following ramp (" +
+//                            std::to_string( double( startTimes_.at( i ) ) ) + ";" +
+//                            basic_astrodynamics::getCalendarDateFromTime( startTimes_.at( i ) ).isoString( ) +
+//                            "); the end is smaller than the start time." );
+//                }
+//                // If there are gaps in the data save that information
+//                else
+//                {
+//                    invalidTimeBlocksStartTimes_.push_back( endTimes_.at( i - 1 ) );
+//                    invalidTimeBlocksEndTimes_.push_back( startTimes_.at( i ) );
+//                }
             }
         }
 
