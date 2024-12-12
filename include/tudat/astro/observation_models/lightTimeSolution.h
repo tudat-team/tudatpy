@@ -870,6 +870,7 @@ public:
             linkEndsDelays_ = ancillarySettings->getAncilliaryDoubleVectorData(
                     link_ends_delays, false );
         }
+
         if ( !linkEndsDelays_.empty( ) )
         {
             // Delays vector already including delays at receiving and transmitting stations
@@ -1061,6 +1062,7 @@ private:
 
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLightTime += linkEndsDelays_.at( currentUpIndex + 1 );
+
             currentLinkEndTransmissionTime += currentLightTime;
 
             // Add computed light-time to total time and move to next leg
