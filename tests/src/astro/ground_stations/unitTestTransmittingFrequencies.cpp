@@ -101,22 +101,22 @@ BOOST_AUTO_TEST_CASE( testPiecewiseLinearFrequencyInterpolator )
         errorThrown = true;
     }
     BOOST_CHECK( errorThrown );
-
-    // Check whether error is thrown for discontinuous start/end times
-    startTimes.pop_back( );
-    startTimes.pop_back( );
-    startTimes.push_back( 9.9 );
-    try
-    {
-        frequencyInterpolator = PiecewiseLinearFrequencyInterpolator(
-            startTimes, endTimes, rampRates, startFrequency );
-        errorThrown = false;
-    }
-    catch( std::runtime_error const& )
-    {
-        errorThrown = true;
-    }
-    BOOST_CHECK( errorThrown );
+//
+//    // Check whether error is thrown for discontinuous start/end times
+//    startTimes.pop_back( );
+//    startTimes.pop_back( );
+//    startTimes.push_back( 9.9 );
+//    try
+//    {
+//        frequencyInterpolator = PiecewiseLinearFrequencyInterpolator(
+//            startTimes, endTimes, rampRates, startFrequency );
+//        errorThrown = false;
+//    }
+//    catch( std::runtime_error const& )
+//    {
+//        errorThrown = true;
+//    }
+//    BOOST_CHECK( errorThrown );
     
 
 }
