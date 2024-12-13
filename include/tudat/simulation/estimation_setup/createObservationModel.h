@@ -2499,7 +2499,6 @@ class ObservationModelCreator< 1, ObservationScalarType, TimeType >
                             "Error when making n-way differenced range observation model, input "
                             "type inconsistent" );
                 }
-<<<<<<< HEAD
             }
 
             std::shared_ptr< ground_stations::GroundStationState > receivingStationState =
@@ -2534,13 +2533,6 @@ class ObservationModelCreator< 1, ObservationScalarType, TimeType >
                     ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
                         twoWaySettings, bodies ) );
                 if( twoWayDopplerModel == nullptr )
-=======
-                std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > >
-                        arcStartObservationModel;
-                std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > >
-                        arcEndObservationModel;
-                try
->>>>>>> develop
                 {
                     std::shared_ptr< ObservationModelSettings > undifferencedObservationSettings =
                             nWayDifferencedRangeObservationSettings
@@ -2586,7 +2578,8 @@ class ObservationModelCreator< 1, ObservationScalarType, TimeType >
                         observationBias );
                 break;
             }
-            case dsn_n_way_averaged_doppler: {
+            case dsn_n_way_averaged_doppler:
+            {
                 std::shared_ptr< DsnNWayAveragedDopplerObservationSettings >
                         dsnNWayAveragedDopplerObservationSettings = std::dynamic_pointer_cast<
                                 DsnNWayAveragedDopplerObservationSettings >( observationSettings );
