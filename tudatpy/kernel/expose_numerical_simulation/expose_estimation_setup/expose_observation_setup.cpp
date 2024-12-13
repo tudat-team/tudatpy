@@ -705,14 +705,14 @@ void expose_observation_setup( py::module& m )
            py::arg( "arc_start_times" ),
            py::arg( "bias_values" ),
            py::arg( "reference_link_end_type" ),
-           get_docstring( "arcwise_absolute_bias", 0 ).c_str( ) );
+           get_docstring( "arcwise_absolute_bias" ).c_str( ) );
 
     m.def( "arcwise_absolute_bias",
            py::overload_cast< const std::map< double, Eigen::VectorXd >&, const tom::LinkEndType >(
                    &tom::arcWiseAbsoluteBias ),
            py::arg( "bias_values_per_start_time" ),
            py::arg( "reference_link_end_type" ),
-           get_docstring( "arcwise_absolute_bias", 1 ).c_str( ) );
+           get_docstring( "arcwise_absolute_bias" ).c_str( ) );
 
     m.def( "arcwise_relative_bias",
            py::overload_cast< const std::vector< double >&,
@@ -721,14 +721,14 @@ void expose_observation_setup( py::module& m )
            py::arg( "arc_start_times" ),
            py::arg( "bias_values" ),
            py::arg( "reference_link_end_type" ),
-           get_docstring( "arcwise_relative_bias", 0 ).c_str( ) );
+           get_docstring( "arcwise_relative_bias" ).c_str( ) );
 
     m.def( "arcwise_relative_bias",
            py::overload_cast< const std::map< double, Eigen::VectorXd >&, const tom::LinkEndType >(
                    &tom::arcWiseRelativeBias ),
            py::arg( "bias_values_per_start_time" ),
            py::arg( "reference_link_end_type" ),
-           get_docstring( "arcwise_relative_bias", 1 ).c_str( ) );
+           get_docstring( "arcwise_relative_bias" ).c_str( ) );
 
     m.def( "time_drift_bias",
            &tom::constantTimeDriftBias,
