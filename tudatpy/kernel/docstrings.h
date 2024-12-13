@@ -2,7 +2,7 @@
 
 namespace tudatpy {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -21,7 +21,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
     
 namespace astro {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -40,7 +40,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
     
 namespace frame_conversion {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -49,7 +49,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "inertial_to_rsw_rotation_matrix" && variant==0) {
+    } else if(name == "inertial_to_rsw_rotation_matrix" ) {
         return R"(
         
 Computes the rotation matrix from inertial to RSW frame.
@@ -88,7 +88,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "rsw_to_inertial_rotation_matrix" && variant==0) {
+    } else if(name == "rsw_to_inertial_rotation_matrix" ) {
         return R"(
         
 Computes the rotation matrix from RSW to inertial frame.
@@ -127,7 +127,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "inertial_to_tnw_rotation_matrix" && variant==0) {
+    } else if(name == "inertial_to_tnw_rotation_matrix" ) {
         return R"(
         
 Computes the rotation matrix from inertial to TNW frame.
@@ -172,7 +172,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "tnw_to_inertial_rotation_matrix" && variant==0) {
+    } else if(name == "tnw_to_inertial_rotation_matrix" ) {
         return R"(
         
 Computes the rotation matrix from TNW to inertial frame.
@@ -217,7 +217,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "inertial_to_body_fixed_rotation_matrix" && variant==0) {
+    } else if(name == "inertial_to_body_fixed_rotation_matrix" ) {
         return R"(
         
 Computes the rotation matrix from inertial to body-fixed frame.
@@ -262,7 +262,7 @@ Euler angle rotation (see Archinal et al. [1]_).
 
 
 
-    } else if(name == "body_fixed_to_inertial_rotation_matrix" && variant==0) {
+    } else if(name == "body_fixed_to_inertial_rotation_matrix" ) {
         return R"(
         
 Computes the rotation matrix from body-fixed to inertial frame.
@@ -323,7 +323,7 @@ Euler angle rotation (see Archinal et al. [1]_).
     
 namespace element_conversion {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -332,7 +332,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "cartesian_to_keplerian" && variant==0) {
+    } else if(name == "cartesian_to_keplerian" ) {
         return R"(
         
 Convert Cartesian to Keplerian elements.
@@ -361,7 +361,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "keplerian_to_cartesian" && variant==0) {
+    } else if(name == "keplerian_to_cartesian" ) {
         return R"(
         
 Convert Keplerian elements to Cartesian.
@@ -390,7 +390,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "keplerian_to_cartesian_elementwise" && variant==0) {
+    } else if(name == "keplerian_to_cartesian_elementwise" ) {
         return R"(
         
 Convert Keplerian elements to Cartesian, with elementwise input.
@@ -428,7 +428,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "mean_to_true_anomaly" && variant==0) {
+    } else if(name == "mean_to_true_anomaly" ) {
         return R"(
         
 Convert mean to true anomaly.
@@ -463,7 +463,7 @@ float
 
 
 
-    } else if(name == "true_to_mean_anomaly" && variant==0) {
+    } else if(name == "true_to_mean_anomaly" ) {
         return R"(
         
 Convert true to mean anomaly.
@@ -493,7 +493,7 @@ float
 
 
 
-    } else if(name == "true_to_eccentric_anomaly" && variant==0) {
+    } else if(name == "true_to_eccentric_anomaly" ) {
         return R"(
         
 Convert true to eccentric anomaly.
@@ -519,7 +519,7 @@ float
 
 
 
-    } else if(name == "eccentric_to_true_anomaly" && variant==0) {
+    } else if(name == "eccentric_to_true_anomaly" ) {
         return R"(
         
 Convert eccentric to true anomaly.
@@ -545,7 +545,7 @@ float
 
 
 
-    } else if(name == "eccentric_to_mean_anomaly" && variant==0) {
+    } else if(name == "eccentric_to_mean_anomaly" ) {
         return R"(
         
 Convert eccentric to mean anomaly.
@@ -571,7 +571,7 @@ float
 
 
 
-    } else if(name == "mean_to_eccentric_anomaly" && variant==0) {
+    } else if(name == "mean_to_eccentric_anomaly" ) {
         return R"(
         
 Convert mean to eccentric anomaly.
@@ -603,7 +603,7 @@ float
 
 
 
-    } else if(name == "elapsed_time_to_delta_mean_anomaly" && variant==0) {
+    } else if(name == "elapsed_time_to_delta_mean_anomaly" ) {
         return R"(
         
 Convert elapsed time to the corresponding change in mean anomaly along a Keplerian orbit.
@@ -631,7 +631,7 @@ float
 
 
 
-    } else if(name == "delta_mean_anomaly_to_elapsed_time" && variant==0) {
+    } else if(name == "delta_mean_anomaly_to_elapsed_time" ) {
         return R"(
         
 Convert change in mean anomaly along a Keplerian orbit to the corresponding elapsed time.
@@ -659,7 +659,7 @@ float
 
 
 
-    } else if(name == "mean_motion_to_semi_major_axis" && variant==0) {
+    } else if(name == "mean_motion_to_semi_major_axis" ) {
         return R"(
         
 Convert mean motion to corresponding semi-major axis (in a Keplerian orbit).
@@ -685,7 +685,7 @@ float
 
 
 
-    } else if(name == "semi_major_axis_to_mean_motion" && variant==0) {
+    } else if(name == "semi_major_axis_to_mean_motion" ) {
         return R"(
         
 Convert semi-major axis to corresponding mean motion (along a Keplerian orbit).
@@ -711,7 +711,7 @@ float
 
 
 
-    } else if(name == "keplerian_to_mee_manual_singularity" && variant==0) {
+    } else if(name == "keplerian_to_mee_manual_singularity" ) {
         return R"(
         
 Convert Keplerian to Modified equinoctial elements.
@@ -742,7 +742,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "keplerian_to_mee" && variant==0) {
+    } else if(name == "keplerian_to_mee" ) {
         return R"(
         
 Convert Keplerian to Modified equinoctial elements.
@@ -771,7 +771,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "flip_mee_singularity" && variant==0) {
+    } else if(name == "flip_mee_singularity" ) {
         return R"(
         
 Function to determine 'optimal' location of the singularity-flipping modified equinoctial element.
@@ -798,7 +798,7 @@ bool
 
 
 
-    } else if(name == "mee_to_keplerian" && variant==0) {
+    } else if(name == "mee_to_keplerian" ) {
         return R"(
         
 Convert Modified equinoctial to Keplerian elements.
@@ -828,7 +828,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "cartesian_to_mee" && variant==0) {
+    } else if(name == "cartesian_to_mee" ) {
         return R"(
         
 Convert Cartesian to Modified equinoctial elements.
@@ -859,7 +859,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "cartesian_to_mee_manual_singularity" && variant==0) {
+    } else if(name == "cartesian_to_mee_manual_singularity" ) {
         return R"(
         
 Convert Cartesian to Modified equinoctial elements.
@@ -892,7 +892,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "mee_to_cartesian" && variant==0) {
+    } else if(name == "mee_to_cartesian" ) {
         return R"(
         
 Convert Modified equinoctial to Cartesian elements.
@@ -923,7 +923,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "quaternion_entries_to_rotation_matrix" && variant==0) {
+    } else if(name == "quaternion_entries_to_rotation_matrix" ) {
         return R"(
         
 Converts an array of four quaternion elements to the equivalent rotation matrix.
@@ -951,7 +951,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "rotation_matrix_to_quaternion_entries" && variant==0) {
+    } else if(name == "rotation_matrix_to_quaternion_entries" ) {
         return R"(
         
 Converts a rotation matrix to the equivalent array of four quaternion elements.
@@ -977,7 +977,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "cartesian_to_spherical" && variant==0) {
+    } else if(name == "cartesian_to_spherical" ) {
         return R"(
         
 Convert Cartesian to spherical elements.
@@ -1003,7 +1003,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "spherical_to_cartesian" && variant==0) {
+    } else if(name == "spherical_to_cartesian" ) {
         return R"(
         
 Convert spherical elements to Cartesian.
@@ -1029,7 +1029,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "spherical_to_cartesian_elementwise" && variant==0) {
+    } else if(name == "spherical_to_cartesian_elementwise" ) {
         return R"(
         
 Convert Spherical elements to Cartesian, with elementwise input.
@@ -1078,7 +1078,7 @@ numpy.ndarray
     
 namespace time_conversion {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -1166,7 +1166,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "DateTime.ctor" && variant==0) {
+    } else if(name == "DateTime.ctor" ) {
             return R"(
 
         Create a date time from decomposed date (Gregorian calendar) and time (UTC).
@@ -1194,7 +1194,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "DateTime.iso_string" && variant==0) {
+    } else if(name == "DateTime.iso_string" ) {
             return R"(
 
         Function to get the ISO-compatible string.
@@ -1224,7 +1224,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "DateTime.epoch" && variant==0) {
+    } else if(name == "DateTime.epoch" ) {
             return R"(
 
         Function to get the epoch in seconds since J2000 for the current date and time 
@@ -1243,7 +1243,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "DateTime.julian_day" && variant==0) {
+    } else if(name == "DateTime.julian_day" ) {
             return R"(
 
         Function to get the epoch as Julian day for the current date and time 
@@ -1262,7 +1262,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "DateTime.modified_julian_day" && variant==0) {
+    } else if(name == "DateTime.modified_julian_day" ) {
             return R"(
 
         Function to get the epoch as modified Julian day for the current date and time 
@@ -1281,7 +1281,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "DateTime.day_of_year" && variant==0) {
+    } else if(name == "DateTime.day_of_year" ) {
             return R"(
 
         Function to get the day number in the current year
@@ -1302,7 +1302,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "datetime_to_tudat" && variant==0) {
+    } else if(name == "datetime_to_tudat" ) {
         return R"(
         
 Function to convert a Python datetime.datetime object to a Tudat :class:`DateTime` object. The Tudat-native alternative has the advantage of providing sub-femtosecond resolution, as opposed to the microsecond resolution of the Python version
@@ -1326,7 +1326,7 @@ DateTime
 
 
 
-    } else if(name == "datetime_to_python" && variant==0) {
+    } else if(name == "datetime_to_python" ) {
         return R"(
         
 Function to convert a Tudat :class:`DateTime` object to a Python datetime.datetime object. This is the inverse of the :func:`datetime_to_tudat` function
@@ -1350,7 +1350,7 @@ datetime.datetime
 
 
 
-    } else if(name == "add_seconds_to_datetime" && variant==0) {
+    } else if(name == "add_seconds_to_datetime" ) {
         return R"(
         
 Function to create a new Tudat :class:`DateTime` object by adding a number of seconds to an existing Tudat :class:`DateTime` object
@@ -1376,7 +1376,7 @@ DateTime
 
 
 
-    } else if(name == "add_days_to_datetime" && variant==0) {
+    } else if(name == "add_days_to_datetime" ) {
         return R"(
         
 Function to create a new Tudat :class:`DateTime` object by adding a number of days (86400 seconds) to an existing Tudat :class:`DateTime` object
@@ -1402,7 +1402,7 @@ DateTime
 
 
 
-    } else if(name == "calendar_date_to_julian_day" && variant==0) {
+    } else if(name == "calendar_date_to_julian_day" ) {
         return R"(
         
 Convert a calendar date to Julian days.
@@ -1439,7 +1439,7 @@ In this example, the calendar date of the 21st of May 2022 at 13:52 and 41 secon
 
 
 
-    } else if(name == "calendar_date_to_days_since_epoch" && variant==0) {
+    } else if(name == "calendar_date_to_days_since_epoch" ) {
         return R"(
         
 Convert a calendar date to Julian days since a given epoch.
@@ -1478,7 +1478,7 @@ In this example, the calendar date of the 21st of May 2022 at 13:52 and 41 secon
 
 
 
-    } else if(name == "julian_day_to_calendar_date" && variant==0) {
+    } else if(name == "julian_day_to_calendar_date" ) {
         return R"(
         
 Convert Julian days to a calendar date.
@@ -1516,7 +1516,7 @@ In this example, the Julian date `2459721.0783` (in days since January 1st 4713 
 
 
 
-    } else if(name == "julian_day_to_seconds_since_epoch" && variant==0) {
+    } else if(name == "julian_day_to_seconds_since_epoch" ) {
         return R"(
         
 Convert Julian days to seconds since a given epoch.
@@ -1556,7 +1556,7 @@ In this example, the Julian date `2459721.0783` (in days since January 1st 4713 
 
 
 
-    } else if(name == "seconds_since_epoch_to_julian_day" && variant==0) {
+    } else if(name == "seconds_since_epoch_to_julian_day" ) {
         return R"(
         
 Convert seconds since a given reference epoch to a Julian day.
@@ -1595,7 +1595,7 @@ In this example, an amount of seconds since J2000 (January 1st 2000) is converte
 
 
 
-    } else if(name == "seconds_since_epoch_to_julian_years_since_epoch" && variant==0) {
+    } else if(name == "seconds_since_epoch_to_julian_years_since_epoch" ) {
         return R"(
         
 Convert the number of seconds since a given (unspecified) epoch to Julian years since the same epoch.
@@ -1636,7 +1636,7 @@ In this example, `706413165.12` seconds since a given epoch are converted to Jul
 
 
 
-    } else if(name == "seconds_since_epoch_to_julian_centuries_since_epoch" && variant==0) {
+    } else if(name == "seconds_since_epoch_to_julian_centuries_since_epoch" ) {
         return R"(
         
 Convert the number of seconds since a given (unspecified) epoch to Julian centuries since the same epoch.
@@ -1677,7 +1677,7 @@ In this example, `706413165.12` seconds since a given epoch are converted to Jul
 
 
 
-    } else if(name == "julian_day_to_modified_julian_day" && variant==0) {
+    } else if(name == "julian_day_to_modified_julian_day" ) {
         return R"(
         
 Convert a Julian day to a Modified Julian day.
@@ -1712,7 +1712,7 @@ In this example, the Julian date `2451545.0` (J2000) is converted to a modified 
 
 
 
-    } else if(name == "modified_julian_day_to_julian_day" && variant==0) {
+    } else if(name == "modified_julian_day_to_julian_day" ) {
         return R"(
         
 Convert a Modified Julian day to a Julian day.
@@ -1750,7 +1750,7 @@ In this example, the Modified Julian date `51544.5` ( corresponding to J2000) is
 
 
 
-    } else if(name == "calendar_date_to_day_of_year" && variant==0) {
+    } else if(name == "calendar_date_to_day_of_year" ) {
         return R"(
         
 Determine the number of full days that have passed in the year of a given calendar date.
@@ -1787,7 +1787,7 @@ In this example, the number of days that have passed in 2020 when the date is th
 
 
 
-    } else if(name == "year_and_days_in_year_to_calendar_date" && variant==0) {
+    } else if(name == "year_and_days_in_year_to_calendar_date" ) {
         return R"(
         
 Create the calendar date from the year and the number of days in the year.
@@ -1825,7 +1825,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
 
 
 
-    } else if(name == "calculate_seconds_in_current_julian_day" && variant==0) {
+    } else if(name == "calculate_seconds_in_current_julian_day" ) {
         return R"(
         
 Determine the number of seconds that have elapsed in the given Julian day.
@@ -1860,7 +1860,7 @@ In this example, the number of seconds that have elapsed at the Julian day `2451
 
 
 
-    } else if(name == "is_leap_year" && variant==0) {
+    } else if(name == "is_leap_year" ) {
         return R"(
         
 Assess wether a year is a leap year or not.
@@ -1899,7 +1899,7 @@ In this example, the first list should contains only `True`, and the second `Fal
 
 
 
-    } else if(name == "get_days_in_month" && variant==0) {
+    } else if(name == "get_days_in_month" ) {
         return R"(
         
 Get the number of days in the month of a given year.
@@ -1940,7 +1940,7 @@ In this example, the number of days in February for both 2021 and 2020 are compu
 
 
 
-    } else if(name == "TCB_to_TDB" && variant==0) {
+    } else if(name == "TCB_to_TDB" ) {
         return R"(
         
 Convert time from the TCB scale to the TDB scale.
@@ -1983,7 +1983,7 @@ Then, this date and time is converted from the TCB scale to the TDB scale.
 
 
 
-    } else if(name == "TDB_to_TCB" && variant==0) {
+    } else if(name == "TDB_to_TCB" ) {
         return R"(
         
 Convert time from the TBD scale to the TCB scale.
@@ -2011,7 +2011,7 @@ float
 
 
 
-    } else if(name == "TCG_to_TT" && variant==0) {
+    } else if(name == "TCG_to_TT" ) {
         return R"(
         
 Convert time from the TCG scale to the TT scale.
@@ -2036,7 +2036,7 @@ float
 
 
 
-    } else if(name == "TT_to_TCG" && variant==0) {
+    } else if(name == "TT_to_TCG" ) {
         return R"(
         
 Convert time from the TT scale to the TCG scale.
@@ -2064,7 +2064,7 @@ float
 
 
 
-    } else if(name == "TAI_to_TT" && variant==0) {
+    } else if(name == "TAI_to_TT" ) {
         return R"(
         
 Convert time from the TAI scale to the TT scale.
@@ -2089,7 +2089,7 @@ float
 
 
 
-    } else if(name == "TT_to_TAI" && variant==0) {
+    } else if(name == "TT_to_TAI" ) {
         return R"(
         
 Convert time from the TT scale to the TAI scale.
@@ -2117,7 +2117,7 @@ float
 
 
 
-    } else if(name == "TT_to_TDB_approximate" && variant==0) {
+    } else if(name == "TT_to_TDB_approximate" ) {
         return R"(
         
 Approximately convert time from the TT scale to the TDB scale.
@@ -2142,7 +2142,7 @@ float
 
 
 
-    } else if(name == "epoch_from_date_time_components" && variant==0) {
+    } else if(name == "epoch_from_date_time_components" ) {
         return R"(
         
 Computes the epoch as seconds since J2000 from the entries of the current date and time.
@@ -2183,7 +2183,7 @@ float
 
 
 
-    } else if(name == "epoch_from_date_time_iso_string" && variant==0) {
+    } else if(name == "epoch_from_date_time_iso_string" ) {
         return R"(
         
 Computes the epoch as seconds since J2000 from an ISO datetime string.
@@ -2209,7 +2209,7 @@ float
 
 
 
-    } else if(name == "date_time_from_epoch" && variant==0) {
+    } else if(name == "date_time_from_epoch" ) {
         return R"(
         
 Creates a Tudat-native :class:`DateTime` object from the seconds since J2000.
@@ -2234,7 +2234,7 @@ DateTime
 
 
 
-    } else if(name == "date_time_from_iso_string" && variant==0) {
+    } else if(name == "date_time_from_iso_string" ) {
         return R"(
         
 Creates a Tudat-native :class:`DateTime` object from an ISO datetime string.
@@ -2274,7 +2274,7 @@ DateTime
     
 namespace two_body_dynamics {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -2283,7 +2283,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "propagate_kepler_orbit" && variant==0) {
+    } else if(name == "propagate_kepler_orbit" ) {
         return R"(
         
 Function to propagate Keplerian elements to a later epoch, assuming an unperturbed system.
@@ -2334,7 +2334,7 @@ numpy.ndarray
     
 namespace polyhedron_utilities {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -2343,7 +2343,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "surface_area" && variant==0) {
+    } else if(name == "surface_area" ) {
         return R"(
         
 Computes the surface area of a polyhedron [1]_.
@@ -2374,7 +2374,7 @@ float
 
 
 
-    } else if(name == "volume" && variant==0) {
+    } else if(name == "volume" ) {
         return R"(
         
 Computes the volume of a polyhedron [1]_.
@@ -2405,7 +2405,7 @@ float
 
 
 
-    } else if(name == "centroid" && variant==0) {
+    } else if(name == "centroid" ) {
         return R"(
         
 Computes the position of the centroid of a polyhedron [1]_.
@@ -2436,7 +2436,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "modify_centroid" && variant==0) {
+    } else if(name == "modify_centroid" ) {
         return R"(
         
 Modifies vertex coordinates of the polyhedron based on the desired position of the centroid.
@@ -2473,7 +2473,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "inertia_tensor_from_density" && variant==0) {
+    } else if(name == "inertia_tensor_from_density" ) {
         return R"(
         
 Compute the inertia tensor of a polyhedron, from the density.
@@ -2512,7 +2512,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "inertia_tensor_from_gravitational_parameter" && variant==0) {
+    } else if(name == "inertia_tensor_from_gravitational_parameter" ) {
         return R"(
         
 Compute the inertia tensor of a polyhedron, from the gravitational parameter.
@@ -2565,7 +2565,7 @@ numpy.ndarray
     
 namespace gravitation {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -2574,7 +2574,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "legendre_normalization_factor" && variant==0) {
+    } else if(name == "legendre_normalization_factor" ) {
         return R"(
         
 Function to calculate the normalization factor for spherical harmonics at a given degree and order
@@ -2616,7 +2616,7 @@ float
 
 
 
-    } else if(name == "normalize_spherical_harmonic_coefficients" && variant==0) {
+    } else if(name == "normalize_spherical_harmonic_coefficients" ) {
         return R"(
         
 Function to normalize spherical harmonic coefficients
@@ -2643,7 +2643,7 @@ tuple[numpy.ndarray, numpy.ndarray]
 
 
 
-    } else if(name == "unnormalize_spherical_harmonic_coefficients" && variant==0) {
+    } else if(name == "unnormalize_spherical_harmonic_coefficients" ) {
         return R"(
         
 Function to unnormalize spherical harmonic coefficients
@@ -2670,7 +2670,7 @@ tuple[numpy.ndarray, numpy.ndarray]
 
 
 
-    } else if(name == "spherical_harmonic_coefficients_from_inertia" && variant==0) {
+    } else if(name == "spherical_harmonic_coefficients_from_inertia" ) {
         return R"(
         
 Function to compute degree-two spherical harmonic coefficients from an inertia tensor
@@ -2730,7 +2730,7 @@ tuple[numpy.ndarray, numpy.ndarray]
     
 namespace interface {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -2749,7 +2749,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
     
 namespace spice {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -2775,7 +2775,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "SpiceEphemeris.ctor" && variant==0) {
+    } else if(name == "SpiceEphemeris.ctor" ) {
             return R"(
 
         Constructor.
@@ -2815,7 +2815,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "SpiceEphemeris.get_cartesian_state" && variant==0) {
+    } else if(name == "SpiceEphemeris.get_cartesian_state" ) {
             return R"(
 
         Get Cartesian state from ephemeris.
@@ -2836,7 +2836,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "convert_julian_date_to_ephemeris_time" && variant==0) {
+    } else if(name == "convert_julian_date_to_ephemeris_time" ) {
         return R"(
         
 Convert a Julian date to ephemeris time (equivalent to TDB in Spice).
@@ -2863,7 +2863,7 @@ ephemeris_time : float    Julian date calculated from ephemeris time.
 
 
 
-    } else if(name == "convert_ephemeris_time_to_julian_date" && variant==0) {
+    } else if(name == "convert_ephemeris_time_to_julian_date" ) {
         return R"(
         
 Convert ephemeris time (equivalent to TDB) to a Julian date.
@@ -2890,7 +2890,7 @@ julian_date : float    Julian date calculated from ephemeris time.
 
 
 
-    } else if(name == "convert_date_string_to_ephemeris_time" && variant==0) {
+    } else if(name == "convert_date_string_to_ephemeris_time" ) {
         return R"(
         
 Converts a date string to ephemeris time.
@@ -2919,7 +2919,7 @@ ephemeris_time : str    Ephemeris time corresponding to given date_string.
 
 
 
-    } else if(name == "get_body_cartesian_state_at_epoch" && variant==0) {
+    } else if(name == "get_body_cartesian_state_at_epoch" ) {
         return R"(
         
 Get Cartesian state of a body, as observed from another body.
@@ -2977,7 +2977,7 @@ cartesian_state_vector : np.ndarray[6,]    Cartesian state vector (x,y,z, positi
 
 
 
-    } else if(name == "get_body_cartesian_position_at_epoch" && variant==0) {
+    } else if(name == "get_body_cartesian_position_at_epoch" ) {
         return R"(
         
 Get Cartesian position of a body, as observed from another body.
@@ -3031,7 +3031,7 @@ ephemeris_time : float
 
 
 
-    } else if(name == "get_cartesian_state_from_tle_at_epoch" && variant==0) {
+    } else if(name == "get_cartesian_state_from_tle_at_epoch" ) {
         return R"(
         
 Get Cartesian state of a satellite from its two-line element set at a specified epoch.
@@ -3061,7 +3061,7 @@ cartesian_state_vector : np.ndarray[6,]    Cartesian state vector (x,y,z, positi
 
 
 
-    } else if(name == "compute_rotation_matrix_derivative_between_frames" && variant==0) {
+    } else if(name == "compute_rotation_matrix_derivative_between_frames" ) {
         return R"(
         
 Computes time derivative of rotation matrix between two frames.
@@ -3093,7 +3093,7 @@ Time derivative of rotation matrix from original to new frame at given time.
 
 
 
-    } else if(name == "get_angular_velocity_vector_of_frame_in_original_frame" && variant==0) {
+    } else if(name == "get_angular_velocity_vector_of_frame_in_original_frame" ) {
         return R"(
         
 Computes the angular velocity of one frame w.r.t. to another frame.
@@ -3128,7 +3128,7 @@ Angular velocity of newFrame w.r.t. originalFrame, expressed in originalFrame.
 
 
 
-    } else if(name == "get_body_properties" && variant==0) {
+    } else if(name == "get_body_properties" ) {
         return R"(
         
 Get property of a body from Spice.
@@ -3167,7 +3167,7 @@ Function returns values with distance unit km, not m!
 
 
 
-    } else if(name == "get_body_gravitational_parameter" && variant==0) {
+    } else if(name == "get_body_gravitational_parameter" ) {
         return R"(
         
 Get gravitational parameter of a body.
@@ -3195,7 +3195,7 @@ Gravitational parameter of requested body.
 
 
 
-    } else if(name == "get_average_radius" && variant==0) {
+    } else if(name == "get_average_radius" ) {
         return R"(
         
 Get the (arithmetic) mean of the three principal axes of the tri-axial ellipsoid shape.
@@ -3223,7 +3223,7 @@ Arithmetic mean of principal axes of tri-axial ellipsoid shape model of body.
 
 
 
-    } else if(name == "convert_body_name_to_naif_id" && variant==0) {
+    } else if(name == "convert_body_name_to_naif_id" ) {
         return R"(
         
 Convert a body name to its NAIF identification number.
@@ -3251,7 +3251,7 @@ NAIF id number for the body with bodyName.
 
 
 
-    } else if(name == "check_body_property_in_kernel_pool" && variant==0) {
+    } else if(name == "check_body_property_in_kernel_pool" ) {
         return R"(
         
 Check if a certain property of a body is in the kernel pool.
@@ -3284,7 +3284,7 @@ bool
 
 
 
-    } else if(name == "load_standard_kernels" && variant==0) {
+    } else if(name == "load_standard_kernels" ) {
         return R"(
         
 Loads the default spice kernels shopped with tudat.
@@ -3317,7 +3317,7 @@ kernel_paths : list[str], default = None
 
 
 
-    } else if(name == "get_total_count_of_kernels_loaded" && variant==0) {
+    } else if(name == "get_total_count_of_kernels_loaded" ) {
         return R"(
         
 Get the number of spice kernels currently loaded.
@@ -3341,7 +3341,7 @@ n_kernels : int    Number of spice kernels currently loaded.
 
 
 
-    } else if(name == "load_kernel" && variant==0) {
+    } else if(name == "load_kernel" ) {
         return R"(
         
 Loads a Spice kernel into the pool.
@@ -3369,7 +3369,7 @@ file_path : str
 
 
 
-    } else if(name == "clear_kernels" && variant==0) {
+    } else if(name == "clear_kernels" ) {
         return R"(
         
 Clear all loaded spice kernels.
@@ -3413,7 +3413,7 @@ None
     
 namespace math {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -3432,7 +3432,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
     
 namespace interpolators {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -3623,7 +3623,7 @@ Same as ``lagrange_boundary_nan_interpolation``, but a warning is printed to the
 
 
 
-    } else if(name == "OneDimensionalInterpolatorScalar.interpolate" && variant==0) {
+    } else if(name == "OneDimensionalInterpolatorScalar.interpolate" ) {
             return R"(
 
         This function performs the interpolation at the requested independent variable value.
@@ -3665,7 +3665,7 @@ Same as ``lagrange_boundary_nan_interpolation``, but a warning is printed to the
 
 
 
-    } else if(name == "OneDimensionalInterpolatorVector.interpolate" && variant==0) {
+    } else if(name == "OneDimensionalInterpolatorVector.interpolate" ) {
             return R"(
 
         This function performs the interpolation at the requested independent variable value.
@@ -3707,7 +3707,7 @@ Same as ``lagrange_boundary_nan_interpolation``, but a warning is printed to the
 
 
 
-    } else if(name == "OneDimensionalInterpolatorMatrix.interpolate" && variant==0) {
+    } else if(name == "OneDimensionalInterpolatorMatrix.interpolate" ) {
             return R"(
 
         This function performs the interpolation at the requested independent variable value.
@@ -3733,7 +3733,7 @@ Same as ``lagrange_boundary_nan_interpolation``, but a warning is printed to the
 
 
 
-    } else if(name == "linear_interpolation" && variant==0) {
+    } else if(name == "linear_interpolation" ) {
         return R"(
         
 Function to create settings for linear interpolation.
@@ -3763,7 +3763,7 @@ InterpolatorSettings
 
 
 
-    } else if(name == "piecewise_constant_interpolation" && variant==0) {
+    } else if(name == "piecewise_constant_interpolation" ) {
         return R"(
         
 Function to create settings for piecewise constant interpolation.
@@ -3793,7 +3793,7 @@ InterpolatorSettings
 
 
 
-    } else if(name == "cubic_spline_interpolation" && variant==0) {
+    } else if(name == "cubic_spline_interpolation" ) {
         return R"(
         
 Function to create settings for cubic spline interpolation.
@@ -3826,7 +3826,7 @@ InterpolatorSettings
 
 
 
-    } else if(name == "hermite_spline_interpolation" && variant==0) {
+    } else if(name == "hermite_spline_interpolation" ) {
         return R"(
         
 Function to create settings for cubic Hermite spline interpolation.
@@ -3859,7 +3859,7 @@ InterpolatorSettings
 
 
 
-    } else if(name == "lagrange_interpolation" && variant==0) {
+    } else if(name == "lagrange_interpolation" ) {
         return R"(
         
 Function to create settings for cubic Lagrange interpolation.
@@ -3913,7 +3913,7 @@ LagrangeInterpolatorSettings
 
 
 
-    } else if(name == "create_one_dimensional_scalar_interpolator" && variant==0) {
+    } else if(name == "create_one_dimensional_scalar_interpolator" ) {
         return R"(
         
 Function to create an interpolator for scalar dependent variables.
@@ -3945,7 +3945,7 @@ OneDimensionalInterpolatorScalar
 
 
 
-    } else if(name == "create_one_dimensional_vector_interpolator" && variant==0) {
+    } else if(name == "create_one_dimensional_vector_interpolator" ) {
         return R"(
         
 Function to create an interpolator for vector dependent variables.
@@ -3975,7 +3975,7 @@ OneDimensionalInterpolatorVector
 
 
 
-    } else if(name == "create_one_dimensional_matrix_interpolator" && variant==0) {
+    } else if(name == "create_one_dimensional_matrix_interpolator" ) {
         return R"(
         
 Function to create an interpolator for matrix dependent variables.
@@ -4020,7 +4020,7 @@ OneDimensionalInterpolatorMatrix
     
 namespace root_finders {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -4075,7 +4075,7 @@ The program will not accept the root at the final iteration, and will throw an e
 
 
 
-    } else if(name == "bisection" && variant==0) {
+    } else if(name == "bisection" ) {
         return R"(
         
 Function to create settings for a bisection root-finder.
@@ -4124,7 +4124,7 @@ RootFinderSettings
 
 
 
-    } else if(name == "newton_raphson" && variant==0) {
+    } else if(name == "newton_raphson" ) {
         return R"(
         
 Function to create settings for a Newton-Raphson root-finder.
@@ -4163,7 +4163,7 @@ RootFinderSettings
 
 
 
-    } else if(name == "secant" && variant==0) {
+    } else if(name == "secant" ) {
         return R"(
         
 Function to create settings for a secant method root-finder.
@@ -4202,7 +4202,7 @@ RootFinderSettings
 
 
 
-    } else if(name == "halley" && variant==0) {
+    } else if(name == "halley" ) {
         return R"(
         
 Function to create settings for a Halley root-finder.
@@ -4263,7 +4263,7 @@ RootFinderSettings
     
 namespace numerical_simulation {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -4339,7 +4339,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "SingleArcSimulator.integrate_equations_of_motion" && variant==0) {
+    } else if(name == "SingleArcSimulator.integrate_equations_of_motion" ) {
             return R"(
 
         This function numerically (re-)integrates the equations of
@@ -4465,7 +4465,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "SingleArcVariationalSimulator.ctor" && variant==0) {
+    } else if(name == "SingleArcVariationalSimulator.ctor" ) {
             return R"(
 
         Class constructor.
@@ -4523,7 +4523,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "SingleArcVariationalSimulator.integrate_equations_of_motion_only" && variant==0) {
+    } else if(name == "SingleArcVariationalSimulator.integrate_equations_of_motion_only" ) {
             return R"(
 
         Function to trigger the integration of the (regular) equations of motion.
@@ -4546,7 +4546,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "SingleArcVariationalSimulator.integrate_full_equations" && variant==0) {
+    } else if(name == "SingleArcVariationalSimulator.integrate_full_equations" ) {
             return R"(
 
         Function to trigger the integration of variational and dynamical equations (equations of motion).
@@ -4648,7 +4648,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "Estimator.ctor" && variant==0) {
+    } else if(name == "Estimator.ctor" ) {
             return R"(
 
         Class constructor.
@@ -4696,7 +4696,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "Estimator.compute_covariance" && variant==0) {
+    } else if(name == "Estimator.compute_covariance" ) {
             return R"(
 
         Function to perform a covariance analysis for the given observations and parameters
@@ -4737,7 +4737,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "Estimator.perform_estimation" && variant==0) {
+    } else if(name == "Estimator.perform_estimation" ) {
             return R"(
 
         Function to trigger the parameter estimation.
@@ -4769,7 +4769,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "create_dynamics_simulator" && variant==0) {
+    } else if(name == "create_dynamics_simulator" ) {
         return R"(
         
 Function to create object that propagates the dynamics.
@@ -4817,7 +4817,7 @@ Returns
     
 namespace estimation_setup {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -4826,7 +4826,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "print_parameter_names" && variant==0) {
+    } else if(name == "print_parameter_names" ) {
         return R"(
         
 Function for printing a list of estimatable parameter names.
@@ -4847,7 +4847,7 @@ parameter_set : :class:`~tudatpy.numerical_simulation.estimation.EstimatablePara
 
 
 
-    } else if(name == "create_parameter_set" && variant==0) {
+    } else if(name == "create_parameter_set" ) {
         return R"(
         
 Function for creating a consolidated set of estimatable parameters.
@@ -4882,7 +4882,7 @@ Returns
 
 
 
-    } else if(name == "create_observation_simulators" && variant==0) {
+    } else if(name == "create_observation_simulators" ) {
         return R"(
         
 Function for creating observation simulator objects.
@@ -4923,7 +4923,7 @@ List[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
     
 namespace observation {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -5366,7 +5366,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "ObservationAncilliarySimulationSettings.get_float_settings" && variant==0) {
+    } else if(name == "ObservationAncilliarySimulationSettings.get_float_settings" ) {
             return R"(
 
 
@@ -5391,7 +5391,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "ObservationAncilliarySimulationSettings.get_float_list_settings" && variant==0) {
+    } else if(name == "ObservationAncilliarySimulationSettings.get_float_list_settings" ) {
             return R"(
 
 
@@ -5418,7 +5418,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "link_definition" && variant==0) {
+    } else if(name == "link_definition" ) {
         return R"(
         
 Function to create a link definition object.
@@ -5442,7 +5442,7 @@ LinkDefinition
 
 
 
-    } else if(name == "body_origin_link_end_id" && variant==0) {
+    } else if(name == "body_origin_link_end_id" ) {
         return R"(
         
 Function to create a link end identifier for the origin (typically center of mass) of a body.
@@ -5472,7 +5472,7 @@ LinkEndId
 
 
 
-    } else if(name == "body_reference_point_link_end_id" && variant==0) {
+    } else if(name == "body_reference_point_link_end_id" ) {
         return R"(
         
 Function to create a link end identifier for a reference point on a body.
@@ -5504,7 +5504,7 @@ LinkEndId
 
 
 
-    } else if(name == "one_way_downlink_link_ends" && variant==0) {
+    } else if(name == "one_way_downlink_link_ends" ) {
         return R"(
         
 Function for defining one-way downlinks via LinkDefinition types.
@@ -5538,7 +5538,7 @@ List[ LinkDefinition ]
 
 
 
-    } else if(name == "one_way_uplink_link_ends" && variant==0) {
+    } else if(name == "one_way_uplink_link_ends" ) {
         return R"(
         
 Function for defining one-way uplinks via LinkDefinition types.
@@ -5572,7 +5572,7 @@ List[ LinkDefinition ]
 
 
 
-    } else if(name == "light_time_convergence_settings" && variant==0) {
+    } else if(name == "light_time_convergence_settings" ) {
         return R"(
         
 Factory function for creating convergence settings for solving the light-time equation.
@@ -5622,7 +5622,7 @@ Returns
 
 
 
-    } else if(name == "first_order_relativistic_light_time_correction" && variant==0) {
+    } else if(name == "first_order_relativistic_light_time_correction" ) {
         return R"(
         
 Factory function for creating settings for first-order relativistic light-time corrections.
@@ -5658,7 +5658,7 @@ Returns
 
 
 
-    } else if(name == "absolute_bias" && variant==0) {
+    } else if(name == "absolute_bias" ) {
         return R"(
         
 Factory function for creating settings for an absolute observation bias.
@@ -5692,7 +5692,7 @@ Returns
 
 
 
-    } else if(name == "relative_bias" && variant==0) {
+    } else if(name == "relative_bias" ) {
         return R"(
         
 Factory function for creating settings for a relative observation bias.
@@ -5728,7 +5728,7 @@ Returns
 
 
 
-    } else if(name == "arcwise_absolute_bias" && variant==0) {
+    } else if(name == "arcwise_absolute_bias" ) {
         return R"(
         
 Factory function for creating settings for arc-wise absolute observation biases.
@@ -5762,7 +5762,7 @@ Returns
     )";
 
 
-    } else if(name == "arcwise_absolute_bias" && variant==1) {
+    } else if(name == "arcwise_absolute_bias_per_time") {
         return R"(
         
 Factory function for creating settings for arc-wise absolute observation biases.
@@ -5794,7 +5794,7 @@ Returns
 
 
 
-    } else if(name == "arcwise_absolute_bias" && variant==0) {
+    } else if(name == "arcwise_absolute_bias" ) {
         return R"(
         
 Factory function for creating settings for arc-wise absolute observation biases.
@@ -5828,7 +5828,7 @@ Returns
     )";
 
 
-    } else if(name == "arcwise_absolute_bias" && variant==1) {
+    } else if(name == "arcwise_absolute_bias_per_time") {
         return R"(
         
 Factory function for creating settings for arc-wise absolute observation biases.
@@ -5860,7 +5860,7 @@ Returns
 
 
 
-    } else if(name == "arcwise_relative_bias" && variant==0) {
+    } else if(name == "arcwise_relative_bias" ) {
         return R"(
         
 Factory function for creating settings for arc-wise relative observation biases.
@@ -5894,7 +5894,7 @@ Returns
     )";
 
 
-    } else if(name == "arcwise_relative_bias" && variant==1) {
+    } else if(name == "arcwise_relative_bias_per_time") {
         return R"(
         
 Factory function for creating settings for arc-wise relative observation biases.
@@ -5926,7 +5926,7 @@ Returns
 
 
 
-    } else if(name == "arcwise_relative_bias" && variant==0) {
+    } else if(name == "arcwise_relative_bias" ) {
         return R"(
         
 Factory function for creating settings for arc-wise relative observation biases.
@@ -5960,7 +5960,7 @@ Returns
     )";
 
 
-    } else if(name == "arcwise_relative_bias" && variant==1) {
+    } else if(name == "arcwise_relative_bias_per_time") {
         return R"(
         
 Factory function for creating settings for arc-wise relative observation biases.
@@ -5992,7 +5992,7 @@ Returns
 
 
 
-    } else if(name == "time_drift_bias" && variant==0) {
+    } else if(name == "time_drift_bias" ) {
         return R"(
         
 Factory function for creating settings for a time-drift bias.
@@ -6028,7 +6028,7 @@ Returns
 
 
 
-    } else if(name == "arc_wise_time_drift_bias" && variant==0) {
+    } else if(name == "arc_wise_time_drift_bias" ) {
         return R"(
         
 Factory function for creating settings for arc-wise time-drift biases.
@@ -6064,7 +6064,7 @@ Returns
     )";
 
 
-    } else if(name == "arc_wise_time_drift_bias" && variant==1) {
+    } else if(name == "arc_wise_time_drift_bias_per_time") {
         return R"(
         
 Factory function for creating settings for arc-wise time-drift biases.
@@ -6098,7 +6098,7 @@ Returns
 
 
 
-    } else if(name == "arc_wise_time_drift_bias" && variant==0) {
+    } else if(name == "arc_wise_time_drift_bias" ) {
         return R"(
         
 Factory function for creating settings for arc-wise time-drift biases.
@@ -6134,7 +6134,7 @@ Returns
     )";
 
 
-    } else if(name == "arc_wise_time_drift_bias" && variant==1) {
+    } else if(name == "arc_wise_time_drift_bias_per_time") {
         return R"(
         
 Factory function for creating settings for arc-wise time-drift biases.
@@ -6168,7 +6168,7 @@ Returns
 
 
 
-    } else if(name == "combined_bias" && variant==0) {
+    } else if(name == "combined_bias" ) {
         return R"(
         
 Factory function for creating settings for a combined observation bias.
@@ -6206,7 +6206,7 @@ Returns
 
 
 
-    } else if(name == "one_way_range" && variant==0) {
+    } else if(name == "one_way_range" ) {
         return R"(
         
 Factory function for creating settings for a one-way range observable.
@@ -6258,7 +6258,7 @@ Returns
 
 
 
-    } else if(name == "n_way_range" && variant==0) {
+    } else if(name == "n_way_range" ) {
         return R"(
         
 Factory function for creating settings for a n-way range observable.
@@ -6304,7 +6304,7 @@ Returns
 
 
 
-    } else if(name == "n_way_range_from_one_way_links" && variant==0) {
+    } else if(name == "n_way_range_from_one_way_links" ) {
         return R"(
         
 Factory function for creating settings for a n-way range observable.
@@ -6340,7 +6340,7 @@ Returns
 
 
 
-    } else if(name == "two_way_range" && variant==0) {
+    } else if(name == "two_way_range" ) {
         return R"(
         
 Factory function for creating settings for a two-way range observable.
@@ -6380,7 +6380,7 @@ Returns
 
 
 
-    } else if(name == "two_way_range_from_one_way_links" && variant==0) {
+    } else if(name == "two_way_range_from_one_way_links" ) {
         return R"(
         
 Factory function for creating settings for a two-way range observable.
@@ -6415,7 +6415,7 @@ Returns
 
 
 
-    } else if(name == "angular_position" && variant==0) {
+    } else if(name == "angular_position" ) {
         return R"(
         
 Factory function for creating settings for an angular position observable.
@@ -6464,7 +6464,7 @@ Returns
 
 
 
-    } else if(name == "relative_angular_position" && variant==0) {
+    } else if(name == "relative_angular_position" ) {
         return R"(
         
 Factory function for creating settings for a relative angular position observable.
@@ -6507,7 +6507,7 @@ Returns
 
 
 
-    } else if(name == "one_way_doppler_instantaneous" && variant==0) {
+    } else if(name == "one_way_doppler_instantaneous" ) {
         return R"(
         
 Factory function for creating settings for a one-way instantaneous Doppler observable.
@@ -6573,7 +6573,7 @@ Returns
 
 
 
-    } else if(name == "two_way_doppler_instantaneous" && variant==0) {
+    } else if(name == "two_way_doppler_instantaneous" ) {
         return R"(
         
 Factory function for creating settings for a two-way instantaneous Doppler observable.
@@ -6637,7 +6637,7 @@ Returns
 
 
 
-    } else if(name == "two_way_doppler_instantaneous_from_one_way_links" && variant==0) {
+    } else if(name == "two_way_doppler_instantaneous_from_one_way_links" ) {
         return R"(
         
 Factory function for creating settings for a two-way instantaneous Doppler observable.
@@ -6680,7 +6680,7 @@ Returns
 
 
 
-    } else if(name == "one_way_doppler_averaged" && variant==0) {
+    } else if(name == "one_way_doppler_averaged" ) {
         return R"(
         
 Factory function for creating settings for a one-way averaged Doppler observable.
@@ -6729,7 +6729,7 @@ Returns
 
 
 
-    } else if(name == "n_way_doppler_averaged" && variant==0) {
+    } else if(name == "n_way_doppler_averaged" ) {
         return R"(
         
 Factory function for creating settings for an n-way averaged Doppler observable.
@@ -6772,7 +6772,7 @@ Returns
 
 
 
-    } else if(name == "n_way_doppler_averaged_from_one_way_links" && variant==0) {
+    } else if(name == "n_way_doppler_averaged_from_one_way_links" ) {
         return R"(
         
 Factory function for creating settings for an n-way averaged Doppler observable.
@@ -6807,7 +6807,7 @@ Returns
 
 
 
-    } else if(name == "two_way_doppler_averaged" && variant==0) {
+    } else if(name == "two_way_doppler_averaged" ) {
         return R"(
         
 Factory function for creating settings for a two-way averaged Doppler observable.
@@ -6846,7 +6846,7 @@ Returns
 
 
 
-    } else if(name == "two_way_doppler_averaged_from_one_way_links" && variant==0) {
+    } else if(name == "two_way_doppler_averaged_from_one_way_links" ) {
         return R"(
         
 Factory function for creating settings for a two-way averaged Doppler observable.
@@ -6881,7 +6881,7 @@ Returns
 
 
 
-    } else if(name == "cartesian_position" && variant==0) {
+    } else if(name == "cartesian_position" ) {
         return R"(
         
 Factory function for creating settings for a Cartesian position observable.
@@ -6915,7 +6915,7 @@ Returns
 
 
 
-    } else if(name == "cartesian_velocity" && variant==0) {
+    } else if(name == "cartesian_velocity" ) {
         return R"(
         
 Factory function for creating settings for a Cartesian velocity observable.
@@ -6949,7 +6949,7 @@ Returns
 
 
 
-    } else if(name == "313_euler_angles" && variant==0) {
+    } else if(name == "313_euler_angles" ) {
         return R"(
         
 Factory function for creating settings for observable containing the body orientation as Euler angles.
@@ -6984,7 +6984,7 @@ Returns
 
 
 
-    } else if(name == "elevation_angle_viability" && variant==0) {
+    } else if(name == "elevation_angle_viability" ) {
         return R"(
         
 Factory function for defining single elevation angle viability setting.
@@ -7017,7 +7017,7 @@ Returns
 
 
 
-    } else if(name == "elevation_angle_viability_list" && variant==0) {
+    } else if(name == "elevation_angle_viability_list" ) {
         return R"(
         
 Factory function for defining list of elevation angle viability settings.
@@ -7053,7 +7053,7 @@ Returns
 
 
 
-    } else if(name == "body_avoidance_viability" && variant==0) {
+    } else if(name == "body_avoidance_viability" ) {
         return R"(
         
 Factory function for defining body avoidance observation viability settings.
@@ -7098,7 +7098,7 @@ Returns
 
 
 
-    } else if(name == "body_avoidance_viability_list" && variant==0) {
+    } else if(name == "body_avoidance_viability_list" ) {
         return R"(
         
 Factory function for defining list of body avoidance viability settings.
@@ -7142,7 +7142,7 @@ Returns
 
 
 
-    } else if(name == "body_occultation_viability" && variant==0) {
+    } else if(name == "body_occultation_viability" ) {
         return R"(
         
 Factory function for defining body occultation viability settings.
@@ -7175,7 +7175,7 @@ Returns
 
 
 
-    } else if(name == "body_occultation_viability_list" && variant==0) {
+    } else if(name == "body_occultation_viability_list" ) {
         return R"(
         
 Factory function for defining body occultation viability settings.
@@ -7211,7 +7211,7 @@ Returns
 
 
 
-    } else if(name == "doppler_ancilliary_settings" && variant==0) {
+    } else if(name == "doppler_ancilliary_settings" ) {
         return R"(
         
 Factory function for creating ancilliary settings for averaged Doppler observable.
@@ -7240,7 +7240,7 @@ Returns
 
 
 
-    } else if(name == "two_way_range_ancilliary_settings" && variant==0) {
+    } else if(name == "two_way_range_ancilliary_settings" ) {
         return R"(
         
 Factory function for creating ancilliary settings for two-way range observable.
@@ -7269,7 +7269,7 @@ Returns
 
 
 
-    } else if(name == "two_way_doppler_ancilliary_settings" && variant==0) {
+    } else if(name == "two_way_doppler_ancilliary_settings" ) {
         return R"(
         
 Factory function for creating ancilliary settings for two-way averaged Doppler observable.
@@ -7300,7 +7300,7 @@ Returns
 
 
 
-    } else if(name == "n_way_range_ancilliary_settings" && variant==0) {
+    } else if(name == "n_way_range_ancilliary_settings" ) {
         return R"(
         
 Factory function for creating ancilliary settings for n-way range observable.
@@ -7327,7 +7327,7 @@ Returns
 
 
 
-    } else if(name == "n_way_doppler_ancilliary_settings" && variant==0) {
+    } else if(name == "n_way_doppler_ancilliary_settings" ) {
         return R"(
         
 Factory function for creating ancilliary settings for n-way averaged Doppler observable.
@@ -7356,7 +7356,7 @@ Returns
 
 
 
-    } else if(name == "tabulated_simulation_settings" && variant==0) {
+    } else if(name == "tabulated_simulation_settings" ) {
         return R"(
         
 Factory function for creating settings object for observation simulation, using a predefined list of observation times.
@@ -7396,7 +7396,7 @@ Returns
 
 
 
-    } else if(name == "tabulated_simulation_settings_list" && variant==0) {
+    } else if(name == "tabulated_simulation_settings_list" ) {
         return R"(
         
 Factory function for creating a list of settings object for observation simulation, using a predefined list of observation times.
@@ -7435,7 +7435,7 @@ List[ TabulatedObservationSimulationSettings ]
 
 
 
-    } else if(name == "get_default_reference_link_end" && variant==0) {
+    } else if(name == "get_default_reference_link_end" ) {
         return R"(
         
 Factory function for automatically retrieving the reference link end associated with a given observable type.
@@ -7459,7 +7459,7 @@ Returns
 
 
 
-    } else if(name == "continuous_arc_simulation_settings" && variant==0) {
+    } else if(name == "continuous_arc_simulation_settings" ) {
         return R"(
         
 Factory function for creating settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
@@ -7524,7 +7524,7 @@ Returns
 
 
 
-    } else if(name == "continuous_arc_simulation_settings_list" && variant==0) {
+    } else if(name == "continuous_arc_simulation_settings_list" ) {
         return R"(
         
 Factory function for creating a list of settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
@@ -7573,7 +7573,7 @@ List[ :class:`TabulatedObservationSimulationSettings` ]
 
 
 
-    } else if(name == "add_gaussian_noise_to_all" && variant==0) {
+    } else if(name == "add_gaussian_noise_to_all" ) {
         return R"(
         
 Function for adding gaussian noise function to all existing observation simulation settings.
@@ -7607,7 +7607,7 @@ None
 
 
 
-    } else if(name == "add_gaussian_noise_to_observable" && variant==0) {
+    } else if(name == "add_gaussian_noise_to_observable" ) {
         return R"(
         
 Function for adding gaussian noise function to existing observation simulation settings of a given observable type.
@@ -7640,7 +7640,7 @@ None
 
 
 
-    } else if(name == "add_gaussian_noise_to_observable_for_link_ends" && variant==0) {
+    } else if(name == "add_gaussian_noise_to_observable_for_link_ends" ) {
         return R"(
         
 Function for adding gaussian noise function to existing observation simulation settings of a given observable type and link definition.
@@ -7676,7 +7676,7 @@ None
 
 
 
-    } else if(name == "add_viability_check_to_all" && variant==0) {
+    } else if(name == "add_viability_check_to_all" ) {
         return R"(
         
 Function for including viability checks into existing observation simulation settings.
@@ -7710,7 +7710,7 @@ None
 
 
 
-    } else if(name == "add_viability_check_to_observable" && variant==0) {
+    } else if(name == "add_viability_check_to_observable" ) {
         return R"(
         
 Function for including viability checks into existing observation simulation settings.
@@ -7744,7 +7744,7 @@ None
 
 
 
-    } else if(name == "add_viability_check_to_observable_for_link_ends" && variant==0) {
+    } else if(name == "add_viability_check_to_observable_for_link_ends" ) {
         return R"(
         
 Function for including viability checks into existing observation simulation settings.
@@ -7781,7 +7781,7 @@ None
 
 
 
-    } else if(name == "add_dependent_variables_to_all" && variant==0) {
+    } else if(name == "add_dependent_variables_to_all" ) {
         return R"(
         
 Function for including dependent variables into all existing observation simulation settings.
@@ -7814,7 +7814,7 @@ bodies : :class:`~tudatpy.numerical_simulation.environment_setup.SystemOfBodies`
 
 
 
-    } else if(name == "add_dependent_variables_to_observable" && variant==0) {
+    } else if(name == "add_dependent_variables_to_observable" ) {
         return R"(
         
 Function for including dependent variables into selected existing observation simulation settings.
@@ -7846,7 +7846,7 @@ observable_type : :class:`ObservableType`
 
 
 
-    } else if(name == "add_dependent_variables_to_obs_for_links_end" && variant==0) {
+    } else if(name == "add_dependent_variables_to_obs_for_links_end" ) {
         return R"(
         
 Function for including dependent variables into selected existing observation simulation settings for the chosen link ends.
@@ -7881,7 +7881,7 @@ link_ends : LinkDefinition
 
 
 
-    } else if(name == "add_noise_function_to_all" && variant==0) {
+    } else if(name == "add_noise_function_to_all" ) {
         return R"(
         
 Function for adding a custom noise function to all existing observation simulation settings.
@@ -7917,7 +7917,7 @@ None
 
 
 
-    } else if(name == "add_noise_function_to_observable" && variant==0) {
+    } else if(name == "add_noise_function_to_observable" ) {
         return R"(
         
 Function for adding a custom noise function to selected existing observation simulation settings of a given observable type.
@@ -7952,7 +7952,7 @@ None
 
 
 
-    } else if(name == "add_noise_function_to_observable_for_link_ends" && variant==0) {
+    } else if(name == "add_noise_function_to_observable_for_link_ends" ) {
         return R"(
         
 Function for adding a custom noise function to existing observation simulation settings of a given observable type and link definition.
@@ -8005,7 +8005,7 @@ None
     
 namespace parameter {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -8204,7 +8204,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "initial_states" && variant==0) {
+    } else if(name == "initial_states" ) {
         return R"(
         
 Function for defining parameter settings for initial state parameters.
@@ -8257,7 +8257,7 @@ List[ :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.Estimatab
 
 
 
-    } else if(name == "constant_drag_coefficient" && variant==0) {
+    } else if(name == "constant_drag_coefficient" ) {
         return R"(
         
 Function for defining parameter settings for constant drag coefficients.
@@ -8289,7 +8289,7 @@ Returns
 
 
 
-    } else if(name == "arcwise_constant_drag_coefficient" && variant==0) {
+    } else if(name == "arcwise_constant_drag_coefficient" ) {
         return R"(
         
 Function for defining parameter settings for arc-wise constant drag coefficients.
@@ -8327,7 +8327,7 @@ Returns
 
 
 
-    } else if(name == "radiation_pressure_coefficient" && variant==0) {
+    } else if(name == "radiation_pressure_coefficient" ) {
         return R"(
         
 Function for defining parameter settings for radiation pressure coefficients.
@@ -8359,7 +8359,7 @@ Returns
 
 
 
-    } else if(name == "arcwise_radiation_pressure_coefficient" && variant==0) {
+    } else if(name == "arcwise_radiation_pressure_coefficient" ) {
         return R"(
         
 Function for defining parameter settings for arc-wise radiation pressure coefficients.
@@ -8398,7 +8398,7 @@ Returns
 
 
 
-    } else if(name == "empirical_accelerations" && variant==0) {
+    } else if(name == "empirical_accelerations" ) {
         return R"(
         
 Function for defining parameter settings for empirical acceleration magnitudes.
@@ -8436,7 +8436,7 @@ Returns
 
 
 
-    } else if(name == "arcwise_empirical_accelerations" && variant==0) {
+    } else if(name == "arcwise_empirical_accelerations" ) {
         return R"(
         
 Function for defining parameter settings for arc-wise empirical acceleration magnitudes.
@@ -8479,7 +8479,7 @@ Returns
 
 
 
-    } else if(name == "constant_empirical_acceleration_terms" && variant==0) {
+    } else if(name == "constant_empirical_acceleration_terms" ) {
         return R"(
         
 Function for defining parameter settings for constant empirical acceleration terms.
@@ -8511,7 +8511,7 @@ Returns
 
 
 
-    } else if(name == "arcwise_constant_empirical_acceleration_terms" && variant==0) {
+    } else if(name == "arcwise_constant_empirical_acceleration_terms" ) {
         return R"(
         
 Function for defining parameter settings for arc-wise constant empirical acceleration terms.
@@ -8546,7 +8546,7 @@ Returns
 
 
 
-    } else if(name == "quasi_impulsive_shots" && variant==0) {
+    } else if(name == "quasi_impulsive_shots" ) {
         return R"(
         
 Function for defining parameter settings for quasi-impulsive shots.
@@ -8579,7 +8579,7 @@ Returns
 
 
 
-    } else if(name == "gravitational_parameter" && variant==0) {
+    } else if(name == "gravitational_parameter" ) {
         return R"(
         
 Function for defining parameter settings for a massive body's gravitational parameter.
@@ -8611,7 +8611,7 @@ Returns
 
 
 
-    } else if(name == "spherical_harmonics_c_coefficients" && variant==0) {
+    } else if(name == "spherical_harmonics_c_coefficients" ) {
         return R"(
         
 Function for defining parameter settings for the cosine coefficients of body's spherical harmonics gravitational model.
@@ -8652,7 +8652,7 @@ Returns
 
 
 
-    } else if(name == "spherical_harmonics_s_coefficients" && variant==0) {
+    } else if(name == "spherical_harmonics_s_coefficients" ) {
         return R"(
         
 Function for defining parameter settings for the sine coefficients of body's spherical harmonics gravitational model.
@@ -8693,7 +8693,7 @@ Returns
 
 
 
-    } else if(name == "spherical_harmonics_c_coefficients_block" && variant==0) {
+    } else if(name == "spherical_harmonics_c_coefficients_block" ) {
         return R"(
         
 Function for defining parameter settings for the cosine coefficients of body's spherical harmonics gravitational model.
@@ -8726,7 +8726,7 @@ Returns
 
 
 
-    } else if(name == "spherical_harmonics_s_coefficients_block" && variant==0) {
+    } else if(name == "spherical_harmonics_s_coefficients_block" ) {
         return R"(
         
 Function for defining parameter settings for the sine coefficients of body's spherical harmonics gravitational model.
@@ -8759,7 +8759,7 @@ Returns
 
 
 
-    } else if(name == "constant_rotation_rate" && variant==0) {
+    } else if(name == "constant_rotation_rate" ) {
         return R"(
         
 Function for defining parameter settings for a body's constant rotation rate.
@@ -8791,7 +8791,7 @@ Returns
 
 
 
-    } else if(name == "rotation_pole_position" && variant==0) {
+    } else if(name == "rotation_pole_position" ) {
         return R"(
         
 Function for defining parameter settings for a body's rotation pole position.
@@ -8823,7 +8823,7 @@ Returns
 
 
 
-    } else if(name == "mean_moment_of_inertia" && variant==0) {
+    } else if(name == "mean_moment_of_inertia" ) {
         return R"(
         
 Function for defining parameter settings for a body's mean moment of inertia.
@@ -8855,7 +8855,7 @@ Returns
 
 
 
-    } else if(name == "periodic_spin_variations" && variant==0) {
+    } else if(name == "periodic_spin_variations" ) {
         return R"(
         
 Function for defining parameter settings for a body's periodic spin variations.
@@ -8887,7 +8887,7 @@ Returns
 
 
 
-    } else if(name == "polar_motion_amplitudes" && variant==0) {
+    } else if(name == "polar_motion_amplitudes" ) {
         return R"(
         
 Function for defining parameter settings for a body's polar motion amplitudes.
@@ -8919,7 +8919,7 @@ Returns
 
 
 
-    } else if(name == "core_factor" && variant==0) {
+    } else if(name == "core_factor" ) {
         return R"(
         
 Function for defining parameter settings for a body's core factor.
@@ -8951,7 +8951,7 @@ Returns
 
 
 
-    } else if(name == "free_core_nutation_rate" && variant==0) {
+    } else if(name == "free_core_nutation_rate" ) {
         return R"(
         
 Function for defining parameter settings for a body's free core nutation rate.
@@ -8983,7 +8983,7 @@ Returns
 
 
 
-    } else if(name == "absolute_observation_bias" && variant==0) {
+    } else if(name == "absolute_observation_bias" ) {
         return R"(
         
 Function for defining parameter settings for an absolute observation bias.
@@ -9017,7 +9017,7 @@ Returns
 
 
 
-    } else if(name == "relative_observation_bias" && variant==0) {
+    } else if(name == "relative_observation_bias" ) {
         return R"(
         
 Function for defining parameter settings for an relative observation bias.
@@ -9053,7 +9053,7 @@ Returns
 
 
 
-    } else if(name == "arcwise_absolute_observation_bias" && variant==0) {
+    } else if(name == "arcwise_absolute_observation_bias" ) {
         return R"(
         
 Function for defining parameter settings for arc-wise absolute observation bias.
@@ -9091,7 +9091,7 @@ Returns
 
 
 
-    } else if(name == "arcwise_relative_observation_bias" && variant==0) {
+    } else if(name == "arcwise_relative_observation_bias" ) {
         return R"(
         
 Function for defining parameter settings for arc-wise absolute observation bias.
@@ -9131,7 +9131,7 @@ Returns
 
 
 
-    } else if(name == "ground_station_position" && variant==0) {
+    } else if(name == "ground_station_position" ) {
         return R"(
         
 Function for defining parameter settings for ground station position bias.
@@ -9163,7 +9163,7 @@ Returns
 
 
 
-    } else if(name == "ppn_parameter_gamma" && variant==0) {
+    } else if(name == "ppn_parameter_gamma" ) {
         return R"(
         
 Function for defining parameter settings for post-newtonian gamma parameter.
@@ -9189,7 +9189,7 @@ Returns
 
 
 
-    } else if(name == "ppn_parameter_beta" && variant==0) {
+    } else if(name == "ppn_parameter_beta" ) {
         return R"(
         
 Function for defining parameter settings for post-newtonian beta parameter.
@@ -9235,7 +9235,7 @@ Returns
     
 namespace environment_setup {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -9282,7 +9282,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "BodyListSettings.get" && variant==0) {
+    } else if(name == "BodyListSettings.get" ) {
             return R"(
 
         This function extracts a single BodySettings object .
@@ -9468,7 +9468,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "get_default_body_settings" && variant==0) {
+    } else if(name == "get_default_body_settings" ) {
         return R"(
         
 Function that retrieves the default settings for the given set of input bodies.
@@ -9501,7 +9501,7 @@ BodyListSettings
 
 
 
-    } else if(name == "get_default_body_settings_time_limited" && variant==0) {
+    } else if(name == "get_default_body_settings_time_limited" ) {
         return R"(
         
 Function that retrieves the default settings for the given set of input bodies, with a limited valid time interval.
@@ -9539,7 +9539,7 @@ BodyListSettings
 
 
 
-    } else if(name == "get_default_single_body_settings" && variant==0) {
+    } else if(name == "get_default_single_body_settings" ) {
         return R"(
         
 Function that retrieves the default settings for a single body.
@@ -9567,7 +9567,7 @@ BodySettings
 
 
 
-    } else if(name == "get_default_single_body_settings_time_limited" && variant==0) {
+    } else if(name == "get_default_single_body_settings_time_limited" ) {
         return R"(
         
 Function that retrieves the default settings for a single body, with a limited valid time interval.
@@ -9600,7 +9600,7 @@ BodySettings
     )";
 
 
-    } else if(name == "get_default_single_body_settings_time_limited" && variant==1) {
+    } else if(name == "get_default_single_alternate_body_settings_time_limited") {
         return R"(
         
 Function that retrieves the default settings for a single body, with a limited valid time interval.
@@ -9639,7 +9639,7 @@ BodySettings
 
 
 
-    } else if(name == "get_default_single_alternate_body_settings" && variant==0) {
+    } else if(name == "get_default_single_alternate_body_settings" ) {
         return R"(
         
 Function that retrieves the default settings for a single body, and assigns them to another body.
@@ -9672,7 +9672,7 @@ BodySettings
 
 
 
-    } else if(name == "get_default_single_body_settings_time_limited" && variant==0) {
+    } else if(name == "get_default_single_body_settings_time_limited" ) {
         return R"(
         
 Function that retrieves the default settings for a single body, with a limited valid time interval.
@@ -9705,7 +9705,7 @@ BodySettings
     )";
 
 
-    } else if(name == "get_default_single_body_settings_time_limited" && variant==1) {
+    } else if(name == "get_default_single_alternate_body_settings_time_limited") {
         return R"(
         
 Function that retrieves the default settings for a single body, with a limited valid time interval.
@@ -9744,7 +9744,7 @@ BodySettings
 
 
 
-    } else if(name == "add_aerodynamic_coefficient_interface" && variant==0) {
+    } else if(name == "add_aerodynamic_coefficient_interface" ) {
         return R"(
         
 Function that creates an aerodynamic coefficient interface from settings, and adds it to an existing body.
@@ -9774,7 +9774,7 @@ coefficient_settings : AerodynamicCoefficientSettings
 
 
 
-    } else if(name == "create_system_of_bodies" && variant==0) {
+    } else if(name == "create_system_of_bodies" ) {
         return R"(
         
 Function that creates a System of bodies from associated settings.
@@ -9802,7 +9802,7 @@ Returns
 
 
 
-    } else if(name == "create_simplified_system_of_bodies" && variant==0) {
+    } else if(name == "create_simplified_system_of_bodies" ) {
         return R"(
         
 Function that creates a simplified System of bodies.
@@ -9830,7 +9830,7 @@ Returns
 
 
 
-    } else if(name == "create_body_ephemeris" && variant==0) {
+    } else if(name == "create_body_ephemeris" ) {
         return R"(
         
 Function that creates an Ephemeris object.
@@ -9859,7 +9859,7 @@ Returns
 
 
 
-    } else if(name == "add_radiation_pressure_interface" && variant==0) {
+    } else if(name == "add_radiation_pressure_interface" ) {
         return R"(
         
 Function that creates an radiation pressure interface from settings, and adds it to an existing body.
@@ -9889,7 +9889,7 @@ radiation_pressure_settings : RadiationPressureInterfaceSettings
 
 
 
-    } else if(name == "add_flight_conditions" && variant==0) {
+    } else if(name == "add_flight_conditions" ) {
         return R"(
         
 Function that creates a flight conditions, and adds it to an existing body.
@@ -9921,7 +9921,7 @@ central_body_name : str
 
 
 
-    } else if(name == "add_rotation_model" && variant==0) {
+    } else if(name == "add_rotation_model" ) {
         return R"(
         
 Function that creates a rotation model, and adds it to an existing body.
@@ -9953,7 +9953,7 @@ rotation_model_settings
 
 
 
-    } else if(name == "add_mass_properties_model" && variant==0) {
+    } else if(name == "add_mass_properties_model" ) {
         return R"(
         
 Function that creates a body mass property model, and adds it to an existing body.
@@ -9983,7 +9983,7 @@ mass_property_settings
 
 
 
-    } else if(name == "add_engine_model" && variant==0) {
+    } else if(name == "add_engine_model" ) {
         return R"(
         
 Function that creates an engine model (to be used for thrust calculations), and adds it to an existing body.
@@ -10016,7 +10016,7 @@ body_fixed_thrust_direction : numpy.ndarray[numpy.float64[3, 1]], default = [1,0
 
 
 
-    } else if(name == "add_variable_direction_engine_model" && variant==0) {
+    } else if(name == "add_variable_direction_engine_model" ) {
         return R"(
         
 Function that creates an engine model (to be used for thrust calculations), and adds it to an existing body.
@@ -10055,7 +10055,7 @@ body_fixed_thrust_direction_function : Callable[[float], numpy.ndarray[numpy.flo
     
 namespace aerodynamic_coefficients {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -10097,7 +10097,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "AerodynamicCoefficientSettings.add_single_control_surface" && variant==0) {
+    } else if(name == "AerodynamicCoefficientSettings.add_single_control_surface" ) {
             return R"(
 
         Function to add settings for a single control surface to the coefficient settings. Note that, in Tudat, the
@@ -10140,7 +10140,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "constant" && variant==0) {
+    } else if(name == "constant" ) {
         return R"(
         
 Factory function for creating aerodynamic interface model settings entirely from constant coefficients.
@@ -10192,7 +10192,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "custom_aerodynamic_force_coefficients" && variant==0) {
+    } else if(name == "custom_aerodynamic_force_coefficients" ) {
         return R"(
         
 Factory function for creating aerodynamic interface model settings from custom coefficients.
@@ -10255,7 +10255,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "custom_aerodynamic_force_and_moment_coefficients" && variant==0) {
+    } else if(name == "custom_aerodynamic_force_and_moment_coefficients" ) {
         return R"(
         
 Factory function for creating aerodynamic interface model settings from custom coefficients.
@@ -10305,7 +10305,7 @@ CustomAerodynamicCoefficientSettings
 
 
 
-    } else if(name == "tabulated" && variant==0) {
+    } else if(name == "tabulated" ) {
         return R"(
         
 Factory function for creating aerodynamic interface model settings from user-defined, 1-d tabulated coefficients.
@@ -10393,7 +10393,7 @@ This example also shows how to set the required reference point, lengths, and ar
 
 
 
-    } else if(name == "tabulated_force_only" && variant==0) {
+    } else if(name == "tabulated_force_only" ) {
         return R"(
         
 Factory function for creating aerodynamic interface model settings from user-defined, 1-d tabulated force coefficients.
@@ -10458,7 +10458,7 @@ The values for the force coefficients vary with Mach number, and are defined for
 
 
 
-    } else if(name == "tabulated_force_only_from_files" && variant==0) {
+    } else if(name == "tabulated_force_only_from_files" ) {
         return R"(
         
 Factory function for creating aerodynamic interface model settings from tabulated force coefficients from files.
@@ -10516,7 +10516,7 @@ This example is taken from the `reentry trajectory example <https://github.com/t
 
 
 
-    } else if(name == "tabulated_from_files" && variant==0) {
+    } else if(name == "tabulated_from_files" ) {
         return R"(
         
 Factory function for creating aerodynamic interface model settings from tabulated coefficients from files.
@@ -10590,7 +10590,7 @@ This example is very similar to the one for `tabulated_force_only_from_files`, w
 
 
 
-    } else if(name == "scaled_by_constant" && variant==0) {
+    } else if(name == "scaled_by_constant" ) {
         return R"(
         
 Factory function for creating aerodynamic interface model settings by applying one constant scaling factor/value to all coefficients of an existing model settings object.
@@ -10653,7 +10653,7 @@ Since the `is_scaling_absolute` equals `False` by default, the force coefficient
 
 
 
-    } else if(name == "scaled_by_vector" && variant==0) {
+    } else if(name == "scaled_by_vector" ) {
         return R"(
         
 Factory function for creating aerodynamic interface model settings by applying constant scaling factors/values to the coefficients of an existing model settings object.
@@ -10714,7 +10714,7 @@ Then, we use the `scaled_by_vector` function to scale the drag coefficient by 2.
 
 
 
-    } else if(name == "scaled_by_vector_function" && variant==0) {
+    } else if(name == "scaled_by_vector_function" ) {
         return R"(
         
 Factory function for creating aerodynamic interface model settings by applying custom scaling factors/values to the coefficients of an existing model settings object.
@@ -10781,7 +10781,7 @@ This scaling function essentially adds noise to the CD and CL following as a sin
 
 
 
-    } else if(name == "custom_control_surface" && variant==0) {
+    } else if(name == "custom_control_surface" ) {
         return R"(
         
 Factory function for creating control surface aerodynamic model settings from custom coefficients.
@@ -10840,7 +10840,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "tabulated_from_files_control_surface" && variant==0) {
+    } else if(name == "tabulated_from_files_control_surface" ) {
         return R"(
         
 Factory function for creating control surface aerodynamic model settings from tabulated coefficients from files.
@@ -10878,7 +10878,7 @@ ControlSurfaceIncrementAerodynamicCoefficientSettings
     
 namespace atmosphere {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -10950,7 +10950,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "constant_wind_model" && variant==0) {
+    } else if(name == "constant_wind_model" ) {
         return R"(
         
 Factory function for creating wind model settings with constant wind velocity.
@@ -10998,7 +10998,7 @@ using a constant wind-velocity vector defined in a vertical aerodynamic referenc
 
 
 
-    } else if(name == "custom_wind_model" && variant==0) {
+    } else if(name == "custom_wind_model" ) {
         return R"(
         
 Factory function for creating wind model settings with custom wind velocity.
@@ -11056,7 +11056,7 @@ using a user-defined wind-velocity function (of altitude, longitude, latitude an
 
 
 
-    } else if(name == "exponential_predefined" && variant==0) {
+    } else if(name == "exponential_predefined" ) {
         return R"(
         
 Factory function for creating atmospheric model settings from pre-defined exponential model.
@@ -11124,7 +11124,7 @@ using the interface of the predefined exponential model, using pre-encoded value
 
 
 
-    } else if(name == "exponential" && variant==0) {
+    } else if(name == "exponential" ) {
         return R"(
         
 Factory function for creating atmospheric model settings from fully parametrized exponential model.
@@ -11177,7 +11177,7 @@ using the minimalist interface to the exponential model and taking parameters wi
 
 
 
-    } else if(name == "nrlmsise00" && variant==0) {
+    } else if(name == "nrlmsise00" ) {
         return R"(
         
 Factory function for creating NRLMSISE-00 atmospheric model settings.
@@ -11213,7 +11213,7 @@ using the NRLMSISE-00 global reference model:
 
 
 
-    } else if(name == "us76" && variant==0) {
+    } else if(name == "us76" ) {
         return R"(
         
 Factory function for creating US76 standard atmosphere model settings.
@@ -11248,7 +11248,7 @@ using the US76 standard atmosphere model:
 
 
 
-    } else if(name == "custom_constant_temperature" && variant==0) {
+    } else if(name == "custom_constant_temperature" ) {
         return R"(
         
 Factory function for creating atmospheric model settings from custom density profile.
@@ -11307,7 +11307,7 @@ with constant temperature and composition, but a density which varies with altit
 
 
 
-    } else if(name == "custom_four_dimensional_constant_temperature" && variant==0) {
+    } else if(name == "custom_four_dimensional_constant_temperature" ) {
         return R"(
         
 Factory function for creating atmospheric model settings from custom density profile.
@@ -11366,7 +11366,7 @@ with constant temperature and composition (gas constant and ratio of specific he
 
 
 
-    } else if(name == "scaled_by_constant" && variant==0) {
+    } else if(name == "scaled_by_constant" ) {
         return R"(
         
 Factory function for creating scaled atmospheric model settings.
@@ -11420,7 +11420,7 @@ by modifying an existing :class:`~tudatpy.numerical_simulation.environment_setup
 
 
 
-    } else if(name == "scaled_by_function" && variant==0) {
+    } else if(name == "scaled_by_function" ) {
         return R"(
         
 Factory function for creating scaled atmospheric model settings.
@@ -11490,7 +11490,7 @@ by modifying an existing :class:`~tudatpy.numerical_simulation.environment_setup
     
 namespace ephemeris {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -11814,7 +11814,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "direct_spice" && variant==0) {
+    } else if(name == "direct_spice" ) {
         return R"(
         
 Factory function for creating ephemeris model settings entirely from Spice.
@@ -11868,7 +11868,7 @@ Alternatively, we can assign the DirectSpiceEphemerisSettings of Jupiter (or any
 
 
 
-    } else if(name == "interpolated_spice" && variant==0) {
+    } else if(name == "interpolated_spice" ) {
         return R"(
         
 Factory function for creating ephemeris model settings using interpolated Spice data.
@@ -11933,7 +11933,7 @@ Additionally, as is the case for the :func:`~tudatpy.numerical_simulation.enviro
 
 
 
-    } else if(name == "approximate_jpl_model" && variant==0) {
+    } else if(name == "approximate_jpl_model" ) {
         return R"(
         
 Factory function for creating approximate ephemeris model settings for major planets.
@@ -11980,7 +11980,7 @@ Alternatively, we can assign the ApproximateJplEphemerisSettings of Jupiter (or 
 
 
 
-    } else if(name == "constant" && variant==0) {
+    } else if(name == "constant" ) {
         return R"(
         
 Factory function for creating constant ephemeris model settings.
@@ -12026,7 +12026,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "custom_ephemeris" && variant==0) {
+    } else if(name == "custom_ephemeris" ) {
         return R"(
         
 Factory function for creating custom ephemeris model settings.
@@ -12084,7 +12084,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "keplerian" && variant==0) {
+    } else if(name == "keplerian" ) {
         return R"(
         
 Factory function for creating Keplerian ephemeris model settings.
@@ -12153,7 +12153,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "keplerian_from_spice" && variant==0) {
+    } else if(name == "keplerian_from_spice" ) {
         return R"(
         
 Factory function for creating Keplerian ephemeris model settings with initial state from Spice.
@@ -12223,7 +12223,7 @@ Additionally, as is the case for the :func:`~tudatpy.numerical_simulation.enviro
 
 
 
-    } else if(name == "scaled_by_constant" && variant==0) {
+    } else if(name == "scaled_by_constant" ) {
         return R"(
         
 Factory function for creating scaled ephemeris model settings.
@@ -12270,7 +12270,7 @@ In the above case, the original Jupiter ephemeris setting is taken and each stat
 
 
 
-    } else if(name == "scaled_by_vector" && variant==0) {
+    } else if(name == "scaled_by_vector" ) {
         return R"(
         
 Factory function for creating scaled ephemeris model settings.
@@ -12318,7 +12318,7 @@ In the above case, the original Jupiter ephemeris setting is taken and each stat
 
 
 
-    } else if(name == "scaled_by_vector_function" && variant==0) {
+    } else if(name == "scaled_by_vector_function" ) {
         return R"(
         
 Factory function for creating scaled ephemeris model settings.
@@ -12369,7 +12369,7 @@ In the above case, the original Jupiter ephemeris setting is taken and each stat
 
 
 
-    } else if(name == "tabulated" && variant==0) {
+    } else if(name == "tabulated" ) {
         return R"(
         
 Factory function for creating ephemeris model settings from tabulated data.
@@ -12423,7 +12423,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "tabulated_from_existing" && variant==0) {
+    } else if(name == "tabulated_from_existing" ) {
         return R"(
         
 Factory function for creating tabulated ephemeris model settings from existing ephemeris.
@@ -12493,7 +12493,7 @@ First, we extract the existing ephemeris. Then, we define new tabulated ephemeri
     
 namespace gravity_field {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -12646,7 +12646,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
 
 
-    } else if(name == "GravityFieldSettings.__init__" && variant==0) {
+    } else if(name == "GravityFieldSettings.__init__" ) {
             return R"(
 
 
@@ -12836,7 +12836,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
 
 
-    } else if(name == "central" && variant==0) {
+    } else if(name == "central" ) {
         return R"(
         
 Factory function for central gravity field settings object.
@@ -12878,7 +12878,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "central_spice" && variant==0) {
+    } else if(name == "central_spice" ) {
         return R"(
         
 Factory function to create central gravity field settings from Spice settings.
@@ -12908,7 +12908,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "spherical_harmonic" && variant==0) {
+    } else if(name == "spherical_harmonic" ) {
         return R"(
         
 Factory function for creating a spherical harmonics gravity field settings object.
@@ -13002,7 +13002,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "sh_triaxial_ellipsoid_from_density" && variant==0) {
+    } else if(name == "sh_triaxial_ellipsoid_from_density" ) {
         return R"(
         
 Factory function for spherical harmonics gravity field settings object from triaxial ellipsoid parameters, using the density to define the mass distribution.
@@ -13063,7 +13063,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "sh_triaxial_ellipsoid_from_gravitational_parameter" && variant==0) {
+    } else if(name == "sh_triaxial_ellipsoid_from_gravitational_parameter" ) {
         return R"(
         
 Factory function for spherical harmonics gravity field settings object from triaxial ellipsoid parameters, using the gravitational parameter to define the mass distribution..
@@ -13106,7 +13106,7 @@ SphericalHarmonicsGravityFieldSettings
 
 
 
-    } else if(name == "from_file_spherical_harmonic" && variant==0) {
+    } else if(name == "from_file_spherical_harmonic" ) {
         return R"(
         
 Factory function to load a custom spherical harmonics gravity field settings from a file.
@@ -13157,7 +13157,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "predefined_spherical_harmonic" && variant==0) {
+    } else if(name == "predefined_spherical_harmonic" ) {
         return R"(
         
 Factory function for spherical harmonics gravity field settings of a predefined model.
@@ -13195,7 +13195,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
 
 
-    } else if(name == "polyhedron_from_mu" && variant==0) {
+    } else if(name == "polyhedron_from_mu" ) {
         return R"(
         
 Factory function for creating a polyhedron gravity field settings object, using the gravitational parameter.
@@ -13246,7 +13246,7 @@ PolyhedronGravityFieldSettings
 
 
 
-    } else if(name == "polyhedron_from_density" && variant==0) {
+    } else if(name == "polyhedron_from_density" ) {
         return R"(
         
 Factory function for creating a polyhedron gravity field settings object, using the density.
@@ -13310,7 +13310,7 @@ PolyhedronGravityFieldSettings
     
 namespace gravity_field_variation {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -13349,7 +13349,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "solid_body_tide" && variant==0) {
+    } else if(name == "solid_body_tide" ) {
         return R"(
         
 Factory function for creating solid body tides.
@@ -13393,7 +13393,7 @@ In this example, we create gravity field variations of Earth for a tide raised b
 
 
 
-    } else if(name == "solid_body_tide_complex_k" && variant==0) {
+    } else if(name == "solid_body_tide_complex_k" ) {
         return R"(
         
 Factory function for creating solid body tides.
@@ -13423,7 +13423,7 @@ BasicSolidBodyGravityFieldVariationSettings
 
 
 
-    } else if(name == "solid_body_tide_degree_variable_k" && variant==0) {
+    } else if(name == "solid_body_tide_degree_variable_k" ) {
         return R"(
         
 Factory function for creating solid body tides.
@@ -13466,7 +13466,7 @@ In this example, we create gravity field variations of Earth for a tide raised b
 
 
 
-    } else if(name == "solid_body_tide_degree_variable_complex_k" && variant==0) {
+    } else if(name == "solid_body_tide_degree_variable_complex_k" ) {
         return R"(
         
 Factory function for creating solid body tides.
@@ -13494,7 +13494,7 @@ BasicSolidBodyGravityFieldVariationSettings
 
 
 
-    } else if(name == "solid_body_tide_degree_order_variable_k" && variant==0) {
+    } else if(name == "solid_body_tide_degree_order_variable_k" ) {
         return R"(
         
 Factory function for creating solid body tides.
@@ -13539,7 +13539,7 @@ In this example, we create gravity field variations of the Moon, for a tide rais
 
 
 
-    } else if(name == "solid_body_tide_degree_order_variable_complex_k" && variant==0) {
+    } else if(name == "solid_body_tide_degree_order_variable_complex_k" ) {
         return R"(
         
 Factory function for creating solid body tides.
@@ -13582,7 +13582,7 @@ BasicSolidBodyGravityFieldVariationSettings
     
 namespace ground_station {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -13672,7 +13672,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "basic_station" && variant==0) {
+    } else if(name == "basic_station" ) {
         return R"(
         
 Factory function for creating settings for a ground station
@@ -13725,7 +13725,7 @@ In this example, we create a station using geodetic coordinates at the approxima
 
 
 
-    } else if(name == "dsn_stations" && variant==0) {
+    } else if(name == "dsn_stations" ) {
         return R"(
         
 Factory function for creating settings for all DSN stations
@@ -13749,7 +13749,7 @@ list[ GroundStationSettings ]
 
 
 
-    } else if(name == "linear_station_motion" && variant==0) {
+    } else if(name == "linear_station_motion" ) {
         return R"(
         
 Factory function for creating settings for a linear station motion
@@ -13777,7 +13777,7 @@ GroundStationMotionSettings
 
 
 
-    } else if(name == "piecewise_constant_station_motion" && variant==0) {
+    } else if(name == "piecewise_constant_station_motion" ) {
         return R"(
         
 Factory function for creating settings for a piecewise constant ground station position variation
@@ -13805,7 +13805,7 @@ GroundStationMotionSettings
 
 
 
-    } else if(name == "custom_station_motion" && variant==0) {
+    } else if(name == "custom_station_motion" ) {
         return R"(
         
 Factory function for creating settings for a custom ground station position variation
@@ -13847,7 +13847,7 @@ GroundStationMotionSettings
     
 namespace radiation_pressure {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -13990,7 +13990,7 @@ Coefficients for DLAM lunar albedo model by FLoberhgen (1999)
 
 
 
-    } else if(name == "constant_luminosity" && variant==0) {
+    } else if(name == "constant_luminosity" ) {
         return R"(
         
 Factory function for creating constant radiation source luminosity settings.
@@ -14018,7 +14018,7 @@ LuminosityModelSettings
 
 
 
-    } else if(name == "cannonball_radiation_target" && variant==0) {
+    } else if(name == "cannonball_radiation_target" ) {
         return R"(
         
 Factory function for cannonball radtiation target
@@ -14046,7 +14046,7 @@ CannonballRadiationPressureTargetModelSettings
 
 
 
-    } else if(name == "irradiance_based_constant_luminosity" && variant==0) {
+    } else if(name == "irradiance_based_constant_luminosity" ) {
         return R"(
         
 Factory function for creating source luminosity settings based on the irradiance at a reference distance.
@@ -14076,7 +14076,7 @@ LuminosityModelSettings
 
 
 
-    } else if(name == "time_variable_luminosity" && variant==0) {
+    } else if(name == "time_variable_luminosity" ) {
         return R"(
         
 Factory function for creating time-variable radiation source luminosity settings.
@@ -14104,7 +14104,7 @@ LuminosityModelSettings
 
 
 
-    } else if(name == "irradiance_based_time_variable_luminosity" && variant==0) {
+    } else if(name == "irradiance_based_time_variable_luminosity" ) {
         return R"(
         
 Factory function for creating time-variable source luminosity settings based on the irradiance at a reference distance.
@@ -14134,7 +14134,7 @@ LuminosityModelSettings
 
 
 
-    } else if(name == "constant_surface_property_distribution" && variant==0) {
+    } else if(name == "constant_surface_property_distribution" ) {
         return R"(
         
 Factory function for creating constant radiative surface property distribution settings.
@@ -14160,7 +14160,7 @@ SurfacePropertyDistributionSettings
 
 
 
-    } else if(name == "spherical_harmonic_surface_property_distribution" && variant==0) {
+    } else if(name == "spherical_harmonic_surface_property_distribution" ) {
         return R"(
         
 Factory function for creating radiative surface property distribution settings according to a spherical harmonic model.
@@ -14195,7 +14195,7 @@ SurfacePropertyDistributionSettings
 
 
 
-    } else if(name == "predefined_spherical_harmonic_surface_property_distribution" && variant==0) {
+    } else if(name == "predefined_spherical_harmonic_surface_property_distribution" ) {
         return R"(
         
 Factory function for creating radiative surface property distribution settings according to a predefined spherical harmonic model.
@@ -14221,7 +14221,7 @@ SurfacePropertyDistributionSettings
 
 
 
-    } else if(name == "knocke_type_surface_property_distribution" && variant==0) {
+    } else if(name == "knocke_type_surface_property_distribution" ) {
         return R"(
         
 Factory function for creating radiative surface property distribution settings according to 'Knocke-type' model
@@ -14269,7 +14269,7 @@ SurfacePropertyDistributionSettings
 
 
 
-    } else if(name == "predefined_knocke_type_surface_property_distribution" && variant==0) {
+    } else if(name == "predefined_knocke_type_surface_property_distribution" ) {
         return R"(
         
 Factory function for creating radiative surface property distribution settings according to a predefined 'Knocke-type` model.
@@ -14295,7 +14295,7 @@ SurfacePropertyDistributionSettings
 
 
 
-    } else if(name == "custom_surface_property_distribution" && variant==0) {
+    } else if(name == "custom_surface_property_distribution" ) {
         return R"(
         
 Factory function for creating radiative surface property distribution settings according to a custom user-defined model.
@@ -14322,7 +14322,7 @@ SurfacePropertyDistributionSettings
 
 
 
-    } else if(name == "constant_radiosity" && variant==0) {
+    } else if(name == "constant_radiosity" ) {
         return R"(
         
 Factory function for creating settings for surface constant surface radiosity of an extended source
@@ -14355,7 +14355,7 @@ PanelRadiosityModelSettings
 
 
 
-    } else if(name == "constant_albedo_surface_radiosity" && variant==0) {
+    } else if(name == "constant_albedo_surface_radiosity" ) {
         return R"(
         
 Factory function for creating settings for surface constant albedo surface radiosity of an extended source
@@ -14393,7 +14393,7 @@ PanelRadiosityModelSettings
 
 
 
-    } else if(name == "variable_albedo_surface_radiosity" && variant==0) {
+    } else if(name == "variable_albedo_surface_radiosity" ) {
         return R"(
         
 Factory function for creating settings for surface variable albedo surface radiosity of an extended source
@@ -14421,7 +14421,7 @@ PanelRadiosityModelSettings
 
 
 
-    } else if(name == "thermal_emission_blackbody_constant_emissivity" && variant==0) {
+    } else if(name == "thermal_emission_blackbody_constant_emissivity" ) {
         return R"(
         
 Factory function for creating settings for surface radiosity of an extended source from an isotropically heated body with constant emmisivity
@@ -14463,7 +14463,7 @@ PanelRadiosityModelSettings
 
 
 
-    } else if(name == "thermal_emission_blackbody_variable_emissivity" && variant==0) {
+    } else if(name == "thermal_emission_blackbody_variable_emissivity" ) {
         return R"(
         
 Factory function for creating settings for surface radiosity of an extended source from an isotropically heated body with variable emmisivity
@@ -14491,7 +14491,7 @@ PanelRadiosityModelSettings
 
 
 
-    } else if(name == "thermal_emission_angle_based_radiosity" && variant==0) {
+    } else if(name == "thermal_emission_angle_based_radiosity" ) {
         return R"(
         
 Factory function for creating settings for surface radiosity of an extended source with surface temperature from Lemoine (2013)
@@ -14540,7 +14540,7 @@ PanelRadiosityModelSettings
 
 
 
-    } else if(name == "specular_diffuse_body_panel_reflection" && variant==0) {
+    } else if(name == "specular_diffuse_body_panel_reflection" ) {
         return R"(
         
 Factory function for creating settings for target panel reflection law using a specular-diffuse model
@@ -14584,7 +14584,7 @@ BodyPanelReflectionLawSettings
 
 
 
-    } else if(name == "lambertian_body_panel_reflection" && variant==0) {
+    } else if(name == "lambertian_body_panel_reflection" ) {
         return R"(
         
 Factory function for creating settings for target panel reflection law using a Lambertian model
@@ -14613,7 +14613,7 @@ BodyPanelReflectionLawSettings
 
 
 
-    } else if(name == "isotropic_radiation_source" && variant==0) {
+    } else if(name == "isotropic_radiation_source" ) {
         return R"(
         
 Factory function for creating settings for an isotropic radiation source
@@ -14644,7 +14644,7 @@ RadiationSourceModelSettings
 
 
 
-    } else if(name == "panelled_radiation_target" && variant==0) {
+    } else if(name == "panelled_radiation_target" ) {
         return R"(
         
 Factory function for creating settings for a paneled radiation pressure target model
@@ -14671,7 +14671,7 @@ RadiationPressureTargetModelSettings
 
 
 
-    } else if(name == "panelled_extended_radiation_source" && variant==0) {
+    } else if(name == "panelled_extended_radiation_source" ) {
         return R"(
         
 Factory function for creating settings for a dynamically panelled extended radiation source
@@ -14725,7 +14725,7 @@ RadiationSourceModelSettings
     
 namespace rigid_body {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -14763,7 +14763,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "constant_rigid_body_properties" && variant==0) {
+    } else if(name == "constant_rigid_body_properties" ) {
         return R"(
         
 Factory function for creating constant rigid body properties.
@@ -14794,7 +14794,7 @@ RigidBodyPropertiesSettings
 
 
 
-    } else if(name == "custom_time_dependent_rigid_body_properties" && variant==0) {
+    } else if(name == "custom_time_dependent_rigid_body_properties" ) {
         return R"(
         
 Factory function for creating custom (time-dependent) rigid body properties.
@@ -14826,7 +14826,7 @@ RigidBodyPropertiesSettings
 
 
 
-    } else if(name == "custom_mass_dependent_rigid_body_properties" && variant==0) {
+    } else if(name == "custom_mass_dependent_rigid_body_properties" ) {
         return R"(
         
 Factory function for creating custom (time-dependent) rigid body properties.
@@ -14872,7 +14872,7 @@ RigidBodyPropertiesSettings
     
 namespace rotation_model {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -15001,7 +15001,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "simple" && variant==0) {
+    } else if(name == "simple" ) {
         return R"(
         
 Factory function for creating simple rotation model settings.
@@ -15068,7 +15068,7 @@ using a simple rotation model with constant orientation of the rotation axis (bo
 
 
 
-    } else if(name == "simple_from_spice" && variant==0) {
+    } else if(name == "simple_from_spice" ) {
         return R"(
         
 Factory function for creating simple rotation model settings using initial orientation and rotation rates from Spice.
@@ -15126,7 +15126,7 @@ The initial orientation and rotation rate are extracted from Spice at the time d
 
 
 
-    } else if(name == "synchronous" && variant==0) {
+    } else if(name == "synchronous" ) {
         return R"(
         
 Factory function for creating synchronous rotational ephemeris settings.
@@ -15177,7 +15177,7 @@ and ``"Phobos_Fixed"`` as the target frame.
 
 
 
-    } else if(name == "spice" && variant==0) {
+    } else if(name == "spice" ) {
         return R"(
         
 Factory function for creating rotation model settings from the Spice interface.
@@ -15221,7 +15221,7 @@ using full rotation model data from Spice:
 
 
 
-    } else if(name == "gcrs_to_itrs" && variant==0) {
+    } else if(name == "gcrs_to_itrs" ) {
         return R"(
         
 Factory function for creating high-accuracy Earth rotation model settings.
@@ -15269,7 +15269,7 @@ using a high-accuracy Earth rotation model as defined by IERS 2010 conventions:
 
 
 
-    } else if(name == "constant_rotation_model" && variant==0) {
+    } else if(name == "constant_rotation_model" ) {
         return R"(
         
 Factory function for creating simple rotation model settings for target-frames with constant orientation.
@@ -15317,7 +15317,7 @@ using a constant rotation matrix between Earth-fixed and inertial frame:
 
 
 
-    } else if(name == "aerodynamic_angle_based" && variant==0) {
+    } else if(name == "aerodynamic_angle_based" ) {
         return R"(
         
 Factory function for creating rotation model settings based on custom aerodynamic angles (attack, sideslip, bank).
@@ -15363,7 +15363,7 @@ CustomRotationModelSettings
 
 
 
-    } else if(name == "zero_pitch_moment_aerodynamic_angle_based" && variant==0) {
+    } else if(name == "zero_pitch_moment_aerodynamic_angle_based" ) {
         return R"(
         
 Factory function for creating rotation model settings based on an angle of attack calculated from pitch-trim, and custom aerodynamic angles sideslip, bank.
@@ -15398,7 +15398,7 @@ CustomRotationModelSettings
 
 
 
-    } else if(name == "custom_inertial_direction_based" && variant==0) {
+    } else if(name == "custom_inertial_direction_based" ) {
         return R"(
         
 Factory function for creating rotation model settings where the body-fixed x-axis is imposed to lie in a user-defined inertial direction
@@ -15439,7 +15439,7 @@ BodyFixedDirectionBasedRotationSettings
 
 
 
-    } else if(name == "orbital_state_direction_based" && variant==0) {
+    } else if(name == "orbital_state_direction_based" ) {
         return R"(
         
 Factory function for creating rotation model settings where the body-fixed x-axis is imposed to lie in the direction of a relative position or velocity vector.
@@ -15478,7 +15478,7 @@ BodyFixedDirectionBasedRotationSettings
 
 
 
-    } else if(name == "mars_high_accuracy" && variant==0) {
+    } else if(name == "mars_high_accuracy" ) {
         return R"(
         
 Factory function for creating a high-accuracy Mars rotation model.
@@ -15524,7 +15524,7 @@ RotationModelSettings
     
 namespace shape {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -15730,7 +15730,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "spherical" && variant==0) {
+    } else if(name == "spherical" ) {
         return R"(
         
 Factory function for creating spherical body shape model settings.
@@ -15767,7 +15767,7 @@ In this example, we create a :class:`~tudatpy.numerical_simulation.environment_s
 
 
 
-    } else if(name == "spherical_spice" && variant==0) {
+    } else if(name == "spherical_spice" ) {
         return R"(
         
 Factory function for creating spherical body shape model settings entirely from spice.
@@ -15797,7 +15797,7 @@ In this example, we create a :class:`~tudatpy.numerical_simulation.environment_s
 
 
 
-    } else if(name == "oblate_spherical" && variant==0) {
+    } else if(name == "oblate_spherical" ) {
         return R"(
         
 Factory function for creating oblate spherical body shape model settings.
@@ -15837,7 +15837,7 @@ In this example, we create a :class:`~tudatpy.numerical_simulation.environment_s
 
 
 
-    } else if(name == "polyhedron" && variant==0) {
+    } else if(name == "polyhedron" ) {
         return R"(
         
 Factory function for creating a polyhedron body shape model settings.
@@ -15896,7 +15896,7 @@ PolyhedronBodyShapeSettings
 
 
 
-    } else if(name == "hybrid" && variant==0) {
+    } else if(name == "hybrid" ) {
         return R"(
         
 Factory function for creating hybrid body shape model settings.
@@ -15958,7 +15958,7 @@ HybridBodyShapeSettings
     
 namespace shape_deformation {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -16012,7 +16012,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "basic_solid_body_tidal" && variant==0) {
+    } else if(name == "basic_solid_body_tidal" ) {
         return R"(
         
 Factory function for creating basic tidal solid-body shape deformation
@@ -16060,7 +16060,7 @@ In this example, we create a settings for degree 2 tidal deformation of the Eart
 
 
 
-    } else if(name == "degree_two_basic_solid_body_tidal" && variant==0) {
+    } else if(name == "degree_two_basic_solid_body_tidal" ) {
         return R"(
         
 Factory function for creating degree 2 basic tidal solid-body shape deformation
@@ -16110,7 +16110,7 @@ In this example, we create a settings for degree 2 tidal deformation of the Eart
 
 
 
-    } else if(name == "iers_2010_solid_body_tidal" && variant==0) {
+    } else if(name == "iers_2010_solid_body_tidal" ) {
         return R"(
         
 Factory function for creating full IERS 2010 shape deformation model
@@ -16146,7 +16146,7 @@ BodyDeformationSettings
     
 namespace vehicle_systems {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -16200,7 +16200,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "frame_fixed_panel_geometry" && variant==0) {
+    } else if(name == "frame_fixed_panel_geometry" ) {
         return R"(
         
 Factory function for creating settings for a vehicle exterior panel that is fixed to a given frame.
@@ -16241,7 +16241,7 @@ BodyPanelGeometrySettings
 
 
 
-    } else if(name == "time_varying_panel_geometry" && variant==0) {
+    } else if(name == "time_varying_panel_geometry" ) {
         return R"(
         
 Factory function for creating settings for a vehicle exterior panel that has time-variable orientation in a given frame.
@@ -16271,7 +16271,7 @@ BodyPanelGeometrySettings
 
 
 
-    } else if(name == "body_tracking_panel_geometry" && variant==0) {
+    } else if(name == "body_tracking_panel_geometry" ) {
         return R"(
         
 Factory function for creating settings for a vehicle exterior panel where the surface normal tracks a given body.
@@ -16308,7 +16308,7 @@ BodyPanelGeometrySettings
 
 
 
-    } else if(name == "body_panel_settings" && variant==0) {
+    } else if(name == "body_panel_settings" ) {
         return R"(
         
 Factory function for creating settings for a full panel
@@ -16341,7 +16341,7 @@ BodyPanelSettings
 
 
 
-    } else if(name == "full_panelled_body_settings" && variant==0) {
+    } else if(name == "full_panelled_body_settings" ) {
         return R"(
         
 Factory function for creating settings for a full panelled vehicle exterior
@@ -16378,7 +16378,7 @@ FullPanelledBodySettings
 
 
 
-    } else if(name == "box_wing_panelled_body_settings" && variant==0) {
+    } else if(name == "box_wing_panelled_body_settings" ) {
         return R"(
         
 Factory function for creating a simple box-wing spacecraft exterior shape with reflection law settings.
@@ -16449,7 +16449,7 @@ FullPanelledBodySettings
     
 namespace propagation_setup {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -16458,7 +16458,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "create_acceleration_models" && variant==0) {
+    } else if(name == "create_acceleration_models" ) {
         return R"(
         
 Function to create a set of acceleration models from a dictionary of bodies linked to acceleration model types.
@@ -16522,7 +16522,7 @@ acceleration (``"Vehicle"``).
 
 
 
-    } else if(name == "create_torque_models" && variant==0) {
+    } else if(name == "create_torque_models" ) {
         return R"(
         
 Function to create a set of acceleration models from a dictionary of bodies linked to acceleration model types.
@@ -16583,7 +16583,7 @@ torque.
 
 
 
-    } else if(name == "create_mass_rate_models" && variant==0) {
+    } else if(name == "create_mass_rate_models" ) {
         return R"(
         
 Function to create a set of mass-rate models from associated settings.
@@ -16625,7 +16625,7 @@ MassRateModelMap
     
 namespace acceleration {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -16912,7 +16912,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "point_mass_gravity" && variant==0) {
+    } else if(name == "point_mass_gravity" ) {
         return R"(
         
 Creates settings for the point-mass gravity acceleration.
@@ -16953,7 +16953,7 @@ In this example, we define the point mass gravity acceleration exerted by the Ea
 
 
 
-    } else if(name == "aerodynamic" && variant==0) {
+    } else if(name == "aerodynamic" ) {
         return R"(
         
 Creates settings for the aerodynamic acceleration.
@@ -16992,7 +16992,7 @@ In this example, we define the aerodynamic acceleration exerted by the Earth on 
 
 
 
-    } else if(name == "radiation_pressure" && variant==0) {
+    } else if(name == "radiation_pressure" ) {
         return R"(
         
 Creates settings for the radiation pressure acceleration.
@@ -17016,7 +17016,7 @@ AccelerationSettings
 
 
 
-    } else if(name == "cannonball_radiation_pressure" && variant==0) {
+    } else if(name == "cannonball_radiation_pressure" ) {
         return R"(
         
 Creates settings for the cannonball radiation pressure acceleration.
@@ -17059,7 +17059,7 @@ In this example, we define the aerodynamic acceleration exerted by the Sun on th
 
 
 
-    } else if(name == "spherical_harmonic_gravity" && variant==0) {
+    } else if(name == "spherical_harmonic_gravity" ) {
         return R"(
         
 Creates settings for the spherical harmonic gravity acceleration.
@@ -17114,7 +17114,7 @@ up to degree 12 and order 6) exerted by the Earth on the vehicle:
 
 
 
-    } else if(name == "mutual_spherical_harmonic_gravity" && variant==0) {
+    } else if(name == "mutual_spherical_harmonic_gravity" ) {
         return R"(
         
 Creates settings for the mutual spherical harmonic gravity acceleration.
@@ -17209,7 +17209,7 @@ Ganymede and Io when propagating w.r.t. Jupiter:
 
 
 
-    } else if(name == "polyhedron_gravity" && variant==0) {
+    } else if(name == "polyhedron_gravity" ) {
         return R"(
         
 Creates settings for the polyhedron gravity acceleration.
@@ -17230,7 +17230,7 @@ AccelerationSettings
 
 
 
-    } else if(name == "ring_gravity" && variant==0) {
+    } else if(name == "ring_gravity" ) {
         return R"(
         
 Creates settings for the ring gravity acceleration.
@@ -17251,7 +17251,7 @@ AccelerationSettings
 
 
 
-    } else if(name == "relativistic_correction" && variant==0) {
+    } else if(name == "relativistic_correction" ) {
         return R"(
         
 Creates settings for the relativistic acceleration correction.
@@ -17313,7 +17313,7 @@ In this example, we define the relativistic correction acceleration for a Mars o
 
 
 
-    } else if(name == "empirical" && variant==0) {
+    } else if(name == "empirical" ) {
         return R"(
         
 Creates settings for empirical acceleration.
@@ -17377,7 +17377,7 @@ for the Cartesian to Keplerian conversion)
 
 
 
-    } else if(name == "custom_acceleration" && variant==0) {
+    } else if(name == "custom_acceleration" ) {
         return R"(
         
 Creates settings for custom acceleration.
@@ -17431,7 +17431,7 @@ the current simulation state/environment
 
 
 
-    } else if(name == "direct_tidal_dissipation_acceleration" && variant==0) {
+    } else if(name == "direct_tidal_dissipation_acceleration" ) {
         return R"(
         
 Creates settings for tidal acceleration.
@@ -17485,7 +17485,7 @@ through the spherical harmonic gravity:
 
 
 
-    } else if(name == "quasi_impulsive_shots_acceleration" && variant==0) {
+    } else if(name == "quasi_impulsive_shots_acceleration" ) {
         return R"(
         
 Creates settings for incorporating quasi-impulsive shots into the acceleration.
@@ -17550,7 +17550,7 @@ with both maneuvers having a magnitude of 1 mm/s
 
 
 
-    } else if(name == "thrust_from_engines" && variant==0) {
+    } else if(name == "thrust_from_engines" ) {
         return R"(
         
 Creates settings for thrust acceleration using a list of engine models.
@@ -17577,7 +17577,7 @@ ThrustAccelerationSettings
 
 
 
-    } else if(name == "thrust_from_engine" && variant==0) {
+    } else if(name == "thrust_from_engine" ) {
         return R"(
         
 Creates settings for thrust acceleration using a single engine models.
@@ -17604,7 +17604,7 @@ ThrustAccelerationSettings
 
 
 
-    } else if(name == "thrust_from_all_engines" && variant==0) {
+    } else if(name == "thrust_from_all_engines" ) {
         return R"(
         
 Creates settings for thrust acceleration using a single engine models.
@@ -17626,7 +17626,7 @@ ThrustAccelerationSettings
 
 
 
-    } else if(name == "yarkovsky" && variant==0) {
+    } else if(name == "yarkovsky" ) {
         return R"(
         
 Creates settings for the Yarkovsky acceleration.
@@ -17674,7 +17674,7 @@ AccelerationSettings
     
 namespace dependent_variable {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -17992,7 +17992,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "mach_number" && variant==0) {
+    } else if(name == "mach_number" ) {
         return R"(
         
 Function to add the Mach number to the dependent variables to save.
@@ -18031,7 +18031,7 @@ w.r.t. the atmosphere of body 'Earth', use:
 
 
 
-    } else if(name == "altitude" && variant==0) {
+    } else if(name == "altitude" ) {
         return R"(
         
 Function to add the altitude to the dependent variables to save.
@@ -18058,7 +18058,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "airspeed" && variant==0) {
+    } else if(name == "airspeed" ) {
         return R"(
         
 Function to add the airspeed to the dependent variables to save.
@@ -18085,7 +18085,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "body_fixed_airspeed_velocity" && variant==0) {
+    } else if(name == "body_fixed_airspeed_velocity" ) {
         return R"(
         
 Function to add the airspeed velocity vector to the dependent variables to save.
@@ -18112,7 +18112,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "body_fixed_groundspeed_velocity" && variant==0) {
+    } else if(name == "body_fixed_groundspeed_velocity" ) {
         return R"(
         
 Function to add the groundspeed velocity vector to the dependent variables to save.
@@ -18139,7 +18139,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "density" && variant==0) {
+    } else if(name == "density" ) {
         return R"(
         
 Function to add the local freestream density to the dependent variables to save.
@@ -18166,7 +18166,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "temperature" && variant==0) {
+    } else if(name == "temperature" ) {
         return R"(
         
 Function to add the local freestream temperature to the dependent variables to save.
@@ -18193,7 +18193,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "dynamic_pressure" && variant==0) {
+    } else if(name == "dynamic_pressure" ) {
         return R"(
         
 Function to add the local freestream dynamic pressure to the dependent variables to save.
@@ -18220,7 +18220,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "local_aerodynamic_g_load" && variant==0) {
+    } else if(name == "local_aerodynamic_g_load" ) {
         return R"(
         
 Function to add the total aerodynamic G-load to the dependent variables to save.
@@ -18247,7 +18247,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "relative_position" && variant==0) {
+    } else if(name == "relative_position" ) {
         return R"(
         
 Function to add the relative position vector to the dependent variables to save.
@@ -18274,7 +18274,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "relative_distance" && variant==0) {
+    } else if(name == "relative_distance" ) {
         return R"(
         
 Function to add the relative distance to the dependent variables to save.
@@ -18301,7 +18301,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "relative_velocity" && variant==0) {
+    } else if(name == "relative_velocity" ) {
         return R"(
         
 Function to add the relative velocity vector to the dependent variables to save.
@@ -18328,7 +18328,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "relative_speed" && variant==0) {
+    } else if(name == "relative_speed" ) {
         return R"(
         
 Function to add the relative speed to the dependent variables to save.
@@ -18355,7 +18355,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "keplerian_state" && variant==0) {
+    } else if(name == "keplerian_state" ) {
         return R"(
         
 Function to add the Keplerian state to the dependent variables to save.
@@ -18382,7 +18382,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "modified_equinoctial_state" && variant==0) {
+    } else if(name == "modified_equinoctial_state" ) {
         return R"(
         
 Function to add the modified equinoctial state to the dependent variables to save.
@@ -18409,7 +18409,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "single_acceleration" && variant==0) {
+    } else if(name == "single_acceleration" ) {
         return R"(
         
 Function to add a single acceleration to the dependent variables to save.
@@ -18451,7 +18451,7 @@ exerted by a body named 'Earth', use:
 
 
 
-    } else if(name == "single_acceleration_norm" && variant==0) {
+    } else if(name == "single_acceleration_norm" ) {
         return R"(
         
 Function to add a single scalar acceleration to the dependent variables to save.
@@ -18493,7 +18493,7 @@ exerted by a body named 'Earth', use:
 
 
 
-    } else if(name == "total_acceleration_norm" && variant==0) {
+    } else if(name == "total_acceleration_norm" ) {
         return R"(
         
 Function to add the total scalar acceleration (norm of the vector) acting on a body to the dependent variables to save.
@@ -18517,7 +18517,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "total_acceleration" && variant==0) {
+    } else if(name == "total_acceleration" ) {
         return R"(
         
 Function to add the total acceleration vector acting on a body to the dependent variables to save.
@@ -18541,7 +18541,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "single_torque_norm" && variant==0) {
+    } else if(name == "single_torque_norm" ) {
         return R"(
         
 Function to add a single torque (norm of the torque vector) to the dependent variables to save.
@@ -18569,7 +18569,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "single_torque" && variant==0) {
+    } else if(name == "single_torque" ) {
         return R"(
         
 Function to add a single torque vector to the dependent variables to save.
@@ -18597,7 +18597,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "total_torque_norm" && variant==0) {
+    } else if(name == "total_torque_norm" ) {
         return R"(
         
 Function to add the total torque (norm of the torque vector) to the dependent variables to save.
@@ -18621,7 +18621,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "total_torque" && variant==0) {
+    } else if(name == "total_torque" ) {
         return R"(
         
 Function to add the total torque vector to the dependent variables to save.
@@ -18645,7 +18645,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "spherical_harmonic_terms_acceleration" && variant==0) {
+    } else if(name == "spherical_harmonic_terms_acceleration" ) {
         return R"(
         
 Function to add single degree/order contributions of a spherical harmonic acceleration vector to the dependent variables to save.
@@ -18691,7 +18691,7 @@ nine entries (three acceleration components for 2/0, 2/1 and 2/2, respectively).
 
 
 
-    } else if(name == "spherical_harmonic_terms_acceleration_norm" && variant==0) {
+    } else if(name == "spherical_harmonic_terms_acceleration_norm" ) {
         return R"(
         
 Function to add a single term of the spherical harmonic acceleration (norm of the vector) to the dependent variables to save.
@@ -18738,7 +18738,7 @@ three entries (one acceleration norm for 2/0, 2/1 and 2/2, respectively).
 
 
 
-    } else if(name == "aerodynamic_force_coefficients" && variant==0) {
+    } else if(name == "aerodynamic_force_coefficients" ) {
         return R"(
         
 Function to add the aerodynamic force coefficients to the dependent variables to save.
@@ -18765,7 +18765,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "aerodynamic_moment_coefficients" && variant==0) {
+    } else if(name == "aerodynamic_moment_coefficients" ) {
         return R"(
         
 Function to add the aerodynamic moment coefficients to the dependent variables to save.
@@ -18792,7 +18792,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "latitude" && variant==0) {
+    } else if(name == "latitude" ) {
         return R"(
         
 Function to add the latitude to the dependent variables to save.
@@ -18819,7 +18819,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "geodetic_latitude" && variant==0) {
+    } else if(name == "geodetic_latitude" ) {
         return R"(
         
 Function to add the geodetic latitude to the dependent variables to save.
@@ -18846,7 +18846,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "longitude" && variant==0) {
+    } else if(name == "longitude" ) {
         return R"(
         
 Function to add the longitude to the dependent variables to save.
@@ -18873,7 +18873,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "heading_angle" && variant==0) {
+    } else if(name == "heading_angle" ) {
         return R"(
         
 Function to add the heading angle to the dependent variables to save.
@@ -18900,7 +18900,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "flight_path_angle" && variant==0) {
+    } else if(name == "flight_path_angle" ) {
         return R"(
         
 Function to add the flight path angle to the dependent variables to save.
@@ -18927,7 +18927,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "angle_of_attack" && variant==0) {
+    } else if(name == "angle_of_attack" ) {
         return R"(
         
 Function to add the angle of attack to the dependent variables to save.
@@ -18954,7 +18954,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "sideslip_angle" && variant==0) {
+    } else if(name == "sideslip_angle" ) {
         return R"(
         
 Function to add the sideslip angle to the dependent variables to save, as defined by Mooij, 1994 [1]_ .
@@ -18980,7 +18980,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "bank_angle" && variant==0) {
+    } else if(name == "bank_angle" ) {
         return R"(
         
 Function to add the bank angle to the dependent variables to save, as defined by Mooij, 1994 [1]_ .
@@ -19006,7 +19006,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "radiation_pressure" && variant==0) {
+    } else if(name == "radiation_pressure" ) {
         return R"(
         
 Function to add the radiation pressure to the dependent variables to save.
@@ -19033,7 +19033,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "total_gravity_field_variation_acceleration" && variant==0) {
+    } else if(name == "total_gravity_field_variation_acceleration" ) {
         return R"(
         
 Function to add the acceleration induced by the total time-variability of a gravity field to the dependent variables to save.
@@ -19060,7 +19060,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "single_gravity_field_variation_acceleration" && variant==0) {
+    } else if(name == "single_gravity_field_variation_acceleration" ) {
         return R"(
         
 Function to add the acceleration induced by a single time-variability of a gravity field to the dependent variables to save.
@@ -19091,7 +19091,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "single_per_term_gravity_field_variation_acceleration" && variant==0) {
+    } else if(name == "single_per_term_gravity_field_variation_acceleration" ) {
         return R"(
         
 Function to add the acceleration induced by a single time-variability of a gravity field, at a given list of degrees/orders, to the dependent variables to save. This combines the functionality of the :func:`single_gravity_field_variation_acceleration` and :func:`spherical_harmonic_terms_acceleration` variables
@@ -19123,7 +19123,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "inertial_to_body_fixed_rotation_frame" && variant==0) {
+    } else if(name == "inertial_to_body_fixed_rotation_frame" ) {
         return R"(
         
 Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save.
@@ -19148,7 +19148,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "tnw_to_inertial_rotation_matrix" && variant==0) {
+    } else if(name == "tnw_to_inertial_rotation_matrix" ) {
         return R"(
         
 Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save.
@@ -19175,7 +19175,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "rsw_to_inertial_rotation_matrix" && variant==0) {
+    } else if(name == "rsw_to_inertial_rotation_matrix" ) {
         return R"(
         
 Function to add the rotation matrix from the RSW to the inertial frame to the dependent variables to save.
@@ -19202,7 +19202,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "inertial_to_body_fixed_313_euler_angles" && variant==0) {
+    } else if(name == "inertial_to_body_fixed_313_euler_angles" ) {
         return R"(
         
 Function to add the 3-1-3 Euler angles for the rotation from inertial to body-fixed frame to the dependent variables to save.
@@ -19227,7 +19227,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "intermediate_aerodynamic_rotation_matrix_variable" && variant==0) {
+    } else if(name == "intermediate_aerodynamic_rotation_matrix_variable" ) {
         return R"(
         
 Function to add the rotation matrix between any two reference frames used in aerodynamic calculations.
@@ -19258,7 +19258,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "periapsis_altitude" && variant==0) {
+    } else if(name == "periapsis_altitude" ) {
         return R"(
         
 Function to add the altitude of periapsis to the dependent variables to save.
@@ -19285,7 +19285,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "apoapsis_altitude" && variant==0) {
+    } else if(name == "apoapsis_altitude" ) {
         return R"(
         
 Function to add the altitude of apoapsis to the dependent variables to save.
@@ -19312,7 +19312,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "central_body_fixed_spherical_position" && variant==0) {
+    } else if(name == "central_body_fixed_spherical_position" ) {
         return R"(
         
 Function to add the spherical, body-fixed position to the dependent variables to save.
@@ -19339,7 +19339,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "central_body_fixed_cartesian_position" && variant==0) {
+    } else if(name == "central_body_fixed_cartesian_position" ) {
         return R"(
         
 Function to add the relative Cartesian position, in the central body's fixed frame, to the dependent variables to save.
@@ -19365,7 +19365,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "body_mass" && variant==0) {
+    } else if(name == "body_mass" ) {
         return R"(
         
 Function to add the current body mass to the dependent variables to save.
@@ -19389,7 +19389,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "radiation_pressure_coefficient" && variant==0) {
+    } else if(name == "radiation_pressure_coefficient" ) {
         return R"(
         
 Function to add the current radiation pressure coefficient to the dependent variables to save.
@@ -19415,7 +19415,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "total_mass_rate" && variant==0) {
+    } else if(name == "total_mass_rate" ) {
         return R"(
         
 Function to add the total mass rate to the dependent variables to save.
@@ -19440,7 +19440,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "gravity_field_potential" && variant==0) {
+    } else if(name == "gravity_field_potential" ) {
         return R"(
         
 Function to add the gravitational potential to the dependent variables to save.
@@ -19467,7 +19467,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "gravity_field_laplacian_of_potential" && variant==0) {
+    } else if(name == "gravity_field_laplacian_of_potential" ) {
         return R"(
         
 Function to add the laplacian of the gravitational potential to the dependent variables to save.
@@ -19494,7 +19494,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "minimum_body_distance" && variant==0) {
+    } else if(name == "minimum_body_distance" ) {
         return R"(
         
 Function to compute the minimum distance between a given body, and a set of other bodies.
@@ -19521,7 +19521,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "minimum_visible_station_body_distances" && variant==0) {
+    } else if(name == "minimum_visible_station_body_distances" ) {
         return R"(
         
 Function to compute the minimum distance between a ground station, and a set of other bodies visible from that station.
@@ -19552,7 +19552,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "custom_dependent_variable" && variant==0) {
+    } else if(name == "custom_dependent_variable" ) {
         return R"(
         
 Function to compute a custom dependent variable.
@@ -19579,7 +19579,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "received_irradiance" && variant==0) {
+    } else if(name == "received_irradiance" ) {
         return R"(
         
 Function to save the received irradiance from a give source.
@@ -19606,7 +19606,7 @@ SingleDependentVariableSaveSettings
 
 
 
-    } else if(name == "received_irradiance_shadow_function" && variant==0) {
+    } else if(name == "received_irradiance_shadow_function" ) {
         return R"(
         
 Function to save the shadow function that reduces the received irradiance from a given source.
@@ -19648,7 +19648,7 @@ SingleDependentVariableSaveSettings
     
 namespace integrator {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -20019,7 +20019,7 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
 
 
 
-    } else if(name == "step_size_validation" && variant==0) {
+    } else if(name == "step_size_validation" ) {
         return R"(
         
 Creates settings step size validation in a variable step-size integrator.
@@ -20057,7 +20057,7 @@ IntegratorStepSizeValidationSettings
 
 
 
-    } else if(name == "step_size_control_elementwise_scalar_tolerance" && variant==0) {
+    } else if(name == "step_size_control_elementwise_scalar_tolerance" ) {
         return R"(
         
 Creates settings for integrator step-size control, using element-wise analysis for the propagated states.
@@ -20116,7 +20116,7 @@ IntegratorStepSizeControlSettings
 
 
 
-    } else if(name == "step_size_control_elementwise_matrix_tolerance" && variant==0) {
+    } else if(name == "step_size_control_elementwise_matrix_tolerance" ) {
         return R"(
         
 Creates settings for integrator step-size control, using element-wise analysis for the propagated states.
@@ -20156,7 +20156,7 @@ IntegratorStepSizeControlSettings
 
 
 
-    } else if(name == "step_size_control_blockwise_scalar_tolerance" && variant==0) {
+    } else if(name == "step_size_control_blockwise_scalar_tolerance" ) {
         return R"(
         
 Creates settings for integrator step-size control, using block-wise analysis for the propagated states.
@@ -20202,7 +20202,7 @@ IntegratorStepSizeControlSettings
 
 
 
-    } else if(name == "step_size_control_blockwise_matrix_tolerance" && variant==0) {
+    } else if(name == "step_size_control_blockwise_matrix_tolerance" ) {
         return R"(
         
 Creates settings for integrator step-size control, using block-wise analysis for the propagated states.
@@ -20244,7 +20244,7 @@ IntegratorStepSizeControlSettings
 
 
 
-    } else if(name == "step_size_control_custom_blockwise_scalar_tolerance" && variant==0) {
+    } else if(name == "step_size_control_custom_blockwise_scalar_tolerance" ) {
         return R"(
         
 Creates settings for integrator step-size control, using block-wise analysis for the propagated states.
@@ -20287,7 +20287,7 @@ IntegratorStepSizeControlSettings
 
 
 
-    } else if(name == "step_size_control_custom_blockwise_matrix_tolerance" && variant==0) {
+    } else if(name == "step_size_control_custom_blockwise_matrix_tolerance" ) {
         return R"(
         
 Creates settings for integrator step-size control, using block-wise analysis for the propagated states.
@@ -20326,7 +20326,7 @@ IntegratorStepSizeControlSettings
 
 
 
-    } else if(name == "standard_cartesian_state_element_blocks" && variant==0) {
+    } else if(name == "standard_cartesian_state_element_blocks" ) {
         return R"(
         
 Function to generate step size control blocks on position and velocity elements for numerical integration
@@ -20359,7 +20359,7 @@ list[tuple[int,int,int,int]]
 
 
 
-    } else if(name == "runge_kutta_fixed_step" && variant==0) {
+    } else if(name == "runge_kutta_fixed_step" ) {
         return R"(
         
 Creates the settings for the Runge-Kutta fixed step size integrator.
@@ -20419,7 +20419,7 @@ embedded propagators of the RKF7(8) method are created, with a time-step of 120 
 
 
 
-    } else if(name == "runge_kutta_variable_step" && variant==0) {
+    } else if(name == "runge_kutta_variable_step" ) {
         return R"(
         
 Creates the settings for the Runge-Kutta fixed step size integrator.
@@ -20496,7 +20496,7 @@ element blocks.
 
 
 
-    } else if(name == "bulirsch_stoer_fixed_step" && variant==0) {
+    } else if(name == "bulirsch_stoer_fixed_step" ) {
         return R"(
         
 Creates the settings for the fixed time-step Bulirsch-Stoer integrator.
@@ -20544,7 +20544,7 @@ using 2, 4, 6, 8, 12 and 16 substeps
 
 
 
-    } else if(name == "bulirsch_stoer_variable_step" && variant==0) {
+    } else if(name == "bulirsch_stoer_variable_step" ) {
         return R"(
         
 Creates the settings for the variable time-step Bulirsch-Stoer integrator.
@@ -20616,7 +20616,7 @@ and the initial step is set to 600 seconds. All other inputs are left on their d
 
 
 
-    } else if(name == "adams_bashforth_moulton" && variant==0) {
+    } else if(name == "adams_bashforth_moulton" ) {
         return R"(
         
 Creates the settings for the Adams-Bashforth-Moulton integrator.
@@ -20667,7 +20667,7 @@ IntegratorSettings
 
 
 
-    } else if(name == "adams_bashforth_moulton_fixed_order" && variant==0) {
+    } else if(name == "adams_bashforth_moulton_fixed_order" ) {
         return R"(
         
 Creates the settings for the Adams-Bashforth-Moulton integrator of fixed order.
@@ -20708,7 +20708,7 @@ IntegratorSettings
 
 
 
-    } else if(name == "adams_bashforth_moulton_fixed_step" && variant==0) {
+    } else if(name == "adams_bashforth_moulton_fixed_step" ) {
         return R"(
         
 Creates the settings for the Adams-Bashforth-Moulton fixed-step integrator.
@@ -20747,7 +20747,7 @@ IntegratorSettings
 
 
 
-    } else if(name == "adams_bashforth_moulton_fixed_step_fixed_order" && variant==0) {
+    } else if(name == "adams_bashforth_moulton_fixed_step_fixed_order" ) {
         return R"(
         
 Creates the settings for the Adams-Bashforth-Moulton fixed-step, fixed-order integrator.
@@ -20778,7 +20778,7 @@ IntegratorSettings
 
 
 
-    } else if(name == "print_butcher_tableau" && variant==0) {
+    } else if(name == "print_butcher_tableau" ) {
         return R"(
         
 Print the Butcher tableau of a given coefficient set.
@@ -20797,7 +20797,7 @@ coefficient_set : CoefficientSets
 
 
 
-    } else if(name == "runge_kutta_variable_step_size" && variant==0) {
+    } else if(name == "runge_kutta_variable_step_size" ) {
         return R"(
         
 Creates the settings for the Runge-Kutta variable step size integrator with scalar tolerances.
@@ -20854,7 +20854,7 @@ RungeKuttaVariableStepSettingsScalarTolerances
 
 
 
-    } else if(name == "runge_kutta_variable_step_size_vector_tolerances" && variant==0) {
+    } else if(name == "runge_kutta_variable_step_size_vector_tolerances" ) {
         return R"(
         
 Creates the settings for the Runge-Kutta variable step size integrator with vector tolerances.
@@ -20911,7 +20911,7 @@ RungeKuttaVariableStepSizeSettingsVectorTolerances
 
 
 
-    } else if(name == "bulirsch_stoer" && variant==0) {
+    } else if(name == "bulirsch_stoer" ) {
         return R"(
         
 Creates the settings for the Bulirsch-Stoer integrator.
@@ -20978,7 +20978,7 @@ BulirschStoerIntegratorSettings
     
 namespace mass_rate {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -21070,7 +21070,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "from_thrust" && variant==0) {
+    } else if(name == "from_thrust" ) {
         return R"(
         
 Creates the settings for a mass rate model defined from a thrust model.
@@ -21099,7 +21099,7 @@ FromThrustMassRateSettings
 
 
 
-    } else if(name == "custom_mass_rate" && variant==0) {
+    } else if(name == "custom_mass_rate" ) {
         return R"(
         
 Creates the settings for a mass rate model defined from a thrust model.
@@ -21141,7 +21141,7 @@ CustomMassRateSettings
     
 namespace propagator {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -21337,7 +21337,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagatorSettings.ctor" && variant==0) {
+    } else if(name == "PropagatorSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21352,7 +21352,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagatorSettings.reset_initial_states" && variant==0) {
+    } else if(name == "PropagatorSettings.reset_initial_states" ) {
             return R"(
 
         Function to reset the initial state used as input for numerical integration.
@@ -21385,7 +21385,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "MultiArcPropagatorSettings.ctor" && variant==0) {
+    } else if(name == "MultiArcPropagatorSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21416,7 +21416,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "HybridArcPropagatorSettings.ctor" && variant==0) {
+    } else if(name == "HybridArcPropagatorSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21452,7 +21452,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "SingleArcPropagatorSettings.ctor" && variant==0) {
+    } else if(name == "SingleArcPropagatorSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21488,7 +21488,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "TranslationalStatePropagatorSettings.ctor" && variant==0) {
+    } else if(name == "TranslationalStatePropagatorSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21504,7 +21504,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "TranslationalStatePropagatorSettings.reset_initial_states" && variant==0) {
+    } else if(name == "TranslationalStatePropagatorSettings.reset_initial_states" ) {
             return R"(
 
         Function to reset the initial state used as input for numerical integration.
@@ -21522,7 +21522,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "TranslationalStatePropagatorSettings.recreate_state_derivative_models" && variant==0) {
+    } else if(name == "TranslationalStatePropagatorSettings.recreate_state_derivative_models" ) {
             return R"(
 
         Function to (re)create the integrated state models (e.g. acceleration/torque/mass models).
@@ -21543,7 +21543,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "TranslationalStatePropagatorSettings.single_type_settings" && variant==0) {
+    } else if(name == "TranslationalStatePropagatorSettings.single_type_settings" ) {
             return R"(
 
         Function to retrieve a single type of propagator.
@@ -21579,7 +21579,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "RotationalStatePropagatorSettings.ctor" && variant==0) {
+    } else if(name == "RotationalStatePropagatorSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21619,7 +21619,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "MultiTypePropagatorSettings.ctor" && variant==0) {
+    } else if(name == "MultiTypePropagatorSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21635,7 +21635,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "MultiTypePropagatorSettings.reset_initial_states" && variant==0) {
+    } else if(name == "MultiTypePropagatorSettings.reset_initial_states" ) {
             return R"(
 
         Function to reset the initial states used as input for numerical integration.
@@ -21653,7 +21653,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "MultiTypePropagatorSettings.recreate_state_derivative_models" && variant==0) {
+    } else if(name == "MultiTypePropagatorSettings.recreate_state_derivative_models" ) {
             return R"(
 
         Function to (re)create the integrated state models (e.g. acceleration/torque/mass models).
@@ -21674,7 +21674,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "MultiTypePropagatorSettings.single_type_settings" && variant==0) {
+    } else if(name == "MultiTypePropagatorSettings.single_type_settings" ) {
             return R"(
 
         Function to retrieve a single type of propagator.
@@ -21710,7 +21710,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagationTerminationSettings.ctor" && variant==0) {
+    } else if(name == "PropagationTerminationSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21740,7 +21740,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagationDependentVariableTerminationSettings.ctor" && variant==0) {
+    } else if(name == "PropagationDependentVariableTerminationSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21771,7 +21771,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagationTimeTerminationSettings.ctor" && variant==0) {
+    } else if(name == "PropagationTimeTerminationSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21802,7 +21802,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagationCPUTimeTerminationSettings.ctor" && variant==0) {
+    } else if(name == "PropagationCPUTimeTerminationSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21833,7 +21833,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagationCustomTerminationSettings.ctor" && variant==0) {
+    } else if(name == "PropagationCustomTerminationSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -21864,7 +21864,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagationHybridTerminationSettings.ctor" && variant==0) {
+    } else if(name == "PropagationHybridTerminationSettings.ctor" ) {
             return R"(
 
         Constructor.
@@ -22028,7 +22028,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagationPrintSettings.enable_all_boolean_printing" && variant==0) {
+    } else if(name == "PropagationPrintSettings.enable_all_boolean_printing" ) {
             return R"(
 
         Function enabling all True/False printing (e.g. sets all boolean attributes to True)       
@@ -22042,7 +22042,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagationPrintSettings.enable_all_printing" && variant==0) {
+    } else if(name == "PropagationPrintSettings.enable_all_printing" ) {
             return R"(
 
         Function enabling all True/False printing (e.g. sets all boolean attributes to True), and setting the non-boolean 
@@ -22065,7 +22065,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "PropagationPrintSettings.disable_all_printing" && variant==0) {
+    } else if(name == "PropagationPrintSettings.disable_all_printing" ) {
             return R"(
 
         Function enabling all printing (e.g. sets all boolean attributes to False, and disables all other output as well)
@@ -22258,7 +22258,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "MultiArcPropagatorProcessingSettings.set_print_settings_for_all_arcs" && variant==0) {
+    } else if(name == "MultiArcPropagatorProcessingSettings.set_print_settings_for_all_arcs" ) {
             return R"(
 
         Function that sets the same print settings for each arc in the multi-arc propagation.
@@ -22319,7 +22319,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "HybridArcPropagatorProcessingSettings.set_print_settings_for_all_arcs" && variant==0) {
+    } else if(name == "HybridArcPropagatorProcessingSettings.set_print_settings_for_all_arcs" ) {
             return R"(
 
         Function that sets the same print settings for each arc in the multi-arc propagation, and the single-arc propagation.
@@ -22340,7 +22340,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
 
 
-    } else if(name == "translational" && variant==0) {
+    } else if(name == "translational" ) {
         return R"(
         
 Factory function to create translational state propagator settings with stopping condition at given final time.
@@ -22390,7 +22390,7 @@ TranslationalStatePropagatorSettings
 
 
 
-    } else if(name == "rotational" && variant==0) {
+    } else if(name == "rotational" ) {
         return R"(
         
 Factory function to create rotational state propagator settings.
@@ -22442,7 +22442,7 @@ RotationalStatePropagatorSettings
 
 
 
-    } else if(name == "mass" && variant==0) {
+    } else if(name == "mass" ) {
         return R"(
         
 Factory function to create mass propagator settings
@@ -22488,7 +22488,7 @@ MassPropagatorSettings
 
 
 
-    } else if(name == "multitype" && variant==0) {
+    } else if(name == "multitype" ) {
         return R"(
         
 Factory function to create multitype propagator settings.
@@ -22533,7 +22533,7 @@ MassPropagatorSettings
 
 
 
-    } else if(name == "multi_arc" && variant==0) {
+    } else if(name == "multi_arc" ) {
         return R"(
         
 Factory function to create multi-arc propagator settings.
@@ -22562,7 +22562,7 @@ MultiArcPropagatorSettings
 
 
 
-    } else if(name == "hybrid_arc" && variant==0) {
+    } else if(name == "hybrid_arc" ) {
         return R"(
         
 Factory function to create hybrid-arc propagator settings.
@@ -22590,7 +22590,7 @@ HybridArcPropagatorSettings
 
 
 
-    } else if(name == "time_termination" && variant==0) {
+    } else if(name == "time_termination" ) {
         return R"(
         
 Factory function to create time termination settings for the propagation.
@@ -22643,7 +22643,7 @@ In this example, we set the termination time of the propagation equal to one day
 
 
 
-    } else if(name == "cpu_time_termination" && variant==0) {
+    } else if(name == "cpu_time_termination" ) {
         return R"(
         
 Factory function to create CPU time termination settings for the propagation.
@@ -22682,7 +22682,7 @@ for 120 seconds.
 
 
 
-    } else if(name == "dependent_variable_termination" && variant==0) {
+    } else if(name == "dependent_variable_termination" ) {
         return R"(
         
 Factory function to create termination settings for the propagation based on a dependent variable.
@@ -22751,7 +22751,7 @@ at 25 km, so we set ``terminate_exactly_on_final_condition`` to ``True``, and we
 
 
 
-    } else if(name == "custom_termination" && variant==0) {
+    } else if(name == "custom_termination" ) {
         return R"(
         
 Factory function to create custom termination settings for the propagation.
@@ -22796,7 +22796,7 @@ Examples
 
 
 
-    } else if(name == "hybrid_termination" && variant==0) {
+    } else if(name == "hybrid_termination" ) {
         return R"(
         
 Factory function to create hybrid termination settings for the propagation.
@@ -22864,7 +22864,7 @@ terminates once a *single* condition is met (if True, as above) or once *all* co
 
 
 
-    } else if(name == "non_sequential_termination" && variant==0) {
+    } else if(name == "non_sequential_termination" ) {
         return R"(
         
 Factory function to create non-sequential termination settings for the propagation.
@@ -22900,7 +22900,7 @@ PropagationTerminationSettings
 
 
 
-    } else if(name == "add_dependent_variable_settings" && variant==0) {
+    } else if(name == "add_dependent_variable_settings" ) {
         return R"(
         
 Function to add dependent variables to existing propagator settings.
@@ -22948,7 +22948,7 @@ None
     
 namespace torque {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -23052,7 +23052,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "aerodynamic" && variant==0) {
+    } else if(name == "aerodynamic" ) {
         return R"(
         
 Creates the settings for the aerodynamic torque.
@@ -23089,7 +23089,7 @@ In this example, we define the aerodynamic torque exerted by the Earth on the ve
 
 
 
-    } else if(name == "spherical_harmonic_gravitational" && variant==0) {
+    } else if(name == "spherical_harmonic_gravitational" ) {
         return R"(
         
 Creates the settings for the spherical harmonic torque.
@@ -23132,7 +23132,7 @@ exerted by the Earth on the vehicle.
 
 
 
-    } else if(name == "second_degree_gravitational" && variant==0) {
+    } else if(name == "second_degree_gravitational" ) {
         return R"(
         
 Creates the settings for the second-degree gravitational torque.
@@ -23170,7 +23170,7 @@ exerted by the Earth on the vehicle.
 
 
 
-    } else if(name == "custom_torque" && variant==0) {
+    } else if(name == "custom_torque" ) {
         return R"(
         
 Creates the settings for a custom torque.
@@ -23233,7 +23233,7 @@ exerted by the Earth on the vehicle.
     
 namespace thrust {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -23380,7 +23380,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "get_propulsion_input_variables" && variant==0) {
+    } else if(name == "get_propulsion_input_variables" ) {
         return R"(
         
 Function to create a list of functions that compute and return independent variables for the thrust.
@@ -23408,7 +23408,7 @@ guidance_input_functions : list[callable[[], float], default=[]
 
 
 
-    } else if(name == "constant_thrust_magnitude" && variant==0) {
+    } else if(name == "constant_thrust_magnitude" ) {
         return R"(
         
 Create thrust magnitude settings from a constant thrust magnitude and Isp.
@@ -23450,7 +23450,7 @@ In this example, we define constant thrust magnitude of 1.5 kN and a specific im
 
 
 
-    } else if(name == "custom_thrust_magnitude" && variant==0) {
+    } else if(name == "custom_thrust_magnitude" ) {
         return R"(
         
 Create thrust magnitude settings from a custom thrust force magnitude function.
@@ -23501,7 +23501,7 @@ Finally, the engine is setup to work for 50s, and be turned off afterwards.
 
 
 
-    } else if(name == "custom_thrust_magnitude_fixed_isp" && variant==0) {
+    } else if(name == "custom_thrust_magnitude_fixed_isp" ) {
         return R"(
         
 Same as :func:`~custom_thrust_magnitude`, but with a fixed value for the specific impulse.
@@ -23527,7 +23527,7 @@ FromFunctionThrustMagnitudeSettings
 
 
 
-    } else if(name == "custom_thrust_acceleration_magnitude" && variant==0) {
+    } else if(name == "custom_thrust_acceleration_magnitude" ) {
         return R"(
         
 Create thrust magnitude settings from a custom thrust acceleration magnitude function.
@@ -23557,7 +23557,7 @@ FromFunctionThrustMagnitudeSettings
 
 
 
-    } else if(name == "custom_thrust_acceleration_magnitude_fixed_isp" && variant==0) {
+    } else if(name == "custom_thrust_acceleration_magnitude_fixed_isp" ) {
         return R"(
         
 Same as :func:`~custom_thrust_acceleration_magnitude`, but with a fixed value for the specific impulse.
@@ -23603,7 +23603,7 @@ FromFunctionThrustMagnitudeSettings
     
 namespace estimation {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -23692,7 +23692,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "EstimatableParameterSet.indices_for_parameter_type" && variant==0) {
+    } else if(name == "EstimatableParameterSet.indices_for_parameter_type" ) {
             return R"(
 
         Function to retrieve the indices of a given type of parameter.
@@ -23737,7 +23737,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "ObservationViabilityCalculator.is_observation_viable" && variant==0) {
+    } else if(name == "ObservationViabilityCalculator.is_observation_viable" ) {
             return R"(
 
         Function to check whether an observation is viable.
@@ -23968,7 +23968,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "ObservationCollection.get_single_link_and_type_observations" && variant==0) {
+    } else if(name == "ObservationCollection.get_single_link_and_type_observations" ) {
             return R"(
 
         Function to get all observation sets for a given observable type and link definition.
@@ -24148,7 +24148,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "CombinedStateTransitionAndSensitivityMatrixInterface.state_transition_sensitivity_at_epoch" && variant==0) {
+    } else if(name == "CombinedStateTransitionAndSensitivityMatrixInterface.state_transition_sensitivity_at_epoch" ) {
             return R"(
 
         Function to get the concatenated state transition and sensitivity matrix at a given time.
@@ -24174,7 +24174,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "CombinedStateTransitionAndSensitivityMatrixInterface.full_state_transition_sensitivity_at_epoch" && variant==0) {
+    } else if(name == "CombinedStateTransitionAndSensitivityMatrixInterface.full_state_transition_sensitivity_at_epoch" ) {
             return R"(
 
 
@@ -24239,7 +24239,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "CovarianceAnalysisInput.ctor" && variant==0) {
+    } else if(name == "CovarianceAnalysisInput.ctor" ) {
             return R"(
 
         Class constructor.
@@ -24266,7 +24266,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "CovarianceAnalysisInput.set_constant_weight" && variant==0) {
+    } else if(name == "CovarianceAnalysisInput.set_constant_weight" ) {
             return R"(
 
         Function to set a constant weight matrix for all observables.
@@ -24292,7 +24292,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "CovarianceAnalysisInput.set_constant_weight_per_observable" && variant==0) {
+    } else if(name == "CovarianceAnalysisInput.set_constant_weight_per_observable" ) {
             return R"(
 
         Function to set a constant weight matrix for a given type of observable.
@@ -24318,7 +24318,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "CovarianceAnalysisInput.define_covariance_settings" && variant==0) {
+    } else if(name == "CovarianceAnalysisInput.define_covariance_settings" ) {
             return R"(
 
         Function to define specific settings for covariance analysis process
@@ -24371,7 +24371,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "EstimationInput.ctor" && variant==0) {
+    } else if(name == "EstimationInput.ctor" ) {
             return R"(
 
         Class constructor.
@@ -24400,7 +24400,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "EstimationInput.define_estimation_settings" && variant==0) {
+    } else if(name == "EstimationInput.define_estimation_settings" ) {
             return R"(
 
         Function to define specific settings for the estimation process
@@ -24641,7 +24641,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "simulate_observations" && variant==0) {
+    } else if(name == "simulate_observations" ) {
         return R"(
         
 Function to simulate observations.
@@ -24675,7 +24675,7 @@ Returns
 
 
 
-    } else if(name == "compute_target_angles_and_range" && variant==0) {
+    } else if(name == "compute_target_angles_and_range" ) {
         return R"(
         
 Function to compute the azimuth angle, elevation angle and range at a ground station.
@@ -24718,7 +24718,7 @@ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
 
 
 
-    } else if(name == "propagate_covariance" && variant==0) {
+    } else if(name == "propagate_covariance" ) {
         return R"(
         
 Function to propagate system covariance through time.
@@ -24756,7 +24756,7 @@ Dict[ float, numpy.ndarray[numpy.float64[m, n]] ]
 
 
 
-    } else if(name == "propagate_formal_errors" && variant==0) {
+    } else if(name == "propagate_formal_errors" ) {
         return R"(
         
 Function to propagate system formal errors through time.
@@ -24795,7 +24795,7 @@ Dict[ float, numpy.ndarray[numpy.float64[m, 1]] ]
 
 
 
-    } else if(name == "estimation_convergence_checker" && variant==0) {
+    } else if(name == "estimation_convergence_checker" ) {
         return R"(
         
 Function for creating an :class:`~tudatpy.numerical_simulation.estimation.EstimationConvergenceChecker` object.
@@ -24842,7 +24842,7 @@ Returns
     
 namespace environment {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -25146,7 +25146,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "AerodynamicCoefficientInterface.current_control_surface_force_coefficient_increment" && variant==0) {
+    } else if(name == "AerodynamicCoefficientInterface.current_control_surface_force_coefficient_increment" ) {
             return R"(
 
         Function to get the contribution from a single control surface to the aerodynamic force coefficient, as compute by last call to :meth:`~update_full_coefficients`
@@ -25171,7 +25171,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "AerodynamicCoefficientInterface.current_control_surface_moment_coefficient_increment" && variant==0) {
+    } else if(name == "AerodynamicCoefficientInterface.current_control_surface_moment_coefficient_increment" ) {
             return R"(
 
         Function to get the contribution from a single control surface to the aerodynamic moment coefficients, as compute by last call to :meth:`~update_full_coefficients`
@@ -25196,7 +25196,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "AerodynamicCoefficientInterface.update_coefficients" && variant==0) {
+    } else if(name == "AerodynamicCoefficientInterface.update_coefficients" ) {
             return R"(
 
         Function to update the aerodynamic coefficients of the body only
@@ -25230,7 +25230,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "AerodynamicCoefficientInterface.update_full_coefficients" && variant==0) {
+    } else if(name == "AerodynamicCoefficientInterface.update_full_coefficients" ) {
             return R"(
 
         Function to update the aerodynamic coefficients, from both the body and its control surfaces
@@ -25290,7 +25290,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "HypersonicLocalInclinationAnalysis.ctor" && variant==0) {
+    } else if(name == "HypersonicLocalInclinationAnalysis.ctor" ) {
             return R"(
 
         Class constructor, taking the shape of the vehicle, and various analysis options as input.
@@ -25681,7 +25681,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "AerodynamicAngleCalculator.get_rotation_matrix_between_frames" && variant==0) {
+    } else if(name == "AerodynamicAngleCalculator.get_rotation_matrix_between_frames" ) {
             return R"(
 
         Function to get the rotation matrix between two frames. 
@@ -25713,7 +25713,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "AerodynamicAngleCalculator.get_angle" && variant==0) {
+    } else if(name == "AerodynamicAngleCalculator.get_angle" ) {
             return R"(
 
         Function to get a single orientation angle
@@ -25785,7 +25785,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "RotationalEphemeris.body_fixed_to_inertial_rotation" && variant==0) {
+    } else if(name == "RotationalEphemeris.body_fixed_to_inertial_rotation" ) {
             return R"(
 
         Function to get rotation matrix from body-fixed frame to inertial frame over time.
@@ -25815,7 +25815,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "RotationalEphemeris.inertial_to_body_fixed_rotation" && variant==0) {
+    } else if(name == "RotationalEphemeris.inertial_to_body_fixed_rotation" ) {
             return R"(
 
         Function to get rotation matrix from inertial frame to body-fixed frame over time.
@@ -25837,7 +25837,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "RotationalEphemeris.time_derivative_body_fixed_to_inertial_rotation" && variant==0) {
+    } else if(name == "RotationalEphemeris.time_derivative_body_fixed_to_inertial_rotation" ) {
             return R"(
 
         Function to get time derivative of rotation matrix from body-fixed frame to inertial frame over time.
@@ -25865,7 +25865,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "RotationalEphemeris.time_derivative_inertial_to_body_fixed_rotation" && variant==0) {
+    } else if(name == "RotationalEphemeris.time_derivative_inertial_to_body_fixed_rotation" ) {
             return R"(
 
         Function to get time derivative of rotation matrix from inertial frame to body-fixed frame over time.
@@ -25893,7 +25893,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "RotationalEphemeris.angular_velocity_in_body_fixed_frame" && variant==0) {
+    } else if(name == "RotationalEphemeris.angular_velocity_in_body_fixed_frame" ) {
             return R"(
 
         Function to get the body's angular velocity vector, expressed in the body-fixed frame.
@@ -25925,7 +25925,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "RotationalEphemeris.angular_velocity_in_inertial_frame" && variant==0) {
+    } else if(name == "RotationalEphemeris.angular_velocity_in_inertial_frame" ) {
             return R"(
 
         Function to get the body's angular velocity vector, expressed in the inertial frame.
@@ -25970,7 +25970,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "VehicleSystems.set_control_surface_deflection" && variant==0) {
+    } else if(name == "VehicleSystems.set_control_surface_deflection" ) {
             return R"(
 
         Function to set the current deflection of an aerodynamic control surface.
@@ -25998,7 +25998,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
     )";
 
 
-    } else if(name == "VehicleSystems.set_control_surface_deflection" && variant==1) {
+    } else if(name == "VehicleSystems.get_control_surface_deflection") {
             return R"(
 
         Function to retrieve the current deflection of an aerodynamic control surface.
@@ -26028,7 +26028,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "VehicleSystems.set_control_surface_deflection" && variant==0) {
+    } else if(name == "VehicleSystems.set_control_surface_deflection" ) {
             return R"(
 
         Function to set the current deflection of an aerodynamic control surface.
@@ -26056,7 +26056,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
     )";
 
 
-    } else if(name == "VehicleSystems.set_control_surface_deflection" && variant==1) {
+    } else if(name == "VehicleSystems.get_control_surface_deflection") {
             return R"(
 
         Function to retrieve the current deflection of an aerodynamic control surface.
@@ -26086,7 +26086,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "VehicleSystems.get_engine_model" && variant==0) {
+    } else if(name == "VehicleSystems.get_engine_model" ) {
             return R"(
 
         Function to retrieve an engine model from the vehicle
@@ -26157,7 +26157,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "Ephemeris.cartesian_state" && variant==0) {
+    } else if(name == "Ephemeris.cartesian_state" ) {
             return R"(
 
         This function returns the Cartesian state (position and velocity) at the given time, w.r.t. the ``frame_origin``.
@@ -26181,7 +26181,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "Ephemeris.cartesian_position" && variant==0) {
+    } else if(name == "Ephemeris.cartesian_position" ) {
             return R"(
 
         As ``cartesian_state``, but only the three position components
@@ -26205,7 +26205,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "Ephemeris.cartesian_velocity" && variant==0) {
+    } else if(name == "Ephemeris.cartesian_velocity" ) {
             return R"(
 
         As ``cartesian_state``, but only the three velocity components
@@ -26592,7 +26592,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "Body.get_ground_station" && variant==0) {
+    } else if(name == "Body.get_ground_station" ) {
             return R"(
 
         This function extracts a ground station object from the body.
@@ -26641,7 +26641,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "SystemOfBodies.get" && variant==0) {
+    } else if(name == "SystemOfBodies.get" ) {
             return R"(
 
         This function extracts a single Body object from the SystemOfBodies.
@@ -26665,7 +26665,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "SystemOfBodies.get_body" && variant==0) {
+    } else if(name == "SystemOfBodies.get_body" ) {
             return R"(
 
         Deprecated version of :py:func:`~get`
@@ -26678,7 +26678,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "SystemOfBodies.create_empty_body" && variant==0) {
+    } else if(name == "SystemOfBodies.create_empty_body" ) {
             return R"(
 
         This function creates a new empty body.
@@ -26742,7 +26742,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "SystemOfBodies.add_body" && variant==0) {
+    } else if(name == "SystemOfBodies.add_body" ) {
             return R"(
 
         This function adds an existing body, which the user has
@@ -26775,7 +26775,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "SystemOfBodies.remove_body" && variant==0) {
+    } else if(name == "SystemOfBodies.remove_body" ) {
             return R"(
 
         This function removes an existing body from the
@@ -26804,7 +26804,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "save_vehicle_mesh_to_file" && variant==0) {
+    } else if(name == "save_vehicle_mesh_to_file" ) {
         return R"(
         
 Function to save the mesh used for a hypersonic local inclination analysis to a file.
@@ -26852,7 +26852,7 @@ output_file_prefix : str, default=''
     
 namespace propagation {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -27188,7 +27188,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "get_state_of_bodies" && variant==0) {
+    } else if(name == "get_state_of_bodies" ) {
         return R"(
         
 Function to get the translational states of a set of bodies, with respect to some set of central bodies, at the requested time.
@@ -27224,7 +27224,7 @@ numpy.ndarray
 
 
 
-    } else if(name == "get_damped_proper_mode_initial_rotational_state" && variant==0) {
+    } else if(name == "get_damped_proper_mode_initial_rotational_state" ) {
         return R"(
         
 Function to compute an initial rotational state for which the proper mode of rotation is damped.
@@ -27289,7 +27289,7 @@ DampedInitialRotationalStateResults
 
 
 
-    } else if(name == "combine_initial_states" && variant==0) {
+    } else if(name == "combine_initial_states" ) {
         return R"(
         
 Function to retrieve the initial state for a list of propagator settings.
@@ -27337,7 +27337,7 @@ numpy.ndarray
     
 namespace trajectory_design {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -27356,7 +27356,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
     
 namespace transfer_trajectory {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -27624,7 +27624,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "TransferTrajectory.evaluate" && variant==0) {
+    } else if(name == "TransferTrajectory.evaluate" ) {
             return R"(
 
         Evaluate transfer trajectory.
@@ -27660,7 +27660,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "TransferTrajectory.single_node_delta_v" && variant==0) {
+    } else if(name == "TransferTrajectory.single_node_delta_v" ) {
             return R"(
 
         Retrieves the Delta V applied in the specified node.
@@ -27683,7 +27683,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "TransferTrajectory.single_leg_delta_v" && variant==0) {
+    } else if(name == "TransferTrajectory.single_leg_delta_v" ) {
             return R"(
 
         Retrieves the Delta V applied in the specified leg.
@@ -27706,7 +27706,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "TransferTrajectory.states_along_trajectory" && variant==0) {
+    } else if(name == "TransferTrajectory.states_along_trajectory" ) {
             return R"(
 
         Returns the state history throughout the trajectory.
@@ -27732,7 +27732,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "TransferTrajectory.inertial_thrust_accelerations_along_trajectory" && variant==0) {
+    } else if(name == "TransferTrajectory.inertial_thrust_accelerations_along_trajectory" ) {
             return R"(
 
         Returns the inertial thrust acceleration history throughout the trajectory.
@@ -27759,7 +27759,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "TransferTrajectory.rsw_thrust_accelerations_along_trajectory" && variant==0) {
+    } else if(name == "TransferTrajectory.rsw_thrust_accelerations_along_trajectory" ) {
             return R"(
 
         Returns the thrust acceleration history in the RSW frame throughout the trajectory.
@@ -27786,7 +27786,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "TransferTrajectory.tnw_thrust_accelerations_along_trajectory" && variant==0) {
+    } else if(name == "TransferTrajectory.tnw_thrust_accelerations_along_trajectory" ) {
             return R"(
 
         Returns the thrust acceleration history in the TNW frame throughout the trajectory.
@@ -27815,7 +27815,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "mga_settings_unpowered_unperturbed_legs" && variant==0) {
+    } else if(name == "mga_settings_unpowered_unperturbed_legs" ) {
         return R"(
         
 Function to get the legs and nodes settings of a transfer with just upowered legs.
@@ -27859,7 +27859,7 @@ tuple[ list[TransferLegSettings], list[TransferNodeSettings] ]
 
 
 
-    } else if(name == "mga_settings_dsm_velocity_based_legs" && variant==0) {
+    } else if(name == "mga_settings_dsm_velocity_based_legs" ) {
         return R"(
         
 Function to get the legs and nodes settings of a transfer constituted by legs with 1 impulsive deep space maneuver (DSM)
@@ -27904,7 +27904,7 @@ tuple[ list[TransferLegSettings], list[TransferNodeSettings] ]
 
 
 
-    } else if(name == "mga_settings_dsm_position_based_legs" && variant==0) {
+    } else if(name == "mga_settings_dsm_position_based_legs" ) {
         return R"(
         
 Function to get the legs and nodes settings of a transfer constituted by legs with 1 impulsive deep space maneuver (DSM)
@@ -27949,7 +27949,7 @@ tuple[ list[TransferLegSettings], list[TransferNodeSettings] ]
 
 
 
-    } else if(name == "mga_settings_spherical_shaping_legs" && variant==0) {
+    } else if(name == "mga_settings_spherical_shaping_legs" ) {
         return R"(
         
 Function to get the legs and nodes settings of a transfer constituted by low-thrust spherical shaping legs.
@@ -28009,7 +28009,7 @@ tuple[ list[TransferLegSettings], list[TransferNodeSettings] ]
 
 
 
-    } else if(name == "mga_settings_hodographic_shaping_legs" && variant==0) {
+    } else if(name == "mga_settings_hodographic_shaping_legs" ) {
         return R"(
         
 Function to get the legs and nodes settings of a transfer constituted by low-thrust hodographic shaping legs,
@@ -28063,7 +28063,7 @@ tuple[ list[TransferLegSettings], list[TransferNodeSettings] ]
 
 
 
-    } else if(name == "mga_settings_hodographic_shaping_legs_with_recommended_functions" && variant==0) {
+    } else if(name == "mga_settings_hodographic_shaping_legs_with_recommended_functions" ) {
         return R"(
         
 Function to get the legs and nodes settings of a transfer constituted by low-thrust hodographic shaping legs,
@@ -28115,7 +28115,7 @@ tuple[ list[TransferLegSettings], list[TransferNodeSettings] ]
 
 
 
-    } else if(name == "unpowered_leg" && variant==0) {
+    } else if(name == "unpowered_leg" ) {
         return R"(
         
 Factory function for creating the settings of an unpowered leg.
@@ -28141,7 +28141,7 @@ TransferLegSettings
 
 
 
-    } else if(name == "dsm_position_based_leg" && variant==0) {
+    } else if(name == "dsm_position_based_leg" ) {
         return R"(
         
 Factory function for creating the settings of a transfer leg with 1 impulsive deep space maneuver (DSM) described using
@@ -28170,7 +28170,7 @@ TransferLegSettings
 
 
 
-    } else if(name == "dsm_velocity_based_leg" && variant==0) {
+    } else if(name == "dsm_velocity_based_leg" ) {
         return R"(
         
 Factory function for creating the settings of a transfer leg with 1 impulsive deep space maneuver (DSM) described using
@@ -28199,7 +28199,7 @@ TransferLegSettings
 
 
 
-    } else if(name == "spherical_shaping_leg" && variant==0) {
+    } else if(name == "spherical_shaping_leg" ) {
         return R"(
         
 Factory function for creating the settings of a low-thrust spherical shaping leg.
@@ -28250,7 +28250,7 @@ TransferLegSettings
 
 
 
-    } else if(name == "hodographic_shaping_leg" && variant==0) {
+    } else if(name == "hodographic_shaping_leg" ) {
         return R"(
         
 Factory function for creating the settings of a low-thrust hodographic shaping leg.
@@ -28293,7 +28293,7 @@ TransferLegSettings
 
 
 
-    } else if(name == "swingby_node" && variant==0) {
+    } else if(name == "swingby_node" ) {
         return R"(
         
 Factory function for creating the settings of a swingby node.
@@ -28331,7 +28331,7 @@ SwingbyNodeSettings
 
 
 
-    } else if(name == "departure_node" && variant==0) {
+    } else if(name == "departure_node" ) {
         return R"(
         
 Factory function for creating the settings of an escape or departure node.
@@ -28364,7 +28364,7 @@ EscapeAndDepartureNodeSettings
 
 
 
-    } else if(name == "capture_node" && variant==0) {
+    } else if(name == "capture_node" ) {
         return R"(
         
 Factory function for creating the settings of a capture or insertion node.
@@ -28397,7 +28397,7 @@ CaptureAndInsertionNodeSettings
 
 
 
-    } else if(name == "print_parameter_definitions" && variant==0) {
+    } else if(name == "print_parameter_definitions" ) {
         return R"(
         
 Prints the list of parameters required to define the transfer trajectory, according to the
@@ -28425,7 +28425,7 @@ None
 
 
 
-    } else if(name == "create_transfer_trajectory" && variant==0) {
+    } else if(name == "create_transfer_trajectory" ) {
         return R"(
         
 Factory function for creating a transfer trajectory consisting of the specified sequence of transfer nodes and
@@ -28480,7 +28480,7 @@ TransferTrajectory
     
 namespace shape_based_thrust {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -28507,7 +28507,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "recommended_radial_hodograph_functions" && variant==0) {
+    } else if(name == "recommended_radial_hodograph_functions" ) {
         return R"(
         
 Factory function for creating the default radial hodographic trajectory shaping functions.
@@ -28540,7 +28540,7 @@ list[BaseFunctionHodographicShaping]
 
 
 
-    } else if(name == "recommended_normal_hodograph_functions" && variant==0) {
+    } else if(name == "recommended_normal_hodograph_functions" ) {
         return R"(
         
 Factory function for creating the default normal hodographic trajectory shaping functions.
@@ -28573,7 +28573,7 @@ list[BaseFunctionHodographicShaping]
 
 
 
-    } else if(name == "recommended_axial_hodograph_functions" && variant==0) {
+    } else if(name == "recommended_axial_hodograph_functions" ) {
         return R"(
         
 Factory function for creating the default axial hodograph	ic trajectory shaping functions.
@@ -28608,7 +28608,7 @@ list[BaseFunctionHodographicShaping]
 
 
 
-    } else if(name == "hodograph_constant" && variant==0) {
+    } else if(name == "hodograph_constant" ) {
         return R"(
         
 Factory function for creating a constant contribution to hodographic trajectory shaping.
@@ -28630,7 +28630,7 @@ BaseFunctionHodographicShaping
 
 
 
-    } else if(name == "hodograph_sine" && variant==0) {
+    } else if(name == "hodograph_sine" ) {
         return R"(
         
 Factory function for creating a sine contribution to hodographic trajectory shaping.
@@ -28658,7 +28658,7 @@ BaseFunctionHodographicShaping
 
 
 
-    } else if(name == "hodograph_cosine" && variant==0) {
+    } else if(name == "hodograph_cosine" ) {
         return R"(
         
 Factory function for creating a cosine contribution to hodographic trajectory shaping.
@@ -28686,7 +28686,7 @@ BaseFunctionHodographicShaping
 
 
 
-    } else if(name == "hodograph_exponential" && variant==0) {
+    } else if(name == "hodograph_exponential" ) {
         return R"(
         
 Factory function for creating a exponential contribution to hodographic trajectory shaping.
@@ -28716,7 +28716,7 @@ BaseFunctionHodographicShaping
 
 
 
-    } else if(name == "hodograph_exponential_sine" && variant==0) {
+    } else if(name == "hodograph_exponential_sine" ) {
         return R"(
         
 Factory function for creating a exponential sine contribution to hodographic trajectory shaping.
@@ -28748,7 +28748,7 @@ BaseFunctionHodographicShaping
 
 
 
-    } else if(name == "hodograph_exponential_cosine" && variant==0) {
+    } else if(name == "hodograph_exponential_cosine" ) {
         return R"(
         
 Factory function for creating a exponential cosine contribution to hodographic trajectory shaping.
@@ -28780,7 +28780,7 @@ BaseFunctionHodographicShaping
 
 
 
-    } else if(name == "hodograph_power" && variant==0) {
+    } else if(name == "hodograph_power" ) {
         return R"(
         
 Factory function for creating a power function contribution to hodographic trajectory shaping.
@@ -28810,7 +28810,7 @@ BaseFunctionHodographicShaping
 
 
 
-    } else if(name == "hodograph_power_sine" && variant==0) {
+    } else if(name == "hodograph_power_sine" ) {
         return R"(
         
 Factory function for creating a power sine function contribution to hodographic trajectory shaping.
@@ -28842,7 +28842,7 @@ BaseFunctionHodographicShaping
 
 
 
-    } else if(name == "hodograph_power_cosine" && variant==0) {
+    } else if(name == "hodograph_power_cosine" ) {
         return R"(
         
 Factory function for creating a power cosine function contribution to hodographic trajectory shaping.
@@ -28894,7 +28894,7 @@ BaseFunctionHodographicShaping
     
 namespace plotting {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -28903,7 +28903,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "plot_blue_marble_ground_track" && variant==0) {
+    } else if(name == "plot_blue_marble_ground_track" ) {
         return R"(
         
 
@@ -28915,7 +28915,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "plot_miller_ground_track" && variant==0) {
+    } else if(name == "plot_miller_ground_track" ) {
         return R"(
         
 
@@ -28927,7 +28927,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "dual_y_axis" && variant==0) {
+    } else if(name == "dual_y_axis" ) {
         return R"(
         
 
@@ -28939,7 +28939,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "trajectory_3d" && variant==0) {
+    } else if(name == "trajectory_3d" ) {
         return R"(
         
 
@@ -28951,7 +28951,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "pareto_front" && variant==0) {
+    } else if(name == "pareto_front" ) {
         return R"(
         
 
@@ -28978,7 +28978,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
     
 namespace util {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -29000,7 +29000,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "result2array" && variant==0) {
+    } else if(name == "result2array" ) {
         return R"(
         
 
@@ -29012,7 +29012,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "compare_results" && variant==0) {
+    } else if(name == "compare_results" ) {
         return R"(
         
 
@@ -29024,7 +29024,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "pareto_optimums" && variant==0) {
+    } else if(name == "pareto_optimums" ) {
         return R"(
         
 
@@ -29036,7 +29036,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "split_history" && variant==0) {
+    } else if(name == "split_history" ) {
         return R"(
         
 
@@ -29048,7 +29048,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
 
 
 
-    } else if(name == "vector2matrix" && variant==0) {
+    } else if(name == "vector2matrix" ) {
         return R"(
         
 
@@ -29075,7 +29075,7 @@ static inline std::string get_docstring(std::string name, int variant=0) {
     
 namespace io {
 
-static inline std::string get_docstring(std::string name, int variant=0) {
+static inline std::string get_docstring(std::string name) {
 
     if (name == "test") {
         return "test";
@@ -29321,7 +29321,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "missile_DATCOM_data.ctor" && variant==0) {
+    } else if(name == "missile_DATCOM_data.ctor" ) {
             return R"(
 
         Class constructor.
@@ -29342,7 +29342,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "missile_DATCOM_data.get_static_coefficient" && variant==0) {
+    } else if(name == "missile_DATCOM_data.get_static_coefficient" ) {
             return R"(
 
         Get a specific static coefficient from the result database.
@@ -29369,7 +29369,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "missile_DATCOM_data.get_dynamic_coefficient" && variant==0) {
+    } else if(name == "missile_DATCOM_data.get_dynamic_coefficient" ) {
             return R"(
 
         Get a specific dynamic coefficient from the result database.
@@ -29396,7 +29396,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "missile_DATCOM_data.get_angle_of_attacks" && variant==0) {
+    } else if(name == "missile_DATCOM_data.get_angle_of_attacks" ) {
             return R"(
 
         Get the list of angle of attacks at which Missile DATCOM has been run.
@@ -29414,7 +29414,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "missile_DATCOM_data.get_mach_numbers" && variant==0) {
+    } else if(name == "missile_DATCOM_data.get_mach_numbers" ) {
             return R"(
 
         Get the list of Mach numbers at which Missile DATCOM has been run.
@@ -29432,7 +29432,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "missile_DATCOM_data.get_Reynolds_numbers" && variant==0) {
+    } else if(name == "missile_DATCOM_data.get_Reynolds_numbers" ) {
             return R"(
 
         Get the list of Reynolds numbers at which Missile DATCOM has been run.
@@ -29450,7 +29450,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "missile_DATCOM_data.write_all_coefficients_to_files" && variant==0) {
+    } else if(name == "missile_DATCOM_data.write_all_coefficients_to_files" ) {
             return R"(
 
         Write all the aerodynamic coefficients to CSV files.
@@ -29472,7 +29472,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "missile_DATCOM_data.write_force_and_moment_coefficients_to_files" && variant==0) {
+    } else if(name == "missile_DATCOM_data.write_force_and_moment_coefficients_to_files" ) {
             return R"(
 
         Write the force and moment coefficients to a file in the format taken by the :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.tabulated_from_files` function.
@@ -29496,7 +29496,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "save2txt" && variant==0) {
+    } else if(name == "save2txt" ) {
         return R"(
         
 
@@ -29508,7 +29508,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "save_time_history_to_file" && variant==0) {
+    } else if(name == "save_time_history_to_file" ) {
         return R"(
         
 
@@ -29520,7 +29520,7 @@ Pitching moment coefficient change w.r.t. angle of attack change rate.
 
 
 
-    } else if(name == "get_resource_path" && variant==0) {
+    } else if(name == "get_resource_path" ) {
         return R"(
         
 Get the path at which tudat resources are located.
@@ -29539,7 +29539,7 @@ str
 
 
 
-    } else if(name == "get_ephemeris_path" && variant==0) {
+    } else if(name == "get_ephemeris_path" ) {
         return R"(
         
 Get the path at which the ephemeris used by tudat are located.
@@ -29558,7 +29558,7 @@ str
 
 
 
-    } else if(name == "get_earth_orientation_path" && variant==0) {
+    } else if(name == "get_earth_orientation_path" ) {
         return R"(
         
 Get the path at which the Earth orientation resources used by tudat are located.
@@ -29577,7 +29577,7 @@ str
 
 
 
-    } else if(name == "get_quadrature_path" && variant==0) {
+    } else if(name == "get_quadrature_path" ) {
         return R"(
         
 Get the path at which the Gaussian quadrature resources are located.
@@ -29596,7 +29596,7 @@ str
 
 
 
-    } else if(name == "get_spice_kernel_path" && variant==0) {
+    } else if(name == "get_spice_kernel_path" ) {
         return R"(
         
 Get the path at which the SPICE kernel used by tudat is located.
@@ -29615,7 +29615,7 @@ str
 
 
 
-    } else if(name == "get_atmosphere_tables_path" && variant==0) {
+    } else if(name == "get_atmosphere_tables_path" ) {
         return R"(
         
 Get the path at which tudat atmosphere tables are located.
@@ -29634,7 +29634,7 @@ str
 
 
 
-    } else if(name == "get_gravity_models_path" && variant==0) {
+    } else if(name == "get_gravity_models_path" ) {
         return R"(
         
 Get the path at which tudat gravity models are located.
@@ -29653,7 +29653,7 @@ str
 
 
 
-    } else if(name == "get_space_weather_path" && variant==0) {
+    } else if(name == "get_space_weather_path" ) {
         return R"(
         
 Get the path at which tudat space weather is located.
@@ -29672,7 +29672,7 @@ str
 
 
 
-    } else if(name == "read_vector_history_from_file" && variant==0) {
+    } else if(name == "read_vector_history_from_file" ) {
         return R"(
         
 Read a vector history from a file.
@@ -29698,7 +29698,7 @@ Dict[float, numpy.ndarray]
 
 
 
-    } else if(name == "read_matrix_history_from_file" && variant==0) {
+    } else if(name == "read_matrix_history_from_file" ) {
         return R"(
         
 Read a matrix history from a file.

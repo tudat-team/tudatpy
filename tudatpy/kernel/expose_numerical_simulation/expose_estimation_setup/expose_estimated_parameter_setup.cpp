@@ -379,28 +379,28 @@ void expose_estimated_parameter_setup(py::module &m) {
               &tep::directTidalDissipationLagTime ),
           py::arg("body"),
           py::arg("deforming_body"),
-          get_docstring("direct_tidal_dissipation_time_lag", 0).c_str() );
+          get_docstring("direct_tidal_dissipation_time_lag").c_str() );
 
     m.def("direct_tidal_dissipation_time_lag",
           py::overload_cast< const std::string&, const std::vector< std::string >& >(
               &tep::directTidalDissipationLagTime ),
           py::arg("body"),
           py::arg("deforming_body"),
-          get_docstring("direct_tidal_dissipation_time_lag", 1).c_str() );
+          get_docstring("direct_tidal_dissipation_time_lag" ).c_str() );
 
     m.def("inverse_tidal_quality_factor",
           py::overload_cast< const std::string&, const std::string& >(
                   &tep::inverseTidalQualityFactor ),
           py::arg("body"),
           py::arg("deforming_body"),
-          get_docstring("inverse_tidal_quality_factor", 0).c_str() );
+          get_docstring("inverse_tidal_quality_factor").c_str() );
 
     m.def("inverse_tidal_quality_factor",
           py::overload_cast< const std::string&, const std::vector< std::string >& >(
                   &tep::inverseTidalQualityFactor ),
           py::arg("body"),
           py::arg("deforming_body"),
-          get_docstring("inverse_tidal_quality_factor", 1).c_str() );
+          get_docstring("inverse_tidal_quality_factor" ).c_str() );
 
     m.def("order_invariant_k_love_number",
           py::overload_cast< const std::string&,
@@ -411,7 +411,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("degree"),
           py::arg("deforming_body"),
           py::arg("use_complex_love_number") = 0,
-          get_docstring("order_invariant_k_love_number", 0).c_str() );
+          get_docstring("order_invariant_k_love_number").c_str() );
 
     m.def("order_invariant_k_love_number",
           py::overload_cast< const std::string&,
@@ -422,7 +422,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("degree"),
           py::arg("deforming_bodies"),
           py::arg("use_complex_love_number") = 0,
-          get_docstring("order_invariant_k_love_number", 1).c_str() );
+          get_docstring("order_invariant_k_love_number" ).c_str() );
 
     m.def("order_invariant_k_love_number",
           py::overload_cast< const std::string&,
@@ -431,7 +431,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("deformed_body"),
           py::arg("degree"),
           py::arg("use_complex_love_number") = 0,
-          get_docstring("order_invariant_k_love_number", 2).c_str() );
+          get_docstring("order_invariant_k_love_number").c_str() );
 
     m.def("order_varying_k_love_number",
           py::overload_cast< const std::string&,
@@ -444,7 +444,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("orders"),
           py::arg("deforming_body"),
           py::arg("use_complex_love_number") = 0,
-          get_docstring("order_varying_k_love_number", 0).c_str() );
+          get_docstring("order_varying_k_love_number").c_str() );
 
     m.def("order_varying_k_love_number",
           py::overload_cast< const std::string&,
@@ -457,7 +457,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("orders"),
           py::arg("deforming_bodies"),
           py::arg("use_complex_love_number") = 0,
-          get_docstring("order_varying_k_love_number", 1).c_str() );
+          get_docstring("order_varying_k_love_number" ).c_str() );
 
     m.def("order_varying_k_love_number",
           py::overload_cast< const std::string&,
@@ -468,7 +468,7 @@ void expose_estimated_parameter_setup(py::module &m) {
           py::arg("degree"),
           py::arg("orders"),
           py::arg("use_complex_love_number") = 0,
-          get_docstring("order_varying_k_love_number", 2).c_str() );
+          get_docstring("order_varying_k_love_number").c_str() );
 
     m.def("mode_coupled_k_love_numbers",
           &tep::modeCoupledTidalLoveNumberEstimatableParameterSettings,
