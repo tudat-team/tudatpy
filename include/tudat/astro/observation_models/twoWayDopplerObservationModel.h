@@ -123,9 +123,9 @@ public:
         }
 
         uplinkDoppler = uplinkDopplerCalculator_->computeIdealDopplerWithLinkEndData(
-            transmitter, uplinkLinkEndTimes, uplinkLinkEndStates );
+            uplinkReferenceLinkEnd, uplinkLinkEndTimes, uplinkLinkEndStates );
         downlinkDoppler = downlinkDopplerCalculator_->computeIdealDopplerWithLinkEndData(
-            transmitter, downlinkLinkEndTimes, downlinkLinkEndStates );
+            downlinkReferenceLinkEnd, downlinkLinkEndTimes, downlinkLinkEndStates );
 
 
         return multiplicationTerm_ * ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << downlinkDoppler( 0 ) * uplinkDoppler( 0 ) +
