@@ -50,24 +50,26 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
                                                                       const observation_models::LinkEndType fixedLinkEnd,
                                                                       const Eigen::VectorXd currentObservation )
 {
-    // Get relative state
-    Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointRelativeState(
-                times, linkEndStates );
-    currentDistance_ = relativeState.segment( 0, 3 ).norm( );
-    currentGravitationalParameter_ = properTimeRateModel_->getGravitationalParameter( );
-
-    currentLinkEndTime_ == ( linkEndWithPartial_ == observation_models::transmitter ) ? ( times.at( 0 ) ) : ( times.at( 1 ) );
-
-    // Compute partials w.r.t. position and velocity
-    if( computeStatePartials_ )
-    {
-        partialWrPosition_ = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) *
-                currentGravitationalParameter_ / ( currentDistance_ * currentDistance_ ) *
-                ( relativeState.segment( 0, 3 ).normalized( ) ).transpose( );
-        partialWrtVelocity_ = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                ( relativeState.segment( 3, 3 ) ).transpose( );
-    }
+//    // Get relative state
+//    Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointRelativeState(
+//                times, linkEndStates );
+//    currentDistance_ = relativeState.segment( 0, 3 ).norm( );
+//    currentGravitationalParameter_ = properTimeRateModel_->getGravitationalParameter( );
+//
+//    currentLinkEndTime_ == ( linkEndWithPartial_ == observation_models::transmitter ) ? ( times.at( 0 ) ) : ( times.at( 1 ) );
+//
+//    // Compute partials w.r.t. position and velocity
+//    if( computeStatePartials_ )
+//    {
+//        partialWrPosition_ = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+//                ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) *
+//                currentGravitationalParameter_ / ( currentDistance_ * currentDistance_ ) *
+//                ( relativeState.segment( 0, 3 ).normalized( ) ).transpose( );
+//        partialWrtVelocity_ = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+//                ( relativeState.segment( 3, 3 ) ).transpose( );
+//    }
+    partialWrPosition_.setZero( );
+    partialWrtVelocity_.setZero( );
 }
 
 //! Function to retrieve the scaling factor for the derivative w.r.t. the position of a given link end
