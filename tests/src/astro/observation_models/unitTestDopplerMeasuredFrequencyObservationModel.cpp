@@ -128,6 +128,9 @@ BOOST_AUTO_TEST_CASE(testJuiceMeasuredFrequency)
         // Create observation settings
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
         lightTimeCorrectionsList.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >( { "Sun", "Moon", "Earth" } ) ) );
+
+        std::shared_ptr< ObservationModelSettings > observationModelSettings =  dopplerMeasuredFrequencyObservationSettings(
+            linkEnds, std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( std::vector< std::string >{ "Sun", "Moon", "Earth" } ) , lightTimeCorrectionsList );
         std::shared_ptr<DopplerMeasuredFrequencyObservationModel<double, Time> > dopplerFrequencyObservationModel =
             std::dynamic_pointer_cast<DopplerMeasuredFrequencyObservationModel<double, Time>>(
                 ObservationModelCreator<1, double, Time>::createObservationModel(

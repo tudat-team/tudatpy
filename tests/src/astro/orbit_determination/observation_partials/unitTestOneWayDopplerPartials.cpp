@@ -219,6 +219,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
         for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
         {
+            std::cout<<"ESTIMATION CASE *********************************** "<<normalizeObservable<<" "<<estimationCase<<std::endl;
             // Generate one-way doppler model
             std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
             std::vector< std::string > perturbingBodies;
@@ -280,7 +281,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
             for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
             {
-                std::cout << "Rates: " << estimationCase << std::endl;
+                std::cout<<"ESTIMATION CASE *********************************** "<<" "<<estimationCase<<std::endl;
                 // Generate one-way doppler model
                 std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
                 std::vector< std::string > perturbingBodies;
