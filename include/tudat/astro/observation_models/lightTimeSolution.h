@@ -645,11 +645,15 @@ public:
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
                 receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 );
-        return ( relativePosition.normalized( ) ).transpose( ) *
-//                ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) +
-//                  currentCorrection_ / relativePosition.norm( ) ) *
-                ( isPartialWrtReceiver ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) :
+        Eigen::Matrix< ObservationScalarType, 1, 3 > partialWrtLinkEndPosition =
+            ( relativePosition.normalized( ) ).transpose( ) * ( isPartialWrtReceiver ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) :
                                          mathematical_constants::getFloatingInteger< ObservationScalarType >( -1 ) );
+        for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
+        {
+            partialWrtLinkEndPosition += correctionFunctions_.at( i )->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                transmitterState, receiverState, transmitterTime, receiverTime, isPartialWrtReceiver ? receiver : transmitter );
+        }
+        return partialWrtLinkEndPosition;
     }
 
     //! Function to get list of light-time correction functions

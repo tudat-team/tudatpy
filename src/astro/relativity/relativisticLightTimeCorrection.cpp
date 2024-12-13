@@ -60,7 +60,7 @@ Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionG
         gradient += relativePositionVector.norm( ) * ( transmitterPosition.normalized( ) ).transpose( );\
     }
 
-    return 2.0 * ppnParameterGamma * bodyGravitationalParameter * physical_constants::INVERSE_CUBIC_SPEED_OF_LIGHT * gradient /
+    return 2.0 * ( 1.0 + ppnParameterGamma ) * bodyGravitationalParameter * physical_constants::INVERSE_CUBIC_SPEED_OF_LIGHT * gradient /
             ( ( receiverDistance + transmitterDistance ) * ( receiverDistance + transmitterDistance ) -
                   linkEndDistance * linkEndDistance );
 
