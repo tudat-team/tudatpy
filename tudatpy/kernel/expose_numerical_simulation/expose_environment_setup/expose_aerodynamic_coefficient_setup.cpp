@@ -94,10 +94,34 @@ namespace aerodynamic_coefficients {
                         m, "ConstantAerodynamicCoefficientSettings",
                         get_docstring("ConstantAerodynamicCoefficientSettings").c_str());
 
+        py::class_<tss::CustomAerodynamicCoefficientSettings,
+                std::shared_ptr<tss::CustomAerodynamicCoefficientSettings>,
+                tss::AerodynamicCoefficientSettings>(
+                        m, "CustomAerodynamicCoefficientSettings",
+                        get_docstring("CustomAerodynamicCoefficientSettings").c_str());
+//
+//        py::class_<tss::TabulatedAerodynamicCoefficientSettings,
+//                std::shared_ptr<tss::TabulatedAerodynamicCoefficientSettings>,
+//                tss::AerodynamicCoefficientSettings>(
+//                        m, "TabulatedAerodynamicCoefficientSettings",
+//                        get_docstring("TabulatedAerodynamicCoefficientSettings").c_str());
+
+        py::class_<tss::ScaledAerodynamicCoefficientInterfaceSettings,
+                std::shared_ptr<tss::ScaledAerodynamicCoefficientInterfaceSettings>,
+                tss::AerodynamicCoefficientSettings>(
+                        m, "ScaledAerodynamicCoefficientInterfaceSettings",
+                        get_docstring("ScaledAerodynamicCoefficientInterfaceSettings").c_str());
+
         py::class_<tss::ControlSurfaceIncrementAerodynamicCoefficientSettings,
                 std::shared_ptr<tss::ControlSurfaceIncrementAerodynamicCoefficientSettings>>(
                 m, "ControlSurfaceIncrementAerodynamicCoefficientSettings",
                 get_docstring("ControlSurfaceIncrementAerodynamicCoefficientSettings").c_str());
+
+        py::class_<tss::CustomControlSurfaceIncrementAerodynamicCoefficientSettings,
+                std::shared_ptr<tss::CustomControlSurfaceIncrementAerodynamicCoefficientSettings>,
+                tss::ControlSurfaceIncrementAerodynamicCoefficientSettings>(
+                        m, "CustomControlSurfaceIncrementAerodynamicCoefficientSettings",
+                        get_docstring("CustomControlSurfaceIncrementAerodynamicCoefficientSettings").c_str());
 
         m.def("constant",
               py::overload_cast<const double, const Eigen::Vector3d &, const ta::AerodynamicCoefficientFrames >(

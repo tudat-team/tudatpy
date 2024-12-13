@@ -1,5 +1,5 @@
-/*    Copyright (c) 2010-2020, Delft University of Technology
- *    All rights reserved
+/*    Copyright (c) 2010-2018, Delft University of Technology
+*    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
  *    binary forms, with or without modification, are permitted exclusively
@@ -8,18 +8,21 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_utils/expose_data.h"
+#ifndef TUDATPY_EXPOSE_MISSION_DATA_DOWNLOADER_H
+#define TUDATPY_EXPOSE_MISSION_DATA_DOWNLOADER_H
+
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace utils {
+namespace data {
+namespace mission_data_downloader {
 
-void expose_utils(py::module &m) {
+void expose_mission_data_downloader(py::module &m);
 
-//  auto data = m.def_submodule("data");
-//  data::expose_data(data);
+}
+}
 }
 
-} // namespace utils
-} // namespace tudatpy
+#endif//TUDATPY_EXPOSE_MISSION_DATA_DOWNLOADER_H

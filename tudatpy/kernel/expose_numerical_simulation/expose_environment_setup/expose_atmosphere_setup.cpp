@@ -149,6 +149,18 @@ namespace tudatpy {
                         m, "WindModelSettings",
                         get_docstring("WindModelSettings").c_str());
 
+                    py::class_<tss::ConstantWindModelSettings,
+                               std::shared_ptr<tss::ConstantWindModelSettings>,
+                               tss::WindModelSettings>(
+                        m, "ConstantWindModelSettings",
+                        get_docstring("ConstantWindModelSettings").c_str());
+
+                    py::class_<tss::CustomWindModelSettings,
+                               std::shared_ptr<tss::CustomWindModelSettings>,
+                               tss::WindModelSettings>(
+                        m, "CustomWindModelSettings",
+                        get_docstring("CustomWindModelSettings").c_str());
+
                     py::class_<tss::AtmosphereSettings,
                                std::shared_ptr<tss::AtmosphereSettings>>(
                         m, "AtmosphereSettings",
@@ -166,6 +178,21 @@ namespace tudatpy {
                         tss::AtmosphereSettings>(
                         m, "ExponentialAtmosphereSettings",
                         get_docstring("ExponentialAtmosphereSettings").c_str());
+
+                    py::class_<
+                        tss::CustomConstantTemperatureAtmosphereSettings,
+                        std::shared_ptr<tss::CustomConstantTemperatureAtmosphereSettings>,
+                        tss::AtmosphereSettings>(
+                        m, "CustomConstantTemperatureAtmosphereSettings",
+                        get_docstring("CustomConstantTemperatureAtmosphereSettings").c_str());
+
+                    py::class_<
+                        tss::ScaledAtmosphereSettings,
+                        std::shared_ptr<tss::ScaledAtmosphereSettings>,
+                        tss::AtmosphereSettings>(
+                        m, "ScaledAtmosphereSettings",
+                        get_docstring("ScaledAtmosphereSettings").c_str());
+
 
                     // unexposed this class, because there is no factory
                     // function interface yet
