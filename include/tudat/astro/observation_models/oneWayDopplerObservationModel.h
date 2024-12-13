@@ -283,7 +283,7 @@ public:
      */
     DirectFirstOrderDopplerProperTimeRateInterface(
             const LinkEndType computationPointLinkEndType,
-            const std::function< double( ) > gravitationalParameterFunction,
+            const std::vector< std::function< double( ) > > gravitationalParameterFunction,
             const std::string& referenceBody,
             const LinkEndType referencePointLinkEndType = unidentified_link_end,
             const std::vector< std::function< Eigen::Vector6d( const double ) > > referencePointStateFunction =
@@ -386,44 +386,44 @@ public:
             return ( ( referencePointLinkEndType_ == transmitter ) ? linkEndStates.at( 0 ) : linkEndStates.at( 1 ) );
         }
     }
-
-    //! Function to retrieve central body gravitational parameter
-    /*!
-     * Function to retrieve central body gravitational parameter
-     * \return Central body gravitational parameter
-     */
-    double getGravitationalParameter( )
-    {
-        return gravitationalParameterFunction_( );
-    }
-
-    //! Function to return the name of body generating the gravity field.
-    /*!
-     * Function to return the name of body generating the gravity field
-     * \return Name of body generating the gravity field
-     */
-    std::string getCentralBody( )
-    {
-        return referenceBody_;
-    }
+//
+//    //! Function to retrieve central body gravitational parameter
+//    /*!
+//     * Function to retrieve central body gravitational parameter
+//     * \return Central body gravitational parameter
+//     */
+//    double getGravitationalParameter( )
+//    {
+//        return gravitationalParameterFunction_( );
+//    }
+//
+//    //! Function to return the name of body generating the gravity field.
+//    /*!
+//     * Function to return the name of body generating the gravity field
+//     * \return Name of body generating the gravity field
+//     */
+//    std::string getCentralBody( )
+//    {
+//        return referenceBodies_;
+//    }
 
 private:
 
     //! Function that returns the gravitational parameter of the central body.
-    std::function< double( ) > gravitationalParameterFunction_;
+    std::vector< std::function< double( ) > > gravitationalParameterFunctions_;
 
     //! Name of body generating the gravity field.
-    std::string referenceBody_;
+    std::vector< std::string > referenceBodies_;
 
     //! Link end type of central body (unidentified_link_end if central body is not one of the link ends)
-    LinkEndType referencePointLinkEndType_;
+    std::vector< LinkEndType > referencePointLinkEndType_;
 
     //! Function that returns the state of the central body as a function of time.
     /*!
      *  Function that returns the state of the central body as a function of time,  must be provided if
      *  referencePointLinkEndType equals unidentified_link_end.
      */
-    std::function< Eigen::Vector6d( const double ) > referencePointStateFunction_;
+    std::vector< std::function< Eigen::Vector6d( const double ) > > referencePointStateFunctions_;
 
 
 };
