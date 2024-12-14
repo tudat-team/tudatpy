@@ -408,10 +408,17 @@ public:
 //     * Function to return the name of body generating the gravity field
 //     * \return Name of body generating the gravity field
 //     */
-//    std::string getCentralBody( )
-//    {
-//        return referenceBodies_;
-//    }
+    bool matchWithBody( const std::string bodyName )
+    {
+        for( unsigned int i = 0; i < perturbingBodyNames_.size( ); i++  )
+        {
+            if( bodyName == perturbingBodyNames_.at( i ) )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
 private:
 
@@ -623,7 +630,7 @@ public:
         ObservationScalarType firstOrderDopplerObservable =
                 computeOneWayFirstOrderDopplerTaylorSeriesExpansion<
                 ObservationScalarType >(
-                    linkEndStates.at( 0 ), linkEndStates.at( 1 ),
+                    linkEndStates.at( 0 ).template cast< ObservationScalarType >( ), linkEndStates.at( 1 ).template cast< ObservationScalarType >( ),
                     lightTimePartialWrtTransmitterPosition_, lightTimePartialWrtReceiverPosition_,
                     taylorSeriesExpansionOrder_ );
 
