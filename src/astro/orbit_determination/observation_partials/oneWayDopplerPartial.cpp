@@ -50,8 +50,8 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
                                                                       const observation_models::LinkEndType fixedLinkEnd,
                                                                       const Eigen::VectorXd currentObservation )
 {
-//    // Get relative state
-//    Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointRelativeState(
+    // Get relative state
+//    Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointState(
 //                times, linkEndStates );
 //    currentDistance_ = relativeState.segment( 0, 3 ).norm( );
 //    currentGravitationalParameter_ = properTimeRateModel_->getGravitationalParameter( );
