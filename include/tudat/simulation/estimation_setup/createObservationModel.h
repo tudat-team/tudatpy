@@ -714,7 +714,7 @@ class TwoWayDopplerObservationSettings : public ObservationModelSettings
     TwoWayDopplerObservationSettings(
             const std::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings,
             const std::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings,
-            const ObservableType observableType,
+            const ObservableType observableType = two_way_doppler,
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr ):
         ObservationModelSettings( observableType, mergeUpDownLink(
                                       uplinkOneWayDopplerSettings->linkEnds_, downlinkOneWayDopplerSettings->linkEnds_ ),
