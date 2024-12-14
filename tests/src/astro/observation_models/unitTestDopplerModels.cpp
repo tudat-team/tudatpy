@@ -247,23 +247,24 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         std::shared_ptr< RotationalEphemeris > earthRotationModel =
                 bodies.at( "Earth" )->getRotationalEphemeris( );
-        Eigen::Vector3d groundStationVelocityVector =
-                earthRotationModel->getDerivativeOfRotationToTargetFrame( observationTime ) *
+        Eigen::Vector6d groundStationGeocentricState;
+        groundStationGeocentricState.segment( 0, 3 ) = stationCartesianPosition;
+        groundStationGeocentricState.segment( 3, 3 ) = earthRotationModel->getDerivativeOfRotationToTargetFrame( observationTime ) *
                 ( earthRotationModel->getRotationToBaseFrame( observationTime ) * stationCartesianPosition );
+        Eigen::Vector6d groundStationState = groundStationGeocentricState;
+        groundStationState += bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime );
 
-        std::shared_ptr< Ephemeris > spacecraftEphemeris =
-                bodies.at( "Spacecraft" )->getEphemeris( );
-        Eigen::Vector6d spacecraftState =
-                spacecraftEphemeris->getCartesianState( observationTime );
-
+        Eigen::Vector6d spacecraftState = bodies.at( "Spacecraft" )->getStateInBaseFrameFromEphemeris( observationTime );
+        Eigen::Vector6d spacecraftGeocentricState = bodies.at( "Spacecraft" )->getStateInBaseFrameFromEphemeris( observationTime ) -
+            bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime );
         long double groundStationProperTimeRate = 1.0L - static_cast< long double >(
                     physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                    ( 0.5 * std::pow( groundStationVelocityVector.norm( ), 2 ) +
-                      earthGravitationalParameter / stationCartesianPosition.norm( ) ) );
+                    ( 0.5 * std::pow( groundStationState.segment( 3, 3 ).norm( ), 2 ) +
+                      earthGravitationalParameter / groundStationGeocentricState.segment( 0, 3 ).norm( ) ) );
         long double spacecraftProperTimeRate = 1.0L - static_cast< long double >(
                     physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                     ( 0.5 * std::pow( spacecraftState.segment( 3, 3 ).norm( ), 2 ) +
-                      earthGravitationalParameter / spacecraftState.segment( 0, 3 ).norm( ) ) );
+                      earthGravitationalParameter / spacecraftGeocentricState.segment( 0, 3 ).norm( ) ) );
 
         long double manualDopplerValue =
                 ( groundStationProperTimeRate *

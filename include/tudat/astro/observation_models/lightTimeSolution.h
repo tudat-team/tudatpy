@@ -633,25 +633,29 @@ public:
      *  \param receiverTime Time at reiver.
      *  \param isPartialWrtReceiver If partial is to be calculated w.r.t. receiver or transmitter.
      */
-    Eigen::Matrix< ObservationScalarType, 1, 3 > getPartialOfLightTimeWrtLinkEndPosition(
-            const StateType& transmitterState,
-            const StateType& receiverState,
-            const TimeType transmitterTime,
-            const TimeType receiverTime,
+    Eigen::Matrix< ObservationScalarType, 1, 3 >  getPartialOfLightTimeWrtLinkEndPosition(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmitterTime,
+            const double receiverTime,
             const bool isPartialWrtReceiver,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
-        setTotalLightTimeCorrection( transmitterState, receiverState, transmitterTime, receiverTime, ancillarySettings );
+        setTotalLightTimeCorrection(
+            transmitterState.template cast< ObservationScalarType >( ),
+                receiverState.template cast< ObservationScalarType >( ), transmitterTime, receiverTime, ancillarySettings );
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
-                receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 );
+            ( receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 ) ).template cast< ObservationScalarType >( );
         Eigen::Matrix< ObservationScalarType, 1, 3 > partialWrtLinkEndPosition =
             ( relativePosition.normalized( ) ).transpose( ) * ( isPartialWrtReceiver ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) :
                                          mathematical_constants::getFloatingInteger< ObservationScalarType >( -1 ) );
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
             partialWrtLinkEndPosition += correctionFunctions_.at( i )->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                transmitterState, receiverState, transmitterTime, receiverTime, isPartialWrtReceiver ? receiver : transmitter );
+                transmitterState.template cast< double >( ),
+                    receiverState.template cast< double >( ),
+                        transmitterTime, receiverTime, isPartialWrtReceiver ? receiver : transmitter ).template cast< ObservationScalarType >( );
         }
         return partialWrtLinkEndPosition;
     }

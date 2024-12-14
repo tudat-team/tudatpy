@@ -49,10 +49,9 @@ inline std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerP
     else if( std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
                  dopplerProperTimeInterface ) != nullptr )
     {
-        std::cerr<<"Warning, disconnected Doppler partials"<<std::endl;
-        bool computeStatePartials = false;// ( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).bodyName_ !=
-//                std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-//                    dopplerProperTimeInterface )->getCentralBody( ) );
+        bool computeStatePartials =
+                !( std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+                    dopplerProperTimeInterface )->matchWithBody( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).bodyName_ ) );
         properTimeRateDopplerPartial = std::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
                     std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
                         dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed, computeStatePartials );
