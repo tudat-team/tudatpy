@@ -7,7 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-
+#include <iostream>
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/relativity/relativisticTimeConversion.h"
 
@@ -37,6 +37,7 @@ double calculateFirstCentralBodyProperTimeRateDifference(
     double gravitationalScalarPotential = 0.0;
     for( unsigned int i = 0; i < perturbedInertialStates.size( ); i++ )
     {
+        std::cout<<"Perturber relative state "<<( perturbedInertialStates.at( i ).segment( 0, 3 ) - computationPointState.segment( 0, 3 ) ).transpose( )<<std::endl;
         gravitationalScalarPotential +=
             centralBodyGravitationalParameters.at( i ) /
                 ( perturbedInertialStates.at( i ).segment( 0, 3 ) - computationPointState.segment( 0, 3 ) ).norm( );

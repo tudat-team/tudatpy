@@ -346,6 +346,10 @@ public:
         Eigen::Vector6d computationPointRelativeState = getComputationPointState( linkEndTimes, linkEndStates );
         setPerturbedProperties( linkEndTimes, linkEndStates );
 
+        std::cout<<"COMPUTATION POINT STATE "<<computationPointLinkEndType_<<" "<<computationPointRelativeState.transpose( )<<std::endl;
+        std::cout<<"PROPER TIME RATE "<<computationPointLinkEndType_<<" "<<relativity::calculateFirstCentralBodyProperTimeRateDifference(
+            computationPointRelativeState, currentPerturbedStates_, currentCentralBodyGravitationalParameters_,
+            relativity::equivalencePrincipleLpiViolationParameter )<<std::endl;
         // Compute proper time rate
         return relativity::calculateFirstCentralBodyProperTimeRateDifference(
                     computationPointRelativeState, currentPerturbedStates_, currentCentralBodyGravitationalParameters_,
@@ -384,12 +388,20 @@ public:
             {
                 evaluationTime = ( linkEndTimes.at( 0 ) + linkEndTimes.at( 1 ) ) / 2.0;
             }
-            else
+            else if( computationPointLinkEndType_ == perturbingBodyMatchLinkEnds_.at( i ) )
             {
                 evaluationTime = ( this->perturbingBodyMatchLinkEnds_.at( i ) == transmitter ) ? linkEndTimes.at( 0 ) : linkEndTimes.at( 1 );
             }
+            else
+            {
+                evaluationTime = ( this->perturbingBodyMatchLinkEnds_.at( i ) == transmitter ) ? linkEndTimes.at( 1 ) : linkEndTimes.at( 0 );
+            }
+
+            std::cout<<"LINK ENDS "<<this->perturbingBodyMatchLinkEnds_.at( i )<<" "<<linkEndTimes.at( 0 ) - evaluationTime<<" "<<linkEndTimes.at( 1 ) - evaluationTime<<std::endl;
+
             currentPerturbedStates_[ i ] = perturbingBodyStateFunctions_.at( i )( evaluationTime );
             currentCentralBodyGravitationalParameters_[ i ] = gravitationalParameterFunctions_.at( i )( );
+            std::cout<<"SET PERTURBER STATE "<<std::setprecision( 16 )<<computationPointLinkEndType_<<" "<<currentPerturbedStates_[ i ].transpose( )<<std::endl;
         }
     }
 //
