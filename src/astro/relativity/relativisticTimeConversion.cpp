@@ -37,7 +37,6 @@ double calculateFirstCentralBodyProperTimeRateDifference(
     double gravitationalScalarPotential = 0.0;
     for( unsigned int i = 0; i < perturbedInertialStates.size( ); i++ )
     {
-        std::cout<<"Perturber relative state "<<( perturbedInertialStates.at( i ).segment( 0, 3 ) - computationPointState.segment( 0, 3 ) ).transpose( )<<std::endl;
         gravitationalScalarPotential +=
             centralBodyGravitationalParameters.at( i ) /
                 ( perturbedInertialStates.at( i ).segment( 0, 3 ) - computationPointState.segment( 0, 3 ) ).norm( );

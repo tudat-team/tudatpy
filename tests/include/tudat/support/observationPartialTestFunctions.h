@@ -325,7 +325,6 @@ void testObservationPartials(
                     if ( ( observableType != angular_position ) && ( observableType != relative_angular_position ) )
                     {
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(bodyPositionPartial, (numericalPartialWrtBodyPosition), tolerance);
-                        std::cout<<"Error ratio "<<std::endl<<bodyPositionPartial.cwiseQuotient( numericalPartialWrtBodyPosition )<<std::endl;
                     }
                     else
                     {
@@ -427,6 +426,9 @@ void testObservationPartials(
                             currentParameterPartial += analyticalObservationPartials[i + numberOfEstimatedBodies].at( j ).first;
 
                         }
+                        std::cout<<"Current double partial "<<i<<" "<<currentParameterPartial<<" "<<numericalPartialsWrtDoubleParameters.at( i )<<" "
+                        <<( currentParameterPartial( 0 ) - numericalPartialsWrtDoubleParameters.at( i )( 0 ) ) / numericalPartialsWrtDoubleParameters.at( i )( 0 )<<std::endl;
+
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                     currentParameterPartial, (numericalPartialsWrtDoubleParameters.at( i )), tolerance);
                     }
@@ -468,6 +470,8 @@ void testObservationPartials(
                             currentParameterPartial += analyticalObservationPartials[i + startIndex].at( j ).first;
 
                         }
+
+                        std::cout<<"Current vector partial "<<i<<" "<<currentParameterPartial<<" "<<numericalPartialsWrtVectorParameters.at( i )<<std::endl;
 
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                     (currentParameterPartial), (numericalPartialsWrtVectorParameters.at( i )), tolerance);
