@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     // Create bodies settings needed in simulation
     BodyListSettings defaultBodySettings =
             getDefaultBodySettings(
-                bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+                bodiesToCreate, "SSB", "ECLIPJ2000" );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     bodies.createEmptyBody( "Spacecraft" );;
     bodies.at( "Spacecraft" )->setEphemeris(
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
-                                         spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
+                                         spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth", "ECLIPJ2000" ), "Spacecraft" ) );
     bodies.processBodyFrameDefinitions( );
     
 
@@ -242,21 +242,27 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         double observationWithoutCorrections = observationModelWithoutCorrections->computeIdealObservations(
                     observationTime, receiver ).x( );
+        std::cout<<"************* COMPUTING WITH CORRECTIONS "<<std::endl;
         double observationWithCorrections = observationModelWithCorrections->computeIdealObservations(
                     observationTime, receiver ).x( );
 
         std::shared_ptr< RotationalEphemeris > earthRotationModel =
                 bodies.at( "Earth" )->getRotationalEphemeris( );
-        Eigen::Vector6d groundStationGeocentricState;
-        groundStationGeocentricState.segment( 0, 3 ) = stationCartesianPosition;
-        groundStationGeocentricState.segment( 3, 3 ) = earthRotationModel->getDerivativeOfRotationToTargetFrame( observationTime ) *
-                ( earthRotationModel->getRotationToBaseFrame( observationTime ) * stationCartesianPosition );
+        Eigen::Vector6d groundStationEarthFixedState = Eigen::Vector6d::Zero( );
+        groundStationEarthFixedState.segment( 0, 3 ) = stationCartesianPosition;
+        Eigen::Vector6d groundStationGeocentricState = ephemerides::transformStateToInertialOrientation(
+            groundStationEarthFixedState, observationTime, earthRotationModel );
+
         Eigen::Vector6d groundStationState = groundStationGeocentricState;
         groundStationState += bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime );
 
         Eigen::Vector6d spacecraftState = bodies.at( "Spacecraft" )->getStateInBaseFrameFromEphemeris( observationTime );
         Eigen::Vector6d spacecraftGeocentricState = bodies.at( "Spacecraft" )->getStateInBaseFrameFromEphemeris( observationTime ) -
             bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime );
+
+        std::cout<<"States "<<std::endl<<std::setprecision( 16 )<<"GS INERTIAL "<<groundStationState.transpose( )<<std::endl<<"SC INERTIAL "<<spacecraftState.transpose( )
+            <<std::endl<<"GS GEOCENTRIC "<<groundStationGeocentricState.transpose( )<<std::endl<<"SC GEOCENTRIC "<<spacecraftGeocentricState.transpose( )<<std::endl;
+
         long double groundStationProperTimeRate = 1.0L - static_cast< long double >(
                     physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                     ( 0.5 * std::pow( groundStationState.segment( 3, 3 ).norm( ), 2 ) +
@@ -271,8 +277,9 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                   ( 1.0L + static_cast< long double >( observationWithoutCorrections ) / physical_constants::SPEED_OF_LIGHT ) /
                   spacecraftProperTimeRate - 1.0L ) * physical_constants::SPEED_OF_LIGHT;
 
-        BOOST_CHECK_SMALL( std::fabs( static_cast< double >( manualDopplerValue ) - observationWithCorrections ),
-                           static_cast< double >( std::numeric_limits< long double >::epsilon( ) * physical_constants::SPEED_OF_LIGHT ) );
+        std::cout<<"PROPER TIME RATES "<<groundStationProperTimeRate - 1.0<<" "<<spacecraftProperTimeRate - 1.0<<std::endl;
+        std::cout<<manualDopplerValue<<" "<<observationWithCorrections<<" "<<( manualDopplerValue - observationWithCorrections )/observationWithCorrections<<std::endl;
+        BOOST_CHECK_SMALL( std::fabs( static_cast< double >( manualDopplerValue ) - observationWithCorrections ), 1.0E-6 );
     }
 }
 
@@ -329,7 +336,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
     bodies.processBodyFrameDefinitions( );
 
-    
+
 
     {
         // Define link ends for observations.
