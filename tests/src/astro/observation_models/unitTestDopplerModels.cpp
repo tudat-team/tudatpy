@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                 createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
                                          spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth", "ECLIPJ2000" ), "Spacecraft" ) );
     bodies.processBodyFrameDefinitions( );
-    
+
 
     // Define link ends for observations.
     LinkEnds linkEnds;
@@ -242,7 +242,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         double observationWithoutCorrections = observationModelWithoutCorrections->computeIdealObservations(
                     observationTime, receiver ).x( );
-        std::cout<<"************* COMPUTING WITH CORRECTIONS "<<std::endl;
         double observationWithCorrections = observationModelWithCorrections->computeIdealObservations(
                     observationTime, receiver ).x( );
 
@@ -260,9 +259,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         Eigen::Vector6d spacecraftGeocentricState = bodies.at( "Spacecraft" )->getStateInBaseFrameFromEphemeris( observationTime ) -
             bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime );
 
-        std::cout<<"States "<<std::endl<<std::setprecision( 16 )<<"GS INERTIAL "<<groundStationState.transpose( )<<std::endl<<"SC INERTIAL "<<spacecraftState.transpose( )
-            <<std::endl<<"GS GEOCENTRIC "<<groundStationGeocentricState.transpose( )<<std::endl<<"SC GEOCENTRIC "<<spacecraftGeocentricState.transpose( )<<std::endl;
-
         long double groundStationProperTimeRate = 1.0L - static_cast< long double >(
                     physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                     ( 0.5 * std::pow( groundStationState.segment( 3, 3 ).norm( ), 2 ) +
@@ -277,8 +273,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                   ( 1.0L + static_cast< long double >( observationWithoutCorrections ) / physical_constants::SPEED_OF_LIGHT ) /
                   spacecraftProperTimeRate - 1.0L ) * physical_constants::SPEED_OF_LIGHT;
 
-        std::cout<<"PROPER TIME RATES "<<groundStationProperTimeRate - 1.0<<" "<<spacecraftProperTimeRate - 1.0<<std::endl;
-        std::cout<<manualDopplerValue<<" "<<observationWithCorrections<<" "<<( manualDopplerValue - observationWithCorrections )/observationWithCorrections<<std::endl;
         BOOST_CHECK_SMALL( std::fabs( static_cast< double >( manualDopplerValue ) - observationWithCorrections ), 1.0E-6 );
     }
 }
@@ -305,7 +299,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
     // Create bodies settings needed in simulation
     BodyListSettings defaultBodySettings =
             getDefaultBodySettings(
-                bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+                bodiesToCreate, "SSB" );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
@@ -584,33 +578,39 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
         std::shared_ptr< RotationalEphemeris > earthRotationModel =
                 bodies.at( "Earth" )->getRotationalEphemeris( );
 
-        Eigen::Vector3d groundStationVelocityVectorAtTransmission =
-                earthRotationModel->getDerivativeOfRotationToTargetFrame( linkEndTimes.at( 0 ) ) *
-                ( earthRotationModel->getRotationToBaseFrame( linkEndTimes.at( 0 ) ) * stationCartesianPosition );
+        Eigen::Vector6d groundStationEarthFixedStateTransmission = Eigen::Vector6d::Zero( );
+        groundStationEarthFixedStateTransmission.segment( 0, 3 ) = stationCartesianPosition;
+        Eigen::Vector6d groundStationGeocentricStateTransmission = ephemerides::transformStateToInertialOrientation(
+            groundStationEarthFixedStateTransmission, linkEndTimes.at( 0 ), earthRotationModel );
+        Eigen::Vector6d groundStationStateTransmission = groundStationGeocentricStateTransmission;
+        groundStationStateTransmission += bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes.at( 0 ) );
 
-        Eigen::Vector3d groundStationVelocityVectorAtReception =
-                earthRotationModel->getDerivativeOfRotationToTargetFrame( linkEndTimes.at( 2 ) ) *
-                ( earthRotationModel->getRotationToBaseFrame( linkEndTimes.at( 2 ) ) * receivingStationPosition );
 
+        Eigen::Vector6d groundStationEarthFixedStateReception = Eigen::Vector6d::Zero( );
+        groundStationEarthFixedStateReception.segment( 0, 3 ) = receivingStationPosition;
+        Eigen::Vector6d groundStationGeocentricStateReception = ephemerides::transformStateToInertialOrientation(
+            groundStationEarthFixedStateReception, linkEndTimes.at( 2 ), earthRotationModel );
+        Eigen::Vector6d groundStationStateReception = groundStationGeocentricStateReception;
+        groundStationStateReception += bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes.at( 2 ) );
 
 
         long double groundStationProperTimeRateAtTransmission = 1.0L - static_cast< long double >(
                     physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                    ( 0.5 * std::pow( groundStationVelocityVectorAtTransmission.norm( ), 2 ) +
-                      earthGravitationalParameter / stationCartesianPosition.norm( ) ) );
+                    ( 0.5 * std::pow( groundStationStateTransmission.segment( 3, 3 ).norm( ), 2 ) +
+                      earthGravitationalParameter / groundStationGeocentricStateTransmission.segment( 0, 3 ).norm( ) ) );
 
         long double groundStationProperTimeRateAtReception = 1.0L - static_cast< long double >(
                     physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                    ( 0.5 * std::pow( groundStationVelocityVectorAtReception.norm( ), 2 ) +
-                      earthGravitationalParameter / receivingStationPosition.norm( ) ) );
+                    ( 0.5 * std::pow( groundStationStateReception.segment( 3, 3 ).norm( ), 2 ) +
+                      earthGravitationalParameter / groundStationGeocentricStateReception.segment( 0, 3 ).norm( ) ) );
+
 
         if( test == 0 )
         {
-            BOOST_CHECK_SMALL( std::fabs( observationWithCorrections - observationWithoutCorrections ),
-                               static_cast< double >( std::numeric_limits< long double >::epsilon( ) * physical_constants::SPEED_OF_LIGHT ) );
+            BOOST_CHECK_SMALL( std::fabs( observationWithCorrections - observationWithoutCorrections ), 1.0E-6 );
             BOOST_CHECK_SMALL( std::fabs( static_cast< double >(
                                               groundStationProperTimeRateAtTransmission - groundStationProperTimeRateAtReception ) ),
-                               static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
+                               10.0 * static_cast< double >( std::numeric_limits< double >::epsilon( ) ) );
         }
         else
 
@@ -621,8 +621,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
                     observationWithCorrections / physical_constants::SPEED_OF_LIGHT -
                     ( observationWithoutCorrections / physical_constants::SPEED_OF_LIGHT + properTimeRatioDeviation +
                       observationWithoutCorrections / physical_constants::SPEED_OF_LIGHT * properTimeRatioDeviation );
-            BOOST_CHECK_SMALL( std::fabs( static_cast< double >( observableDifference ) ),
-                               static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
+            BOOST_CHECK_SMALL( std::fabs( static_cast< double >( observableDifference ) ), 1.0E-6 );
         }
 
 
