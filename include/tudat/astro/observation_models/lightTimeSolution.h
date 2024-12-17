@@ -650,13 +650,13 @@ public:
         Eigen::Matrix< ObservationScalarType, 1, 3 > partialWrtLinkEndPosition =
             ( relativePosition.normalized( ) ).transpose( ) * ( isPartialWrtReceiver ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) :
                                          mathematical_constants::getFloatingInteger< ObservationScalarType >( -1 ) );
-//        for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
-//        {
-//            partialWrtLinkEndPosition += correctionFunctions_.at( i )->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-//                transmitterState.template cast< double >( ),
-//                    receiverState.template cast< double >( ),
-//                        transmitterTime, receiverTime, isPartialWrtReceiver ? receiver : transmitter ).template cast< ObservationScalarType >( );
-//        }
+        for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
+        {
+            partialWrtLinkEndPosition += correctionFunctions_.at( i )->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                transmitterState.template cast< double >( ),
+                    receiverState.template cast< double >( ),
+                        transmitterTime, receiverTime, isPartialWrtReceiver ? receiver : transmitter ).template cast< ObservationScalarType >( );
+        }
         return partialWrtLinkEndPosition;
     }
 
