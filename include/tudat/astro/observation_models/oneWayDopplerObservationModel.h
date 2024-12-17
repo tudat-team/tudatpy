@@ -415,6 +415,24 @@ public:
         return false;
     }
 
+    int getBodyIndex( const std::string bodyName )
+    {
+        for( unsigned int i = 0; i < perturbingBodyNames_.size( ); i++  )
+        {
+            if( bodyName == perturbingBodyNames_.at( i ) )
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    std::vector< std::string > getPerturbingBodyNames( )
+    {
+        return perturbingBodyNames_;
+    }
+
+
     std::vector< Eigen::Vector6d > getCurrentPerturbedStates( )
     {
         return currentPerturbedStates_;
