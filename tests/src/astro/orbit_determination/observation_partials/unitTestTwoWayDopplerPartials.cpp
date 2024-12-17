@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
 
                 testObservationPartials< 1 >(
                             twoWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, two_way_doppler, 1.0E-5,
-                            true, true, 10.0, parameterPerturbationMultipliers );
+                            true, true, 10.0, parameterPerturbationMultipliers, nullptr, 1.1E7, 100.0 );
 
             }
         }
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
 
                 testObservationPartials< 1 >(
                             twoWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, two_way_doppler, 1.0E-4, false, true,
-                            1.0, parameterPerturbationMultipliers );
+                            1.0, parameterPerturbationMultipliers, nullptr, 1.1E7, 100.0 );
             }
         }
     }
