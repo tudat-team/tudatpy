@@ -54,7 +54,7 @@ inline std::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerP
                     dopplerProperTimeInterface )->matchWithBody( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).bodyName_ ) );
         properTimeRateDopplerPartial = std::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
                     std::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-                        dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed, computeStatePartials );
+                        dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed, oneWayDopplerLinkEnds, computeStatePartials );
     }
     else
     {

@@ -426,7 +426,7 @@ void testObservationPartials(
                             currentParameterPartial += analyticalObservationPartials[i + numberOfEstimatedBodies].at( j ).first;
 
                         }
-                        std::cout<<"Current double partial "<<i<<" "<<currentParameterPartial<<" "<<numericalPartialsWrtDoubleParameters.at( i )<<" "
+                        std::cout<<"Current double partial "<<i<<" "<<std::setprecision( 16 )<<analyticalObservationPartials[i + numberOfEstimatedBodies].size()<<" "<<currentParameterPartial<<" "<<numericalPartialsWrtDoubleParameters.at( i )<<" "
                         <<( currentParameterPartial( 0 ) - numericalPartialsWrtDoubleParameters.at( i )( 0 ) ) / numericalPartialsWrtDoubleParameters.at( i )( 0 )<<std::endl;
 
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
