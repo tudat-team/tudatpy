@@ -10,6 +10,7 @@
 #include <iostream>
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/relativity/relativisticTimeConversion.h"
+#include <iomanip>
 
 namespace tudat
 {
@@ -41,6 +42,11 @@ double calculateFirstCentralBodyProperTimeRateDifference(
             centralBodyGravitationalParameters.at( i ) /
                 ( perturbedInertialStates.at( i ).segment( 0, 3 ) - computationPointState.segment( 0, 3 ) ).norm( );
     }
+    std::cout<<"COMPUTING "<<std::endl<<std::setprecision( 12 )
+    <<"Vel:        "<<computationPointState.segment( 3, 3 ).transpose( )<<std::endl
+    <<"Pos:        "<<computationPointState.segment( 0, 3 ).transpose( )<<std::endl
+    <<"Pos (pert): "<<perturbedInertialStates.at( 0 ).segment( 0, 3 ).transpose( )<<std::endl<<std::endl;
+
     return calculateFirstCentralBodyProperTimeRateDifference(
         computationPointState.segment( 3, 3 ).norm( ), gravitationalScalarPotential, equivalencePrincipleLpiViolationParameter );
 }
