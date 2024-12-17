@@ -44,31 +44,77 @@ double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
             static_cast< double >( projectedLinkEndIsVariableLinkEnd ) * normalizedVector.dot( projectedLinkEndAcceleration );
 }
 
+OneWayDopplerDirectFirstOrderProperTimeComponentScaling::OneWayDopplerDirectFirstOrderProperTimeComponentScaling(
+    const std::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel,
+    const observation_models::LinkEndType linkEndWithPartial,
+    const observation_models::LinkEnds linkEnds,
+    const bool computeStatePartials ):
+    OneWayDopplerProperTimeComponentScaling( linkEndWithPartial ),
+    properTimeRateModel_( properTimeRateModel ),
+    computeStatePartials_( computeStatePartials )
+{
+    partialWrtPerturbedPositions_.resize( properTimeRateModel->getGravitationalParameters( ).size( ) );
+    if( linkEndWithPartial_ ==  observation_models::transmitter )
+    {
+        oppositeLinkEnd_ = linkEnds.at( observation_models::receiver );
+    }
+    else if( linkEndWithPartial_ == observation_models::receiver )
+    {
+        oppositeLinkEnd_ = linkEnds.at( observation_models::transmitter );
+    }
+
+    skipBodyIndex_ = properTimeRateModel->getBodyIndex( linkEnds.at( linkEndWithPartial_ ).bodyName_ );
+    oppositeBodyIndex_ = properTimeRateModel->getBodyIndex( oppositeLinkEnd_.bodyName_ );
+}
+
 //! Update the scaling object to the current times and states
 void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                                                       const std::vector< double >& times,
                                                                       const observation_models::LinkEndType fixedLinkEnd,
                                                                       const Eigen::VectorXd currentObservation )
 {
-    // Get relative state
-    Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointState(
+    // Get state of computation point
+    Eigen::Vector6d computationPointState = properTimeRateModel_->getComputationPointState(
                 times, linkEndStates );
-    currentGravitationalParameter_ = properTimeRateModel_->getGravitationalParameters( ).at( 0 )( );
 
+    // Set evaluation time of proper time derivative
     currentLinkEndTime_ == ( linkEndWithPartial_ == observation_models::transmitter ) ? ( times.at( 0 ) ) : ( times.at( 1 ) );
 
-    Eigen::Vector6d perturberRelativeState = properTimeRateModel_->getCurrentPerturbedStates( ).at( 0 );
-    currentDistance_ = ( relativeState - perturberRelativeState ).segment( 0, 3 ).norm( );
+    currentScalarPotential_ = 0.0;
     // Compute partials w.r.t. position and velocity
     if( computeStatePartials_ )
     {
-
-        partialWrPosition_ = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) *
-                currentGravitationalParameter_ / ( currentDistance_ * currentDistance_ ) *
-                ( ( relativeState - perturberRelativeState ).segment( 0, 3 ).normalized( ) ).transpose( );
+        // Set partial w.r.t. velocity (only for computation point)
         partialWrtVelocity_ = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                ( relativeState.segment( 3, 3 ) ).transpose( );
+                              ( computationPointState.segment( 3, 3 )).transpose( );
+    }
+    else
+    {
+        partialWrtVelocity_.setZero( );
+    }
+    partialWrPosition_.setZero( );
+
+    currentScalarPotential_ = 0.0;
+    for( unsigned int i = 0; i < partialWrtPerturbedPositions_.size( ); i++ )
+    {
+        currentGravitationalParameter_ = properTimeRateModel_->getGravitationalParameters( ).at( i )( );
+
+
+        Eigen::Vector6d perturberRelativeState = properTimeRateModel_->getCurrentPerturbedStates( ).at( i );
+        currentDistance_ = ( computationPointState - perturberRelativeState ).segment( 0, 3 ).norm( );
+
+        currentScalarPotential_ += currentGravitationalParameter_ / currentDistance_;
+        if( computeStatePartials_ )
+        {
+            partialWrtPerturbedPositions_[ i ] = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                    ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) *
+                    currentGravitationalParameter_ / ( currentDistance_ * currentDistance_ ) *
+                    ( ( computationPointState - perturberRelativeState ).segment( 0, 3 ).normalized( ) ).transpose( );
+            if( !( static_cast< int >( i ) == skipBodyIndex_ ) )
+            {
+                partialWrPosition_ -= partialWrtPerturbedPositions_[ i ];
+            }
+        }
     }
 }
 
@@ -78,8 +124,18 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerDirectFirstOrderProperTimeComponentSc
 {
     if( computeStatePartials_ )
     {
-        return partialWrPosition_ * ( ( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ) ) ?
-                                          ( 1.0 ) : ( 0.0 ) );
+        if ( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ))
+        {
+            return partialWrPosition_;
+        }
+        else if ( oppositeBodyIndex_ >= 0 )
+        {
+            return partialWrtPerturbedPositions_.at( oppositeBodyIndex_ );
+        }
+        else
+        {
+            return Eigen::Matrix<double, 1, 3>::Zero( );
+        }
     }
     else
     {
@@ -313,7 +369,6 @@ int OneWayDopplerScaling::getProperTimeParameterDependencySize(
 std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > OneWayDopplerScaling::getLinkIndependentPartials(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
 {
-    std::cout<<parameterType.first<<" "<<parameterType.second.first<<" "<<parameterType.second.second<<std::endl;
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > totalPartial;
 
     if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter )
@@ -346,6 +401,10 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > O
         {
             throw std::runtime_error( "Error, proper time parameter partials have inconsistent size" );
         }
+    }
+    if( parameterType.first == estimatable_parameters::initial_body_state )
+    {
+
     }
     return totalPartial;
 }

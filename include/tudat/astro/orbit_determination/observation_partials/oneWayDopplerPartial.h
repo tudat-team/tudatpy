@@ -105,10 +105,8 @@ public:
     OneWayDopplerDirectFirstOrderProperTimeComponentScaling(
             const std::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel,
             const observation_models::LinkEndType linkEndWithPartial,
-            const bool computeStatePartials ):
-        OneWayDopplerProperTimeComponentScaling( linkEndWithPartial ),
-        properTimeRateModel_( properTimeRateModel ),
-        computeStatePartials_( computeStatePartials ){ }
+            const observation_models::LinkEnds linkEnds,
+            const bool computeStatePartials );
 
     //! Update the scaling object to the current times and states
     /*!
@@ -147,7 +145,7 @@ public:
      */
     double getEquivalencePrincipleViolationParameterPartial( )
     {
-        return -currentGravitationalParameter_ / ( currentDistance_ * physical_constants::SPEED_OF_LIGHT );
+        return -currentScalarPotential_ / physical_constants::SPEED_OF_LIGHT;
     }
 
     //! Function to get the direct partial derivative, and associated time, of proper time
@@ -177,6 +175,8 @@ private:
     //! Partial of proper time rate w.r.t. position, as computed by last call to update function.
     Eigen::Matrix< double, 1, 3 > partialWrPosition_;
 
+    std::vector< Eigen::Matrix< double, 1, 3 > > partialWrtPerturbedPositions_;
+
     //! Partial of proper time rate w.r.t. velocity, as computed by last call to update function.
     Eigen::Matrix< double, 1, 3 > partialWrtVelocity_;
 
@@ -189,12 +189,21 @@ private:
     //! Current value of gravitational parameter of central body.
     double currentGravitationalParameter_;
 
+    double currentScalarPotential_;
+
     //! Boolean to denote whether state partials are to be computed
     /*!
      *  Boolean to denote whether state partials are to be computed. It is false if the link end for whicj this object computes
      *  the proper time partials is fixed to the perturbing body.
      */
     bool computeStatePartials_;
+
+    observation_models::LinkEndId oppositeLinkEnd_;
+
+    int oppositeBodyIndex_;
+
+    int skipBodyIndex_;
+
 };
 
 //! Derived class for scaling three-dimensional position partial to one-way doppler observable partial

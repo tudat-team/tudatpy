@@ -221,117 +221,116 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ receiver ] = groundStations[ 0 ];
 
-//        for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
-//        {
-//            std::cout<<"ESTIMATION CASE *********************************** "<<normalizeObservable<<" "<<estimationCase<<std::endl;
-//            // Generate one-way doppler model
-//            std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
-//            std::vector< std::string > perturbingBodies;
-//            perturbingBodies.push_back( "Earth" );
-//            if( estimationCase  == 0 )
-//            {
-//                oneWayDopplerModel =
-//                        observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-//                            std::make_shared< observation_models::OneWayDopplerObservationSettings >(
-//                                linkEnds,
-//                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
-//                                nullptr, nullptr, nullptr,
-//                                std::make_shared< LightTimeConvergenceCriteria >( ),
-//                                static_cast< bool >( normalizeObservable ) ), bodies  );
-//            }
-//            else
-//            {
-//                oneWayDopplerModel =
-//                        observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-//                            std::make_shared< OneWayDopplerObservationSettings >
-//                            (  linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-//                                   perturbingBodies ),
-//                               std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
-//                               std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-//                               nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), static_cast< bool >( normalizeObservable ) ), bodies  );
-//            }
-//
-//            // Create parameter objects.
-//            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
-//            Eigen::VectorXd parameterPerturbationMultipliers = Eigen::Vector4d::Constant( 1.0 );
-//            if( estimationCase < 2 )
-//            {
-//                fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
-//            }
-//            else
-//            {
-//                fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7, true );
-//                parameterPerturbationMultipliers( 2 ) = 1.0E-4;
-//            }
-//            std::cout << "Case " <<normalizeObservable<<" "<< estimationCase << std::endl;
-//
-//            testObservationPartials< 1 >(
-//                        oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5,
-//                        true, true, 10.0, parameterPerturbationMultipliers );
-//
-//        }
+        for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
+        {
+            std::cout<<"ESTIMATION CASE *********************************** "<<normalizeObservable<<" "<<estimationCase<<std::endl;
+            // Generate one-way doppler model
+            std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
+            std::vector< std::string > perturbingBodies;
+            perturbingBodies.push_back( "Earth" );
+            if( estimationCase  == 0 )
+            {
+                oneWayDopplerModel =
+                        observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                            std::make_shared< observation_models::OneWayDopplerObservationSettings >(
+                                linkEnds,
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
+                                nullptr, nullptr, nullptr,
+                                std::make_shared< LightTimeConvergenceCriteria >( ),
+                                static_cast< bool >( normalizeObservable ) ), bodies  );
+            }
+            else
+            {
+                oneWayDopplerModel =
+                        observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                            std::make_shared< OneWayDopplerObservationSettings >
+                            (  linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                   perturbingBodies ),
+                               std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
+                               std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
+                               nullptr, std::make_shared< LightTimeConvergenceCriteria >( ), static_cast< bool >( normalizeObservable ) ), bodies  );
+            }
+
+            // Create parameter objects.
+            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
+            Eigen::VectorXd parameterPerturbationMultipliers = Eigen::Vector4d::Constant( 1.0 );
+            if( estimationCase < 2 )
+            {
+                fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+            }
+            else
+            {
+                fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7, true );
+                parameterPerturbationMultipliers( 2 ) = 1.0E-4;
+            }
+
+            testObservationPartials< 1 >(
+                        oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5,
+                        true, true, 10.0, parameterPerturbationMultipliers );
+
+        }
 
 
         std::cout<<"B ****************************************** "<<std::endl;
         // Test partials with real ephemerides (without test of position partials)
-//        {
-//            // Create environment
-//            SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
-//
-//            // Set link ends for observation model
-//            LinkDefinition linkEnds;
-//            linkEnds[ transmitter ] = groundStations[ 1 ];
-//            linkEnds[ receiver ] = groundStations[ 0 ];
-//
-//            for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
-//            {
-//                std::cout<<"ESTIMATION CASE *********************************** "<<" "<<estimationCase<<std::endl;
-//                // Generate one-way doppler model
-//                std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
-//                std::vector< std::string > perturbingBodies;
-//                perturbingBodies.push_back( "Earth" );
-//                if( estimationCase  == 0 )
-//                {
-//                    oneWayDopplerModel =
-//                            observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-//                                std::make_shared< observation_models::OneWayDopplerObservationSettings >(
-//                                    linkEnds,
-//                                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
-//                                    nullptr, nullptr, nullptr,
-//                                    std::make_shared< LightTimeConvergenceCriteria >( ),
-//                                    static_cast< bool >( normalizeObservable ) ), bodies  );
-//                }
-//                else
-//                {
-//                    oneWayDopplerModel =
-//                            observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-//                                std::make_shared< OneWayDopplerObservationSettings >
-//                                (  linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-//                                       perturbingBodies ),
-//                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
-//                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-//                                   nullptr,
-//                                   std::make_shared< LightTimeConvergenceCriteria >( ),
-//                                   static_cast< bool >( normalizeObservable ) ), bodies  );
-//                }
-//                // Create parameter objects.
-//                std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
-//                Eigen::VectorXd parameterPerturbationMultipliers = Eigen::Vector4d::Constant( 1.0 );
-//                if( estimationCase < 2 )
-//                {
-//                    fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
-//                }
-//                else
-//                {
-//                    fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7, true );
-//                    parameterPerturbationMultipliers( 2 ) = 1.0E-4;
-//                }
-//
-//                testObservationPartials< 1 >(
-//                            oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-4, false, true,
-//                            1.0, parameterPerturbationMultipliers );
-//            }
-//        }
+        {
+            // Create environment
+            SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+
+            // Set link ends for observation model
+            LinkDefinition linkEnds;
+            linkEnds[ transmitter ] = groundStations[ 1 ];
+            linkEnds[ receiver ] = groundStations[ 0 ];
+
+            for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
+            {
+                std::cout<<"ESTIMATION CASE *********************************** "<<" "<<estimationCase<<std::endl;
+                // Generate one-way doppler model
+                std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
+                std::vector< std::string > perturbingBodies;
+                perturbingBodies.push_back( "Earth" );
+                if( estimationCase  == 0 )
+                {
+                    oneWayDopplerModel =
+                            observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                                std::make_shared< observation_models::OneWayDopplerObservationSettings >(
+                                    linkEnds,
+                                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
+                                    nullptr, nullptr, nullptr,
+                                    std::make_shared< LightTimeConvergenceCriteria >( ),
+                                    static_cast< bool >( normalizeObservable ) ), bodies  );
+                }
+                else
+                {
+                    oneWayDopplerModel =
+                            observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                                std::make_shared< OneWayDopplerObservationSettings >
+                                (  linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                       perturbingBodies ),
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
+                                   nullptr,
+                                   std::make_shared< LightTimeConvergenceCriteria >( ),
+                                   static_cast< bool >( normalizeObservable ) ), bodies  );
+                }
+                // Create parameter objects.
+                std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
+                Eigen::VectorXd parameterPerturbationMultipliers = Eigen::Vector4d::Constant( 1.0 );
+                if( estimationCase < 2 )
+                {
+                    fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+                }
+                else
+                {
+                    fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7, true );
+                    parameterPerturbationMultipliers( 2 ) = 1.0E-4;
+                }
+
+                testObservationPartials< 1 >(
+                            oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-4, false, true,
+                            1.0, parameterPerturbationMultipliers );
+            }
+        }
 
         std::cout<<"C ****************************************** "<<std::endl;
         double partialScalingTerm = normalizeObservable ? 1.0 : physical_constants::SPEED_OF_LIGHT;
@@ -494,91 +493,77 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                             ( numericalReceiverProperTimePartialsWrtEarthVelocity ), 1.0E-6 );
             }
 
-//            std::cout<<"D ****************************************** "<<std::endl;
-//
-//            // Create one-way doppler model without proper time rates
-//            std::shared_ptr< OneWayDopplerObservationModel< > > oneWayDopplerModelWithoutProperTime =
-//                    std::dynamic_pointer_cast< OneWayDopplerObservationModel< > >(
-//                        observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-//                            std::make_shared< observation_models::OneWayDopplerObservationSettings >(
-//                                linkEnds, nullptr, nullptr, nullptr, nullptr,
-//                                std::make_shared< LightTimeConvergenceCriteria >( ),
-//                                static_cast< bool >( normalizeObservable ) ), bodies  ) );
-//
-//            // Create partials for Doppler without proper time rates
-//            std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > dopplerPartialsWithoutProperTime =
-//                    ObservationPartialCreator<1, double, double>::createObservationPartials(
-//                        oneWayDopplerModelWithoutProperTime, bodies, fullEstimatableParameterSet );
-//
-//            // Retrieve partial object without proper time
-//            std::shared_ptr< OneWayDopplerScaling > partialScalingObjectWithoutProperTime =
-//                    std::dynamic_pointer_cast< OneWayDopplerScaling >( dopplerPartialsWithoutProperTime.second );
-//            std::shared_ptr< DirectObservationPartial< 1 > > earthStatePartialWithoutProperTime =
-//                    std::dynamic_pointer_cast< DirectObservationPartial< 1 > >(
-//                        ( dopplerPartialsWithoutProperTime.first ).begin( )->second );
-//            std::shared_ptr< DirectObservationPartial< 1 > > marsStatePartialWithoutProperTime =
-//                    std::dynamic_pointer_cast< DirectObservationPartial< 1 > >(
-//                        ( ++( ( dopplerPartialsWithoutProperTime.first ).begin( ) ) )->second );
-//
-//            // Compute nominal observation without proper time
-//            std::vector< double > linkEndTimesWithoutProperTime;
-//            std::vector< Eigen::Vector6d > linkEndStatesWithoutProperTime;
-//            Eigen::VectorXd nominalObservableWithoutProperTime = oneWayDopplerModelWithoutProperTime->computeIdealObservationsWithLinkEndData(
-//                        observationTime, referenceLinkEnd, linkEndTimesWithoutProperTime, linkEndStatesWithoutProperTime );
-//
-//            std::cout<<"Nominal without proper time: "<<nominalObservableWithoutProperTime<<std::endl;
-//            // Compute partials with proper time.
-//            partialScalingObjectWithoutProperTime->update(
-//                        linkEndStatesWithoutProperTime, linkEndTimesWithoutProperTime,
-//                        referenceLinkEnd, nominalObservableWithoutProperTime );
-//            std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > earthStatePartialOutputWithoutProperTime =
-//                    earthStatePartialWithoutProperTime->calculatePartial(
-//                        linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
-//            std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > marsStatePartialOutputWithoutProperTime =
-//                    marsStatePartialWithoutProperTime->calculatePartial(
-//                        linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
-//
-//            Eigen::MatrixXd partialWrtEarthState = earthStatePartialOutput.at( 0 ).first;
-//            Eigen::MatrixXd partialWrtEarthStateWithoutProperTime = earthStatePartialOutputWithoutProperTime.at( 0 ).first;
-//
-//            Eigen::MatrixXd partialWrtMarsState = marsStatePartialOutput.at( 0 ).first;
-//            Eigen::MatrixXd partialWrtMarsStateWithoutProperTime = marsStatePartialOutputWithoutProperTime.at( 0 ).first;
-//
-//            Eigen::MatrixXd properTimePartialWrtMarsPosition = transmitterProperTimePartials->getPositionScalingFactor( transmitter ) * partialScalingTerm;
-//            Eigen::MatrixXd properTimePartialWrtEarthPosition = receiverProperTimePartials->getPositionScalingFactor( receiver ) * partialScalingTerm;
-//
-//            Eigen::MatrixXd properTimePartialWrtMarsVelocity = transmitterProperTimePartials->getVelocityScalingFactor( transmitter ) * partialScalingTerm;
-//            Eigen::MatrixXd properTimePartialWrtEarthVelocity = receiverProperTimePartials->getVelocityScalingFactor( receiver ) * partialScalingTerm;
-//
-//            std::cout<<"Partial w.r.t. Earth state "<<partialWrtEarthState<<std::endl;
-//            std::cout<<"Partial w.r.t. Mars state "<<partialWrtMarsState<<std::endl;
-//
-//            std::cout<<"Partial w.r.t. Earth state (no proper time) "<<partialWrtEarthStateWithoutProperTime<<std::endl;
-//            std::cout<<"Partial w.r.t. Mars state (no proper time) "<<partialWrtMarsStateWithoutProperTime<<std::endl;
-//
-//            std::cout<<( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtMarsPosition ).cwiseQuotient(  properTimePartialWrtMarsPosition ).transpose( )<<std::endl;
-//
-//            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        ( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 0, 1, 3 ) ),
-//                        properTimePartialWrtMarsPosition, 1.0E-5 );
-//
-//            std::cout<<( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtEarthPosition ).cwiseQuotient(  properTimePartialWrtEarthPosition ).transpose( )<<std::endl;
-//
-//            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) ),
-//                        properTimePartialWrtEarthPosition, 1.0E-5 );
-//
-//            std::cout<<( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 3, 1, 3 ) - properTimePartialWrtMarsVelocity ).cwiseQuotient(  properTimePartialWrtMarsVelocity ).transpose( )<<std::endl;
-//
-//            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        ( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),
-//                        properTimePartialWrtMarsVelocity, 1.0E-5 );
-//
-//            std::cout<<( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 3, 1, 3 ) - properTimePartialWrtEarthVelocity ).cwiseQuotient(  properTimePartialWrtEarthVelocity ).transpose( )<<std::endl;
-//
-//            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                        ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),
-//                        properTimePartialWrtEarthVelocity, 1.0E-5 );
+            std::cout<<"D ****************************************** "<<std::endl;
+
+            // Create one-way doppler model without proper time rates
+            std::shared_ptr< OneWayDopplerObservationModel< > > oneWayDopplerModelWithoutProperTime =
+                    std::dynamic_pointer_cast< OneWayDopplerObservationModel< > >(
+                        observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                            std::make_shared< observation_models::OneWayDopplerObservationSettings >(
+                                linkEnds, nullptr, nullptr, nullptr, nullptr,
+                                std::make_shared< LightTimeConvergenceCriteria >( ),
+                                static_cast< bool >( normalizeObservable ) ), bodies  ) );
+
+            // Create partials for Doppler without proper time rates
+            std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > dopplerPartialsWithoutProperTime =
+                    ObservationPartialCreator<1, double, double>::createObservationPartials(
+                        oneWayDopplerModelWithoutProperTime, bodies, fullEstimatableParameterSet );
+
+            // Retrieve partial object without proper time
+            std::shared_ptr< OneWayDopplerScaling > partialScalingObjectWithoutProperTime =
+                    std::dynamic_pointer_cast< OneWayDopplerScaling >( dopplerPartialsWithoutProperTime.second );
+            std::shared_ptr< DirectObservationPartial< 1 > > earthStatePartialWithoutProperTime =
+                    std::dynamic_pointer_cast< DirectObservationPartial< 1 > >(
+                        ( dopplerPartialsWithoutProperTime.first ).begin( )->second );
+            std::shared_ptr< DirectObservationPartial< 1 > > marsStatePartialWithoutProperTime =
+                    std::dynamic_pointer_cast< DirectObservationPartial< 1 > >(
+                        ( ++( ( dopplerPartialsWithoutProperTime.first ).begin( ) ) )->second );
+
+            // Compute nominal observation without proper time
+            std::vector< double > linkEndTimesWithoutProperTime;
+            std::vector< Eigen::Vector6d > linkEndStatesWithoutProperTime;
+            Eigen::VectorXd nominalObservableWithoutProperTime = oneWayDopplerModelWithoutProperTime->computeIdealObservationsWithLinkEndData(
+                        observationTime, referenceLinkEnd, linkEndTimesWithoutProperTime, linkEndStatesWithoutProperTime );
+
+            std::cout<<"Nominal without proper time: "<<nominalObservableWithoutProperTime<<std::endl;
+            // Compute partials with proper time.
+            partialScalingObjectWithoutProperTime->update(
+                        linkEndStatesWithoutProperTime, linkEndTimesWithoutProperTime,
+                        referenceLinkEnd, nominalObservableWithoutProperTime );
+            std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > earthStatePartialOutputWithoutProperTime =
+                    earthStatePartialWithoutProperTime->calculatePartial(
+                        linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
+            std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > marsStatePartialOutputWithoutProperTime =
+                    marsStatePartialWithoutProperTime->calculatePartial(
+                        linkEndStates, linkEndTimes, referenceLinkEnd, {}, nominalObservable );
+
+            Eigen::MatrixXd partialWrtEarthState = earthStatePartialOutput.at( 0 ).first;
+            Eigen::MatrixXd partialWrtEarthStateWithoutProperTime = earthStatePartialOutputWithoutProperTime.at( 0 ).first;
+
+            Eigen::MatrixXd partialWrtMarsState = marsStatePartialOutput.at( 0 ).first;
+            Eigen::MatrixXd partialWrtMarsStateWithoutProperTime = marsStatePartialOutputWithoutProperTime.at( 0 ).first;
+
+            Eigen::MatrixXd properTimePartialWrtMarsPosition = transmitterProperTimePartials->getPositionScalingFactor( transmitter ) * partialScalingTerm;
+            Eigen::MatrixXd properTimePartialWrtEarthPosition = receiverProperTimePartials->getPositionScalingFactor( receiver ) * partialScalingTerm;
+
+            Eigen::MatrixXd properTimePartialWrtMarsVelocity = transmitterProperTimePartials->getVelocityScalingFactor( transmitter ) * partialScalingTerm;
+            Eigen::MatrixXd properTimePartialWrtEarthVelocity = receiverProperTimePartials->getVelocityScalingFactor( receiver ) * partialScalingTerm;
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        ( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 0, 1, 3 ) ),
+                        ( properTimePartialWrtMarsPosition + properTimePartialWrtEarthPosition ), 1.0E-5 );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) ),
+                        ( properTimePartialWrtMarsPosition + properTimePartialWrtEarthPosition ), 1.0E-5 );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        ( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),
+                        properTimePartialWrtMarsVelocity, 1.0E-5 );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),
+                        properTimePartialWrtEarthVelocity, 1.0E-5 );
 
         }
     }
