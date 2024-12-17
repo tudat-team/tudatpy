@@ -313,6 +313,7 @@ int OneWayDopplerScaling::getProperTimeParameterDependencySize(
 std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > OneWayDopplerScaling::getLinkIndependentPartials(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
 {
+    std::cout<<parameterType.first<<" "<<parameterType.second.first<<" "<<parameterType.second.second<<std::endl;
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > totalPartial;
 
     if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter )
