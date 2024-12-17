@@ -224,11 +224,13 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
             Eigen::Matrix< double, Eigen::Dynamic, 3 >::Zero( observableSize, 3 );
     for( int i = 0; i < 3; i++ )
     {
+        std::cout<<"Up "<<i<<std::endl;
         perturbedBodyState = bodyUnperturbedState;
         perturbedBodyState( i ) += bodyPositionVariation( i );
         bodyEphemeris->updateConstantState( perturbedBodyState );
         bodies.at( bodyName )->recomputeStateOnNextCall( );
         Eigen::VectorXd upPerturbedObservation = observationFunction( observationTime );
+        std::cout<<"Down "<<i<<std::endl;
 
         perturbedBodyState = bodyUnperturbedState;
         perturbedBodyState( i ) -= bodyPositionVariation( i );
@@ -238,6 +240,7 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
 
         numericalPartialWrtBodyPosition.block( 0, i, observableSize, 1  ) = ( upPerturbedObservation - downPerturbedObservation ) /
                 ( 2.0 * bodyPositionVariation( i ) );
+        std::cout<<std::endl<<std::endl;
     }
     bodyEphemeris->updateConstantState( bodyUnperturbedState );
     bodies.at( bodyName )->recomputeStateOnNextCall( );

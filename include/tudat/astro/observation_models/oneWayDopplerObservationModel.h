@@ -397,22 +397,12 @@ public:
             currentCentralBodyGravitationalParameters_[ i ] = gravitationalParameterFunctions_.at( i )( );
         }
     }
-//
-//    //! Function to retrieve central body gravitational parameter
-//    /*!
-//     * Function to retrieve central body gravitational parameter
-//     * \return Central body gravitational parameter
-//     */
-//    double getGravitationalParameter( )
-//    {
-//        return gravitationalParameterFunction_( );
-//    }
-//
-//    //! Function to return the name of body generating the gravity field.
-//    /*!
-//     * Function to return the name of body generating the gravity field
-//     * \return Name of body generating the gravity field
-//     */
+
+    std::vector< std::function< double( ) > > getGravitationalParameters( )
+    {
+        return gravitationalParameterFunctions_;
+    }
+
     bool matchWithBody( const std::string bodyName )
     {
         for( unsigned int i = 0; i < perturbingBodyNames_.size( ); i++  )
@@ -423,6 +413,11 @@ public:
             }
         }
         return false;
+    }
+
+    std::vector< Eigen::Vector6d > getCurrentPerturbedStates( )
+    {
+        return currentPerturbedStates_;
     }
 
 private:
