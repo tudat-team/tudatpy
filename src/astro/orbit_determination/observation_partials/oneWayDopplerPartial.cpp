@@ -51,7 +51,7 @@ OneWayDopplerDirectFirstOrderProperTimeComponentScaling::OneWayDopplerDirectFirs
     const bool computeStatePartials ):
     OneWayDopplerProperTimeComponentScaling( linkEndWithPartial ),
     properTimeRateModel_( properTimeRateModel ),
-    computeStatePartials_( computeStatePartials )
+    computeStatePartials_( true )
 {
     partialWrtPerturbedPositions_.resize( properTimeRateModel->getGravitationalParameters( ).size( ) );
     if( linkEndWithPartial_ ==  observation_models::transmitter )
@@ -122,6 +122,7 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
 Eigen::Matrix< double, 1, 3 > OneWayDopplerDirectFirstOrderProperTimeComponentScaling::getPositionScalingFactor(
         const observation_models::LinkEndType linkEndType )
 {
+//    std::cout<<"In proper time partials "<<computeStatePartials_<<" "<<linkEndType<<" "<<properTimeRateModel_->getComputationPointLinkEndType( )<<" "<<oppositeBodyIndex_<<std::endl;
     if( computeStatePartials_ )
     {
         if ( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ))

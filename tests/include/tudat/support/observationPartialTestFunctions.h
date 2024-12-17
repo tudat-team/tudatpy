@@ -144,7 +144,8 @@ void testObservationPartials(
         const double positionPerturbationMultiplier = 1.0,
         const Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 ),
         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr,
-        double observationTime = 1.1E7 )
+        double observationTime = 1.1E7,
+        const double gammaToleranceWeakening = 1.0 )
 {
 
     printEstimatableParameterEntries( fullEstimatableParameterSet );
@@ -429,8 +430,13 @@ void testObservationPartials(
                         std::cout<<"Current double partial "<<i<<" "<<std::setprecision( 16 )<<analyticalObservationPartials[i + numberOfEstimatedBodies].size()<<" "<<currentParameterPartial<<" "<<numericalPartialsWrtDoubleParameters.at( i )<<" "
                         <<( currentParameterPartial( 0 ) - numericalPartialsWrtDoubleParameters.at( i )( 0 ) ) / numericalPartialsWrtDoubleParameters.at( i )( 0 )<<std::endl;
 
+                        double toleranceToUse = tolerance;
+                        if( i == 2 )
+                        {
+                            toleranceToUse *= gammaToleranceWeakening;
+                        }
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                                    currentParameterPartial, (numericalPartialsWrtDoubleParameters.at( i )), tolerance);
+                                    currentParameterPartial, (numericalPartialsWrtDoubleParameters.at( i )), toleranceToUse);
                     }
                 }
 
