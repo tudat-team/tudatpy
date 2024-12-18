@@ -268,8 +268,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                  }
                  if ( simulatedTimes.at( j ) < -2.56e7  )
                  {
-    //                 BOOST_TEST( residual >= firstBlockMinMaxResidual.first );
-    //                 BOOST_TEST( residual <= firstBlockMinMaxResidual.second );
+                     BOOST_TEST( residual >= firstBlockMinMaxResidual.first );
+                     BOOST_TEST( residual <= firstBlockMinMaxResidual.second );
                      if( residual < firstMinimum )
                      {
                          firstMinimum = residual;
@@ -281,8 +281,8 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                  }
                  else
                  {
-    //                 BOOST_TEST( residual >= secondBlockMinMaxResidual.first );
-    //                 BOOST_TEST( residual <= secondBlockMinMaxResidual.second );
+                     BOOST_TEST( residual >= secondBlockMinMaxResidual.first );
+                     BOOST_TEST( residual <= secondBlockMinMaxResidual.second );
                      if( residual < secondMinimum )
                      {
                          secondMinimum = residual;
