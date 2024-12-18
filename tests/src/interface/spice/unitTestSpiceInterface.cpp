@@ -35,6 +35,7 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/basics/testMacros.h"
+#include "tudat/basics/utilityMacros.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
@@ -83,6 +84,7 @@ BOOST_AUTO_TEST_CASE( testNoKernelCrash )
     suppressErrorOutput( );
     const Eigen::Vector6d wrapperState = getBodyCartesianStateAtEpoch(
         target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
+    TUDAT_UNUSED_PARAMETER( wrapperState );
 }
 
 // Test 1: Test Julian day <-> Ephemeris time conversions at J2000.
