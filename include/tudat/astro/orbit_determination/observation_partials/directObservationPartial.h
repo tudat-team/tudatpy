@@ -174,7 +174,6 @@ public:
                                         currentLinkTimeCorrectionPartial_.second ) );
         }
 
-//        std::cout<<"Gradient partials "<<lighTimeCorrectionGradientPartialsFunctions_.size()<<std::endl;
         // Add scaled light-time gradient correcion partials.
         for( unsigned int i = 0; i < lighTimeCorrectionGradientPartialsFunctions_.size( ); i++ )
         {
@@ -183,13 +182,11 @@ public:
                 std::make_pair( positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::transmitter ) * physical_constants::SPEED_OF_LIGHT *
                                 currentLinkTimeCorrectionGradientPartial_.first,
                                 currentLinkTimeCorrectionGradientPartial_.second ) );
-//            std::cout<<"Trans correction "<<positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::transmitter ) * physical_constants::SPEED_OF_LIGHT * currentLinkTimeCorrectionGradientPartial_.first<<std::endl;
             currentLinkTimeCorrectionGradientPartial_ = lighTimeCorrectionGradientPartialsFunctions_.at( i )( states, times, observation_models::receiver );
             returnPartial.push_back(
                 std::make_pair( positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::receiver ) * physical_constants::SPEED_OF_LIGHT *
                                 currentLinkTimeCorrectionGradientPartial_.first,
                                 currentLinkTimeCorrectionGradientPartial_.second ) );
-//            std::cout<<"Rec. correction "<<positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::receiver ) * physical_constants::SPEED_OF_LIGHT* currentLinkTimeCorrectionGradientPartial_.first<<std::endl;
 
         }
 
