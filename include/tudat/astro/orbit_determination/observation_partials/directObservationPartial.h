@@ -226,6 +226,10 @@ protected:
             const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
     lighTimeCorrectionPartialsFunctions_;
 
+    std::vector< std::function< SingleLightTimePartialReturnType(
+        const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
+        lighTimeCorrectionGradientPartialsFunctions_;
+
     //! List of light-time correction partial objects.
     std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
 
