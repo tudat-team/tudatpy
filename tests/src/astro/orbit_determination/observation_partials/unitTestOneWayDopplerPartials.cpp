@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
             testObservationPartials< 1 >(
                         oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5,
-                        true, true, 10.0, parameterPerturbationMultipliers, nullptr, 1.1E7, estimationCase == 2 ? 1.0 : 2000.0 );
+                        true, true, 10.0, parameterPerturbationMultipliers, nullptr, 1.1E7, estimationCase == 2 ? 1.0 : 20.0 );
 
         }
 
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
                 testObservationPartials< 1 >(
                             oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-4, false, true,
-                            1.0, parameterPerturbationMultipliers, nullptr, 1.1E7, estimationCase == 2 ? 1.0 : 2000.0 );
+                            1.0, parameterPerturbationMultipliers, nullptr, 1.1E7 );
             }
         }
 
