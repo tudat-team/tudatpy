@@ -106,6 +106,7 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings,
         const Eigen::Vector1d& currentObservation )
 {
+//    std::cout<<"Two-way parameter "<<this->parameterIdentifier_.first<<" *****************************"<<std::endl;
     TwoWayDopplerPartialReturnType completePartialSet;
     int referenceStartLinkEndIndex = getNWayLinkIndexFromLinkEndType( linkEndOfFixedTime, numberOfLinkEnds_ );
 
@@ -126,6 +127,7 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
     for( dopplerPartialIterator_ = dopplerPartialList_.begin( ); dopplerPartialIterator_ != dopplerPartialList_.end( );
          dopplerPartialIterator_++ )
     {
+//        std::cout<<"Link "<<2 * dopplerPartialIterator_->first<<std::endl;
         TwoWayDopplerPartialReturnType currentPartialSet;
 
         // Set link end times and states for current one-way range
@@ -154,7 +156,18 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         // Scale partials by required amount and add to return map.
         for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
         {
-            currentPartialSet[ i ].first *= currentPartialMultiplier;
+//            std::cout<<"One-way Doppler partial (pre) "<<i<<" "<<currentPartialSet[ i ].first<<std::endl;
+            if( this->parameterIdentifier_.first != estimatable_parameters::ppn_parameter_gamma )
+            {
+
+                currentPartialSet[ i ].first *= currentPartialMultiplier;
+//                std::cout << "One-way Doppler partial (post)" << " " << currentPartialSet[ i ].first << std::endl;
+            }
+            else
+            {
+//                std::cout<<"Scaling "<<currentPartialMultiplier<<std::endl;
+            }
+
         }
         completePartialSet.insert( completePartialSet.end( ), currentPartialSet.begin( ), currentPartialSet.end( ) );
 
@@ -176,6 +189,8 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
             }
         }
     }
+//    std::cout<<std::endl<<std::endl;
+
 
     return completePartialSet;
 }

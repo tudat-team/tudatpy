@@ -300,6 +300,23 @@ public:
         return ( Eigen::Vector1d( ) << lightTimeEffectPositionScalingFactor_ ).finished( );
     }
 
+    Eigen::Matrix< double, 1, 3 > getLightTimeGradientPartialScalingFactor( const observation_models::LinkEndType linkEndType )
+    {
+        if( linkEndType == observation_models::transmitter )
+        {
+            return transmitterPartialScalingTerm_ * transmitterVelocity_.transpose( ) * divisionTerm_;
+        }
+        else if( linkEndType == observation_models::receiver )
+        {
+            return receiverPartialScalingTerm_ * receiverVelocity_.transpose( ) * divisionTerm_;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting one-way Doppler light time correction gradient partial, link end type " +
+            observation_models::getLinkEndTypeString( linkEndType ) + " not supported. " );
+        }
+    }
+
     bool isVelocityScalingNonZero( )
     {
         return true;
@@ -351,6 +368,11 @@ public:
         return ( transmitterProperTimePartials_ != nullptr ) || ( receiverProperTimePartials_ != nullptr );
     }
 
+    virtual bool useLightTimeGradientPartials( )
+    {
+        return true;
+    }
+
 
 private:
 
@@ -386,6 +408,16 @@ private:
 
     //! Object used to compute the contribution of transmitter proper time rate to the scaling
     std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials_;
+
+    double transmitterPartialScalingTerm_;
+
+    double receiverPartialScalingTerm_;
+
+    Eigen::Vector3d receiverVelocity_;
+
+    Eigen::Vector3d transmitterVelocity_;
+
+
 };
 
 //! Function to computed the derivative of the unit vector from transmitter to receiver w.r.t. the observation time

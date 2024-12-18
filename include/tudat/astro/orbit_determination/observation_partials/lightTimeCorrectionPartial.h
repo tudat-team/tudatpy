@@ -41,6 +41,8 @@ public:
     //! Typedef for return argument for light time partial (partial with vector and associated time)
     typedef std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > SingleOneWayRangePartialReturnType;
 
+    typedef std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > SingleOneWayRangeGradientPartialReturnType;
+
     //! Constructor
     /*!
      * Constructor
@@ -82,6 +84,12 @@ std::pair< std::function< LightTimeCorrectionPartial::SingleOneWayRangePartialRe
 getLightTimeParameterPartialFunction(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterId,
         const std::shared_ptr< LightTimeCorrectionPartial > lightTimeCorrectionPartial );
+
+std::pair< std::function< LightTimeCorrectionPartial::SingleOneWayRangeGradientPartialReturnType(
+    const std::vector< Eigen::Vector6d >&, const std::vector< double >&, const observation_models::LinkEndType ) >, bool >
+getLightTimeGradientParameterPartialFunction(
+    const estimatable_parameters::EstimatebleParameterIdentifier parameterId,
+    const std::shared_ptr< LightTimeCorrectionPartial > lightTimeCorrectionPartial );
 
 }
 
