@@ -86,8 +86,8 @@ public:
         referenceState_ = state;
     }
 
-    double referenceTime_;
     Eigen::Vector6d referenceState_;
+    double referenceTime_;
 };
 
 void testPartials(

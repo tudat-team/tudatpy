@@ -299,7 +299,7 @@ void SourcePanelRadiosityModelUpdater::updateMembers(const double currentTime)
 
             Eigen::Vector3d originalSourceToSourceDirectionInSourceFrame =
                     sourceRotationFromGlobalToLocalFrame
-                    * -(originalSourceCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame).normalized();
+                    * ( -(originalSourceCenterPositionInGlobalFrame - sourceCenterPositionInGlobalFrame).normalized() );
             originalSourceToSourceCenterDirections_[originalSourceName] = originalSourceToSourceDirectionInSourceFrame;
 
             originalSourceToSourceOccultationModels_[originalSourceName]->updateMembers(currentTime);
