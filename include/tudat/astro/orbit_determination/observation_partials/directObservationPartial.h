@@ -28,6 +28,7 @@ public:
     typedef std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > ObservationPartialReturnType;
     typedef std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > SingleObservationPartialReturnType;
     typedef std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > SingleLightTimePartialReturnType;
+    typedef std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > SingleLightTimeGradientPartialReturnType;
 
     //! Constructor
     /*!
@@ -51,6 +52,8 @@ public:
 
         std::pair< std::function< SingleLightTimePartialReturnType(
                     const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >, bool > lightTimeCorrectionPartial;
+        std::pair< std::function< SingleLightTimeGradientPartialReturnType(
+            const std::vector< Eigen::Vector6d >&, const std::vector< double >&, const observation_models::LinkEndType ) >, bool > lightTimeCorrectionGradientPartial;
 
         // Create light time correction partial functions
         for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
@@ -61,7 +64,17 @@ public:
             {
                 lighTimeCorrectionPartialsFunctions_.push_back( lightTimeCorrectionPartial.first );
             }
-        }
+
+            if( positionPartialScaler->useLightTimeGradientPartials( ) )
+            {
+                lightTimeCorrectionGradientPartial = getLightTimeGradientParameterPartialFunction(
+                    parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
+                if( lightTimeCorrectionGradientPartial.second != 0 )
+                {
+                    lighTimeCorrectionGradientPartialsFunctions_.push_back( lightTimeCorrectionGradientPartial.first );
+                }
+            }
+       }
     }
 
     //! Destructor.
@@ -161,6 +174,25 @@ public:
                                         currentLinkTimeCorrectionPartial_.second ) );
         }
 
+//        std::cout<<"Gradient partials "<<lighTimeCorrectionGradientPartialsFunctions_.size()<<std::endl;
+        // Add scaled light-time gradient correcion partials.
+        for( unsigned int i = 0; i < lighTimeCorrectionGradientPartialsFunctions_.size( ); i++ )
+        {
+            currentLinkTimeCorrectionGradientPartial_ = lighTimeCorrectionGradientPartialsFunctions_.at( i )( states, times, observation_models::transmitter );
+            returnPartial.push_back(
+                std::make_pair( positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::transmitter ) * physical_constants::SPEED_OF_LIGHT *
+                                currentLinkTimeCorrectionGradientPartial_.first,
+                                currentLinkTimeCorrectionGradientPartial_.second ) );
+//            std::cout<<"Trans correction "<<positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::transmitter ) * physical_constants::SPEED_OF_LIGHT * currentLinkTimeCorrectionGradientPartial_.first<<std::endl;
+            currentLinkTimeCorrectionGradientPartial_ = lighTimeCorrectionGradientPartialsFunctions_.at( i )( states, times, observation_models::receiver );
+            returnPartial.push_back(
+                std::make_pair( positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::receiver ) * physical_constants::SPEED_OF_LIGHT *
+                                currentLinkTimeCorrectionGradientPartial_.first,
+                                currentLinkTimeCorrectionGradientPartial_.second ) );
+//            std::cout<<"Rec. correction "<<positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::receiver ) * physical_constants::SPEED_OF_LIGHT* currentLinkTimeCorrectionGradientPartial_.first<<std::endl;
+
+        }
+
         if( useLinkIndependentPartials( ) )
         {
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > additionalPartials =
@@ -226,8 +258,8 @@ protected:
             const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
     lighTimeCorrectionPartialsFunctions_;
 
-    std::vector< std::function< SingleLightTimePartialReturnType(
-        const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
+    std::vector< std::function< SingleLightTimeGradientPartialReturnType(
+        const std::vector< Eigen::Vector6d >&, const std::vector< double >&, const observation_models::LinkEndType ) > >
         lighTimeCorrectionGradientPartialsFunctions_;
 
     //! List of light-time correction partial objects.
@@ -240,6 +272,8 @@ protected:
     double currentTime_;
 
     std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > currentLinkTimeCorrectionPartial_;
+
+    std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > currentLinkTimeCorrectionGradientPartial_;
 
     std::map< observation_models::LinkEndType, int > stateEntryIndices_;
 
