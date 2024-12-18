@@ -68,6 +68,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     BodyListSettings defaultBodySettings =
             getDefaultBodySettings(
                 bodiesToCreate, "SSB", "ECLIPJ2000" );
+    defaultBodySettings.get( "Sun" )->gravityFieldSettings = centralGravitySettings( spice_interface::getBodyGravitationalParameter( "Sun") * 10000.0 );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
@@ -101,86 +102,126 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
 
     // Create observation settings
-    std::shared_ptr< ObservationModelSettings > observableSettings = std::make_shared< ObservationModelSettings >
-            ( one_way_doppler, linkEnds );
+    for( int useCorrections = 0; useCorrections < 2; useCorrections++ )
+    {
+        double toleranceScaling = 1.0;
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > correctionSettings;
+        if( useCorrections == 1 )
+        {
+            correctionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >( { "Sun" } ) ) );
+            toleranceScaling *= 100.0;
+        }
+        std::shared_ptr<ObservationModelSettings> observableSettings = std::make_shared<ObservationModelSettings>
+            ( one_way_doppler, linkEnds, correctionSettings );
 
-    // Create observation model.
-    std::shared_ptr< ObservationModel< 1, double, double> > observationModel =
-            ObservationModelCreator< 1, double, double>::createObservationModel(
+        // Create observation model.
+        std::shared_ptr<ObservationModel<1, double, double> > observationModel =
+            ObservationModelCreator<1, double, double>::createObservationModel(
                 observableSettings, bodies );
 
-    std::shared_ptr< OneWayDopplerObservationModel< double, double> > dopplerObservationModel =
-            std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >( observationModel );
+        std::shared_ptr<OneWayDopplerObservationModel<double, double> > dopplerObservationModel =
+            std::dynamic_pointer_cast<OneWayDopplerObservationModel<double, double> >( observationModel );
 
-    // Test observable for both fixed link ends
-    for( unsigned testCase = 0; testCase < 4; testCase++ )
-    {
-
-        double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
-        std::vector< double > linkEndTimes;
-        std::vector< Eigen::Vector6d > linkEndStates;
-
-        // Define link end
-        LinkEndType referenceLinkEnd;
-        if( testCase == 0 || testCase == 2 )
+        // Test observable for both fixed link ends
+        for ( unsigned testCase = 2; testCase < 4; testCase++ )
         {
-            referenceLinkEnd = transmitter;
-        }
-        else
-        {
-            referenceLinkEnd = receiver;
-        }
+            std::cout<<testCase<<" "<<useCorrections<<std::endl;
+            double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
+            std::vector<double> linkEndTimes;
+            std::vector<Eigen::Vector6d> linkEndStates;
 
-        double scalingTerm = physical_constants::SPEED_OF_LIGHT;
-        bool useNormalization = false;
-        if( testCase > 1 )
-        {
-            scalingTerm = 1.0;
-            useNormalization = true;
-            dopplerObservationModel->setNormalizeWithSpeedOfLight( useNormalization );
-        }
-
-        // Compute observable
-        double dopplerObservable = observationModel->computeObservationsWithLinkEndData(
-                    observationTime, referenceLinkEnd, linkEndTimes, linkEndStates )( 0 );
-
-        // Creare independent light time calculator object
-        std::shared_ptr< LightTimeCalculator< double, double > > lightTimeCalculator =
-                createLightTimeCalculator( linkEnds, transmitter, receiver, bodies );
-        Eigen::Vector6d transmitterState, receiverState;
-        // Compute light time
-        double lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
-                    receiverState, transmitterState, observationTime, ( !( testCase == 0 || testCase == 2 ) ) );
-
-        // Compare light time calculator link end conditions with observation model
-        {
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( receiverState, linkEndStates.at( 1 ), 1.0E-15 );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( transmitterState, linkEndStates.at( 0 ), 1.0E-15 );
-
-            if( testCase == 0 || testCase == 2 )
+            // Define link end
+            LinkEndType referenceLinkEnd;
+            if ( testCase == 0 || testCase == 2 )
             {
-                BOOST_CHECK_SMALL( std::fabs( observationTime  - linkEndTimes.at( 0 ) ), 1.0E-12 );
-                BOOST_CHECK_SMALL( std::fabs( observationTime + lightTime - linkEndTimes.at( 1 ) ), 1.0E-10 );
+                referenceLinkEnd = transmitter;
             }
             else
             {
-                BOOST_CHECK_SMALL( std::fabs( observationTime - linkEndTimes.at( 1 ) ), 1.0E-12 );
-                BOOST_CHECK_SMALL( std::fabs( observationTime - lightTime - linkEndTimes.at( 0 ) ), 1.0E-10 );
+                referenceLinkEnd = receiver;
+            }
+
+            double scalingTerm = physical_constants::SPEED_OF_LIGHT;
+            bool useNormalization = false;
+            if ( testCase > 1 )
+            {
+                scalingTerm = 1.0;
+                useNormalization = true;
+                dopplerObservationModel->setNormalizeWithSpeedOfLight( useNormalization );
+            }
+
+            // Compute observable
+            double dopplerObservable = observationModel->computeObservationsWithLinkEndData(
+                observationTime, referenceLinkEnd, linkEndTimes, linkEndStates )( 0 );
+
+            // Creare independent light time calculator object
+            std::shared_ptr<LightTimeCalculator<double, double> > lightTimeCalculator =
+                createLightTimeCalculator( linkEnds, transmitter, receiver, bodies, undefined_observation_model, correctionSettings );
+            Eigen::Vector6d transmitterState, receiverState;
+            // Compute light time
+            double lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
+                receiverState, transmitterState, observationTime, ( !( testCase == 0 || testCase == 2 )));
+
+            // Compare light time calculator link end conditions with observation model
+            {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( receiverState, linkEndStates.at( 1 ), 1.0E-15 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( transmitterState, linkEndStates.at( 0 ), 1.0E-15 );
+
+                if ( testCase == 0 || testCase == 2 )
+                {
+                    BOOST_CHECK_SMALL( std::fabs( observationTime - linkEndTimes.at( 0 )), 1.0E-12 );
+                    BOOST_CHECK_SMALL( std::fabs( observationTime + lightTime - linkEndTimes.at( 1 )), 1.0E-10 );
+                }
+                else
+                {
+                    BOOST_CHECK_SMALL( std::fabs( observationTime - linkEndTimes.at( 1 )), 1.0E-12 );
+                    BOOST_CHECK_SMALL( std::fabs( observationTime - lightTime - linkEndTimes.at( 0 )), 1.0E-10 );
+                }
+            }
+
+            // Compute numerical partial derivative of light time.
+            double timePerturbation = 100.0;
+            double upPerturbedLightTime =
+                lightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) + timePerturbation, true );
+            double downPerturbedLightTime =
+                lightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) - timePerturbation, true );
+
+            double lightTimeSensitivity = -( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
+
+            // Test numerical derivative against Doppler observable
+            BOOST_CHECK_CLOSE_FRACTION( scalingTerm * lightTimeSensitivity, dopplerObservable, 1.0E-8 * toleranceScaling );
+
+            if( useCorrections && testCase == 3 )
+            {
+                std::shared_ptr< LightTimeCorrection > correction = lightTimeCalculator->getLightTimeCorrection( ).at( 0 );
+                double nominalLightTimeCorrection = correction->calculateLightTimeCorrection(
+                    transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) );
+
+                Eigen::Vector6d transmitterStateUp, receiverStateUp;
+                // Compute light time
+                double lightTimeUp = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
+                    receiverStateUp, transmitterStateUp, observationTime + timePerturbation, true );
+                double lightTimeCorrectionUp = correction->calculateLightTimeCorrection(
+                    transmitterStateUp, receiverStateUp, observationTime + timePerturbation - lightTimeUp, observationTime + timePerturbation );
+
+                Eigen::Vector6d transmitterStateDown, receiverStateDown;
+                // Compute light time
+                double lightTimeDown = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
+                    receiverStateDown, transmitterStateDown, observationTime - timePerturbation, true );
+                double lightTimeCorrectionDown = correction->calculateLightTimeCorrection(
+                    transmitterStateDown, receiverStateDown, observationTime - timePerturbation - lightTimeUp, observationTime - timePerturbation );
+
+                Eigen::Matrix< double, 3, 1 > lightTimeCorrectionWrtReceiver = correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                    transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), receiver );
+                Eigen::Matrix< double, 3, 1 > lightTimeCorrectionWrtTransmitter = correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                    transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter );
+
+                BOOST_CHECK_CLOSE_FRACTION( lightTimeCorrectionWrtReceiver.dot( receiverState.segment( 3, 3 ) ) + lightTimeCorrectionWrtTransmitter.dot( transmitterState.segment( 3, 3 ) ),
+                                            ( lightTimeCorrectionUp  - lightTimeCorrectionDown ) / ( 2.0 * timePerturbation ), 1.0E-3 );
+
             }
         }
-
-        // Compute numerical partial derivative of light time.
-        double timePerturbation = 100.0;
-        double upPerturbedLightTime = lightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) + timePerturbation, true );
-        double downPerturbedLightTime = lightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) - timePerturbation, true );
-
-        double lightTimeSensitivity = -( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
-
-        // Test numerical derivative against Doppler observable
-        BOOST_CHECK_SMALL( std::fabs( scalingTerm * lightTimeSensitivity - dopplerObservable ), 2.0E-14 * scalingTerm );
     }
-
-    dopplerObservationModel->setNormalizeWithSpeedOfLight( false );
 
     // Test observation biases
     {
