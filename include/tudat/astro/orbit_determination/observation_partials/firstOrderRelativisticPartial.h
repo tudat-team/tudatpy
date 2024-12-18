@@ -107,6 +107,15 @@ public:
                     ( times[ 0 ] + times[ 1 ] ) / 2.0 );
     }
 
+    SingleOneWayRangeGradientPartialReturnType gradientWrtPpnParameterGamma(
+        const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times, const observation_models::LinkEndType gradientLinkEnd )
+    {
+        return std::make_pair( correctionCalculator_->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            states.at( 0 ), states.at( 1 ), times.at( 0 ), times.at( 1 ), gradientLinkEnd ) /
+            ( correctionCalculator_->getPpnParameterGammaFunction_( )( ) + 1.0 ),
+                               gradientLinkEnd == observation_models::receiver ? times.at( 1 ) : times.at( 0 ) );
+    }
+
     //! Function to get the names of bodies causing light-time correction.
     /*!
      * Function to get the names of bodies causing light-time correction.
