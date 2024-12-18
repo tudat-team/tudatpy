@@ -46,12 +46,12 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWith
     {
         evaluationTime = transmissionTime + lightTimeEvaluationContribution_.at( i ) * ( receptionTime - transmissionTime );
         // Calculate correction due to current body and add to total.
-        currentLighTimeCorrectionComponents_[ i ] = relativity::calculateFirstOrderLightTimeCorrectionFromCentralBody(
-                    perturbingBodyGravitationalParameterFunctions_[ i ]( ),
+        currentLighTimeCorrectionComponents_.at( i ) = relativity::calculateFirstOrderLightTimeCorrectionFromCentralBody(
+                    perturbingBodyGravitationalParameterFunctions_.at( i )( ),
                     transmitterState.segment( 0, 3 ), receiverState.segment( 0, 3 ),
-                    perturbingBodyStateFunctions_[ i ]( evaluationTime ).segment( 0, 3 ),
+                    perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
                     ppnParameterGamma );
-        currentTotalLightTimeCorrection_ += currentLighTimeCorrectionComponents_[ i ];
+        currentTotalLightTimeCorrection_ += currentLighTimeCorrectionComponents_.at( i );
     }
 
     return currentTotalLightTimeCorrection_;
@@ -79,14 +79,13 @@ calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
     for( unsigned int i = 0; i < perturbingBodyStateFunctions_.size( ); i++ )
     {
         evaluationTime = transmissionTime + lightTimeEvaluationContribution_.at( i ) * ( receptionTime - transmissionTime );
-
-        perturbingBodyState = perturbingBodyStateFunctions_[ i ]( evaluationTime );
+        perturbingBodyState = perturbingBodyStateFunctions_.at( i )( evaluationTime );
 
         // Calculate correction due to current body and add to total.
         currentTotalLightTimeCorrectionPartial_ += relativity::calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
-                    perturbingBodyGravitationalParameterFunctions_[ i ]( ),
+                    perturbingBodyGravitationalParameterFunctions_.at( i )( ),
                     transmitterState.segment( 0, 3 ), receiverState.segment( 0, 3 ),
-                    perturbingBodyStateFunctions_[ i ]( evaluationTime ).segment( 0, 3 ),
+                    perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
                 ( linkEndAtWhichPartialIsEvaluated == receiver ),
                 ppnParameterGamma );
     }
