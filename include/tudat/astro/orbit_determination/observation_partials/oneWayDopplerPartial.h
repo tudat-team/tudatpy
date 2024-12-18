@@ -304,11 +304,11 @@ public:
     {
         if( linkEndType == observation_models::transmitter )
         {
-            return transmitterPartialScalingTerm_ * transmitterVelocity_.transpose( ) * divisionTerm_;
+            return -transmitterPartialScalingTerm_ * transmitterVelocity_.transpose( ) / divisionTerm_;
         }
         else if( linkEndType == observation_models::receiver )
         {
-            return receiverPartialScalingTerm_ * receiverVelocity_.transpose( ) * divisionTerm_;
+            return receiverPartialScalingTerm_ * receiverVelocity_.transpose( ) / divisionTerm_;
         }
         else
         {

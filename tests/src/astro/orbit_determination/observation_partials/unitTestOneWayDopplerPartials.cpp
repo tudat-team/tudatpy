@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
     std::cout<<"A ****************************************** "<<std::endl;
     // Test partials with constant ephemerides (allows test of position partials)
-    for( unsigned int normalizeObservable = 0; normalizeObservable < 1 ; normalizeObservable++ )
+    for( unsigned int normalizeObservable = 0; normalizeObservable < 2 ; normalizeObservable++ )
     {
         // Create environment
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
@@ -365,8 +365,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             std::shared_ptr< DopplerProperTimeRateInterface > transmitterProperTimeRateCalculator =
                     oneWayDopplerModel->getTransmitterProperTimeRateCalculator( );
 
-            std::cout<<"Trans/rec (null) "<<receiverProperTimeRateCalculator<<" "<<transmitterProperTimeRateCalculator<<std::endl;
-
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                     createEstimatableParameters( bodies, 1.1E7 );
@@ -385,7 +383,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials =
                     partialScalingObject->getReceiverProperTimePartials( );
 
-            std::cout<<"List size "<<dopplerPartials.first.size( )<<std::endl;
             std::shared_ptr< DirectObservationPartial< 1 > > earthStatePartial =
                     std::dynamic_pointer_cast< DirectObservationPartial< 1 > >(
                         ( dopplerPartials.first ).begin( )->second );
@@ -398,12 +395,9 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             std::vector< double > linkEndTimes;
             std::vector< Eigen::Vector6d > linkEndStates;
             LinkEndType referenceLinkEnd = transmitter;
-            std::cout<<"Computing nominal observable: "<<std::endl;
 
             Eigen::VectorXd nominalObservable = oneWayDopplerModel->computeIdealObservationsWithLinkEndData(
                         observationTime, referenceLinkEnd, linkEndTimes, linkEndStates );
-
-            std::cout<<"Nominal: "<<nominalObservable<<std::endl;
 
             // Compute partials with proper time.
             partialScalingObject->update(
@@ -438,11 +432,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                         calculatePartialWrtConstantBodyVelocity(
                             "Earth", bodies, Eigen::Vector3d::Constant( 1.0E0 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
 
-                std::cout<<"Partials w.r.t. Mars: "<<std::endl<<transmitterProperTimePartials->getPositionScalingFactor( transmitter )<<
-                         std::endl<<numericalTransmitterProperTimePartialsWrtMarsPosition<<std::endl;
-                std::cout<<"Partials w.r.t. Earth: "<<transmitterProperTimePartials->getPositionScalingFactor( receiver )<<
-                         std::endl<<numericalTransmitterProperTimePartialsWrtEarthPosition<<std::endl;
-
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             ( transmitterProperTimePartials->getPositionScalingFactor( transmitter ) ),
@@ -472,12 +461,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtEarthVelocity =
                         calculatePartialWrtConstantBodyVelocity(
                             "Earth", bodies, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
-
-                std::cout<<"Trans. scaling factor: "<<std::endl<<receiverProperTimePartials->getPositionScalingFactor( transmitter )<<
-                         std::endl<<numericalReceiverProperTimePartialsWrtMarsPosition<<std::endl;
-                std::cout<<"Rec. scaling factor: "<<receiverProperTimePartials->getPositionScalingFactor( receiver )<<
-                         std::endl<<numericalReceiverProperTimePartialsWrtEarthPosition<<std::endl;
-
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             ( receiverProperTimePartials->getPositionScalingFactor( receiver ) ),
@@ -525,7 +508,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             Eigen::VectorXd nominalObservableWithoutProperTime = oneWayDopplerModelWithoutProperTime->computeIdealObservationsWithLinkEndData(
                         observationTime, referenceLinkEnd, linkEndTimesWithoutProperTime, linkEndStatesWithoutProperTime );
 
-            std::cout<<"Nominal without proper time: "<<nominalObservableWithoutProperTime<<std::endl;
             // Compute partials with proper time.
             partialScalingObjectWithoutProperTime->update(
                         linkEndStatesWithoutProperTime, linkEndTimesWithoutProperTime,
