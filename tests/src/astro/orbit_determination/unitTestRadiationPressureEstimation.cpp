@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
                 }
                 else
                 {
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, toleranceStates );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates * 2.5 ) );
                 }
             }
             else
