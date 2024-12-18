@@ -147,7 +147,6 @@ void testObservationPartials(
         double observationTime = 1.1E7,
         const double gammaToleranceWeakening = 1.0 )
 {
-
     printEstimatableParameterEntries( fullEstimatableParameterSet );
 
     // Retrieve double and vector parameters and estimate body states
@@ -206,7 +205,7 @@ void testObservationPartials(
         {
             runSimulation = false;
         }
-
+        
         // Remove retransmission delay from the retransmitting reference link end: computation of multi-leg light currently doesn't support
         // retransmission delays at the reference link end
         std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > modifiedAncilliarySettings;
@@ -233,6 +232,7 @@ void testObservationPartials(
 
         if ( runSimulation )
         {
+
             // Evaluate nominal observation values
             std::vector<Eigen::Vector6d> vectorOfStates;
             std::vector<double> vectorOfTimes;
