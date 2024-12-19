@@ -241,20 +241,27 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
                 numericalValue( parameterIndex ) -= 1.0;
             }
 
+            std::cout<<analyticalValue.transpose( )<<std::endl;
+            std::cout<<numericalValue.transpose( )<<std::endl;
+            std::cout<<( ( analyticalValue - numericalValue ).cwiseQuotient( numericalValue ) ).transpose( )<<std::endl;
+
             if( parameterIndex < 6 )
             {
                 // Modify tolernace for geometrically poor term
                 if( ( test == 1 && parameterIndex == 3 ) || ( test == 1 && parameterIndex == 6 ) || ( test == 3 && parameterIndex == 4 ) )
                 {
+                    std::cout<<"Test A "<( toleranceStates * 20.0 )<<std::endl;
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates * 20.0 ) );
                 }
                 else
                 {
+                    std::cout<<"Test B "<( toleranceStates )<<std::endl;
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates ) );
                 }
             }
             else
             {
+                std::cout<<"Test C "<( toleranceParameter * 5.0 )<<std::endl;
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceParameter * 5.0 ) );
             }
         }
