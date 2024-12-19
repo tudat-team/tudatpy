@@ -53,14 +53,15 @@ Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionG
             ( relativePositionVector.normalized( ) ).transpose( );
     if( evaluateGradientAtReceiver )
     {
-       gradient -= relativePositionVector.norm( ) * ( receiverPosition.normalized( ) ).transpose( );
+       gradient -= relativePositionVector.norm( ) * ( ( receiverPosition - centralBodyPosition ).normalized( ) ).transpose( );
     }
     else
     {
-        gradient += relativePositionVector.norm( ) * ( transmitterPosition.normalized( ) ).transpose( );\
+        gradient += relativePositionVector.norm( ) * ( ( transmitterPosition - centralBodyPosition ).normalized( ) ).transpose( );
+        gradient *= -1.0;
     }
 
-    return 2.0 * ppnParameterGamma * bodyGravitationalParameter * physical_constants::INVERSE_CUBIC_SPEED_OF_LIGHT * gradient /
+    return 2.0 * ( 1.0 + ppnParameterGamma ) * bodyGravitationalParameter * physical_constants::INVERSE_CUBIC_SPEED_OF_LIGHT * gradient /
             ( ( receiverDistance + transmitterDistance ) * ( receiverDistance + transmitterDistance ) -
                   linkEndDistance * linkEndDistance );
 

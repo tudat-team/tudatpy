@@ -138,7 +138,7 @@ executeEarthMoonSimulation(
 
     // Create propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings;
-    TranslationalPropagatorType propagatorType;
+    TranslationalPropagatorType propagatorType = undefined_translational_propagator ;
     if( propagationType == 0 )
     {
         propagatorType = cowell;
