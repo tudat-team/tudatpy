@@ -1142,9 +1142,9 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithVaryinInertiaTe
     auto stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     auto dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 
-    Eigen::Matrix3d nominalInertiaTensor;
-    Eigen::Vector3d nominalCosineCorrection;
-    Eigen::Vector2d nominalSineCorrection;
+    Eigen::Matrix3d nominalInertiaTensor = Eigen::Matrix3d::Zero( );
+    Eigen::Vector3d nominalCosineCorrection = Eigen::Vector3d::Zero( );
+    Eigen::Vector2d nominalSineCorrection = Eigen::Vector2d::Zero( );
 
     std::shared_ptr< gravitation::SphericalHarmonicsGravityField > phobosGravityField =
         std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(

@@ -84,6 +84,52 @@ getLightTimeParameterPartialFunction(
     return partialFunction;
 }
 
+std::pair< std::function< LightTimeCorrectionPartial::SingleOneWayRangeGradientPartialReturnType(
+    const std::vector< Eigen::Vector6d >&, const std::vector< double >&, const observation_models::LinkEndType ) >, bool >
+getLightTimeGradientParameterPartialFunction(
+    const estimatable_parameters::EstimatebleParameterIdentifier parameterId,
+    const std::shared_ptr< LightTimeCorrectionPartial > lightTimeCorrectionPartial )
+{
+    // Declare return type, set second part to 0 (no dependency found).
+    std::pair< std::function< LightTimeCorrectionPartial::SingleOneWayRangeGradientPartialReturnType(
+        const std::vector< Eigen::Vector6d >&, const std::vector< double >&, const observation_models::LinkEndType ) >, bool > partialFunction;
+    partialFunction.second = 0;
+
+    // Check type of light-time correction
+    switch( lightTimeCorrectionPartial->getCorrectionType( ) )
+    {
+    // Correction type of 1st-order relativistic
+    case observation_models::first_order_relativistic:
+    {
+        // Check consistency of input.
+        std::shared_ptr< FirstOrderRelativisticLightTimeCorrectionPartial > currentLightTimeCorrectorPartial =
+            std::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionPartial >( lightTimeCorrectionPartial );
+        if( currentLightTimeCorrectorPartial == nullptr )
+        {
+            std::string errorMessage = "Error when getting light time correction partial function, type " +
+                                       std::to_string( lightTimeCorrectionPartial->getCorrectionType( ) ) +
+                                       "is inconsistent.";
+            throw std::runtime_error( errorMessage );
+        }
+
+        // Set partial of gravitational parameter
+        if( parameterId.first == estimatable_parameters::ppn_parameter_gamma )
+        {
+            partialFunction = std::make_pair(
+                std::bind( &FirstOrderRelativisticLightTimeCorrectionPartial::gradientWrtPpnParameterGamma,
+                           currentLightTimeCorrectorPartial, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ), 1 );
+        }
+        break;
+    }
+    default:
+        std::string errorMessage = "Error, light time correction type " + std::to_string(
+            lightTimeCorrectionPartial->getCorrectionType( ) ) + "not found when creating partial ";
+        throw std::runtime_error( errorMessage );
+    }
+
+    return partialFunction;
+}
+
 }
 
 }

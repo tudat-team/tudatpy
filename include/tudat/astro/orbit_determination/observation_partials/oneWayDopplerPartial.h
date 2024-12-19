@@ -105,10 +105,8 @@ public:
     OneWayDopplerDirectFirstOrderProperTimeComponentScaling(
             const std::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel,
             const observation_models::LinkEndType linkEndWithPartial,
-            const bool computeStatePartials ):
-        OneWayDopplerProperTimeComponentScaling( linkEndWithPartial ),
-        properTimeRateModel_( properTimeRateModel ),
-        computeStatePartials_( computeStatePartials ){ }
+            const observation_models::LinkEnds linkEnds,
+            const bool computeStatePartials );
 
     //! Update the scaling object to the current times and states
     /*!
@@ -147,7 +145,7 @@ public:
      */
     double getEquivalencePrincipleViolationParameterPartial( )
     {
-        return -currentGravitationalParameter_ / ( currentDistance_ * physical_constants::SPEED_OF_LIGHT );
+        return -currentScalarPotential_ / physical_constants::SPEED_OF_LIGHT;
     }
 
     //! Function to get the direct partial derivative, and associated time, of proper time
@@ -177,6 +175,8 @@ private:
     //! Partial of proper time rate w.r.t. position, as computed by last call to update function.
     Eigen::Matrix< double, 1, 3 > partialWrPosition_;
 
+    std::vector< Eigen::Matrix< double, 1, 3 > > partialWrtPerturbedPositions_;
+
     //! Partial of proper time rate w.r.t. velocity, as computed by last call to update function.
     Eigen::Matrix< double, 1, 3 > partialWrtVelocity_;
 
@@ -189,12 +189,21 @@ private:
     //! Current value of gravitational parameter of central body.
     double currentGravitationalParameter_;
 
+    double currentScalarPotential_;
+
     //! Boolean to denote whether state partials are to be computed
     /*!
      *  Boolean to denote whether state partials are to be computed. It is false if the link end for whicj this object computes
      *  the proper time partials is fixed to the perturbing body.
      */
     bool computeStatePartials_;
+
+    observation_models::LinkEndId oppositeLinkEnd_;
+
+    int oppositeBodyIndex_;
+
+    int skipBodyIndex_;
+
 };
 
 //! Derived class for scaling three-dimensional position partial to one-way doppler observable partial
@@ -291,6 +300,23 @@ public:
         return ( Eigen::Vector1d( ) << lightTimeEffectPositionScalingFactor_ ).finished( );
     }
 
+    Eigen::Matrix< double, 1, 3 > getLightTimeGradientPartialScalingFactor( const observation_models::LinkEndType linkEndType )
+    {
+        if( linkEndType == observation_models::transmitter )
+        {
+            return -transmitterPartialScalingTerm_ * transmitterVelocity_.transpose( ) / divisionTerm_;
+        }
+        else if( linkEndType == observation_models::receiver )
+        {
+            return receiverPartialScalingTerm_ * receiverVelocity_.transpose( ) / divisionTerm_;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting one-way Doppler light time correction gradient partial, link end type " +
+            observation_models::getLinkEndTypeString( linkEndType ) + " not supported. " );
+        }
+    }
+
     bool isVelocityScalingNonZero( )
     {
         return true;
@@ -342,6 +368,11 @@ public:
         return ( transmitterProperTimePartials_ != nullptr ) || ( receiverProperTimePartials_ != nullptr );
     }
 
+    virtual bool useLightTimeGradientPartials( )
+    {
+        return true;
+    }
+
 
 private:
 
@@ -377,6 +408,16 @@ private:
 
     //! Object used to compute the contribution of transmitter proper time rate to the scaling
     std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials_;
+
+    double transmitterPartialScalingTerm_;
+
+    double receiverPartialScalingTerm_;
+
+    Eigen::Vector3d receiverVelocity_;
+
+    Eigen::Vector3d transmitterVelocity_;
+
+
 };
 
 //! Function to computed the derivative of the unit vector from transmitter to receiver w.r.t. the observation time

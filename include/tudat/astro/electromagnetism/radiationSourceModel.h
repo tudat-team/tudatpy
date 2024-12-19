@@ -26,12 +26,10 @@
 #include <utility>
 #include <vector>
 #include <map>
-#include <utility>
 #include <memory>
 #include <set>
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
 
 #include "tudat/astro/electromagnetism/luminosityModel.h"
 #include "tudat/astro/electromagnetism/sourcePanelRadiosityModel.h"

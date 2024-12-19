@@ -12,6 +12,7 @@
 #define TUDAT_RELATIVISTIVTIMECONVERSION_H
 
 #include <Eigen/Core>
+#include <vector>
 
 #include "tudat/basics/basicTypedefs.h"
 namespace tudat
@@ -30,7 +31,8 @@ namespace relativity
  * \return Proper time rate minus one (d tau/dt - 1.0)
  */
 double calculateFirstCentralBodyProperTimeRateDifference(
-        const double relativeSpeed, const double gravitationalScalarPotential,
+        const double computationPointSpeed,
+        const double gravitationalScalarPotential,
         const double equivalencePrincipleLpiViolationParameter = 0.0 );
 
 //! Function to compute proper-time rate w.r.t. coordinate time, minus 1.0, for a 1/c^2 potential from a static mass monopole
@@ -38,13 +40,15 @@ double calculateFirstCentralBodyProperTimeRateDifference(
  * Function to compute proper-time rate w.r.t. coordinate time, minus 1.0, for a 1/c^2 potential from a static mass monopole
  * located at the origin of the reference frame of which the coordinate time is used.,
  * allowing for the possibility of EP violation (nominally none)
- * \param relativeStateVector Cartesian state of point where proper time rate is to be computed
+ * \param computationPointState Cartesian state of point where proper time rate is to be computed
  * \param centralBodyGravitationalParameter Newtonian gravitational potnetial of central body.
  * \param equivalencePrincipleLpiViolationParameter Violation parameter of equivalence principle (default to GR value of 0.0
  * \return Proper time rate minus one (d tau/dt - 1.0)
  */
 double calculateFirstCentralBodyProperTimeRateDifference(
-        const Eigen::Vector6d relativeStateVector, const double centralBodyGravitationalParameter,
+        const Eigen::Vector6d& computationPointState,
+        const std::vector< Eigen::Vector6d >& perturbedStates,
+        const std::vector< double >& centralBodyGravitationalParameters,
         const double equivalencePrincipleLpiViolationParameter = 0.0 );
 
 }

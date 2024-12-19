@@ -169,7 +169,7 @@ executeMultiArcEarthMoonSimulation(
     }
 
     // Create propagator settings
-    TranslationalPropagatorType propagatorType;
+    TranslationalPropagatorType propagatorType = undefined_translational_propagator;
     if( propagationType == 0 )
     {
         propagatorType = cowell;

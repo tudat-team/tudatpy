@@ -7,9 +7,10 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-
+#include <iostream>
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/relativity/relativisticTimeConversion.h"
+#include <iomanip>
 
 namespace tudat
 {
@@ -19,21 +20,31 @@ namespace relativity
 
 //! Function to compute proper-time rate w.r.t. coordinate time, minus 1.0, from a speed and scalar potential
 double calculateFirstCentralBodyProperTimeRateDifference(
-        const double relativeSpeed, const double gravitationalScalarPotential,
+        const double computationPointSpeed,
+        double gravitationalScalarPotential,
         const double equivalencePrincipleLpiViolationParameter )
 {
-    return ( -( 0.5 * relativeSpeed * relativeSpeed + ( 1.0 + equivalencePrincipleLpiViolationParameter ) *
+    return ( -( 0.5 * computationPointSpeed * computationPointSpeed + ( 1.0 + equivalencePrincipleLpiViolationParameter ) *
                 gravitationalScalarPotential )  ) * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
 }
 
 //! Function to compute proper-time rate w.r.t. coordinate time, minus 1.0, from a speed and scalar potential
 double calculateFirstCentralBodyProperTimeRateDifference(
-        const Eigen::Vector6d relativeStateVector, const double centralBodyGravitationalParameter,
-        const double equivalencePrincipleLpiViolationParameter )
+    const Eigen::Vector6d& computationPointState,
+    const std::vector< Eigen::Vector6d >& perturbedInertialStates,
+    const std::vector< double >& centralBodyGravitationalParameters,
+    const double equivalencePrincipleLpiViolationParameter )
 {
+    double gravitationalScalarPotential = 0.0;
+    for( unsigned int i = 0; i < perturbedInertialStates.size( ); i++ )
+    {
+        gravitationalScalarPotential +=
+            centralBodyGravitationalParameters.at( i ) /
+                ( perturbedInertialStates.at( i ).segment( 0, 3 ) - computationPointState.segment( 0, 3 ) ).norm( );
+    }
+
     return calculateFirstCentralBodyProperTimeRateDifference(
-                relativeStateVector.segment( 3, 3 ).norm( ), centralBodyGravitationalParameter /
-                relativeStateVector.segment( 0, 3 ).norm( ), equivalencePrincipleLpiViolationParameter );
+        computationPointState.segment( 3, 3 ).norm( ), gravitationalScalarPotential, equivalencePrincipleLpiViolationParameter );
 }
 
 }

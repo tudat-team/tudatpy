@@ -128,10 +128,13 @@ BOOST_AUTO_TEST_CASE(testJuiceMeasuredFrequency)
         // Create observation settings
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
         lightTimeCorrectionsList.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >( { "Sun", "Moon", "Earth" } ) ) );
+
+        std::shared_ptr< ObservationModelSettings > observationModelSettings =  dopplerMeasuredFrequencyObservationSettings(
+            linkEnds, std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( std::vector< std::string >{ "Sun", "Moon", "Earth" } ) , lightTimeCorrectionsList );
         std::shared_ptr<DopplerMeasuredFrequencyObservationModel<double, Time> > dopplerFrequencyObservationModel =
             std::dynamic_pointer_cast<DopplerMeasuredFrequencyObservationModel<double, Time>>(
                 ObservationModelCreator<1, double, Time>::createObservationModel(
-                    std::make_shared<ObservationModelSettings>( doppler_measured_frequency, linkEnds, lightTimeCorrectionsList   ), bodies ));
+                    std::make_shared<ObservationModelSettings>( doppler_measured_frequency, linkEnds, lightTimeCorrectionsList  ), bodies ));
         
         // Define link end
         LinkEndType referenceLinkEnd = receiver;
@@ -198,9 +201,9 @@ BOOST_AUTO_TEST_CASE(testJuiceMeasuredFrequency)
 //    std::cout<<linear_algebra::getVectorEntryMean( residualVector.segment( 0, 7000 ) )<<std::endl;
 
 //
-//    input_output::writeMatrixToFile( observableVector, "pride_doppler.dat", 16 );
-//    input_output::writeMatrixToFile( residualVector, "pride_residual.dat", 16 );
-//    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector( utilities::staticCastVector< double, Time >( observationTimes ) ), "pride_times.dat", 16 );
+    input_output::writeMatrixToFile( observableVector, "pride_doppler.dat", 16 );
+    input_output::writeMatrixToFile( residualVector, "pride_residual.dat", 16 );
+    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector( utilities::staticCastVector< double, Time >( observationTimes ) ), "pride_times.dat", 16 );
     }
 
 }
