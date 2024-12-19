@@ -62,10 +62,14 @@ Eigen::Vector3d computeUnitVectorToReceiverFromReceiverState(
 
 Eigen::VectorXd getProperTimeRateInVectorForm(
         std::shared_ptr< DopplerProperTimeRateInterface > properTimeRateCalculator,
-        const std::vector< double >& linkEndTimes,
-        const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-        const LinkEndType linkEndAssociatedWithTime )
+        std::shared_ptr< OneWayDopplerObservationModel< > > oneWayDopplerModel,
+        const LinkEndType referenceLinkEnd,
+        const double observationTime )
 {
+    std::vector< double > linkEndTimes;
+    std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
+    Eigen::VectorXd nominalObservable = oneWayDopplerModel->computeIdealObservationsWithLinkEndData(
+        observationTime, referenceLinkEnd, linkEndTimes, linkEndStates );
     return ( Eigen::Vector1d( ) << properTimeRateCalculator->getOberverProperTimeDeviation(
                  linkEndTimes, linkEndStates ) ).finished( );
 }
@@ -219,6 +223,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
         for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
         {
+            std::cout<<"ESTIMATION CASE *********************************** "<<normalizeObservable<<" "<<estimationCase<<std::endl;
             // Generate one-way doppler model
             std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
             std::vector< std::string > perturbingBodies;
@@ -258,11 +263,10 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7, true );
                 parameterPerturbationMultipliers( 2 ) = 1.0E-4;
             }
-            std::cout << "Case " <<normalizeObservable<<" "<< estimationCase << std::endl;
 
             testObservationPartials< 1 >(
                         oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5,
-                        true, true, 10.0, parameterPerturbationMultipliers );
+                        true, true, 10.0, parameterPerturbationMultipliers, nullptr, 1.1E7, estimationCase == 2 ? 1.0 : 20.0 );
 
         }
 
@@ -280,7 +284,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
             for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
             {
-                std::cout << "Rates: " << estimationCase << std::endl;
+                std::cout<<"ESTIMATION CASE *********************************** "<<" "<<estimationCase<<std::endl;
                 // Generate one-way doppler model
                 std::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
                 std::vector< std::string > perturbingBodies;
@@ -324,7 +328,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
                 testObservationPartials< 1 >(
                             oneWayDopplerModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-4, false, true,
-                            1.0, parameterPerturbationMultipliers );
+                            1.0, parameterPerturbationMultipliers, nullptr, 1.1E7 );
             }
         }
 
@@ -391,10 +395,9 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             std::vector< double > linkEndTimes;
             std::vector< Eigen::Vector6d > linkEndStates;
             LinkEndType referenceLinkEnd = transmitter;
+
             Eigen::VectorXd nominalObservable = oneWayDopplerModel->computeIdealObservationsWithLinkEndData(
                         observationTime, referenceLinkEnd, linkEndTimes, linkEndStates );
-
-            std::cout<<"Nominal: "<<nominalObservable<<std::endl;
 
             // Compute partials with proper time.
             partialScalingObject->update(
@@ -411,23 +414,24 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
                 std::function< Eigen::VectorXd( const double ) > transmitterProperTimeRateFunction =
                         std::bind( &getProperTimeRateInVectorForm,
-                                   transmitterProperTimeRateCalculator,
-                                   linkEndTimes, linkEndStates, referenceLinkEnd );
+                                   transmitterProperTimeRateCalculator, oneWayDopplerModel, referenceLinkEnd, std::placeholders::_1 );
+
                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalTransmitterProperTimePartialsWrtMarsPosition =
                         calculatePartialWrtConstantBodyState(
-                            "Earth", bodies, Eigen::Vector3d::Constant( 1000.0E3 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
-                Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalTransmitterProperTimePartialsWrtEarthPosition =
-                        calculatePartialWrtConstantBodyState(
                             "Mars", bodies, Eigen::Vector3d::Constant( 1000.0E3 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
+
+                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalTransmitterProperTimePartialsWrtEarthPosition =
+                        calculatePartialWrtConstantBodyState(
+                            "Earth", bodies, Eigen::Vector3d::Constant( 1000.0E3 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
+
                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalTransmitterProperTimePartialsWrtMarsVelocity =
-                        calculatePartialWrtConstantBodyVelocity(
-                            "Earth", bodies, Eigen::Vector3d::Constant( 1.0E0 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
-                Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalTransmitterProperTimePartialsWrtEarthVelocity =
                         calculatePartialWrtConstantBodyVelocity(
                             "Mars", bodies, Eigen::Vector3d::Constant( 1.0E0 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
 
-                std::cout<<"Trans. scaling factor: "<<transmitterProperTimePartials->getPositionScalingFactor( transmitter )<<std::endl;
-                std::cout<<"Trans. scaling factor: "<<transmitterProperTimePartials->getPositionScalingFactor( receiver )<<std::endl;
+                Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalTransmitterProperTimePartialsWrtEarthVelocity =
+                        calculatePartialWrtConstantBodyVelocity(
+                            "Earth", bodies, Eigen::Vector3d::Constant( 1.0E0 ), transmitterProperTimeRateFunction, 1.1E7, 1 );
+
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             ( transmitterProperTimePartials->getPositionScalingFactor( transmitter ) ),
@@ -444,20 +448,19 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
                 std::function< Eigen::VectorXd( const double ) > receiverProperTimeRateFunction =
                         std::bind( &getProperTimeRateInVectorForm,
-                                   receiverProperTimeRateCalculator,
-                                   linkEndTimes, linkEndStates, referenceLinkEnd );
+                                   receiverProperTimeRateCalculator,oneWayDopplerModel, referenceLinkEnd, std::placeholders::_1 );
                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtMarsPosition =
                         calculatePartialWrtConstantBodyState(
-                            "Earth", bodies, Eigen::Vector3d::Constant( 10000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
+                            "Mars", bodies, Eigen::Vector3d::Constant( 10000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtEarthPosition =
                         calculatePartialWrtConstantBodyState(
-                            "Mars", bodies, Eigen::Vector3d::Constant( 10000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
+                            "Earth", bodies, Eigen::Vector3d::Constant( 10000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtMarsVelocity =
                         calculatePartialWrtConstantBodyVelocity(
-                            "Earth", bodies, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
+                            "Mars", bodies, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtEarthVelocity =
                         calculatePartialWrtConstantBodyVelocity(
-                            "Mars", bodies, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
+                            "Earth", bodies, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             ( receiverProperTimePartials->getPositionScalingFactor( receiver ) ),
@@ -505,7 +508,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             Eigen::VectorXd nominalObservableWithoutProperTime = oneWayDopplerModelWithoutProperTime->computeIdealObservationsWithLinkEndData(
                         observationTime, referenceLinkEnd, linkEndTimesWithoutProperTime, linkEndStatesWithoutProperTime );
 
-            std::cout<<"Nominal without proper time: "<<nominalObservableWithoutProperTime<<std::endl;
             // Compute partials with proper time.
             partialScalingObjectWithoutProperTime->update(
                         linkEndStatesWithoutProperTime, linkEndTimesWithoutProperTime,
@@ -529,31 +531,17 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             Eigen::MatrixXd properTimePartialWrtMarsVelocity = transmitterProperTimePartials->getVelocityScalingFactor( transmitter ) * partialScalingTerm;
             Eigen::MatrixXd properTimePartialWrtEarthVelocity = receiverProperTimePartials->getVelocityScalingFactor( receiver ) * partialScalingTerm;
 
-            std::cout<<"Partial w.r.t. Earth state "<<partialWrtEarthState<<std::endl;
-            std::cout<<"Partial w.r.t. Mars state "<<partialWrtMarsState<<std::endl;
-
-            std::cout<<"Partial w.r.t. Earth state (no proper time) "<<partialWrtEarthStateWithoutProperTime<<std::endl;
-            std::cout<<"Partial w.r.t. Mars state (no proper time) "<<partialWrtMarsStateWithoutProperTime<<std::endl;
-
-            std::cout<<( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtMarsPosition ).cwiseQuotient(  properTimePartialWrtMarsPosition ).transpose( )<<std::endl;
-
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 0, 1, 3 ) ),
-                        properTimePartialWrtMarsPosition, 1.0E-5 );
-
-            std::cout<<( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) - properTimePartialWrtEarthPosition ).cwiseQuotient(  properTimePartialWrtEarthPosition ).transpose( )<<std::endl;
+                        ( properTimePartialWrtMarsPosition + properTimePartialWrtEarthPosition ), 1.0E-5 );
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 0, 1, 3 ) ),
-                        properTimePartialWrtEarthPosition, 1.0E-5 );
-
-            std::cout<<( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 3, 1, 3 ) - properTimePartialWrtMarsVelocity ).cwiseQuotient(  properTimePartialWrtMarsVelocity ).transpose( )<<std::endl;
+                        ( properTimePartialWrtMarsPosition + properTimePartialWrtEarthPosition ), 1.0E-5 );
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( ( partialWrtMarsState - partialWrtMarsStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),
                         properTimePartialWrtMarsVelocity, 1.0E-5 );
-
-            std::cout<<( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 3, 1, 3 ) - properTimePartialWrtEarthVelocity ).cwiseQuotient(  properTimePartialWrtEarthVelocity ).transpose( )<<std::endl;
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( -( partialWrtEarthState - partialWrtEarthStateWithoutProperTime ).block( 0, 3, 1, 3 ) ),

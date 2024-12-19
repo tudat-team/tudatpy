@@ -104,10 +104,10 @@ ObservationScalarType calculateLineOfSightVelocityAsCFractionFromReceiverStateFu
  */
 template< typename ObservationScalarType = double >
 ObservationScalarType computeOneWayFirstOrderDopplerTaylorSeriesExpansion(
-        Eigen::Matrix< ObservationScalarType, 6, 1 >& transmitterState,
-        Eigen::Matrix< ObservationScalarType, 6, 1 >& receiverState,
-        Eigen::Matrix< ObservationScalarType, 1, 3 >& lightTimeWrtTransmitterPositionPartial,
-        Eigen::Matrix< ObservationScalarType, 1, 3 >& lightTimeWrtReceiverPositionPartial,
+        const Eigen::Matrix< ObservationScalarType, 6, 1 >& transmitterState,
+        const Eigen::Matrix< ObservationScalarType, 6, 1 >& receiverState,
+        const Eigen::Matrix< ObservationScalarType, 1, 3 >& lightTimeWrtTransmitterPositionPartial,
+        const Eigen::Matrix< ObservationScalarType, 1, 3 >& lightTimeWrtReceiverPositionPartial,
         const int taylorSeriesOrder )
 {
     // Compute projected velocity components
@@ -283,40 +283,42 @@ public:
      */
     DirectFirstOrderDopplerProperTimeRateInterface(
             const LinkEndType computationPointLinkEndType,
-            const std::function< double( ) > gravitationalParameterFunction,
-            const std::string& referenceBody,
-            const LinkEndType referencePointLinkEndType = unidentified_link_end,
-            const std::function< Eigen::Vector6d( const double ) > referencePointStateFunction =
-            std::function< Eigen::Vector6d( const double ) >( ) ):
+            const std::vector< std::function< double( ) > >& gravitationalParameterFunctions,
+            const std::vector< std::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
+            const std::vector< LinkEndType >& perturbingBodyMatchLinkEnds,
+            const std::vector< std::string >& perturbingBodyNames ):
         DopplerProperTimeRateInterface( computationPointLinkEndType ),
-        gravitationalParameterFunction_( gravitationalParameterFunction ),
-        referenceBody_( referenceBody ),
-        referencePointLinkEndType_( referencePointLinkEndType ),
-        referencePointStateFunction_( referencePointStateFunction )
+        gravitationalParameterFunctions_( gravitationalParameterFunctions ),
+        perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
+        perturbingBodyMatchLinkEnds_( perturbingBodyMatchLinkEnds ),
+        perturbingBodyNames_( perturbingBodyNames )
     {
-        // Check input consistency
-        if( this->computationPointLinkEndType_ == referencePointLinkEndType )
+        if( ( gravitationalParameterFunctions_.size( ) != perturbingBodyStateFunctions_.size( ) ) ||
+            ( gravitationalParameterFunctions_.size( ) != perturbingBodyMatchLinkEnds_.size( ) ) ||
+            ( gravitationalParameterFunctions_.size( ) != perturbingBodyNames_.size( ) ) )
         {
-            throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, input link end types must be different" );
+            throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, input sizes are inconsistent" );
         }
-        else if( ( this->computationPointLinkEndType_ != receiver ) &&
+
+        currentPerturbedStates_.resize( gravitationalParameterFunctions_.size( ) );
+        currentCentralBodyGravitationalParameters_.resize( gravitationalParameterFunctions_.size( ) );
+
+        // Check input consistency
+        if( ( this->computationPointLinkEndType_ != receiver ) &&
                  ( this->computationPointLinkEndType_ != transmitter ) )
         {
             throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, computation point must be receiver or transmitter" );
         }
-        else if( ( this->computationPointLinkEndType_ != receiver ) &&
-                 ( this->computationPointLinkEndType_ != transmitter ) &&
-                 ( this->computationPointLinkEndType_ != unidentified_link_end ) )
+
+        for( unsigned int i = 0; i < perturbingBodyMatchLinkEnds.size( ); i++ )
         {
-            throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, reference point must be receiver, transmitter or unidentified" );
-        }
-        else if( ( referencePointLinkEndType == unidentified_link_end ) && ( referencePointStateFunction == nullptr ) )
-        {
-            throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, reference point must have state information" );
-        }
-        else if( ( referencePointLinkEndType != unidentified_link_end ) && !( referencePointStateFunction == nullptr ) )
-        {
-            throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, reference point must have unambiguous state information" );
+            if ( ( this->perturbingBodyMatchLinkEnds_.at( i ) != receiver ) &&
+                     ( this->perturbingBodyMatchLinkEnds_.at( i ) != transmitter ) &&
+                     ( this->perturbingBodyMatchLinkEnds_.at( i ) != unidentified_link_end ) )
+            {
+                throw std::runtime_error(
+                    "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, perturbing body link end id must be receiver, transmitter or unidentified" );
+            }
         }
     }
 
@@ -341,12 +343,12 @@ public:
         }
 
         // Compute central body state w.r.t. computation point
-        Eigen::Vector6d computationPointRelativeState =
-                getComputationPointRelativeState( linkEndTimes, linkEndStates );
+        Eigen::Vector6d computationPointRelativeState = getComputationPointState( linkEndTimes, linkEndStates );
+        setPerturbedProperties( linkEndTimes, linkEndStates );
 
         // Compute proper time rate
         return relativity::calculateFirstCentralBodyProperTimeRateDifference(
-                    computationPointRelativeState, gravitationalParameterFunction_( ),
+                    computationPointRelativeState, currentPerturbedStates_, currentCentralBodyGravitationalParameters_,
                     relativity::equivalencePrincipleLpiViolationParameter );
     }
 
@@ -357,12 +359,11 @@ public:
      * \param linkEndStates Link end Cartesian states for one-way Doppler observale for which proper time rate is to be computed.
      * \return The state of the computation point w.r.t. the central body
      */
-    Eigen::Vector6d  getComputationPointRelativeState(
+    Eigen::Vector6d getComputationPointState(
             const std::vector< double >& linkEndTimes,
             const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
-        return ( ( this->computationPointLinkEndType_ == transmitter ) ? linkEndStates.at( 0 ) : linkEndStates.at( 1 ) ) -
-                getReferencePointState( linkEndTimes, linkEndStates );
+        return ( ( this->computationPointLinkEndType_ == transmitter ) ? linkEndStates.at( 0 ) : linkEndStates.at( 1 ) );
     }
 
     //! Function to compute the state of the central body (e.g. origin for positions and velocities in proper time calculations)
@@ -372,58 +373,87 @@ public:
      * \param linkEndStates Link end Cartesian states for one-way Doppler observale for which proper time rate is to be computed.
      * \return The state of the central body
      */
-    Eigen::Vector6d getReferencePointState(
+    void setPerturbedProperties(
             const std::vector< double >& linkEndTimes,
             const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
-        if( referencePointLinkEndType_ == unidentified_link_end )
+        for( unsigned int i = 0; i < perturbingBodyNames_.size( ); i++ )
         {
-            return referencePointStateFunction_(
-                        ( ( this->computationPointLinkEndType_ == transmitter ) ? linkEndTimes.at( 0 ) : linkEndTimes.at( 1 ) ) );
-        }
-        else
-        {
-            return ( ( referencePointLinkEndType_ == transmitter ) ? linkEndStates.at( 0 ) : linkEndStates.at( 1 ) );
+            double evaluationTime = 0.0;
+            if( perturbingBodyMatchLinkEnds_.at( i ) == unidentified_link_end )
+            {
+                evaluationTime = ( linkEndTimes.at( 0 ) + linkEndTimes.at( 1 ) ) / 2.0;
+            }
+            else if( computationPointLinkEndType_ == perturbingBodyMatchLinkEnds_.at( i ) )
+            {
+                evaluationTime = ( this->perturbingBodyMatchLinkEnds_.at( i ) == transmitter ) ? linkEndTimes.at( 0 ) : linkEndTimes.at( 1 );
+            }
+            else
+            {
+                evaluationTime = ( this->perturbingBodyMatchLinkEnds_.at( i ) == transmitter ) ? linkEndTimes.at( 1 ) : linkEndTimes.at( 0 );
+            }
+
+            currentPerturbedStates_[ i ] = perturbingBodyStateFunctions_.at( i )( evaluationTime );
+            currentCentralBodyGravitationalParameters_[ i ] = gravitationalParameterFunctions_.at( i )( );
         }
     }
 
-    //! Function to retrieve central body gravitational parameter
-    /*!
-     * Function to retrieve central body gravitational parameter
-     * \return Central body gravitational parameter
-     */
-    double getGravitationalParameter( )
+    std::vector< std::function< double( ) > > getGravitationalParameters( )
     {
-        return gravitationalParameterFunction_( );
+        return gravitationalParameterFunctions_;
     }
 
-    //! Function to return the name of body generating the gravity field.
-    /*!
-     * Function to return the name of body generating the gravity field
-     * \return Name of body generating the gravity field
-     */
-    std::string getCentralBody( )
+    bool matchWithBody( const std::string bodyName )
     {
-        return referenceBody_;
+        for( unsigned int i = 0; i < perturbingBodyNames_.size( ); i++  )
+        {
+            if( bodyName == perturbingBodyNames_.at( i ) )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    int getBodyIndex( const std::string bodyName )
+    {
+        for( unsigned int i = 0; i < perturbingBodyNames_.size( ); i++  )
+        {
+            if( bodyName == perturbingBodyNames_.at( i ) )
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    std::vector< std::string > getPerturbingBodyNames( )
+    {
+        return perturbingBodyNames_;
+    }
+
+
+    std::vector< Eigen::Vector6d > getCurrentPerturbedStates( )
+    {
+        return currentPerturbedStates_;
     }
 
 private:
 
-    //! Function that returns the gravitational parameter of the central body.
-    std::function< double( ) > gravitationalParameterFunction_;
+    std::vector< std::function< double( ) > > gravitationalParameterFunctions_;
 
-    //! Name of body generating the gravity field.
-    std::string referenceBody_;
+    std::vector< std::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions_;
 
-    //! Link end type of central body (unidentified_link_end if central body is not one of the link ends)
-    LinkEndType referencePointLinkEndType_;
+    std::vector< LinkEndType > perturbingBodyMatchLinkEnds_;
 
-    //! Function that returns the state of the central body as a function of time.
-    /*!
-     *  Function that returns the state of the central body as a function of time,  must be provided if
-     *  referencePointLinkEndType equals unidentified_link_end.
-     */
-    std::function< Eigen::Vector6d( const double ) > referencePointStateFunction_;
+    std::vector< std::string > perturbingBodyNames_;
+
+
+
+    std::vector< Eigen::Vector6d > currentPerturbedStates_;
+
+    std::vector< double > currentCentralBodyGravitationalParameters_;
+
 
 
 };
@@ -539,29 +569,24 @@ public:
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
 
         // Compute light time
-        switch( linkEndAssociatedWithTime )
+        switch ( linkEndAssociatedWithTime )
         {
         case receiver:
             lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState_, transmitterState_, time, true, ancilliarySetings );
+                receiverState_, transmitterState_, time, true, ancilliarySetings );
             transmissionTime = time - lightTime;
             receptionTime = time;
             break;
 
         case transmitter:
             lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState_, transmitterState_, time, false, ancilliarySetings );
+                receiverState_, transmitterState_, time, false, ancilliarySetings );
             transmissionTime = time;
             receptionTime = time + lightTime;
             break;
         default:
             throw std::runtime_error(
-                        "Error when calculating one way Doppler observation, link end is not transmitter or receiver" );
-        }
-
-        if( ancilliarySetings != nullptr )
-        {
-            throw std::runtime_error( "Error, calling one-way Doppler observable with ancilliary settings, but none are supported." );
+                "Error when calculating one way Doppler observation, link end is not transmitter or receiver" );
         }
 
         linkEndTimes.clear( );
@@ -573,6 +598,21 @@ public:
 
         linkEndStates.push_back( transmitterState_.template cast< double >( ) );
         linkEndStates.push_back( receiverState_.template cast< double >( ) );
+
+        return computeIdealDopplerWithLinkEndData(
+            linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+    }
+
+    Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealDopplerWithLinkEndData(
+        const LinkEndType linkEndAssociatedWithTime,
+        const std::vector< double >& linkEndTimes,
+        const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr  )
+    {
+        if( ancilliarySetings != nullptr )
+        {
+            throw std::runtime_error( "Error, calling one-way Doppler observable with ancilliary settings, but none are supported." );
+        }
 
         // Compute transmitter and receiver proper time rate
         ObservationScalarType transmitterProperTimeDifference =
@@ -598,17 +638,17 @@ public:
                     transmitterProperTimeDifference, receiverProperTimeDifference, taylorSeriesExpansionOrder_ );
 
 
-                 // Compute first-order (geometrical) one-way Doppler contribution
+        // Compute first-order (geometrical) one-way Doppler contribution
         lightTimePartialWrtReceiverPosition_ =
                 lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
-                    transmitterState_, receiverState_, transmissionTime, receptionTime, true );
+                    linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true );
         lightTimePartialWrtTransmitterPosition_ =
                 lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
-                    transmitterState_, receiverState_, transmissionTime, receptionTime, false );
+                    linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
         ObservationScalarType firstOrderDopplerObservable =
                 computeOneWayFirstOrderDopplerTaylorSeriesExpansion<
                 ObservationScalarType >(
-                    transmitterState_, receiverState_,
+                    linkEndStates.at( 0 ).template cast< ObservationScalarType >( ), linkEndStates.at( 1 ).template cast< ObservationScalarType >( ),
                     lightTimePartialWrtTransmitterPosition_, lightTimePartialWrtReceiverPosition_,
                     taylorSeriesExpansionOrder_ );
 

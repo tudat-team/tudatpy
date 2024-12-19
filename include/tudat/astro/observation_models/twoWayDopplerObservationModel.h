@@ -46,6 +46,8 @@ public:
      */
     TwoWayDopplerObservationModel(
             const LinkEnds& linkEnds,
+            const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
+            multiLegLightTimeCalculator,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
             uplinkDopplerCalculator,
             const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
@@ -53,10 +55,10 @@ public:
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const bool normalizeWithSpeedOfLight = false ):
         ObservationModel< 1, ObservationScalarType, TimeType >( two_way_doppler, linkEnds, observationBiasCalculator ),
-       uplinkDopplerCalculator_( uplinkDopplerCalculator ),
-       downlinkDopplerCalculator_( downlinkDopplerCalculator )
+        multiLegLightTimeCalculator_( multiLegLightTimeCalculator ),
+        uplinkDopplerCalculator_( uplinkDopplerCalculator ),
+        downlinkDopplerCalculator_( downlinkDopplerCalculator )
     {
-//        std::cout<<"Normalize: "<<normalizeWithSpeedOfLight<<std::endl;
         setNormalizeWithSpeedOfLight( normalizeWithSpeedOfLight );
         uplinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );
         downlinkDopplerCalculator_->setNormalizeWithSpeedOfLight( true );
@@ -87,58 +89,44 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
-        std::vector< double > uplinkLinkEndTimes;
-        std::vector< Eigen::Matrix< double, 6, 1 > > uplinkLinkEndStates;
+        linkEndTimes.clear( );
+        linkEndStates.clear( );
+        multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
+            time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
 
-        std::vector< double > downlinkLinkEndTimes;
-        std::vector< Eigen::Matrix< double, 6, 1 > > downlinkLinkEndStates;
+        std::vector< double > uplinkLinkEndTimes = { linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) };
+        std::vector< Eigen::Matrix< double, 6, 1 > > uplinkLinkEndStates = { linkEndStates.at( 0 ), linkEndStates.at( 1 ) };
+
+        std::vector< double > downlinkLinkEndTimes = { linkEndTimes.at( 2 ), linkEndTimes.at( 3 ) };
+        std::vector< Eigen::Matrix< double, 6, 1 > > downlinkLinkEndStates = { linkEndStates.at( 2 ), linkEndStates.at( 3 ) };
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > uplinkDoppler, downlinkDoppler;
 
+        LinkEndType uplinkReferenceLinkEnd, downlinkReferenceLinkEnd;
         switch( linkEndAssociatedWithTime )
         {
         case receiver:
-
-            downlinkDoppler = downlinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
-                        time, receiver, downlinkLinkEndTimes, downlinkLinkEndStates );
-            uplinkDoppler = uplinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
-                        downlinkLinkEndTimes.at( 0 ), receiver, uplinkLinkEndTimes, uplinkLinkEndStates );
-
+            uplinkReferenceLinkEnd = receiver;
+            downlinkReferenceLinkEnd = receiver;
             break;
         case reflector1:
-
-            uplinkDoppler = uplinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
-                        time, receiver, uplinkLinkEndTimes, uplinkLinkEndStates );
-            downlinkDoppler = downlinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
-                        time, transmitter, downlinkLinkEndTimes, downlinkLinkEndStates );
-
+            uplinkReferenceLinkEnd = receiver;
+            downlinkReferenceLinkEnd = transmitter;
             break;
         case transmitter:
-            uplinkDoppler = uplinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
-                        time, transmitter, uplinkLinkEndTimes, uplinkLinkEndStates );
-            downlinkDoppler = downlinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
-                        uplinkLinkEndTimes.at( 1 ), transmitter, downlinkLinkEndTimes, downlinkLinkEndStates );
+            uplinkReferenceLinkEnd = transmitter;
+            downlinkReferenceLinkEnd = transmitter;
             break;
         default:
             throw std::runtime_error(
                         "Error when calculating two way Doppler observation, link end is not transmitter or receiver" );
         }
 
-        linkEndTimes.clear( );
-        linkEndStates.clear( );
+        uplinkDoppler = uplinkDopplerCalculator_->computeIdealDopplerWithLinkEndData(
+            uplinkReferenceLinkEnd, uplinkLinkEndTimes, uplinkLinkEndStates );
+        downlinkDoppler = downlinkDopplerCalculator_->computeIdealDopplerWithLinkEndData(
+            downlinkReferenceLinkEnd, downlinkLinkEndTimes, downlinkLinkEndStates );
 
-        linkEndTimes.resize( 4 );
-        linkEndStates.resize( 4 );
-
-        linkEndTimes[ 0 ] = uplinkLinkEndTimes.at( 0 );
-        linkEndTimes[ 1 ] = uplinkLinkEndTimes.at( 1 );
-        linkEndTimes[ 2 ] = downlinkLinkEndTimes.at( 0 );
-        linkEndTimes[ 3 ] = downlinkLinkEndTimes.at( 1 );
-
-        linkEndStates[ 0 ] = uplinkLinkEndStates.at( 0 );
-        linkEndStates[ 1 ] = uplinkLinkEndStates.at( 1 );
-        linkEndStates[ 2 ] = downlinkLinkEndStates.at( 0 );
-        linkEndStates[ 3 ] = downlinkLinkEndStates.at( 1 );
 
         return multiplicationTerm_ * ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << downlinkDoppler( 0 ) * uplinkDoppler( 0 ) +
                  downlinkDoppler( 0 ) + uplinkDoppler( 0 ) ).finished( );
@@ -185,13 +173,13 @@ public:
 
 private:
 
+    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator_;
+
     //! Object that computes the one-way Doppler observable for the uplink
-    std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
-    uplinkDopplerCalculator_;
+    std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > uplinkDopplerCalculator_;
 
     //! Object that computes the one-way Doppler observable for the downlink
-    std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
-    downlinkDopplerCalculator_;
+    std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > downlinkDopplerCalculator_;
 
     ObservationScalarType multiplicationTerm_;
 
