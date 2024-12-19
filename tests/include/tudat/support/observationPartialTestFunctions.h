@@ -205,7 +205,7 @@ void testObservationPartials(
         {
             runSimulation = false;
         }
-        
+
         // Remove retransmission delay from the retransmitting reference link end: computation of multi-leg light currently doesn't support
         // retransmission delays at the reference link end
         std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > modifiedAncilliarySettings;
