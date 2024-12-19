@@ -244,24 +244,20 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
             if( parameterIndex < 6 )
             {
                 // Modify tolernace for geometrically poor term
-                if( ( test == 1 && parameterIndex == 3 ) || ( test == 3 && parameterIndex == 4 ) )
+                if( ( test == 1 && parameterIndex == 3 ) || ( test == 1 && parameterIndex == 6 ) || ( test == 3 && parameterIndex == 4 ) )
                 {
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates * 20.0 ) );
                 }
                 else
                 {
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates * 2.5 ) );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceStates ) );
                 }
             }
             else
             {
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceParameter * 5.0 ) );
             }
-
-//                    Eigen::VectorXd ratio = ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue );
-//                    std::cout<<ratio.segment( 0, 3 ).maxCoeff( )<<" "<<ratio.segment( 3, 3 ).maxCoeff( )<<" "<<ratio( 6 )<<std::endl;
         }
-
     }
 }
 
