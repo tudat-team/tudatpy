@@ -4909,9 +4909,18 @@ Returns
 :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
     Instance of :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet` class, consolidating all estimatable parameters and simulation models.
 
+Examples
+--------
+.. code-block:: python
 
+    # Create bodies
+    bodies = ...
+    # Define parameters settings
+    parameter_settings = ...
+    # Create the parameters that will be estimated
+    parameters_to_estimate = estimation_setup.create_parameter_set(parameter_settings, bodies)
 
-
+The following snippet closely follows what is done in: Full Estimation Example (https://github.com/tudat-team/tudatpy-examples/blob/master/estimation/full_estimation_example.ipynb).
 
 
 
@@ -4942,7 +4951,18 @@ Returns
 List[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
     List of :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` objects, each object hosting the functionality for simulating one combination of observable type and link geometry.
 
+Examples
+--------
+.. code-block:: python
 
+    # Create bodies
+    bodies = ...
+    # Define parameters settings
+    observation_settings = ...
+    # Create observation simulators
+    observation_simulators = estimation_setup.create_observation_simulators(observation_settings, bodies)
+
+This code snippet closely follows what is done in the Galilean Moons State Estimation Example: (https://github.com/tudat-team/tudatpy-examples/blob/master/estimation/galilean_moons_state_estimation.ipynb).
 
 
 
@@ -5156,14 +5176,17 @@ static inline std::string get_docstring(std::string name) {
 
         Object serving as identifier of a specific link end.
 
-
-
-
-
      )";
 
+    } else if(name == "LinkEndId.body_name") {
+        return R"(
+        Name of the body where the reference point is located, str
+     )";
 
-
+    } else if(name == "LinkEndId.reference_point") {
+        return R"(
+        Name of the reference point on the body (tipically, the name of a ground station), str
+     )";
 
 
     } else if(name == "LinkDefinition") {
@@ -5321,15 +5344,18 @@ static inline std::string get_docstring(std::string name) {
         This simulation settings object defines observation times, noise and viability criteria, *etc.* at which observations are to be simulated.
         Therefore, one simulation settings object of this type can only refer to one combination of observable type and link geometry (LinkDefinition).
         The user does not interact with this class directly, but defines specific observation simulation settings using an object derived from this class (created through the associated factory function).
-
-
-
-
-
      )";
 
-
-
+    } else if(name == "ObservationSimulationSettings.noise_function") {
+         return R"(
+        noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None -
+        Function providing the observation noise as a function of observation time (can be constant or time-dependent), default is None.
+     )";
+    } else if(name == "ObservationSimulationSettings.viability_settings_list") {
+        return R"(
+        viability_settings_list : List[ ObservationViabilitySettings ], default = [ ]) -
+        Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
+     )";
 
 
     } else if(name == "TabulatedObservationSimulationSettings") {
@@ -5516,24 +5542,42 @@ LinkEndId
 Function to create a link end identifier for a reference point on a body.
 
 Function to create a link end identifier for a reference point on a body, where the reference point
-is typically the identifier of a ground stations
+is typically the identifier of a ground stations.
 
 
 Parameters
 ----------
 body_name : str
-    Name of the body on which the reference point is located  
+    Name of the body on which the reference point is located: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`, str
 
-body_name : str
-    Name of the reference point on the body.  
+reference_point_id : str
+    Identifier of a specific link end: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`, str
 
 Returns
 -------
 LinkEndId
     A LinkEndId object representing a reference point on a body
 
+Examples
+--------
+.. code-block:: python
 
+    # Necessary import statement
+    from tudatpy.numerical_simulation.estimation_setup import observation
 
+    # Define the uplink link ends for one-way observable
+    body_name = "Earth"
+    reference_point = "TrackingStation"
+    satellite_name = "Delfi-C3"
+    link_ends = dict()
+    link_ends[observation.receiver] = observation.body_reference_point_link_end_id(body_name, reference_point)
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id(satellite_name)
+
+    # Create observation settings for each link/observable
+    link_definition = observation.LinkDefinition(link_ends)
+    observation_settings_list = [observation.one_way_doppler_instantaneous(link_definition)]
+
+This code snippet closely follows what is done in Covariance Estimated Parameters Example: (https://github.com/tudat-team/tudatpy-examples/blob/master/estimation/covariance_estimated_parameters.ipynb).
 
 
 
