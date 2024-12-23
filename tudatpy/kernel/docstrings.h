@@ -5599,16 +5599,16 @@ For each downlink, the returned list will contain an additional `LinkDefinition`
 Parameters
 ----------
 transmitter : Tuple[str, str]
-    `LinkEndId` type (tuple of strings), where the first entrance identifies the body and the second entry the reference point of the single transmitter link end.
+    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry reference point of the single transmitter link end(s).
 
 receivers : List[ Tuple[str, str] ]
-    List of `LinkEndId` types (tuple of strings), where for each tuple the first entrance identifies the body and the second entry the reference point of the receiver link end(s).
+    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where for each tuple the first entrance identifies the body and the second entry the reference point of the receiver link end(s).
 
 Returns
 -------
 List[ LinkDefinition ]
-    List of one or more `LinkDefinition` types, each defining the geometry for one one-way downlink.
-    A `LinkDefinition` type for a one one-way link is composed a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a `LinkEndId` type is mapped.
+    List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition` types, each defining the geometry for one one-way downlink.
+    A `LinkDefinition` type for a one one-way link is composed a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
 
 
 
@@ -5633,16 +5633,16 @@ For each uplink, the returned list will contain an additional `LinkDefinition` t
 Parameters
 ----------
 transmitters : List[ Tuple[str, str] ]
-    List of `LinkEndId` types (tuple of strings), where for each tuple the first entrance identifies the body and the second entry the reference point of the transmitter link end(s).
+    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the transmitter link end(s).
 
-receiver : Tuple[str, str]
-    `LinkEndId` type (tuple of strings), where the first entrance identifies the body and the second entry the reference point of the single receiver link end.
+receivers : Tuple[str, str]
+    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the single receiver link end(s).
 
 Returns
 -------
 List[ LinkDefinition ]
-    List of one or more `LinkDefinition` types, each defining the geometry for one one-way uplink.
-    A `LinkDefinition` type for a one one-way link is composed a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a `LinkEndId` type is mapped.
+    List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition` types, each defining the geometry for one one-way uplink.
+    A :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type for a one one-way link is made of a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
 
 
 
@@ -5664,13 +5664,12 @@ Factory function for creating convergence settings for solving the light-time eq
 solution of the following equation:
 
 .. math::
-   {t_{R}-t_{T}}=c\left(|\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})| + \Delta s(t_{R},t_{T},mathbf{r}_{R}(t_{R}),mathbf{r}_{T}(t_{T}))
+    t_{R} - t_{T} = c\left(|\mathbf{r}_{R}(t_{R}) - \mathbf{r}_{T}(t_{T})| + \Delta s(t_{R}, t_{T}, \mathbf{r}_{R}(t_{R}), \mathbf{r}_{T}(t_{T}))\right)
 
 where either the reception time :math:`t_{R}` or the transmission time :math:`t_{T}` is kept fixed (reference link end time). The term :math:`\Delta s` contains any
 deviations in the light-time from straight-line propagation at speed of light (relativistic corrections, media corrections, etc.). The algorithm starts
 at :math:`t_{R}=t_{T}`, and uses this to evaluate the right-hand side of the above equation. This leads to a new value of :math:`t_{R}` or :math:`t_{T}` (depending on which is kept fixed)
 and the right-hand side is re-evaluated in a new iteration. The input to this function defines the settings for when the iteration will terminate.
-
 
 Parameters
 ----------
@@ -5709,30 +5708,29 @@ Returns
         
 Factory function for creating settings for first-order relativistic light-time corrections.
 
-Factory function for creating settings for first-order relativistic light-time corrections: the correction to
-the light time of a (set of) stationary point masses, computed up to c−2 according to general relativity as formulated by e.g. Moyer (2000).
-One ambiguity in the model is the time at which the states of the perturbing bodies are evaluated. We distinguish two cases:
+Factory function for creating settings for first-order relativistic light-time corrections:  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
+:math:`c^{-2}` according to general relativity (e.g., Moyer, 2000). A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
 
-* In the case where the perturbing body contains a link end of the observation (for instance perturbation due to Earth gravity field,
-  with one of the link ends being an Earth-based station), the time at which the Earth’s state is evaluated equals the transmission time if Earth acts as transmitter, and reception time if
-  Earth acts as receiver.
-* In other cases, where the perturbing body is not involved in the link ends, its state is evaluated at the midpoint time between transmitter and receiver.
+* 1. **Perturbing Body as a Link End:**
+If the perturbing body (e.g., Earth) is directly involved in the observation (e.g., as the location of a transmitter or receiver):
 
+    * The body's state is evaluated at the **transmission time** if it acts as the transmitter.
+
+    * The body's state is evaluated at the **reception time** if it acts as the receiver.
+
+* 2. **Perturbing Body Not as a Link End:**
+If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
 
 Parameters
 ----------
-perturbing_bodies : str
+perturbing_bodies : List[str]
     A list containing the names of the bodies due to which the light-time correction is to be taken into account.
 
 Returns
 -------
-:class:`FirstOrderRelativisticLightTimeCorrectionSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` derived :class:`FirstOrderRelativisticLightTimeCorrectionSettings` class,
-    defining the settings for the light-time corrections
-
-
-
-
+:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings`
+    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` configured to include
+    first-order relativistic light-time corrections.
 
 
 
@@ -5762,9 +5760,8 @@ bias_value : numpy.ndarray
 
 Returns
 -------
-:class:`ConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ConstantObservationBiasSettings` class, defining the settings for a constant, absolute observation bias.
-
+:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`
+    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` defining the settings for a constant, absolute observation bias.
 
 
 
@@ -5796,8 +5793,8 @@ bias_value : numpy.ndarray
 
 Returns
 -------
-:class:`ConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ConstantObservationBiasSettings` class,
+`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`
+    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` class,
     defining the settings for a constant, relative observation bias.
 
 
@@ -6307,7 +6304,7 @@ As a result, the calculation of the one-way range (and light-time) requires the 
 .. math::
    t_{R}-t_{T}=c\left(|\mathbf{r}_{R}(t_{R})-\mathbf{r}(t_{R})| + \Delta s\right)
 
- The method for the iterative solution is described in the :func:`light_time_convergence_settings` entry
+The method for the iterative solution is described in the :func:`light_time_convergence_settings` entry
 
 
 Parameters
