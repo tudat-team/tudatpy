@@ -4850,7 +4850,7 @@ parameter_set : :class:`~tudatpy.numerical_simulation.estimation.EstimatablePara
     } else if(name == "create_parameter_set" ) {
         return R"(
         
-Function for creating a consolidated set of estimatable parameters.
+Function for creating a consolidated parameter from the given estimatable parameter settings.
 
 Function for creating a consolidated parameter from the given estimatable parameter settings.
 The function checks for consistency between the parameter settings and the models contained in the simulation setup (given by the `bodies` & and `propagator_settings` parameters).
@@ -4858,7 +4858,7 @@ The function checks for consistency between the parameter settings and the model
 
 Parameters
 ----------
-parameter_settings : list( :class:`~tudatpy.numerical_simulation.estimation_setup.EstimatableParameterSettings` )
+parameter_settings : list( :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` )
     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a factory function in the :ref:`\`\`parameter\`\`` module
 
 bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
@@ -4871,6 +4871,7 @@ Returns
 -------
 :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
     Instance of :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet` class, consolidating all estimatable parameters and simulation models.
+
 
 
 
