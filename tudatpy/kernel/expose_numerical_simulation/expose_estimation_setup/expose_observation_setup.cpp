@@ -354,7 +354,7 @@ void expose_observation_setup( py::module& m )
            py::arg( "maximum_number_of_iterations" ) = 50,
            py::arg( "absolute_tolerance" ) = TUDAT_NAN,
            py::arg( "failure_handling" ) = tom::accept_without_warning,
-           get_docstring( "one_way_range" ).c_str( ) );
+           get_docstring( "light_time_convergence_settings" ).c_str( ) );
 
     m.def( "one_way_range",
            &tom::oneWayRangeSettings,
