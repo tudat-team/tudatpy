@@ -908,7 +908,7 @@ void expose_observation_setup( py::module& m )
     m.def( "doppler_ancilliary_settings",
            &tom::getAveragedDopplerAncilliarySettings,
            py::arg( "integration_time" ) = 60.0,
-           get_docstring( "doppler_integration_time_settings" ).c_str( ) );
+           get_docstring( "doppler_ancilliary_settings" ).c_str( ) );
 
     m.def( "two_way_range_ancilliary_settings",
            &tom::getTwoWayRangeAncilliarySettings,
@@ -1074,7 +1074,7 @@ void expose_observation_setup( py::module& m )
            py::arg( "noise_amplitude" ),
            py::arg( "observable_type" ),
            py::arg( "link_definition" ),
-           get_docstring( "add_gaussian_noise_to_settings_for_link_ends" ).c_str( ) );
+           get_docstring( "add_gaussian_noise_to_observable_for_link_ends" ).c_str( ) );
 
     m.def( "add_viability_check_to_all",
            py::overload_cast<
