@@ -5332,15 +5332,28 @@ static inline std::string get_docstring(std::string name) {
      )";
 
 
+    } else if(name == "ObservationBiasSettings") {
+        return R"(
+
+        Base class to defining observation bias settings.
+
+        Functional (base) class for settings of observation bias.
+        Specific observation bias settings must be defined using an object derived from this class.
+        The derived classes are made accessible via dedicated factory functions.
 
 
 
-    } else if(name == "ObservationSimulationSettings") {
+
+
+     )";
+
+
+    } else if(name == "ConstantObservationBiasSettings") {
          return R"(
 
-        Base class for defining settings for simulating observations.
+        Base class for defining settings for simulating observations with a constant bias.
 
-        Base class for defining settings for simulating observations.
+        Base class for defining settings for simulating observations with a constant bias.
         This simulation settings object defines observation times, noise and viability criteria, *etc.* at which observations are to be simulated.
         Therefore, one simulation settings object of this type can only refer to one combination of observable type and link geometry (LinkDefinition).
         The user does not interact with this class directly, but defines specific observation simulation settings using an object derived from this class (created through the associated factory function).
@@ -5714,9 +5727,9 @@ Factory function for creating settings for first-order relativistic light-time c
 * 1. **Perturbing Body as a Link End:**
 If the perturbing body (e.g., Earth) is directly involved in the observation (e.g., as the location of a transmitter or receiver):
 
-    * The body's state is evaluated at the **transmission time** if it acts as the transmitter.
+    - The body's state is evaluated at the **transmission time** if it acts as the **transmitter**.
 
-    * The body's state is evaluated at the **reception time** if it acts as the receiver.
+    - The body's state is evaluated at the **reception time** if it acts as the **receiver**.
 
 * 2. **Perturbing Body Not as a Link End:**
 If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
@@ -5760,7 +5773,7 @@ bias_value : numpy.ndarray
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`
+:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` defining the settings for a constant, absolute observation bias.
 
 
@@ -5793,7 +5806,7 @@ bias_value : numpy.ndarray
 
 Returns
 -------
-`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`
+:class:`ConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` class,
     defining the settings for a constant, relative observation bias.
 
@@ -5830,38 +5843,7 @@ reference_link_end_type : :class:`LinkEndType`
 
 Returns
 -------
-:class:`ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
-
-
-
-
-
-
-    )";
-
-
-    } else if(name == "arcwise_absolute_bias_per_time") {
-        return R"(
-        
-Factory function for creating settings for arc-wise absolute observation biases.
-
-Factory function for creating settings for arc-wise absolute observation biases.
-This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
-
-
-Parameters
-----------
-bias_values_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
-    Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
-    The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-reference_link_end_type : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
-
-Returns
--------
-:class:`ArcWiseConstantObservationBiasSettings`
+:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
 
 
@@ -5872,41 +5854,6 @@ Returns
     )";
 
 
-
-    } else if(name == "arcwise_absolute_bias" ) {
-        return R"(
-        
-Factory function for creating settings for arc-wise absolute observation biases.
-
-Factory function for creating settings for arc-wise absolute observation biases.
-This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
-
-
-Parameters
-----------
-arc_start_times : List[ float ]
-    List containing starting times for each arc.
-
-bias_values : List[ numpy.ndarray ]
-    List of arc-wise bias vectors that are to be applied to the given observable. The vectors should be the same size as the observable to which it is
-    applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-reference_link_end_type : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
-
-Returns
--------
-:class:`ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
-
-
-
-
-
-
-    )";
-
-
     } else if(name == "arcwise_absolute_bias_per_time") {
         return R"(
         
@@ -5927,7 +5874,7 @@ reference_link_end_type : :class:`LinkEndType`
 
 Returns
 -------
-:class:`ArcWiseConstantObservationBiasSettings`
+:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
 
 
@@ -5975,73 +5922,7 @@ Returns
 
     } else if(name == "arcwise_relative_bias_per_time") {
         return R"(
-        
-Factory function for creating settings for arc-wise relative observation biases.
 
-Factory function for creating settings for arc-wise relative observation biases.
-This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
-
-
-Parameters
-----------
-bias_values_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
-    Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
-    The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-reference_link_end_type : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
-
-Returns
--------
-:class:`ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
-
-
-
-
-
-
-    )";
-
-
-
-    } else if(name == "arcwise_relative_bias" ) {
-        return R"(
-        
-Factory function for creating settings for arc-wise relative observation biases.
-
-Factory function for creating settings for arc-wise relative observation biases.
-This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
-
-
-Parameters
-----------
-arc_start_times : List[ float ]
-    List containing starting times for each arc.
-
-bias_values : List[ numpy.ndarray ]
-    List of arc-wise bias vectors that are to be applied to the given observable. The vectors should be the same size as the observable to which it is
-    applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-reference_link_end_type : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
-
-Returns
--------
-:class:`ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
-
-
-
-
-
-
-    )";
-
-
-    } else if(name == "arcwise_relative_bias_per_time") {
-        return R"(
-        
 Factory function for creating settings for arc-wise relative observation biases.
 
 Factory function for creating settings for arc-wise relative observation biases.
@@ -6076,8 +5957,8 @@ Returns
         
 Factory function for creating settings for a time-drift bias.
 
-TODO
-
+Factory function for creating settings for a time-drift bias.
+This bias setting generates the configuration for applying a constant time-drift bias to an observation model.
 
 Parameters
 ----------
@@ -6112,7 +5993,8 @@ Returns
         
 Factory function for creating settings for arc-wise time-drift biases.
 
-TODO
+Factory function for creating settings for arc-wise time-drift biases.
+This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
 
 
 Parameters
@@ -6132,7 +6014,7 @@ ref_epochs : List[ float ]
 
 Returns
 -------
-:class:`ArcWiseConstantObservationBiasSettings`
+:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
 
 
@@ -6148,78 +6030,8 @@ Returns
         
 Factory function for creating settings for arc-wise time-drift biases.
 
-TODO
-
-
-Parameters
-----------
-bias_value_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
-    Dictionary, in which the time bias value vectors for each arc are directly mapped to the starting times of the respective arc.
-    The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-time_link_end : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used the current time.
-
-ref_epochs : List[ float ]
-    List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
-
-Returns
--------
-:class:`ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
-
-
-
-
-
-
-    )";
-
-
-
-    } else if(name == "arc_wise_time_drift_bias" ) {
-        return R"(
-        
 Factory function for creating settings for arc-wise time-drift biases.
-
-TODO
-
-
-Parameters
-----------
-bias_value : numpy.ndarray
-    Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
-    assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-arc_start_times : List[ float ]
-    List containing starting times for each arc.
-
-time_link_end : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used the current time.
-
-ref_epochs : List[ float ]
-    List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
-
-Returns
--------
-:class:`ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
-
-
-
-
-
-
-    )";
-
-
-    } else if(name == "arc_wise_time_drift_bias_per_time") {
-        return R"(
-        
-Factory function for creating settings for arc-wise time-drift biases.
-
-TODO
-
+This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
 
 Parameters
 ----------
@@ -6269,7 +6081,7 @@ where :math:`K_{r}` and :math:`K_{a}` is the relative and absolute bias, respect
 Parameters
 ----------
 bias_list : List[ class:`ObservationBiasSettings` ]
-    A list containing the bias the bias settings that are to be applied to the observable.
+    A list containing the bias settings that are to be applied to the observable.
 
 Returns
 -------

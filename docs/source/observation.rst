@@ -40,17 +40,17 @@ Functions
 
    arcwise_absolute_bias
 
-   arcwise_absolute_bias
+   arcwise_absolute_bias_per_time
 
    arcwise_relative_bias
 
-   arcwise_relative_bias
+   arcwise_absolute_bias_per_time
 
    time_drift_bias
 
    arc_wise_time_drift_bias
 
-   arc_wise_time_drift_bias
+   arc_wise_time_drift_bias_per_time
 
    combined_bias
 
@@ -168,17 +168,17 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_absolute_bias
 
-.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_absolute_bias
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_absolute_bias_per_time
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_relative_bias
 
-.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_relative_bias
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_relative_bias_per_time
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arc_wise_time_drift_bias
 
-.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arc_wise_time_drift_bias
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arc_wise_time_drift_bias_per_time
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.combined_bias
 
@@ -330,6 +330,12 @@ Classes
 
    ObservationBiasSettings
 
+   ConstantObservationBiasSettings
+
+   ArcWiseConstantObservationBiasSettings
+
+   MultipleObservationBiasSettings
+
    ObservationSimulationSettings
 
    TabulatedObservationSimulationSettings
@@ -364,6 +370,15 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ConstantObservationBiasSettings
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.MultipleObservationBiasSettings
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings
