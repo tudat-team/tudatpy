@@ -169,10 +169,11 @@ Classes
 
    EstimatableParameterSettings
 
-
+   ArcWiseRadiationPressureCoefficientEstimatableParameterSettings
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings
    :members:
 
-
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.parameter.ArcWiseRadiationPressureCoefficientEstimatableParameterSettings
+   :members:
 
