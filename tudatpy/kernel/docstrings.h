@@ -5055,8 +5055,10 @@ Examples
 --------
 .. code-block:: python
 
+    # Code snippet to print all available Link End Types
     from tudatpy.numerical_simulation import estimation_setup
 
+    # Check how many Link End Types are available in Tudatpy
     num_link_end_types = len(estimation_setup.observation.LinkEndType.__members__)
     print(f'The length of all available Tudatpy Link End Types is: {num_link_end_types}')
 
@@ -5125,6 +5127,7 @@ Examples
 --------
 .. code-block:: python
 
+    # Code snippet to print all available Observable Types
     from tudatpy.numerical_simulation import estimation_setup
 
     num_observable_types = len(estimation_setup.observation.ObservableType.__members__)
@@ -5205,6 +5208,7 @@ Examples
 --------
 .. code-block:: python
 
+    # Code snippet to print all available Observation Viability Types
     from tudatpy.numerical_simulation import estimation_setup
 
     num_observation_viability_types = len(estimation_setup.observation.ObservationViabilityType.__members__)
@@ -5245,6 +5249,7 @@ Examples
 --------
 .. code-block:: python
 
+    # Code snippet to print all available Light Time Failure Handling Types
     from tudatpy.numerical_simulation import estimation_setup
 
     num_LightTimeFailureHandling_types = len(estimation_setup.observation.LightTimeFailureHandling.__members__)
@@ -5280,17 +5285,88 @@ Examples
          return R"(
 
         Object serving as identifier of a specific link end.
+        Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_origin_link_end_id` factory function,
+        whose output is indeed a *LinkEndId* object, representing the center of mass of a body.
+
+Examples
+--------
+.. code-block:: python
+
+    # Code Snippet to produce a LinkEndId object
+    from tudatpy.numerical_simulation.estimation_setup import observation
+
+    link_ends = dict()
+    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+    # The keys of this dictionary are LinkEndType objects.
+    print(link_ends.keys())
+    # The values of this dictionary are LinkEndId objects.
+    print(link_ends.values())
+
+    # Print out (explicitly) the keys (link types) and values (link names).
+    # [Note: To accomplish this, we use the "name" property (link_type.name) of the LinkEndType enumeration,
+    # and the "body_name" property (link_name.body_name) of the LinkEndId class]
+
+    for link_type, link_name in link_ends.items():
+        print(f'LinkEndType: {link_type.name}, LinkEndId: {link_name.body_name}')
+
 
      )";
 
     } else if(name == "LinkEndId.body_name") {
         return R"(
         Name of the body where the reference point is located, str
+
+    Examples
+    --------
+    .. code-block:: python
+
+        # Code Snippet to produce a LinkEndId object
+        from tudatpy.numerical_simulation.estimation_setup import observation
+
+        link_ends = dict()
+        link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+        link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+        # The keys of this dictionary are LinkEndType objects.
+        print(link_ends.keys())
+        # The values of this dictionary are LinkEndId objects.
+        print(link_ends.values())
+
+        # Print out the keys (link types) and values (link names)
+        for link_type, link_name in link_ends.items():
+            print(f'LinkEndType: {link_type.name}, LinkEndId: {link_name.body_name}')
+
+
+
+
      )";
 
     } else if(name == "LinkEndId.reference_point") {
         return R"(
         Name of the reference point on the body (tipically, the name of a ground station), str
+
+    Examples
+    --------
+    .. code-block:: python
+
+        # Code Snippet to produce a LinkEndId object (e.g. ground station) on the Earth Surface
+        # and retrieve the link reference point using the  "reference_point" property
+
+        from tudatpy.numerical_simulation.estimation_setup import observation
+
+        # Set CoolTrackingStation (defined as a Reference Point on Earth) as a receiver
+        link_ends = dict()
+        link_ends[observation.receiver] = observation.body_reference_point_link_end_id("Earth", "CoolTrackingStation")
+
+        # Verify that CoolTracking Station is associated to the key observation.receiver
+        link_end_body = link_ends[observation.receiver].body_name # body on which the reference point is located
+        link_end_name = link_ends[observation.receiver].reference_point #reference point name
+        print(f'Link End Name: {link_end_name} is found on body: {link_end_body}')
+
+
+
      )";
 
 
@@ -5298,7 +5374,27 @@ Examples
          return R"(
 
         Object storing the link ends involved in a given observation.
+        Instances of this class are typically created defining a *Link_Ends* dictionary via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.link_definition` factory function,
+        whose output is a *LinkDefinition* object, storing the Link Ends involved in a given observation.
 
+        Examples
+        --------
+        .. code-block:: python
+
+            # Code Snippet to produce a LinkDefinition object
+            from tudatpy.numerical_simulation.estimation_setup import observation
+
+            link_ends = dict()
+            link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+            # Show that what we created is a LinkDefinition object
+            Link_Definition_Object = observation.link_definition(link_ends)
+            print(Link_Definition_Object)
+
+            # [Optional]: Print the Link Ends (receiver and transmitter)  names
+            print(observation.link_definition(link_ends).link_end_id(observation.receiver).body_name)
+            print(observation.link_definition(link_ends).link_end_id(observation.transmitter).body_name)
 
 
 
@@ -5314,14 +5410,44 @@ Examples
         :type: dict[LinkEndType,LinkEndId]
      )";
 
+    } else if(name == "LinkDefinition.link_end_id") {
+        return R"(
 
+        Dictionary of link ends, with the key denoting the role in the observation, and the associated value the identifier for the link end.
+
+        :type: dict[LinkEndType,LinkEndId]
+
+        Examples
+        --------
+        .. code-block:: python
+
+            # Code Snippet to retrieve the LinkEnds names from a LinkDefinition object,
+            # using the "link_end_id" property of LinkDefinition (LinkDefinition.link_end_id)
+            from tudatpy.numerical_simulation.estimation_setup import observation
+
+            link_ends = dict()
+            link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+            Link_Definition_Object = observation.link_definition(link_ends)
+
+            # [Optional] Show that what we created is a LinkDefinition object
+            print(Link_Definition_Object)
+
+            # Print the Link Ends (receiver and transmitter)  names using the "link_end_id" property
+            print(observation.link_definition(link_ends).link_end_id(observation.receiver).body_name)
+            print(observation.link_definition(link_ends).link_end_id(observation.transmitter).body_name)
+
+
+
+     )";
 
 
 
     } else if(name == "DopplerProperTimeRateSettings") {
          return R"(
 
-        Base class to defining proper time rate settings.
+        Base class to define proper time rate settings.
 
         Functional (base) class for settings of proper time rate (at a single link end) for instantaneous Doppler observation model settings.
         Specific proper time rate settings must be defined using an object derived from this class.
@@ -5345,12 +5471,34 @@ Examples
         Functional (base) class for settings of observation models.
         Observation model settings define at least the type and geometry of a given observation.
         They can furthermore set observation biases and/or light-time corrections.
-        Simple observation models settings that are fully characterised by these elements can be managed by this base class, which can be instantiated through dedicated factory functions, such as
+        Simple observation models settings that are fully characterised by these elements can be managed by this base class.
+        This class can be instantiated through dedicated factory functions, such as
         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.cartesian_position`, 
         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.angular_position`, etc.
         Model settings for specific observation models that require additional information such as integration time, retransmission time, etc. must be defined using an object derived from this class.
         The derived classes are made accessible through further factory functions.
 
+        Examples
+        --------
+        .. code-block:: python
+
+            # Code snippet to show the creation of an ObservationSettings object
+            from tudatpy.numerical_simulation.estimation_setup import observation
+
+            # Create Link Ends dictionary
+            link_ends = dict()
+            link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+            # Create a Link Definition Object from link_ends dictionary
+            Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+            # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
+            # Other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) are set by default
+            observation_settings = observation.one_way_range(Link_Definition_Object)
+
+            # Show that it is an ObservationSettings object.
+            print(observation_settings)
 
 
 
@@ -5490,7 +5638,7 @@ Examples
         at a predefined set of times
         This type defines predefined time epochs at which applicable observations are to be simulated, stored in a rigid, "tabulated" form. 
         Some observation times may be discarded due to the use of viability settings.
-        Instances of this class are typicall created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings` 
+        Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
         and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings_list` factory functions. 
 
 
@@ -5614,7 +5762,7 @@ Function to create a link definition object.
 Parameters
 ----------
 link_ends : dict[LinkEndType,LinkEndId]
-    Dictionary of link ends, with the key denoting the role in the observaton, and the associated value the identifier for the link end.
+    Dictionary of link ends, with the key denoting the role in the observation, and the associated value the identifier for the link end.
 Returns
 -------
 LinkDefinition
@@ -23613,7 +23761,8 @@ static inline std::string get_docstring(std::string name) {
         Class containing a consolidated set of estimatable parameters.
 
         Class containing a consolidated set of estimatable parameters, linked to the environment and acceleration settings of the simulation.
-        The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.create_parameters_to_estimate` factory function.
+        The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.create_parameters_to_estimate` factory function,
+        whose output is indeed an *EstimatableParameterSet* object.
 
 
 
