@@ -38,7 +38,8 @@ void expose_estimation_setup(py::module &m) {
 
     m.def("print_parameter_names",
           &tep::printEstimatableParameterEntries< double >,
-          py::arg("parameter_set") );
+          py::arg("parameter_set"),
+          get_docstring("print_parameter_names").c_str() );
 
 
     // # EstimatableParameterSettings --> EstimatableParameterSet #
