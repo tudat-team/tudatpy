@@ -4860,9 +4860,6 @@ static inline std::string get_docstring(std::string name) {
         return "test";
 
 
-
-
-
     } else if(name == "print_parameter_names" ) {
         return R"(
         
@@ -4873,9 +4870,71 @@ Function that allows you to print a verbose list of all parameters that shall be
 
 Parameters
 ----------
-parameter_set : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet` Instance of :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet` class, consolidating all estimatable parameters and simulation models.
-    None
+parameter_set : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`.
+    Instance of :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet` class, consolidating all estimatable parameters and simulation models.
 
+Returns
+-------
+List[]
+    Verbose List of all parameters that shall be estimated. Consider parameters are listed separately.
+
+Examples
+--------
+.. code-block:: python
+
+    import numpy as np
+    from tudatpy.interface import spice
+    from tudatpy.numerical_simulation import environment_setup, propagation_setup, estimation_setup
+    from tudatpy.astro.time_conversion import DateTime
+
+    # Load SPICE kernels
+    spice.load_standard_kernels()
+
+    # Set simulation epochs
+    simulation_start_epoch = DateTime(2000, 1, 1).epoch()
+    simulation_end_epoch = DateTime(2000, 1, 4).epoch()
+
+    # Create bodies
+    bodies_to_create = ["Sun", "Earth"]
+    global_frame_origin = "Earth"
+    global_frame_orientation = "J2000"
+    body_settings = environment_setup.get_default_body_settings(
+      bodies_to_create, global_frame_origin, global_frame_orientation)
+
+    # Create vehicle
+    body_settings.add_empty_settings("Delfi-C3")
+    body_settings.get("Delfi-C3").constant_mass = 2.2
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+
+    # Define propagation settings
+    bodies_to_propagate = ["Delfi-C3"]
+    central_bodies = ["Earth"]
+    accelerations_settings_delfi_c3 = dict(
+      Sun=[propagation_setup.acceleration.point_mass_gravity()],
+      Earth=[propagation_setup.acceleration.spherical_harmonic_gravity(8, 8)]
+    )
+    acceleration_settings = {"Delfi-C3": accelerations_settings_delfi_c3}
+    acceleration_models = propagation_setup.create_acceleration_models(
+      bodies, acceleration_settings, bodies_to_propagate, central_bodies)
+    initial_state = np.zeros(6)  # Use a real initial state if needed
+
+    # Integrator settings
+    integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step_size(60.0,
+                                                                                   coefficient_set=propagation_setup.integrator.CoefficientSets.rkdp_87)
+
+    # Create propagator
+    termination_condition = propagation_setup.propagator.time_termination(simulation_end_epoch)
+    propagator_settings = propagation_setup.propagator.translational(
+      central_bodies, acceleration_models, bodies_to_propagate, initial_state,
+      simulation_start_epoch, integrator_settings, termination_condition)
+
+    # Define parameters to estimate
+    parameter_settings = estimation_setup.parameter.initial_states(propagator_settings, bodies)
+    parameter_settings.append(estimation_setup.parameter.gravitational_parameter("Earth"))
+    parameters_to_estimate = estimation_setup.create_parameter_set(parameter_settings, bodies)
+
+    # Print parameter names
+    print(estimation_setup.print_parameter_names(parameters_to_estimate))
 
 
 
@@ -4992,6 +5051,18 @@ static inline std::string get_docstring(std::string name) {
 
         Enumeration of available link end types.
 
+Examples
+--------
+.. code-block:: python
+
+    from tudatpy.numerical_simulation import estimation_setup
+
+    num_link_end_types = len(estimation_setup.observation.LinkEndType.__members__)
+    print(f'The length of all available Tudatpy Link End Types is: {num_link_end_types}')
+
+    # Print all available Link End Types using the "name" property
+    for i in range(num_link_end_types):
+        print(i, estimation_setup.observation.LinkEndType(i).name)
 
 
 
@@ -5050,6 +5121,18 @@ static inline std::string get_docstring(std::string name) {
 
         Enumeration of available observable types.
 
+Examples
+--------
+.. code-block:: python
+
+    from tudatpy.numerical_simulation import estimation_setup
+
+    num_observable_types = len(estimation_setup.observation.ObservableType.__members__)
+    print(f'The length of all available Tudatpy Observable Types is: {num_observable_types}')
+
+    # Print all available Observable Types using the "name" property
+    for i in range(num_observable_types):
+        print(i, estimation_setup.observation.ObservableType(i).name)
 
 
 
@@ -5118,6 +5201,18 @@ static inline std::string get_docstring(std::string name) {
 
         Enumeration of observation viability criterion types.
 
+Examples
+--------
+.. code-block:: python
+
+    from tudatpy.numerical_simulation import estimation_setup
+
+    num_observation_viability_types = len(estimation_setup.observation.ObservationViabilityType.__members__)
+    print(f'The length of all available Tudatpy Observation Viability Types is: {num_observation_viability_types}')
+
+    # Print all available Observation Viability Types using the "name" property
+    for i in range(num_observation_viability_types):
+        print(i, estimation_setup.observation.ObservationViabilityType(i).name)
 
 
 
@@ -5146,7 +5241,18 @@ static inline std::string get_docstring(std::string name) {
 
         Enumeration of behaviour when failing to converge light-time with required settings.
 
+Examples
+--------
+.. code-block:: python
 
+    from tudatpy.numerical_simulation import estimation_setup
+
+    num_LightTimeFailureHandling_types = len(estimation_setup.observation.LightTimeFailureHandling.__members__)
+    print(f'The length of all available Tudatpy Light Time Failure Handling Types is: {num_LightTimeFailureHandling_types}')
+
+    # Print all available Observation Viability Types using the "name" property
+    for i in range(num_LightTimeFailureHandling_types):
+        print(i, estimation_setup.observation.LightTimeFailureHandling(i).name)
 
 
 
@@ -5282,7 +5388,7 @@ static inline std::string get_docstring(std::string name) {
         Functional (base) class for settings of light time corrections.
         This class is not used for calculations of corrections, but is used for the purpose of defining the light time correction properties.
         Specific light time correction settings must be defined using an object derived from this class.
-        The derived classes are made accessible via dedicated factory functions, such as e.g. 
+        The derived classes are made accessible via dedicated factory functions, such as e.g. :
         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction`
 
 
