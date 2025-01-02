@@ -805,7 +805,7 @@ void expose_observation_setup( py::module& m )
                 std::shared_ptr< tom::ObservationViabilitySettings > >(
             m,
             "ObservationViabilitySettings",
-            get_docstring( "ObservationViabilityType" ).c_str( ) );
+            get_docstring( "ObservationViabilitySettings" ).c_str( ) );
 
     m.def( "elevation_angle_viability",
            py::overload_cast< const std::pair< std::string, std::string >, const double >(
