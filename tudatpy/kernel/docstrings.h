@@ -5518,6 +5518,27 @@ Examples
         Settings object can account for additional observation model aspects such as light time corrections and proper time rate settings.
         Instances of this class can be created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_instantaneous` factory function.
 
+        Examples
+        --------
+        .. code-block:: python
+
+            # Code snippet to show the creation of a OneWayDopplerObservationSettings object
+            from tudatpy.numerical_simulation.estimation_setup import observation
+
+            # Create Link Ends dictionary
+            link_ends = dict()
+            link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+            # Create a Link Definition Object from link_ends dictionary
+            Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+            # Use: observation.one_way_doppler_instantaneous to create a OneWayDopplerObservationSettings object (only required Link_Definition_Object argument is passed)
+            # Other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings, proper time rate) are set by default
+            doppler_observation_settings = observation.one_way_doppler_instantaneous(Link_Definition_Object)
+
+            # Show that it is an OneWayDopplerObservationSettings object.
+            print(doppler_observation_settings)
 
 
 
@@ -5539,7 +5560,40 @@ Examples
         The derived classes are made accessible via dedicated factory functions, such as e.g. :
         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction`
 
+        Examples
+        --------
+        .. code-block:: python
 
+            # Code snippet to show the creation of a LightTimeCorrectionSettings object
+            from tudatpy.numerical_simulation.estimation_setup import observation
+
+            # Create Link Ends dictionary
+            link_ends = dict()
+            link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+            # Create a Link Definition Object from link_ends dictionary
+            Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+            # Case 1: perturbing body (Earth) involved in the observations
+            # In this case, Earth is a receiver, so the body’s state will be evaluated at the reception time.
+            perturbing_body = ['Earth']
+            doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+
+            # Show that it is an LightTimeCorrectionSettings object.
+            print(doppler_observation_settings)
+
+            # Case 2: perturbing body (Sun) not involved in the observations
+            # In this case, the body's state will be evaluated at the midpoint time between the transmission and reception events.
+            perturbing_body = ['Sun']
+
+            # Use: observation.first_order_relativistic_light_time_correction to create a LightTimeCorrectionSettings object
+            # Note: first_order_relativistic_light_time_correction only requires the perturbing list of bodies to be passed as arguments
+            doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+
+            # Show that it is an LightTimeCorrectionSettings object.
+            print(doppler_observation_settings.transmitter_proper_time_rate_settings)
+            print(dir(doppler_observation_settings))
 
 
 
@@ -5559,30 +5613,24 @@ Examples
         Specific light time convergence criteria must be defined using an object derived from this class.
         The derived classes are made accessible via :func:`~tudatpy.numerical_simulation.estimation_setup.observation.light_time_convergence_settings`.
 
+        Examples
+        --------
+        .. code-block:: python
+
+            # Code snippet to show the creation of a LightTimeConvergenceCriteria object
+            from tudatpy.numerical_simulation.estimation_setup import observation
+
+            # Create Default Light Time Convergence Settings (no args specified = setting default arguments)
+            light_time_convergence_settings = observation.light_time_convergence_settings()
+
+            # Show that it is an LightTimeConvergenceCriteria object.
+            print(light_time_convergence_settings)
 
 
 
 
      )";
 
-
-
-
-
-    } else if(name == "ObservationBiasSettings") {
-         return R"(
-
-        Base class to defining observation bias settings.
-
-        Functional (base) class for settings of observation bias.
-        Specific observation bias settings must be defined using an object derived from this class.
-        The derived classes are made accessible via dedicated factory functions.
-
-
-
-
-
-     )";
 
 
     } else if(name == "ObservationBiasSettings") {
@@ -5592,12 +5640,29 @@ Examples
 
         Functional (base) class for settings of observation bias.
         Specific observation bias settings must be defined using an object derived from this class.
-        The derived classes are made accessible via dedicated factory functions.
+        The derived classes are made accessible via dedicated factory functions, such as
+        :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias`
 
 
+        Examples
+        --------
+        .. code-block:: python
+            # Code snippet to show the creation of an ObservationBiasSettings object
+            # using absolute and relative bias settings
+            from tudatpy.numerical_simulation.estimation_setup import observation
+            import numpy as np
 
+            bias_array = np.array([1e-2])
 
+            # Use absolute_bias factory function
+            absolute_bias_settings = observation.absolute_bias(bias_array)
+            # Show that it is an ObservationBiasSettings object.
+            print(absolute_bias_settings)
 
+            # Use relative_bias factory function
+            relative_bias_settings = observation.relative_bias(bias_array)
+            # Show that it is an ObservationBiasSettings object.
+            print(relative_bias_settings)
      )";
 
 
@@ -5641,7 +5706,40 @@ Examples
         Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
         and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings_list` factory functions. 
 
+        Examples
+        --------
+        .. code-block:: python
 
+            # Code snippet to show the creation of a TabulatedObservationSimulationSettings object
+            import numpy as np
+            from tudatpy.astro.time_conversion import DateTime
+            from tudatpy.numerical_simulation.estimation_setup import observation
+
+            # Set simulation start and end epochs
+            simulation_start_epoch = DateTime(2000, 1, 1).epoch()
+            simulation_end_epoch   = DateTime(2000, 1, 4).epoch()
+
+            # Define the uplink link ends for one-way observable
+            link_ends = dict()
+            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
+            link_ends[observation.receiver] = observation.body_origin_link_end_id("Delfi-C3")
+
+            # Create LinkDefinition Object and set observation settings for each link/observable
+            link_definition = observation.LinkDefinition(link_ends)
+            observation_settings_list = [observation.one_way_doppler_instantaneous(link_definition)]
+
+            # Define observation simulation times (separated by steps of 1 minute)
+            observation_times = np.arange(simulation_start_epoch, simulation_end_epoch, 60.0)
+
+            # Create TabulatedObservationSimulationSettings object
+            tabulated_observation_simulation_settings = observation.tabulated_simulation_settings(
+                observation.one_way_instantaneous_doppler_type,
+                link_definition,
+                observation_times
+            )
+
+            # Show that this is indeed a TabulatedObservationSimulationSettings object
+            print(tabulated_observation_simulation_settings)
 
 
 
@@ -5659,6 +5757,22 @@ Examples
         Class for defining the settings for observation viability calculator creation.
         Instances of this class can be created through various dedicated factory functions, such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_viability`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_avoidance_viability` and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_occultation_viability`
 
+        Examples
+        --------
+        .. code-block:: python
+
+            # Code snippet to show the creation of an ObservationViabilitySettings object
+            import numpy as np
+            from tudatpy.numerical_simulation.estimation_setup import observation
+
+            # Create ObservationViabilitySettings object
+            # In this case, we exclude observations for which the local elevation angle at link end is less 15 degrees.
+            min_elevation = np.deg2rad(15)
+            # We apply these settings to every ground station on Earth using the following link_end_id: [“Earth”, “”]
+            viability_settings = observation.elevation_angle_viability(["Earth", ""], min_elevation)
+
+            # Show that this is indeed an ObservationViabilitySettings object
+            print(viability_settings)
 
 
 
@@ -5672,12 +5786,24 @@ Examples
     } else if(name == "ObservationDependentVariableSettings") {
          return R"(
 
-        Base class for setting observation dependent variables.
+        Functional (base) class for setting observation dependent variables as part of the observation output.
 
         Functional (base) class for setting observation dependent variables as part of the observation output.
+        The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` factory function.
         Note: The associated functionality is not yet mature enough for the end user. Class is exposed for development purposes only.
 
+        Examples
+        --------
+        .. code-block:: python
 
+            # Code snippet to show the creation of an ObservationDependentVariableSettings object
+            from tudatpy.numerical_simulation.estimation_setup import observation
+
+            # Create ObservationDependentVariableSettings object
+            elevation_angle_settings = observation.elevation_angle_dependent_variable(observation.receiver)
+
+            # Show that this is indeed an ObservationDependentVariableSettings object
+            print(elevation_angle_settings)
 
 
 
@@ -5690,9 +5816,31 @@ Examples
     } else if(name == "ObservationAncilliarySimulationSettings") {
          return R"(
 
-        Class for holding ancilliary settings for observation simulation.
+        Functional (base) class for holding ancilliary settings for observation simulation.
 
+        Functional (base) class for holding ancilliary settings for observation simulation.
+        The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` factory function.
 
+        Examples
+        --------
+        .. code-block:: python
+
+            # Code snippet to show the creation of an ObservationAncillarySimulationSettings object
+            from tudatpy.numerical_simulation.estimation_setup import observation
+
+            # Example 1: Create ObservationAncillarySimulationSettings object using observation.n_way_range_ancilliary_settings factory function
+            # In this case the frequency bands of the retransmitter - we set it to x band.
+            n_way_range_ancilliary_settings = observation.n_way_range_ancilliary_settings(frequency_bands=[observation.FrequencyBands.x_band])
+
+            # Show that this is indeed an ObservationAncillarySimulationSettings object
+            print(n_way_range_ancilliary_settings)
+
+            # Example 2: Create ObservationAncillarySimulationSettings object using observation.one_way_doppler_instantaneous factory function
+            # In this case the integration time (in seconds) has to be given as input - we set it to 60s
+            doppler_ancilliary_settings = observation.doppler_ancilliary_settings(60)
+
+            # Show that this is indeed an ObservationAncillarySimulationSettings object
+            print(doppler_ancilliary_settings)
 
 
 
