@@ -5640,7 +5640,7 @@ Examples
             perturbing_body = ['Earth']
             doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
 
-            # Show that it is an LightTimeCorrectionSettings object.
+            # Show that it is a LightTimeCorrectionSettings object.
             print(doppler_observation_settings)
 
             # Case 2: perturbing body (Sun) not involved in the observations
@@ -6258,8 +6258,26 @@ Returns
 :class:`LightTimeConvergenceCriteria`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria` with the required settings.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the light_time_convergence_settings function
+    from tudatpy.numerical_simulation.estimation_setup import observation
 
+    # The light_time_convergence_settings function can be used with default inputs as just:
+    light_time_convergence_settings = observation.light_time_convergence_settings()
+    # A LightTimeConvergenceCriteria object is returned
+    print(light_time_convergence_settings)
+
+    # Users can also specify the following input arguments:
+    # iterate_corrections, maximum_number_of_iterations, absolute_tolerance, failure_handling.
+    # Let's set the failure_handling argument to LightTimeFailureHandling.print_warning_and_accept (default was LightTimeFailureHandling.accept_without_warning)
+    light_time_convergence_settings = observation.light_time_convergence_settings(
+        failure_handling = observation.LightTimeFailureHandling.print_warning_and_accept
+    )
+    # Again, a LightTimeConvergenceCriteria object is returned
+    print(light_time_convergence_settings)
 
 
 
@@ -6296,7 +6314,27 @@ Returns
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` configured to include
     first-order relativistic light-time corrections.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the first_order_relativistic_light_time_correction function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+
+    # Create Link Ends dictionary
+    link_ends = dict()
+    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+    # Create a Link Definition Object from link_ends dictionary
+    Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+    # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
+    perturbing_body = ['Earth']
+    doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+
+    # Show that it returns a LightTimeCorrectionSettings object.
+    print(doppler_observation_settings)
 
     )";
 
@@ -6327,7 +6365,20 @@ Returns
 :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` defining the settings for a constant, absolute observation bias.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the absolute_bias function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+    import numpy as np
+
+    # The function absolute_bias() requires a numpy.array of bias values in input
+    bias_array = np.array([1e-2])
+    absolute_bias_settings = observation.absolute_bias(bias_array)
+
+    # Show that it returns an ObservationBiasSettings object.
+    print(absolute_bias_settings)
 
 
 
@@ -6361,8 +6412,20 @@ Returns
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` class,
     defining the settings for a constant, relative observation bias.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the relative_bias function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+    import numpy as np
 
+    # The function relative_bias() requires a numpy.array of bias values in input
+    bias_array = np.array([1e-2])
+    relative_bias_settings_settings = observation.relative_bias(bias_array)
+
+    # Show that it returns an ObservationBiasSettings object.
+    print(relative_bias_settings_settings)
 
 
 
@@ -6397,7 +6460,24 @@ Returns
 :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the arcwise_absolute_bias function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+    import numpy as np
+
+    # The function absolute_bias() requires:
+    # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
+    # Let's simulate two arcs
+    arc_start_times = [0, 60] # define start time in seconds
+    arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
+    reference_link_end_type = observation.receiver # set bias at receiving link end
+    arcwise_absolute_bias_settings = observation.arcwise_absolute_bias(arc_start_times, arcwise_bias_array, observation.receiver)
+
+    # Show that it returns an ObservationBiasSettings object.
+    print(arcwise_absolute_bias_settings)
 
 
 
@@ -6428,8 +6508,26 @@ Returns
 :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the arcwise_absolute_bias function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+    import numpy as np
 
+    # The function absolute_bias() requires:
+    # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
+    # Let's simulate two arcs
+    bias_value_per_start_time = dict()
+    bias_value_per_start_time[0] = np.array([1e-2])
+    bias_value_per_start_time[60] = np.array([2e-2])
+    reference_link_end_type = observation.receiver # set bias at receiving link end
+
+    arcwise_absolute_bias_settings_per_time = observation.arcwise_absolute_bias_per_time(bias_value_per_start_time, reference_link_end_type)
+
+    # Show that it returns an ObservationBiasSettings object.
+    print(arcwise_absolute_bias_settings_per_time)
 
 
 
@@ -6463,7 +6561,24 @@ Returns
 :class:`ArcWiseConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the arcwise_relative_bias function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+    import numpy as np
+
+    # The function relative_bias() requires:
+    # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
+    # Let's simulate two arcs
+    arc_start_times = [0, 60] # define start time in seconds
+    arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
+    reference_link_end_type = observation.receiver # set bias at receiving link end
+    arcwise_relative_bias_settings = observation.arcwise_relative_bias(arc_start_times, arcwise_bias_array, observation.receiver)
+
+    # Show that it returns an ObservationBiasSettings object.
+    print(arcwise_relative_bias_settings)
 
 
 
@@ -6494,6 +6609,26 @@ Returns
 :class:`ArcWiseConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
 
+Examples
+--------
+.. code-block:: python
+
+    # Code Snippet to showcase the use of the arcwise_relative_bias function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+    import numpy as np
+
+    # The function relative_bias() requires:
+    # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
+    # Let's simulate two arcs
+    bias_value_per_start_time = dict()
+    bias_value_per_start_time[0] = np.array([1e-2])
+    bias_value_per_start_time[60] = np.array([2e-2])
+    reference_link_end_type = observation.receiver # set bias at receiving link end
+
+    arcwise_relative_bias_settings_per_time = observation.arcwise_relative_bias_per_time(bias_value_per_start_time, reference_link_end_type)
+
+    # Show that it returns an ObservationBiasSettings object.
+    print(arcwise_relative_bias_settings_per_time)
 
 
 
