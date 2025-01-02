@@ -146,6 +146,8 @@ Functions
 
    add_noise_function_to_observable_for_link_ends
 
+   link_ends_delays
+
 
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.link_definition
@@ -274,6 +276,8 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.add_noise_function_to_observable_for_link_ends
 
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationVariable.link_ends_delays
+
 
 
 
@@ -291,6 +295,8 @@ Enumerations
 
    LightTimeFailureHandling
 
+   ObservationAncilliarySimulationVariable
+
 
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType
@@ -305,6 +311,8 @@ Enumerations
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.LightTimeFailureHandling
    :members:
 
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationVariable
+   :members:
 
 
 
