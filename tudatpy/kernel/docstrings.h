@@ -5994,9 +5994,20 @@ Returns
 LinkDefinition
     The ``LinkDefinition`` object storing the link ends of the observation
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the link_definition factory function to return a LinkDefinition object
+    from tudatpy.numerical_simulation.estimation_setup import observation
 
+    # Create link_ends. These are the input parameters of the link_definition function
+    link_ends = dict()
+    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
 
+    # Show that, using observation.link_definition, a LinkDefinition object is returned
+    print(observation.link_definition(link_ends))
 
 
     )";
@@ -6023,7 +6034,21 @@ Returns
 LinkEndId
     A LinkEndId object representing the center of mass of a body
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the body_origin_link_end_id
+    from tudatpy.numerical_simulation.estimation_setup import observation
+
+    # Input of body_origin_link_end_id are strings (name of bodies, or satellites, or ground stations, etc...)
+    receiver = "Earth"
+    transmitter = "Delfi-C3"
+
+    # Call and print observation.body_origin_link_end_id with the proper inputs (receiver, transmitter)
+    # a LinkEndId object is returned for both receiver and transmitter
+    print(observation.body_origin_link_end_id(receiver))
+    print(observation.body_origin_link_end_id(transmitter))
 
 
 
@@ -6059,22 +6084,16 @@ Examples
 --------
 .. code-block:: python
 
-    # Necessary import statement
+    # Code Snippet to showcase the use of the body_reference_point_link_end_id
     from tudatpy.numerical_simulation.estimation_setup import observation
 
-    # Define the uplink link ends for one-way observable
-    body_name = "Earth"
-    reference_point = "TrackingStation"
-    satellite_name = "Delfi-C3"
-    link_ends = dict()
-    link_ends[observation.receiver] = observation.body_reference_point_link_end_id(body_name, reference_point)
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id(satellite_name)
+    # Input of body_reference_point_link_end_id are strings (name of bodies, or satellites, or ground stations, etc...)
+    receiver = "Earth"
+    reference_point = "CoolTrackingStation"
 
-    # Create observation settings for each link/observable
-    link_definition = observation.LinkDefinition(link_ends)
-    observation_settings_list = [observation.one_way_doppler_instantaneous(link_definition)]
-
-This code snippet closely follows what is done in `Covariance Estimated Parameters Example <https://github.com/tudat-team/tudatpy-examples/blob/master/estimation/covariance_estimated_parameters.ipynb>`_.
+    # Call and print observation.body_reference_point_link_end_id with the proper inputs (receiver, reference_point)
+    # a LinkEndId object is returned
+    print(observation.body_reference_point_link_end_id(receiver, reference_point))
 
 
 
@@ -6106,8 +6125,33 @@ List[ LinkDefinition ]
     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition` types, each defining the geometry for one one-way downlink.
     A `LinkDefinition` type for a one one-way link is composed a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the one_way_downlink_link_ends factory function to return a LinkDefinition object
 
+    from tudatpy.kernel.numerical_simulation.estimation_setup import observation
+
+    # Create a dictionary of LinkEndId objects
+    link_ends = {
+        observation.receiver: observation.body_origin_link_end_id("Earth"),
+        observation.transmitter: observation.body_origin_link_end_id("Delfi-C3")
+    }
+
+    # Print individual LinkEndId objects
+    print("Transmitter:", link_ends[observation.transmitter])
+    print("Receiver:", link_ends[observation.receiver])
+
+    # Call one_way_downlink_link_ends with properly formatted arguments
+    # Note: The function expects a transmitter and a list of receivers
+    link_definition = observation.one_way_downlink_link_ends(
+        link_ends[observation.transmitter],
+        [link_ends[observation.receiver]]  # Receivers must be in a list
+    )
+
+    # Verify that the one_way_downlink_link_ends function returns a LinkDefinition object
+    print(link_definition)
 
 
 
@@ -6140,8 +6184,32 @@ List[ LinkDefinition ]
     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition` types, each defining the geometry for one one-way uplink.
     A :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type for a one one-way link is made of a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the one_way_uplink_link_ends factory function to return a LinkDefinition object
+    from tudatpy.kernel.numerical_simulation.estimation_setup import observation
 
+    # Create a dictionary of LinkEndId objects
+    link_ends = {
+        observation.receiver: observation.body_origin_link_end_id("Earth"),
+        observation.transmitter: observation.body_origin_link_end_id("Delfi-C3")
+    }
+
+    # Print individual LinkEndId objects
+    print("Transmitter:", link_ends[observation.transmitter])
+    print("Receiver:", link_ends[observation.receiver])
+
+    # Call one_way_uplink_link_ends with properly formatted arguments
+    # Note: The function expects a transmitter and a list of receivers
+    link_definition = observation.one_way_uplink_link_ends(
+        [link_ends[observation.transmitter]], # Transmitters must be in a list
+        link_ends[observation.receiver]
+    )
+
+    # Verify that the one_way_uplink_link_ends function returns a LinkDefinition object
+    print(link_definition)
 
 
 
