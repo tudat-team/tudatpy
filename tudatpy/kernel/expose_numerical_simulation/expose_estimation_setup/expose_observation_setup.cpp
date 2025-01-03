@@ -1408,7 +1408,7 @@ void expose_observation_setup( py::module& m )
            py::arg( "reception_band" ),
            py::arg( "transmission_band" ),
            py::arg( "earth_fixed_station_positions" ) =
-                   tss::getApproximateDsnGroundStationPositions( ),
+                   tss::getCombinedApproximateGroundStationPositions( ),
            get_docstring( "create_odf_observed_observation_collection" ).c_str( ) );
 
     m.def( "observations_from_fdets_files",
