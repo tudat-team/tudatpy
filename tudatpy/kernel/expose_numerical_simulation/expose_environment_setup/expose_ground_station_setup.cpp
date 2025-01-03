@@ -89,6 +89,9 @@ namespace ground_station{
               py::arg("custom_displacement_function"),
               get_docstring("custom_station_motion").c_str());
 
+        m.def("approximate_ground_stations_position",
+              &tss::getCombinedApproximateGroundStationPositions,
+              get_docstring("approximate_ground_stations_position").c_str());
     }
 
 }// namespace ground_station
