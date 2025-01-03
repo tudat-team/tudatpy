@@ -332,6 +332,8 @@ Classes
 
    OneWayDopplerObservationSettings
 
+   NWayRangeObservationSettings
+
    LightTimeCorrectionSettings
 
    LightTimeConvergenceCriteria
@@ -341,8 +343,6 @@ Classes
    ConstantObservationBiasSettings
 
    ArcWiseConstantObservationBiasSettings
-
-   MultipleObservationBiasSettings
 
    ObservationSimulationSettings
 
@@ -371,6 +371,9 @@ Classes
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.OneWayDopplerObservationSettings
    :members:
 
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings
+   :members:
+
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings
    :members:
 
@@ -384,9 +387,6 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.MultipleObservationBiasSettings
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings
