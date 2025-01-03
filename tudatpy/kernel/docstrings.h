@@ -6468,7 +6468,7 @@ Examples
     from tudatpy.numerical_simulation.estimation_setup import observation
     import numpy as np
 
-    # The function absolute_bias() requires:
+    # The function arcwise_absolute_bias() requires:
     # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
     # Let's simulate two arcs
     arc_start_times = [0, 60] # define start time in seconds
@@ -6512,12 +6512,12 @@ Examples
 --------
 .. code-block:: python
 
-    # Code Snippet to showcase the use of the arcwise_absolute_bias function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-    import numpy as np
+# Code Snippet to showcase the use of the arcwise_absolute_bias function
+from tudatpy.numerical_simulation.estimation_setup import observation
+import numpy as np
 
-    # The function absolute_bias() requires:
-    # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
+    # The function arcwise_absolute_bias_settings_per_time() requires:
+    # 1) a dictionary with times as keys and bias values as values ,2) a reference_link_end_type
     # Let's simulate two arcs
     bias_value_per_start_time = dict()
     bias_value_per_start_time[0] = np.array([1e-2])
@@ -6569,13 +6569,13 @@ Examples
     from tudatpy.numerical_simulation.estimation_setup import observation
     import numpy as np
 
-    # The function relative_bias() requires:
+    # The function arcwise_relative_bias() requires:
     # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
     # Let's simulate two arcs
     arc_start_times = [0, 60] # define start time in seconds
     arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
     reference_link_end_type = observation.receiver # set bias at receiving link end
-    arcwise_relative_bias_settings = observation.arcwise_relative_bias(arc_start_times, arcwise_bias_array, observation.receiver)
+    arcwise_relative_bias_settings = observation.arcwise_relative_bias(arc_start_times, arcwise_bias_array, reference_link_end_type)
 
     # Show that it returns an ObservationBiasSettings object.
     print(arcwise_relative_bias_settings)
@@ -6617,8 +6617,8 @@ Examples
     from tudatpy.numerical_simulation.estimation_setup import observation
     import numpy as np
 
-    # The function relative_bias() requires:
-    # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
+    # The function arcwise_relative_bias_per_time() requires:
+    # 1) a dictionary with times as keys and bias values as values ,2) a reference_link_end_type
     # Let's simulate two arcs
     bias_value_per_start_time = dict()
     bias_value_per_start_time[0] = np.array([1e-2])
@@ -6660,10 +6660,26 @@ ref_epoch : float
 
 Returns
 -------
-:class:`ConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ConstantObservationBiasSettings` class,
+:class:`constantTimeDriftBias`
+    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.constantTimeDriftBias` class,
     defining the settings for a constant, relative observation bias.
 
+Examples
+--------
+.. code-block:: python
+
+    # Code Snippet to showcase the use of the time_drift_bias function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+    import numpy as np
+
+    # The function time_drift_bias() requires a numpy.array of bias value, time_link_end and ref_epoch as inputs
+    bias_array = np.array([1e-2])
+    time_link_end = observation.receiver
+    ref_epoch = 0
+    time_drift_bias_settings = observation.time_drift_bias(bias_array, time_link_end, ref_epoch)
+
+    # Show that it returns an ObservationBiasSettings object.
+    print(time_drift_bias_settings)
 
 
 
@@ -6703,7 +6719,25 @@ Returns
 :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the arcwise_time_drift_bias function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+    import numpy as np
+
+    # The function arcwise_time_drift_bias() requires:
+    # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type, 4) list of reference epochs
+    # Let's simulate two arcs
+    arc_start_times = [0, 60] # define start time in seconds
+    arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
+    reference_link_end_type = observation.receiver # set bias at receiving link end
+    ref_epochs = [0,60]
+    arcwise_time_drift_bias_settings = observation.arc_wise_time_drift_bias(arcwise_bias_array, arc_start_times, observation.receiver, ref_epochs)
+
+    # Show that it returns an ObservationBiasSettings object.
+    print(arcwise_time_drift_bias_settings)
 
 
 
@@ -6736,7 +6770,26 @@ Returns
 :class:`ArcWiseConstantObservationBiasSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the arcwise_time_drift_bias_per_time function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+    import numpy as np
+
+    # The function arcwise_time_drift_bias_per_time() requires:
+    # 1) an arc_start_times list ,2)  a dictionary with times as keys and bias values as values, 2) a reference_link_end_type, 3) reference_link_end_type, 4) list of reference epochs
+    # Let's simulate two arcs
+    bias_value_per_start_time = dict()
+    bias_value_per_start_time[0] = np.array([1e-2])
+    bias_value_per_start_time[60] = np.array([2e-2])
+    reference_link_end_type = observation.receiver # set bias at receiving link end
+    ref_epochs = [0,60]
+    arcwise_time_drift_bias_settings = observation.arc_wise_time_drift_bias(bias_value_per_start_time, reference_link_end_type, ref_epochs)
+
+    # Show that it returns an ObservationBiasSettings object.
+    print(arcwise_time_drift_bias_settings)
 
 
 
@@ -6771,10 +6824,36 @@ bias_list : List[:class:`~tudatpy.numerical_simulation.estimation_setup.observat
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.MultipleObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`MultipleObservationBiasSettings` class, combining the settings for multiple observation biases.
+:class:`~tudatpy.numerical_simulation.estimation_setup.observation.multipleObservationBiasSettings`
+    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.multipleObservationBiasSettings` class, combining the settings for multiple observation biases.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the combined_bias function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+    import numpy as np
+
+    # The function combined_bias() allows to combine multiple ObservationBiasSettings objects.
+    # Let's combine absolute, relative and time_drift biases.
+    bias_array = np.array([1e-2])
+
+    # Define absolute and relative bias settings
+    absolute_bias_settings = observation.absolute_bias(bias_array)
+    relative_bias_settings = observation.absolute_bias(bias_array)
+
+    # Define Time Drift Bias
+    time_link_end = observation.receiver
+    ref_epoch = 0
+    time_drift_bias_settings = observation.time_drift_bias(bias_array, time_link_end, ref_epoch)
+
+    # combined_bias takes a list of ObservationBiasSettings objects as input
+    bias_list = [absolute_bias_settings, relative_bias_settings, time_drift_bias_settings]
+    combined_bias = observation.combined_bias(bias_list)
+
+    # Show that it returns an ObservationBiasSettings object.
+    print(combined_bias)
 
 
 
@@ -6827,7 +6906,27 @@ Returns
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the one-way observable.
 
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the one_way_range function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+
+    # Create Link Ends dictionary
+    link_ends = dict()
+    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+    # Create a Link Definition Object from link_ends dictionary. This will be the input to the function.
+    Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+    # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
+    # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
+    observation_settings = observation.one_way_range(Link_Definition_Object)
+
+    # Show that this returns an ObservationSettings object.
+    print(observation_settings)
 
 
 
@@ -6873,6 +6972,29 @@ Returns
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
 
 
+Examples
+--------
+.. code-block:: python
+
+    # Code Snippet to showcase the use of the n_way_range function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+
+    # Create Link Ends dictionary
+    link_ends = dict()
+    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+    # n_way_range() takes a Link Definition Object as input to the function.
+    # Let's create it from link_ends
+    Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+    # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
+    # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
+    observation_settings = observation.n_way_range(Link_Definition_Object)
+
+    # Show that n_way_range() returns an NWayRangeObservationSettings object.
+    print(observation_settings)
+
 
 
 
@@ -6908,8 +7030,27 @@ Returns
 :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the n_way_range_from_one_way_links function
+    from tudatpy.numerical_simulation.estimation_setup import observation
 
+    # Create Link Ends dictionary
+    link_ends = dict()
+    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+    # n_way_range_from_one_way_links() takes 1) a list of ObservationSettings objects and 2) bias as input (default is None)
+    # Let's create it.
+    Link_Definition_Object = observation.LinkDefinition(link_ends) # define LinkDefinition object
+    n_way_observation_settings_list = [observation.n_way_range(Link_Definition_Object)] # define (minimal) ObservationSettings object
+
+    n_way_from_one_link_observation_settings = observation.n_way_range_from_one_way_links(n_way_observation_settings_list, bias_settings = None)
+
+    # Show that n_way_range_from_one_way_links() returns an NWayRangeObservationSettings object.
+    print(n_way_from_one_link_observation_settings)
 
 
 
@@ -6948,8 +7089,29 @@ Returns
 :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the two_way_range function
+    from tudatpy.numerical_simulation.estimation_setup import observation
 
+    # two_way_range() takes a Link Definition Object as input to the function.
+    # Note: as for this case, transmitter, retransmitter and receiver are required to define the Link Ends dictionary
+    link_ends = dict()
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
+    link_ends[observation.retransmitter] = observation.body_origin_link_end_id("Delfi-C3")
+    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+
+    # Create the LinkDefinition object
+    Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+    # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
+    # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
+    observation_settings = observation.two_way_range(Link_Definition_Object)
+
+    # Show that two_way_range() returns an NWayRangeObservationSettings object.
+    print(observation_settings)
 
 
 
@@ -6983,8 +7145,27 @@ Returns
 :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
 
+Examples
+--------
+.. code-block:: python
 
+    # Code Snippet to showcase the use of the two_way_range_from_one_way_links function
+    from tudatpy.numerical_simulation.estimation_setup import observation
 
+    # two_way_range_from_one_way_links() takes a list of ObservationSettings objects
+    # Note: as for this case, transmitter, retransmitter and receiver are required to define the Link Ends dictionary
+    link_ends = dict()
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
+    link_ends[observation.retransmitter] = observation.body_origin_link_end_id("Delfi-C3")
+    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+
+    # Create the LinkDefinition object to be used as input
+    Link_Definition_Object = observation.LinkDefinition(link_ends) # define LinkDefinition object
+    two_way_range_observation_settings_list = [observation.two_way_range(Link_Definition_Object)] # define (minimal) NWayRangeObservationSettings object
+    two_way_range_one_way_link_settings = observation.two_way_range_from_one_way_links(two_way_range_observation_settings_list)
+
+    # Show that two_way_range_from_one_way_links() returns an NWayRangeObservationSettings object.
+    print(two_way_range_one_way_link_settings)
 
 
 
