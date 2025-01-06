@@ -1,0 +1,931 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="ephemeris" href="ephemeris.html" /><link rel="prev" title="aerodynamic_coefficients" href="aerodynamic_coefficients.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>atmosphere - TudatPy API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="_static/style.css?v=ab9fdd52" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>These docs are a work-in-progress!</em> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">TudatPy API Reference</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">TudatPy API Reference</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="astro.html"><code class="docutils literal notranslate"><span class="pre">astro</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of astro</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="frame_conversion.html"><code class="docutils literal notranslate"><span class="pre">frame_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="element_conversion.html"><code class="docutils literal notranslate"><span class="pre">element_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_conversion.html"><code class="docutils literal notranslate"><span class="pre">time_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="two_body_dynamics.html"><code class="docutils literal notranslate"><span class="pre">two_body_dynamics</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="polyhedron_utilities.html"><code class="docutils literal notranslate"><span class="pre">polyhedron_utilities</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="gravitation.html"><code class="docutils literal notranslate"><span class="pre">gravitation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="data.html"><code class="docutils literal notranslate"><span class="pre">data</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of data</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="horizons.html"><code class="docutils literal notranslate"><span class="pre">horizons</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpc.html"><code class="docutils literal notranslate"><span class="pre">mpc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbdb.html"><code class="docutils literal notranslate"><span class="pre">sbdb</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mission_data_downloader.html"><code class="docutils literal notranslate"><span class="pre">mission_data_downloader</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="interface.html"><code class="docutils literal notranslate"><span class="pre">interface</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="spice.html"><code class="docutils literal notranslate"><span class="pre">spice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="math.html"><code class="docutils literal notranslate"><span class="pre">math</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of math</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="interpolators.html"><code class="docutils literal notranslate"><span class="pre">interpolators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="root_finders.html"><code class="docutils literal notranslate"><span class="pre">root_finders</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="numerical_simulation.html"><code class="docutils literal notranslate"><span class="pre">numerical_simulation</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of numerical_simulation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="estimation_setup.html"><code class="docutils literal notranslate"><span class="pre">estimation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of estimation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="observation.html"><code class="docutils literal notranslate"><span class="pre">observation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameter.html"><code class="docutils literal notranslate"><span class="pre">parameter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="environment_setup.html"><code class="docutils literal notranslate"><span class="pre">environment_setup</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of environment_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="aerodynamic_coefficients.html"><code class="docutils literal notranslate"><span class="pre">aerodynamic_coefficients</span></code></a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">atmosphere</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ephemeris.html"><code class="docutils literal notranslate"><span class="pre">ephemeris</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gravity_field.html"><code class="docutils literal notranslate"><span class="pre">gravity_field</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gravity_field_variation.html"><code class="docutils literal notranslate"><span class="pre">gravity_field_variation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ground_station.html"><code class="docutils literal notranslate"><span class="pre">ground_station</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="radiation_pressure.html"><code class="docutils literal notranslate"><span class="pre">radiation_pressure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rigid_body.html"><code class="docutils literal notranslate"><span class="pre">rigid_body</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_model.html"><code class="docutils literal notranslate"><span class="pre">rotation_model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="shape.html"><code class="docutils literal notranslate"><span class="pre">shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="shape_deformation.html"><code class="docutils literal notranslate"><span class="pre">shape_deformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vehicle_systems.html"><code class="docutils literal notranslate"><span class="pre">vehicle_systems</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="propagation_setup.html"><code class="docutils literal notranslate"><span class="pre">propagation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of propagation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="acceleration.html"><code class="docutils literal notranslate"><span class="pre">acceleration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dependent_variable.html"><code class="docutils literal notranslate"><span class="pre">dependent_variable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="integrator.html"><code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mass_rate.html"><code class="docutils literal notranslate"><span class="pre">mass_rate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="propagator.html"><code class="docutils literal notranslate"><span class="pre">propagator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="torque.html"><code class="docutils literal notranslate"><span class="pre">torque</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="thrust.html"><code class="docutils literal notranslate"><span class="pre">thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="estimation.html"><code class="docutils literal notranslate"><span class="pre">estimation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment.html"><code class="docutils literal notranslate"><span class="pre">environment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="propagation.html"><code class="docutils literal notranslate"><span class="pre">propagation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="trajectory_design.html"><code class="docutils literal notranslate"><span class="pre">trajectory_design</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of trajectory_design</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="transfer_trajectory.html"><code class="docutils literal notranslate"><span class="pre">transfer_trajectory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shape_based_thrust.html"><code class="docutils literal notranslate"><span class="pre">shape_based_thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html"><code class="docutils literal notranslate"><span class="pre">plotting</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html"><code class="docutils literal notranslate"><span class="pre">util</span></code></a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/atmosphere.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="atmosphere">
+<h1><code class="docutils literal notranslate"><span class="pre">atmosphere</span></code><a class="headerlink" href="#atmosphere" title="Link to this heading">¶</a></h1>
+<p>This module contains a set of factory functions for setting up the
+atmosphere models of celestial bodies in an environment.</p>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.constant_wind_model" title="tudatpy.numerical_simulation.environment_setup.atmosphere.constant_wind_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">constant_wind_model</span></code></a>(wind_velocity, 1]], ...)</p></td>
+<td><p>Factory function for creating wind model settings with constant wind velocity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.custom_wind_model" title="tudatpy.numerical_simulation.environment_setup.atmosphere.custom_wind_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_wind_model</span></code></a>(wind_function, float, ...)</p></td>
+<td><p>Factory function for creating wind model settings with custom wind velocity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.exponential_predefined" title="tudatpy.numerical_simulation.environment_setup.atmosphere.exponential_predefined"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exponential_predefined</span></code></a>(body_name)</p></td>
+<td><p>Factory function for creating atmospheric model settings from pre-defined exponential model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.exponential" title="tudatpy.numerical_simulation.environment_setup.atmosphere.exponential"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exponential</span></code></a>(scale_height, surface_density[, ...])</p></td>
+<td><p>Factory function for creating atmospheric model settings from fully parametrized exponential model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.nrlmsise00" title="tudatpy.numerical_simulation.environment_setup.atmosphere.nrlmsise00"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nrlmsise00</span></code></a>([space_weather_file])</p></td>
+<td><p>Factory function for creating NRLMSISE-00 atmospheric model settings.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.us76" title="tudatpy.numerical_simulation.environment_setup.atmosphere.us76"><code class="xref py py-obj docutils literal notranslate"><span class="pre">us76</span></code></a>()</p></td>
+<td><p>Factory function for creating US76 standard atmosphere model settings.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.custom_constant_temperature" title="tudatpy.numerical_simulation.environment_setup.atmosphere.custom_constant_temperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_constant_temperature</span></code></a>(...[, ...])</p></td>
+<td><p>Factory function for creating atmospheric model settings from custom density profile.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.custom_four_dimensional_constant_temperature" title="tudatpy.numerical_simulation.environment_setup.atmosphere.custom_four_dimensional_constant_temperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_four_dimensional_constant_temperature</span></code></a>(...)</p></td>
+<td><p>Factory function for creating atmospheric model settings from custom density profile.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.scaled_by_constant" title="tudatpy.numerical_simulation.environment_setup.atmosphere.scaled_by_constant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scaled_by_constant</span></code></a>(...[, is_scaling_absolute])</p></td>
+<td><p>Factory function for creating scaled atmospheric model settings.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.scaled_by_function" title="tudatpy.numerical_simulation.environment_setup.atmosphere.scaled_by_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scaled_by_function</span></code></a>(...[, is_scaling_absolute])</p></td>
+<td><p>Factory function for creating scaled atmospheric model settings.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.constant_wind_model">
+<span class="sig-name descname"><span class="pre">constant_wind_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">wind_velocity:</span> <span class="pre">numpy.ndarray[numpy.float64[3,</span> <span class="pre">1]],</span> <span class="pre">associated_reference_frame:</span> <span class="pre">tudatpy.kernel.numerical_simulation.environment.AerodynamicsReferenceFrames</span> <span class="pre">=</span> <span class="pre">&lt;AerodynamicsReferenceFrames.vertical_frame:</span> <span class="pre">1&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.WindModelSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.WindModelSettings</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.constant_wind_model" title="Link to this definition">¶</a></dt>
+<dd><p>Factory function for creating wind model settings with constant wind velocity.</p>
+<p>Factory function for settings object, defining wind model entirely from constant wind velocity in a given reference frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wind_velocity</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>numpy.ndarray</em></a><em>[</em><em>numpy.float64</em><em>[</em><em>3</em><em>, </em><em>1</em><em>]</em><em>]</em>) – Constant wind velocity in the specified reference frame.</p></li>
+<li><p><strong>associated_reference_frame</strong> (<a class="reference internal" href="environment.html#tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrames" title="tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrames"><em>numerical_simulation.environment.AerodynamicsReferenceFrames</em></a><em>, </em><em>default = AerodynamicsReferenceFrames.vertical_frame</em>) – Reference frame in which constant wind velocity is defined.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of the <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">WindModelSettings</span></code></a> derived <code class="xref py py-class docutils literal notranslate"><span class="pre">ConstantWindModelSettings</span></code> class</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ConstantWindModelSettings</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>In this example, we create <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">WindModelSettings</span></code></a>,
+using a constant wind-velocity vector defined in a vertical aerodynamic reference frame:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the wind in 3 directions in the vertical reference frame</span>
+<span class="n">wind_Xv</span> <span class="o">=</span> <span class="mi">3</span>     <span class="c1"># Meridional wind of +3 m/s (pointing to the North)</span>
+<span class="n">wind_Yv</span> <span class="o">=</span> <span class="mi">5</span>     <span class="c1"># Zonal wind of +5 m/s (pointing to the West)</span>
+<span class="n">wind_Zv</span> <span class="o">=</span> <span class="o">-</span><span class="mi">11</span>   <span class="c1"># Vertical wind of +11 m/s (pointing out of the centre of the Earth)</span>
+<span class="c1"># Create the constant wind settings</span>
+<span class="n">constant_wind</span> <span class="o">=</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">constant_wind_model</span><span class="p">(</span>
+  <span class="p">[</span><span class="n">wind_Xv</span><span class="p">,</span> <span class="n">wind_Yv</span><span class="p">,</span> <span class="n">wind_Zv</span><span class="p">],</span>
+  <span class="n">environment</span><span class="o">.</span><span class="n">AerodynamicsReferenceFrames</span><span class="o">.</span><span class="n">vertical_frame</span><span class="p">)</span>
+<span class="c1"># Apply the constant wind settings to the Earth atmosphere settings</span>
+<span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Earth&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span><span class="o">.</span><span class="n">wind_settings</span> <span class="o">=</span> <span class="n">constant_wind</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.custom_wind_model">
+<span class="sig-name descname"><span class="pre">custom_wind_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">wind_function:</span> <span class="pre">Callable[[float,</span> <span class="pre">float,</span> <span class="pre">float,</span> <span class="pre">float],</span> <span class="pre">numpy.ndarray[numpy.float64[3,</span> <span class="pre">1]]],</span> <span class="pre">associated_reference_frame:</span> <span class="pre">tudatpy.kernel.numerical_simulation.environment.AerodynamicsReferenceFrames</span> <span class="pre">=</span> <span class="pre">&lt;AerodynamicsReferenceFrames.vertical_frame:</span> <span class="pre">1&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.WindModelSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.WindModelSettings</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.custom_wind_model" title="Link to this definition">¶</a></dt>
+<dd><p>Factory function for creating wind model settings with custom wind velocity.</p>
+<p>Factory function for settings object, defining wind model entirely from custom wind velocity function in a given reference frame.
+The custom wind velocity has to be given as a function of altitude, longitude, latitude and time.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The longitude and latitude will be passed to the function in <strong>degree</strong> and not in radians.
+The altitude is in meters, and the time is a Julian date in seconds since J2000.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wind_velocity</strong> (<em>callable</em><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>numpy.ndarray</em></a><em>[</em><em>numpy.float64</em><em>[</em><em>3</em><em>, </em><em>1</em><em>]</em><em>]</em><em>]</em>) – Custom wind velocity function (w.r.t. altitude, longitude, latitude and time) in the specified reference frame.</p></li>
+<li><p><strong>associated_reference_frame</strong> (<a class="reference internal" href="environment.html#tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrames" title="tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrames"><em>numerical_simulation.environment.AerodynamicsReferenceFrames</em></a><em>, </em><em>default = AerodynamicsReferenceFrames.vertical_frame</em>) – Reference frame in which wind velocity is defined.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of the <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">WindModelSettings</span></code></a> derived <code class="xref py py-class docutils literal notranslate"><span class="pre">CustomWindModelSettings</span></code> class</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CustomWindModelSettings</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>In this example, we create <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">WindModelSettings</span></code></a>,
+using a user-defined wind-velocity function (of altitude, longitude, latitude and time), defined in a vertical aerodynamic reference frame:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the wind in 3 directions in the vertical reference frame</span>
+<span class="k">def</span> <span class="nf">wind_function</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+    <span class="c1"># Meridional wind (pointing North) depends on latitude [deg] and time [sec since J2000]</span>
+    <span class="n">wind_Xv</span> <span class="o">=</span> <span class="n">lat</span><span class="o">*</span><span class="mi">10</span><span class="o">/</span><span class="n">time</span>
+    <span class="c1"># Zonal wind (pointing West) only depends on the longitude [deg]</span>
+    <span class="n">wind_Yv</span> <span class="o">=</span> <span class="mi">5</span><span class="o">/</span><span class="n">lon</span>
+    <span class="c1"># Vertical wind (pointing out of the centre of the Earth) only depends on the altitude [m]</span>
+    <span class="n">wind_Zv</span> <span class="o">=</span> <span class="mi">1000</span><span class="o">/</span><span class="n">h</span>
+    <span class="c1"># Return the custom wind</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">wind_Xv</span><span class="p">,</span> <span class="n">wind_Yv</span><span class="p">,</span> <span class="n">wind_Zv</span><span class="p">]</span>
+<span class="c1"># Create the custom wind settings</span>
+<span class="n">custom_wind</span> <span class="o">=</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">custom_wind_model</span><span class="p">(</span>
+    <span class="n">wind_function</span><span class="p">,</span>
+    <span class="n">environment</span><span class="o">.</span><span class="n">AerodynamicsReferenceFrames</span><span class="o">.</span><span class="n">vertical_frame</span><span class="p">)</span>
+<span class="c1"># Apply the custom wind settings to the Earth atmosphere settings</span>
+<span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Earth&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span><span class="o">.</span><span class="n">wind_settings</span> <span class="o">=</span> <span class="n">custom_wind</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.exponential_predefined">
+<span class="sig-name descname"><span class="pre">exponential_predefined</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.exponential_predefined" title="Link to this definition">¶</a></dt>
+<dd><p>Factory function for creating atmospheric model settings from pre-defined exponential model.</p>
+<p>Factory function for settings object, defining atmosphere model from pre-defined exponential model.
+The pre-encoded properties are available for Earth and Mars, as can be seen on the table below.
+This function creates an instance of an <cite>AtmosphereSettings</cite> derived <cite>ExponentialAtmosphereSettings</cite> object.</p>
+<div class="table-wrapper colwidths-given docutils container" id="id1">
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Pre-defined exponential atmosphere model properties</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Property</p></th>
+<th class="head"><p>Earth</p></th>
+<th class="head"><p>Mars</p></th>
+<th class="head"><p>Units</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Scale Height</p></td>
+<td><p>7.2</p></td>
+<td><p>11.1</p></td>
+<td><p>km</p></td>
+</tr>
+<tr class="row-odd"><td><p>Density at Zero Altitude</p></td>
+<td><p>1.225</p></td>
+<td><p>0.02</p></td>
+<td><p>kg/m <span class="math notranslate nohighlight">\({}^3\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Constant Temperature</p></td>
+<td><p>246.0</p></td>
+<td><p>215.0</p></td>
+<td><p>K</p></td>
+</tr>
+<tr class="row-odd"><td><p>Specific Gas Constant</p></td>
+<td><p>287.0</p></td>
+<td><p>197.0</p></td>
+<td><p>J/kg/K</p></td>
+</tr>
+<tr class="row-even"><td><p>Ratio of Specific Heats</p></td>
+<td><p>1.4</p></td>
+<td><p>1.3</p></td>
+<td><p>–</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>body_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Body for which pre-defined model settings are to be loaded. Available bodies “Earth”, “Mars”.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of the <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> derived <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExponentialAtmosphereSettings</span></code></a> class</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings">ExponentialAtmosphereSettings</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>In this example, we create <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> for Mars,
+using the interface of the predefined exponential model, using pre-encoded values:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create atmosphere settings and add to body settings of &quot;Mars&quot;</span>
+<span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Mars&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span> <span class="o">=</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">exponential_predefined</span><span class="p">(</span><span class="s2">&quot;Mars&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.exponential">
+<span class="sig-name descname"><span class="pre">exponential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant_temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">288.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_gas_constant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">287.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratio_specific_heats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.exponential" title="Link to this definition">¶</a></dt>
+<dd><p>Factory function for creating atmospheric model settings from fully parametrized exponential model.</p>
+<p>Factory function for settings object, defining exponential atmosphere model.
+The model is solely based on an exponentially decaying density profile with a constant temperature and composition
+(i.e. independent of time, latitude and longitude).</p>
+<p>The user has access to a fully parametrized model, meaning that in addition to the required input parameters <code class="docutils literal notranslate"><span class="pre">scale_height</span></code> and <code class="docutils literal notranslate"><span class="pre">surface_density</span></code> (ground-level air density),
+the user can specify non-standard values for constant temperature, gas constant and specific heats ratio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scale_height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Scale height for density profile of atmosphere.</p></li>
+<li><p><strong>surface_density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Atmospheric density at ground level.</p></li>
+<li><p><strong>constant_temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>default = 288.15</em>) – Constant atmospheric temperature.</p></li>
+<li><p><strong>specific_gas_constant</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>default = constants.SPECIFIC_GAS_CONSTANT_AIR</em>) – Specific gas constant for (constant) atmospheric chemical composition.</p></li>
+<li><p><strong>ratio_specific_heats</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>default = 1.4</em>) – Ratio of specific heats for (constant) atmospheric chemical composition.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of the <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> derived <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExponentialAtmosphereSettings</span></code></a> class</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings">ExponentialAtmosphereSettings</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>In this example, we create <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> for Earth,
+using the minimalist interface to the exponential model and taking parameters with classic values for Earth:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># define parameters of an invariant exponential atmosphere model</span>
+<span class="n">density_scale_height</span> <span class="o">=</span> <span class="mf">7.2E3</span>
+<span class="n">constant_temperature</span> <span class="o">=</span> <span class="mi">290</span>
+<span class="c1"># create atmosphere settings and add to body settings of &quot;Earth&quot;</span>
+<span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span> <span class="o">=</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span>
+     <span class="n">density_scale_height</span><span class="p">,</span> <span class="n">density_at_zero_altitude</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.nrlmsise00">
+<span class="sig-name descname"><span class="pre">nrlmsise00</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">space_weather_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/Users/lgisolfi/.tudat/resource/space_weather/sw19571001.txt'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.nrlmsise00" title="Link to this definition">¶</a></dt>
+<dd><p>Factory function for creating NRLMSISE-00 atmospheric model settings.</p>
+<p>Factory function for settings object, defining atmosphere model in accordance to the NRLMSISE-00 global reference model for Earth’s atmosphere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>space_weather_file</strong> (str, default = <a class="reference internal" href="data.html#tudatpy.data.get_space_weather_path" title="tudatpy.data.get_space_weather_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_space_weather_path()</span></code></a> + ‘sw19571001.txt’) – File to be used for space weather characteristics as a function of time (e.g. F10.7, Kp, etc.). The file is typically taken from here <a class="reference external" href="https://celestrak.org/SpaceData/sw19571001.txt">celestrak</a> (note that the file in your resources path will not be the latest version of this file; download and replace your existing file if required). Documentation on the file is given <a class="reference external" href="https://celestrak.org/SpaceData/SpaceWx-format.php">here</a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of the <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> class</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings">AtmosphereSettings</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>In this example, we create <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> for Earth,
+using the NRLMSISE-00 global reference model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># create atmosphere settings and add to body settings of body &quot;Earth&quot;</span>
+<span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span> <span class="o">=</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">nrlmsise00</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.us76">
+<span class="sig-name descname"><span class="pre">us76</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.us76" title="Link to this definition">¶</a></dt>
+<dd><p>Factory function for creating US76 standard atmosphere model settings.</p>
+<p>Factory function for creating US76 standard atmosphere model settings. The model is defined using tabulated data for density, pressure and temperature,
+from an altitude of -5 km up to 1000 km. Up to 100 km, a data point is provided every 100 m. Above 100 km, a data point is provided every 1 km. The data
+are interpolated using a cubic spline interpolator. Note that this model is specific to Earth’s atmosphere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Instance of the <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> class</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings">AtmosphereSettings</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>In this example, we create <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> for Earth,
+using the US76 standard atmosphere model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># create atmosphere settings and add to body settings of body &quot;Earth&quot;</span>
+<span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span> <span class="o">=</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">us76</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.custom_constant_temperature">
+<span class="sig-name descname"><span class="pre">custom_constant_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant_temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_gas_constant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">287.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratio_of_specific_heats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.custom_constant_temperature" title="Link to this definition">¶</a></dt>
+<dd><p>Factory function for creating atmospheric model settings from custom density profile.</p>
+<p>Factory function for settings object, defining constant temperature atmosphere model from custom density profile.
+The user is specifying the density profile as a function of altitude.
+The value of pressure is computed by assuming hydrostatic equilibrium, temperature, gas constant and the ratio of specific heats are modelled as constants.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>density_function</strong> (<em>callable</em><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Function to retrieve the density at the current altitude.</p></li>
+<li><p><strong>constant_temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Constant atmospheric temperature.</p></li>
+<li><p><strong>specific_gas_constant</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>default = 287.0</em>) – Specific gas constant for (constant) atmospheric chemical composition.</p></li>
+<li><p><strong>ratio_specific_heats</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>default = 1.4</em>) – Ratio of specific heats for (constant) atmospheric chemical composition.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of the <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> derived <code class="xref py py-class docutils literal notranslate"><span class="pre">CustomConstantTemperatureAtmosphereSettings</span></code> class</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CustomConstantTemperatureAtmosphereSettings</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>In this example, we create <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> for Earth,
+with constant temperature and composition, but a density which varies with altitude according to a user-defined model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the density as a function of altitude [in m]</span>
+<span class="k">def</span> <span class="nf">density_function</span><span class="p">(</span><span class="n">h</span><span class="p">):</span>
+    <span class="c1"># Return the density according to a modified exponential model</span>
+    <span class="k">return</span> <span class="mf">1.15</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">h</span><span class="o">/</span><span class="mi">7300</span><span class="p">)</span>
+<span class="c1"># Define parameters for constant temperature and composition</span>
+<span class="n">constant_temperature</span> <span class="o">=</span> <span class="mf">250.0</span>
+<span class="n">specific_gas_constant</span> <span class="o">=</span> <span class="mf">300.0</span>
+<span class="n">ratio_of_specific_heats</span> <span class="o">=</span> <span class="mf">1.4</span>
+<span class="c1"># Create the custom constant temperature atmosphere settings</span>
+<span class="n">custom_density_settings</span> <span class="o">=</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">custom_constant_temperature</span><span class="p">(</span>
+    <span class="n">density_function</span><span class="p">,</span>
+    <span class="n">constant_temperature</span><span class="p">,</span>
+    <span class="n">specific_gas_constant</span><span class="p">,</span>
+    <span class="n">ratio_of_specific_heats</span><span class="p">)</span>
+<span class="c1"># Add the custom density to the body settings of &quot;Earth&quot;</span>
+<span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Earth&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span> <span class="o">=</span> <span class="n">custom_density_settings</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.custom_four_dimensional_constant_temperature">
+<span class="sig-name descname"><span class="pre">custom_four_dimensional_constant_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant_temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_gas_constant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">287.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratio_of_specific_heats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.custom_four_dimensional_constant_temperature" title="Link to this definition">¶</a></dt>
+<dd><p>Factory function for creating atmospheric model settings from custom density profile.</p>
+<p>Factory function for settings object, defining constant temperature atmosphere model from custom density profile.
+The user is specifying the density profile as a function of altitude, longitude, latitude and time.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The longitude and latitude will be passed to the function in <strong>degree</strong> and not in radians.
+The altitude is in meters, and the time is a Julian date in seconds since J2000.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>density_function</strong> (<em>callable</em><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Function to retrieve the density at the current altitude, longitude, latitude and time.</p></li>
+<li><p><strong>constant_temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Constant atmospheric temperature.</p></li>
+<li><p><strong>specific_gas_constant</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>default = 287.0</em>) – Specific gas constant for (constant) atmospheric chemical composition.</p></li>
+<li><p><strong>ratio_specific_heats</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>default = 1.4</em>) – Ratio of specific heats for (constant) atmospheric chemical composition.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of the <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> derived <code class="xref py py-class docutils literal notranslate"><span class="pre">CustomConstantTemperatureAtmosphereSettings</span></code> class</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CustomConstantTemperatureAtmosphereSettings</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>In this example, we create <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> for Earth,
+with constant temperature and composition (gas constant and ratio of specific heats), but a density which varies with altitude, longitude, latitude and time, according to a user-defined model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the density as a function of altitude [m], longitude [deg], latitude [deg], and time [sec since J2000]</span>
+<span class="k">def</span> <span class="nf">density_function</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+    <span class="c1"># Return the density according to an exponential model that varies with time to add noise with a sine (ignore lon/lat)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">0.15</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">time</span><span class="o">/</span><span class="mi">10</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">h</span><span class="o">/</span><span class="mi">7300</span><span class="p">)</span>
+<span class="c1"># Define the parameters for constant temperature and composition</span>
+<span class="n">constant_temperature</span> <span class="o">=</span> <span class="mf">250.0</span>
+<span class="n">specific_gas_constant</span> <span class="o">=</span> <span class="mf">300.0</span>
+<span class="n">ratio_of_specific_heats</span> <span class="o">=</span> <span class="mf">1.4</span>
+<span class="c1"># Create the atmosphere settings and add to body settings of &quot;Earth&quot;</span>
+<span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span> <span class="o">=</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">custom_constant_temperature</span><span class="p">(</span>
+    <span class="n">density_function</span><span class="p">,</span>
+    <span class="n">constant_temperature</span><span class="p">,</span>
+    <span class="n">specific_gas_constant</span><span class="p">,</span>
+    <span class="n">ratio_of_specific_heats</span> <span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.scaled_by_constant">
+<span class="sig-name descname"><span class="pre">scaled_by_constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unscaled_atmosphere_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">density_scaling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_scaling_absolute</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.scaled_by_constant" title="Link to this definition">¶</a></dt>
+<dd><p>Factory function for creating scaled atmospheric model settings.</p>
+<p>Factory function for settings object, defining atmospheric model based on an scaling of an existing atmospheric settings object.
+The user can apply a scaling factor (or an absolute value) to the air densities of the existing model settings (for instance for an uncertainty analysis).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unscaled_atmosphere_settings</strong> (<a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><em>AtmosphereSettings</em></a>) – Sets base settings of atmosphere model to be scaled.</p></li>
+<li><p><strong>density_scaling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Constant scaling factor to be applied to the entire air density profile.</p></li>
+<li><p><strong>is_scaling_absolute</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default=false</em>) – Boolean indicating whether density scaling is absolute. Setting this boolean to true will add the scaling value to the baseline density, instead of the default behaviour of multiplying the baseline density by the scaling value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of the <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> derived <code class="xref py py-class docutils literal notranslate"><span class="pre">ScaledAtmosphereSettings</span></code> class.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ScaledAtmosphereSettings</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>At present, the scaled atmosphere model only supports scaling of the density value.
+For cases where the density is used to compute other atmospheric quantities (such as pressure using hydrostatic equilibrium),
+this calculation is performed using the <cite>unscaled</cite> density!</p>
+<p class="rubric">Examples</p>
+<p>In this example, we create <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> for Earth,
+by modifying an existing <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> object such that the resulting air density profile is scaled by a constant:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># define parameter for scaling</span>
+<span class="n">scaling_constant</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="c1"># define variable containing the existing atmosphere model settings</span>
+<span class="n">unscaled_atmosphere_settings</span> <span class="o">=</span> <span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span>
+<span class="c1"># create atmosphere settings and add to body settings of &quot;Earth&quot;</span>
+<span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span> <span class="o">=</span>  <span class="n">environment_setup</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">scaled_by_constant</span><span class="p">(</span>
+    <span class="n">unscaled_atmosphere_settings</span><span class="p">,</span>
+    <span class="n">scaling_constant</span> <span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.scaled_by_function">
+<span class="sig-name descname"><span class="pre">scaled_by_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unscaled_atmosphere_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">density_scaling_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_scaling_absolute</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><span class="pre">tudatpy.kernel.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.scaled_by_function" title="Link to this definition">¶</a></dt>
+<dd><p>Factory function for creating scaled atmospheric model settings.</p>
+<p>Factory function for settings object, defining atmospheric model based on scaling an existing atmospheric settings object.
+The user can apply custom scaling factors (or absolute values) to the air densities of the existing model settings (for instance for an uncertainty analysis).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unscaled_atmosphere_settings</strong> (<a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><em>AtmosphereSettings</em></a>) – Sets base settings of atmosphere model to be scaled.</p></li>
+<li><p><strong>density_scaling_function</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Specifies air density scaling factor as a function of time.</p></li>
+<li><p><strong>is_scaling_absolute</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default=false</em>) – Boolean indicating whether density scaling is absolute. Setting this boolean to true will add the scaling value to the baseline density, instead of the default behaviour of multiplying the baseline density by the scaling value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of the <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> derived <code class="xref py py-class docutils literal notranslate"><span class="pre">ScaledAtmosphereSettings</span></code> class.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ScaledAtmosphereSettings</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>At present, the scaled atmosphere model only supports scaling of the density value.
+For cases where the density is used to compute other atmospheric quantities (such as pressure using hydrostatic equilibrium),
+this calculation is performed using the <cite>unscaled</cite> density!</p>
+<p class="rubric">Examples</p>
+<p>In this example, we create <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> for Earth,
+by modifying an existing <a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a> object such, that the resulting air density profile is scaled with a user-defined function of time:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the density scaling as a function of time [sec since J2000] (to add noise with a sine)</span>
+<span class="k">def</span> <span class="nf">scaling_function</span><span class="p">(</span><span class="n">time</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">time</span> <span class="o">/</span> <span class="mi">50</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.25</span>
+<span class="c1"># Extract the existing atmosphere model settings</span>
+<span class="n">unscaled_atmosphere_settings</span> <span class="o">=</span> <span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span>
+<span class="c1"># Create the atmosphere settings and add to body settings of &quot;Earth&quot;</span>
+<span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">)</span><span class="o">.</span><span class="n">atmosphere_settings</span> <span class="o">=</span>  <span class="n">environment_setup</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">scaled_by_function</span><span class="p">(</span>
+    <span class="n">unscaled_atmosphere_settings</span><span class="p">,</span>
+    <span class="n">scaling_function</span> <span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WindModelSettings</span></code></a></p></td>
+<td><p>Class for providing settings for wind model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a></p></td>
+<td><p>Base class for providing settings for atmosphere model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExponentialAtmosphereSettings</span></code></a></p></td>
+<td><p>Class for providing settings for exponential atmosphere model.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">WindModelSettings</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings" title="Link to this definition">¶</a></dt>
+<dd><p>Class for providing settings for wind model.</p>
+<p>Functional (base) class for settings of wind models that require no information in addition to their type.
+Wind model classes requiring additional information must be created using an object derived from this class.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AtmosphereSettings</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings" title="Link to this definition">¶</a></dt>
+<dd><p>Base class for providing settings for atmosphere model.</p>
+<p>Functional (base) class for settings of atmosphere models that require no information in addition to their type.
+Atmosphere model classes requiring additional information must be created using an object derived from this class.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings.wind_settings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wind_settings</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings.wind_settings" title="Link to this definition">¶</a></dt>
+<dd><p><strong>read-only</strong></p>
+<p>Wind model settings for the atmosphere model settings object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings" title="tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings">WindModelSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExponentialAtmosphereSettings</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings" title="Link to this definition">¶</a></dt>
+<dd><p>Class for providing settings for exponential atmosphere model.</p>
+<p><cite>AtmosphereSettings</cite> derived class for a defining the settings of an exponential atmosphere model.</p>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="ephemeris.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">ephemeris</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="aerodynamic_coefficients.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">aerodynamic_coefficients</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021, Tudat Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">atmosphere</span></code></a><ul>
+<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.constant_wind_model"><code class="docutils literal notranslate"><span class="pre">constant_wind_model()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.custom_wind_model"><code class="docutils literal notranslate"><span class="pre">custom_wind_model()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.exponential_predefined"><code class="docutils literal notranslate"><span class="pre">exponential_predefined()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.exponential"><code class="docutils literal notranslate"><span class="pre">exponential()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.nrlmsise00"><code class="docutils literal notranslate"><span class="pre">nrlmsise00()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.us76"><code class="docutils literal notranslate"><span class="pre">us76()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.custom_constant_temperature"><code class="docutils literal notranslate"><span class="pre">custom_constant_temperature()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.custom_four_dimensional_constant_temperature"><code class="docutils literal notranslate"><span class="pre">custom_four_dimensional_constant_temperature()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.scaled_by_constant"><code class="docutils literal notranslate"><span class="pre">scaled_by_constant()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.scaled_by_function"><code class="docutils literal notranslate"><span class="pre">scaled_by_function()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings"><code class="docutils literal notranslate"><span class="pre">WindModelSettings</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings"><code class="docutils literal notranslate"><span class="pre">AtmosphereSettings</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings.wind_settings"><code class="docutils literal notranslate"><span class="pre">AtmosphereSettings.wind_settings</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings"><code class="docutils literal notranslate"><span class="pre">ExponentialAtmosphereSettings</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=8a448e45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>
