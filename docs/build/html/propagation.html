@@ -1,0 +1,1050 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="trajectory_design" href="trajectory_design.html" /><link rel="prev" title="environment" href="environment.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>propagation - TudatPy API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="_static/style.css?v=ab9fdd52" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>These docs are a work-in-progress!</em> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">TudatPy API Reference</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">TudatPy API Reference</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="astro.html"><code class="docutils literal notranslate"><span class="pre">astro</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of astro</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="frame_conversion.html"><code class="docutils literal notranslate"><span class="pre">frame_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="element_conversion.html"><code class="docutils literal notranslate"><span class="pre">element_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_conversion.html"><code class="docutils literal notranslate"><span class="pre">time_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="two_body_dynamics.html"><code class="docutils literal notranslate"><span class="pre">two_body_dynamics</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="polyhedron_utilities.html"><code class="docutils literal notranslate"><span class="pre">polyhedron_utilities</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="gravitation.html"><code class="docutils literal notranslate"><span class="pre">gravitation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="data.html"><code class="docutils literal notranslate"><span class="pre">data</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of data</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="horizons.html"><code class="docutils literal notranslate"><span class="pre">horizons</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpc.html"><code class="docutils literal notranslate"><span class="pre">mpc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbdb.html"><code class="docutils literal notranslate"><span class="pre">sbdb</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mission_data_downloader.html"><code class="docutils literal notranslate"><span class="pre">mission_data_downloader</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="interface.html"><code class="docutils literal notranslate"><span class="pre">interface</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="spice.html"><code class="docutils literal notranslate"><span class="pre">spice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="math.html"><code class="docutils literal notranslate"><span class="pre">math</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of math</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="interpolators.html"><code class="docutils literal notranslate"><span class="pre">interpolators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="root_finders.html"><code class="docutils literal notranslate"><span class="pre">root_finders</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="numerical_simulation.html"><code class="docutils literal notranslate"><span class="pre">numerical_simulation</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of numerical_simulation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="estimation_setup.html"><code class="docutils literal notranslate"><span class="pre">estimation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of estimation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="observation.html"><code class="docutils literal notranslate"><span class="pre">observation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameter.html"><code class="docutils literal notranslate"><span class="pre">parameter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="environment_setup.html"><code class="docutils literal notranslate"><span class="pre">environment_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of environment_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="aerodynamic_coefficients.html"><code class="docutils literal notranslate"><span class="pre">aerodynamic_coefficients</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="atmosphere.html"><code class="docutils literal notranslate"><span class="pre">atmosphere</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ephemeris.html"><code class="docutils literal notranslate"><span class="pre">ephemeris</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gravity_field.html"><code class="docutils literal notranslate"><span class="pre">gravity_field</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gravity_field_variation.html"><code class="docutils literal notranslate"><span class="pre">gravity_field_variation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ground_station.html"><code class="docutils literal notranslate"><span class="pre">ground_station</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="radiation_pressure.html"><code class="docutils literal notranslate"><span class="pre">radiation_pressure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rigid_body.html"><code class="docutils literal notranslate"><span class="pre">rigid_body</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_model.html"><code class="docutils literal notranslate"><span class="pre">rotation_model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="shape.html"><code class="docutils literal notranslate"><span class="pre">shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="shape_deformation.html"><code class="docutils literal notranslate"><span class="pre">shape_deformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vehicle_systems.html"><code class="docutils literal notranslate"><span class="pre">vehicle_systems</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="propagation_setup.html"><code class="docutils literal notranslate"><span class="pre">propagation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of propagation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="acceleration.html"><code class="docutils literal notranslate"><span class="pre">acceleration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dependent_variable.html"><code class="docutils literal notranslate"><span class="pre">dependent_variable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="integrator.html"><code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mass_rate.html"><code class="docutils literal notranslate"><span class="pre">mass_rate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="propagator.html"><code class="docutils literal notranslate"><span class="pre">propagator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="torque.html"><code class="docutils literal notranslate"><span class="pre">torque</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="thrust.html"><code class="docutils literal notranslate"><span class="pre">thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="estimation.html"><code class="docutils literal notranslate"><span class="pre">estimation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment.html"><code class="docutils literal notranslate"><span class="pre">environment</span></code></a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">propagation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="trajectory_design.html"><code class="docutils literal notranslate"><span class="pre">trajectory_design</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of trajectory_design</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="transfer_trajectory.html"><code class="docutils literal notranslate"><span class="pre">transfer_trajectory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shape_based_thrust.html"><code class="docutils literal notranslate"><span class="pre">shape_based_thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html"><code class="docutils literal notranslate"><span class="pre">plotting</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html"><code class="docutils literal notranslate"><span class="pre">util</span></code></a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/propagation.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="propagation">
+<h1><code class="docutils literal notranslate"><span class="pre">propagation</span></code><a class="headerlink" href="#propagation" title="Link to this heading">¶</a></h1>
+<p>Functionalities and utilities of propagation objects.</p>
+<p>This module provides functionalities for propagation settings
+objects. It also contains some utility functions that extract specific quantities from propagation settings and body
+objects. Note that the classes in this module are rarely created manually,
+but are instead created by the functionality in the <a class="reference internal" href="propagation_setup.html#propagation-setup"><span class="std std-ref">propagation_setup</span></a>  module.</p>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.get_state_of_bodies" title="tudatpy.numerical_simulation.propagation.get_state_of_bodies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_state_of_bodies</span></code></a>(bodies_to_propagate, ...)</p></td>
+<td><p>Function to get the translational states of a set of bodies, with respect to some set of central bodies, at the requested time.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.get_damped_proper_mode_initial_rotational_state" title="tudatpy.numerical_simulation.propagation.get_damped_proper_mode_initial_rotational_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_damped_proper_mode_initial_rotational_state</span></code></a>(...)</p></td>
+<td><p>Function to compute an initial rotational state for which the proper mode of rotation is damped.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.combine_initial_states" title="tudatpy.numerical_simulation.propagation.combine_initial_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_initial_states</span></code></a>(...)</p></td>
+<td><p>Function to retrieve the initial state for a list of propagator settings.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.create_dependent_variable_dictionary" title="tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.create_dependent_variable_dictionary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dependent_variable_dictionary.dependent_variable_dictionary.create_dependent_variable_dictionary</span></code></a>(...)</p></td>
+<td><p>Construct a dictionary-like object (<cite>DependentVariableDictionary</cite>) which maps which maps dependent variables to their time histories.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.get_state_of_bodies">
+<span class="sig-name descname"><span class="pre">get_state_of_bodies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bodies_to_propagate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_bodies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_system</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="environment.html#tudatpy.numerical_simulation.environment.SystemOfBodies" title="tudatpy.kernel.numerical_simulation.environment.SystemOfBodies"><span class="pre">tudatpy.kernel.numerical_simulation.environment.SystemOfBodies</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.get_state_of_bodies" title="Link to this definition">¶</a></dt>
+<dd><p>Function to get the translational states of a set of bodies, with respect to some set of central bodies, at the requested time.</p>
+<p>Function to get the translational states of a set of bodies, with respect to some set of central bodies, at the requested time. This function
+is typically used to extract an initial state for a propagation of a set of bodies, for which the initial state is extracted from the
+existing ephemerides of the bodies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bodies_to_propagate</strong> (<a class="reference internal" href="environment.html#tudatpy.numerical_simulation.environment.SystemOfBodies" title="tudatpy.numerical_simulation.environment.SystemOfBodies"><em>SystemOfBodies</em></a>) – List of names of bodies for which the state is to be extracted</p></li>
+<li><p><strong>central_bodies</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – List of central bodies, w.r.t. which the states are to be computed (in the same order as <code class="docutils literal notranslate"><span class="pre">bodies_to_propagate</span></code>)</p></li>
+<li><p><strong>bodies_to_propagate</strong> – System of bodies that define the environment</p></li>
+<li><p><strong>initial_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Time at which the states are to be extracted from the environment</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Vector of size <span class="math notranslate nohighlight">\(6\times N\)</span>, with the translational states of each entry of body from
+<code class="docutils literal notranslate"><span class="pre">bodies_to_propagate</span></code> w.r.t. the corresponding central body in <code class="docutils literal notranslate"><span class="pre">central_bodies</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.get_damped_proper_mode_initial_rotational_state">
+<span class="sig-name descname"><span class="pre">get_damped_proper_mode_initial_rotational_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">bodies:</span> <span class="pre">tudatpy.kernel.numerical_simulation.environment.SystemOfBodies,</span> <span class="pre">propagator_settings:</span> <span class="pre">tudat::propagators::SingleArcPropagatorSettings&lt;double,</span> <span class="pre">double&gt;,</span> <span class="pre">body_mean_rotational_rate:</span> <span class="pre">float,</span> <span class="pre">dissipation_times:</span> <span class="pre">list[float],</span> <span class="pre">propagate_undamped:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults" title="tudatpy.kernel.numerical_simulation.propagation.RotationalProperModeDampingResults"><span class="pre">tudatpy.kernel.numerical_simulation.propagation.RotationalProperModeDampingResults</span></a></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.get_damped_proper_mode_initial_rotational_state" title="Link to this definition">¶</a></dt>
+<dd><p>Function to compute an initial rotational state for which the proper mode of rotation is damped.</p>
+<p>Function to compute an initial rotational state for which the proper mode of rotation is damped, using the algorithm
+used by Rambaux et al. (2010) to compute an initial rotational state for Phobos. This algorithm propagates the
+dynamics of the system a number of times, with the settings specified by the user and a specific modification to
+damp the proper mode. Since a number of propagations are performed by this function, it may take some time to run.
+Specifically, the algorithm works as follows:</p>
+<ul class="simple">
+<li><p>Introduce a damping torque (see below) to damp the proper mode, with damping time <span class="math notranslate nohighlight">\(\tau_{d}\)</span></p></li>
+<li><p>Propagate the dynamics forward in time for a period of <span class="math notranslate nohighlight">\(10\tau_{d}\)</span></p></li>
+<li><p>Remove the virtual torque, and propagate the dynamics back to the initial time <span class="math notranslate nohighlight">\(t_{0}\)</span></p></li>
+<li><p>Repeat the above for the list of damping times provided by the user</p></li>
+</ul>
+<p>The state after the final backwards propagation to <span class="math notranslate nohighlight">\(t_{0}\)</span> is provided as output by this function, to be
+used as damped initial state. The output from this function also provides the user access to the full state history
+and dependent variable history of the forward and backward propagations, to allow a user to track and validate
+the pgress of the algorithm.</p>
+<p>The damping torque <span class="math notranslate nohighlight">\(\Gamma\)</span> is defined as follows:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}\boldsymbol{\Gamma}= -\frac{1}{\tau_{d}}\mathbf{I}\begin{pmatrix}\omega_{x}\\ \omega_{y}\\ \omega_{x}-\omega_{p} \end{pmatrix}\end{split}\]</div>
+</div>
+<p>where :math:mathbf{I}` is the body’s inertia tensor (in its body-fixed frame), <span class="math notranslate nohighlight">\(\tau_{d}\)</span> the damping time of the
+current propagation, and <span class="math notranslate nohighlight">\(\omega_{x}, \omega_{y}, \omega_{z}\)</span> the body’s current rotation about its
+body-fixed, x-, y- and z-axes, respectively. The damping torque is implemented to damp out all rotations along
+the body-fixed x- and y-axes, and any deviations from constant rotation with frequency :omega_{p}: about the body-fixed z-axis.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The mean rotation rate of the body <span class="math notranslate nohighlight">\(\omega_{p}\)</span> is a user-defined input, and must be tuned to the dynamics of the system.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bodies</strong> (<a class="reference internal" href="environment.html#tudatpy.numerical_simulation.environment.SystemOfBodies" title="tudatpy.numerical_simulation.environment.SystemOfBodies"><em>SystemOfBodies</em></a>) – Set of body objects that defines the environment</p></li>
+<li><p><strong>propagator_settings</strong> (<a class="reference internal" href="propagator.html#tudatpy.numerical_simulation.propagation_setup.propagator.SingleArcPropagatorSettings" title="tudatpy.numerical_simulation.propagation_setup.propagator.SingleArcPropagatorSettings"><em>SingleArcPropagatorSettings</em></a>) – Propagator settings for the dynamics of which the initial rotational state is to be damped. These propagator
+settings must be for rotational dynamics only, or for multi-type rotational dynamics that contains rotational
+dynamics for a single body (e.g. translational-rotational dynamics for a single body)</p></li>
+<li><p><strong>body_mean_rotational_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Mean rotational rate <span class="math notranslate nohighlight">\(\omega_{p}\)</span> to which the damping algorithm will force the body-fixed rotation about its z-axis.</p></li>
+<li><p><strong>dissipation_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[ </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em> ]</em>) – List of damping times <span class="math notranslate nohighlight">\(\tau_{d}\)</span> for which the algorithm is to be run. Note that this list should be organized in ascending order for the algorithm to perform properly</p></li>
+<li><p><strong>propagate_undamped</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default = True</em>) – Boolean defining whether the first forward/backward propagation performed by the damping algorithm has damping turned off (damping turned off if True, damping turned on if False).
+Propagating without any damping before starting the damping algorithm is useful for verification purposes, but not required for the algorithm itself.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Object that contains the results of the damping algorithm (final damped rotational state, and forward/backward propagation results).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DampedInitialRotationalStateResults</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.combine_initial_states">
+<span class="sig-name descname"><span class="pre">combine_initial_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">propagator_settings_per_type:</span> <span class="pre">dict[tudat::propagators::IntegratedStateType,</span> <span class="pre">list[tudat::propagators::SingleArcPropagatorSettings&lt;double,</span> <span class="pre">double&gt;]]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.combine_initial_states" title="Link to this definition">¶</a></dt>
+<dd><p>Function to retrieve the initial state for a list of propagator settings.</p>
+<p>Function to retrieve the initial state for a list of propagator settings. This way, the initial state for
+different quantities to be propagated (e.g., translational state, rotational state, mass) are retrieved and
+organized in a single container.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>propagator_settings_per_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Propagator settings where the type of propagation is reported as key and the respective list of propagator settings as value.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Vector of initial states, sorted in order of IntegratedStateType, and then in the order of the vector of SingleArcPropagatorSettings of given type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.create_dependent_variable_dictionary">
+<span class="sig-name descname"><span class="pre">create_dependent_variable_dictionary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dynamics_simulator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="numerical_simulation.html#tudatpy.numerical_simulation.SingleArcSimulator" title="tudatpy.kernel.numerical_simulation.SingleArcSimulator"><span class="pre">SingleArcSimulator</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary" title="tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary"><span class="pre">DependentVariableDictionary</span></a></span></span><a class="reference internal" href="_modules/tudatpy/numerical_simulation/propagation/dependent_variable_dictionary/dependent_variable_dictionary.html#create_dependent_variable_dictionary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.create_dependent_variable_dictionary" title="Link to this definition">¶</a></dt>
+<dd><p>Construct a dictionary-like object (<cite>DependentVariableDictionary</cite>) which maps which maps dependent variables
+to their time histories. See the documentation of <cite>DependentVariableDictionary</cite> to learn more about how
+time histories are saved, and how the time history of a given dependent variable can be retrieved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dynamics_simulator</strong> (<a class="reference internal" href="numerical_simulation.html#tudatpy.numerical_simulation.SingleArcSimulator" title="tudatpy.numerical_simulation.SingleArcSimulator"><em>SingleArcSimulator</em></a>) – SingleArcSimulator object containing the results of the numerical propagation</p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>dependent_variable_dictionary</strong> (<a class="reference internal" href="#tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary" title="tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary"><em>DependentVariableDictionary</em></a>) – DependentVariableDictionary of propagation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="enumerations">
+<h2>Enumerations<a class="headerlink" href="#enumerations" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationReason" title="tudatpy.numerical_simulation.propagation.PropagationTerminationReason"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PropagationTerminationReason</span></code></a></p></td>
+<td><p>Enumeration of types of termination of propagation.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.PropagationTerminationReason">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PropagationTerminationReason</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationReason" title="Link to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Enumeration of types of termination of propagation.</p>
+</div></blockquote>
+<p>Members:</p>
+<blockquote>
+<div><p>propagation_never_run</p>
+<p>unknown_reason</p>
+<p>termination_condition_reached</p>
+<p>runtime_error_caught_in_propagation</p>
+<p>nan_or_inf_detected_in_state</p>
+</div></blockquote>
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.PropagationTerminationReason.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationReason.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SimulationResults" title="tudatpy.numerical_simulation.propagation.SimulationResults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimulationResults</span></code></a></p></td>
+<td><p>Base class for objects that store all results of a numerical propagation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults" title="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SingleArcSimulationResults</span></code></a></p></td>
+<td><p>Class that stores all the results (including logging data) of a single-arc propagation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetails" title="tudatpy.numerical_simulation.propagation.PropagationTerminationDetails"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PropagationTerminationDetails</span></code></a></p></td>
+<td><p>Class that provides information on the reason for the termination of the propagation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition" title="tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PropagationTerminationDetailsFromHybridCondition</span></code></a></p></td>
+<td><p>Class that provides information on the reason for the termination of the propagation, for hybrid termination conditions</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults" title="tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RotationalProperModeDampingResults</span></code></a></p></td>
+<td><p>Object that stores the results of the algorithm to damp the proper mode of rotational dynamics for an initial state, as computed by the <a class="reference internal" href="#tudatpy.numerical_simulation.propagation.get_damped_proper_mode_initial_rotational_state" title="tudatpy.numerical_simulation.propagation.get_damped_proper_mode_initial_rotational_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_damped_proper_mode_initial_rotational_state()</span></code></a> function</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary" title="tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary</span></code></a>([...])</p></td>
+<td><p>Dictionary-like class designed to store and retrieve dependent variable time histories using dependent variable settings objects (instances of <cite>VariableSettings</cite>-derived classes, check the Tudat API docs for more information about this class).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SimulationResults">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SimulationResults</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SimulationResults" title="Link to this definition">¶</a></dt>
+<dd><p>Base class for objects that store all results of a numerical propagation.</p>
+<p>Base class for objects that store all results of a numerical propagation. Derived class are implemented for single-, multi- and hybrid-arc propagation of botj dynamics and variational equations</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SimulationResults.dependent_variable_interface">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dependent_variable_interface</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SimulationResults.dependent_variable_interface" title="Link to this definition">¶</a></dt>
+<dd><p>No documentation found.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SingleArcSimulationResults</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults" title="Link to this definition">¶</a></dt>
+<dd><p>Class that stores all the results (including logging data) of a single-arc propagation</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.cumulative_computation_time_history">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cumulative_computation_time_history</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.cumulative_computation_time_history" title="Link to this definition">¶</a></dt>
+<dd><p><strong>read-only</strong></p>
+<p>History of cumulative computation time in seconds needed during the propagation as key-value
+pairs. At each epoch (key) the computation time (value) in seconds is the total computation time
+used up to and including that time step. This includes the total time up to and including the current time step,
+since the beginning of the (single-arc) propagation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.cumulative_number_of_function_evaluations_history">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cumulative_number_of_function_evaluations_history</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.cumulative_number_of_function_evaluations_history" title="Link to this definition">¶</a></dt>
+<dd><p>No documentation found.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.dependent_variable_history">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dependent_variable_history</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.dependent_variable_history" title="Link to this definition">¶</a></dt>
+<dd><p><strong>read-only</strong></p>
+<p>Dependent variables computed during the propagation as key-value pairs.
+The vector of all dependent variables concatenated into a single vector as value, with the epoch as key.
+They order of the concatenated dependent variables in a single value is provided by the <code class="docutils literal notranslate"><span class="pre">dependent_variable_ids</span></code> attribute of this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.dependent_variable_ids">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dependent_variable_ids</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.dependent_variable_ids" title="Link to this definition">¶</a></dt>
+<dd><p><strong>read-only</strong></p>
+<p>Key-value container with the starting entry of the dependent variables saved (key), along with associated ID (value).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>,<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>], <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.initial_and_final_times">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_and_final_times</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.initial_and_final_times" title="Link to this definition">¶</a></dt>
+<dd><p>No documentation found.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.integration_completed_successfully">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">integration_completed_successfully</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.integration_completed_successfully" title="Link to this definition">¶</a></dt>
+<dd><p><strong>read-only</strong></p>
+<p>Boolean defining whether the last propagation was finished
+successfully, as defined by the termination conditions, or if
+it was terminated prematurely (for instance due to an
+exception, or an Inf/NaN state entry being detected).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.ordered_dependent_variable_settings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ordered_dependent_variable_settings</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.ordered_dependent_variable_settings" title="Link to this definition">¶</a></dt>
+<dd><p>No documentation found.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.processed_state_ids">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">processed_state_ids</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.processed_state_ids" title="Link to this definition">¶</a></dt>
+<dd><p><strong>read-only</strong></p>
+<p>Key-value container with the starting entry of the states (key), along with associated ID (value).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>,<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>] <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.propagated_state_ids">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">propagated_state_ids</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.propagated_state_ids" title="Link to this definition">¶</a></dt>
+<dd><p><strong>read-only</strong></p>
+<p>Key-value container with the starting entry of the states (key), along with associated ID (value).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>,<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>] <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.propagated_state_vector_length">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">propagated_state_vector_length</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.propagated_state_vector_length" title="Link to this definition">¶</a></dt>
+<dd><p>No documentation found.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.propagation_is_performed">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">propagation_is_performed</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.propagation_is_performed" title="Link to this definition">¶</a></dt>
+<dd><p>No documentation found.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.solution_is_cleared">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">solution_is_cleared</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.solution_is_cleared" title="Link to this definition">¶</a></dt>
+<dd><p>No documentation found.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.state_history">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">state_history</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.state_history" title="Link to this definition">¶</a></dt>
+<dd><p><strong>read-only</strong></p>
+<p>Numerical solution of the equations of motion as key-value pairs. The key denotes the epoch. The value contains the
+numerically calculated state at this epoch. For this function, the states are always converted to so-called
+‘processed’ formulations (e.g. Cartesian states for translational dynamics), see <a class="reference external" href="https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html">here</a>
+for details. For the history of the states that were actually propagated, use the <code class="docutils literal notranslate"><span class="pre">unprocessed_state_history</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The propagated state at each epoch contains the state types in the following order: Translational ( <strong>T</strong> ), Rotational ( <strong>R</strong> ), Mass ( <strong>M</strong> ), and Custom ( <strong>C</strong> ).
+When propagating two bodies, an example of what the output state would look like is for instance:
+[ <strong>T</strong> Body 1, <strong>T</strong> Body 2, <strong>R</strong> Body 1, <strong>R</strong> Body 2, <strong>M</strong> Body 1, <strong>M</strong> Body 2 ] The specifics can be retrieved using the <code class="xref py py-attr docutils literal notranslate"><span class="pre">state_ids</span></code> attribute of this class</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For propagation of translational dynamics using cowell
+propagator, the conventional and propagated
+coordinates are identical.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.termination_details">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">termination_details</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.termination_details" title="Link to this definition">¶</a></dt>
+<dd><p><strong>read-only</strong></p>
+<p>Object describing the details of the event that triggered the termination of the last propagation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetails" title="tudatpy.numerical_simulation.propagation.PropagationTerminationDetails">PropagationTerminationDetails</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.total_computation_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_computation_time</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.total_computation_time" title="Link to this definition">¶</a></dt>
+<dd><p>No documentation found.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.total_number_of_function_evaluations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_number_of_function_evaluations</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.total_number_of_function_evaluations" title="Link to this definition">¶</a></dt>
+<dd><p>No documentation found.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.unordered_dependent_variable_settings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unordered_dependent_variable_settings</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.unordered_dependent_variable_settings" title="Link to this definition">¶</a></dt>
+<dd><p>No documentation found.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.unprocessed_state_history">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unprocessed_state_history</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.unprocessed_state_history" title="Link to this definition">¶</a></dt>
+<dd><p><strong>read-only</strong></p>
+<p>Numerical solution of the equations of motion as key-value pairs, without any processing applied. The key denotes the epoch. The value contains the
+numerically calculated state at this epoch. This attribute contains the states of the propagated bodies expressed in the
+“raw” form in which the propagation took place. For instance, when using a Gauss-Kepler propagation scheme, this
+attribute will contain the numerically propagated Keplerian elements at each time epoch</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)">numpy.ndarray</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.PropagationTerminationDetails">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PropagationTerminationDetails</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetails" title="Link to this definition">¶</a></dt>
+<dd><p>Class that provides information on the reason for the
+termination of the propagation.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.PropagationTerminationDetails.terminated_on_exact_condition">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">terminated_on_exact_condition</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetails.terminated_on_exact_condition" title="Link to this definition">¶</a></dt>
+<dd><p>Boolean defining whether the propagation was terminated on an <em>exact</em> final condition,
+or once the propagation went <em>past</em> the determined final condition. The choice of behaviour is
+defined by the termination settings provided as input to the Simulator object. This variable only
+has a meaningful definition if the <code class="docutils literal notranslate"><span class="pre">termination_reason</span></code> has value <code class="docutils literal notranslate"><span class="pre">termination_condition_reached</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.PropagationTerminationDetails.termination_reason">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">termination_reason</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetails.termination_reason" title="Link to this definition">¶</a></dt>
+<dd><p>Enum defining the reason the propagation was terminated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationReason" title="tudatpy.numerical_simulation.propagation.PropagationTerminationReason">PropagationTerminationReason</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PropagationTerminationDetailsFromHybridCondition</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition" title="Link to this definition">¶</a></dt>
+<dd><p>Class that provides information on the reason for the termination of the propagation, for hybrid termination conditions</p>
+<p>Derived class from <a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetails" title="tudatpy.numerical_simulation.propagation.PropagationTerminationDetails"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropagationTerminationDetails</span></code></a> that provides information on the reason for the termination of the propagation,
+for the case of hybrid termination conditions (defined using the <a class="reference internal" href="propagator.html#tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination" title="tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination"><code class="xref py py-func docutils literal notranslate"><span class="pre">hybrid_termination()</span></code></a>)
+function</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">was_condition_met_when_stopping</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping" title="Link to this definition">¶</a></dt>
+<dd><p>List of booleans defining, per entry in <code class="docutils literal notranslate"><span class="pre">termination_settings</span></code> when calling <a class="reference internal" href="propagator.html#tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination" title="tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination"><code class="xref py py-func docutils literal notranslate"><span class="pre">hybrid_termination()</span></code></a>,
+whether the corresponding entry of the hybrid termination settings was met or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RotationalProperModeDampingResults</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults" title="Link to this definition">¶</a></dt>
+<dd><p>Object that stores the results of the algorithm to damp the proper mode of rotational dynamics for an initial state,
+as computed by the <a class="reference internal" href="#tudatpy.numerical_simulation.propagation.get_damped_proper_mode_initial_rotational_state" title="tudatpy.numerical_simulation.propagation.get_damped_proper_mode_initial_rotational_state"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_damped_proper_mode_initial_rotational_state()</span></code></a> function</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults.damped_initial_state">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">damped_initial_state</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults.damped_initial_state" title="Link to this definition">¶</a></dt>
+<dd><p>Initital state produced by the damping algorithm, for which the signature of the proper mode should be
+removed (or at least, substantially reduced). Note that this initial state corresponds to the <em>full</em> state vector
+that is provided to the <code class="docutils literal notranslate"><span class="pre">get_damped_proper_mode_initial_rotational_state</span></code> function (e.g. is size 7
+for rotational dynamics of a single body, size 13 for coupled orbital-rotational dynamics of a single body, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults.forward_backward_dependent_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward_backward_dependent_variables</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults.forward_backward_dependent_variables" title="Link to this definition">¶</a></dt>
+<dd><p>As <code class="docutils literal notranslate"><span class="pre">forward_backward_states</span></code>, but for the dependent variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>,np.ndarray],<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>,np.ndarray]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults.forward_backward_states">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward_backward_states</span></span><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults.forward_backward_states" title="Link to this definition">¶</a></dt>
+<dd><p>Data structure that contains the full state histories used by the damping algorithm. The contents are are as follows:</p>
+<ul class="simple">
+<li><p>The <span class="math notranslate nohighlight">\(i^{th}\)</span> entry of the list corresponds to the <span class="math notranslate nohighlight">\(i^{th}\)</span> iteration of the forward-backward propagation</p></li>
+<li><p>Each tuple in the list contains two dictionaries, the first one corresponding to the forward propagation results, the seconds one to the backward propagation results</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>,np.ndarray],<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>,np.ndarray]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DependentVariableDictionary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/numerical_simulation/propagation/dependent_variable_dictionary/dependent_variable_dictionary.html#DependentVariableDictionary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary" title="Link to this definition">¶</a></dt>
+<dd><p>Dictionary-like class designed to store and retrieve dependent variable time histories
+using dependent variable settings objects (instances of <cite>VariableSettings</cite>-derived
+classes, check the Tudat API docs for more information about this class).</p>
+<p>The goal of this class is to make dependent variable time history retrieval semantic and
+straight-forward:</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a>`
+total_acceleration_history = dep_vars_dict[</p>
+<blockquote>
+<div><p>propagation_setup.dependent_variable.total_acceleration(“Delfi-C3”)</p>
+</div></blockquote>
+<section id="id3">
+<h3>]<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<section id="example-usage">
+<h4>Example usage:<a class="headerlink" href="#example-usage" title="Link to this heading">¶</a></h4>
+<p>See the example below. As you can see, we can use as keys either the</p>
+<ul class="simple">
+<li><p>Original dependent variable settings object (<cite>dependent_variables_to_save[0]</cite>),</p></li>
+<li><p>Or a newly created dependent variable settings object (<cite>propagation_setup.dependent_variable.total_acceleration(“Delfi-C3”)</cite>)</p></li>
+</ul>
+<p><a href="#id4"><span class="problematic" id="id5">``</span></a>`
+# Create simulation object and propagate the dynamics
+dynamics_simulator = numerical_simulation.create_dynamics_simulator(</p>
+<blockquote>
+<div><p>bodies, propagator_settings</p>
+</div></blockquote>
+<p>)</p>
+<p># Create DependentVariableDictionary
+dep_vars_dict = result2dict(dynamics_simulator)</p>
+<p># Retrieve the time history (in <cite>dict[epoch: value]</cite> form) of the total acceleration experienced by Delft-C3
+total_acceleration_history = dep_vars_dict[</p>
+<blockquote>
+<div><p># This can be done using either the <cite>SingleAccelerationDependentVariableSaveSettings</cite>
+# corresponding to this dependent variable
+dependent_variables_to_save[0]</p>
+</div></blockquote>
+<p>]
+total_acceleration_history = dep_vars_dict[</p>
+<blockquote>
+<div><p># Or a newly created one
+propagation_setup.dependent_variable.total_acceleration(“Delfi-C3”)</p>
+</div></blockquote>
+</section>
+</section>
+<section id="id6">
+<h3>]<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<section id="how-are-time-histories-saved-in-a-dependentvariabledictionary">
+<h4>How are time histories saved in a <cite>DependentVariableDictionary</cite>?<a class="headerlink" href="#how-are-time-histories-saved-in-a-dependentvariabledictionary" title="Link to this heading">¶</a></h4>
+<p>A <cite>DependentVariableDictionary</cite> maps which maps dependent variables, identified by either their
+corresponding dependent variable settings object (an instance of a <cite>VariableSettings</cite>-derived
+class) or its string ID, to their time histories.</p>
+<p>The time history of each dependent variable is a Python <cite>dict</cite> which maps epochs (<cite>float</cite>) to
+NumPy arrays (<cite>np.ndarray</cite>) of shape <cite>(A, B)</cite>:</p>
+<blockquote>
+<div><p>dict[epoch: np.ndarray[A, B]]</p>
+</div></blockquote>
+<p><strong>Important</strong>: in <cite>(A, B)</cite>, we remove singleton/trivial dimensions (dimensions, <cite>A</cite> or <cite>B</cite>, of size 1).
+In the case of scalar dependent variables, the value associated to each epoch is a <cite>np.ndarray</cite> of shape <cite>(1,)</cite>.
+In the case of vectorial dependent variables, it is a <strong>row</strong> vector of size <cite>(A,)</cite>. This is done by using
+<cite>np.squeeze</cite> to remove any dimensions of size 1. Practical examples:</p>
+<p>Dimensions of dependent variable values associated to each epoch based on their type:</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary.asarray">
+<span class="sig-name descname"><span class="pre">asarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="dependent_variable.html#tudatpy.numerical_simulation.propagation_setup.dependent_variable.VariableSettings" title="tudatpy.kernel.numerical_simulation.propagation_setup.dependent_variable.VariableSettings"><span class="pre">VariableSettings</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="_modules/tudatpy/numerical_simulation/propagation/dependent_variable_dictionary/dependent_variable_dictionary.html#DependentVariableDictionary.asarray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary.asarray" title="Link to this definition">¶</a></dt>
+<dd><p>Return the time history of a given dependent variable as a NumPy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>-</em>)</p></li>
+<li><p><strong>Output</strong></p></li>
+<li><p><strong>------</strong></p></li>
+<li><p><strong>time_history</strong> (<em>-</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="trajectory_design.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">trajectory_design</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="environment.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">environment</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021, Tudat Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">propagation</span></code></a><ul>
+<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.get_state_of_bodies"><code class="docutils literal notranslate"><span class="pre">get_state_of_bodies()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.get_damped_proper_mode_initial_rotational_state"><code class="docutils literal notranslate"><span class="pre">get_damped_proper_mode_initial_rotational_state()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.combine_initial_states"><code class="docutils literal notranslate"><span class="pre">combine_initial_states()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.create_dependent_variable_dictionary"><code class="docutils literal notranslate"><span class="pre">create_dependent_variable_dictionary()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#enumerations">Enumerations</a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationReason"><code class="docutils literal notranslate"><span class="pre">PropagationTerminationReason</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationReason.name"><code class="docutils literal notranslate"><span class="pre">PropagationTerminationReason.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SimulationResults"><code class="docutils literal notranslate"><span class="pre">SimulationResults</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SimulationResults.dependent_variable_interface"><code class="docutils literal notranslate"><span class="pre">SimulationResults.dependent_variable_interface</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.cumulative_computation_time_history"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.cumulative_computation_time_history</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.cumulative_number_of_function_evaluations_history"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.cumulative_number_of_function_evaluations_history</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.dependent_variable_history"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.dependent_variable_history</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.dependent_variable_ids"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.dependent_variable_ids</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.initial_and_final_times"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.initial_and_final_times</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.integration_completed_successfully"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.integration_completed_successfully</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.ordered_dependent_variable_settings"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.ordered_dependent_variable_settings</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.processed_state_ids"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.processed_state_ids</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.propagated_state_ids"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.propagated_state_ids</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.propagated_state_vector_length"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.propagated_state_vector_length</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.propagation_is_performed"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.propagation_is_performed</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.solution_is_cleared"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.solution_is_cleared</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.state_history"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.state_history</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.termination_details"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.termination_details</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.total_computation_time"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.total_computation_time</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.total_number_of_function_evaluations"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.total_number_of_function_evaluations</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.unordered_dependent_variable_settings"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.unordered_dependent_variable_settings</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.unprocessed_state_history"><code class="docutils literal notranslate"><span class="pre">SingleArcSimulationResults.unprocessed_state_history</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetails"><code class="docutils literal notranslate"><span class="pre">PropagationTerminationDetails</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetails.terminated_on_exact_condition"><code class="docutils literal notranslate"><span class="pre">PropagationTerminationDetails.terminated_on_exact_condition</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetails.termination_reason"><code class="docutils literal notranslate"><span class="pre">PropagationTerminationDetails.termination_reason</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition"><code class="docutils literal notranslate"><span class="pre">PropagationTerminationDetailsFromHybridCondition</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping"><code class="docutils literal notranslate"><span class="pre">PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults"><code class="docutils literal notranslate"><span class="pre">RotationalProperModeDampingResults</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults.damped_initial_state"><code class="docutils literal notranslate"><span class="pre">RotationalProperModeDampingResults.damped_initial_state</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults.forward_backward_dependent_variables"><code class="docutils literal notranslate"><span class="pre">RotationalProperModeDampingResults.forward_backward_dependent_variables</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults.forward_backward_states"><code class="docutils literal notranslate"><span class="pre">RotationalProperModeDampingResults.forward_backward_states</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary"><code class="docutils literal notranslate"><span class="pre">DependentVariableDictionary</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary.asarray"><code class="docutils literal notranslate"><span class="pre">DependentVariableDictionary.asarray()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=8a448e45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>
