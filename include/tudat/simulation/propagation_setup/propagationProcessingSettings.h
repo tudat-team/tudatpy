@@ -118,11 +118,13 @@ public:
 
     void setResultsSaveFrequencyInSteps( const int resultsSaveFrequencyInSteps )
     {
+        saveWarningPrinted_ = false;
         resultsSaveFrequencyInSteps_ = resultsSaveFrequencyInSteps;
     }
 
     void setResultsSaveFrequencyInSeconds( const double resultsSaveFrequencyInSeconds )
     {
+        saveWarningPrinted_ = false;
         resultsSaveFrequencyInSeconds_ = resultsSaveFrequencyInSeconds;
     }
 
@@ -139,6 +141,13 @@ public:
     bool saveCurrentStep(
             const int stepsSinceLastSave, const double timeSinceLastSave )
     {
+        if( !saveWarningPrinted_ && ( resultsSaveFrequencyInSeconds_ == resultsSaveFrequencyInSeconds_ && resultsSaveFrequencyInSteps_ == 1 ) )
+        {
+            std::cerr<<"Warning when saving propagation step. "<<
+            "Attribute processing_settings.results_save_frequency_in_steps of propagator settings is set to default value of 1, while processing_settings.results_save_frequency_in_seconds is also defined. "<<
+            "This will result in the results still being saved every time step. To make the processing_settings.results_save_frequency_in_seconds active, set processing_settings.results_save_frequency_in_steps to 0"<<std::endl;
+            saveWarningPrinted_ = true;
+        }
         bool saveCurrentStep = false;
         if( stepsSinceLastSave >= resultsSaveFrequencyInSteps_ && resultsSaveFrequencyInSteps_ > 0 )
         {
@@ -201,6 +210,8 @@ private:
 
     bool isPartOfMultiArc_;
     int arcIndex_;
+
+    bool saveWarningPrinted_ = false;
 
     friend class MultiArcPropagatorProcessingSettings;
 };
