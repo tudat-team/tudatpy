@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
     for( unsigned int i = 0; i < ifmsFileNames.size( ); i++ )
     {
         rawIfmsFiles.push_back( readIfmsFile( ifmsFileNames.at( i ) ) );
-        //        rawIfmsFiles.at( i )->subtractColumnType( input_output::TrackingDataType::doppler_averaged_frequency, input_output::TrackingDataType::doppler_troposphere_correction );
+        rawIfmsFiles.at( i )->subtractColumnType( input_output::TrackingDataType::doppler_averaged_frequency, input_output::TrackingDataType::doppler_troposphere_correction );
     }
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
@@ -106,14 +106,14 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
             bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
             bodySettings.at( "Earth" )->bodyDeformationSettings.push_back( iers2010TidalBodyShapeDeformation( ) );
 
-            // Add ground station
-            Eigen::Vector3d stationPosition = getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" );
-            std::shared_ptr<GroundStationSettings> nnorciaSettings = std::make_shared<GroundStationSettings>(
-                "NWNORCIA", stationPosition );
-            nnorciaSettings->addStationMotionSettings(
-                std::make_shared<LinearGroundStationMotionSettings>(
-                    ( Eigen::Vector3d( ) << -45.00, 10.00, 47.00 ).finished( ) / 1.0E3 / physical_constants::JULIAN_YEAR, 0.0) );
-            bodySettings.at( "Earth" )->groundStationSettings.push_back( nnorciaSettings );
+//            // Add ground station
+//            Eigen::Vector3d stationPosition = getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" );
+//            std::shared_ptr<GroundStationSettings> nnorciaSettings = std::make_shared<GroundStationSettings>(
+//                "NWNORCIA", stationPosition );
+//            nnorciaSettings->addStationMotionSettings(
+//                std::make_shared<LinearGroundStationMotionSettings>(
+//                    ( Eigen::Vector3d( ) << -45.00, 10.00, 47.00 ).finished( ) / 1.0E3 / physical_constants::JULIAN_YEAR, 0.0) );
+            bodySettings.at( "Earth" )->groundStationSettings = getRadioTelescopeStationSettings( );
 
             // Add spacecraft settings
             std::string spacecraftName = "MeX";
@@ -198,18 +198,18 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
              ************************** SIMULATE OBSERVATIONS AND COMPUTE RESIDUALS
              *****************************************************************************************/
 
-        std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
-            getObservationSimulationSettingsFromObservations( observedObservationCollection, bodies );
-        std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
-            simulateObservations( observationSimulationSettings, observationSimulators, bodies );
+            std::vector< std::shared_ptr< simulation_setup::ObservationSimulationSettings< Time > > > observationSimulationSettings =
+                getObservationSimulationSettingsFromObservations( observedObservationCollection, bodies );
+            std::shared_ptr< observation_models::ObservationCollection< long double, Time > > computedObservationCollection =
+                simulateObservations( observationSimulationSettings, observationSimulators, bodies );
 
             Eigen::Matrix< long double, Eigen::Dynamic, 1 > residualVector = observedObservationCollection->getObservationVector( ) - computedObservationCollection->getObservationVector( );
             double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( residualVector.cast< double >( ) );
             double meanResidual = linear_algebra::getVectorEntryMean( residualVector.cast< double >( ) );
 
             std::cout<<residualVector.rows( )<<" "<<rmsResidual<<" "<<meanResidual<<std::endl;
-            BOOST_CHECK_SMALL( rmsResidual, 5.0E-3 );
-            BOOST_CHECK_SMALL( meanResidual, 5.0E-3 );
+            BOOST_CHECK_SMALL( rmsResidual, 3.5E-3 );
+            BOOST_CHECK_SMALL( meanResidual, 1.0E-3 );
 
             if( testType == 0 )
             {
