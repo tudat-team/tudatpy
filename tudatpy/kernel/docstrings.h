@@ -4812,7 +4812,7 @@ static inline std::string get_docstring(std::string name) {
 Function to create object that propagates the dynamics.
 
 Function to create object that propagates the dynamics, as specified by propagator settings, and the physical environment.
-Depending on the specific input type (e.g. which factory function from the :ref:`\`\`propagator\`\`` module was used),
+Depending on the specific input type (e.g. which function from the :ref:`\`\`propagator\`\`` module was used),
 a single-, multi- or hybrid-arc simulator is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
 function. When using default settings, calling this function will automatically propagate the dynamics.
 
@@ -4955,7 +4955,7 @@ The function checks for consistency between the parameter settings and the model
 Parameters
 ----------
 parameter_settings : list( :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` )
-    List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a factory function in the :ref:`\`\`parameter\`\`` module
+    List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`\`\`parameter\`\`` module
 
 bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
     Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
@@ -4993,7 +4993,7 @@ This code snippet closely follows what is done in: `Full Estimation Example <htt
         
 Function for creating observation simulator objects.
 
-Factory function for creating observation simulator objects from observation settings.
+Function for creating observation simulator objects from observation settings.
 Note that each observation (i.e. combination of observable and link geometry) requires its own observation simulator object.
 
 
@@ -5345,7 +5345,7 @@ Examples
          return R"(
 
         Object serving as identifier of a specific link end.
-        Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_origin_link_end_id` factory function,
+        Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_origin_link_end_id` function,
         whose output is indeed a *LinkEndId* object, representing the center of mass of a body.
 
 Examples
@@ -5434,7 +5434,7 @@ Examples
          return R"(
 
         Object storing the link ends involved in a given observation.
-        Instances of this class are typically created defining a *Link_Ends* dictionary via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.link_definition` factory function,
+        Instances of this class are typically created defining a *Link_Ends* dictionary via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.link_definition` function,
         whose output is a *LinkDefinition* object, storing the Link Ends involved in a given observation.
 
         Examples
@@ -5511,7 +5511,7 @@ Examples
 
         Functional (base) class for settings of proper time rate (at a single link end) for instantaneous Doppler observation model settings.
         Specific proper time rate settings must be defined using an object derived from this class.
-        The derived classes are made accessible via dedicated factory functions.
+        The derived classes are made accessible via dedicated functions.
 
 
 
@@ -5532,11 +5532,11 @@ Examples
         Observation model settings define at least the type and geometry of a given observation.
         They can furthermore set observation biases and/or light-time corrections.
         Simple observation models settings that are fully characterised by these elements can be managed by this base class.
-        This class can be instantiated through dedicated factory functions, such as
+        This class can be instantiated through dedicated functions, such as
         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.cartesian_position`, 
         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.angular_position`, etc.
         Model settings for specific observation models that require additional information such as integration time, retransmission time, etc. must be defined using an object derived from this class.
-        The derived classes are made accessible through further factory functions.
+        The derived classes are made accessible through further functions.
 
         Examples
         --------
@@ -5576,7 +5576,7 @@ Examples
 
         :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived class for one-way instantaneous Doppler observation model settings.
         Settings object can account for additional observation model aspects such as light time corrections and proper time rate settings.
-        Instances of this class can be created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_instantaneous` factory function.
+        Instances of this class can be created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_instantaneous` function.
 
         Examples
         --------
@@ -5617,7 +5617,7 @@ Examples
         Functional (base) class for settings of light time corrections.
         This class is not used for calculations of corrections, but is used for the purpose of defining the light time correction properties.
         Specific light time correction settings must be defined using an object derived from this class.
-        The derived classes are made accessible via dedicated factory functions, such as e.g. :
+        The derived classes are made accessible via dedicated functions, such as e.g. :
         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction`
 
         Examples
@@ -5700,7 +5700,7 @@ Examples
 
         Functional (base) class for settings of observation bias.
         Specific observation bias settings must be defined using an object derived from this class.
-        The derived classes are made accessible via dedicated factory functions, such as
+        The derived classes are made accessible via dedicated functions, such as
         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias`
 
 
@@ -5714,12 +5714,12 @@ Examples
 
             bias_array = np.array([1e-2])
 
-            # Use absolute_bias factory function
+            # Use absolute_bias function
             absolute_bias_settings = observation.absolute_bias(bias_array)
             # Show that it is an ObservationBiasSettings object.
             print(absolute_bias_settings)
 
-            # Use relative_bias factory function
+            # Use relative_bias function
             relative_bias_settings = observation.relative_bias(bias_array)
             # Show that it is an ObservationBiasSettings object.
             print(relative_bias_settings)
@@ -5734,7 +5734,7 @@ Examples
         Base class for defining settings for simulating observations with a constant bias.
         This simulation settings object defines observation times, noise and viability criteria, *etc.* at which observations are to be simulated.
         Therefore, one simulation settings object of this type can only refer to one combination of observable type and link geometry (LinkDefinition).
-        The user does not interact with this class directly, but defines specific observation simulation settings using an object derived from this class (created through the associated factory function).
+        The user does not interact with this class directly, but defines specific observation simulation settings using an object derived from this class (created through the associated function).
      )";
 
     } else if(name == "ObservationSimulationSettings") {
@@ -5764,7 +5764,7 @@ Examples
         This type defines predefined time epochs at which applicable observations are to be simulated, stored in a rigid, "tabulated" form. 
         Some observation times may be discarded due to the use of viability settings.
         Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
-        and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings_list` factory functions. 
+        and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings_list` functions. 
 
         Examples
         --------
@@ -5815,7 +5815,7 @@ Examples
         Class for defining observation viability calculator settings.
 
         Class for defining the settings for observation viability calculator creation.
-        Instances of this class can be created through various dedicated factory functions, such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_viability`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_avoidance_viability` and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_occultation_viability`
+        Instances of this class can be created through various dedicated functions, such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_viability`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_avoidance_viability` and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_occultation_viability`
 
         Examples
         --------
@@ -5849,7 +5849,7 @@ Examples
         Functional (base) class for setting observation dependent variables as part of the observation output.
 
         Functional (base) class for setting observation dependent variables as part of the observation output.
-        The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` factory function.
+        The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` function.
         Note: The associated functionality is not yet mature enough for the end user. Class is exposed for development purposes only.
 
         Examples
@@ -5879,7 +5879,7 @@ Examples
         Functional (base) class for holding ancilliary settings for observation simulation.
 
         Functional (base) class for holding ancilliary settings for observation simulation.
-        The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` factory function.
+        The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` function.
 
         Examples
         --------
@@ -5888,14 +5888,14 @@ Examples
             # Code snippet to show the creation of an ObservationAncillarySimulationSettings object
             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Example 1: Create ObservationAncillarySimulationSettings object using observation.n_way_range_ancilliary_settings factory function
+            # Example 1: Create ObservationAncillarySimulationSettings object using observation.n_way_range_ancilliary_settings function
             # In this case the frequency bands of the retransmitter - we set it to x band.
             n_way_range_ancillary_settings = observation.n_way_range_ancilliary_settings(frequency_bands=[observation.FrequencyBands.x_band])
 
             # Show that this is indeed an ObservationAncillarySimulationSettings object
             print(n_way_range_ancillary_settings)
 
-            # Example 2: Create ObservationAncillarySimulationSettings object using observation.one_way_doppler_instantaneous factory function
+            # Example 2: Create ObservationAncillarySimulationSettings object using observation.one_way_doppler_instantaneous function
             # In this case the integration time (in seconds) has to be given as input - we set it to 60s
             doppler_ancillary_settings = observation.doppler_ancilliary_settings(60)
 
@@ -5998,7 +5998,7 @@ Examples
 --------
 .. code-block:: python
 
-    # Code Snippet to showcase the use of the link_definition factory function to return a LinkDefinition object
+    # Code Snippet to showcase the use of the link_definition function to return a LinkDefinition object
     from tudatpy.numerical_simulation.estimation_setup import observation
 
     # Create link_ends. These are the input parameters of the link_definition function
@@ -6129,7 +6129,7 @@ Examples
 --------
 .. code-block:: python
 
-    # Code Snippet to showcase the use of the one_way_downlink_link_ends factory function to return a LinkDefinition object
+    # Code Snippet to showcase the use of the one_way_downlink_link_ends function to return a LinkDefinition object
 
     from tudatpy.kernel.numerical_simulation.estimation_setup import observation
 
@@ -6188,7 +6188,7 @@ Examples
 --------
 .. code-block:: python
 
-    # Code Snippet to showcase the use of the one_way_uplink_link_ends factory function to return a LinkDefinition object
+    # Code Snippet to showcase the use of the one_way_uplink_link_ends function to return a LinkDefinition object
     from tudatpy.kernel.numerical_simulation.estimation_setup import observation
 
     # Create a dictionary of LinkEndId objects
@@ -6221,9 +6221,9 @@ Examples
     } else if(name == "light_time_convergence_settings" ) {
         return R"(
         
-Factory function for creating convergence settings for solving the light-time equation.
+Function for creating convergence settings for solving the light-time equation.
 
-Factory function for creating convergence settings for solving the light-time equation. Computing the light time
+Function for creating convergence settings for solving the light-time equation. Computing the light time
 :math:`s=t_{R}-t_{T}` between two receiver :math:`R` and transmiter :math:`T` requires the iterative
 solution of the following equation:
 
@@ -6288,9 +6288,9 @@ Examples
     } else if(name == "first_order_relativistic_light_time_correction" ) {
         return R"(
         
-Factory function for creating settings for first-order relativistic light-time corrections.
+Function for creating settings for first-order relativistic light-time corrections.
 
-Factory function for creating settings for first-order relativistic light-time corrections:  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
+Function for creating settings for first-order relativistic light-time corrections:  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
 :math:`c^{-2}` according to general relativity (e.g., Moyer, 2000). A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
 
 * 1. **Perturbing Body as a Link End:**
@@ -6343,9 +6343,9 @@ Examples
     } else if(name == "absolute_bias" ) {
         return R"(
         
-Factory function for creating settings for an absolute observation bias.
+Function for creating settings for an absolute observation bias.
 
-Factory function for creating settings for an absolute observation bias. When calculating the observable value, applying this setting
+Function for creating settings for an absolute observation bias. When calculating the observable value, applying this setting
 will take the physically ideal observation :math:`h`, and modify it to obtain the biased observation :math:`\tilde{h}` as follows:
 
 .. math::
@@ -6389,9 +6389,9 @@ Examples
     } else if(name == "relative_bias" ) {
         return R"(
         
-Factory function for creating settings for a relative observation bias.
+Function for creating settings for a relative observation bias.
 
-Factory function for creating settings for a relative observation bias. When calculating the observable value, applying this setting
+Function for creating settings for a relative observation bias. When calculating the observable value, applying this setting
 will take the physically ideal observation :math:`h`, and modify it to obtain the biased observation :math:`\tilde{h}` as follows:
 
 .. math::
@@ -6437,9 +6437,9 @@ Examples
     } else if(name == "arcwise_absolute_bias" ) {
         return R"(
         
-Factory function for creating settings for arc-wise absolute observation biases.
+Function for creating settings for arc-wise absolute observation biases.
 
-Factory function for creating settings for arc-wise absolute observation biases.
+Function for creating settings for arc-wise absolute observation biases.
 This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
@@ -6488,9 +6488,9 @@ Examples
     } else if(name == "arcwise_absolute_bias_per_time") {
         return R"(
         
-Factory function for creating settings for arc-wise absolute observation biases.
+Function for creating settings for arc-wise absolute observation biases.
 
-Factory function for creating settings for arc-wise absolute observation biases.
+Function for creating settings for arc-wise absolute observation biases.
 This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
@@ -6538,9 +6538,9 @@ import numpy as np
     } else if(name == "arcwise_relative_bias" ) {
         return R"(
         
-Factory function for creating settings for arc-wise relative observation biases.
+Function for creating settings for arc-wise relative observation biases.
 
-Factory function for creating settings for arc-wise relative observation biases.
+Function for creating settings for arc-wise relative observation biases.
 This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
@@ -6589,9 +6589,9 @@ Examples
     } else if(name == "arcwise_relative_bias_per_time") {
         return R"(
 
-Factory function for creating settings for arc-wise relative observation biases.
+Function for creating settings for arc-wise relative observation biases.
 
-Factory function for creating settings for arc-wise relative observation biases.
+Function for creating settings for arc-wise relative observation biases.
 This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
@@ -6641,9 +6641,9 @@ Examples
     } else if(name == "time_drift_bias" ) {
         return R"(
         
-Factory function for creating settings for a time-drift bias.
+Function for creating settings for a time-drift bias.
 
-Factory function for creating settings for a time-drift bias.
+Function for creating settings for a time-drift bias.
 This bias setting generates the configuration for applying a constant time-drift bias to an observation model.
 
 Parameters
@@ -6693,9 +6693,9 @@ Examples
     } else if(name == "arc_wise_time_drift_bias" ) {
         return R"(
         
-Factory function for creating settings for arc-wise time-drift biases.
+Function for creating settings for arc-wise time-drift biases.
 
-Factory function for creating settings for arc-wise time-drift biases.
+Function for creating settings for arc-wise time-drift biases.
 This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
 
 
@@ -6748,9 +6748,9 @@ Examples
     } else if(name == "arc_wise_time_drift_bias_per_time") {
         return R"(
         
-Factory function for creating settings for arc-wise time-drift biases.
+Function for creating settings for arc-wise time-drift biases.
 
-Factory function for creating settings for arc-wise time-drift biases.
+Function for creating settings for arc-wise time-drift biases.
 This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
 
 Parameters
@@ -6801,9 +6801,9 @@ Examples
     } else if(name == "combined_bias" ) {
         return R"(
         
-Factory function for creating settings for a combined observation bias.
+Function for creating settings for a combined observation bias.
 
-Factory function for creating settings for a combined observation bias, calculating by combining any number of bias types.
+Function for creating settings for a combined observation bias, calculating by combining any number of bias types.
 Each contribution of the combined bias is computed from the unbiased observable, so when applying both a relative and absolute bias, we get:
 
 .. math::
@@ -6865,9 +6865,9 @@ Examples
     } else if(name == "one_way_range" ) {
         return R"(
         
-Factory function for creating settings for a one-way range observable.
+Function for creating settings for a one-way range observable.
 
-Factory function for creating observation model settings of one-way range type observables, for a single link definition. The associated observation model creates
+Function for creating observation model settings of one-way range type observables, for a single link definition. The associated observation model creates
 a single-valued observable :math:`h_{_{\text{1-range}}}` as follows (in the unbiased case):
 
 .. math::
@@ -6937,15 +6937,15 @@ Examples
     } else if(name == "n_way_range" ) {
         return R"(
         
-Factory function for creating settings for a n-way range observable.
+Function for creating settings for a n-way range observable.
 
-Factory function for creating observation model settings of n-way range type observables, for a single link definition. The associated observation model creates
+Function for creating observation model settings of n-way range type observables, for a single link definition. The associated observation model creates
 a single-valued observable :math:`h_{_{\text{N-range}}}` by combining together a series :math:`n` one-way range observations    
 (see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`). By default, the reception time of the :math:`i^{th}` one-way range is set as the 
 transmission time of the :math:`(i+1)^{th}` one-way range. A retransmission delay may be defined by ancilliary settings (see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings`) when creating observation
 simulation setings.
 
-For this factory function, the settings for each constituent one-way range (with the exception of the link end identifiers) are equal.
+For this function, the settings for each constituent one-way range (with the exception of the link end identifiers) are equal.
 
 
 Parameters
@@ -7006,9 +7006,9 @@ Examples
     } else if(name == "n_way_range_from_one_way_links" ) {
         return R"(
         
-Factory function for creating settings for a n-way range observable.
+Function for creating settings for a n-way range observable.
 
-Factory function for creating observation model settings of n-way range type observables, for a single link definition. The
+Function for creating observation model settings of n-way range type observables, for a single link definition. The
 implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range`, with the difference
 that the constituent one-way ranges may have different settings.s
 
@@ -7061,7 +7061,7 @@ Examples
     } else if(name == "two_way_range" ) {
         return R"(
         
-Factory function for creating settings for a two-way range observable.
+Function for creating settings for a two-way range observable.
 
 Same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range`, with :math:`n=2`. This function is provided
 for convenience.
@@ -7122,7 +7122,7 @@ Examples
     } else if(name == "two_way_range_from_one_way_links" ) {
         return R"(
         
-Factory function for creating settings for a two-way range observable.
+Function for creating settings for a two-way range observable.
 
 Same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range_from_one_way_links`, with :math:`n=2`. This function is provided
 for convenience.
@@ -7176,9 +7176,9 @@ Examples
     } else if(name == "angular_position" ) {
         return R"(
         
-Factory function for creating settings for an angular position observable.
+Function for creating settings for an angular position observable.
 
-Factory function for creating observation model settings of angular position type observables (as right ascension :math:`\alpha` and declination :math:`\delta`), 
+Function for creating observation model settings of angular position type observables (as right ascension :math:`\alpha` and declination :math:`\delta`), 
 for a single link definition. The associated observation model creates an observable :math:`\mathbf{h}_{_{\text{ang.pos.}}}` of type two as follows (in the unbiased case):
 
 .. math::
@@ -7225,9 +7225,9 @@ Returns
     } else if(name == "relative_angular_position" ) {
         return R"(
         
-Factory function for creating settings for a relative angular position observable.
+Function for creating settings for a relative angular position observable.
 
-Factory function for creating observation model settings of relative angular position type observables (as relative right ascension :math:`\Delta\alpha` and relative declination :math:`\Delta\delta`), 
+Function for creating observation model settings of relative angular position type observables (as relative right ascension :math:`\Delta\alpha` and relative declination :math:`\Delta\delta`), 
 for a single link definition. The associated observation model creates an observable that is the difference of two :func:`~tudatpy.numerical_simulation.estimation_setup.observation.angular_position`
 observables :math:`\left(\mathbf{h}_{_{\text{ang.pos.}}}\right)_{2}` and :math:`\left(\mathbf{h}_{_{\text{ang.pos.}}}\right)_{1}`. 
 The resulting observable becomes :math:`\left(\mathbf{h}_{_{\text{ang.pos.}}}\right)_{2}-\left(\mathbf{h}_{_{\text{ang.pos.}}}\right)_{2}`
@@ -7268,9 +7268,9 @@ Returns
     } else if(name == "one_way_doppler_instantaneous" ) {
         return R"(
         
-Factory function for creating settings for a one-way instantaneous Doppler observable.
+Function for creating settings for a one-way instantaneous Doppler observable.
 
-Factory function for creating settings for a one-way instantaneous Doppler observable for a single link definition. The associated observation model creates
+Function for creating settings for a one-way instantaneous Doppler observable for a single link definition. The associated observation model creates
 a single-valued observable :math:`h_{_{\text{1-Dopp.}}}` as follows (in the unbiased case):
 
 .. math::
@@ -7334,10 +7334,10 @@ Returns
     } else if(name == "two_way_doppler_instantaneous" ) {
         return R"(
         
-Factory function for creating settings for a two-way instantaneous Doppler observable.
+Function for creating settings for a two-way instantaneous Doppler observable.
 
 
-Factory function for creating settings for a two-way instantaneous Doppler observable for a single link definition. The associated observation model creates
+Function for creating settings for a two-way instantaneous Doppler observable for a single link definition. The associated observation model creates
 a single-valued observable :math:`h_{_{\text{2-Dopp.}}}` as follows (in the unbiased case), by combining the up- and downlink one-way 
 instantanenous Doppler observable :math:`h_{_{\text{1-Dopp.}}}` 
 (both normalized by speed of light c, see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_instantaneous`) as follows:
@@ -7398,10 +7398,10 @@ Returns
     } else if(name == "two_way_doppler_instantaneous_from_one_way_links" ) {
         return R"(
         
-Factory function for creating settings for a two-way instantaneous Doppler observable.
+Function for creating settings for a two-way instantaneous Doppler observable.
 
 
-Factory function for creating settings for a two-way instantaneous Doppler observable for a single link definition. The
+Function for creating settings for a two-way instantaneous Doppler observable for a single link definition. The
 implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.two_way_doppler_instantaneous`, with the difference
 that the constituent one-way ranges may have different settings.
    
@@ -7441,9 +7441,9 @@ Returns
     } else if(name == "one_way_doppler_averaged" ) {
         return R"(
         
-Factory function for creating settings for a one-way averaged Doppler observable.
+Function for creating settings for a one-way averaged Doppler observable.
 
-Factory function for creating observation model settings for one-way averaged Doppler observables, for a single link definition. The associated observation model creates
+Function for creating observation model settings for one-way averaged Doppler observables, for a single link definition. The associated observation model creates
 a single-valued observable :math:`h_{_{\text{1-\bar{Dopp}}}}` as follows (in the unbiased case):
 
 .. math::
@@ -7490,9 +7490,9 @@ Returns
     } else if(name == "n_way_doppler_averaged" ) {
         return R"(
         
-Factory function for creating settings for an n-way averaged Doppler observable.
+Function for creating settings for an n-way averaged Doppler observable.
 
-Factory function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
+Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
 analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
 the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
@@ -7533,9 +7533,9 @@ Returns
     } else if(name == "n_way_doppler_averaged_from_one_way_links" ) {
         return R"(
         
-Factory function for creating settings for an n-way averaged Doppler observable.
+Function for creating settings for an n-way averaged Doppler observable.
 
-Factory function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. 
+Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. 
 The implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_averaged`, with the difference
 that the constituent one-way range observables may have different settings.
 
@@ -7568,9 +7568,9 @@ Returns
     } else if(name == "two_way_doppler_averaged" ) {
         return R"(
         
-Factory function for creating settings for a two-way averaged Doppler observable.
+Function for creating settings for a two-way averaged Doppler observable.
 
-Factory function for creating settings for a two-way averaged Doppler observable. Same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_averaged`,       
+Function for creating settings for a two-way averaged Doppler observable. Same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_averaged`,       
 with :math:`n=2`. This function is provided for convenience.
 
 
@@ -7607,9 +7607,9 @@ Returns
     } else if(name == "two_way_doppler_averaged_from_one_way_links" ) {
         return R"(
         
-Factory function for creating settings for a two-way averaged Doppler observable.
+Function for creating settings for a two-way averaged Doppler observable.
 
-Factory function for creating settings for a two-way averaged Doppler observable. Same as 
+Function for creating settings for a two-way averaged Doppler observable. Same as 
 :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_averaged_from_one_way_links`,       
 with :math:`n=2`. This function is provided for convenience.
 
@@ -7642,9 +7642,9 @@ Returns
     } else if(name == "cartesian_position" ) {
         return R"(
         
-Factory function for creating settings for a Cartesian position observable.
+Function for creating settings for a Cartesian position observable.
 
-Factory function for creating observation model settings of Cartesian position type observables.
+Function for creating observation model settings of Cartesian position type observables.
 Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
 This observable provides the inertial (w.r.t. global frame origin) Cartesian position of the `observed_body` defined by the `link_ends` input.
 The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` position
@@ -7676,9 +7676,9 @@ Returns
     } else if(name == "cartesian_velocity" ) {
         return R"(
         
-Factory function for creating settings for a Cartesian velocity observable.
+Function for creating settings for a Cartesian velocity observable.
 
-Factory function for creating observation model settings of Cartesian position type observables.
+Function for creating observation model settings of Cartesian position type observables.
 Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
 This observable provides the inertial (w.r.t. global frame origin) Cartesian velocity of the `observed_body` defined by the `link_ends` input.
 The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` velocity
@@ -7710,9 +7710,9 @@ Returns
     } else if(name == "313_euler_angles" ) {
         return R"(
         
-Factory function for creating settings for observable containing the body orientation as Euler angles.
+Function for creating settings for observable containing the body orientation as Euler angles.
 
-Factory function for creating observation model settings of Euler angle type observables.
+Function for creating observation model settings of Euler angle type observables.
 This observable can be used for *e.g.* body attitude observations, but can also be very useful as 'synthetic' observable for verification or analysis purposes.
 This observable provides the rotation from inertial (defined by the global frame orientation) to body-fixed orientation of the 
 body specified by the `observed_body` in the `link_ends` input.  The observable
@@ -7745,9 +7745,9 @@ Returns
     } else if(name == "elevation_angle_viability" ) {
         return R"(
         
-Factory function for defining single elevation angle viability setting.
+Function for defining single elevation angle viability setting.
 
-Factory function for defining elevation angle viability settings for single link end.
+Function for defining elevation angle viability settings for single link end.
 When simulating observations, this setting ensures that any applicable observations, for which the local elevation angle at link end is less than some limit value, will be omitted.
 
 
@@ -7778,9 +7778,9 @@ Returns
     } else if(name == "elevation_angle_viability_list" ) {
         return R"(
         
-Factory function for defining list of elevation angle viability settings.
+Function for defining list of elevation angle viability settings.
 
-Factory function for defining elevation angle viability settings for multiple link ends.
+Function for defining elevation angle viability settings for multiple link ends.
 Each entry in the returned list contains the observation viability settings for one link end.
 When simulating observations, these settings ensure that any applicable observations, for which the local elevation angle at a link end is less than some limit value, will be omitted.
 
@@ -7814,9 +7814,9 @@ Returns
     } else if(name == "body_avoidance_viability" ) {
         return R"(
         
-Factory function for defining body avoidance observation viability settings.
+Function for defining body avoidance observation viability settings.
 
-Factory function for defining body avoidance observation viability settings for single link ends.
+Function for defining body avoidance observation viability settings for single link ends.
 When simulating observations, this settings ensures that any applicable observations, for which the signal path passes 'too close' to a body, will be omitted.
 The definition of 'too close' is computed as the angle between:
 
@@ -7859,9 +7859,9 @@ Returns
     } else if(name == "body_avoidance_viability_list" ) {
         return R"(
         
-Factory function for defining list of body avoidance viability settings.
+Function for defining list of body avoidance viability settings.
 
-Factory function for defining body avoidance viability settings for multiple link ends.
+Function for defining body avoidance viability settings for multiple link ends.
 Each entry in the returned list contains the observation viability settings for one link end.
 When simulating observations, these settings ensure that any applicable observations, for which the signal path passes 'too close' to a body, will be omitted.
 The definition of 'too close' is computed as the angle between:
@@ -7903,9 +7903,9 @@ Returns
     } else if(name == "body_occultation_viability" ) {
         return R"(
         
-Factory function for defining body occultation viability settings.
+Function for defining body occultation viability settings.
 
-Factory function for defining body occultation viability settings for single link ends.
+Function for defining body occultation viability settings for single link ends.
 When simulating observations, this setting ensures that any applicable observations, for which the signal path is occulted by a given body, will be omitted.
 The occultation is computed using the shape model of the specified body.
 
@@ -7936,9 +7936,9 @@ Returns
     } else if(name == "body_occultation_viability_list" ) {
         return R"(
         
-Factory function for defining body occultation viability settings.
+Function for defining body occultation viability settings.
 
-Factory function for defining body occultation viability settings for multiple link ends.
+Function for defining body occultation viability settings for multiple link ends.
 Each entry in the returned list contains the observation viability settings for one link end.
 When simulating observations, these settings ensure that any applicable observations, for which the signal path is occulted by a given body, will be omitted.
 The occultation is computed using the shape model of the specified body.
@@ -7972,9 +7972,9 @@ Returns
     } else if(name == "doppler_ancilliary_settings" ) {
         return R"(
         
-Factory function for creating ancilliary settings for averaged Doppler observable.
+Function for creating ancilliary settings for averaged Doppler observable.
 
-Factory function for creating ancilliary settings for an averaged Doppler observable. Specifically, this
+Function for creating ancilliary settings for an averaged Doppler observable. Specifically, this
 function can be used to create settings for the integration time of the observable. Note: in case no retransmission
 delays (or other additional ancilliary settings) are to be defined, this setting may be used for one-, two-, or N-way
 averaged Doppler.
@@ -8001,9 +8001,9 @@ Returns
     } else if(name == "two_way_range_ancilliary_settings" ) {
         return R"(
         
-Factory function for creating ancilliary settings for two-way range observable.
+Function for creating ancilliary settings for two-way range observable.
 
-Factory function for creating ancilliary settings for a two-way range observable. Specifically, this
+Function for creating ancilliary settings for a two-way range observable. Specifically, this
 function can be used to create settings for the retransmission delay of the observable. NOTE:
 this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range_ancilliary_settings`
 with a single retransmission delay.
@@ -8030,9 +8030,9 @@ Returns
     } else if(name == "two_way_doppler_ancilliary_settings" ) {
         return R"(
         
-Factory function for creating ancilliary settings for two-way averaged Doppler observable.
+Function for creating ancilliary settings for two-way averaged Doppler observable.
 
-Factory function for creating ancilliary settings for a two-way range observable. Specifically, this
+Function for creating ancilliary settings for a two-way range observable. Specifically, this
 function can be used to create settings for the retransmission delay of the observable.  NOTE:
 this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_ancilliary_settings`
 with a single retransmission delay.
@@ -8061,9 +8061,9 @@ Returns
     } else if(name == "n_way_range_ancilliary_settings" ) {
         return R"(
         
-Factory function for creating ancilliary settings for n-way range observable.
+Function for creating ancilliary settings for n-way range observable.
 
-Factory function for creating ancilliary settings for a n-way range observable. Specifically, this
+Function for creating ancilliary settings for a n-way range observable. Specifically, this
 function can be used to create settings for the retransmission delays of the observable, for each of the retransmitters.
 
 
@@ -8088,9 +8088,9 @@ Returns
     } else if(name == "n_way_doppler_ancilliary_settings" ) {
         return R"(
         
-Factory function for creating ancilliary settings for n-way averaged Doppler observable.
+Function for creating ancilliary settings for n-way averaged Doppler observable.
 
-Factory function for creating ancilliary settings for a n-way averaged Doppler observable. Specifically, this
+Function for creating ancilliary settings for a n-way averaged Doppler observable. Specifically, this
 function can be used to create settings for the integration time of the observable, and the  retransmission delays for each of the retransmitters.
 
 
@@ -8117,9 +8117,9 @@ Returns
     } else if(name == "tabulated_simulation_settings" ) {
         return R"(
         
-Factory function for creating settings object for observation simulation, using a predefined list of observation times.
+Function for creating settings object for observation simulation, using a predefined list of observation times.
 
-Factory function for creating single simulation settings object, using a predefined list of observation times.
+Function for creating single simulation settings object, using a predefined list of observation times.
 The list of resulting observations may be reduced compared to the ``simulation_times`` should be provided here, as
 only observations that meet the viability settings are retained during observation simulation (these may be
 provide directly here through the ``viability_settings`` input, or added later to the resulting settings object). 
@@ -8157,9 +8157,9 @@ Returns
     } else if(name == "tabulated_simulation_settings_list" ) {
         return R"(
         
-Factory function for creating a list of settings object for observation simulation, using a predefined list of observation times.
+Function for creating a list of settings object for observation simulation, using a predefined list of observation times.
 
-Factory function for creating multiple tabulated observation simulation settings objects in a list. This function is 
+Function for creating multiple tabulated observation simulation settings objects in a list. This function is 
 equivalent to calling the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings` repeatedly, with the different 
 observables and link definition provided here through `link_ends_per_observable`. 
 During a single call to this function, one simulation settings object is created for each combination of observable type and link geometry given by the `link_ends_per_observable` parameter.
@@ -8196,7 +8196,7 @@ List[ TabulatedObservationSimulationSettings ]
     } else if(name == "get_default_reference_link_end" ) {
         return R"(
         
-Factory function for automatically retrieving the reference link end associated with a given observable type.
+Function for automatically retrieving the reference link end associated with a given observable type.
 
 
 Parameters
@@ -8220,9 +8220,9 @@ Returns
     } else if(name == "continuous_arc_simulation_settings" ) {
         return R"(
         
-Factory function for creating settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
+Function for creating settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
 
-Factory function for creating settings object for observation simulation. Unlike the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
+Function for creating settings object for observation simulation. Unlike the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
 function, the resulting settings do not define the observation times explicitly. Instead, this settings object determines the observation times adaptively during the
 simulation of the observation, with the requirement that observations should be simulated over a set of contiguous arcs (if possible). The exact algorithm meets the following conditions:
 
@@ -8285,9 +8285,9 @@ Returns
     } else if(name == "continuous_arc_simulation_settings_list" ) {
         return R"(
         
-Factory function for creating a list of settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
+Function for creating a list of settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
 
-Factory function for creating multiple settings objects for observation simulation in a list. This function is 
+Function for creating multiple settings objects for observation simulation in a list. This function is 
 equivalent to calling the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.continuous_arc_simulation_settings` repeatedly, with the different 
 observables and link definition provided here through `link_ends_per_observable`. 
 During a single call to this function, one simulation settings object is created for each combination of observable type and link geometry given by the `link_ends_per_observable` parameter.
@@ -8773,8 +8773,8 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Enumeration of model parameters that are available for estimation.
-        In order to establish a parameter estimation settings for a parameter of a certain type, use the factory function dedicated to this parameter type.
-        Note that not all of the listed types might be accessible via factory functions in the python interface yet.
+        In order to establish a parameter estimation settings for a parameter of a certain type, use the function dedicated to this parameter type.
+        Note that not all of the listed types might be accessible via functions in the python interface yet.
 
 
 
@@ -8948,7 +8948,7 @@ static inline std::string get_docstring(std::string name) {
 
         Functional (base) class for settings of model parameter to be estimated.
         Settings of simple parameters types are managed via this class, more complex parameter types are handled by specialised derivates of this class.
-        Instances of either base or derived class can be created via dedicated factory functions.
+        Instances of either base or derived class can be created via dedicated functions.
 
 
 
@@ -8966,8 +8966,8 @@ static inline std::string get_docstring(std::string name) {
         
 Function for defining parameter settings for initial state parameters.
 
-Factory function for creating a (linear sensitivity) parameter settings object for initial state parameters.
-The factory function uses the propagator settings to determine which type of initial state parameter (single/multi/hybrid-arc; translational/rotational/... dynamics) is to be estimated,
+Function for creating a (linear sensitivity) parameter settings object for initial state parameters.
+The function uses the propagator settings to determine which type of initial state parameter (single/multi/hybrid-arc; translational/rotational/... dynamics) is to be estimated,
 e.g. if a single-arc translational state propagator is defined, the function will automatically create the parameters for the associated initial state parameter
 
 .. note:: This function return lists of parameter settings objects.
@@ -9019,7 +9019,7 @@ List[ :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.Estimatab
         
 Function for defining parameter settings for constant drag coefficients.
 
-Factory function for creating a (linear sensitivity) parameter settings object for constant drag coefficients.
+Function for creating a (linear sensitivity) parameter settings object for constant drag coefficients.
 Using the constant drag coefficient as an estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
@@ -9051,7 +9051,7 @@ Returns
         
 Function for defining parameter settings for arc-wise constant drag coefficients.
 
-Factory function for creating (linear sensitivity) parameter settings object for arc-wise constant drag coefficients (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.constant_drag_coefficient`).
+Function for creating (linear sensitivity) parameter settings object for arc-wise constant drag coefficients (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.constant_drag_coefficient`).
 Using the arc-wise constant drag coefficient as an estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
@@ -9089,7 +9089,7 @@ Returns
         
 Function for defining parameter settings for radiation pressure coefficients.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a radiation pressure coefficient.
+Function for creating a (linear sensitivity) parameter settings object for a radiation pressure coefficient.
 Using the radiation pressure coefficient as an estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball` radiation pressure interface to be defined for the body specified by the ``body`` parameter
@@ -9121,7 +9121,7 @@ Returns
         
 Function for defining parameter settings for arc-wise radiation pressure coefficients.
 
-Factory function for creating a (linear sensitivity) parameter settings object for arc-wise radiation pressure coefficients (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.radiation_pressure_coefficient`).
+Function for creating a (linear sensitivity) parameter settings object for arc-wise radiation pressure coefficients (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.radiation_pressure_coefficient`).
 Using the radiation pressure coefficient as an estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball` radiation pressure interface to be defined for the body specified by the ``body`` parameter
@@ -9160,7 +9160,7 @@ Returns
         
 Function for defining parameter settings for empirical acceleration magnitudes.
 
-Factory function for creating a (linear sensitivity) parameter settings object for empirical acceleration magnitudes.
+Function for creating a (linear sensitivity) parameter settings object for empirical acceleration magnitudes.
 Using the empirical acceleration terms as estimatable parameters requires:
 
 * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.empirical` acceleration, which include constant (in RSW frame) terms
@@ -9198,7 +9198,7 @@ Returns
         
 Function for defining parameter settings for arc-wise empirical acceleration magnitudes.
 
-Factory function for creating a (linear sensitivity) parameter settings object for arc-wise empirical acceleration magnitudes (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations`).
+Function for creating a (linear sensitivity) parameter settings object for arc-wise empirical acceleration magnitudes (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations`).
 Using the empirical acceleration terms as estimatable parameters requires:
 
 * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.empirical` acceleration, which include constant (in RSW frame) terms
@@ -9308,7 +9308,7 @@ Returns
         
 Function for defining parameter settings for quasi-impulsive shots.
 
-Factory function for creating a (linear sensitivity) parameter settings object for so-called 'quasi-impulsive shots', such as desaturation maneuvers. With this parameter, the total :math:`\Delta V` vector of a set of such shots/maneuvers can be estimated.
+Function for creating a (linear sensitivity) parameter settings object for so-called 'quasi-impulsive shots', such as desaturation maneuvers. With this parameter, the total :math:`\Delta V` vector of a set of such shots/maneuvers can be estimated.
 Using the quasi-impulsive shots as an estimatable parameter requires:
 
 * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.quasi_impulsive_shots_acceleration` acceleration
@@ -9341,7 +9341,7 @@ Returns
         
 Function for defining parameter settings for a massive body's gravitational parameter.
 
-Factory function for creating a (linear sensitivity) parameter settings object for the gravitational parameter of massive bodies.
+Function for creating a (linear sensitivity) parameter settings object for the gravitational parameter of massive bodies.
 Using the gravitational parameter as estimatable parameter requires:
 
 * The body specified by the ``body`` parameter to be endowed with a gravity field (see :ref:`\`\`gravity_field\`\`` module for options)
@@ -9373,7 +9373,7 @@ Returns
         
 Function for defining parameter settings for the cosine coefficients of body's spherical harmonics gravitational model.
 
-Factory function for creating a (linear sensitivity) parameter settings object for the spherical harmonics cosine-coefficients (:math:`\bar{C}_{lm}`) of a hody with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/0, and maximum degree/order 4/4, all spherical harmonic cosine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 0, 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
+Function for creating a (linear sensitivity) parameter settings object for the spherical harmonics cosine-coefficients (:math:`\bar{C}_{lm}`) of a hody with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/0, and maximum degree/order 4/4, all spherical harmonic cosine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 0, 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
 Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
@@ -9414,7 +9414,7 @@ Returns
         
 Function for defining parameter settings for the sine coefficients of body's spherical harmonics gravitational model.
 
-Factory function for creating a (linear sensitivity) parameter settings object for the spherical harmonics sine-coefficients (:math:`\bar{S}_{lm}`) of a hody with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/1 (there is no order 0 sine coefficient), and maximum degree/order 4/4, all spherical harmonic sine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
+Function for creating a (linear sensitivity) parameter settings object for the spherical harmonics sine-coefficients (:math:`\bar{S}_{lm}`) of a hody with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/1 (there is no order 0 sine coefficient), and maximum degree/order 4/4, all spherical harmonic sine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
 Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
@@ -9521,7 +9521,7 @@ Returns
         
 Function for defining parameter settings for a body's constant rotation rate.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a body's constant rotation rate parameter.
+Function for creating a (linear sensitivity) parameter settings object for a body's constant rotation rate parameter.
 Using the constant rotation rate as estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple` or :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple_from_spice` rotation model specified by the ``body`` parameter
@@ -9553,7 +9553,7 @@ Returns
         
 Function for defining parameter settings for a body's rotation pole position.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a body's rotation pole position, parameterized by the constant pole rotation angles (:math:`\alpha` and :math:`\delta`).
+Function for creating a (linear sensitivity) parameter settings object for a body's rotation pole position, parameterized by the constant pole rotation angles (:math:`\alpha` and :math:`\delta`).
 Using the rotation pole position as estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple` or :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple_from_spice` rotation model specified by the ``body`` parameter
@@ -9585,7 +9585,7 @@ Returns
         
 Function for defining parameter settings for a body's mean moment of inertia.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a body's mean moment of inertia. 
+Function for creating a (linear sensitivity) parameter settings object for a body's mean moment of inertia. 
 In most cases, the mean moment of inertia will not influence the dynamics/observation directly and sensitivity to this parameter will not be included. The dynamics/observation will be sensitive to this parameter if the rotational dynamics of a relevant body is estimated.
 Using the mean moment of inertia as estimatable parameter requires:
 
@@ -9617,7 +9617,7 @@ Returns
         
 Function for defining parameter settings for a body's periodic spin variations.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a body's periodic spin variation parameters.
+Function for creating a (linear sensitivity) parameter settings object for a body's periodic spin variation parameters.
 Using the mean moment of inertia as estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
@@ -9649,7 +9649,7 @@ Returns
         
 Function for defining parameter settings for a body's polar motion amplitudes.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a body's polar motion amplitudes.
+Function for creating a (linear sensitivity) parameter settings object for a body's polar motion amplitudes.
 Using the polar motion amplitudes as estimatable parameter requires
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
@@ -9681,7 +9681,7 @@ Returns
         
 Function for defining parameter settings for a body's core factor.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a body's core factor.
+Function for creating a (linear sensitivity) parameter settings object for a body's core factor.
 Using the core factor as estimatable parameter requires
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
@@ -9713,7 +9713,7 @@ Returns
         
 Function for defining parameter settings for a body's free core nutation rate.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a body's free core nutation rate.
+Function for creating a (linear sensitivity) parameter settings object for a body's free core nutation rate.
 Using the free core nutation rate as estimatable parameter requires
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
@@ -9745,7 +9745,7 @@ Returns
         
 Function for defining parameter settings for an absolute observation bias.
 
-Factory function for creating a (linear sensitivity) parameter settings object for an observation's absolute bias parameter.
+Function for creating a (linear sensitivity) parameter settings object for an observation's absolute bias parameter.
 Using the absolute observation bias as estimatable parameter requires:
 
 * The observation model (corresponding to the `link_ends` and `observable_type`) to include an absolute bias (:func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias`)
@@ -9779,7 +9779,7 @@ Returns
         
 Function for defining parameter settings for an relative observation bias.
 
-Factory function for creating a (linear sensitivity) parameter settings object for an observation's relative bias parameter.
+Function for creating a (linear sensitivity) parameter settings object for an observation's relative bias parameter.
 Using the relative observation bias as estimatable parameter requires
 
 * The observation model (corresponding to the `link_ends` and `observable_type`) to include a relative bias (:func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias`)
@@ -9812,7 +9812,7 @@ Returns
         
 Function for defining parameter settings for arc-wise absolute observation bias.
 
-Factory function for creating a (linear sensitivity) parameter settings object for the arc-wise treatment of an observation's absolute bias parameter.
+Function for creating a (linear sensitivity) parameter settings object for the arc-wise treatment of an observation's absolute bias parameter.
 Using the arc-wise absolute observation bias as estimatable parameter requires
 
 * The observation model (corresponding to the `link_ends` and `observable_type`) to include an arc-wise absolute bias (:func:`~tudatpy.numerical_simulation.estimation_setup.observation.arcwise_absolute_bias`)
@@ -9850,7 +9850,7 @@ Returns
         
 Function for defining parameter settings for arc-wise absolute observation bias.
 
-Factory function for creating a (linear sensitivity) parameter settings object for the arc-wise treatment of an observation's relative bias parameter.
+Function for creating a (linear sensitivity) parameter settings object for the arc-wise treatment of an observation's relative bias parameter.
 Using the arc-wise relative observation bias as estimatable parameter requires
 
 * The observation model (corresponding to the `link_ends` and `observable_type`) to include an arc-wise relative bias (:func:`~tudatpy.numerical_simulation.estimation_setup.observation.arcwise_relative_bias`)
@@ -9890,7 +9890,7 @@ Returns
         
 Function for defining parameter settings for ground station position bias.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a ground station's body-fixed Cartesian position.
+Function for creating a (linear sensitivity) parameter settings object for a ground station's body-fixed Cartesian position.
 Using the ground station position bias as estimatable parameter requires:
 
 * At least one observation model to rely on the specified ground station
@@ -9922,7 +9922,7 @@ Returns
         
 Function for defining parameter settings for post-newtonian gamma parameter.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a global PPN :math:`\gamma` parameter.
+Function for creating a (linear sensitivity) parameter settings object for a global PPN :math:`\gamma` parameter.
 Using the post-newtonian gamma parameter as estimatable parameter requires at least one of the following:
 
 * An acceleration model depending on this parameter, such as :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.relativistic_correction` 
@@ -9948,7 +9948,7 @@ Returns
         
 Function for defining parameter settings for post-newtonian beta parameter.
 
-Factory function for creating a (linear sensitivity) parameter settings object for a global PPN :math:`\beta` parameter.
+Function for creating a (linear sensitivity) parameter settings object for a global PPN :math:`\beta` parameter.
 Using the post-newtonian gamma parameter as estimatable parameter requires at least one of the following:
  
 * An acceleration model depending on this parameter, such as :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.relativistic_correction` 
@@ -10088,7 +10088,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Object that defines the settings of the atmosphere model that is to be created. Note that wind model settings
-        may be defined inside this object. A variable of this type is typically assigned by using a factory function from the
+        may be defined inside this object. A variable of this type is typically assigned by using a function from the
         :ref:`\`\`atmosphere\`\`` module.
 
 
@@ -10100,7 +10100,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Object that defines the settings of the ephemeris model that is to be created. A variable of this type is typically
-        assigned by using a factory function from the :ref:`\`\`ephemeris\`\`` module.
+        assigned by using a function from the :ref:`\`\`ephemeris\`\`` module.
 
 
         :type: EphemerisSettings
@@ -10111,7 +10111,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Object that defines the settings of the gravity field model that is to be created. A variable of this type is typically
-        assigned by using a factory function from the :ref:`\`\`gravity_field\`\`` module.
+        assigned by using a function from the :ref:`\`\`gravity_field\`\`` module.
 
 
         :type: GravityFieldSettings
@@ -10122,7 +10122,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Object that defines the settings of the rotation model that is to be created. A variable of this type is typically
-        assigned by using a factory function from the :ref:`\`\`rotation_model\`\`` module.
+        assigned by using a function from the :ref:`\`\`rotation_model\`\`` module.
 
 
         :type: RotationModelSettings
@@ -10133,7 +10133,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Object that defines the settings of the shape model that is to be created. A variable of this type is typically
-        assigned by using a factory function from the :ref:`\`\`shape\`\`` module.
+        assigned by using a function from the :ref:`\`\`shape\`\`` module.
 
 
         :type: BodyShapeSettings
@@ -10144,7 +10144,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Object that defines the settings of the aerodynamic coefficient model that is to be created. A variable of this type is typically
-        assigned by using a factory function from the :ref:`\`\`aerodynamic_coefficients\`\`` module.
+        assigned by using a function from the :ref:`\`\`aerodynamic_coefficients\`\`` module.
 
 
         :type: AerodynamicCoefficientSettings
@@ -10155,7 +10155,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         List of objects that define the settings of time variations of the gravity field variation models that are to be created. Variables in this list are typically
-        assigned by using a factory function from the :ref:`\`\`gravity_field_variations\`\`` module.
+        assigned by using a function from the :ref:`\`\`gravity_field_variations\`\`` module.
 
 
         :type: list[GravityFieldVariationSettings]
@@ -10166,7 +10166,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         List of objects that define the settings of time variations of the exterior shape of natural bodies are to be created. Variables in this list are typically
-        assigned by using a factory function from the :ref:`\`\`shape_deformation\`\`` module.
+        assigned by using a function from the :ref:`\`\`shape_deformation\`\`` module.
 
 
         :type: list[BodyDeformationSettings]
@@ -10177,7 +10177,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Object that defines the settings of the body rigid body (mass, center of mass, inertia) properties that are to be created. A variable of this type is typically
-        assigned by using a factory function from the :ref:`\`\`rigid_body\`\`` module. Note that this setting does *not* define
+        assigned by using a function from the :ref:`\`\`rigid_body\`\`` module. Note that this setting does *not* define
         the gravity field, but rather only the mass, center of mass and inertia tensor.
 
 
@@ -10189,7 +10189,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Object that defines the settings of the radiation pressure target model that is to be created. A variable of this type is typically
-        assigned by using a factory function from the :ref:`\`\`radiation_pressure\`\`` module. 
+        assigned by using a function from the :ref:`\`\`radiation_pressure\`\`` module. 
 
 
         :type: RadiationPressureTargetModelSettings
@@ -10200,7 +10200,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Object that defines the settings of the radiation source model that is to be created. A variable of this type is typically
-        assigned by using a factory function from the :ref:`\`\`radiation_pressure\`\`` module. 
+        assigned by using a function from the :ref:`\`\`radiation_pressure\`\`` module. 
 
 
         :type: RadiationSourceModelSettings
@@ -10211,7 +10211,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         Object that defines the settings of an exterior panelled vehicle shape that is to be created. A variable of this type is typically
-        assigned by using a factory function from the :ref:`\`\`vehicle_systems\`\`` module. 
+        assigned by using a function from the :ref:`\`\`vehicle_systems\`\`` module. 
 
 
         :type: FullPanelledBodySettings
@@ -10504,7 +10504,7 @@ BodySettings
 Function that creates an aerodynamic coefficient interface from settings, and adds it to an existing body.
 
 This function can be used to add an aerodynamic coefficient interface to an existing body. It requires
-settings for the aerodynamic coefficients, created using one of the factory functions from the `~tudatpy.numerical_simulation_environment_setup.aerodynamic_coefficient` module.
+settings for the aerodynamic coefficients, created using one of the functions from the `~tudatpy.numerical_simulation_environment_setup.aerodynamic_coefficient` module.
 This function creates the actual coefficient interface from these settings, and assigns it to the
 selected body. In addition to the identifier for the body to which it is assigned, this function
 requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
@@ -10619,7 +10619,7 @@ Returns
 Function that creates an radiation pressure interface from settings, and adds it to an existing body.
 
 This function can be used to add an radiation pressure interface to an existing body. It requires
-settings for the radiation pressure interface, created using one of the factory functions from the :ref:`\`\`radiation_pressure\`\`` module.
+settings for the radiation pressure interface, created using one of the functions from the :ref:`\`\`radiation_pressure\`\`` module.
 This function creates the actual coefficient interface from these settings, and assigns it to the
 selected body. In addition to the identifier for the body to which it is assigned, this function
 requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
@@ -10683,7 +10683,7 @@ Function that creates a rotation model, and adds it to an existing body.
 This function can be used to add  a :class:`~tudatpy.numerical_simulation.environment.RotationalEphemeris` object to an existing body.
 Typically, the ``RotationalEphemeris`` is created along with the `~tudatpy.numerical_simulation.environment.Body` itself However, in some cases it may be useful
 to create a rotation model after the Body objects have been created. This function requires
-settings for the rotation model, created using one of the factory functions from the :ref:`~tudatpy.numerical_simulation_environment_setup.rotation_model` module.
+settings for the rotation model, created using one of the functions from the :ref:`~tudatpy.numerical_simulation_environment_setup.rotation_model` module.
 This function creates the actual coefficient interface from these settings, and assigns it to the
 selected body. In addition to the identifier for the body to which it is assigned, this function
 requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
@@ -10715,7 +10715,7 @@ Function that creates a body mass property model, and adds it to an existing bod
 This function can be used to add  a :class:`~tudatpy.numerical_simulation.environment.BodyMassProperties` object to an existing body.
 Typically, the ``BodyMassProperties`` is created along with the `~tudatpy.numerical_simulation.environment.Body` itself However, in some cases it may be useful
 to create body mass properties after the Body objects have been created. This function requires
-settings for the body mass properties, created using one of the factory functions from the :ref:`~tudatpy.numerical_simulation_environment_setup.AAAA` module.
+settings for the body mass properties, created using one of the functions from the :ref:`~tudatpy.numerical_simulation_environment_setup.AAAA` module.
 This function creates the actual body mass properties from these settings, and assigns it to the
 selected body.
 
@@ -10897,9 +10897,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "constant" ) {
         return R"(
         
-Factory function for creating aerodynamic interface model settings entirely from constant coefficients.
+Function for creating aerodynamic interface model settings entirely from constant coefficients.
 
-Factory function for settings object, defining aerodynamic interface model entirely from constant aerodynamic coefficients,
+Function for settings object, defining aerodynamic interface model entirely from constant aerodynamic coefficients,
 i.e. coefficients are not a function of any independent variables.
 
 
@@ -10949,9 +10949,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "custom_aerodynamic_force_coefficients" ) {
         return R"(
         
-Factory function for creating aerodynamic interface model settings from custom coefficients.
+Function for creating aerodynamic interface model settings from custom coefficients.
 
-Factory function for settings object, defining aerodynamic interface model via a custom force coefficient function
+Function for settings object, defining aerodynamic interface model via a custom force coefficient function
 (function of independent variable).
 
 
@@ -11012,9 +11012,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "custom_aerodynamic_force_and_moment_coefficients" ) {
         return R"(
         
-Factory function for creating aerodynamic interface model settings from custom coefficients.
+Function for creating aerodynamic interface model settings from custom coefficients.
 
-Factory function for settings object, defining aerodynamic interface model via a custom force and moment coefficient function
+Function for settings object, defining aerodynamic interface model via a custom force and moment coefficient function
 (function of independent variable).
 
 
@@ -11062,9 +11062,9 @@ CustomAerodynamicCoefficientSettings
     } else if(name == "tabulated" ) {
         return R"(
         
-Factory function for creating aerodynamic interface model settings from user-defined, 1-d tabulated coefficients.
+Function for creating aerodynamic interface model settings from user-defined, 1-d tabulated coefficients.
 
-Factory function for settings object, defining aerodynamic interface model via user-defined, 1-dimensional, tabulated aerodynamic force and moment coefficients
+Function for settings object, defining aerodynamic interface model via user-defined, 1-dimensional, tabulated aerodynamic force and moment coefficients
 (tabulated w.r.t. independent variable).
 
 
@@ -11150,9 +11150,9 @@ This example also shows how to set the required reference point, lengths, and ar
     } else if(name == "tabulated_force_only" ) {
         return R"(
         
-Factory function for creating aerodynamic interface model settings from user-defined, 1-d tabulated force coefficients.
+Function for creating aerodynamic interface model settings from user-defined, 1-d tabulated force coefficients.
 
-Factory function for settings object, defining aerodynamic interface model via user-defined, 1-dimensional, tabulated aerodynamic force coefficients
+Function for settings object, defining aerodynamic interface model via user-defined, 1-dimensional, tabulated aerodynamic force coefficients
 (tabulated w.r.t. independent variable).
 
 
@@ -11215,9 +11215,9 @@ The values for the force coefficients vary with Mach number, and are defined for
     } else if(name == "tabulated_force_only_from_files" ) {
         return R"(
         
-Factory function for creating aerodynamic interface model settings from tabulated force coefficients from files.
+Function for creating aerodynamic interface model settings from tabulated force coefficients from files.
 
-Factory function for settings object, defining aerodynamic interface model via user-defined, tabulated aerodynamic force coefficients
+Function for settings object, defining aerodynamic interface model via user-defined, tabulated aerodynamic force coefficients
 (tabulated w.r.t. independent variable), obtained from data files.
 
 
@@ -11273,9 +11273,9 @@ This example is taken from the `reentry trajectory example <https://github.com/t
     } else if(name == "tabulated_from_files" ) {
         return R"(
         
-Factory function for creating aerodynamic interface model settings from tabulated coefficients from files.
+Function for creating aerodynamic interface model settings from tabulated coefficients from files.
 
-Factory function for settings object, defining aerodynamic interface model via user-defined, tabulated aerodynamic force and moment coefficients
+Function for settings object, defining aerodynamic interface model via user-defined, tabulated aerodynamic force and moment coefficients
 (tabulated w.r.t. independent variable), obtained from data files.
 
 
@@ -11347,9 +11347,9 @@ This example is very similar to the one for `tabulated_force_only_from_files`, w
     } else if(name == "scaled_by_constant" ) {
         return R"(
         
-Factory function for creating aerodynamic interface model settings by applying one constant scaling factor/value to all coefficients of an existing model settings object.
+Function for creating aerodynamic interface model settings by applying one constant scaling factor/value to all coefficients of an existing model settings object.
 
-Factory function for settings object, defining aerodynamic interface based on scaling the coefficients of an existing model settings object by one constant factor or value.
+Function for settings object, defining aerodynamic interface based on scaling the coefficients of an existing model settings object by one constant factor or value.
 Via the ``is_scaling_absolute`` 
 boolean, the user can apply a constant scaling factor or an absolute value to the resulting force and moment coefficients (for instance for an uncertainty analysis).
 
@@ -11410,9 +11410,9 @@ Since the `is_scaling_absolute` equals `False` by default, the force coefficient
     } else if(name == "scaled_by_vector" ) {
         return R"(
         
-Factory function for creating aerodynamic interface model settings by applying constant scaling factors/values to the coefficients of an existing model settings object.
+Function for creating aerodynamic interface model settings by applying constant scaling factors/values to the coefficients of an existing model settings object.
 
-Factory function for settings object, defining aerodynamic interface based on scaling the coefficients of an existing model settings object by constant factors or values.
+Function for settings object, defining aerodynamic interface based on scaling the coefficients of an existing model settings object by constant factors or values.
 Via the ``is_scaling_absolute`` boolean, the user can apply one constant scaling factor or an absolute value to each resulting force and moment coefficient (for instance for an uncertainty analysis).
 
 
@@ -11471,9 +11471,9 @@ Then, we use the `scaled_by_vector` function to scale the drag coefficient by 2.
     } else if(name == "scaled_by_vector_function" ) {
         return R"(
         
-Factory function for creating aerodynamic interface model settings by applying custom scaling factors/values to the coefficients of an existing model settings object.
+Function for creating aerodynamic interface model settings by applying custom scaling factors/values to the coefficients of an existing model settings object.
 
-Factory function for settings object, defining aerodynamic interface based on scaling the coefficients of an existing model settings object by custom factors or values.
+Function for settings object, defining aerodynamic interface based on scaling the coefficients of an existing model settings object by custom factors or values.
 Via the ``is_scaling_absolute`` boolean, the user can apply the scaling factors or absolute values to each resulting force and moment coefficient (for instance for an uncertainty analysis).
 
 
@@ -11538,9 +11538,9 @@ This scaling function essentially adds noise to the CD and CL following as a sin
     } else if(name == "custom_control_surface" ) {
         return R"(
         
-Factory function for creating control surface aerodynamic model settings from custom coefficients.
+Function for creating control surface aerodynamic model settings from custom coefficients.
 
-Factory function for settings object, defining control surface aerodynamic interface model via a custom force and moment coefficient function
+Function for settings object, defining control surface aerodynamic interface model via a custom force and moment coefficient function
 (function of independent variable). This function is essentically the control-surface equivalent of the
 :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_and_moment_coefficients` function for body coefficient settings.
 
@@ -11597,9 +11597,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "tabulated_from_files_control_surface" ) {
         return R"(
         
-Factory function for creating control surface aerodynamic model settings from tabulated coefficients from files.
+Function for creating control surface aerodynamic model settings from tabulated coefficients from files.
 
-Factory function for settings object, defining control surface aerodynamic interface model via user-defined, tabulated aerodynamic force and moment coefficients
+Function for settings object, defining control surface aerodynamic interface model via user-defined, tabulated aerodynamic force and moment coefficients
 (tabulated w.r.t. independent variable), obtained from data files.. This function is essentically the control-surface equivalent of the
 :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.tabulated_from_files` function for body coefficient settings.
 
@@ -11707,9 +11707,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "constant_wind_model" ) {
         return R"(
         
-Factory function for creating wind model settings with constant wind velocity.
+Function for creating wind model settings with constant wind velocity.
 
-Factory function for settings object, defining wind model entirely from constant wind velocity in a given reference frame.
+Function for settings object, defining wind model entirely from constant wind velocity in a given reference frame.
 
 
 Parameters
@@ -11755,9 +11755,9 @@ using a constant wind-velocity vector defined in a vertical aerodynamic referenc
     } else if(name == "custom_wind_model" ) {
         return R"(
         
-Factory function for creating wind model settings with custom wind velocity.
+Function for creating wind model settings with custom wind velocity.
 
-Factory function for settings object, defining wind model entirely from custom wind velocity function in a given reference frame.
+Function for settings object, defining wind model entirely from custom wind velocity function in a given reference frame.
 The custom wind velocity has to be given as a function of altitude, longitude, latitude and time.
 
 .. note:: The longitude and latitude will be passed to the function in **degree** and not in radians.
@@ -11813,9 +11813,9 @@ using a user-defined wind-velocity function (of altitude, longitude, latitude an
     } else if(name == "exponential_predefined" ) {
         return R"(
         
-Factory function for creating atmospheric model settings from pre-defined exponential model.
+Function for creating atmospheric model settings from pre-defined exponential model.
 
-Factory function for settings object, defining atmosphere model from pre-defined exponential model.
+Function for settings object, defining atmosphere model from pre-defined exponential model.
 The pre-encoded properties are available for Earth and Mars, as can be seen on the table below.
 This function creates an instance of an `AtmosphereSettings` derived `ExponentialAtmosphereSettings` object.
 
@@ -11881,9 +11881,9 @@ using the interface of the predefined exponential model, using pre-encoded value
     } else if(name == "exponential" ) {
         return R"(
         
-Factory function for creating atmospheric model settings from fully parametrized exponential model.
+Function for creating atmospheric model settings from fully parametrized exponential model.
 
-Factory function for settings object, defining exponential atmosphere model.
+Function for settings object, defining exponential atmosphere model.
 The model is solely based on an exponentially decaying density profile with a constant temperature and composition
 (i.e. independent of time, latitude and longitude).
 
@@ -11934,9 +11934,9 @@ using the minimalist interface to the exponential model and taking parameters wi
     } else if(name == "nrlmsise00" ) {
         return R"(
         
-Factory function for creating NRLMSISE-00 atmospheric model settings.
+Function for creating NRLMSISE-00 atmospheric model settings.
 
-Factory function for settings object, defining atmosphere model in accordance to the NRLMSISE-00 global reference model for Earth's atmosphere.
+Function for settings object, defining atmosphere model in accordance to the NRLMSISE-00 global reference model for Earth's atmosphere.
 
 
 Parameters
@@ -11970,9 +11970,9 @@ using the NRLMSISE-00 global reference model:
     } else if(name == "us76" ) {
         return R"(
         
-Factory function for creating US76 standard atmosphere model settings.
+Function for creating US76 standard atmosphere model settings.
 
-Factory function for creating US76 standard atmosphere model settings. The model is defined using tabulated data for density, pressure and temperature,
+Function for creating US76 standard atmosphere model settings. The model is defined using tabulated data for density, pressure and temperature,
 from an altitude of -5 km up to 1000 km. Up to 100 km, a data point is provided every 100 m. Above 100 km, a data point is provided every 1 km. The data
 are interpolated using a cubic spline interpolator. Note that this model is specific to Earth's atmosphere.
 
@@ -12005,9 +12005,9 @@ using the US76 standard atmosphere model:
     } else if(name == "custom_constant_temperature" ) {
         return R"(
         
-Factory function for creating atmospheric model settings from custom density profile.
+Function for creating atmospheric model settings from custom density profile.
 
-Factory function for settings object, defining constant temperature atmosphere model from custom density profile.
+Function for settings object, defining constant temperature atmosphere model from custom density profile.
 The user is specifying the density profile as a function of altitude.
 The value of pressure is computed by assuming hydrostatic equilibrium, temperature, gas constant and the ratio of specific heats are modelled as constants.
 
@@ -12064,9 +12064,9 @@ with constant temperature and composition, but a density which varies with altit
     } else if(name == "custom_four_dimensional_constant_temperature" ) {
         return R"(
         
-Factory function for creating atmospheric model settings from custom density profile.
+Function for creating atmospheric model settings from custom density profile.
 
-Factory function for settings object, defining constant temperature atmosphere model from custom density profile.
+Function for settings object, defining constant temperature atmosphere model from custom density profile.
 The user is specifying the density profile as a function of altitude, longitude, latitude and time.
 
 .. note:: The longitude and latitude will be passed to the function in **degree** and not in radians.
@@ -12123,9 +12123,9 @@ with constant temperature and composition (gas constant and ratio of specific he
     } else if(name == "scaled_by_constant" ) {
         return R"(
         
-Factory function for creating scaled atmospheric model settings.
+Function for creating scaled atmospheric model settings.
 
-Factory function for settings object, defining atmospheric model based on an scaling of an existing atmospheric settings object.
+Function for settings object, defining atmospheric model based on an scaling of an existing atmospheric settings object.
 The user can apply a scaling factor (or an absolute value) to the air densities of the existing model settings (for instance for an uncertainty analysis).
 
 
@@ -12177,9 +12177,9 @@ by modifying an existing :class:`~tudatpy.numerical_simulation.environment_setup
     } else if(name == "scaled_by_function" ) {
         return R"(
         
-Factory function for creating scaled atmospheric model settings.
+Function for creating scaled atmospheric model settings.
 
-Factory function for settings object, defining atmospheric model based on scaling an existing atmospheric settings object.
+Function for settings object, defining atmospheric model based on scaling an existing atmospheric settings object.
 The user can apply custom scaling factors (or absolute values) to the air densities of the existing model settings (for instance for an uncertainty analysis).
 
 
@@ -12571,9 +12571,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "direct_spice" ) {
         return R"(
         
-Factory function for creating ephemeris model settings entirely from Spice.
+Function for creating ephemeris model settings entirely from Spice.
 
-Factory function for settings object, defining ephemeris model directly and entirely from Spice.
+Function for settings object, defining ephemeris model directly and entirely from Spice.
 Requires an appropriate Spice kernel to be loaded.
 
 
@@ -12625,9 +12625,9 @@ Alternatively, we can assign the DirectSpiceEphemerisSettings of Jupiter (or any
     } else if(name == "interpolated_spice" ) {
         return R"(
         
-Factory function for creating ephemeris model settings using interpolated Spice data.
+Function for creating ephemeris model settings using interpolated Spice data.
 
-Factory function for settings object defining an ephemeris model from interpolated Spice data.
+Function for settings object defining an ephemeris model from interpolated Spice data.
 Using this option the state of the body is retrieved from Spice at regular intervals `before` the environment propagation (as opposed to during the propagation).
 These data are then used to create an interpolator, which is put into the environment, and called during the propagation.
 This option has the downside of being applicable only during a limited time interval and requiring the tabulated data to be stored in RAM,
@@ -12690,9 +12690,9 @@ Additionally, as is the case for the :func:`~tudatpy.numerical_simulation.enviro
     } else if(name == "approximate_jpl_model" ) {
         return R"(
         
-Factory function for creating approximate ephemeris model settings for major planets.
+Function for creating approximate ephemeris model settings for major planets.
 
-Factory function for settings object, defining approximate ephemeris model for major planets.
+Function for settings object, defining approximate ephemeris model for major planets.
 In this highly simplified ephemeris model, Keplerian elements of the major solar system bodies are modelled as linear functions of time and several sinusoidal variations (described in `this document <https://ssd.jpl.nasa.gov/planets/approx_pos.html>`_).
 Note that this option is only available for solar system planets. For the case of the Earth the approximate ephemeris of the Earth-Moon barycenter is returned.
 
@@ -12737,9 +12737,9 @@ Alternatively, we can assign the ApproximateJplEphemerisSettings of Jupiter (or 
     } else if(name == "constant" ) {
         return R"(
         
-Factory function for creating constant ephemeris model settings.
+Function for creating constant ephemeris model settings.
 
-Factory function for settings object, defining ephemeris model with a constant, time-independent state.
+Function for settings object, defining ephemeris model with a constant, time-independent state.
 
 
 Parameters
@@ -12783,9 +12783,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "custom_ephemeris" ) {
         return R"(
         
-Factory function for creating custom ephemeris model settings.
+Function for creating custom ephemeris model settings.
 
-Factory function for settings object, defining ephemeris model with a custom state.
+Function for settings object, defining ephemeris model with a custom state.
 This allows the user to provide a custom state function as ephemeris model.
 
 
@@ -12841,9 +12841,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "keplerian" ) {
         return R"(
         
-Factory function for creating Keplerian ephemeris model settings.
+Function for creating Keplerian ephemeris model settings.
 
-Factory function for settings object, defining ephemeris model which represents an ideal Kepler orbit from the given Kepler elements.
+Function for settings object, defining ephemeris model which represents an ideal Kepler orbit from the given Kepler elements.
 These are taken as the elements at the ``initial_state_epoch`` and propagated to any other time using the provided ``central_body_gravitational_parameter``.
 See `Element Types <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#element-types>`_ and the :ref:`\`\`astro\`\`` module for more details on orbital elements in tudat.
 
@@ -12910,9 +12910,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "keplerian_from_spice" ) {
         return R"(
         
-Factory function for creating Keplerian ephemeris model settings with initial state from Spice.
+Function for creating Keplerian ephemeris model settings with initial state from Spice.
 
-Factory function for settings object, defining ephemeris model which represents an ideal Kepler orbit from an initial state from Spice.
+Function for settings object, defining ephemeris model which represents an ideal Kepler orbit from an initial state from Spice.
 The Kepler elements inferred from the initial state are propagated to any other time using the provided ``central_body_gravitational_parameter``.
 See `Element Types <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#element-types>`_ and the :ref:`\`\`astro\`\`` module for more details on orbital elements in tudat.
 
@@ -12980,9 +12980,9 @@ Additionally, as is the case for the :func:`~tudatpy.numerical_simulation.enviro
     } else if(name == "scaled_by_constant" ) {
         return R"(
         
-Factory function for creating scaled ephemeris model settings.
+Function for creating scaled ephemeris model settings.
 
-Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+Function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
 The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
 
 
@@ -13027,9 +13027,9 @@ In the above case, the original Jupiter ephemeris setting is taken and each stat
     } else if(name == "scaled_by_vector" ) {
         return R"(
         
-Factory function for creating scaled ephemeris model settings.
+Function for creating scaled ephemeris model settings.
 
-Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+Function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
 The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
 
 
@@ -13075,9 +13075,9 @@ In the above case, the original Jupiter ephemeris setting is taken and each stat
     } else if(name == "scaled_by_vector_function" ) {
         return R"(
         
-Factory function for creating scaled ephemeris model settings.
+Function for creating scaled ephemeris model settings.
 
-Factory function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
+Function for settings object, defining ephemeris model based on an scaling of an existing ephemeris settings object.
 The user can apply a scaling factor (or an absolute value) to the resulting Cartesian states (for instance for an uncertainty analysis).
 
 
@@ -13126,9 +13126,9 @@ In the above case, the original Jupiter ephemeris setting is taken and each stat
     } else if(name == "tabulated" ) {
         return R"(
         
-Factory function for creating ephemeris model settings from tabulated data.
+Function for creating ephemeris model settings from tabulated data.
 
-Factory function for settings object, defining ephemeris model to be created from tabulated data.
+Function for settings object, defining ephemeris model to be created from tabulated data.
 Currently the data that is provided gets interpolated by a 6th order Lagrange interpolator (hardcoded).
 At the edges of the interpolation interval a cubic spline interpolator is used to suppress the influence of Runge's phenomenon.
 
@@ -13180,9 +13180,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "tabulated_from_existing" ) {
         return R"(
         
-Factory function for creating tabulated ephemeris model settings from existing ephemeris.
+Function for creating tabulated ephemeris model settings from existing ephemeris.
 
-Factory function for creating tabulated ephemeris model settings from existing ephemeris.
+Function for creating tabulated ephemeris model settings from existing ephemeris.
 The ephemeris that is provided gets tabulated in a given time frame, for a given time step.
 When called, this tabulated ephemeris will use interpolation, when needed, from the specified interpolator.
 
@@ -13593,9 +13593,9 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
     } else if(name == "central" ) {
         return R"(
         
-Factory function for central gravity field settings object.
+Function for central gravity field settings object.
 
-Factory function for settings object, defining a point-mass gravity field model with user-defined gravitational parameter :math:`\mu`. The gravitational potential is the defined as:
+Function for settings object, defining a point-mass gravity field model with user-defined gravitational parameter :math:`\mu`. The gravitational potential is the defined as:
 
 .. math::
    U(\mathbf{r})=\frac{\mu}{||\mathbf{r}||}
@@ -13635,9 +13635,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "central_spice" ) {
         return R"(
         
-Factory function to create central gravity field settings from Spice settings.
+Function to create central gravity field settings from Spice settings.
 
-Factory function for settings object, defining a point-mass gravity field model. This function provides the same model as :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.central`), but with gravitational parameter :math:`\mu` from Spice.
+Function for settings object, defining a point-mass gravity field model. This function provides the same model as :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.central`), but with gravitational parameter :math:`\mu` from Spice.
 
 Returns
 -------
@@ -13665,9 +13665,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "spherical_harmonic" ) {
         return R"(
         
-Factory function for creating a spherical harmonics gravity field settings object.
+Function for creating a spherical harmonics gravity field settings object.
 
-Factory function for settings object, defining a gravity field model through spherical harmonic expansion.
+Function for settings object, defining a gravity field model through spherical harmonic expansion.
 The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
 It represents the frame in which the spherical harmonic field is defined.
 
@@ -13759,9 +13759,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "sh_triaxial_ellipsoid_from_density" ) {
         return R"(
         
-Factory function for spherical harmonics gravity field settings object from triaxial ellipsoid parameters, using the density to define the mass distribution.
+Function for spherical harmonics gravity field settings object from triaxial ellipsoid parameters, using the density to define the mass distribution.
 
-Factory function for settings object, defining a gravity field model through spherical harmonic expansion of a homogeneous triaxial ellipsoid, same as :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`
+Function for settings object, defining a gravity field model through spherical harmonic expansion of a homogeneous triaxial ellipsoid, same as :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`
 The constant mass distribution in the specified ellipsoid shape is expanded to obtain a spherical harmonic coefficient representation.
 Gravity fields from this setting object are expressed in normalized spherical harmonic coefficients.
 The constant mass distribution is defined by the density and gravitational constant (optional).
@@ -13820,9 +13820,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "sh_triaxial_ellipsoid_from_gravitational_parameter" ) {
         return R"(
         
-Factory function for spherical harmonics gravity field settings object from triaxial ellipsoid parameters, using the gravitational parameter to define the mass distribution..
+Function for spherical harmonics gravity field settings object from triaxial ellipsoid parameters, using the gravitational parameter to define the mass distribution..
 
-Factory function for settings object, defining a gravity field model through spherical harmonic expansion of a homogeneous triaxial ellipsoid, same as :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`
+Function for settings object, defining a gravity field model through spherical harmonic expansion of a homogeneous triaxial ellipsoid, same as :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`
 The constant mass distribution in the specified ellipsoid shape is expanded to obtain a spherical harmonic coefficient representation.
 Gravity fields from this setting object are expressed in normalized spherical harmonic coefficients.
 The constant mass distribution is defined by the gravitational parameter.
@@ -13863,9 +13863,9 @@ SphericalHarmonicsGravityFieldSettings
     } else if(name == "from_file_spherical_harmonic" ) {
         return R"(
         
-Factory function to load a custom spherical harmonics gravity field settings from a file.
+Function to load a custom spherical harmonics gravity field settings from a file.
 
-Factory function to load a custom spherical harmonics gravity field settings from a file. The file should contain **fully normalized** spherical harmonic coefficients.
+Function to load a custom spherical harmonics gravity field settings from a file. The file should contain **fully normalized** spherical harmonic coefficients.
 The associated gravitational paramerer and reference radius should be given in m^3/s^2 and m, respectively. The file format should be the same as that used for the files
 in the directories `here <https://github.com/tudat-team/tudat-resources/tree/master/resource/gravity_models>`_. Specifically, the file should contain
 
@@ -13914,9 +13914,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "predefined_spherical_harmonic" ) {
         return R"(
         
-Factory function for spherical harmonics gravity field settings of a predefined model.
+Function for spherical harmonics gravity field settings of a predefined model.
 
-Factory function for spherical harmonics gravity field settings of a predefined model
+Function for spherical harmonics gravity field settings of a predefined model
 
 
 Parameters
@@ -13952,9 +13952,9 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
     } else if(name == "polyhedron_from_mu" ) {
         return R"(
         
-Factory function for creating a polyhedron gravity field settings object, using the gravitational parameter.
+Function for creating a polyhedron gravity field settings object, using the gravitational parameter.
 
-Factory function for settings object, defining a gravity field model through a polyhedron.
+Function for settings object, defining a gravity field model through a polyhedron.
 The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
 It represents the frame in which the polyhedron field is defined. 
 
@@ -14003,9 +14003,9 @@ PolyhedronGravityFieldSettings
     } else if(name == "polyhedron_from_density" ) {
         return R"(
         
-Factory function for creating a polyhedron gravity field settings object, using the density.
+Function for creating a polyhedron gravity field settings object, using the density.
 
-Factory function for settings object, defining a gravity field model through a polyhedron.
+Function for settings object, defining a gravity field model through a polyhedron.
 The ``associated_reference_frame`` must be the same frame ID as the target frame of the body’s rotation model.
 It represents the frame in which the polyhedron field is defined.
 
@@ -14106,9 +14106,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "solid_body_tide" ) {
         return R"(
         
-Factory function for creating solid body tides.
+Function for creating solid body tides.
 
-Factory function for creating solid body tides, using a single real Love number at a single degree (e.g. :math:`k_{2}`, :math:`k_{3}`, etc.). This function evaluates Eq. (6.6) from the IERS Conventions 2010, with real :math:`k_{l}=k_{lm}`, a single value of :math:`l` and a single tide-raising body :math:`j`.
+Function for creating solid body tides, using a single real Love number at a single degree (e.g. :math:`k_{2}`, :math:`k_{3}`, etc.). This function evaluates Eq. (6.6) from the IERS Conventions 2010, with real :math:`k_{l}=k_{lm}`, a single value of :math:`l` and a single tide-raising body :math:`j`.
 
 
 Parameters
@@ -14150,7 +14150,7 @@ In this example, we create gravity field variations of Earth for a tide raised b
     } else if(name == "solid_body_tide_complex_k" ) {
         return R"(
         
-Factory function for creating solid body tides.
+Function for creating solid body tides.
 
 As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`, but with complex value for the Love number.
 
@@ -14180,9 +14180,9 @@ BasicSolidBodyGravityFieldVariationSettings
     } else if(name == "solid_body_tide_degree_variable_k" ) {
         return R"(
         
-Factory function for creating solid body tides.
+Function for creating solid body tides.
 
-Factory function for creating solid body tides, using a set of real, separate, Love numbers at any number of degrees (e.g. :math:`k_{2}`, :math:`k_{3}`, etc.). This output of this function is effectively identical to a list of outputs to :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`, with differing degrees and associated Love numbers.  This function evaluates Eq. (6.6) from the IERS Conventions 2010, with a set of real values :math:`k_{l}=k_{lm}`, at a set of values of :math:`l` and a single tide-raising body :math:`j`.
+Function for creating solid body tides, using a set of real, separate, Love numbers at any number of degrees (e.g. :math:`k_{2}`, :math:`k_{3}`, etc.). This output of this function is effectively identical to a list of outputs to :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`, with differing degrees and associated Love numbers.  This function evaluates Eq. (6.6) from the IERS Conventions 2010, with a set of real values :math:`k_{l}=k_{lm}`, at a set of values of :math:`l` and a single tide-raising body :math:`j`.
 
 
 Parameters
@@ -14223,7 +14223,7 @@ In this example, we create gravity field variations of Earth for a tide raised b
     } else if(name == "solid_body_tide_degree_variable_complex_k" ) {
         return R"(
         
-Factory function for creating solid body tides.
+Function for creating solid body tides.
 
 As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_variable_k`, but with complex values for the Love numbers.
 
@@ -14251,9 +14251,9 @@ BasicSolidBodyGravityFieldVariationSettings
     } else if(name == "solid_body_tide_degree_order_variable_k" ) {
         return R"(
         
-Factory function for creating solid body tides.
+Function for creating solid body tides.
 
-Factory function for creating solid body tides, using a set of real, separate, Love numbers at any number of degrees and orders (e.g. :math:`k_{20}`, :math:`k_{21}`, :math:`k_{22}`, :math:`k_{30}`, etc.).  This function evaluates Eq. (6.6) from the IERS Conventions 2010, with a set of real values :math:`k_{lm}`, at a set of values of :math:`l` and a single tide-raising body :math:`j`.
+Function for creating solid body tides, using a set of real, separate, Love numbers at any number of degrees and orders (e.g. :math:`k_{20}`, :math:`k_{21}`, :math:`k_{22}`, :math:`k_{30}`, etc.).  This function evaluates Eq. (6.6) from the IERS Conventions 2010, with a set of real values :math:`k_{lm}`, at a set of values of :math:`l` and a single tide-raising body :math:`j`.
 
 
 Parameters
@@ -14296,7 +14296,7 @@ In this example, we create gravity field variations of the Moon, for a tide rais
     } else if(name == "solid_body_tide_degree_order_variable_complex_k" ) {
         return R"(
         
-Factory function for creating solid body tides.
+Function for creating solid body tides.
 
 As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with complex values for the Love number.
 
@@ -14429,9 +14429,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "basic_station" ) {
         return R"(
         
-Factory function for creating settings for a ground station
+Function for creating settings for a ground station
 
-Factory function for creating settings for a ground station, defining only its name, body-fixed position, and (optionally) time-variations of its position
+Function for creating settings for a ground station, defining only its name, body-fixed position, and (optionally) time-variations of its position
 
 
 Parameters
@@ -14482,9 +14482,9 @@ In this example, we create a station using geodetic coordinates at the approxima
     } else if(name == "dsn_stations" ) {
         return R"(
         
-Factory function for creating settings for all DSN stations
+Function for creating settings for all DSN stations
 
-Factory function for creating settings for all DSN stations, defined by nominal positions and linear velocities, as defined
+Function for creating settings for all DSN stations, defined by nominal positions and linear velocities, as defined
 by Cartesian elements in *DSN No. 810-005, 301, Rev. K*,  see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`_.
 Note that calling these settings will use the Cartesian elements provided in this document (in ITRF93) and apply them to the Earth-fixed
 station positions, regardless of the selected Earth rotation model.
@@ -14506,9 +14506,9 @@ list[ GroundStationSettings ]
     } else if(name == "linear_station_motion" ) {
         return R"(
         
-Factory function for creating settings for a linear station motion
+Function for creating settings for a linear station motion
 
-Factory function for creating settings for a linear station motion, implementing :math:`\Delta \mathbf{r}=\dot{\mathbf{r}}(t-t_{0})`.
+Function for creating settings for a linear station motion, implementing :math:`\Delta \mathbf{r}=\dot{\mathbf{r}}(t-t_{0})`.
 
 
 Parameters
@@ -14534,9 +14534,9 @@ GroundStationMotionSettings
     } else if(name == "piecewise_constant_station_motion" ) {
         return R"(
         
-Factory function for creating settings for a piecewise constant ground station position variation
+Function for creating settings for a piecewise constant ground station position variation
 
-Factory function for creating settings for a piecewise constant ground station position. Using this model, the added station velocity in a body-fixed frame :math:`\dot{\mathbf{r}}` is
+Function for creating settings for a piecewise constant ground station position. Using this model, the added station velocity in a body-fixed frame :math:`\dot{\mathbf{r}}` is
 always zero, but its displacement :math:`\Delta\mathbf{r}` is set according to the input list, which contains a list of times and displacments :math:`[t_{i},\Delta\mathbf{r}_{i}]`. 
 When the resulting model is queried at a given time :math:`t`, the nearest lower neighbour :math:`t_{i}` from this list is found, and the associated :math:`\Delta\mathbf{r}_{i}` is applied.
 
@@ -14562,9 +14562,9 @@ GroundStationMotionSettings
     } else if(name == "custom_station_motion" ) {
         return R"(
         
-Factory function for creating settings for a custom ground station position variation
+Function for creating settings for a custom ground station position variation
 
-Factory function for creating settings for a custom ground station position. An arbitrary user-defined function of the signature :math:`\Delta\mathbf{r}=\Delta\mathbf{r}(t)` is provided and
+Function for creating settings for a custom ground station position. An arbitrary user-defined function of the signature :math:`\Delta\mathbf{r}=\Delta\mathbf{r}(t)` is provided and
 applied to the station position
 
 
@@ -14747,9 +14747,9 @@ Coefficients for DLAM lunar albedo model by FLoberhgen (1999)
     } else if(name == "constant_luminosity" ) {
         return R"(
         
-Factory function for creating constant radiation source luminosity settings.
+Function for creating constant radiation source luminosity settings.
 
-Factory function for creating constant radiation source luminosity settings, defining the total
+Function for creating constant radiation source luminosity settings, defining the total
 radiated power (in Watts) of a given source. With this function, the source luminosity is constant, 
 and is assumed to emit radiation isotropically.
 
@@ -14775,7 +14775,7 @@ LuminosityModelSettings
     } else if(name == "cannonball_radiation_target" ) {
         return R"(
         
-Factory function for cannonball radtiation target
+Function for cannonball radtiation target
 
 
 Parameters
@@ -14803,9 +14803,9 @@ CannonballRadiationPressureTargetModelSettings
     } else if(name == "irradiance_based_constant_luminosity" ) {
         return R"(
         
-Factory function for creating source luminosity settings based on the irradiance at a reference distance.
+Function for creating source luminosity settings based on the irradiance at a reference distance.
 
-Factory function for creating source luminosity based on the irradiance at a reference distance. For instance,
+Function for creating source luminosity based on the irradiance at a reference distance. For instance,
 one can provide the solar irradiance at 1 AU, and this will be translated to the Sun's luminosity. With this function,
 the source luminosity is constant, and is assumed to emit radiation isotropically.
 
@@ -14833,9 +14833,9 @@ LuminosityModelSettings
     } else if(name == "time_variable_luminosity" ) {
         return R"(
         
-Factory function for creating time-variable radiation source luminosity settings.
+Function for creating time-variable radiation source luminosity settings.
 
-Factory function for creating time-variable radiation source luminosity settings, defining the total
+Function for creating time-variable radiation source luminosity settings, defining the total
 radiated power (in Watts) of a given source as a function of time. With this function, the source 
 is assumed to emit radiation isotropically.
 
@@ -14861,9 +14861,9 @@ LuminosityModelSettings
     } else if(name == "irradiance_based_time_variable_luminosity" ) {
         return R"(
         
-Factory function for creating time-variable source luminosity settings based on the irradiance at a reference distance.
+Function for creating time-variable source luminosity settings based on the irradiance at a reference distance.
 
-Factory function for creating source time-variable luminosity based on the irradiance at a reference distance. For instance,
+Function for creating source time-variable luminosity based on the irradiance at a reference distance. For instance,
 one can provide the solar irradiance at 1 AU as a function of time, and this will be translated to the Sun's luminosity.
 With this function, the source is assumed to emit radiation isotropically.
 
@@ -14891,9 +14891,9 @@ LuminosityModelSettings
     } else if(name == "constant_surface_property_distribution" ) {
         return R"(
         
-Factory function for creating constant radiative surface property distribution settings.
+Function for creating constant radiative surface property distribution settings.
 
-Factory function for creating constant radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings.
+Function for creating constant radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings.
 
 
 Parameters
@@ -14917,9 +14917,9 @@ SurfacePropertyDistributionSettings
     } else if(name == "spherical_harmonic_surface_property_distribution" ) {
         return R"(
         
-Factory function for creating radiative surface property distribution settings according to a spherical harmonic model.
+Function for creating radiative surface property distribution settings according to a spherical harmonic model.
 
-Factory function for creating radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings 
+Function for creating radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings 
 according to a spherical harmonic model. The user provides unnormalized cosine and sine coefficients :math:`C_{lm}` and :math:`S_{lm}`,
 from which the surface property :math:`k` is computed from:
 
@@ -14952,7 +14952,7 @@ SurfacePropertyDistributionSettings
     } else if(name == "predefined_spherical_harmonic_surface_property_distribution" ) {
         return R"(
         
-Factory function for creating radiative surface property distribution settings according to a predefined spherical harmonic model.
+Function for creating radiative surface property distribution settings according to a predefined spherical harmonic model.
 
 As :func:`spherical_harmonic_surface_property_distribution`, but with a predefined spherical harmonic distribution.
 
@@ -14978,9 +14978,9 @@ SurfacePropertyDistributionSettings
     } else if(name == "knocke_type_surface_property_distribution" ) {
         return R"(
         
-Factory function for creating radiative surface property distribution settings according to 'Knocke-type' model
+Function for creating radiative surface property distribution settings according to 'Knocke-type' model
 
-Factory function for creating radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings 
+Function for creating radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings 
 according to a model such as the one used by Knocke (1988). This model uses a degree two zonal spherical harmonic model, with 
 a sinusoidal variation in the degree one coefficient. The surface property :math:`k` is computed from:
 
@@ -15026,7 +15026,7 @@ SurfacePropertyDistributionSettings
     } else if(name == "predefined_knocke_type_surface_property_distribution" ) {
         return R"(
         
-Factory function for creating radiative surface property distribution settings according to a predefined 'Knocke-type` model.
+Function for creating radiative surface property distribution settings according to a predefined 'Knocke-type` model.
 
 As :func:`spherical_harmonic_surface_property_distribution`, but with a predefined spherical harmonic distribution.
 
@@ -15052,9 +15052,9 @@ SurfacePropertyDistributionSettings
     } else if(name == "custom_surface_property_distribution" ) {
         return R"(
         
-Factory function for creating radiative surface property distribution settings according to a custom user-defined model.
+Function for creating radiative surface property distribution settings according to a custom user-defined model.
 
-Factory function for creating radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings
+Function for creating radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings
 according to a custom user-defined model, as a function of latitude, longitude and time.
 
 
@@ -15079,9 +15079,9 @@ SurfacePropertyDistributionSettings
     } else if(name == "constant_radiosity" ) {
         return R"(
         
-Factory function for creating settings for surface constant surface radiosity of an extended source
+Function for creating settings for surface constant surface radiosity of an extended source
 
-Factory function for creating settings for surface radiosity of an extended source, using constant Lambertian radiosity :math:`J` (in :math:`W/m^{2}`).
+Function for creating settings for surface radiosity of an extended source, using constant Lambertian radiosity :math:`J` (in :math:`W/m^{2}`).
 For a surface panel normal of :math:`\hat{\mathbf{n}}` and a vector :math:`\mathbf{r}` from the surface element to the target, the resulting
 irradiance :math:`\Phi` (in :math:`W/m^{2}`) at the target is (if :math:`\theta>0`, or in other words if the panel is visible from the target):
 
@@ -15112,9 +15112,9 @@ PanelRadiosityModelSettings
     } else if(name == "constant_albedo_surface_radiosity" ) {
         return R"(
         
-Factory function for creating settings for surface constant albedo surface radiosity of an extended source
+Function for creating settings for surface constant albedo surface radiosity of an extended source
 
-Factory function for creating settings for surface radiosity of an extended source, with surface radiation the result
+Function for creating settings for surface radiosity of an extended source, with surface radiation the result
 of albedo using a Lambertian scattering law, and a constant albedo value over the surface.
 For a surface panel normal of :math:`\hat{\mathbf{n}}`, a vector :math:`\mathbf{r}` from the surface element to the target, and a
 vector :math:`\mathbf{r}_{s}` from the surface element to the original source (typically the Sun),
@@ -15150,7 +15150,7 @@ PanelRadiosityModelSettings
     } else if(name == "variable_albedo_surface_radiosity" ) {
         return R"(
         
-Factory function for creating settings for surface variable albedo surface radiosity of an extended source
+Function for creating settings for surface variable albedo surface radiosity of an extended source
 
 As :func:`constant_albedo_surface_radiosity`, but with the surface albedo :math:`a` defined by a surface distribution model.
 
@@ -15178,9 +15178,9 @@ PanelRadiosityModelSettings
     } else if(name == "thermal_emission_blackbody_constant_emissivity" ) {
         return R"(
         
-Factory function for creating settings for surface radiosity of an extended source from an isotropically heated body with constant emmisivity
+Function for creating settings for surface radiosity of an extended source from an isotropically heated body with constant emmisivity
 
-Factory function for creating settings for surface radiosity of an extended source from an isotropically heated body (e.g. IR radiation) with constant surface
+Function for creating settings for surface radiosity of an extended source from an isotropically heated body (e.g. IR radiation) with constant surface
 emissivity,
 where the emitted power of the body is computed from the assumption that all heat absorbed from an original source is
 emitted isotropically by the body. For instance, for Earth with Sun as original source, this model is equivalent to
@@ -15220,7 +15220,7 @@ PanelRadiosityModelSettings
     } else if(name == "thermal_emission_blackbody_variable_emissivity" ) {
         return R"(
         
-Factory function for creating settings for surface radiosity of an extended source from an isotropically heated body with variable emmisivity
+Function for creating settings for surface radiosity of an extended source from an isotropically heated body with variable emmisivity
 
 As :func:`thermal_emission_blackbody_constant_emissivity`, but with the surface emmisivity :math:`\epsilon` defined by a surface distribution model.
 
@@ -15248,9 +15248,9 @@ PanelRadiosityModelSettings
     } else if(name == "thermal_emission_angle_based_radiosity" ) {
         return R"(
         
-Factory function for creating settings for surface radiosity of an extended source with surface temperature from Lemoine (2013)
+Function for creating settings for surface radiosity of an extended source with surface temperature from Lemoine (2013)
 
-Factory function for creating settings for surface radiosity of an extended source from an isotropically heated body (e.g. IR radiation)
+Function for creating settings for surface radiosity of an extended source from an isotropically heated body (e.g. IR radiation)
 with surface temperature :math:`T` computed from the angle of the surface normal and the original source as follows:
 
 .. math::
@@ -15297,9 +15297,9 @@ PanelRadiosityModelSettings
     } else if(name == "specular_diffuse_body_panel_reflection" ) {
         return R"(
         
-Factory function for creating settings for target panel reflection law using a specular-diffuse model
+Function for creating settings for target panel reflection law using a specular-diffuse model
 
-Factory function for creating settings for target panel reflection law used for a radiation pressure target, with a
+Function for creating settings for target panel reflection law used for a radiation pressure target, with a
 specular diffuse model. The details of the implementation are given by Montenbruck et al. (2015). The reflection
 law is defined by the absorption coefficient :math:`\alpha`, diffuse reflectivity :math:`\delta` and specular reflectivity
 :math:`\rho`, which must meet the condition :math:`\alpha+\delta+\rho=1`. For the model definition, the user provides
@@ -15341,9 +15341,9 @@ BodyPanelReflectionLawSettings
     } else if(name == "lambertian_body_panel_reflection" ) {
         return R"(
         
-Factory function for creating settings for target panel reflection law using a Lambertian model
+Function for creating settings for target panel reflection law using a Lambertian model
 
-Factory function for creating settings for target panel reflection law used for a radiation pressure target, with a
+Function for creating settings for target panel reflection law used for a radiation pressure target, with a
 purely Lambertian model. The implementation is as :func:`specular_diffuse_body_panel_reflection`, with
 :math:`\rho=0` and no instantaneous reradiation. The only free parameter is the reflectivity :math:`\delta`, such that 
 :math:`\alpha=1-\delta`.
@@ -15370,9 +15370,9 @@ BodyPanelReflectionLawSettings
     } else if(name == "isotropic_radiation_source" ) {
         return R"(
         
-Factory function for creating settings for an isotropic radiation source
+Function for creating settings for an isotropic radiation source
 
-Factory function for creating settings for a radiation source that emits isotropically. The source is provided
+Function for creating settings for a radiation source that emits isotropically. The source is provided
 with a luminosity model :math:`L(t)` as a (possible) function of time :math:`t`. The irradiance :math:`\Phi` at a relative position
 :math:`\mathbf{r}` from the source's center is then computed from:
 
@@ -15401,9 +15401,9 @@ RadiationSourceModelSettings
     } else if(name == "panelled_radiation_target" ) {
         return R"(
         
-Factory function for creating settings for a paneled radiation pressure target model
+Function for creating settings for a paneled radiation pressure target model
 
-Factory function for creating settings for a paneled radiation pressure target model. Each source can have
+Function for creating settings for a paneled radiation pressure target model. Each source can have
 its own set of occulting bodies.
 
 
@@ -15428,9 +15428,9 @@ RadiationPressureTargetModelSettings
     } else if(name == "panelled_extended_radiation_source" ) {
         return R"(
         
-Factory function for creating settings for a dynamically panelled extended radiation source
+Function for creating settings for a dynamically panelled extended radiation source
 
-Factory function for creating settings for a radiation source that is modelled as an anisotropic extended source,
+Function for creating settings for a radiation source that is modelled as an anisotropic extended source,
 such as a source due to albedo or planetary IR. The model can combined any number of superimposed surface panel radiosity models
 (e.g. albedo, direct radiation), each of which may or may not involve an 'original source' (e.g. the Sun for albedo).
 Each time the radiation at a given target is computed, the surface of the body is re-panelled, using the algorithm described by
@@ -15520,9 +15520,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "constant_rigid_body_properties" ) {
         return R"(
         
-Factory function for creating constant rigid body properties.
+Function for creating constant rigid body properties.
 
-Factory function for creating constant rigid body properties (mass, center of mass, inertia tensor). The center of mass and/or inertia tensor can be left empty by setting them
+Function for creating constant rigid body properties (mass, center of mass, inertia tensor). The center of mass and/or inertia tensor can be left empty by setting them
 to NaN (default), in which case no center of mass or inertia tensor are defined
 
 
@@ -15551,9 +15551,9 @@ RigidBodyPropertiesSettings
     } else if(name == "custom_time_dependent_rigid_body_properties" ) {
         return R"(
         
-Factory function for creating custom (time-dependent) rigid body properties.
+Function for creating custom (time-dependent) rigid body properties.
 
-Factory function for creating custom rigid body properties, where the mass, center of mass and inertia tensor are defined by user-defined functions (as a function of time).
+Function for creating custom rigid body properties, where the mass, center of mass and inertia tensor are defined by user-defined functions (as a function of time).
 The center of mass and/or inertia tensor functions can be left empty by setting them
 to None (default), in which case no center of mass or inertia tensor are defined
 
@@ -15583,9 +15583,9 @@ RigidBodyPropertiesSettings
     } else if(name == "custom_mass_dependent_rigid_body_properties" ) {
         return R"(
         
-Factory function for creating custom (time-dependent) rigid body properties.
+Function for creating custom (time-dependent) rigid body properties.
 
-Factory function for creating custom rigid body properties, center of mass and inertia tensor are defined by user-defined functions as a function of mass.
+Function for creating custom rigid body properties, center of mass and inertia tensor are defined by user-defined functions as a function of mass.
 This functionality is typically used for a body under thrust, where the center of mass and inertia tensor are defined as a function of expended mass.
 
 
@@ -15711,7 +15711,7 @@ static inline std::string get_docstring(std::string name) {
 
         This class is a functional base class for settings of rotation models that require no information in addition to their type.
         Basic rotation model has constant orientation of the rotation axis (body-fixed z-axis) and constant rotation rate about this axis.
-        Rotation models requiring additional information must be created using the factory functions which create the specific object derived from this base class.
+        Rotation models requiring additional information must be created using the functions which create the specific object derived from this base class.
 
 
 
@@ -15758,9 +15758,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "simple" ) {
         return R"(
         
-Factory function for creating simple rotation model settings.
+Function for creating simple rotation model settings.
 
-Factory function for settings object, defining a basic rotation model with constant orientation of the rotation axis and constant rotation rate about this axis.
+Function for settings object, defining a basic rotation model with constant orientation of the rotation axis and constant rotation rate about this axis.
 Rotation from original (inertial) to target (body-fixed) frame at some reference time ``initial_time`` (:math:`t_{0}`) is defined by the ``initial_orientation`` (:math:`\mathbf{R}^{(B/I)}(t_{0})`) rotation matrix.
 Rotation about the body-fixed z-axis is defined by the ``rotation_rate`` (:math:`\omega`) float variable (in rad/s). The rotation matrix is computed from:
 
@@ -15825,9 +15825,9 @@ using a simple rotation model with constant orientation of the rotation axis (bo
     } else if(name == "simple_from_spice" ) {
         return R"(
         
-Factory function for creating simple rotation model settings using initial orientation and rotation rates from Spice.
+Function for creating simple rotation model settings using initial orientation and rotation rates from Spice.
 
-Factory function for settings object, defining a :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple` rotation model with the added functionality that the initial orientation and rotation rate are extracted from Spice, as opposed to provided manually.
+Function for settings object, defining a :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple` rotation model with the added functionality that the initial orientation and rotation rate are extracted from Spice, as opposed to provided manually.
 Note that `only` the initial orientation and rotation rate ( at the time defined by ``initial_time`` ) are extracted from Spice - for
 the full Spice rotation model see :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.spice`.
 Also note the distinction between the ``target_frame`` and ``target_frame_spice`` parameters.
@@ -15883,9 +15883,9 @@ The initial orientation and rotation rate are extracted from Spice at the time d
     } else if(name == "synchronous" ) {
         return R"(
         
-Factory function for creating synchronous rotational ephemeris settings.
+Function for creating synchronous rotational ephemeris settings.
 
-Factory function for settings object, defining a synchronous rotation model where rotation of a body is defined from its relative orbit w.r.t. some central body. Specifically
+Function for settings object, defining a synchronous rotation model where rotation of a body is defined from its relative orbit w.r.t. some central body. Specifically
 - the body-fixed x-axis is *always* pointing towards the central body
 - the body-fixed z-axis is *always* perpendicular to the orbital plane (along the direction of :math:`\mathbf{x}\times\mathbf{v}` )
 - the body-fixed y-axis completes the right-handed reference frame
@@ -15934,9 +15934,9 @@ and ``"Phobos_Fixed"`` as the target frame.
     } else if(name == "spice" ) {
         return R"(
         
-Factory function for creating rotation model settings from the Spice interface.
+Function for creating rotation model settings from the Spice interface.
 
-Factory function for settings object, defining a rotation model directly (and entirely) from Spice interface.
+Function for settings object, defining a rotation model directly (and entirely) from Spice interface.
 
 
 Parameters
@@ -15978,9 +15978,9 @@ using full rotation model data from Spice:
     } else if(name == "gcrs_to_itrs" ) {
         return R"(
         
-Factory function for creating high-accuracy Earth rotation model settings.
+Function for creating high-accuracy Earth rotation model settings.
 
-Factory function for settings object, defining high-accuracy Earth rotation model according to the IERS 2010 Conventions.
+Function for settings object, defining high-accuracy Earth rotation model according to the IERS 2010 Conventions.
 This settings class has various options to deviate from the default settings, typical applications will use default.
 Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
 The precession-nutation theory may be any member of :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.IAUConventions` (``iau_2000a`` / ``iau_2000b`` or ``iau_2006``).
@@ -16026,9 +16026,9 @@ using a high-accuracy Earth rotation model as defined by IERS 2010 conventions:
     } else if(name == "constant_rotation_model" ) {
         return R"(
         
-Factory function for creating simple rotation model settings for target-frames with constant orientation.
+Function for creating simple rotation model settings for target-frames with constant orientation.
 
-Factory function for settings object, defining simple rotation model setting objects with constant rotation matrix.
+Function for settings object, defining simple rotation model setting objects with constant rotation matrix.
 These model settings are for target frames which do not have a rotational rate in the base frame and are fully defined by their initial orientation.
 
 
@@ -16074,9 +16074,9 @@ using a constant rotation matrix between Earth-fixed and inertial frame:
     } else if(name == "aerodynamic_angle_based" ) {
         return R"(
         
-Factory function for creating rotation model settings based on custom aerodynamic angles (attack, sideslip, bank).
+Function for creating rotation model settings based on custom aerodynamic angles (attack, sideslip, bank).
 
-Factory function for creating rotation model settings based on custom aerodynamic angles:
+Function for creating rotation model settings based on custom aerodynamic angles:
 angle of attack :math:`\alpha`, sideslip angle :math:`\beta` and bank angle :math:`\sigma`. The use of this function is typical for
 simulating the dynamics of a (guided) re-entry vehicle. It calculates the rotation matrix from inertial frame to the body-fixed frame
 of the current body B (typically a vehicle) w.r.t. the body-fixed frame of a central body C (e.g., the body at which the re-entry is taking place.
@@ -16120,9 +16120,9 @@ CustomRotationModelSettings
     } else if(name == "zero_pitch_moment_aerodynamic_angle_based" ) {
         return R"(
         
-Factory function for creating rotation model settings based on an angle of attack calculated from pitch-trim, and custom aerodynamic angles sideslip, bank.
+Function for creating rotation model settings based on an angle of attack calculated from pitch-trim, and custom aerodynamic angles sideslip, bank.
 
-Factory function for creating rotation model settings based on an angle of attack calculated from pitch-trim, and custom aerodynamic angles sideslip, bank. This function is
+Function for creating rotation model settings based on an angle of attack calculated from pitch-trim, and custom aerodynamic angles sideslip, bank. This function is
 largely identical to the :func:`~aerodynamic_angle_based`, with the difference that the angle of attack :math:`\alpha` is not provided as a custom value by the user, but is
 calculated from the body's aerodynamic moment coefficients, such that we have :math:`C_{m}=0`. This requires aerodynamic moment coefficients to be defined for the vehicle that
 depend on (among others) the body's angle of attack
@@ -16155,9 +16155,9 @@ CustomRotationModelSettings
     } else if(name == "custom_inertial_direction_based" ) {
         return R"(
         
-Factory function for creating rotation model settings where the body-fixed x-axis is imposed to lie in a user-defined inertial direction
+Function for creating rotation model settings where the body-fixed x-axis is imposed to lie in a user-defined inertial direction
 
-Factory function for creating rotation model settings where the body-fixed x-axis is imposed to lie in a user-defined inertial direction :math:`\hat{\mathbf{T}}_{I}`. Specifically, it ensures
+Function for creating rotation model settings where the body-fixed x-axis is imposed to lie in a user-defined inertial direction :math:`\hat{\mathbf{T}}_{I}`. Specifically, it ensures
 that the rotation matrix from body-fixed to inertial frame is set up such that :math:`\hat{\mathbf{T}}_{I}=R^{(I/B)}\hat{\mathbf{i}}` (where :math:`\mathbf{i}` is the unit-vector in local x-direction).
 The complete rotation matrix requires an additional angle :math:`\phi` (rotation of the body about its body-fixed x-axis), which is set to 0 by default.
 
@@ -16196,9 +16196,9 @@ BodyFixedDirectionBasedRotationSettings
     } else if(name == "orbital_state_direction_based" ) {
         return R"(
         
-Factory function for creating rotation model settings where the body-fixed x-axis is imposed to lie in the direction of a relative position or velocity vector.
+Function for creating rotation model settings where the body-fixed x-axis is imposed to lie in the direction of a relative position or velocity vector.
 
-Factory function for creating rotation model settings where the body-fixed x-axis is imposed to lie in the direction of a relative position or velocity vector. This function is
+Function for creating rotation model settings where the body-fixed x-axis is imposed to lie in the direction of a relative position or velocity vector. This function is
 similar to the :func:`~custom_inertial_direction_based` function, with the exception that the :math:`\hat{\mathbf{T}}_{I}` vector is not defined by thee user, but is defined by the
 relative position vector :math:`\mathbf{r}_{C}` or velocity vector :math:`\mathbf{r}_{C}` of the vehicle w.r.t. some body C. The inputs to this function allow :math:`\hat{\mathbf{T}}_{I}` to
 be set to :math:`\pm\mathbf{r}_{C}` or :math:`\pm\mathbf{v}_{C}`, for any body C. It is typically used for simplified or preliminary thrust analyses.
@@ -16235,9 +16235,9 @@ BodyFixedDirectionBasedRotationSettings
     } else if(name == "mars_high_accuracy" ) {
         return R"(
         
-Factory function for creating a high-accuracy Mars rotation model.
+Function for creating a high-accuracy Mars rotation model.
 
-Factory function for creating a high-accuracy Mars rotation model, using the default parameters of `Konopliv et al. (2016) <https://www.sciencedirect.com/science/article/abs/pii/S0019103516001305>`_
+Function for creating a high-accuracy Mars rotation model, using the default parameters of `Konopliv et al. (2016) <https://www.sciencedirect.com/science/article/abs/pii/S0019103516001305>`_
 and the mathematical model of ` Konopliv et al. (2006) <https://www.sciencedirect.com/science/article/pii/S0019103506000297>`_. The rotation matrix formulation is given in Eq. (13)-(19) of that paper.
 Note that, at the moment, all parameters in this rotation model are hard coded, and cannot be adapted by the user (except by estimating a number of its constituent parameters, see :ref:`\`\`parameter\`\`` module )
 As such, this model is at present applicable to Mars rotation only. If you require more fine-grained control of the parameters, please contact the Tudat support team      
@@ -16487,9 +16487,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "spherical" ) {
         return R"(
         
-Factory function for creating spherical body shape model settings.
+Function for creating spherical body shape model settings.
 
-Factory function for settings object, defining strictly spherical body shape model entirely from single radius parameter.
+Function for settings object, defining strictly spherical body shape model entirely from single radius parameter.
 
 
 Parameters
@@ -16524,9 +16524,9 @@ In this example, we create a :class:`~tudatpy.numerical_simulation.environment_s
     } else if(name == "spherical_spice" ) {
         return R"(
         
-Factory function for creating spherical body shape model settings entirely from spice.
+Function for creating spherical body shape model settings entirely from spice.
 
-Factory function for settings object, defining spherical body shape model entirely from spice parameters.
+Function for settings object, defining spherical body shape model entirely from spice parameters.
 
 Returns
 -------
@@ -16554,9 +16554,9 @@ In this example, we create a :class:`~tudatpy.numerical_simulation.environment_s
     } else if(name == "oblate_spherical" ) {
         return R"(
         
-Factory function for creating oblate spherical body shape model settings.
+Function for creating oblate spherical body shape model settings.
 
-Factory function for settings object, defining oblate spherical body shape model from equatorial radius and flattening parameter.
+Function for settings object, defining oblate spherical body shape model from equatorial radius and flattening parameter.
 
 
 Parameters
@@ -16594,9 +16594,9 @@ In this example, we create a :class:`~tudatpy.numerical_simulation.environment_s
     } else if(name == "polyhedron" ) {
         return R"(
         
-Factory function for creating a polyhedron body shape model settings.
+Function for creating a polyhedron body shape model settings.
 
-Factory function for settings object, defining a polyhedron shape model.
+Function for settings object, defining a polyhedron shape model.
 
 Note 1: The evaluation of the altitude with a polyhedron model tends to be computationally expensive. To reduce the
 computational time, it might be useful to instead define a hybrid shape model (see
@@ -16653,9 +16653,9 @@ PolyhedronBodyShapeSettings
     } else if(name == "hybrid" ) {
         return R"(
         
-Factory function for creating hybrid body shape model settings.
+Function for creating hybrid body shape model settings.
 
-Factory function for settings object, defining a hybrid shape model.
+Function for settings object, defining a hybrid shape model.
 
 The hybrid shape model is constituded by two shape models: a low-resolution model which is used at high altitudes
 (above the switchover altitude) and a high-resolution model used at low altitudes (below the switchover altitude).
@@ -16769,9 +16769,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "basic_solid_body_tidal" ) {
         return R"(
         
-Factory function for creating basic tidal solid-body shape deformation
+Function for creating basic tidal solid-body shape deformation
 
-Factory function for creating basic tidal solid-body shape deformation, computing the tidal shape variation due to any number of bodies causing the deformation, and a tidal response define by the deformation Love and Shida numbers :math:`h_{m}` and :math:`l_{m}` (with only :math:`m=2,3` currently supported). This function implements equations (7.5) and (7.6) of the `IERS 2010 Conventions <https://iers-conventions.obspm.fr/conventions_material.php>`_.
+Function for creating basic tidal solid-body shape deformation, computing the tidal shape variation due to any number of bodies causing the deformation, and a tidal response define by the deformation Love and Shida numbers :math:`h_{m}` and :math:`l_{m}` (with only :math:`m=2,3` currently supported). This function implements equations (7.5) and (7.6) of the `IERS 2010 Conventions <https://iers-conventions.obspm.fr/conventions_material.php>`_.
 
 
 Parameters
@@ -16817,9 +16817,9 @@ In this example, we create a settings for degree 2 tidal deformation of the Eart
     } else if(name == "degree_two_basic_solid_body_tidal" ) {
         return R"(
         
-Factory function for creating degree 2 basic tidal solid-body shape deformation
+Function for creating degree 2 basic tidal solid-body shape deformation
 
-Factory function for creating basic tidal solid-body shape deformation, computing the tidal shape variation due to any number of bodies causing the deformation, and a tidal response define by the deformation Love and Shida numbers :math:`h_{2}` and :math:`l_{2}`. This function implements equations (7.5) of the IERS 2010 Conventions, and provides a simplified interface (for degree 2 only) of :func:`basic_solid_body_tidal`.
+Function for creating basic tidal solid-body shape deformation, computing the tidal shape variation due to any number of bodies causing the deformation, and a tidal response define by the deformation Love and Shida numbers :math:`h_{2}` and :math:`l_{2}`. This function implements equations (7.5) of the IERS 2010 Conventions, and provides a simplified interface (for degree 2 only) of :func:`basic_solid_body_tidal`.
 
 
 Parameters
@@ -16867,9 +16867,9 @@ In this example, we create a settings for degree 2 tidal deformation of the Eart
     } else if(name == "iers_2010_solid_body_tidal" ) {
         return R"(
         
-Factory function for creating full IERS 2010 shape deformation model
+Function for creating full IERS 2010 shape deformation model
 
-Factory function for creating full IERS 2010 shape deformation model, computing the tidal shape variation due to the full model defined in Section 7.1.1 of the 2010 IERS conventions, implementing Eqs. (7.5)-(7.13), including all terms from Tables 7.3a and 7.3b. At present, none of the input parameters of the model can be varied.
+Function for creating full IERS 2010 shape deformation model, computing the tidal shape variation due to the full model defined in Section 7.1.1 of the 2010 IERS conventions, implementing Eqs. (7.5)-(7.13), including all terms from Tables 7.3a and 7.3b. At present, none of the input parameters of the model can be varied.
 
 Returns
 -------
@@ -16957,9 +16957,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "frame_fixed_panel_geometry" ) {
         return R"(
         
-Factory function for creating settings for a vehicle exterior panel that is fixed to a given frame.
+Function for creating settings for a vehicle exterior panel that is fixed to a given frame.
 
-Factory function for creating settings for a vehicle exterior panel that is fixed to a given frame, meaning
+Function for creating settings for a vehicle exterior panel that is fixed to a given frame, meaning
 that the orientation of the panel is fully defined by the rotation model(s) defined in the vehicle.
 The constant surface normal :math:`\hat{\mathbf{n}}^{\mathcal{F}}` in frame :math:`\mathcal{F}` is provided by the user.      
 If the ``frame_orientation`` of this function is left empty, the panel is fixed to the body-frame, and 
@@ -16998,7 +16998,7 @@ BodyPanelGeometrySettings
     } else if(name == "time_varying_panel_geometry" ) {
         return R"(
         
-Factory function for creating settings for a vehicle exterior panel that has time-variable orientation in a given frame.
+Function for creating settings for a vehicle exterior panel that has time-variable orientation in a given frame.
 
 As :func:`~frame_fixed_panel_geometry`, but with a time-variable outward surface normal :math:`\hat{\mathbf{n}}^{\mathcal{F}}(t)`
 
@@ -17028,9 +17028,9 @@ BodyPanelGeometrySettings
     } else if(name == "body_tracking_panel_geometry" ) {
         return R"(
         
-Factory function for creating settings for a vehicle exterior panel where the surface normal tracks a given body.
+Function for creating settings for a vehicle exterior panel where the surface normal tracks a given body.
 
-Factory function for creating settings for a vehicle exterior panel where the surface normal tracks a given body, for instance
+Function for creating settings for a vehicle exterior panel where the surface normal tracks a given body, for instance
 to define the surface normal of a solar array to always point towards the Sun, or an antenna to always point towards the Earth.
 When using this option, the panel surface normal :math:`\hat{\mathbf{n}}` is computed in an inertial frame based on the tracked
 body, and then (if necessary) rotated to the body-fixed frame. 
@@ -17065,9 +17065,9 @@ BodyPanelGeometrySettings
     } else if(name == "body_panel_settings" ) {
         return R"(
         
-Factory function for creating settings for a full panel
+Function for creating settings for a full panel
 
-Factory function for creating settings for a full panel (presently only geometry and reflection properties). The panel
+Function for creating settings for a full panel (presently only geometry and reflection properties). The panel
 can also be endowed with an identifier to specify the type of the panel. This has no direct consequences for the model,
 but may be useful in estimation, to for instance estimate the reflection properties of all panels specified with identified "MLI"
 as a single parameter
@@ -17098,11 +17098,11 @@ BodyPanelSettings
     } else if(name == "full_panelled_body_settings" ) {
         return R"(
         
-Factory function for creating settings for a full panelled vehicle exterior
+Function for creating settings for a full panelled vehicle exterior
 
-Factory function for creating settings for a full panelled vehicle exterior, taking a list of panel settings,
+Function for creating settings for a full panelled vehicle exterior, taking a list of panel settings,
 and (optionally) a list of rotation model settings for vehicle parts. The identifiers for the rotation models
-are used to specify the names of part-fixed frames, which are used by the ``frame_orientation`` inputs to factory
+are used to specify the names of part-fixed frames, which are used by the ``frame_orientation`` inputs to 
 functions creating settings for :class:`~BodyPanelGeometrySettings`. For instance, assigning a rotation model
 to frame ``LRO_SolarArray`` (dict key for ``part_rotation_model_settings``) allows panels defined in the frame
 with this same frame orientation to be defined. The associated rotation model defines rotations from body-fixed
@@ -17135,7 +17135,7 @@ FullPanelledBodySettings
     } else if(name == "box_wing_panelled_body_settings" ) {
         return R"(
         
-Factory function for creating a simple box-wing spacecraft exterior shape with reflection law settings.
+Function for creating a simple box-wing spacecraft exterior shape with reflection law settings.
 
 This function creates a :func:`~full_panelled_body_settings` with ``panel_settings`` generated from simple box-wing 
 settings. The assumptions behind the box-wing model are:
@@ -20679,7 +20679,7 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
 
         Base class to define settings for step-size control algorithm.
 
-        Base class to define settings for step-size control algorithm, typically created by one of the factory functions provided in this module
+        Base class to define settings for step-size control algorithm, typically created by one of the functions provided in this module
 
 
 
@@ -20696,7 +20696,7 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
 
         Base class to define settings for step-size validation algorithm.
 
-        Base class to define settings for step-size validation algorithm, typically created by one of the factory functions provided in this module
+        Base class to define settings for step-size validation algorithm, typically created by one of the functions provided in this module
 
 
 
@@ -20778,7 +20778,7 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
         
 Creates settings step size validation in a variable step-size integrator.
 
-Factory function to create settings step size validation in a variable step-size integrator. The validation
+Function to create settings step size validation in a variable step-size integrator. The validation
 model takes the proposed new step size  :math:`\Delta t_{rec}` as input, and checks if it meets predefined conditions, specifically
 whether the proposed time step falls in a given predefined range :math:`[\Delta t_{\min}, \Delta t_{\max}]`.
 This function also provides the option of handling recommended step sizes below :math:`\Delta t_{\min}` in various ways,
@@ -21118,7 +21118,7 @@ list[tuple[int,int,int,int]]
         
 Creates the settings for the Runge-Kutta fixed step size integrator.
 
-Factory function to create settings for the Runge-Kutta integrator with a constant step size.
+Function to create settings for the Runge-Kutta integrator with a constant step size.
 Different coefficient sets (Butcher's tableau) can be used (see the `CoefficientSets` enum).
 
 
@@ -21178,10 +21178,10 @@ embedded propagators of the RKF7(8) method are created, with a time-step of 120 
         
 Creates the settings for the Runge-Kutta fixed step size integrator.
 
-Factory function to create settings for the Runge-Kutta variable step size integrator.
+Function to create settings for the Runge-Kutta variable step size integrator.
 Different coefficient sets (Butcher's tableau) can be used (see the `CoefficientSets` enum).
 The step-size control algorithm is defined by a :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeControlSettings` and
-:class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeValidationSettings` object, created using one of the factory functions
+:class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeValidationSettings` object, created using one of the functions
 listed above.
 
 
@@ -21255,7 +21255,7 @@ element blocks.
         
 Creates the settings for the fixed time-step Bulirsch-Stoer integrator.
 
-Factory function to create settings for the fixed time-step Bulirsch-Stoer integrator. The
+Function to create settings for the fixed time-step Bulirsch-Stoer integrator. The
 underlying method is the same as :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.bulirsch_stoer_variable_step`, 
 but using a fixed, user-defined, time step.
 
@@ -21303,7 +21303,7 @@ using 2, 4, 6, 8, 12 and 16 substeps
         
 Creates the settings for the variable time-step Bulirsch-Stoer integrator.
 
-Factory function to create settings for the variable time-step Bulirsch-Stoer integrator. This integrator
+Function to create settings for the variable time-step Bulirsch-Stoer integrator. This integrator
 works by performing the same (typically very large) step multiple times, using an ever increasing number of substeps.
 Each substep is performed using the modified midpoint method. The succesive integrations from :math:`t_{i}` to :math:`t_{i}+\Delta t`
 are (in principle) done using ever increasing accuracy, as the size of the substep decreases. This integrator works
@@ -21314,7 +21314,7 @@ For instance, using the ``bulirsch_stoer_sequence`` sequence, and 5 iterations, 
 and the results are then extrapolated to an infinite number of steps. Different extrapolation sequences can be used (see the `ExtrapolationMethodStepSequences` enum).
 
 The step-size control algorithm is defined by a :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeControlSettings` and
-:class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeValidationSettings` object, created using one of the factory functions
+:class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeValidationSettings` object, created using one of the functions
 listed above. The time step control uses the result from the final, and second to final iteration to generate an error estimate of the current step.
 
 
@@ -21375,7 +21375,7 @@ and the initial step is set to 600 seconds. All other inputs are left on their d
         
 Creates the settings for the Adams-Bashforth-Moulton integrator.
 
-Factory function to create settings for the Adams-Bashforth-Moulton multistep integrator.
+Function to create settings for the Adams-Bashforth-Moulton multistep integrator.
 For this integrator, the step size and order are both according to a control algorithm
 similar to :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance`.      
 The integrator is initialized using an RKF7(8) integrator.
@@ -21558,7 +21558,7 @@ Creates the settings for the Runge-Kutta variable step size integrator with scal
 
 NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.runge_kutta_variable_step` INTERFACE INSTEAD
     
-Factory function to create settings for the Runge-Kutta variable step size integrator with scalar tolerances.
+Function to create settings for the Runge-Kutta variable step size integrator with scalar tolerances.
 For this integrator, the step size is varied based on the tolerances and safety factor provided.
 The tolerance is composed of an absolute and a relative part.
 Different coefficient sets (Butcher's tableau) can be used (see the `CoefficientSets` enum).
@@ -21615,7 +21615,7 @@ Creates the settings for the Runge-Kutta variable step size integrator with vect
 
 NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.runge_kutta_variable_step` INTERFACE INSTEAD
 
-Factory function to create settings for the Runge-Kutta variable step size integrator with vector tolerances.
+Function to create settings for the Runge-Kutta variable step size integrator with vector tolerances.
 For this integrator, the step size is varied based on the tolerances and safety factor provided.
 The tolerance is composed of an absolute and a relative part.
 Different coefficient sets (Butcher's tableau) can be used (see the `CoefficientSets` enum).
@@ -21673,7 +21673,7 @@ Creates the settings for the Bulirsch-Stoer integrator.
 
 NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.bulirsch_stoer_variable_step` INTERFACE INSTEAD
 
-Factory function to create settings for the Bulirsch-Stoer integrator.
+Function to create settings for the Bulirsch-Stoer integrator.
 For this integrator, the step size is varied based on the tolerances and safety factor provided.
 The tolerance is composed of an absolute and a relative part.
 Different extrapolation sequences can be used (see the `ExtrapolationMethodStepSequences` enum).
@@ -22145,7 +22145,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22176,7 +22176,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22212,7 +22212,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22248,7 +22248,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22339,7 +22339,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22379,7 +22379,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22500,7 +22500,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22531,7 +22531,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22562,7 +22562,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22593,7 +22593,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22624,7 +22624,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Constructor.
 
         Instances of this class are typically not generated by the user. Settings objects for integrators should be
-        instantiated through the factory functions of a derived class.
+        instantiated through the functions of a derived class.
 
 
 
@@ -22841,7 +22841,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
         Base class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
         Instances of this class are typically not created by the user. Settings objects for derived class of single-, multi- and hybrid arc propagation are 
-        instantiated through the factory functions to define propagator settings (such as :func:`~translational` or :func:`~multi_arc`) in this module
+        instantiated through the functions to define propagator settings (such as :func:`~translational` or :func:`~multi_arc`) in this module
             
 
 
@@ -22903,7 +22903,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment),
         derived from :class:`PropagatorProcessingSettings`.
         Instances of this class are typically not created by the user. A settings object is
-        instantiated through the factory functions to define single-arc propagator settings (such as :func:`~translational` or :func:`~rotational`) in this module
+        instantiated through the functions to define single-arc propagator settings (such as :func:`~translational` or :func:`~rotational`) in this module
 
 
 
@@ -22964,7 +22964,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment),
         derived from :class:`PropagatorProcessingSettings`.
         Instances of this class are typically not created by the user. A settings object is
-        instantiated through the factory function :func:`~multi_arc` to define multi-arc propagator settings.
+        instantiated through the function :func:`~multi_arc` to define multi-arc propagator settings.
         This object contains a list of :class:`SingleArcPropagatorProcessingSettings` objects, containing the processing settings for each constituent arc.
 
 
@@ -23040,7 +23040,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment),
         derived from :class:`PropagatorProcessingSettings`.
         Instances of this class are typically not created by the user. A settings object is
-        instantiated through the factory function :func:`~hybrid_arc` to define hybrid-arc propagator settings.
+        instantiated through the function :func:`~hybrid_arc` to define hybrid-arc propagator settings.
         This object contains a :class:`SingleArcPropagatorProcessingSettings` object and a :class:`MultuArcPropagatorProcessingSettings` , 
         containing the processing settings for the constituents of the hybrid-arc propagatioon.
 
@@ -23097,9 +23097,9 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
     } else if(name == "translational" ) {
         return R"(
         
-Factory function to create translational state propagator settings with stopping condition at given final time.
+Function to create translational state propagator settings with stopping condition at given final time.
 
-Factory function to create translational state propagator settings for N bodies.
+Function to create translational state propagator settings for N bodies.
 The propagated state vector is defined by the combination of integrated bodies, and their central body, the combination
 of which define the relative translational states for which a differential equation is to be solved. The propagator
 input defines the formulation in which the differential equations are set up
@@ -23147,9 +23147,9 @@ TranslationalStatePropagatorSettings
     } else if(name == "rotational" ) {
         return R"(
         
-Factory function to create rotational state propagator settings.
+Function to create rotational state propagator settings.
 
-Factory function to create rotational state propagator settings for N bodies.
+Function to create rotational state propagator settings for N bodies.
 The propagated state vector is defined by the integrated bodies, which defines the bodies for which the
 differential equation defining the evolution of the rotational state between an
 inertial and body-fixed frame are to be solved. The propagator input defines the
@@ -23199,9 +23199,9 @@ RotationalStatePropagatorSettings
     } else if(name == "mass" ) {
         return R"(
         
-Factory function to create mass propagator settings
+Function to create mass propagator settings
 
-Factory function to create mass propagator settings 
+Function to create mass propagator settings 
 It works by providing a key-value mass rate container, containing the list of mass rate settings objects associated to
 each body. In this function, the dependent variables to save are provided
 as a list of SingleDependentVariableSaveSettings objects. In this function, the termination conditions are set
@@ -23245,9 +23245,9 @@ MassPropagatorSettings
     } else if(name == "multitype" ) {
         return R"(
         
-Factory function to create multitype propagator settings.
+Function to create multitype propagator settings.
 
-Factory function to create multitype propagator settings.
+Function to create multitype propagator settings.
 It works by providing a list of SingleArcPropagatorSettings objects. When using this function,
 only the termination and output settings provided here are used, any such settings in the
 constituent propagator settings are ignored
@@ -23290,9 +23290,9 @@ MassPropagatorSettings
     } else if(name == "multi_arc" ) {
         return R"(
         
-Factory function to create multi-arc propagator settings.
+Function to create multi-arc propagator settings.
 
-Factory function to create multi-arc propagator settings. It works by providing separate settings for
+Function to create multi-arc propagator settings. It works by providing separate settings for
 each arc in a list.
 
 
@@ -23319,9 +23319,9 @@ MultiArcPropagatorSettings
     } else if(name == "hybrid_arc" ) {
         return R"(
         
-Factory function to create hybrid-arc propagator settings.
+Function to create hybrid-arc propagator settings.
 
-Factory function to create hybrid-arc propagator settings (i.e., a combination of single- and multi-arc dynamics).
+Function to create hybrid-arc propagator settings (i.e., a combination of single- and multi-arc dynamics).
 
 
 Parameters
@@ -23347,9 +23347,9 @@ HybridArcPropagatorSettings
     } else if(name == "time_termination" ) {
         return R"(
         
-Factory function to create time termination settings for the propagation.
+Function to create time termination settings for the propagation.
 
-Factory function to create time termination settings for the propagation.
+Function to create time termination settings for the propagation.
 The propagation is stopped when the final time provided is reached. Note that the termination time is set as the
 absolute time (in seconds since J2000), not the time since the start of the propagation.
 Depending on the sign of the time step of the numerical integrator, the termination time will be treated as an
@@ -23400,9 +23400,9 @@ In this example, we set the termination time of the propagation equal to one day
     } else if(name == "cpu_time_termination" ) {
         return R"(
         
-Factory function to create CPU time termination settings for the propagation.
+Function to create CPU time termination settings for the propagation.
 
-Factory function to create CPU time termination settings for the propagation.
+Function to create CPU time termination settings for the propagation.
 The propagation is stopped when the final CPU time provided is reached.
 
 
@@ -23439,9 +23439,9 @@ for 120 seconds.
     } else if(name == "dependent_variable_termination" ) {
         return R"(
         
-Factory function to create termination settings for the propagation based on a dependent variable.
+Function to create termination settings for the propagation based on a dependent variable.
 
-Factory function to create termination settings for the propagation based on the value of a dependent variable.
+Function to create termination settings for the propagation based on the value of a dependent variable.
 The propagation is stopped when a provided upper or lower limit value is reached.
 The simulator will normally finish the final time-step, which may cause the dependent variable to be slightly exceeded.
 This behaviour can be suppressed by providing the optional input argument
@@ -23508,9 +23508,9 @@ at 25 km, so we set ``terminate_exactly_on_final_condition`` to ``True``, and we
     } else if(name == "custom_termination" ) {
         return R"(
         
-Factory function to create custom termination settings for the propagation.
+Function to create custom termination settings for the propagation.
 
-Factory function to create custom termination settings for the propagation.
+Function to create custom termination settings for the propagation.
 The propagation is stopped when the condition provided is verified.
 This custom function should take the current time as input and output a Boolean. It can use internal variables
 and calculations, for example retrieved from the environment.
@@ -23553,11 +23553,11 @@ Examples
     } else if(name == "hybrid_termination" ) {
         return R"(
         
-Factory function to create hybrid termination settings for the propagation.
+Function to create hybrid termination settings for the propagation.
 
-Factory function to create hybrid termination settings for the propagation. This function can be used
+Function to create hybrid termination settings for the propagation. This function can be used
 to define that all conditions or a single condition of the conditions provided must be met to
-stop the propagation. Each termination condition should be created according to each individual factory function
+stop the propagation. Each termination condition should be created according to each individual function
 and then added to a list of termination conditions.
 
 Note that, when using this option, the :attr:`~tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.termination_details` of
@@ -23621,9 +23621,9 @@ terminates once a *single* condition is met (if True, as above) or once *all* co
     } else if(name == "non_sequential_termination" ) {
         return R"(
         
-Factory function to create non-sequential termination settings for the propagation.
+Function to create non-sequential termination settings for the propagation.
 
-Factory function to create non-sequential termination settings for the propagation. By using this setting,
+Function to create non-sequential termination settings for the propagation. By using this setting,
 the propagation of the dynamics along an arc is propagated starting from some point (initial time and state) along the arc, and then
 propagating both forwards and backwards in time. This termination condition allows the user to specify 
 termination conditions for the propagations forwards and backwards in time. These two propagations are then
@@ -23660,7 +23660,7 @@ PropagationTerminationSettings
 Function to add dependent variables to existing propagator settings.
 
 Function to add dependent variables to existing :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.SingleArcPropagatorSettings`
-object. This function is added as an alternative to teh regular manner in which to defined dependent variables (use of input to factory
+object. This function is added as an alternative to teh regular manner in which to defined dependent variables (use of input to 
 functions for single-arc propagator settings :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.translational`,
 :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.rotational`, :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.mass`,
 :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.multitype`). Typically, this function is used to modify
@@ -24167,7 +24167,7 @@ guidance_input_functions : list[callable[[], float], default=[]
         
 Create thrust magnitude settings from a constant thrust magnitude and Isp.
 
-Factory function that creates constant thrust magnitude settings. The specific impulse to use for the thrust is
+Function that creates constant thrust magnitude settings. The specific impulse to use for the thrust is
 also supplied when applying a mass rate model in the propagation of the vehicle dynamics, relating the thrust
 to the mass decrease of the vehicle.
 
@@ -24209,7 +24209,7 @@ In this example, we define constant thrust magnitude of 1.5 kN and a specific im
         
 Create thrust magnitude settings from a custom thrust force magnitude function.
 
-Factory function that creates thrust magnitude from a custom thrust force magnitude function.
+Function that creates thrust magnitude from a custom thrust force magnitude function.
 This model defines a thrust force and specific impulse that can vary with time. The thrust acceleration
 is computed during the propagation by dividing the thrust force by the current vehicle mass.
 The specific impulse can be used to apply a mass rate model in the propagation the vehicle dynamics, relating the thrust to the mass
@@ -24286,7 +24286,7 @@ FromFunctionThrustMagnitudeSettings
         
 Create thrust magnitude settings from a custom thrust acceleration magnitude function.
 
-Factory function that creates thrust magnitude from a custom thrust acceleration magnitude function.
+Function that creates thrust magnitude from a custom thrust acceleration magnitude function.
 This model is similar to the :func:`~custom_thrust_magnitude`, with the difference being that this function
 directly provides the thrust *acceleration*, not the thrust *force*.
 
@@ -24371,7 +24371,7 @@ static inline std::string get_docstring(std::string name) {
         Class containing a consolidated set of estimatable parameters.
 
         Class containing a consolidated set of estimatable parameters, linked to the environment and acceleration settings of the simulation.
-        The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.create_parameters_to_estimate` factory function,
+        The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.create_parameters_to_estimate` function,
         whose output is indeed an *EstimatableParameterSet* object.
 
 
@@ -24957,7 +24957,7 @@ static inline std::string get_docstring(std::string name) {
         Class defining the convergence criteria for an estimation.
 
         Class defining the convergence criteria for an estimation.
-        The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation.estimation_convergence_checker` factory function.
+        The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation.estimation_convergence_checker` function.
 
 
 
@@ -28873,10 +28873,10 @@ tuple[ list[TransferLegSettings], list[TransferNodeSettings] ]
     } else if(name == "unpowered_leg" ) {
         return R"(
         
-Factory function for creating the settings of an unpowered leg.
+Function for creating the settings of an unpowered leg.
 
 
-Factory function for creating the settings of an unpowered leg; the settings consist of just the leg type.
+Function for creating the settings of an unpowered leg; the settings consist of just the leg type.
 Given the departure and arrival position, this leg computes the departure and arrival velocity using a Lambert
 targeter.
 The calculations performed in this leg do not involve any numerical integration, and are solved by
@@ -28899,11 +28899,11 @@ TransferLegSettings
     } else if(name == "dsm_position_based_leg" ) {
         return R"(
         
-Factory function for creating the settings of a transfer leg with 1 impulsive deep space maneuver (DSM) described using
+Function for creating the settings of a transfer leg with 1 impulsive deep space maneuver (DSM) described using
 the position formulation.
 
 
-Factory function for creating the settings of a transfer leg with 1 position-based DSM; the settings consist of just the leg type.
+Function for creating the settings of a transfer leg with 1 position-based DSM; the settings consist of just the leg type.
 Given the departure position and the DSM position this leg uses a Lambert targeter to compute the departure
 velocity and the velocity before the DSM. Given the DSM position and the arrival position, the leg also uses
 a Lambert targeter to compute the velocity after the DSM and the arrival velocity. The Delta V applied in the
@@ -28928,11 +28928,11 @@ TransferLegSettings
     } else if(name == "dsm_velocity_based_leg" ) {
         return R"(
         
-Factory function for creating the settings of a transfer leg with 1 impulsive deep space maneuver (DSM) described using
+Function for creating the settings of a transfer leg with 1 impulsive deep space maneuver (DSM) described using
 the velocity formulation.
 
 
-Factory function for creating the settings of a transfer leg with 1 velocity-based DSM; the settings consist of just the leg type.
+Function for creating the settings of a transfer leg with 1 velocity-based DSM; the settings consist of just the leg type.
 Given the departure position and velocity this leg "propagates" the Kepler elements until the instant of application
 of the DSM (giving the position at the DSM and the velocity before the DSM). Given the position of the DSM
 and the arrival position, it computes the velocity after the DSM
@@ -28957,10 +28957,10 @@ TransferLegSettings
     } else if(name == "spherical_shaping_leg" ) {
         return R"(
         
-Factory function for creating the settings of a low-thrust spherical shaping leg.
+Function for creating the settings of a low-thrust spherical shaping leg.
 
 
-Factory function for creating the settings of a low-thrust spherical shaping leg; the settings consist of
+Function for creating the settings of a low-thrust spherical shaping leg; the settings consist of
 variables necessary for setting up the root finder and variable to set up an interpolator.
 The trajectory is determined via spherical shaping, which shapes the position and time history throughout the
 transfer. The trajectory depends on a single parameter, which is selected using the root finder in order to meet
@@ -29008,10 +29008,10 @@ TransferLegSettings
     } else if(name == "hodographic_shaping_leg" ) {
         return R"(
         
-Factory function for creating the settings of a low-thrust hodographic shaping leg.
+Function for creating the settings of a low-thrust hodographic shaping leg.
 
 
-Factory function for creating the settings of a low-thrust hodographic shaping leg; the settings consist of
+Function for creating the settings of a low-thrust hodographic shaping leg; the settings consist of
 the functions used to shape the velocity throughout the transfer.
 Note that shape functions with at least 3 terms (i.e. 3 degrees of freedom) must be provided for each velocity
 component (radial, normal and axial); this is required to obtain a trajectory that satisfies the boundary
@@ -29051,9 +29051,9 @@ TransferLegSettings
     } else if(name == "swingby_node" ) {
         return R"(
         
-Factory function for creating the settings of a swingby node.
+Function for creating the settings of a swingby node.
 
-Factory function for creating the settings of a swingby node. The settings consist consist of the minimum
+Function for creating the settings of a swingby node. The settings consist consist of the minimum
 allowed periapsis radius.
 The minimum periapsis radius can be set to infinity. In that case, the swingby does not affect the velocity of the
 spacecraft (e.g. might be relevant for swingbys of small bodies).
@@ -29089,9 +29089,9 @@ SwingbyNodeSettings
     } else if(name == "departure_node" ) {
         return R"(
         
-Factory function for creating the settings of an escape or departure node.
+Function for creating the settings of an escape or departure node.
 
-Factory function for creating the settings of an escape or departure node. The settings consist of the
+Function for creating the settings of an escape or departure node. The settings consist of the
 departure orbit eccentricity and semi-major axis.
 Given the initial orbit and the departure velocity, the node computes the Delta V that needs to be applied
 at the periapsis of the initial orbit to enter the escape trajectory.
@@ -29122,9 +29122,9 @@ EscapeAndDepartureNodeSettings
     } else if(name == "capture_node" ) {
         return R"(
         
-Factory function for creating the settings of a capture or insertion node.
+Function for creating the settings of a capture or insertion node.
 
-Factory function for creating the settings of a capture or insertion node. The settings consist of the
+Function for creating the settings of a capture or insertion node. The settings consist of the
 capture orbit eccentricity and semi-major axis.
 Given the the arrival velocity and the final orbit, the node computes the Delta V that needs to be applied
 at the periapsis of the final orbit to exit the capture trajectory.
@@ -29183,7 +29183,7 @@ None
     } else if(name == "create_transfer_trajectory" ) {
         return R"(
         
-Factory function for creating a transfer trajectory consisting of the specified sequence of transfer nodes and
+Function for creating a transfer trajectory consisting of the specified sequence of transfer nodes and
 transfer legs.
 
 
@@ -29249,7 +29249,7 @@ static inline std::string get_docstring(std::string name) {
         Base class for defining settings of the shape functions for hodographic shaping method.
 
         Base class for defining settings of the shape functions for Hodograph shaping method. Objects derived
-        from this class are created by calling the dedicated factory functions in this module
+        from this class are created by calling the dedicated functions in this module
 
 
 
@@ -29265,9 +29265,9 @@ static inline std::string get_docstring(std::string name) {
     } else if(name == "recommended_radial_hodograph_functions" ) {
         return R"(
         
-Factory function for creating the default radial hodographic trajectory shaping functions.
+Function for creating the default radial hodographic trajectory shaping functions.
 
-Factory function for creating the default radial hodographic trajectory shaping functions. This function 
+Function for creating the default radial hodographic trajectory shaping functions. This function 
 (and its counterparts normal and axial components) provided three shaping functions that have been found in
 literature to work well for this method. For a given time-of-flight :math:`T`, this function returns a list of
 three shaping functions:
@@ -29298,9 +29298,9 @@ list[BaseFunctionHodographicShaping]
     } else if(name == "recommended_normal_hodograph_functions" ) {
         return R"(
         
-Factory function for creating the default normal hodographic trajectory shaping functions.
+Function for creating the default normal hodographic trajectory shaping functions.
 
-Factory function for creating the default normal hodographic trajectory shaping functions. This function 
+Function for creating the default normal hodographic trajectory shaping functions. This function 
 (and its counterparts radial and axial components) provided three shaping functions that have been found in
 literature to work well for this method. For a given time-of-flight :math:`T`, this function returns a list of
 three shaping functions:
@@ -29331,9 +29331,9 @@ list[BaseFunctionHodographicShaping]
     } else if(name == "recommended_axial_hodograph_functions" ) {
         return R"(
         
-Factory function for creating the default axial hodograph	ic trajectory shaping functions.
+Function for creating the default axial hodograph	ic trajectory shaping functions.
 
-Factory function for creating the default axial hodographic trajectory shaping functions. This function 
+Function for creating the default axial hodographic trajectory shaping functions. This function 
 (and its counterparts radial and normal components) provided three shaping functions that have been found in
 literature to work well for this method. For a given time-of-flight :math:`T` and number of revolutions :math:`N`, this function returns a list of
 three shaping functions:
@@ -29366,9 +29366,9 @@ list[BaseFunctionHodographicShaping]
     } else if(name == "hodograph_constant" ) {
         return R"(
         
-Factory function for creating a constant contribution to hodographic trajectory shaping.
+Function for creating a constant contribution to hodographic trajectory shaping.
 
-Factory function for creating a constant contribution to hodographic trajectory shaping. This adds a contribution 
+Function for creating a constant contribution to hodographic trajectory shaping. This adds a contribution 
 :math:`K` to the selected velocity component, with :math:`K` a free parameter.
 
 Returns
@@ -29388,9 +29388,9 @@ BaseFunctionHodographicShaping
     } else if(name == "hodograph_sine" ) {
         return R"(
         
-Factory function for creating a sine contribution to hodographic trajectory shaping.
+Function for creating a sine contribution to hodographic trajectory shaping.
 
-Factory function for creating a sine contribution to hodographic trajectory shaping. For a 
+Function for creating a sine contribution to hodographic trajectory shaping. For a 
 provided frequency :math:`f`, this adds a contribution :math:`K\sin(f\cdot t)` to the selected
 velocity component, with :math:`t` the time since departure, and :math:`K` a free parameter.
 
@@ -29416,9 +29416,9 @@ BaseFunctionHodographicShaping
     } else if(name == "hodograph_cosine" ) {
         return R"(
         
-Factory function for creating a cosine contribution to hodographic trajectory shaping.
+Function for creating a cosine contribution to hodographic trajectory shaping.
 
-Factory function for creating a cosine contribution to hodographic trajectory shaping. For a 
+Function for creating a cosine contribution to hodographic trajectory shaping. For a 
 provided frequency :math:`f`, this adds a contribution :math:`K\cos(f\cdot T)` to the selected
 velocity component, with :math:`T` the time since departure, and :math:`K` a free parameter.
 
@@ -29444,9 +29444,9 @@ BaseFunctionHodographicShaping
     } else if(name == "hodograph_exponential" ) {
         return R"(
         
-Factory function for creating a exponential contribution to hodographic trajectory shaping.
+Function for creating a exponential contribution to hodographic trajectory shaping.
 
-Factory function for creating a exponential contribution to hodographic trajectory shaping. For a 
+Function for creating a exponential contribution to hodographic trajectory shaping. For a 
 provided exponent :math:`r` and (optional) scale factor :math:`c`, this adds a contribution :math:`K\exp(cr\cdot t)` to the selected
 velocity component, with :math:`t` the time since departure, and :math:`K` a free parameter.
 
@@ -29474,9 +29474,9 @@ BaseFunctionHodographicShaping
     } else if(name == "hodograph_exponential_sine" ) {
         return R"(
         
-Factory function for creating a exponential sine contribution to hodographic trajectory shaping.
+Function for creating a exponential sine contribution to hodographic trajectory shaping.
 
-Factory function for creating a exponential sine contribution to hodographic trajectory shaping. For a 
+Function for creating a exponential sine contribution to hodographic trajectory shaping. For a 
 provided exponent :math:`r`, scale factor :math:`c` and frequency :math:`f`, this adds a contribution :math:`K\sin(f\cdot t)\exp(cr\cdot t)` to the selected
 velocity component, with :math:`t` the time since departure, and :math:`K` a free parameter.
 
@@ -29506,9 +29506,9 @@ BaseFunctionHodographicShaping
     } else if(name == "hodograph_exponential_cosine" ) {
         return R"(
         
-Factory function for creating a exponential cosine contribution to hodographic trajectory shaping.
+Function for creating a exponential cosine contribution to hodographic trajectory shaping.
 
-Factory function for creating a exponential cosine contribution to hodographic trajectory shaping. For a 
+Function for creating a exponential cosine contribution to hodographic trajectory shaping. For a 
 provided exponent :math:`r`, scale factor :math:`c`  and frequency :math:`f`, this adds a contribution :math:`K\cos(f\cdot t)\exp(cr\cdot t)` to the selected
 velocity component, with :math:`t` the time since departure, and :math:`K` a free parameter.
 
@@ -29538,9 +29538,9 @@ BaseFunctionHodographicShaping
     } else if(name == "hodograph_power" ) {
         return R"(
         
-Factory function for creating a power function contribution to hodographic trajectory shaping.
+Function for creating a power function contribution to hodographic trajectory shaping.
 
-Factory function for creating a power function contribution to hodographic trajectory shaping. For a 
+Function for creating a power function contribution to hodographic trajectory shaping. For a 
 provided exponent :math:`r` and (optional) scale factor :math:`c` this adds a contribution :math:`K\cdot c\cdot t^{r}` to the selected
 velocity component, with :math:`t` the time since departure, and :math:`K` a free parameter.
 
@@ -29568,9 +29568,9 @@ BaseFunctionHodographicShaping
     } else if(name == "hodograph_power_sine" ) {
         return R"(
         
-Factory function for creating a power sine function contribution to hodographic trajectory shaping.
+Function for creating a power sine function contribution to hodographic trajectory shaping.
 
-Factory function for creating a power sine function contribution to hodographic trajectory shaping. For a 
+Function for creating a power sine function contribution to hodographic trajectory shaping. For a 
 provided exponent :math:`r`, (optional) scale factor :math:`c` and frequency :math:`f`, this adds a contribution :math:`K\cdot c\sin(f\cdot t)\cdot t^{r}` to the selected
 velocity component, with :math:`t` the time since departure, and :math:`K` a free parameter.
 
@@ -29600,9 +29600,9 @@ BaseFunctionHodographicShaping
     } else if(name == "hodograph_power_cosine" ) {
         return R"(
         
-Factory function for creating a power cosine function contribution to hodographic trajectory shaping.
+Function for creating a power cosine function contribution to hodographic trajectory shaping.
 
-Factory function for creating a power cosine function contribution to hodographic trajectory shaping. For a 
+Function for creating a power cosine function contribution to hodographic trajectory shaping. For a 
 provided exponent :math:`r`, (optional) scale factor :math:`c` and frequency :math:`f`, this adds a contribution :math:`K\cdot c\cos(f\cdot t)\cdot t^{r}` to the selected
 velocity component, with :math:`t` the time since departure, and :math:`K` a free parameter.
 
