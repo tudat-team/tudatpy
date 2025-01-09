@@ -75,6 +75,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
     for( unsigned int i = 0; i < ifmsFileNames.size( ); i++ )
     {
         rawIfmsFiles.push_back( readIfmsFile( ifmsFileNames.at( i ) ) );
+        //        rawIfmsFiles.at( i )->subtractColumnType( input_output::TrackingDataType::doppler_averaged_frequency, input_output::TrackingDataType::doppler_troposphere_correction );
     }
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
