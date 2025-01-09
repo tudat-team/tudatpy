@@ -479,6 +479,8 @@ const static std::string pysctrackGroundStationCodesFile = tudat::paths::getStat
 
 const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionsFromFile =
     utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationPosFile, '$', " \t");
+const static std::map<std::string, Eigen::Vector3d> approximateGroundStationPositionReferenceEpochsFromFile =
+    utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationPosFile, '$', " \t", 3);
 const static std::map<std::string, Eigen::Vector3d> approximateGroundStationVelocitiesFromFile =
     utilities::getMapFromFile<std::string, Eigen::Vector3d>(pysctrackGroundStationVelFile, '$', " \t");
 const static std::map<std::string, std::string> groundStationCodesFromFile =
@@ -498,6 +500,13 @@ std::map< std::string, Eigen::Vector3d >& getVlbiStationPositions( )
     static std::map<std::string, Eigen::Vector3d> stationPositions = utilities::getMapFromFile<std::string, Eigen::Vector3d>( pysctrackGroundStationPosFile, '$', " \t" );
     return stationPositions;
 }
+
+std::map< std::string, Eigen::Vector3d >& getVlbiStationVelocities( )
+{
+    static std::map<std::string, Eigen::Vector3d> stationVelocities = utilities::getMapFromFile<std::string, Eigen::Vector3d>( pysctrackGroundStationVelFile, '$', " \t" );
+    return stationVelocities;
+}
+
 
 //Eigen::Vector3d getApproximateGroundStationPositionFromFile(std::string stationName )
 //{
@@ -575,6 +584,43 @@ std::vector<std::shared_ptr<GroundStationSettings> > getDsnStationSettings()
   return stationSettingsList;
 }
 
+std::vector< std::shared_ptr< GroundStationSettings > > getEvnStationSettings( )
+{
+    std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
+
+    std::map< std::string, Eigen::Vector3d > stationPositions = getVlbiStationPositions( );
+    std::map< std::string, Eigen::Vector3d > stationVelocities = getVlbiStationVelocities( );
+
+    std::vector< std::string > commonStationNames;
+    for( auto it : stationPositions )
+    {
+        if( stationVelocities.count( it.first ) > 0 )
+        {
+            commonStationNames.push_back( it.first );
+        }
+    }
+
+    for( unsigned int i = 0; i < commonStationNames.size( ); i++ )
+    {
+        std::shared_ptr<GroundStationMotionSettings> stationMotion = std::make_shared<LinearGroundStationMotionSettings>(
+            stationVelocities.at( commonStationNames.at( i ) ) * 1.0E-3 / physical_constants::JULIAN_YEAR, 0.0 );
+
+        std::shared_ptr<GroundStationSettings> stationSettings = std::make_shared<GroundStationSettings>(
+            commonStationNames.at( i ), stationPositions.at( commonStationNames.at( i ) ) );
+        stationSettings->addStationMotionSettings(stationMotion);
+        stationSettingsList.push_back(stationSettings);
+    }
+    return stationSettingsList;
+}
+
+std::vector< std::shared_ptr< GroundStationSettings > > getRadioTelescopeStationSettings( )
+{
+    std::vector< std::shared_ptr< GroundStationSettings > > stations = getEvnStationSettings( );
+    std::vector< std::shared_ptr< GroundStationSettings > > dsnStations = getDsnStationSettings( );
+    stations.insert( stations.begin( ), dsnStations.begin(), dsnStations.end( ) );
+    return stations;
+
+}
 } // namespace simulation_setup
 
 } // namespace tudat

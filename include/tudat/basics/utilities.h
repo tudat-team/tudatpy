@@ -1027,13 +1027,13 @@ std::vector< ScalarType > convertVectors(ConvertFunc convertFunc, const std::vec
 
 
 template<typename T, typename U>
-std::map<T, U> getMapFromFile(std::string fileName, char commentSymbol='#', std::string separators="\t");
+std::map<T, U> getMapFromFile(std::string fileName, char commentSymbol='#', std::string separators="\t", const int skipNumberOfEntries = 0 );
 
 template<>
-std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector3d>(std::string fileName, char commentSymbol, std::string separators);
+std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector3d>(std::string fileName, char commentSymbol, std::string separators, const int skipNumberOfEntries);
 
 template<>
-std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators);
+std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators, const int skipNumberOfEntries);
 
 /*!
  * Utility function to get a value from a string map where the keys are all uppercase

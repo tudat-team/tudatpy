@@ -150,6 +150,30 @@ const std::vector<TrackingDataType> TrackingTxtFileContents::getAllAvailableData
   return columnTypes;
 }
 
+void TrackingTxtFileContents::subtractColumnType( const TrackingDataType& columnToSubtractFrom, const TrackingDataType& columnToSubtract )
+{
+    if( doubleDataMap_.count( columnToSubtractFrom ) == 0  )
+    {
+        throw std::runtime_error( "Error when subtracing data for tracking text file, column type " + std::to_string( static_cast< int >( columnToSubtractFrom ) ) + " not found." );
+    }
+
+    if( doubleDataMap_.count( columnToSubtract ) == 0  )
+    {
+        throw std::runtime_error( "Error when subtracing data for tracking text file, column type " + std::to_string( static_cast< int >( columnToSubtract ) ) + " not found." );
+    }
+
+    if( doubleDataMap_.at( columnToSubtractFrom ).size( ) != doubleDataMap_.at( columnToSubtract ).size( ) )
+    {
+        throw std::runtime_error( "Error when subtracing data for tracking text file, column types " +
+        std::to_string( static_cast< int >( columnToSubtract ) ) + " and " + std::to_string( static_cast< int >( columnToSubtractFrom ) ) + " do not have same size." );
+    }
+
+    for( int i = 0; i < doubleDataMap_.at( columnToSubtractFrom ).size( ); i++ )
+    {
+        doubleDataMap_[ columnToSubtractFrom ][ i ] -= doubleDataMap_[ columnToSubtract ][ i ];
+    }
+}
+
 } // namespace input_output
 
 } // namespace tudat
