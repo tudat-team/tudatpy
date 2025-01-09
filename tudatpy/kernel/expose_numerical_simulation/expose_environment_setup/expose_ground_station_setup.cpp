@@ -72,6 +72,15 @@ namespace ground_station{
               &tss::getDsnStationSettings,
               get_docstring("dsn_stations").c_str());
 
+        m.def("evn_stations",
+              &tss::getEvnStationSettings,
+              get_docstring("evn_stations").c_str());
+
+        m.def("radio_telescope_stations",
+              &tss::getRadioTelescopeStationSettings,
+              get_docstring("radio_telescope_stations").c_str());
+
+
         m.def("linear_station_motion",
               &tss::linearGroundStationMotionSettings,
               py::arg("linear_velocity"),
