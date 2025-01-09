@@ -381,6 +381,8 @@ public:
   //! Get all available data types (either as metadata or individually per row)
   const std::vector<TrackingDataType> getAllAvailableDataTypes();
 
+  void subtractColumnType( const TrackingDataType& columnToSubtractFrom, const TrackingDataType& columnToSubtract );
+
 private:
   //! Path of the file name of interest
   std::string fileName_ = "None";

@@ -253,31 +253,9 @@ inline std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerC
  */
 Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName );
 
-//static std::map< std::string, Eigen::Vector3d >& getApproximateGroundStationPositionsFromFile();
-
 std::map< std::string, Eigen::Vector3d >& getVlbiStationPositions( );
 
-//
-////! Get map of approximate ground station positions
-//const std::map<std::string, Eigen::Vector3d>& getApproximateGroundStationPositionsFromFile();
-//
-////! Get approximate ground station position
-//Eigen::Vector3d getApproximateGroundStationPositionFromFile( std::string stationName );
-//
-////! Get approximate ground station velocity
-//Eigen::Vector3d getApproximateGroundStationVelocityFromFile(std::string stationName );
-//
-//const std::map<std::string,std::string>& getGroundStationCodesFromFile();
-//
-////! Get long name or return original
-//template<typename T>
-//std::string getGroundStationCodeFromFile(T shortStationName){
-//  return "DSS-" + std::to_string(static_cast<int>(shortStationName)); // TODO : TEMPORARY - Remove this - Add these to the file instead
-////  return getGroundStationCodeFromFile(std::to_string(static_cast<int>(shortStationName)));
-//}
-
-//template<>
-//std::string getGroundStationCodeFromFile<std::string>(std::string shortStationName);
+std::map< std::string, Eigen::Vector3d >& getVlbiStationVelocities( );
 
 /*!
  * Returns the settings for DSN ground stations. The settings are specified according to table 2 and 3 of DSN 810-005,
@@ -287,6 +265,10 @@ std::map< std::string, Eigen::Vector3d >& getVlbiStationPositions( );
  * @return Vector of ground station settings.
  */
 std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( );
+
+std::vector< std::shared_ptr< GroundStationSettings > > getEvnStationSettings( );
+
+std::vector< std::shared_ptr< GroundStationSettings > > getRadioTelescopeStationSettings( );
 
 
 } // namespace simulation_setup
