@@ -15,14 +15,17 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace astro {
-        namespace two_body_dynamics {
+namespace tudatpy
+{
+namespace astro
+{
+namespace two_body_dynamics
+{
 
-            void expose_two_body_dynamics(py::module &m);
+void expose_two_body_dynamics( py::module &m );
 
-} // namespace two_body_dynamics
-} // namespace astro
-} // namespace tudatpy
+}  // namespace two_body_dynamics
+}  // namespace astro
+}  // namespace tudatpy
 
-#endif//TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
+#endif  // TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H

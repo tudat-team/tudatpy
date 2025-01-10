@@ -17,14 +17,17 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-namespace data {
-namespace mpc {
+namespace tudatpy
+{
+namespace data
+{
+namespace mpc
+{
 
-    void expose_mpc(py::module &m) {
+void expose_mpc( py::module &m ) {
 
-    };
+};
 
-}// namespace mpc
-}// namespace data
-}// namespace tudatpy
+}  // namespace mpc
+}  // namespace data
+}  // namespace tudatpy

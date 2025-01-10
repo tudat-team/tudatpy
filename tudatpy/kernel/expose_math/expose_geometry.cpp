@@ -10,50 +10,35 @@
 
 #include "expose_geometry.h"
 
-#include <tudat/basics/basicTypedefs.h>
-
+#include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/eigen.h>
+#include <tudat/basics/basicTypedefs.h>
 
 namespace py = pybind11;
 
 namespace tgs = tudat::geometric_shapes;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
-void expose_geometry(py::module &m) {
+void expose_geometry( py::module &m )
+{
+    py::class_< tudat::SurfaceGeometry, std::shared_ptr< tudat::SurfaceGeometry > >( m, "SurfaceGeometry" );
 
-    py::class_<tudat::SurfaceGeometry,
-            std::shared_ptr<tudat::SurfaceGeometry>>(
-                m, "SurfaceGeometry");
+    py::class_< tgs::CompositeSurfaceGeometry, std::shared_ptr< tgs::CompositeSurfaceGeometry >, tudat::SurfaceGeometry >(
+            m, "CompositeSurfaceGeometry" );
 
-    py::class_<tgs::CompositeSurfaceGeometry,
-            std::shared_ptr<tgs::CompositeSurfaceGeometry>,
-            tudat::SurfaceGeometry>(
-                m, "CompositeSurfaceGeometry");
-
-    py::class_<tgs::Capsule,
-            std::shared_ptr<tgs::Capsule>,
-            tgs::CompositeSurfaceGeometry>(
-                m, "Capsule")
-            .def(py::init<
-                 const double,
-                 const double,
-                 const double,
-                 const double,
-                 const double >(),
-                 py::arg("nose_radius"),
-                 py::arg("middle_radius"),
-                 py::arg("rear_length"),
-                 py::arg("rear_angle"),
-                 py::arg("side_radius") )
-            .def_property_readonly("middle_radius", &tgs::Capsule::getMiddleRadius)
-            .def_property_readonly("volume", &tgs::Capsule::getVolume)
-            .def_property_readonly("length", &tgs::Capsule::getLength);
-
-
-
+    py::class_< tgs::Capsule, std::shared_ptr< tgs::Capsule >, tgs::CompositeSurfaceGeometry >( m, "Capsule" )
+            .def( py::init< const double, const double, const double, const double, const double >( ),
+                  py::arg( "nose_radius" ),
+                  py::arg( "middle_radius" ),
+                  py::arg( "rear_length" ),
+                  py::arg( "rear_angle" ),
+                  py::arg( "side_radius" ) )
+            .def_property_readonly( "middle_radius", &tgs::Capsule::getMiddleRadius )
+            .def_property_readonly( "volume", &tgs::Capsule::getVolume )
+            .def_property_readonly( "length", &tgs::Capsule::getLength );
 };
 
-}// namespace tudatpy
+}  // namespace tudatpy
