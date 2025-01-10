@@ -27,7 +27,7 @@ void expose_root_finders( py::module &m );
 
 }
 
-}
+}  // namespace math
 
-}
-#endif//TUDATPY_EXPOSE_ROOT_FINDERS_H
+}  // namespace tudatpy
+#endif  // TUDATPY_EXPOSE_ROOT_FINDERS_H

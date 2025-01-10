@@ -15,15 +15,17 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-namespace astro {
-namespace polyhedron_utilities {
+namespace tudatpy
+{
+namespace astro
+{
+namespace polyhedron_utilities
+{
 
-void expose_polyhedron_utilities(py::module &m);
+void expose_polyhedron_utilities( py::module &m );
 
-} // namespace polyhedron_utilities
-} // namespace astro
-} // namespace tudatpy
+}  // namespace polyhedron_utilities
+}  // namespace astro
+}  // namespace tudatpy
 
-
-#endif //TUDATBUNDLE_EXPOSE_POLYHEDRON_UTILITIES_H
+#endif  // TUDATBUNDLE_EXPOSE_POLYHEDRON_UTILITIES_H

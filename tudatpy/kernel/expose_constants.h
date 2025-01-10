@@ -15,10 +15,12 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-namespace constants {
-    void expose_constants(py::module &m);
+namespace tudatpy
+{
+namespace constants
+{
+void expose_constants( py::module &m );
 }
-}
+}  // namespace tudatpy
 
-#endif//TUDATPY_EXPOSE_CONSTANTS_H
+#endif  // TUDATPY_EXPOSE_CONSTANTS_H

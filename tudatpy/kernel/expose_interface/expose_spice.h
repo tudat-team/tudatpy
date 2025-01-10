@@ -15,14 +15,17 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-namespace interface {
-namespace spice {
+namespace tudatpy
+{
+namespace interface
+{
+namespace spice
+{
 
-void expose_spice(py::module &m);
+void expose_spice( py::module &m );
 
 }
-}
-}
+}  // namespace interface
+}  // namespace tudatpy
 
-#endif//TUDATPY_EXPOSE_SPICE_H
+#endif  // TUDATPY_EXPOSE_SPICE_H

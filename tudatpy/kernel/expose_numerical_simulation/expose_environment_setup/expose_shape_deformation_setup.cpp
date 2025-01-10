@@ -10,67 +10,60 @@
 
 #include "expose_shape_deformation_setup.h"
 
-#include "docstrings.h"
-#include <tudat/simulation/environment_setup/createBodyDeformationModel.h>
-
+#include <pybind11/complex.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/complex.h>
+#include <tudat/simulation/environment_setup/createBodyDeformationModel.h>
+
+#include "docstrings.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 
-namespace tudatpy {
-namespace numerical_simulation {
-namespace environment_setup {
-namespace shape_deformation{
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace shape_deformation
+{
 
-    void expose_shape_deformation_setup(py::module &m) {
+void expose_shape_deformation_setup( py::module &m )
+{
+    py::class_< tss::BodyDeformationSettings, std::shared_ptr< tss::BodyDeformationSettings > >(
+            m, "BodyDeformationSettings", get_docstring( "BodyDeformationSettings" ).c_str( ) );
 
-        py::class_<tss::BodyDeformationSettings,
-                std::shared_ptr<tss::BodyDeformationSettings>>(m, "BodyDeformationSettings",
-                                                         get_docstring("BodyDeformationSettings").c_str());
+    py::class_< tss::BasicSolidBodyDeformationSettings,
+                std::shared_ptr< tss::BasicSolidBodyDeformationSettings >,
+                tss::BodyDeformationSettings >(
+            m, "BasicSolidBodyDeformationSettings", get_docstring( "BasicSolidBodyDeformationSettings" ).c_str( ) );
 
-        py::class_<tss::BasicSolidBodyDeformationSettings,
-                std::shared_ptr<tss::BasicSolidBodyDeformationSettings>,
-                tss::BodyDeformationSettings>(m, "BasicSolidBodyDeformationSettings",
-                                        get_docstring("BasicSolidBodyDeformationSettings").c_str());
+    m.def( "basic_solid_body_tidal",
+           &tss::basicTidalBodyShapeDeformation,
+           py::arg( "tide_raising_bodies" ),
+           py::arg( "displacement_love_numbers" ),
+           py::arg( "reference_radius" ) = TUDAT_NAN,
+           get_docstring( "basic_solid_body_tidal" ).c_str( ) );
 
+    m.def( "degree_two_basic_solid_body_tidal",
+           &tss::degreeTwoBasicTidalBodyShapeDeformation,
+           py::arg( "tide_raising_bodies" ),
+           py::arg( "love_number" ),
+           py::arg( "shida_number" ),
+           py::arg( "reference_radius" ) = TUDAT_NAN,
+           get_docstring( "degree_two_basic_solid_body_tidal" ).c_str( ) );
 
+    m.def( "iers_2010_solid_body_tidal", &tss::iers2010TidalBodyShapeDeformation, get_docstring( "iers_2010_solid_body_tidal" ).c_str( ) );
 
-        m.def("basic_solid_body_tidal",
-              &tss::basicTidalBodyShapeDeformation,
-              py::arg("tide_raising_bodies"),
-              py::arg("displacement_love_numbers"),
-              py::arg("reference_radius") = TUDAT_NAN,
-              get_docstring("basic_solid_body_tidal").c_str());
+    m.def( "pole_tidal", &tss::poleTideBodyShapeDeformation, get_docstring( "pole_tide" ).c_str( ) );
 
-        m.def("degree_two_basic_solid_body_tidal",
-              &tss::degreeTwoBasicTidalBodyShapeDeformation,
-              py::arg("tide_raising_bodies"),
-              py::arg("love_number"),
-              py::arg("shida_number"),
-              py::arg("reference_radius") = TUDAT_NAN,
-              get_docstring("degree_two_basic_solid_body_tidal").c_str());
+    m.def( "ocean_tidal", &tss::oceanTideBodyShapeDeformation, py::arg( "blq_files" ), get_docstring( "ocean_tidal" ).c_str( ) );
+}
 
-        m.def("iers_2010_solid_body_tidal",
-              &tss::iers2010TidalBodyShapeDeformation,
-              get_docstring("iers_2010_solid_body_tidal").c_str());
-
-        m.def("pole_tidal",
-              &tss::poleTideBodyShapeDeformation,
-              get_docstring("pole_tide").c_str());
-
-        m.def("ocean_tidal",
-              &tss::oceanTideBodyShapeDeformation,
-              py::arg("blq_files"),
-              get_docstring("ocean_tidal").c_str());
-
-    }
-
-}// namespace shape_deformation
-}// namespace environment_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+}  // namespace shape_deformation
+}  // namespace environment_setup
+}  // namespace numerical_simulation
+}  // namespace tudatpy

@@ -12,14 +12,16 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-namespace utils {
+namespace tudatpy
+{
+namespace utils
+{
 
-void expose_utils(py::module &m) {
-
-//  auto data = m.def_submodule("data");
-//  data::expose_data(data);
+void expose_utils( py::module &m )
+{
+    //  auto data = m.def_submodule("data");
+    //  data::expose_data(data);
 }
 
-} // namespace utils
-} // namespace tudatpy
+}  // namespace utils
+}  // namespace tudatpy

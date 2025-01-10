@@ -8,24 +8,26 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "expose_{{ submodule_name }}.h"
+#include <pybind11/pybind11.h>
 
 #include <string>
 
-#include <pybind11/pybind11.h>
+#include "expose_{{ submodule_name }}.h"
 
-namespace {{ project }} {
+namespace
+{
+{
+    project
+}
+}  // namespace
+{
+    std::string hello_world( )
+    {
+        return "Hello World!";
+    };
 
-std::string hello_world(){
-
-    return "Hello World!";
-
-};
-
-void expose_{{ module_name.lower() }}(py::module &m){
-
-    m.def("hello_world", &hello_world);
-
-};
-
+    void expose_{ { module_name.lower( ) } }( py::module & m )
+    {
+        m.def( "hello_world", &hello_world );
+    };
 }
