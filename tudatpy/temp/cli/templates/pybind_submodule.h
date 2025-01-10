@@ -8,17 +8,21 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef {{ module_name | upper }}_H
-#define {{ module_name | upper }}_H
-
-#include <string>
+#ifndef{ { module_name | upper } } _H
+#define{ { module_name | upper } } _H
 
 #include <pybind11/pybind11.h>
 
-namespace {{ project_name }} {
+#include <string>
 
-void expose_{{ module_name | lower }}(py::module &m);
-
+namespace
+{
+{
+    project_name
+}
+}  // namespace
+{
+    void expose_{ { module_name | lower } }( py::module & m );
 }
 
-#endif//{{ module_name | upper }}_H
+#endif  //{{ module_name | upper }}_H
