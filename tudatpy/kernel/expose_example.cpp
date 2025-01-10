@@ -8,17 +8,17 @@
 // *    http://tudat.tudelft.nl/LICENSE.
 // */
 //
-//#include "expose_example.h"
+// #include "expose_example.h"
 //
-//#include <tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h>
+// #include <tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h>
 //
-//#include <pybind11/pybind11.h>
+// #include <pybind11/pybind11.h>
 //
-//namespace py = pybind11;
+// namespace py = pybind11;
 //
-//namespace tudatpy {
+// namespace tudatpy {
 //
-//void expose_example(py::module &m) {
+// void expose_example(py::module &m) {
 //
 //  m.def("apollo_aerodynamics_coefficient_interface",
 //        &tudat::unit_tests::getApolloCoefficientInterface);

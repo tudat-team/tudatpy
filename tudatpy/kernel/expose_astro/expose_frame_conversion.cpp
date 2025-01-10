@@ -8,84 +8,77 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "docstrings.h"
-
 #include "expose_frame_conversion.h"
 
-#include <tudat/astro/reference_frames.h>
-#include <tudat/astro/ephemerides/rotationalEphemeris.h>
-
-#include <pybind11/functional.h>
-#include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
+#include <pybind11/functional.h>
 #include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <tudat/astro/ephemerides/rotationalEphemeris.h>
+#include <tudat/astro/reference_frames.h>
+
+#include "docstrings.h"
 
 namespace trf = tudat::reference_frames;
 namespace te = tudat::ephemerides;
 
 namespace py = pybind11;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
-namespace astro {
-namespace frame_conversion {
+namespace astro
+{
+namespace frame_conversion
+{
 
-void expose_frame_conversion(py::module &m) {
+void expose_frame_conversion( py::module &m )
+{
+    m.def( "inertial_to_rsw_rotation_matrix",
+           &trf::getInertialToRswSatelliteCenteredFrameRotationMatrix,
+           py::arg( "inertial_cartesian_state" ),
+           get_docstring( "inertial_to_rsw_rotation_matrix" ).c_str( ) );
 
+    m.def( "rsw_to_inertial_rotation_matrix",
+           &trf::getRswSatelliteCenteredToInertialFrameRotationMatrix,
+           py::arg( "inertial_cartesian_state" ),
+           get_docstring( "rsw_to_inertial_rotation_matrix" ).c_str( ) );
 
-    m.def("inertial_to_rsw_rotation_matrix",
-          &trf::getInertialToRswSatelliteCenteredFrameRotationMatrix,
-          py::arg("inertial_cartesian_state"),
-          get_docstring("inertial_to_rsw_rotation_matrix").c_str());
+    m.def( "tnw_to_inertial_rotation_matrix",
+           py::overload_cast< const Eigen::Vector6d &, const bool >( &trf::getTnwToInertialRotation ),
+           py::arg( "inertial_cartesian_state" ),
+           py::arg( "n_axis_points_away_from_central_body" ) = true,
+           get_docstring( "tnw_to_inertial_rotation_matrix" ).c_str( ) );
 
-    m.def("rsw_to_inertial_rotation_matrix",
-          &trf::getRswSatelliteCenteredToInertialFrameRotationMatrix,
-          py::arg("inertial_cartesian_state"),
-          get_docstring("rsw_to_inertial_rotation_matrix").c_str());
+    m.def( "inertial_to_tnw_rotation_matrix",
+           py::overload_cast< const Eigen::Vector6d &, const bool >( &trf::getInertialToTnwRotation ),
+           py::arg( "inertial_cartesian_state" ),
+           py::arg( "n_axis_points_away_from_central_body" ) = true,
+           get_docstring( "inertial_to_tnw_rotation_matrix" ).c_str( ) );
 
-    m.def("tnw_to_inertial_rotation_matrix",
-          py::overload_cast<
-          const Eigen::Vector6d&,
-          const bool >( &trf::getTnwToInertialRotation ),
-          py::arg("inertial_cartesian_state"),
-          py::arg("n_axis_points_away_from_central_body") = true,
-          get_docstring("tnw_to_inertial_rotation_matrix").c_str());
+    m.def( "inertial_to_body_fixed_rotation_matrix",
+           py::overload_cast< const double, const double, const double >( &trf::getInertialToPlanetocentricFrameTransformationMatrix ),
+           py::arg( "pole_declination" ),
+           py::arg( "pole_right_ascension" ),
+           py::arg( "prime_meridian_longitude" ),
+           get_docstring( "inertial_to_body_fixed_rotation_matrix" ).c_str( ) );
 
-    m.def("inertial_to_tnw_rotation_matrix",
-          py::overload_cast<
-          const Eigen::Vector6d&,
-          const bool >( &trf::getInertialToTnwRotation ),
-          py::arg("inertial_cartesian_state"),
-          py::arg("n_axis_points_away_from_central_body") = true,
-          get_docstring("inertial_to_tnw_rotation_matrix").c_str());
+    m.def( "body_fixed_to_inertial_rotation_matrix",
+           py::overload_cast< const double, const double, const double >(
+                   &trf::getRotatingPlanetocentricToInertialFrameTransformationMatrix ),
+           py::arg( "pole_declination" ),
+           py::arg( "pole_right_ascension" ),
+           py::arg( "pole_meridian" ),
+           get_docstring( "body_fixed_to_inertial_rotation_matrix" ).c_str( ) );
 
-
-    m.def("inertial_to_body_fixed_rotation_matrix",
-          py::overload_cast<const double, const double, const double>(
-              &trf::getInertialToPlanetocentricFrameTransformationMatrix),
-          py::arg("pole_declination"),
-          py::arg("pole_right_ascension"),
-          py::arg("prime_meridian_longitude"),
-          get_docstring("inertial_to_body_fixed_rotation_matrix").c_str());
-
-    m.def("body_fixed_to_inertial_rotation_matrix",
-          py::overload_cast<const double, const double, const double>(
-              &trf::getRotatingPlanetocentricToInertialFrameTransformationMatrix),
-          py::arg("pole_declination"),
-          py::arg("pole_right_ascension"),
-          py::arg("pole_meridian"),
-          get_docstring("body_fixed_to_inertial_rotation_matrix").c_str());
-
-
-    m.def("transform_cartesian_state_to_frame",
-          py::overload_cast<const Eigen::Vector6d &, const Eigen::Matrix3d &, const Eigen::Matrix3d &>(
-              &te::transformStateToFrameFromRotations<double>),
-          py::arg("original_state"),
-          py::arg("rotation_matrix"),
-          py::arg("transform_cartesian_state_to_frame"));
-
+    m.def( "transform_cartesian_state_to_frame",
+           py::overload_cast< const Eigen::Vector6d &, const Eigen::Matrix3d &, const Eigen::Matrix3d & >(
+                   &te::transformStateToFrameFromRotations< double > ),
+           py::arg( "original_state" ),
+           py::arg( "rotation_matrix" ),
+           py::arg( "transform_cartesian_state_to_frame" ) );
 }
 
-} // namespace frame_conversion
-} // namespace astro
-}// namespace tudatpy
+}  // namespace frame_conversion
+}  // namespace astro
+}  // namespace tudatpy

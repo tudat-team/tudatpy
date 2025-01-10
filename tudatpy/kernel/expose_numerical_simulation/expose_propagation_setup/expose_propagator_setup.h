@@ -33,19 +33,22 @@
 #include "tudat/simulation/propagation_setup/setNumericallyIntegratedStates.h"
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
-
 namespace py = pybind11;
 
-namespace tudatpy {
-namespace numerical_simulation {
-namespace propagation_setup {
-namespace propagator {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace propagation_setup
+{
+namespace propagator
+{
 
-    void expose_propagator_setup(py::module &m);
+void expose_propagator_setup( py::module &m );
 
-}// namespace propagator
-}// namespace propagation_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+}  // namespace propagator
+}  // namespace propagation_setup
+}  // namespace numerical_simulation
+}  // namespace tudatpy
 
-#endif //TUDATPY_EXPOSE_PROPAGATOR_SETUP_H
+#endif  // TUDATPY_EXPOSE_PROPAGATOR_SETUP_H

@@ -15,16 +15,20 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-namespace numerical_simulation {
-namespace environment_setup {
-namespace rigid_body {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace rigid_body
+{
 
-    void expose_rigid_body_setup(py::module &m);
+void expose_rigid_body_setup( py::module &m );
 
-}// namespace rigid_body
-}// namespace environment_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+}  // namespace rigid_body
+}  // namespace environment_setup
+}  // namespace numerical_simulation
+}  // namespace tudatpy
 
-#endif //TUDATPY_EXPOSE_RIGID_BODY_SETUP_H
+#endif  // TUDATPY_EXPOSE_RIGID_BODY_SETUP_H
