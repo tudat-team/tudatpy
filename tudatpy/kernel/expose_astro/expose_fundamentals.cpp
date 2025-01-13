@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "docstrings.h"
 #include "expose_fundamentals.h"
 
 #include <tudat/astro/basic_astro.h>
