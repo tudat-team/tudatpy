@@ -30,7 +30,8 @@ namespace fundamentals {
               py::arg("occulted_body_radius"),
               py::arg("occulting_body_position"),
               py::arg("occulting_body_radius"),
-              py::arg("satellite_position"));
+              py::arg("satellite_position"),
+              get_docstring("compute_shadow_function").c_str());
 
     }
 
