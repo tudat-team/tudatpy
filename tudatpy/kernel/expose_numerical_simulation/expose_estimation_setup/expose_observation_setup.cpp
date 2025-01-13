@@ -354,7 +354,7 @@ void expose_observation_setup( py::module& m )
            py::arg( "maximum_number_of_iterations" ) = 50,
            py::arg( "absolute_tolerance" ) = TUDAT_NAN,
            py::arg( "failure_handling" ) = tom::accept_without_warning,
-           get_docstring( "one_way_range" ).c_str( ) );
+           get_docstring( "light_time_convergence_settings" ).c_str( ) );
 
     m.def( "one_way_range",
            &tom::oneWayRangeSettings,
@@ -707,12 +707,12 @@ void expose_observation_setup( py::module& m )
            py::arg( "reference_link_end_type" ),
            get_docstring( "arcwise_absolute_bias" ).c_str( ) );
 
-    m.def( "arcwise_absolute_bias",
+    m.def( "arcwise_absolute_bias_per_time",
            py::overload_cast< const std::map< double, Eigen::VectorXd >&, const tom::LinkEndType >(
                    &tom::arcWiseAbsoluteBias ),
            py::arg( "bias_values_per_start_time" ),
            py::arg( "reference_link_end_type" ),
-           get_docstring( "arcwise_absolute_bias" ).c_str( ) );
+           get_docstring( "arcwise_absolute_bias_per_time" ).c_str( ) );
 
     m.def( "arcwise_relative_bias",
            py::overload_cast< const std::vector< double >&,
@@ -723,18 +723,19 @@ void expose_observation_setup( py::module& m )
            py::arg( "reference_link_end_type" ),
            get_docstring( "arcwise_relative_bias" ).c_str( ) );
 
-    m.def( "arcwise_relative_bias",
+    m.def( "arcwise_relative_bias_per_time",
            py::overload_cast< const std::map< double, Eigen::VectorXd >&, const tom::LinkEndType >(
                    &tom::arcWiseRelativeBias ),
            py::arg( "bias_values_per_start_time" ),
            py::arg( "reference_link_end_type" ),
-           get_docstring( "arcwise_relative_bias" ).c_str( ) );
+           get_docstring( "arcwise_relative_bias_per_time" ).c_str( ) );
 
     m.def( "time_drift_bias",
            &tom::constantTimeDriftBias,
            py::arg( "bias_value" ),
            py::arg( "time_link_end" ),
-           py::arg( "ref_epoch" ) );
+           py::arg( "ref_epoch" ),
+           get_docstring( "time_drift_bias" ).c_str( ) );
 
     m.def( "arc_wise_time_drift_bias",
            py::overload_cast< const std::vector< Eigen::VectorXd >&,
@@ -744,15 +745,17 @@ void expose_observation_setup( py::module& m )
            py::arg( "bias_value" ),
            py::arg( "arc_start_times" ),
            py::arg( "time_link_end" ),
-           py::arg( "ref_epochs" ) );
+           py::arg( "ref_epochs" ),
+           get_docstring( "arc_wise_time_drift_bias" ).c_str( ) );
 
-    m.def( "arc_wise_time_drift_bias",
+    m.def( "arc_wise_time_drift_bias_per_time",
            py::overload_cast< const std::map< double, Eigen::VectorXd >&,
                               const tom::LinkEndType,
                               const std::vector< double > >( &tom::arcWiseTimeDriftBias ),
            py::arg( "bias_value_per_start_time" ),
            py::arg( "time_link_end" ),
-           py::arg( "ref_epochs" ) );
+           py::arg( "ref_epochs" ),
+           get_docstring( "arc_wise_time_drift_bias_per_time" ).c_str( ));
 
     m.def( "combined_bias",
            &tom::multipleObservationBiasSettings,
@@ -802,7 +805,7 @@ void expose_observation_setup( py::module& m )
                 std::shared_ptr< tom::ObservationViabilitySettings > >(
             m,
             "ObservationViabilitySettings",
-            get_docstring( "ObservationViabilityType" ).c_str( ) );
+            get_docstring( "ObservationViabilitySettings" ).c_str( ) );
 
     m.def( "elevation_angle_viability",
            py::overload_cast< const std::pair< std::string, std::string >, const double >(
@@ -905,7 +908,7 @@ void expose_observation_setup( py::module& m )
     m.def( "doppler_ancilliary_settings",
            &tom::getAveragedDopplerAncilliarySettings,
            py::arg( "integration_time" ) = 60.0,
-           get_docstring( "doppler_integration_time_settings" ).c_str( ) );
+           get_docstring( "doppler_ancilliary_settings" ).c_str( ) );
 
     m.def( "two_way_range_ancilliary_settings",
            &tom::getTwoWayRangeAncilliarySettings,
@@ -1071,7 +1074,7 @@ void expose_observation_setup( py::module& m )
            py::arg( "noise_amplitude" ),
            py::arg( "observable_type" ),
            py::arg( "link_definition" ),
-           get_docstring( "add_gaussian_noise_to_settings_for_link_ends" ).c_str( ) );
+           get_docstring( "add_gaussian_noise_to_observable_for_link_ends" ).c_str( ) );
 
     m.def( "add_viability_check_to_all",
            py::overload_cast<
