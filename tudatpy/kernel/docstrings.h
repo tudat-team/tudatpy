@@ -5344,7 +5344,9 @@ Examples
     } else if(name == "LinkEndId") {
          return R"(
 
-        Object serving as identifier of a specific link end.
+        Base class serving as identifier of a specific link end.
+
+        Base class serving as identifier of a specific link end.
         Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_origin_link_end_id` function,
         whose output is indeed a *LinkEndId* object, representing the center of mass of a body.
 
@@ -5405,7 +5407,9 @@ Examples
 
     } else if(name == "LinkEndId.reference_point") {
         return R"(
-        Name of the reference point on the body (tipically, the name of a ground station), str
+        Function for setting a name for the reference point on a body.
+
+        Function for setting a name for the reference point on a body (tipically, the name of a ground station).
 
     Examples
     --------
@@ -5433,7 +5437,7 @@ Examples
     } else if(name == "LinkDefinition") {
          return R"(
 
-        Object storing the link ends involved in a given observation.
+        Base class storing the link ends involved in a given observation.
         Instances of this class are typically created defining a *Link_Ends* dictionary via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.link_definition` function,
         whose output is a *LinkDefinition* object, storing the Link Ends involved in a given observation.
 
@@ -5453,29 +5457,32 @@ Examples
             print(Link_Definition_Object)
 
             # [Optional]: Print the Link Ends (receiver and transmitter)  names
-            print(observation.link_definition(link_ends).link_end_id(observation.receiver).body_name)
-            print(observation.link_definition(link_ends).link_end_id(observation.transmitter).body_name)
+            receiver_name = observation.link_definition(link_ends).link_end_id(observation.receiver).body_name
+            transmitter_name = observation.link_definition(link_ends).link_end_id(observation.transmitter).body_name
+            print(receiver_name)
+            print(transmitter_name)
 
 
 
 
      )";
 
-
-    } else if(name == "LinkDefinition.link_ends") {
-         return R"(
-
-        Dictionary of link ends, with the key denoting the role in the observation, and the associated value the identifier for the link end.
-
-        :type: dict[LinkEndType,LinkEndId]
-     )";
 
     } else if(name == "LinkDefinition.link_end_id") {
         return R"(
 
-        Dictionary of link ends, with the key denoting the role in the observation, and the associated value the identifier for the link end.
+        Function to provide a dictionary of link ends.
 
+        Function to provide a dictionary of link ends, with the key denoting the role in the observation, and the associated value the identifier for the link end.
+
+        Parameters
+        ----------
+        "link_end_type" : :type: LinkEndType
+
+        Returns
+        -------
         :type: dict[LinkEndType,LinkEndId]
+            Dictionary of link ends
 
         Examples
         --------
@@ -5509,7 +5516,7 @@ Examples
 
         Base class to define proper time rate settings.
 
-        Functional (base) class for settings of proper time rate (at a single link end) for instantaneous Doppler observation model settings.
+        Base class to define proper time rate settings (at a single link end) for instantaneous Doppler observation model settings.
         Specific proper time rate settings must be defined using an object derived from this class.
         The derived classes are made accessible via dedicated functions.
 
@@ -5526,13 +5533,13 @@ Examples
     } else if(name == "ObservationSettings") {
          return R"(
 
-        Base class for defining observation settings.
+        Base class to define settings of observation models.
 
-        Functional (base) class for settings of observation models.
+        Base class to define settings of observation models.
         Observation model settings define at least the type and geometry of a given observation.
         They can furthermore set observation biases and/or light-time corrections.
         Simple observation models settings that are fully characterised by these elements can be managed by this base class.
-        This class can be instantiated through dedicated functions, such as
+        Instances of this class are typically created via functions, such as
         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.cartesian_position`, 
         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.angular_position`, etc.
         Model settings for specific observation models that require additional information such as integration time, retransmission time, etc. must be defined using an object derived from this class.
@@ -5572,11 +5579,12 @@ Examples
     } else if(name == "OneWayDopplerObservationSettings") {
          return R"(
 
-        Class for defining the settings of one-way instantaneous Doppler observation models.
+        Derived Class for defining the settings of one-way instantaneous Doppler observation models.
 
-        :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived class for one-way instantaneous Doppler observation model settings.
+        Derived Class for defining the settings of one-way instantaneous Doppler observation models.
         Settings object can account for additional observation model aspects such as light time corrections and proper time rate settings.
         Instances of this class can be created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_instantaneous` function.
+        Associated base class: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`.
 
         Examples
         --------
@@ -5612,13 +5620,14 @@ Examples
     } else if(name == "LightTimeCorrectionSettings") {
          return R"(
 
-        Base class to defining light time correction settings.
+        Base class to define light time correction settings.
 
-        Functional (base) class for settings of light time corrections.
+        Base class to define light time correction settings.
         This class is not used for calculations of corrections, but is used for the purpose of defining the light time correction properties.
         Specific light time correction settings must be defined using an object derived from this class.
-        The derived classes are made accessible via dedicated functions, such as e.g. :
-        :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction`
+
+        Instances of this class are typically created via the
+        :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction` function
 
         Examples
         --------
@@ -5666,12 +5675,12 @@ Examples
     } else if(name == "LightTimeConvergenceCriteria") {
          return R"(
 
-        Base class to defining light time convergence criteria.
+        Base class to define criteria of light time convergence.
 
-        Functional (base) class for criteria of light time convergence.
+        Base class to define criteria of light time convergence.
         This class is not used for calculations of corrections, but is used for the purpose of defining the light time convergence criteria.
         Specific light time convergence criteria must be defined using an object derived from this class.
-        The derived classes are made accessible via :func:`~tudatpy.numerical_simulation.estimation_setup.observation.light_time_convergence_settings`.
+        Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.light_time_convergence_settings` function.
 
         Examples
         --------
@@ -5698,10 +5707,10 @@ Examples
 
         Base class to defining observation bias settings.
 
-        Functional (base) class for settings of observation bias.
+        Base class to defining observation bias settings.
         Specific observation bias settings must be defined using an object derived from this class.
-        The derived classes are made accessible via dedicated functions, such as
-        :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias`
+        Instances of this class are typically created via the
+        :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` function.
 
 
         Examples
@@ -5729,12 +5738,13 @@ Examples
     } else if(name == "ConstantObservationBiasSettings") {
          return R"(
 
-        Base class for defining settings for simulating observations with a constant bias.
+        Derived class for defining settings for simulating observations with a constant bias.
 
-        Base class for defining settings for simulating observations with a constant bias.
+        Derived class for defining settings for simulating observations with a constant bias.
         This simulation settings object defines observation times, noise and viability criteria, *etc.* at which observations are to be simulated.
         Therefore, one simulation settings object of this type can only refer to one combination of observable type and link geometry (LinkDefinition).
         The user does not interact with this class directly, but defines specific observation simulation settings using an object derived from this class (created through the associated function).
+        Associated base class: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
      )";
 
     } else if(name == "ObservationSimulationSettings") {
@@ -5759,12 +5769,13 @@ Examples
 
         Class for defining settings for simulating observations at a predefined set of times.
 
-        :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived class for defining settings for simulating observations
-        at a predefined set of times
+        Class for defining settings for simulating observations at a predefined set of times.
         This type defines predefined time epochs at which applicable observations are to be simulated, stored in a rigid, "tabulated" form. 
         Some observation times may be discarded due to the use of viability settings.
         Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
-        and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings_list` functions. 
+        and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings_list` functions.
+
+        Associated base class: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
 
         Examples
         --------
@@ -5815,7 +5826,7 @@ Examples
         Class for defining observation viability calculator settings.
 
         Class for defining the settings for observation viability calculator creation.
-        Instances of this class can be created through various dedicated functions, such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_viability`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_avoidance_viability` and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_occultation_viability`
+        Instances of this class are typically be created through various dedicated functions,such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_viability`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_avoidance_viability` and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_occultation_viability`
 
         Examples
         --------
@@ -5846,9 +5857,9 @@ Examples
     } else if(name == "ObservationDependentVariableSettings") {
          return R"(
 
-        Functional (base) class for setting observation dependent variables as part of the observation output.
+        Base class for setting observation dependent variables as part of the observation output.
 
-        Functional (base) class for setting observation dependent variables as part of the observation output.
+        Base class for setting observation dependent variables as part of the observation output.
         The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` function.
         Note: The associated functionality is not yet mature enough for the end user. Class is exposed for development purposes only.
 
@@ -5876,9 +5887,9 @@ Examples
     } else if(name == "ObservationAncilliarySimulationSettings") {
          return R"(
 
-        Functional (base) class for holding ancilliary settings for observation simulation.
+        Base class for holding ancilliary settings for observation simulation.
 
-        Functional (base) class for holding ancilliary settings for observation simulation.
+        Base class for holding ancilliary settings for observation simulation.
         The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` function.
 
         Examples
@@ -5983,6 +5994,9 @@ Examples
         return R"(
         
 Function to create a link definition object.
+
+Function to create a link definition object.
+It returns the ``LinkDefinition`` object storing the link ends of the observation.
 
 
 Parameters
@@ -6106,7 +6120,7 @@ Examples
         
 Function for defining one-way downlinks via LinkDefinition types.
 
-Function for defining single or multiple one-way downlinks.
+Function for defining single or multiple one-way downlinks via LinkDefinition types.
 Multiple downlinks share the same transmitters, but may each have a different receiver.
 For each downlink, the returned list will contain an additional `LinkDefinition` type.
 
@@ -6163,9 +6177,9 @@ Examples
     } else if(name == "one_way_uplink_link_ends" ) {
         return R"(
         
-Function for defining one-way uplinks via LinkDefinition types.
+Function for defining single or multiple one-way uplinks via LinkDefinition types.
 
-Function for defining single or multiple one-way uplinks.
+Function for defining single or multiple one-way uplinks via LinkDefinition types.
 Multiple uplinks share the same receiver, but may each have a different transmitter.
 For each uplink, the returned list will contain an additional `LinkDefinition` type.
 

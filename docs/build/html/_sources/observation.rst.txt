@@ -342,11 +342,7 @@ Classes
 
    ConstantObservationBiasSettings
 
-   constantTimeDriftBias
-
    ArcWiseConstantObservationBiasSettings
-
-   multipleObservationBiasSettings
 
    ObservationSimulationSettings
 
@@ -391,12 +387,6 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.multipleObservationBiasSettings
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.constantTimeDriftBias
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings
