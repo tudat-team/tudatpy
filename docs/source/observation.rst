@@ -40,17 +40,17 @@ Functions
 
    arcwise_absolute_bias
 
-   arcwise_absolute_bias
+   arcwise_absolute_bias_per_time
 
    arcwise_relative_bias
 
-   arcwise_relative_bias
+   arcwise_absolute_bias_per_time
 
    time_drift_bias
 
    arc_wise_time_drift_bias
 
-   arc_wise_time_drift_bias
+   arc_wise_time_drift_bias_per_time
 
    combined_bias
 
@@ -146,6 +146,8 @@ Functions
 
    add_noise_function_to_observable_for_link_ends
 
+   link_ends_delays
+
 
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.link_definition
@@ -168,17 +170,17 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_absolute_bias
 
-.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_absolute_bias
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_absolute_bias_per_time
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_relative_bias
 
-.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_relative_bias
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arcwise_relative_bias_per_time
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arc_wise_time_drift_bias
 
-.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arc_wise_time_drift_bias
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.arc_wise_time_drift_bias_per_time
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.combined_bias
 
@@ -274,6 +276,8 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.add_noise_function_to_observable_for_link_ends
 
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationVariable.link_ends_delays
+
 
 
 
@@ -291,6 +295,8 @@ Enumerations
 
    LightTimeFailureHandling
 
+   ObservationAncilliarySimulationVariable
+
 
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType
@@ -305,6 +311,8 @@ Enumerations
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.LightTimeFailureHandling
    :members:
 
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationVariable
+   :members:
 
 
 
@@ -324,11 +332,17 @@ Classes
 
    OneWayDopplerObservationSettings
 
+   NWayRangeObservationSettings
+
    LightTimeCorrectionSettings
 
    LightTimeConvergenceCriteria
 
    ObservationBiasSettings
+
+   ConstantObservationBiasSettings
+
+   ArcWiseConstantObservationBiasSettings
 
    ObservationSimulationSettings
 
@@ -357,6 +371,9 @@ Classes
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.OneWayDopplerObservationSettings
    :members:
 
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings
+   :members:
+
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings
    :members:
 
@@ -364,6 +381,12 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ConstantObservationBiasSettings
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings
