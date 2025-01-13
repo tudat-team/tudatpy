@@ -25,6 +25,7 @@ The other modules make extensive use of the functionality exposed here.
    two_body_dynamics
    polyhedron_utilities
    gravitation
+   fundamentals
 
 
 
