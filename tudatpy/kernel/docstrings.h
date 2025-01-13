@@ -2768,7 +2768,7 @@ static inline std::string get_docstring(std::string name) {
 
     } else if(name == "compute_shadow_function" ) {
         return R"(
-        
+
 Compute the shadow function.
 
 Returns the value of of the shadow function. Returns 0 if the satellite is in umbra, 1 if the
@@ -2801,6 +2801,8 @@ float
     } else {
         return "No documentation found.";
     }
+
+}
 
 }
 
