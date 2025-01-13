@@ -11,6 +11,7 @@
 
 #include "tudat/astro/ephemerides/tleEphemeris.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/interface/sofa/earthOrientation.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
@@ -41,35 +42,31 @@ namespace ephemerides
 
 	}
 
-	Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
-	{
-        double ttSinceEpoch = secondsSinceEpoch - sofa_interface::getTDBminusTT( secondsSinceEpoch, Eigen::Vector3d::Zero( ) );
+    Eigen::Vector6d TleEphemeris::getCartesianStateInTemeFrame( double secondsSinceEpoch )
+    {
+        double ttSinceEpoch = secondsSinceEpoch - sofa_interface::getTDBminusTT( secondsSinceEpoch, Eigen::Vector3d::Zero( ));
         double utcSecondSinceEpoch = sofa_interface::convertTTtoUTC( ttSinceEpoch );
 
         // Call Spice interface to retrieve the spacecraft's state from the TLE in the True Equator, Mean Equinox frame (see
-		// Vallado: Fundamentals of Astrodynamics and Applications 4th ed. (2013)). This frame is idiosyncratic in nature and
-		// therefore needs to be converted to an intermediate standard reference frame.
-        const Eigen::Vector6d cartesianStateAtEpochTEME =
-                spice_interface::getCartesianStateFromTleAtEpoch( utcSecondSinceEpoch, tle_ );
+        // Vallado: Fundamentals of Astrodynamics and Applications 4th ed. (2013)). This frame is idiosyncratic in nature and
+        // therefore needs to be converted to an intermediate standard reference frame.
+        return spice_interface::getCartesianStateFromTleAtEpoch( utcSecondSinceEpoch, tle_ );
+    }
+
+	Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
+	{
+        const Eigen::Vector6d cartesianStateAtEpochTEME = getCartesianStateInTemeFrame( secondsSinceEpoch );
 
 		Eigen::Vector3d positionTEME = cartesianStateAtEpochTEME.head( 3 );
 		Eigen::Vector3d velocityTEME = cartesianStateAtEpochTEME.tail( 3 );
-
+        
 		// First, rotate to the True Of Date (TOD) frame.
-		double equationOfEquinoxes = sofa_interface::calculateEquationOfEquinoxes( secondsSinceEpoch );
+		double equationOfEquinoxes = sofa_interface::calculateEquationOfEquinoxes( secondsSinceEpoch, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
 		// Rotate around pole (z-axis)
 		Eigen::AngleAxisd rotationObject = Eigen::AngleAxisd( equationOfEquinoxes, Eigen::Vector3d::UnitZ( ) );
 		Eigen::Vector3d positionTOD = rotationObject.toRotationMatrix( ) * positionTEME;
 		Eigen::Vector3d velocityTOD = rotationObject.toRotationMatrix( ) * velocityTEME;
-
-		// These angles (zeta, z, and theta) do not really have descriptive names. For a description of the precession geometry and these angles,
-		// see pages 226-228 and figure 3-31 in Vallado (2013).
-		double precessionAngleModToGcrfZeta;
-		double precessionAngleModToGcrfZ;
-		double precessionAngleModToGcrfTheta;
-		sofa_interface::getPrecessionAngles(precessionAngleModToGcrfZeta, precessionAngleModToGcrfZ, precessionAngleModToGcrfTheta,
-				secondsSinceEpoch );
 
 		// Now that we have our state vector in the TOD frame, we need to obtain the combined precession + nutation matrix from Sofa
 		// (according to the 1976/1980 model)
@@ -174,8 +171,7 @@ namespace ephemerides
 			epochYear += 1900;
 		}
 		// TLE day numbering starts with 1, whereas Tudat assumes January 1st to be number 0
-		//boost::gregorian::date date = basic_astrodynamics::convertYearAndDaysInYearToDate( epochYear, std::floor( epochDayFraction ) - 1 );
-		epoch_ = ( epochYear - 2000 ) * physical_constants::JULIAN_YEAR + ( epochDayFraction - 1.5 ) * physical_constants::JULIAN_DAY;
+        epoch_ = basic_astrodynamics::DateTime( epochYear, 1, 1, 0, 0, 0.0 ).epoch< Time >( ).getSeconds< double >( ) + ( epochDayFraction - 1.0 ) * physical_constants::JULIAN_DAY;
 
 		double bStar = std::stod( line1.substr( 53, 6 ) );
 		double bStarExp = std::stod( line1.substr( 59, 2 ) );
