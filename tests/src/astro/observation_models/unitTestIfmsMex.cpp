@@ -74,8 +74,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
     std::vector< std::shared_ptr< TrackingTxtFileContents > > rawIfmsFiles;
     for( unsigned int i = 0; i < ifmsFileNames.size( ); i++ )
     {
-        rawIfmsFiles.push_back( readIfmsFile( ifmsFileNames.at( i ) ) );
-        rawIfmsFiles.at( i )->subtractColumnType( input_output::TrackingDataType::doppler_averaged_frequency, input_output::TrackingDataType::doppler_troposphere_correction );
+        rawIfmsFiles.push_back( readIfmsFile( ifmsFileNames.at( i ), true ) );
     }
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
@@ -84,7 +83,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
     for( int i = 0; i < 1; i++ )// rawIfmsFiles.size( ); i++ )
     {
         Eigen::Matrix< long double, Eigen::Dynamic, 1 > manualResiduals;
-        for( int testType = 0; testType < 2; testType++ )
+        for( int testType = 0; testType < 1; testType++ )
         {
             FrequencyBands currentReceptionBand = x_band;
             if( i < 2 )

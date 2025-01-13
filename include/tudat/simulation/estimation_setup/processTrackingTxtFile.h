@@ -775,7 +775,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
     for( std::string ifmsFileName : ifmsFileNames )
     {
-        rawIfmsDataList.push_back( input_output::readIfmsFile( ifmsFileName ) );
+        rawIfmsDataList.push_back( input_output::readIfmsFile( ifmsFileName, applyTroposphereCorrection ) );
     }
 
     std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > > processedIfmsFiles;
@@ -783,10 +783,6 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     {
         rawIfmsDataList.at( i )->addMetaData( input_output::TrackingDataType::receiving_station_name, groundStationName );
         rawIfmsDataList.at( i )->addMetaData( input_output::TrackingDataType::transmitting_station_name, groundStationName);
-        if( applyTroposphereCorrection )
-        {
-            rawIfmsDataList.at( i )->subtractColumnType( input_output::TrackingDataType::doppler_averaged_frequency, input_output::TrackingDataType::doppler_troposphere_correction );
-        }
         processedIfmsFiles.push_back( std::make_shared<observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >(
             rawIfmsDataList.at( i ), targetName, earthFixedGroundStationPositions ) );
     }
