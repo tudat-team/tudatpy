@@ -60,9 +60,9 @@ BOOST_AUTO_TEST_CASE(testIfmsFileReader)
 
     std::vector< std::shared_ptr< TrackingTxtFileContents > > rawIfmsFiles;
 
-    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133630120_00.TAB.txt" ) );
-    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133630203_00.TAB.txt" ) );
-    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133631902_00.TAB.txt" ) );
+    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133630120_00.TAB.txt", true ) );
+    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133630203_00.TAB.txt", false ) );
+    rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133631902_00.TAB.txt", true ) );
 
     std::vector< int > rawIfmsFileSizes = { 2509, 5934, 8460 };
     std::vector< double > tenthObservation = { 8421021939.244300, 8420857180.689899, 8420892014.600800};
