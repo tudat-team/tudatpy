@@ -157,6 +157,3 @@ Classes
 
 .. autoclass:: tudatpy.numerical_simulation.propagation_setup.acceleration.MomentumWheelDesaturationAccelerationSettings
    :members:
-
-
-
