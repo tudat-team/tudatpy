@@ -1,4 +1,3 @@
-[![Conda](https://img.shields.io/conda/pn/tudat-team/tudatpy?color=orange&logo=anaconda&style=for-the-badge)](https://anaconda.org/tudat-team/tudatpy)
 
 # tudatpy
 
