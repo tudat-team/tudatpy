@@ -71,7 +71,8 @@ boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArra
 template< >
 std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector3d>(std::string fileName,
                                                                                     char commentSymbol,
-                                                                                    std::string separators)
+                                                                                    std::string separators,
+                                                                                    const int skipNumberOfEntries)
 {
   std::ifstream file(fileName);
   if (!file.good()) {
@@ -88,9 +89,9 @@ std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector
                               boost::is_any_of(separators),
                               boost::algorithm::token_compress_on);
       try {
-        namesAndPositions[currentSplitLine.at(0)] = Eigen::Vector3d(std::stod(currentSplitLine.at(1)),
-                                                                    std::stod(currentSplitLine.at(2)),
-                                                                    std::stod(currentSplitLine.at(3)));
+        namesAndPositions[currentSplitLine.at(0)] = Eigen::Vector3d(std::stod(currentSplitLine.at(1 + skipNumberOfEntries)),
+                                                                    std::stod(currentSplitLine.at(2 + skipNumberOfEntries)),
+                                                                    std::stod(currentSplitLine.at(3 + skipNumberOfEntries)));
       } catch (...) {
         continue;
       }// Ignore lines that cannot be read
@@ -112,7 +113,7 @@ std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector
  * @return map with string to 3d vector
  */
 template< >
-std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators)
+std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators, const int skipNumberOfEntries)
 {
   std::ifstream file(fileName);
   if (!file.good()) {
@@ -129,7 +130,7 @@ std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std:
                               boost::is_any_of(separators),
                               boost::algorithm::token_compress_on);
       try {
-        namesAndPositions[currentSplitLine.at(0)] = currentSplitLine.at(1);
+        namesAndPositions[currentSplitLine.at(0)] = currentSplitLine.at(1 + skipNumberOfEntries );
       } catch (...) {
         continue;
       }// Ignore lines that cannot be read

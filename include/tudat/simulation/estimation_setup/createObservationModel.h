@@ -760,6 +760,18 @@ class TwoWayDopplerObservationSettings : public ObservationModelSettings
                                   biasSettings ),
         normalizeWithSpeedOfLight_( normalizeWithSpeedOfLight )
     {
+        if( linkEnds.getLinkEnds( ).count( transmitter ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating 2-way Doppler model, no transmitter found" );
+        }
+        if( linkEnds.getLinkEnds( ).count( receiver ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating 2-way Doppler model, no receiver found" );
+        }
+        if( linkEnds.getLinkEnds( ).count( retransmitter ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating 2-way Doppler model, no retransmitter found" );
+        }
         uplinkOneWayDopplerSettings_ = std::make_shared< OneWayDopplerObservationSettings >(
                 getUplinkFromTwoWayLinkEnds( linkEnds ),
                 lightTimeCorrectionsList,
