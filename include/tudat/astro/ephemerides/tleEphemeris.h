@@ -160,7 +160,9 @@ public:
 				  const std::string& referenceFrameOrientation = "J2000",
 				  const std::shared_ptr< Tle > tle = nullptr, const bool useSDP = false);
 
-	//! Function to get state from ephemeris.
+    Eigen::Vector6d getCartesianStateInTemeFrame( double secondsSinceEpoch );
+
+    //! Function to get state from ephemeris.
 	/*!
 	 *  Returns state from ephemeris at given time, given a two-line element set using either SGP4 or SDP4.
 	 *  \param secondsSinceEpoch Seconds since J2000 epoch at which ephemeris is to be evaluated.
