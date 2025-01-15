@@ -767,6 +767,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     const std::string& groundStationName,
     const FrequencyBands& receptionBand,
     const FrequencyBands& transmissionBand,
+    const bool applyTroposphereCorrection = true,
     const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
     simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
@@ -774,7 +775,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
     for( std::string ifmsFileName : ifmsFileNames )
     {
-        rawIfmsDataList.push_back( input_output::readIfmsFile( ifmsFileName ) );
+        rawIfmsDataList.push_back( input_output::readIfmsFile( ifmsFileName, applyTroposphereCorrection ) );
     }
 
     std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > > processedIfmsFiles;

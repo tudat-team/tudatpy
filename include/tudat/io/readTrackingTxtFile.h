@@ -267,6 +267,12 @@ static const std::map<std::string, std::shared_ptr<TrackingFileFieldConverter>> 
 
 };
 
+enum TrackingTxtFileReadFilterType
+{
+    no_tracking_txt_file_filter,
+    ifms_tracking_txt_file_filter
+};
+
 /*!
  * Class to extract the raw data from a file with the appropriate conversion to doubles. Data fields that do not have an
  * appropriate converter are simply stored as raw strings.
@@ -287,17 +293,18 @@ public:
                           const std::vector<std::string> columnTypes,
                           const char commentSymbol = '#',
                           const std::string valueSeparators = ",: \t",
-                          const bool ignoreOmittedColumns = false )
+                          const bool ignoreOmittedColumns = false,
+                          const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter )
       : fileName_(fileName), columnFieldTypes_(columnTypes), commentSymbol_(commentSymbol),
         valueSeparators_(valueSeparators), ignoreOmittedColumns_( ignoreOmittedColumns )
   {
-    parseData();
+    parseData( dataFilterMethod );
   }
 
 private:
 
   //! Main parsing sequence to read and process the file
-  void parseData();
+  void parseData( const TrackingTxtFileReadFilterType dataFilterMethod );
 
   /*!
    * Read out the raw data map from a filestream
@@ -311,10 +318,12 @@ private:
    */
   void addLineToRawDataMap(std::string& rawLine);
 
-  /*!
+  bool validateCurrentLineProcessing( const TrackingTxtFileReadFilterType dataFilterMethod, const std::vector<std::string>& rawVector );
+
+    /*!
    * Use the appropriate converters to convert the raw data to the correct double representations
    */
-  void convertDataMap();
+  void convertDataMap( const TrackingTxtFileReadFilterType dataFilterMethod );
 
 // Getters
 public:
@@ -381,6 +390,8 @@ public:
   //! Get all available data types (either as metadata or individually per row)
   const std::vector<TrackingDataType> getAllAvailableDataTypes();
 
+  void subtractColumnType( const TrackingDataType& columnToSubtractFrom, const TrackingDataType& columnToSubtract );
+
 private:
   //! Path of the file name of interest
   std::string fileName_ = "None";
@@ -430,7 +441,7 @@ static inline std::shared_ptr<TrackingTxtFileContents> createTrackingTxtFileCont
 }
 
 
-inline std::shared_ptr< TrackingTxtFileContents> readIfmsFile(const std::string& fileName)
+inline std::shared_ptr< TrackingTxtFileContents> readIfmsFile(const std::string& fileName, const bool applyTroposphereCorrection = true )
 {
     std::vector<std::string>
         columnTypes({"sample_number",
@@ -448,6 +459,11 @@ inline std::shared_ptr< TrackingTxtFileContents> readIfmsFile(const std::string&
 
     auto rawFileContents = createTrackingTxtFileContents(fileName, columnTypes, '#', ", \t",true);
     rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
+    if( applyTroposphereCorrection )
+    {
+        rawFileContents->subtractColumnType( input_output::TrackingDataType::doppler_averaged_frequency, input_output::TrackingDataType::doppler_troposphere_correction );
+
+    }
     return rawFileContents;
 }
 
