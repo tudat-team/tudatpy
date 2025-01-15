@@ -16132,7 +16132,43 @@ using a constant rotation matrix between Earth-fixed and inertial frame:
 
 
 
-    } else if(name == "aerodynamic_angle_based" ) {
+    }
+    else if(name == "custom_rotation_model" ) {
+        return R"(
+
+Function for creating rotation model settings based on custom definition of rotation matrix
+
+Function for creating rotation model settings based on custom definition of rotation matrix. The user provides a custom function that computes the rotation matrix
+from body-fixed to inertial frame as a function of time. This function can
+depend on any quantites of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`_.
+Since this function only computes the rotation matrix directly, the rotation matrix time derivative (and consequently, the angular velocity) are computed nunerically, using a second
+order finite-difference method. Note that this computation of time derivative will only take into account the explicit time-dependence of thh custom rotation matrix.
+
+Parameters
+----------
+base_frame : str
+    Name of the base frame of rotation model.
+target_frame : str
+    Name of the target frame of rotation model.
+custom_rotation_matrix_function: Callable[[float], numpy.ndarray[numpy.float64[3, 3]]]
+    Function computing the body-fixed to inertial rotation matrix as a function of time
+finite_difference_time_step: float
+    Step size to use when computing the rotation matrix derivative numerically
+-------
+CustomRotationModelSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
+
+
+
+
+
+
+    )";
+
+
+
+    }
+    else if(name == "aerodynamic_angle_based" ) {
         return R"(
         
 Function for creating rotation model settings based on custom aerodynamic angles (attack, sideslip, bank).
@@ -16178,7 +16214,8 @@ CustomRotationModelSettings
 
 
 
-    } else if(name == "zero_pitch_moment_aerodynamic_angle_based" ) {
+    }
+    else if(name == "zero_pitch_moment_aerodynamic_angle_based" ) {
         return R"(
         
 Function for creating rotation model settings based on an angle of attack calculated from pitch-trim, and custom aerodynamic angles sideslip, bank.
@@ -22701,9 +22738,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
         Class to save settings on what is to be written to the console during the propagation of a single arc.
 
-
-
-
+        Upon creation, this object has default settings such that no data is printed to the console.
 
      )";
 
@@ -22902,12 +22937,9 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
 
         Base class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
         Instances of this class are typically not created by the user. Settings objects for derived class of single-, multi- and hybrid arc propagation are 
-        instantiated through the functions to define propagator settings (such as :func:`~translational` or :func:`~multi_arc`) in this module
-            
+        instantiated through the functions to define propagator settings (such as :func:`~translational` or :func:`~multi_arc`) in this module.
 
-
-
-
+        Upon creation, this object has default settings, ``clear_numerical_solution: false`` and ``set_integrated_result: false``.
 
      )";
 
@@ -22966,8 +22998,8 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
         Instances of this class are typically not created by the user. A settings object is
         instantiated through the functions to define single-arc propagator settings (such as :func:`~translational` or :func:`~rotational`) in this module
 
-
-
+        Upon creation, this object has default settings, ``print_settings: `` (see :class:`~PropagationPrintSettings` for default), ``results_save_frequency_in_steps:`` 1,
+        and ``results_save_frequency_in_seconds:`` NaN (e.g. not used).
 
 
      )";
@@ -23190,7 +23222,11 @@ termination_settings : PropagationTerminationSettings
 propagator : TranslationalPropagatorType, default=cowell
     Type of translational propagator to be used (see `TranslationalPropagatorType` enum).
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
-    Class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+    Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+processing_settings: SingleArcPropagatorProcessingSettings, default=[]
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide<https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+
 Returns
 -------
 TranslationalStatePropagatorSettings
@@ -23242,7 +23278,11 @@ termination_settings : PropagationTerminationSettings
 propagator : RotationalPropagatorType, default=quaternions
     Type of rotational propagator to be used (see `RotationalPropagatorType` enum).
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
-    Class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+    Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+processing_settings: SingleArcPropagatorProcessingSettings, default=[]
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide<https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+
 Returns
 -------
 RotationalStatePropagatorSettings
@@ -23288,10 +23328,14 @@ integrator_settings : IntegratorSettings
 termination_settings : PropagationTerminationSettings
     Generic termination settings object to check whether the propagation should be ended.
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
-    Class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+    Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+processing_settings: SingleArcPropagatorProcessingSettings, default=[]
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide<https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+
 Returns
 -------
-MassPropagatorSettings
+SingleArcPropagatorSettings
     Mass propagator settings object.
 
 
@@ -23333,18 +23377,63 @@ initial_time : float
 termination_settings : PropagationTerminationSettings
     Generic termination settings object to check whether the propagation should be ended.
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
-    Class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+    Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+processing_settings: SingleArcPropagatorProcessingSettings, default=[]
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide<https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+
 Returns
 -------
-MassPropagatorSettings
-    Mass propagator settings object.
-
-
-
-
-
+MultiTypePropagatorSettings
+    Multi-type propagator settings object.
 
     )";
+
+
+
+    } else if(name == "custom_state" ) {
+        return R"(
+
+Function to create custom propagator settings.
+
+Function to create custom propagator settings.
+By using this propagator, the user can define their own differential equation to be solved, rather than have the differential equation be
+defined by accelerations (as is the case for translational state) or torques (as is the case for rotational state). This permits the user
+additional flexibility to define their own model by adding (for instance) the integration of co-states to the propagation without having to
+implement the governing dynamics into Tudat. This propagator requires a function of the form :math:`\frac{d\mathbf{x}}{dt}=\mathbf{f}(t,\mathbf{x})`,
+with :math:`t` the current time, :math:`\mathbf{x}` the current state, and :math:`\mathbf{f}` the state derivative function. This function can
+depend on any quantites of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`_.
+
+
+
+Parameters
+----------
+state_derivative_function : callable[[float, numpy.ndarray[numpy.float64[m, 1]]], numpy.ndarray[numpy.float64[m, 1]]])
+    Function :math:`\mathbf{f}` (ser above) to compute the derivative of the current custom state
+initial_state : numpy.ndarray
+    Initial value of the propagated custom state
+initial_time : float
+    Initial epoch of the numerical propagation
+integrator_settings : IntegratorSettings
+    Settings defining the numerical integrator that is to be used for the propagation
+
+    .. note:: The sign of the initial time step in the integrator settings defines whether the propagation will be forward or backward in time
+
+termination_settings : PropagationTerminationSettings
+    Generic termination settings object to check whether the propagation should be ended.
+output_variables : list[SingleDependentVariableSaveSettings], default=[]
+    Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+processing_settings: SingleArcPropagatorProcessingSettings, default=[]
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide<https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
+
+Returns
+-------
+SingleArcPropagatorSettings
+    Custom propagator settings object.
+    )";
+
+
 
 
 
@@ -23362,7 +23451,7 @@ Parameters
 single_arc_settings : list[SingleArcPropagatorSettings]
     List of SingleArcPropagatorSettings objects to use, one for each arc.
 transfer_state_to_next_arc : bool, default=False
-    Class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+    Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 Returns
 -------
 MultiArcPropagatorSettings
@@ -23390,7 +23479,7 @@ Parameters
 single_arc_settings : SingleArcPropagatorSettings
     SingleArcPropagatorSettings object to use for the propagation.
 multi_arc_settings : MultiArcPropagatorSettings
-    Class to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
+    Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 Returns
 -------
 HybridArcPropagatorSettings
@@ -23748,8 +23837,9 @@ None
 
 
 
-    } else {
-        return "No documentation found.";
+    }
+    else {
+        return "No propagator documentation found.";
     }
 
 }
