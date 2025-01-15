@@ -16136,7 +16136,7 @@ using a constant rotation matrix between Earth-fixed and inertial frame:
     else if(name == "custom_rotation_model" ) {
         return R"(
 
-Function for creating rotation model settings based on custom definition of rotation matrix
+Function for creating rotation model settings based on custom definition of rotation matrix.
 
 Function for creating rotation model settings based on custom definition of rotation matrix. The user provides a custom function that computes the rotation matrix
 from body-fixed to inertial frame as a function of time. This function can
@@ -16154,12 +16154,10 @@ custom_rotation_matrix_function: Callable[[float], numpy.ndarray[numpy.float64[3
     Function computing the body-fixed to inertial rotation matrix as a function of time
 finite_difference_time_step: float
     Step size to use when computing the rotation matrix derivative numerically
+Returns
 -------
-CustomRotationModelSettings
+:class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.CustomRotationModelSettings`
     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
-
-
-
 
 
 
@@ -23403,8 +23401,6 @@ additional flexibility to define their own model by adding (for instance) the in
 implement the governing dynamics into Tudat. This propagator requires a function of the form :math:`\frac{d\mathbf{x}}{dt}=\mathbf{f}(t,\mathbf{x})`,
 with :math:`t` the current time, :math:`\mathbf{x}` the current state, and :math:`\mathbf{f}` the state derivative function. This function can
 depend on any quantites of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`_.
-
-
 
 Parameters
 ----------
