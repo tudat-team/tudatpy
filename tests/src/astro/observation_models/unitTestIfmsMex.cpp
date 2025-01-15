@@ -66,11 +66,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
 
     std::vector< std::string > ifmsFileNames;
     ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL3L02_D2S_133621904_00.TAB.txt" );
-//    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL3L02_D2S_133621819_00.TAB.txt" );
-//    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133621904_00.TAB.txt" );
-//    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133621819_00.TAB.txt" );
-//    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL1L02_D2X_133621904_00.TAB.txt" );
-//    ifmsFileNames.push_back( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL1L02_D2X_133621819_00.TAB.txt" );
+
     std::vector< std::shared_ptr< TrackingTxtFileContents > > rawIfmsFiles;
     for( unsigned int i = 0; i < ifmsFileNames.size( ); i++ )
     {
@@ -83,7 +79,7 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
     for( int i = 0; i < 1; i++ )// rawIfmsFiles.size( ); i++ )
     {
         Eigen::Matrix< long double, Eigen::Dynamic, 1 > manualResiduals;
-        for( int testType = 0; testType < 1; testType++ )
+        for( int testType = 0; testType < 2; testType++ )
         {
             FrequencyBands currentReceptionBand = x_band;
             if( i < 2 )
@@ -104,14 +100,6 @@ BOOST_AUTO_TEST_CASE(testIfmsObservationMex)
                 basic_astrodynamics::iau_2006, globalFrameOrientation );
             bodySettings.at( "Earth" )->groundStationSettings = getDsnStationSettings( );
             bodySettings.at( "Earth" )->bodyDeformationSettings.push_back( iers2010TidalBodyShapeDeformation( ) );
-
-//            // Add ground station
-//            Eigen::Vector3d stationPosition = getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" );
-//            std::shared_ptr<GroundStationSettings> nnorciaSettings = std::make_shared<GroundStationSettings>(
-//                "NWNORCIA", stationPosition );
-//            nnorciaSettings->addStationMotionSettings(
-//                std::make_shared<LinearGroundStationMotionSettings>(
-//                    ( Eigen::Vector3d( ) << -45.00, 10.00, 47.00 ).finished( ) / 1.0E3 / physical_constants::JULIAN_YEAR, 0.0) );
             bodySettings.at( "Earth" )->groundStationSettings = getRadioTelescopeStationSettings( );
 
             // Add spacecraft settings
