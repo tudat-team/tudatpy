@@ -53,8 +53,8 @@ BOOST_AUTO_TEST_CASE(testIfmsFileReader)
 
     simulation_setup::BodyListSettings bodySettings =
         simulation_setup::getDefaultBodySettings( { "Earth"}, "SSB", "ECLIPJ2000" );
-    bodySettings.at( "Earth" )->groundStationSettings.push_back( std::make_shared< GroundStationSettings >(
-        "NWNORCIA", getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" ) ) );
+    bodySettings.at( "Earth" )->groundStationSettings = getRadioTelescopeStationSettings( );
+
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "MeX" );
 
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(testIfmsFileReader)
     rawIfmsFiles.push_back( readIfmsFile( paths::getTudatTestDataPath( )  + "/estrack_n_way_doppler_observation_model/M32ICL2L02_D2X_133631902_00.TAB.txt", true ) );
 
     std::vector< int > rawIfmsFileSizes = { 2509, 5934, 8460 };
-    std::vector< double > tenthObservation = { 8421021939.244300, 8420857180.689899, 8420892014.600800};
+    std::vector< double > tenthObservation = { 8421021939.244300 + 0.010986, 8420857180.689899, 8420892014.600800 - 0.023160};
     std::vector< std::string > tenthObservationTimeUtc = { "2013-12-29T01:20:55.500", "2013-12-29T02:03:50.500", "2013-12-29T19:02:57.500" };
 
     Eigen::Vector3d stationPosition = getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" );
