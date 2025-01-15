@@ -72,6 +72,15 @@ namespace ground_station{
               &tss::getDsnStationSettings,
               get_docstring("dsn_stations").c_str());
 
+        m.def("evn_stations",
+              &tss::getEvnStationSettings,
+              get_docstring("evn_stations").c_str());
+
+        m.def("radio_telescope_stations",
+              &tss::getRadioTelescopeStationSettings,
+              get_docstring("radio_telescope_stations").c_str());
+
+
         m.def("linear_station_motion",
               &tss::linearGroundStationMotionSettings,
               py::arg("linear_velocity"),
@@ -89,6 +98,9 @@ namespace ground_station{
               py::arg("custom_displacement_function"),
               get_docstring("custom_station_motion").c_str());
 
+        m.def("approximate_ground_stations_position",
+              &tss::getCombinedApproximateGroundStationPositions,
+              get_docstring("approximate_ground_stations_position").c_str());
     }
 
 }// namespace ground_station
