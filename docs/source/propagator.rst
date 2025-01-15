@@ -34,6 +34,8 @@ Functions
 
    mass
 
+   custom_state
+
    multitype
 
    multi_arc
@@ -61,6 +63,8 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.propagator.rotational
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.propagator.mass
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.propagator.custom_state
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.propagator.multitype
 
