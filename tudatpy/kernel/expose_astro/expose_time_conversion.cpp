@@ -31,6 +31,7 @@
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
+namespace tsi = tudat::sofa_interface;
 namespace pc  = tudat::physical_constants;
 namespace teo = tudat::earth_orientation;
 
@@ -272,14 +273,28 @@ void expose_time_conversion(py::module &m)
           get_docstring("TT_to_TDB_approximate").c_str()
           );
 
+    m.def("TT_to_TDB",
+          &tsi::convertTTtoTDB< TIME_TYPE >,
+          py::arg("TT_time"),
+          py::arg("earth_fixed_position"),
+          get_docstring("TT_to_TDB").c_str()
+    );
+
+    m.def("TDB_to_TT",
+          &tsi::convertTDBtoTT< TIME_TYPE >,
+          py::arg("TDB_time"),
+          py::arg("earth_fixed_position"),
+          get_docstring("TDB_to_TT").c_str()
+    );
 
     py::enum_<tba::TimeScales>(
-                m, "TimeScales" )
-            .value("tai_scale", tba::tai_scale)
-            .value("tt_scale", tba::tt_scale)
-            .value("tdb_scale", tba::tdb_scale)
-            .value("utc_scale", tba::utc_scale)
-            .value("ut1_scale", tba::ut1_scale)
+                m, "TimeScales",
+                get_docstring("TimeScales").c_str() )
+            .value("tai_scale", tba::tai_scale, get_docstring("TimeScales.tai_scale").c_str() )
+            .value("tt_scale", tba::tt_scale, get_docstring("TimeScales.tt_scale").c_str())
+            .value("tdb_scale", tba::tdb_scale, get_docstring("TimeScales.tdb_scale").c_str())
+            .value("utc_scale", tba::utc_scale, get_docstring("TimeScales.utc_scale").c_str())
+            .value("ut1_scale", tba::ut1_scale, get_docstring("TimeScales.ut1_scale").c_str())
             .export_values();
 
     m.def("default_time_scale_converter",
