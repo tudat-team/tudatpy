@@ -194,12 +194,12 @@ Classes
 
    DateTime
    
-   TerrestrialTimeScaleConverter
+   TimeScaleConverter
 
 .. autoclass:: tudatpy.astro.time_conversion.DateTime
    :members:   
 
-.. autoclass:: tudatpy.astro.time_conversion.TerrestrialTimeScaleConverter
+.. autoclass:: tudatpy.astro.time_conversion.TimeScaleConverter
    :members:
 
 
