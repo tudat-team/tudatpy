@@ -12,6 +12,8 @@
 #ifndef TUDAT_TIME_CONVERSIONS_H
 #define TUDAT_TIME_CONVERSIONS_H
 
+#include <Eigen/Core>
+
 #include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -566,8 +568,6 @@ TimeType convertTTtoTAI( const TimeType ttTime )
  * \return TDB in seconds since J2000
  */
 double approximateConvertTTtoTDB( const double ttSecondsSinceJ2000);
-
-
 
 } // namespace basic_astrodynamics
 } // tudat

@@ -287,11 +287,6 @@ public:
         // Convert position to SOFA input valies
         setCurrentGroundStation< TimeType >( earthFixedPosition );
 
-        double siteLongitude = std::atan2( earthFixedPosition.y( ), earthFixedPosition.x( ) );
-        double distanceFromSpinAxis = std::sqrt( earthFixedPosition.x( ) * earthFixedPosition.x( ) +
-                                                 earthFixedPosition.y( ) * earthFixedPosition.y( ) );
-        double distanceFromEquatorialPlane = earthFixedPosition.z( );
-
         TimeType tdbMinusTt;
 
         // Check input type, and call conversion functions accordingly
@@ -300,7 +295,7 @@ public:
         case basic_astrodynamics::tdb_scale:
             timesToUpdate.tdb = inputTimeValue;
             tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT(
-                        inputTimeValue, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
+                        inputTimeValue, earthFixedPosition ) );
             timesToUpdate.tt = timesToUpdate.tdb - tdbMinusTt;
             timesToUpdate.tai = basic_astrodynamics::convertTTtoTAI< TimeType >( timesToUpdate.tt );
 
@@ -310,7 +305,7 @@ public:
         case basic_astrodynamics::tt_scale:
             timesToUpdate.tt = inputTimeValue;
             tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT(
-                        inputTimeValue, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
+                        inputTimeValue, earthFixedPosition ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
             timesToUpdate.tai = basic_astrodynamics::convertTTtoTAI< TimeType >( timesToUpdate.tt );
 
@@ -321,7 +316,7 @@ public:
             timesToUpdate.tai = inputTimeValue;
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
             tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT(
-                        timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
+                        timesToUpdate.tt, earthFixedPosition ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
             calculateUniversalTimes< TimeType >( );
@@ -333,7 +328,7 @@ public:
 
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
             tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT(
-                        timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
+                        timesToUpdate.tt, earthFixedPosition ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
             if ( dailyUtcUt1CorrectionInterpolator_ != nullptr )
@@ -356,7 +351,7 @@ public:
             timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
             tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT(
-                        timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
+                        timesToUpdate.tt, earthFixedPosition ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
             // Iterate conversion.
@@ -367,7 +362,7 @@ public:
             timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
             tdbMinusTt = this->getTDBminusTT(
-                        timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+                        timesToUpdate.tt, earthFixedPosition );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
             break;
@@ -404,10 +399,9 @@ public:
 
 private:
 
-    double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongitude,
-                          const double distanceFromSpinAxis, const double distanceFromEquatorialPlane )
+    double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d earthFixedPosition )
     {
-        auto tupleToCheck = std::make_tuple( stationLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+        auto tupleToCheck = std::make_tuple( earthFixedPosition[ 0 ], earthFixedPosition[ 1 ], earthFixedPosition[ 2 ] );
         if( tdbToTtInterpolators_.count( tupleToCheck ) != 0 )
         {
             return tdbToTtInterpolators_.at( tupleToCheck )->interpolate( ttOrTdbSinceJ2000 );
@@ -415,7 +409,7 @@ private:
         else
         {
             return sofa_interface::getTDBminusTT(
-                ttOrTdbSinceJ2000, stationLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+                ttOrTdbSinceJ2000, earthFixedPosition );
         }
     }
 
