@@ -645,7 +645,8 @@ void expose_environment(py::module &m) {
           &te::transformStateToInertialOrientation<double, double>,
           py::arg("state_in_body_fixed_frame"),
           py::arg("current_time"),
-          py::arg("rotational_ephemeris"));
+          py::arg("rotational_ephemeris"),
+          get_docstring("transform_to_inertial_orientation").c_str() );
 
 
 
