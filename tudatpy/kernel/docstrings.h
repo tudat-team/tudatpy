@@ -1302,6 +1302,122 @@ static inline std::string get_docstring(std::string name) {
 
 
 
+    } else if(name == "TimeScaleConverter" ) {
+            return R"(
+
+        Class to convert between different time scales (TAI, TT, TDB, UTC, UT1)
+
+        Class to convert between different time scales (TAI, TT, TDB, UTC, UT1), as per algorithms described in (for instance) IERS 2010 Convertions and USNO circular no. 179.
+        The algoroithms used for the conversion are (where there is any choice in models):
+
+         * Conversion between TDB and TT uses the SOFA function ``iauDtdb`` function (equivalently to :func:`TT_to_TDB` and :func:`TDB_to_TT`)
+         * Conversion between UTC and UT1 applies (semi-)diurnal and daily measured variations depending on settings during object creation (typically as per :func:`~default_time_scale_converter`)
+         * Leap seconds as per the latest SOFA package
+
+    )";
+
+
+
+
+
+
+
+    } else if(name == "TimeScaleConverter.convert_time" ) {
+            return R"(
+
+        Function to convert an epoch from one time scale to another.
+
+        Function to convert an epoch from one time scale to another. The Earth-fixed position is an optional input, as it has a small (micro-second level) impact on the conversion between TDB and TT
+
+        Parameters
+        ----------
+        input_value : TimeScales
+            Time scale in which the input epoch (in seconds since J2000) is given
+        output_scale : TimeScales
+            Time scale to which the input time is to be converted
+        input_value : float
+            Input epoch (in scale ``input_value``
+        earth_fixed_position : numpy.ndarray, default=numpy.array([0, 0, 0])
+            Earth-fixed position (e.g. in ITRF) that is used for detailed conversion between TDB and TT
+
+        Returns
+        -------
+        float
+            Input epoch converted to required time scale
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "TimeScaleConverter.get_time_difference" ) {
+            return R"(
+
+        Function to get the difference in an epoch represented in two different time scales.
+
+        Function to get the difference in an epoch represented in two different time scales. Functionality is as in :func:`TimeScaleConverter.convert_time`, which
+        converts :math:`t_{\text{in}}` to  :math:`t_{\text{out}}`. The present function then returns :math:`t_{\text{out}}-t_{\text{in}}`
+
+
+        Parameters
+        ----------
+        input_value : TimeScales
+            Time scale in which the input epoch (in seconds since J2000) is given
+        output_scale : TimeScales
+            Time scale to which the input time is to be converted
+        input_value : float
+            Input epoch (in scale ``input_value``
+        earth_fixed_position : numpy.ndarray, default=numpy.array([0, 0, 0])
+            Earth-fixed position (e.g. in ITRF) that is used for detailed conversion between TDB and TT
+
+        Returns
+        -------
+        float
+            Difference in epoch as expressed in the two different time scales
+
+
+
+
+
+    )";
+
+    }else if(name == "TimeScales") {
+         return R"(
+
+        Enumeration of available time scales between which the :class:`~TimeScaleConverter` can automaticaly convert.
+
+     )";
+
+
+    } else if(name == "TimeScales.tdb_scale") {
+         return R"(
+     )";
+
+
+    } else if(name == "TimeScales.tt_scale") {
+         return R"(
+     )";
+
+
+    } else if(name == "TimeScales.tai_scale") {
+         return R"(
+     )";
+
+
+    } else if(name == "TimeScales.utc_scale") {
+         return R"(
+     )";
+
+
+    } else if(name == "TimeScales.ut1_scale") {
+         return R"(
+     )";
+
+
+
     } else if(name == "datetime_to_tudat" ) {
         return R"(
         
@@ -2120,7 +2236,12 @@ float
     } else if(name == "TT_to_TDB_approximate" ) {
         return R"(
         
-Approximately convert time from the TT scale to the TDB scale.
+Approximately convert time from the TT scale to the TDB scale, using the following first-order approximation:
+
+.. math::
+    t_{\text{TDB}} = t_{\text{TT}} + 0.001657  * \sin( 628.3076 T_{\text{TT}} + 6.2401 );
+
+with :math:`t` the epoch in seconds since J2000, :math:`T` the epoch in centuries since J2000.
 
 The TT scale is the Terrestrial Time, and the TDB scale is the Barycentric Dynamical Time.
 
@@ -2128,6 +2249,64 @@ Parameters
 ----------
 TT_time : float
     Time in seconds since J2000, in the TT time scale.
+Returns
+-------
+float
+    Time in seconds since J2000, in the TDB time scale.
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "TT_to_TDB" ) {
+        return R"(
+
+Convert time from the TT scale to the TDB scale.
+
+Convert time from the TT scale to the TDB scale, using the `iauDtdb <https://www2.mpia-hd.mpg.de/~mathar/progs/sofa_api/group__SR.html#gaeab39417bb16e66c570232102a055f2d>`_ function in Sofa, which has an accuracy of 3 nanoseconds or better in the time span 1950-2050
+To call the Sofa function, we assume UTC=UT1 for the UT1 input. For this function, UT1 is only used in this sofa function to compute the local solar time, which in turn is used to compute the time-modulation of the topocentric term
+(dependent on the ground station position). Since these terms have an amplitude at the microsecond level, the error induced by this assumption is negligible given the inherent quality of the Sofa model.
+
+Parameters
+----------
+TT_time : float
+    Time in seconds since J2000, in the TT time scale.
+earth_fixed_position : numpy.ndarray, default=numpy.array([0, 0, 0])
+    Earth-fixed position (e.g. in ITRF) that is used for detailed conversion between TDB and TT (induces a signature at the microsecond level)
+Returns
+-------
+float
+    Time in seconds since J2000, in the TDB time scale.
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "TDB_to_TT" ) {
+        return R"(
+
+Convert time from the TDT scale to the TT scale.
+
+Convert time from the TT scale to the TDB scale, using the `iauDtdb <https://www2.mpia-hd.mpg.de/~mathar/progs/sofa_api/group__SR.html#gaeab39417bb16e66c570232102a055f2d>`_ function in Sofa, which has an accuracy of 3 nanoseconds or better in the time span 1950-2050
+To call the Sofa function, we assume UTC=UT1 and TT=TDB to compute UT1 from the input TDB. For this function, UT1 is only used in this sofa function to compute the local solar time, which in turn is used to compute the time-modulation of the topocentric term
+(dependent on the ground station position). Since these terms have an amplitude at the microsecond level, the error induced by this assumption is negligible given the inherent quality of the Sofa model.
+
+Parameters
+----------
+TDB_time : float
+    Time in seconds since J2000, in the TDB time scale.
+earth_fixed_position : numpy.ndarray, default=numpy.array([0, 0, 0])
+    Earth-fixed position (e.g. in ITRF) that is used for detailed conversion between TDB and TT (induces a signature at the microsecond level)
 Returns
 -------
 float
@@ -2250,6 +2429,30 @@ Returns
 DateTime
     Tudat ``DateTime`` object.
 
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "default_time_scale_converter" ) {
+        return R"(
+
+Function to create a time-scale converter object with default settings. In particular, it uses default settings for conversion between UT1 and UTC:
+
+* Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1b of IERS Conventions 2010
+* Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.2a and 8.2b of the IERS Conventions 2010
+* Linear interpolation (correcting for discontunities during days with leap seconds) of daily corrections for UTC-UT1 from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
+
+See :class:`~TimeScaleConverter` for specific functionality and options for time-scale conversions.
+
+Returns
+-------
+TimeScaleConverter
+    Object to convert between different terrestrial time scales.
 
 
 
@@ -3135,6 +3338,38 @@ tle : :class:`~tudatpy.kernel.astro.ephemerides.Tle`
 Returns
 -------
 cartesian_state_vector : np.ndarray[6,]    Cartesian state vector (x,y,z, position+velocity).
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "compute_rotation_matrix_between_frames" ) {
+        return R"(
+
+Computes rotation matrix between two frames.
+
+This function computes the rotation matrix
+between two frames at a given time instant. Kernels defining the
+two frames, as well as any required intermediate frames, at the
+requested time must have been loaded. Wrapper for `pxform_c` spice function.
+
+
+Parameters
+----------
+original_frame
+    Reference frame from which the rotation is made.
+new_frame
+    Reference frame to which the rotation is made.
+ephemeris_time
+    Value of ephemeris time at which rotation is to be determined.
+Returns
+-------
+Rotation matrix from original to new frame at given time.
 
 
 
@@ -16041,7 +16276,7 @@ using full rotation model data from Spice:
         
 Function for creating high-accuracy Earth rotation model settings.
 
-Function for settings object, defining high-accuracy Earth rotation model according to the IERS 2010 Conventions.
+Function for settings object, defining high-accuracy Earth rotation model according to the IERS Conventions 2010.
 This settings class has various options to deviate from the default settings, typical applications will use default.
 Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
 The precession-nutation theory may be any member of :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.IAUConventions` (``iau_2000a`` / ``iau_2000b`` or ``iau_2006``).
@@ -16067,7 +16302,7 @@ GcrsToItrsRotationModelSettings
 Examples
 --------
 In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` for Earth,
-using a high-accuracy Earth rotation model as defined by IERS 2010 conventions:
+using a high-accuracy Earth rotation model as defined by IERS Conventions 2010:
 
 
 .. code-block:: python 
@@ -16867,7 +17102,7 @@ static inline std::string get_docstring(std::string name) {
         
 Function for creating basic tidal solid-body shape deformation
 
-Function for creating basic tidal solid-body shape deformation, computing the tidal shape variation due to any number of bodies causing the deformation, and a tidal response define by the deformation Love and Shida numbers :math:`h_{m}` and :math:`l_{m}` (with only :math:`m=2,3` currently supported). This function implements equations (7.5) and (7.6) of the `IERS 2010 Conventions <https://iers-conventions.obspm.fr/conventions_material.php>`_.
+Function for creating basic tidal solid-body shape deformation, computing the tidal shape variation due to any number of bodies causing the deformation, and a tidal response define by the deformation Love and Shida numbers :math:`h_{m}` and :math:`l_{m}` (with only :math:`m=2,3` currently supported). This function implements equations (7.5) and (7.6) of the `IERS Conventions 2010 <https://iers-conventions.obspm.fr/conventions_material.php>`_.
 
 
 Parameters
@@ -16915,7 +17150,7 @@ In this example, we create a settings for degree 2 tidal deformation of the Eart
         
 Function for creating degree 2 basic tidal solid-body shape deformation
 
-Function for creating basic tidal solid-body shape deformation, computing the tidal shape variation due to any number of bodies causing the deformation, and a tidal response define by the deformation Love and Shida numbers :math:`h_{2}` and :math:`l_{2}`. This function implements equations (7.5) of the IERS 2010 Conventions, and provides a simplified interface (for degree 2 only) of :func:`basic_solid_body_tidal`.
+Function for creating basic tidal solid-body shape deformation, computing the tidal shape variation due to any number of bodies causing the deformation, and a tidal response define by the deformation Love and Shida numbers :math:`h_{2}` and :math:`l_{2}`. This function implements equations (7.5) of the IERS Conventions 2010, and provides a simplified interface (for degree 2 only) of :func:`basic_solid_body_tidal`.
 
 
 Parameters
@@ -16965,7 +17200,7 @@ In this example, we create a settings for degree 2 tidal deformation of the Eart
         
 Function for creating full IERS 2010 shape deformation model
 
-Function for creating full IERS 2010 shape deformation model, computing the tidal shape variation due to the full model defined in Section 7.1.1 of the 2010 IERS conventions, implementing Eqs. (7.5)-(7.13), including all terms from Tables 7.3a and 7.3b. At present, none of the input parameters of the model can be varied.
+Function for creating full IERS 2010 shape deformation model, computing the tidal shape variation due to the full model defined in Section 7.1.1 of the IERS Conventions 2010, implementing Eqs. (7.5)-(7.13), including all terms from Tables 7.3a and 7.3b. At present, none of the input parameters of the model can be varied.
 
 Returns
 -------
@@ -22121,7 +22356,7 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
      )";
 
 
-    } else if(name == "StateType.body_mass_type") {
+    } else if(name == "StateType.mass_type") {
          return R"(
      )";
 
@@ -27729,6 +27964,49 @@ output_directory : str
 
 output_file_prefix : str, default=''
     Optional prefix of output file names
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "transform_to_inertial_orientation" ) {
+        return R"(
+
+Function to convert a Cartesian state vector from a body-fixed to an inertial frame
+
+Function to convert a Cartesian state vector from a body-fixed to an inertial frame, using a :class:`~tudatpy.numerical_simulation.environment.RotationalEphemeris`
+object as a model for the rotation. The body-fixed frame from which the conversion takes place is the :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.body_fixed_frame_name` frame,
+the (assumedly) inertial frame to which the conversion is done is :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.inertial_frame_name`.
+
+This function computes:
+
+.. math::
+   \mathbf{r}^{(I)}=\mathbf{R}^{(I/B)}\mathbf{r}^{(B)}+\dot{\mathbf{R}}^{(I/B)}\mathbf{v}^{(B)}
+   \mathbf{v}^{(I)}=\mathbf{R}^{(I/B)}\mathbf{v}^{(B)}
+
+for position and velocity vectors in inertial frame (superscript :math:`I`) and body-fixed frame (superscript :math:`B`) using the rotation matrix from body-fixed to inertial frame
+:math:`\mathbf{R}^{I/B}` and its time-derivative.
+
+Parameters
+----------
+state_in_body_fixed_frame : numpy.ndarray[numpy.float64[6, 1]]
+    Cartesian state (position and velocity) in the body-fixed frame
+
+current_time : float
+    Time at which the transformation is to be computed
+
+rotational_ephemeris : RotationalEphemeris
+    Boy rotation model that is to be used to convert the body-fixed state to inertial state
+
+Returns
+-------
+numpy.ndarray[numpy.float64[6, 1]]
+    Cartesian state transformed to inertial frame, using ``rotational_ephemeris`` model, from body-fixed ``state_in_body_fixed_frame``
 
 
 

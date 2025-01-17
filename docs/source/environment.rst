@@ -25,12 +25,15 @@ Functions
 
 .. autosummary::
 
+   transform_to_inertial_orientation
+   
    save_vehicle_mesh_to_file
 
 
 
 .. autofunction:: tudatpy.numerical_simulation.environment.save_vehicle_mesh_to_file
 
+.. autofunction:: tudatpy.numerical_simulation.environment.transform_to_inertial_orientation
 
 
 
