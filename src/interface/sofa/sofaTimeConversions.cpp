@@ -131,14 +131,15 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongit
 }
 
 //! Function to calculate difference between TDB and TT.
-double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d& stationCartesianPosition )
+double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d& earthFixedPosition )
 {
-    double stationLongitude = std::atan2( stationCartesianPosition( 1 ),
-                                          stationCartesianPosition( 0 ) );
-    return getTDBminusTT( ttOrTdbSinceJ2000, stationLongitude,
-                          std::sqrt( stationCartesianPosition.x( ) * stationCartesianPosition.x( ) +
-                                     stationCartesianPosition.y( ) * stationCartesianPosition.y( ) ),
-                          stationCartesianPosition.z( ) );
+
+    double siteLongitude = std::atan2( earthFixedPosition.y( ), earthFixedPosition.x( ) );
+    double distanceFromSpinAxis = std::sqrt( earthFixedPosition.x( ) * earthFixedPosition.x( ) +
+                                             earthFixedPosition.y( ) * earthFixedPosition.y( ) );
+    double distanceFromEquatorialPlane = earthFixedPosition.z( );
+
+    return getTDBminusTT( ttOrTdbSinceJ2000, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
 }
 
 
