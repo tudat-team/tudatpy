@@ -1404,8 +1404,8 @@ void expose_observation_setup( py::module& m )
 
     m.def( "observations_from_ifms_files",
            &tom::createIfmsObservedObservationCollectionFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "bodies" ),
            py::arg( "ifms_file_names" ),
+           py::arg( "bodies" ),
            py::arg( "target_name" ),
            py::arg( "ground_station_name" ),
            py::arg( "reception_band" ),
