@@ -125,6 +125,18 @@ Functions
 
    mee_to_cartesian
 
+   usm_em_to_cartesian
+
+   cartesian_to_usm_em
+
+   usm_7_to_cartesian
+
+   cartesian_to_usm_7
+
+   usm_6_to_cartesian
+
+   cartesian_to_usm_6
+
    quaternion_entries_to_rotation_matrix
 
    rotation_matrix_to_quaternion_entries
@@ -176,6 +188,18 @@ Functions
 .. autofunction:: tudatpy.astro.element_conversion.cartesian_to_mee_manual_singularity
 
 .. autofunction:: tudatpy.astro.element_conversion.mee_to_cartesian
+
+.. autofunction:: tudatpy.astro.element_conversion.usm_em_to_cartesian
+
+.. autofunction:: tudatpy.astro.element_conversion.cartesian_to_usm_em
+
+.. autofunction:: tudatpy.astro.element_conversion.usm_7_to_cartesian
+
+.. autofunction:: tudatpy.astro.element_conversion.cartesian_to_usm_7
+
+.. autofunction:: tudatpy.astro.element_conversion.usm_6_to_cartesian
+
+.. autofunction:: tudatpy.astro.element_conversion.cartesian_to_usm_6
 
 .. autofunction:: tudatpy.astro.element_conversion.quaternion_entries_to_rotation_matrix
 
