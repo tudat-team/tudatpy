@@ -15,6 +15,7 @@
 #include <tudat/math/basic.h>
 #include <tudat/astro/conversions.h>
 #include <tudat/astro/basic_astro/stateRepresentationConversions.h>
+#include <tudat/astro/basic_astro/attitudeElementConversions.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
 
 #include <pybind11/eigen.h>
@@ -66,9 +67,9 @@ void expose_element_conversion(py::module &m) {
      */
     m.def("convert_position_elements",
           &tcc::convertPositionElements,
-          py::arg("originalElements"),
-          py::arg("original_elemet_types"),
-          py::arg("new_element_types"),
+          py::arg("original_elements"),
+          py::arg("original_element_type"),
+          py::arg("new_element_type"),
           py::arg("shape_model"),
           py::arg("tolerance"),
             get_docstring("convert_position_elements").c_str());
@@ -79,7 +80,6 @@ void expose_element_conversion(py::module &m) {
           py::arg("cartesian_elements"),
           py::arg("gravitational_parameter"),
            get_docstring("cartesian_to_keplerian").c_str());
-
 
     m.def("keplerian_to_cartesian",
           py::overload_cast< const Eigen::Vector6d&, double >(
@@ -100,6 +100,50 @@ void expose_element_conversion(py::module &m) {
           py::arg("true_anomaly"),
           py::arg("gravitational_parameter"),
            get_docstring("keplerian_to_cartesian_elementwise").c_str());
+
+    m.def("cartesian_to_usm_em",
+          &toec::convertCartesianToUnifiedStateModelExponentialMapElements,
+          py::arg("cartesian_elements"),
+          py::arg("gravitational_parameter"),
+          get_docstring("cartesian_to_usm_em").c_str());
+
+    m.def("cartesian_to_usm_7",
+          &toec::convertCartesianToUnifiedStateModelQuaternionsElements,
+          py::arg("cartesian_elements"),
+          py::arg("gravitational_parameter"),
+          get_docstring("cartesian_to_usm_7").c_str());
+
+    m.def("cartesian_to_usm_6",
+          &toec::convertCartesianToUnifiedStateModelModifiedRodriguesParameterElements,
+          py::arg("cartesian_elements"),
+          py::arg("gravitational_parameter"),
+          get_docstring("cartesian_to_usm_6").c_str());
+
+    m.def("usm_em_to_cartesian",
+          &toec::convertUnifiedStateModelExponentialMapToCartesianElements,
+          py::arg("usm_em_elements"),
+          py::arg("gravitational_parameter"),
+          get_docstring("usm_em_to_cartesian").c_str());
+
+    m.def("usm_7_to_cartesian",
+          &toec::convertUnifiedStateModelQuaternionsToCartesianElements,
+          py::arg("usm_7_elements"),
+          py::arg("gravitational_parameter"),
+          py::arg("normalize_quaternion") = true,
+          get_docstring("usm_7_to_cartesian").c_str());
+
+    m.def("usm_6_to_cartesian",
+          &toec::convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements,
+          py::arg("usm_6_elements"),
+          py::arg("gravitational_parameter"),
+          get_docstring("usm_6_to_cartesian").c_str());
+
+    m.def("keplerian_to_cartesian",
+          py::overload_cast< const Eigen::Vector6d&, double >(
+              &toec::convertKeplerianToCartesianElements< double > ),
+          py::arg("keplerian_elements"),
+          py::arg("gravitational_parameter"),
+          get_docstring("keplerian_to_cartesian").c_str());
 
     m.def("mean_to_true_anomaly",
           &toec::convertMeanAnomalyToTrueAnomaly< double >,
@@ -267,6 +311,25 @@ void expose_element_conversion(py::module &m) {
           py::arg( "rotation_matrix" ) ,
           get_docstring("rotation_matrix_to_quaternion_entries").c_str());
 
+    m.def("quaternion_to_modified_rodrigues_parameters",
+          &toec::convertQuaternionsToModifiedRodriguesParameterElements,
+          py::arg( "quaternion_entries" ) ,
+          get_docstring("quaternions_to_modified_rodrigues_parameters").c_str());
+
+    m.def("modified_rodrigues_parameters_to_quaternion",
+          &toec::convertModifiedRodriguesParametersToQuaternionElements,
+          py::arg( "modified_rodrigues_parameters" ) ,
+          get_docstring("modified_rodrigues_parameters_to_quaternions").c_str());
+
+    m.def("quaternion_to_exponential_map",
+          &toec::convertQuaternionsToExponentialMapElements,
+          py::arg( "quaternion_entries" ) ,
+          get_docstring("quaternions_to_exponential_map").c_str());
+
+    m.def("exponential_map_to_quaternion",
+          &toec::convertExponentialMapToQuaternionElements,
+          py::arg( "exponential_map" ) ,
+          get_docstring("exponential_map_to_quaternions").c_str());
     /*!
      **************   TLE  ******************
 
