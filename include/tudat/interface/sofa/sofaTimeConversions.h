@@ -215,6 +215,24 @@ TimeScalarType convertSecondsSinceEpochToSecondsOfYear(
     return secondsSinceEpoch - static_cast< TimeScalarType >( timeStartOfYear );
 }
 
+
+
+template< typename TimeType >
+TimeType convertTTtoTDB( const TimeType ttTime, const Eigen::Vector3d& stationCartesianPosition )
+{
+    return ttTime + static_cast< TimeType >( sofa_interface::getTDBminusTT( ttTime, stationCartesianPosition ) );
+}
+
+
+template< typename TimeType >
+TimeType convertTDBtoTT( const TimeType tdbTime, const Eigen::Vector3d& stationCartesianPosition )
+{
+    return tdbTime - static_cast< TimeType >( sofa_interface::getTDBminusTT( tdbTime, stationCartesianPosition ) );
+}
+
+
+
+
 } // namespace sofa_interfaces
 
 } // namespace tudat
