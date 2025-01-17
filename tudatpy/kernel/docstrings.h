@@ -428,6 +428,174 @@ numpy.ndarray
 
 
 
+    } else if(name == "cartesian_to_usm_em" ) {
+        return R"(
+
+Convert Cartesian elements to Unified State Model (USM) elements with Exponential map for rotational coordinates.
+
+.. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+
+
+Parameters
+----------
+cartesian_elements : numpy.ndarray
+    Cartesian state that is to be converted to USM elements
+gravitational_parameter : float
+    Gravitational parameter of central body used for conversion
+Returns
+-------
+numpy.ndarray
+    USM elements using exponential map, as computed from Cartesian element input.
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "cartesian_to_usm_6" ) {
+        return R"(
+
+Convert Cartesian elements to Unified State Model (USM) elements with Modified Rodrigues parameters map for rotational coordinates.
+
+.. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+
+
+Parameters
+----------
+cartesian_elements : numpy.ndarray
+    Cartesian state that is to be converted to USM elements
+gravitational_parameter : float
+    Gravitational parameter of central body used for conversion
+Returns
+-------
+numpy.ndarray
+    USM elements using Modified Rodrigues parameters, as computed from Cartesian element input.
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "cartesian_to_usm_7" ) {
+        return R"(
+
+Convert Cartesian elements to Unified State Model (USM) elements with quaternion for rotational coordinates.
+
+.. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+
+
+Parameters
+----------
+cartesian_elements : numpy.ndarray
+    Cartesian state that is to be converted to USM elements
+gravitational_parameter : float
+    Gravitational parameter of central body used for conversion
+Returns
+-------
+numpy.ndarray
+    USM elements using quaternion, as computed from Cartesian element input.
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "usm_em_to_cartesian" ) {
+        return R"(
+
+Convert Unified State Model (USM) elements with Exponential map for rotational coordinates to Cartesian elements.
+
+.. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+
+
+Parameters
+----------
+usm_em_elements : numpy.ndarray
+    USM elements using exponential map that is to be converted to Cartesiamn elements
+gravitational_parameter : float
+    Gravitational parameter of central body used for conversion
+Returns
+-------
+numpy.ndarray
+    Cartesian elements, as computed from USM element input.
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "usm_6_to_cartesian" ) {
+        return R"(
+
+Convert Unified State Model (USM) elements with Modified Rodrigues parameters for rotational coordinates to Cartesian elements.
+
+.. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+
+
+Parameters
+----------
+usm_6_elements : numpy.ndarray
+    USM elements using Modified Rodrigues parameters that is to be converted to Cartesiamn elements
+gravitational_parameter : float
+    Gravitational parameter of central body used for conversion
+Returns
+-------
+numpy.ndarray
+    Cartesian elements, as computed from USM element input.
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "usm_7_to_cartesian" ) {
+        return R"(
+
+Convert Unified State Model (USM) elements with quaternion for rotational coordinates to Cartesian elements.
+
+.. note:: See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#unified-state-model-elements>`_ for details on Unified State Model elements
+
+
+Parameters
+----------
+usm_7_elements : numpy.ndarray
+    USM elements using quaternion that is to be converted to Cartesiamn elements
+gravitational_parameter : float
+    Gravitational parameter of central body used for conversion
+Returns
+-------
+numpy.ndarray
+    Cartesian elements, as computed from USM element input.
+
+
+
+
+
+
+    )";
+
+
+
     } else if(name == "mean_to_true_anomaly" ) {
         return R"(
         
