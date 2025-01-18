@@ -141,6 +141,14 @@ Functions
 
    rotation_matrix_to_quaternion_entries
 
+   quaternion_to_modified_rodrigues_parameters
+
+   modified_rodrigues_parameters_to_quaternion
+
+   quaternion_to_exponential_map
+
+   exponential_map_to_quaternion
+
    cartesian_to_spherical
 
    spherical_to_cartesian
@@ -204,6 +212,14 @@ Functions
 .. autofunction:: tudatpy.astro.element_conversion.quaternion_entries_to_rotation_matrix
 
 .. autofunction:: tudatpy.astro.element_conversion.rotation_matrix_to_quaternion_entries
+
+.. autofunction:: tudatpy.astro.element_conversion.quaternion_to_modified_rodrigues_parameters
+
+.. autofunction:: tudatpy.astro.element_conversion.modified_rodrigues_parameters_to_quaternion
+
+.. autofunction:: tudatpy.astro.element_conversion.quaternion_to_exponential_map
+
+.. autofunction:: tudatpy.astro.element_conversion.exponential_map_to_quaternion
 
 .. autofunction:: tudatpy.astro.element_conversion.cartesian_to_spherical
 

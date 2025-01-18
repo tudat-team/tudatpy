@@ -1145,6 +1145,90 @@ numpy.ndarray
 
 
 
+    } else if(name == "quaternion_to_modified_rodrigues_parameters" ) {
+        return R"(
+
+Converts quaternion elements to the equivalent modified Rodrigues parameters (for rotation representation).
+
+Parameters
+----------
+quaternion_entries : numpy.ndarray
+    Quaternion elements
+Returns
+-------
+numpy.ndarray
+    Equivalent modified Rodrigues parameters
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "modified_rodrigues_parameters_to_quaternion" ) {
+        return R"(
+
+Converts modified Rodrigues parameters to the equivalent array of four quaternion elements (for rotation representation).
+
+Parameters
+----------
+modified_rodrigues_parameters : numpy.ndarray
+    Modified Rodrigues parameters
+Returns
+-------
+numpy.ndarray
+    Equivalent quaternion elements
+
+
+    )";
+
+
+
+    } else if(name == "quaternion_to_exponential_map" ) {
+        return R"(
+
+Converts quaternion elements to the equivalent exponential map (for rotation representation).
+
+Parameters
+----------
+quaternion_entries : numpy.ndarray
+    Quaternion elements
+Returns
+-------
+numpy.ndarray
+    Equivalent exponential map rotation elements
+
+
+
+
+
+
+    )";
+
+
+
+    } else if(name == "exponential_map_to_quaternion" ) {
+        return R"(
+
+Converts modified Rodrigues parameters to the equivalent exponential map (for rotation representation).
+
+Parameters
+----------
+exponential_map : numpy.ndarray
+    Exponential map rotation elements
+Returns
+-------
+numpy.ndarray
+    Equivalent quaternion elements
+
+
+    )";
+
+
+
     } else if(name == "cartesian_to_spherical" ) {
         return R"(
         
@@ -16998,7 +17082,7 @@ radius : float
 Returns
 -------
 SphericalBodyShapeSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeModel` derived :class:`~tudatpy.numerical_simulation.environment_setup.shape.SphericalBodyShapeSettings` class
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.shape.SphericalBodyShapeSettings` class
 
 
 
@@ -17006,7 +17090,7 @@ SphericalBodyShapeSettings
 
 Examples
 --------
-In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeModel` using a perfectly spherical shape model:
+In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` using a perfectly spherical shape model:
 
 .. code-block:: python 
    
@@ -17030,7 +17114,7 @@ Function for settings object, defining spherical body shape model entirely from 
 Returns
 -------
 BodyShapeSettings
-    Instance of :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeModel` class
+    Instance of :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` class
 
 
 
@@ -17038,7 +17122,7 @@ BodyShapeSettings
 
 Examples
 --------
-In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeModel` using a perfectly spherical shape model and data from Spice:
+In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` using a perfectly spherical shape model and data from Spice:
 
 .. code-block:: python 
    
@@ -17067,7 +17151,7 @@ flattening : float
 Returns
 -------
 OblateSphericalBodyShapeSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeModel` derived :class:`~tudatpy.numerical_simulation.environment_setup.shape.OblateSphericalBodyShapeSettings` class
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.shape.OblateSphericalBodyShapeSettings` class
 
 
 
@@ -17075,7 +17159,7 @@ OblateSphericalBodyShapeSettings
 
 Examples
 --------
-In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeModel` using a perfectly oblate spherical shape model:
+In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` using a perfectly oblate spherical shape model:
 
 .. code-block:: python 
    
@@ -17136,7 +17220,7 @@ just_compute_distance_to_vertices : bool, default=False
 Returns
 -------
 PolyhedronBodyShapeSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeModel` derived
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived
     :class:`~tudatpy.numerical_simulation.environment_setup.shape.PolyhedronBodyShapeSettings` class
 
 
@@ -17183,7 +17267,7 @@ switchover_altitude : float
 Returns
 -------
 HybridBodyShapeSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeModel` derived
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived
     :class:`~tudatpy.numerical_simulation.environment_setup.shape.HybridBodyShapeSettings` class
 
 
@@ -26737,7 +26821,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
         **read-only**
 
         The body-fixed geodetic latitude of the body w.r.t. its central
-        body, using an :py:class:`~OblateSpheroidBodyShapeModel` of the
+        body, using an :py:class:`~OblateSphericalBodyShapeSettings` of the
         central body. If no such model is defined in the central body,
         this attribute equals the latitude.
 
@@ -26752,7 +26836,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
         **read-only**
 
         The altitude of this body w.r.t. the central body (using the
-        :py:class:`~ShapeModel` of the central body).
+        :py:class:`~BodyShapeModel` of the central body).
 
 
         :type: float
@@ -27535,17 +27619,278 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
 
 
-    } else if(name == "EngineModel") {
+    } else if(name == "GravityFieldModel" ) {
+            return R"(
+
+        Object that provides the gravity field of a body
+
+
+        Object (typically stored inside a :class:`~Body` object) that provides the gravity field of a body, typically (but not exclusively) for
+        use in gravitational acceleration and torque models. This base class allows access to the gravitational parameter of the body.
+        Specific derived classes are implemented to provide models for more detailed gravity field models (e.g. spherical harmonics, polyhedron).
+
+
+
+
+    )";
+
+
+
+
+    } else if(name == "GravityFieldModel.gravitational_parameter") {
          return R"(
 
-        Object used to store properties of an engine, and compute the thrust magnitude and body-fixed thrust direction     
+        Value of the gravity field's gravitational parameters :math:`\mu`
 
+
+        :type: float
 
 
 
 
 
      )";
+
+
+
+
+    } else if(name == "SphericalHarmonicsGravityField" ) {
+            return R"(
+
+        Object that provides a spherical harmonic gravity field of a body.
+
+        Object (typically stored inside a :class:`~Body` object) that provides a spherical harmonic gravity field of a body, typically (but not exclusively) for
+        use in gravitational acceleration and torque models. This class is derived from :class:`~GravityFieldModel`.  This object is typically created using the :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic_gravity`
+        settings function. If any time variations of the gravity field are provided, an object of the derived class :class:`~TimeVariableSphericalHarmonicsGravityField` is created.
+
+    )";
+
+
+
+
+    } else if(name == "SphericalHarmonicsGravityField.reference_radius") {
+         return R"(
+
+        **read-only**
+
+        Reference radius :math:`R` of the gravity field
+
+        :type: float
+     )";
+
+    } else if(name == "SphericalHarmonicsGravityField.maximum_degree") {
+         return R"(
+
+        **read-only**
+
+        Maximum spherical harmonic degree :math:`l_{max}` for which coefficients are defined
+
+        :type: int
+     )";
+
+    } else if(name == "SphericalHarmonicsGravityField.maximum_order") {
+         return R"(
+
+        **read-only**
+
+        Maximum spherical harmonic order :math:`m_{max}` for which coefficients are defined
+
+        :type: int
+     )";
+
+    } else if(name == "SphericalHarmonicsGravityField.cosine_coefficients") {
+         return R"(
+
+        Matrix with cosine spherical harmonic coefficients :math:`\bar{C}_{lm}` (geodesy normalized). Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
+
+        :type: numpy.ndarray[numpy.float64[l, m]]
+     )";
+
+
+
+    } else if(name == "SphericalHarmonicsGravityField.sine_coefficients") {
+         return R"(
+
+        Matrix with sine spherical harmonic coefficients :math:`\bar{S}_{lm}` (geodesy normalized). Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
+
+        :type: numpy.ndarray[numpy.float64[l, m]]
+     )";
+
+
+
+    } else if(name == "BodyShapeModel" ) {
+            return R"(
+
+        Object that provides a sphape model for a natural body.
+
+        Object (typically stored inside a :class:`~Body` object) that provides a shape model for a body, for instance to compute the altitude from a body-centered state, or w.r.t. which
+        to place ground stations. This shape model is typically only associcated with natural bodies. Shape models for spacecraft (for non-conservative force models) use properties stored inside the
+        :class:`~VehicleSystems` object.
+
+    )";
+
+    } else if(name == "BodyShapeModel.average_radius" ) {
+            return R"(
+
+        **read-only**
+
+        Average radius of the body, for use in computations that assume a spherical body shape.
+
+        :type: float
+
+
+    )";
+
+    } else if(name == "GroundStation" ) {
+            return R"(
+
+        Object used to define and store properties of a ground station.
+
+        Object (typically stored inside a :class:`~Body` object) used to define and store properties of a ground station, typically used in modelling tracking observations to/from a ground station.
+
+    )";
+
+
+    } else if(name == "GroundStation.transmitting_frequency_calculator" ) {
+            return R"(
+
+        Object that provides the transmission frequency as a function of time for (radio) tracking stations. This attribute is typically set automatically when loading tracking data files (e.g. ODF, IFMS, TNF, etc.)
+
+        :type: TransmittingFrequencyCalculator
+
+    )";
+
+    } else if(name == "GroundStation.temperature_function" ) {
+            return R"(
+
+        Function that provides the local temperature at the ground station (typically use for media corrections) as a function of time
+
+        :type: :type: Callable[[float], float]
+
+    )";
+
+    } else if(name == "GroundStation.pressure_function" ) {
+            return R"(
+
+        Function that provides the local pressure at the ground station (typically use for media corrections) as a function of time
+
+        :type: :type: Callable[[float], float]
+
+    )";
+
+    } else if(name == "GroundStation.relative_humidity_function" ) {
+            return R"(
+
+        Function that provides the local relative humidity at the ground station (typically use for media corrections) as a function of time
+
+        :type: :type: Callable[[float], float]
+
+    )";
+
+    } else if(name == "GroundStation.pointing_angles_calculator" ) {
+            return R"(
+
+        **read-only**
+
+        Object that performs computations of the azimuth and elevation of an arbitrary target as observed by the ground station
+
+        :type: PointingAnglesCalculator
+
+    )";
+
+    } else if(name == "GroundStation.station_state" ) {
+            return R"(
+
+        **read-only**
+
+        Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
+
+        :type: GroundStationState
+
+    )";
+
+    } else if(name == "GroundStationState" ) {
+            return R"(
+
+        Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
+
+        Object that performs computations of the current (body-fixed) position and frame conversions of the ground station. In the simplest situation,
+        only a Cartesian position is provided, which is then assumed constant. If time variations (for instance due to tides or plate motion) are present,
+        their impact on station position is computed in this object.
+
+    )";
+
+
+    } else if(name == "GroundStationState.get_cartesian_position" ) {
+            return R"(
+
+        This function computes the position of the station as a function of time.
+
+        This function computes the position of the station as a function of time, in a frame with body-fixed orientation.
+        Some time-variations of the station position depend on the *origin* of the frame in which the computation is to be
+        used. For instance, relativistic correction to the Earth-fixed position is different in a geocentric or barycentric frame.
+        However, the output of this function is always given in the body-fixed, body-centered frame.
+
+        Parameters
+        ----------
+        current_time : float
+            Time (in seconds since J2000 TDB) at which the position is to be computed.
+
+        target_frame_origin: str, default = ""
+            Identifier for the frame origin w.r.t. which the computed position is to be used.
+
+        Returns
+        -------
+        np.ndarray
+            Cartesian position of the station at the current epoch, in a body-centered, body-fixed frame
+
+    )";
+
+
+    } else if(name == "GroundStationState.cartesian_positon_at_reference_epoch" ) {
+            return R"(
+
+        **read-only**
+
+        Cartesian position of the ground station, at the reference epoch, in a body-fixed, body-centered frame.
+
+    )";
+
+
+    } else if(name == "GroundStationState.spherical_positon_at_reference_epoch" ) {
+            return R"(
+
+        **read-only**
+
+        Spherical position of the ground station (distance w.r.t. body center, latitude, longitude), at the reference epoch, in a body-fixed, body-centered frame.
+
+    )";
+
+
+    } else if(name == "GroundStationState.geodetic_positon_at_reference_epoch" ) {
+            return R"(
+
+        **read-only**
+
+        Geodetic position of the ground station (altitude w.r.t. body shape model, geodetic latitude, longitude), at the reference epoch, in a body-fixed, body-centered frame.
+
+    )";
+
+
+    } else if(name == "EngineModel" ) {
+            return R"(
+
+        Object used to store properties of an engine, and compute the thrust magnitude and body-fixed thrust direction
+
+
+
+
+
+
+
+    )";
+
+
 
 
     } else if(name == "EngineModel.thrust_magnitude_calculator") {
