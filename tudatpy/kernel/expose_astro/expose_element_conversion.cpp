@@ -314,22 +314,22 @@ void expose_element_conversion(py::module &m) {
     m.def("quaternion_to_modified_rodrigues_parameters",
           &toec::convertQuaternionsToModifiedRodriguesParameterElements,
           py::arg( "quaternion_entries" ) ,
-          get_docstring("quaternions_to_modified_rodrigues_parameters").c_str());
+          get_docstring("quaternion_to_modified_rodrigues_parameters").c_str());
 
     m.def("modified_rodrigues_parameters_to_quaternion",
           &toec::convertModifiedRodriguesParametersToQuaternionElements,
           py::arg( "modified_rodrigues_parameters" ) ,
-          get_docstring("modified_rodrigues_parameters_to_quaternions").c_str());
+          get_docstring("modified_rodrigues_parameters_to_quaternion").c_str());
 
     m.def("quaternion_to_exponential_map",
           &toec::convertQuaternionsToExponentialMapElements,
           py::arg( "quaternion_entries" ) ,
-          get_docstring("quaternions_to_exponential_map").c_str());
+          get_docstring("quaternion_to_exponential_map").c_str());
 
     m.def("exponential_map_to_quaternion",
           &toec::convertExponentialMapToQuaternionElements,
           py::arg( "exponential_map" ) ,
-          get_docstring("exponential_map_to_quaternions").c_str());
+          get_docstring("exponential_map_to_quaternion").c_str());
     /*!
      **************   TLE  ******************
 
