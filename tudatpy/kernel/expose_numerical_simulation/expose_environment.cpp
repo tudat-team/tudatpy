@@ -710,7 +710,7 @@ void expose_environment(py::module &m) {
 
     py::class_<tg::GravityFieldModel,
             std::shared_ptr<tg::GravityFieldModel>>(m, "GravityFieldModel",
-                get_docstring("AtmosphereModel").c_str() )
+                get_docstring("GravityFieldModel").c_str() )
             .def(py::init<
                  const double,
                  const std::function<void()>>(),
@@ -719,18 +719,19 @@ void expose_environment(py::module &m) {
             )
             .def("get_gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter)
             .def_property("gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter,
-                          &tg::GravityFieldModel::resetGravitationalParameter);
+                          &tg::GravityFieldModel::resetGravitationalParameter,
+                          get_docstring("GravityFieldModel.gravitational_parameter").c_str());
 
     py::class_<tg::SphericalHarmonicsGravityField,
             std::shared_ptr<tg::SphericalHarmonicsGravityField >,
-            tg::GravityFieldModel>(m, "SphericalHarmonicsGravityField")
-            .def_property_readonly("reference_radius", &tg::SphericalHarmonicsGravityField::getReferenceRadius )
-            .def_property_readonly("maximum_degree", &tg::SphericalHarmonicsGravityField::getDegreeOfExpansion )
-            .def_property_readonly("maximum_order", &tg::SphericalHarmonicsGravityField::getOrderOfExpansion )
+            tg::GravityFieldModel>(m, "SphericalHarmonicsGravityField", get_docstring("SphericalHarmonicsGravityField").c_str() )
+            .def_property_readonly("reference_radius", &tg::SphericalHarmonicsGravityField::getReferenceRadius, get_docstring("SphericalHarmonicsGravityField.reference_radius").c_str() )
+            .def_property_readonly("maximum_degree", &tg::SphericalHarmonicsGravityField::getDegreeOfExpansion, get_docstring("SphericalHarmonicsGravityField.maximum_degree").c_str() )
+            .def_property_readonly("maximum_order", &tg::SphericalHarmonicsGravityField::getOrderOfExpansion, get_docstring("SphericalHarmonicsGravityField.maximum_order").c_str() )
             .def_property("cosine_coefficients", &tg::SphericalHarmonicsGravityField::getCosineCoefficients,
-                          &tg::SphericalHarmonicsGravityField::setCosineCoefficients)
+                          &tg::SphericalHarmonicsGravityField::setCosineCoefficients, get_docstring("SphericalHarmonicsGravityField.cosine_coefficients").c_str())
             .def_property("sine_coefficients", &tg::SphericalHarmonicsGravityField::getSineCoefficients,
-                          &tg::SphericalHarmonicsGravityField::setSineCoefficients);
+                          &tg::SphericalHarmonicsGravityField::setSineCoefficients, get_docstring("SphericalHarmonicsGravityField.sine_coefficients").c_str());
 
     py::class_<tg::PolyhedronGravityField,
             std::shared_ptr<tg::PolyhedronGravityField >,
@@ -744,10 +745,10 @@ void expose_environment(py::module &m) {
      */
 
     py::class_<tba::BodyShapeModel,
-            std::shared_ptr<tba::BodyShapeModel>>(m, "ShapeModel",
-                get_docstring("ShapeModel").c_str() )
+            std::shared_ptr<tba::BodyShapeModel>>(m, "BodyShapeModel",
+                get_docstring("BodyShapeModel").c_str() )
             .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
-            .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius);
+            .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius, get_docstring("BodyShapeModel.average_radius").c_str());
 
 
     /*!
@@ -756,20 +757,24 @@ void expose_environment(py::module &m) {
 
 
     py::class_<tgs::GroundStationState,
-            std::shared_ptr<tgs::GroundStationState>>(m, "GroundStationState")
+            std::shared_ptr<tgs::GroundStationState>>(m, "GroundStationState", get_docstring("GroundStationState").c_str() )
             .def("get_cartesian_state", &tgs::GroundStationState::getCartesianStateInTime,
-                 py::arg( "seconds_since_epoch" ),
-                 py::arg( "target_frame_origin" )  )
+                 py::arg( "current_time" ),
+                 py::arg( "target_frame_origin" ) = "" )
             .def("get_cartesian_position", &tgs::GroundStationState::getCartesianPositionInTime,
-                 py::arg( "seconds_since_epoch" ),
-                 py::arg( "target_frame_origin" )  )
-            .def_property_readonly("cartesian_positon_at_reference_epoch", &tgs::GroundStationState::getNominalCartesianPosition )
-            .def_property_readonly("spherical_positon_at_reference_epoch", &tgs::GroundStationState::getNominalSphericalPosition )
-            .def_property_readonly("geodetic_positon_at_reference_epoch", &tgs::GroundStationState::getNominalGeodeticPosition )
+                 py::arg( "current_time" ),
+                 py::arg( "target_frame_origin" ) = "",
+                 get_docstring("GroundStationState.get_cartesian_position").c_str()    )
+            .def_property_readonly("cartesian_positon_at_reference_epoch", &tgs::GroundStationState::getNominalCartesianPosition,
+                                   get_docstring("GroundStationState.cartesian_positon_at_reference_epoch").c_str()   )
+            .def_property_readonly("spherical_positon_at_reference_epoch", &tgs::GroundStationState::getNominalSphericalPosition,
+                                   get_docstring("GroundStationState.spherical_positon_at_reference_epoch").c_str()   )
+            .def_property_readonly("geodetic_positon_at_reference_epoch", &tgs::GroundStationState::getNominalGeodeticPosition,
+                                   get_docstring("GroundStationState.geodetic_positon_at_reference_epoch").c_str()   )
             .def_property_readonly("rotation_matrix_body_fixed_to_topocentric", &tgs::GroundStationState::getRotationMatrixFromBodyFixedToTopocentricFrame );
 
     py::class_<tgs::GroundStation,
-            std::shared_ptr<tgs::GroundStation>>(m, "GroundStation")
+            std::shared_ptr<tgs::GroundStation>>(m, "GroundStation", get_docstring("GroundStation").c_str() )
             .def("set_transmitting_frequency_calculator",
                  &tgs::GroundStation::setTransmittingFrequencyCalculator,
                  py::arg("transmitting_frequency_calculator"))
@@ -785,20 +790,21 @@ void expose_environment(py::module &m) {
             .def("set_relative_humidity_function",
                  &tgs::GroundStation::setRelativeHumidityFunction,
                  py::arg("relative_humidity_function"))
-            .def_property_readonly("temperature_function", &tgs::GroundStation::getTemperatureFunction)
-            .def_property_readonly("pressure_function", &tgs::GroundStation::getPressureFunction)
-            .def_property_readonly("relative_humidity_function", &tgs::GroundStation::getRelativeHumidityFunction)
-            .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator )
-            .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState )
+            .def_property("transmitting_frequency_calculator", &tgs::GroundStation::getTransmittingFrequencyCalculator, &tgs::GroundStation::setTransmittingFrequencyCalculator, get_docstring("GroundStation.transmitting_frequency_calculator").c_str() )
+            .def_property_readonly("temperature_function", &tgs::GroundStation::getTemperatureFunction, get_docstring("GroundStation.temperature_function").c_str())
+            .def_property_readonly("pressure_function", &tgs::GroundStation::getPressureFunction, get_docstring("GroundStation.pressure_function").c_str())
+            .def_property_readonly("relative_humidity_function", &tgs::GroundStation::getRelativeHumidityFunction, get_docstring("GroundStation.relative_humidity_function").c_str())
+            .def_property_readonly("pointing_angles_calculator", &tgs::GroundStation::getPointingAnglesCalculator, get_docstring("GroundStation.pointing_angles_calculator").c_str() )
+            .def_property_readonly("station_state", &tgs::GroundStation::getNominalStationState, get_docstring("GroundStation.station_state").c_str() )
             .def("set_timing_system", &tgs::GroundStation::setTimingSystem, py::arg("timing_system"));
 
 
     py::class_<tgs::StationFrequencyInterpolator,
-            std::shared_ptr<tgs::StationFrequencyInterpolator>>(m, "StationFrequencyInterpolator", get_docstring("StationFrequencyInterpolator").c_str() );
+            std::shared_ptr<tgs::StationFrequencyInterpolator>>(m, "TransmittingFrequencyCalculator", get_docstring("TransmittingFrequencyCalculator").c_str() );
 
     py::class_<tgs::ConstantFrequencyInterpolator,
             std::shared_ptr<tgs::ConstantFrequencyInterpolator>,
-            tgs::StationFrequencyInterpolator>(m, "ConstantFrequencyInterpolator")
+            tgs::StationFrequencyInterpolator>(m, "ConstantTransmittingFrequencyCalculator")
             .def(py::init< double >(),
                 py::arg("frequency"));
 
