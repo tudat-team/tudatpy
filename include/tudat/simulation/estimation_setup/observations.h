@@ -2669,7 +2669,7 @@ class ObservationCollection
             {
                 for ( auto link_end_it : obs_it.second )
                 {
-                    if( observationSetList_.at( obs_it ).count( link_end_it.first ) == 0 )
+                    if( observationSetList_.at( obs_it.first ).count( link_end_it.first ) == 0 )
                     {
                         observationSetList_[ obs_it.first ][ link_end_it.first ] == link_end_it.second;
                     }
