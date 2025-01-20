@@ -17,8 +17,10 @@ from tudatpy.kernel.astro.time_conversion import \
      TCB_to_TDB, \
      TCG_to_TT, \
      TDB_to_TCB, \
+     TDB_to_TT, \
      TT_to_TAI, \
      TT_to_TCG, \
+     TT_to_TDB, \
      TT_to_TDB_approximate, \
      add_days_to_datetime, \
      add_seconds_to_datetime, \
