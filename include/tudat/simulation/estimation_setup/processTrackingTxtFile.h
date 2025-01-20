@@ -758,19 +758,22 @@ void setTrackingDataInformationInBodies(
 
 }
 
-
 template< typename ObservationScalarType = double, typename TimeType = Time >
-std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createIfmsObservedObservationCollectionFromFiles(
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createMultiStationIfmsObservedObservationCollectionFromFiles(
     const std::vector< std::string >& ifmsFileNames,
     simulation_setup::SystemOfBodies& bodies,
     const std::string& targetName,
-    const std::string& groundStationName,
+    const std::vector< std::string >& groundStationNames,
     const FrequencyBands& receptionBand,
     const FrequencyBands& transmissionBand,
     const bool applyTroposphereCorrection = true,
     const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
     simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
+    if( groundStationNames.size( ) != ifmsFileNames.size( ) )
+    {
+        throw std::runtime_error( "Error when loading IFMS files, list of files has different size than list of stations" );
+    }
     std::vector< std::shared_ptr< input_output::TrackingTxtFileContents > > rawIfmsDataList;
 
     for( std::string ifmsFileName : ifmsFileNames )
@@ -781,8 +784,8 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > > processedIfmsFiles;
     for( unsigned int i = 0; i < rawIfmsDataList.size( ); i++ )
     {
-        rawIfmsDataList.at( i )->addMetaData( input_output::TrackingDataType::receiving_station_name, groundStationName );
-        rawIfmsDataList.at( i )->addMetaData( input_output::TrackingDataType::transmitting_station_name, groundStationName);
+        rawIfmsDataList.at( i )->addMetaData( input_output::TrackingDataType::receiving_station_name, groundStationNames.at( i ) );
+        rawIfmsDataList.at( i )->addMetaData( input_output::TrackingDataType::transmitting_station_name, groundStationNames.at( i ) );
         processedIfmsFiles.push_back( std::make_shared<observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >(
             rawIfmsDataList.at( i ), targetName, earthFixedGroundStationPositions ) );
     }
@@ -797,6 +800,24 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
 
     return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
         processedIfmsFiles, std::vector<ObservableType>(), ancilliarySettings );
+}
+
+
+template< typename ObservationScalarType = double, typename TimeType = Time >
+std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createIfmsObservedObservationCollectionFromFiles(
+    const std::vector< std::string >& ifmsFileNames,
+    simulation_setup::SystemOfBodies& bodies,
+    const std::string& targetName,
+    const std::string& groundStationName,
+    const FrequencyBands& receptionBand,
+    const FrequencyBands& transmissionBand,
+    const bool applyTroposphereCorrection = true,
+    const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
+    simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+{
+    vector< std::string > groundStationNameList( ifmsFileNames.size( ), groundStationName);
+    return createMultiStationIfmsObservedObservationCollectionFromFiles(
+        ifmsFileNames, bodies, targetName, groundStationNameList, receptionBand, transmissionBand, applyTroposphereCorrection, earthFixedGroundStationPositions );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
