@@ -67,6 +67,8 @@ Functions
 
    keplerian_from_spice
 
+   sgp4
+
    scaled_by_constant
 
    scaled_by_vector
@@ -93,6 +95,8 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ephemeris.keplerian
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ephemeris.keplerian_from_spice
+
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.ephemeris.sgp4
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ephemeris.scaled_by_constant
 
