@@ -815,8 +815,9 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
     simulation_setup::getCombinedApproximateGroundStationPositions( ) )
 {
-    vector< std::string > groundStationNameList( ifmsFileNames.size( ), groundStationName);
-    return createMultiStationIfmsObservedObservationCollectionFromFiles(
+    std::vector< std::string > groundStationNameList( ifmsFileNames.size( ), groundStationName);
+
+    return createMultiStationIfmsObservedObservationCollectionFromFiles< ObservationScalarType, TimeType >(
         ifmsFileNames, bodies, targetName, groundStationNameList, receptionBand, transmissionBand, applyTroposphereCorrection, earthFixedGroundStationPositions );
 }
 
