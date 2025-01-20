@@ -796,7 +796,10 @@ void expose_estimation(py::module &m) {
                           &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setTabulatedWeights ),
                   py::arg( "tabulated_weights" ),
                   get_docstring( "set_tabulated_weights" ).c_str() )
-            .def( "filter_observations",
+             .def( "append",
+                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::appendObservationCollection,
+                   py::arg( "observation_collection_to_append" ) )
+        .def( "filter_observations",
                   py::overload_cast<
                   const std::map< std::shared_ptr< tom::ObservationCollectionParser >,
                   std::shared_ptr< tom::ObservationFilterBase > >&,
@@ -915,6 +918,9 @@ void expose_estimation(py::module &m) {
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   get_docstring( "dependent_variable_history" ).c_str( ) );
 
+    m.def("merge_observation_collections",
+          &tss::mergeObservationCollections< STATE_SCALAR_TYPE, TIME_TYPE >,
+          py::arg("observation_collection_list") );
 
     m.def( "create_single_observation_set",
            py::overload_cast<
