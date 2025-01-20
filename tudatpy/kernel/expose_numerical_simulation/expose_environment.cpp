@@ -771,7 +771,7 @@ void expose_environment(py::module &m) {
                                    get_docstring("GroundStationState.spherical_positon_at_reference_epoch").c_str()   )
             .def_property_readonly("geodetic_positon_at_reference_epoch", &tgs::GroundStationState::getNominalGeodeticPosition,
                                    get_docstring("GroundStationState.geodetic_positon_at_reference_epoch").c_str()   )
-            .def_property_readonly("rotation_matrix_body_fixed_to_topocentric", &tgs::GroundStationState::getRotationMatrixFromBodyFixedToTopocentricFrame,
+            .def_property_readonly("rotation_matrix_body_fixed_to_topocentric", &tgs::GroundStationState::getConstantRotationMatrixFromBodyFixedToTopocentricFrame,
                                    get_docstring("GroundStationState.rotation_matrix_body_fixed_to_topocentric").c_str()  );
 
     py::class_<tgs::GroundStation,
