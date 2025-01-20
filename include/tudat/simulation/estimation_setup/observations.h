@@ -4529,7 +4529,7 @@ mergeObservationCollections(
     std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > combinedObservationSets;
     for( unsigned int i = 0; i < observationCollectionList.size( ); i++ )
     {
-        const SortedObservationSets& currentObservationSets = observationCollectionList.at( i )->getObservationsReference( );
+        auto currentObservationSets = observationCollectionList.at( i )->getObservationsReference( );
         {
             for( auto obs_it : currentObservationSets )
             {
