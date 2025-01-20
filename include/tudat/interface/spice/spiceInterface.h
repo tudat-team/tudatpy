@@ -135,6 +135,12 @@ std::vector<std::string> getStandardSpiceKernels(const std::vector<std::string> 
 //! @get_docstring(load_standard_kernels)
 void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemerisKernels =
                                   std::vector<std::string>());
+
+
+Eigen::Matrix3d getRotationFromJ2000ToEclipJ2000( );
+
+Eigen::Matrix3d getRotationFromEclipJ2000ToJ2000( );
+
 /**
  * @brief Sets the default error handling action of the CSPICE toolkit to "RETURN".
  *
