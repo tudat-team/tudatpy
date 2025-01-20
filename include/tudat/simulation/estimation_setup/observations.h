@@ -2659,7 +2659,7 @@ class ObservationCollection
     {
         const SortedObservationSets& setsToAppend = observationCollectionToAppend->getObservationsReference( );
 
-        for( auto obs_it : currentObservationSets )
+        for( auto obs_it : setsToAppend )
         {
             if( observationSetList_.count( obs_it.first ) == 0 )
             {
@@ -2667,7 +2667,7 @@ class ObservationCollection
             }
             else
             {
-                for ( link_end_it: obs_it.second )
+                for ( link_end_it : obs_it.second )
                 {
                     if( observationSetList_.at( obs_it ).count( link_end_it.first ) == 0 )
                     {
@@ -4526,7 +4526,7 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >
 mergeObservationCollections(
     std::vector< std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > > observationCollectionList )
 {
-    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > combinedObservationSets;
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > combinedObservationSets;
     for( unsigned int i = 0; i < observationCollectionList.size( ); i++ )
     {
         const SortedObservationSets& currentObservationSets = observationCollectionList.at( i )->getObservationsReference( );
