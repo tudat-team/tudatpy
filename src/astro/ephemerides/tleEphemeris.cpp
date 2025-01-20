@@ -20,8 +20,32 @@
 namespace tudat
 {
 
+
 namespace ephemerides
 {
+
+Eigen::Matrix3d getRotationMatrixFromTemeToJ2000( const double epochSinceJ2000  )
+{
+    // First, rotate to the True Of Date (TOD) frame.
+    double equationOfEquinoxes = sofa_interface::calculateEquationOfEquinoxes( epochSinceJ2000 );
+
+    // Rotate around pole (z-axis)
+    Eigen::AngleAxisd rotationObject = Eigen::AngleAxisd( equationOfEquinoxes, Eigen::Vector3d::UnitZ( ) );
+    Eigen::Matrix3d rotationMatrix1 = rotationObject.toRotationMatrix( );
+
+    // Now that we have our state vector in the TOD frame, we need to obtain the combined precession + nutation matrix from Sofa
+    // (according to the 1976/1980 model)
+    Eigen::Matrix3d precessionNutationMatrix = sofa_interface::getPrecessionNutationMatrix( epochSinceJ2000 );
+    Eigen::Matrix3d rotationMatrix2 = precessionNutationMatrix.transpose( );
+
+    return rotationMatrix2 * rotationMatrix1;
+}
+
+Eigen::Matrix3d getRotationMatrixFromJ2000ToTeme( const double epochSinceJ2000  )
+{
+    return getRotationMatrixFromTemeToJ2000( epochSinceJ2000 ).transpose( );
+}
+
 
 	TleEphemeris::TleEphemeris( const std::string &referenceFrameOrigin, const std::string &referenceFrameOrientation,
 							   const std::shared_ptr< Tle > tle_ptr, const bool useSDP ) :
@@ -55,48 +79,31 @@ namespace ephemerides
 
 	Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
 	{
-        const Eigen::Vector6d cartesianStateAtEpochTEME = getCartesianStateInTemeFrame( secondsSinceEpoch );
+        // Compute TEME state
+        Eigen::Vector6d cartesianStateAtEpochTEME = getCartesianStateInTemeFrame( secondsSinceEpoch );
 
-		Eigen::Vector3d positionTEME = cartesianStateAtEpochTEME.head( 3 );
-		Eigen::Vector3d velocityTEME = cartesianStateAtEpochTEME.tail( 3 );
-        
-		// First, rotate to the True Of Date (TOD) frame.
-		double equationOfEquinoxes = sofa_interface::calculateEquationOfEquinoxes( secondsSinceEpoch, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+        // Compute rotation to J2000
+        Eigen::Matrix3d rotationToJ2000 = getRotationMatrixFromTemeToJ2000( secondsSinceEpoch );
 
-		// Rotate around pole (z-axis)
-		Eigen::AngleAxisd rotationObject = Eigen::AngleAxisd( equationOfEquinoxes, Eigen::Vector3d::UnitZ( ) );
-		Eigen::Vector3d positionTOD = rotationObject.toRotationMatrix( ) * positionTEME;
-		Eigen::Vector3d velocityTOD = rotationObject.toRotationMatrix( ) * velocityTEME;
-
-		// Now that we have our state vector in the TOD frame, we need to obtain the combined precession + nutation matrix from Sofa
-		// (according to the 1976/1980 model)
-		Eigen::Matrix3d precessionNutationMatrix = sofa_interface::getPrecessionNutationMatrix( secondsSinceEpoch );
-		// Multiply by inverted matrix to get to J2000
-		Eigen::Vector3d  positionJ2000 = precessionNutationMatrix.transpose( ) * positionTOD;
-		Eigen::Vector3d  velocityJ2000 = precessionNutationMatrix.transpose( ) * velocityTOD;
-
-		if( referenceFrameOrientation_ == "J2000" )
+        Eigen::Vector6d cartesianStateOutput = Eigen::Vector6d::Zero( );
+        if( referenceFrameOrientation_ == "J2000" )
 		{
-			Eigen::Vector6d stateJ2000;
-			stateJ2000 << positionJ2000, velocityJ2000;
-			return stateJ2000;
+            cartesianStateOutput.segment( 0, 3 ) = rotationToJ2000 * cartesianStateAtEpochTEME.segment( 0, 3 );
+            cartesianStateOutput.segment( 3, 3 ) = rotationToJ2000 * cartesianStateAtEpochTEME.segment( 3, 3 );
 		}
 		else if( referenceFrameOrientation_ == "ECLIPJ2000" )
 		{
-			Eigen::Quaterniond itrsToEclipticQuaternion = spice_interface::computeRotationQuaternionBetweenFrames(
-					"J2000", "ECLIPJ2000", secondsSinceEpoch );
-			Eigen::Vector3d positionEclipJ2000 = itrsToEclipticQuaternion * positionJ2000;
-			Eigen::Vector3d velocityEclipJ2000 = itrsToEclipticQuaternion * velocityJ2000;
-			Eigen::Vector6d stateEclipJ2000;
-			stateEclipJ2000 << positionEclipJ2000, velocityEclipJ2000;
-			return stateEclipJ2000;
+			Eigen::Matrix3d itrsToEclipticQuaternion = spice_interface::getRotationFromJ2000ToEclipJ2000( );
+
+            cartesianStateOutput.segment( 0, 3 ) = itrsToEclipticQuaternion * rotationToJ2000 * cartesianStateAtEpochTEME.segment( 0, 3 );
+            cartesianStateOutput.segment( 3, 3 ) = itrsToEclipticQuaternion * rotationToJ2000 * cartesianStateAtEpochTEME.segment( 3, 3 );
 		}
 		else
 		{
 			throw std::runtime_error( "TLE state conversion to target frame " + referenceFrameOrientation_ + " is currently unsupported." );
 		}
 
-		return cartesianStateAtEpochTEME;
+		return cartesianStateOutput;
 	}
 
 	Tle::Tle( const std::string& lines )
