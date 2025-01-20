@@ -2667,7 +2667,7 @@ class ObservationCollection
             }
             else
             {
-                for ( link_end_it : obs_it.second )
+                for ( auto link_end_it : obs_it.second )
                 {
                     if( observationSetList_.at( obs_it ).count( link_end_it.first ) == 0 )
                     {
@@ -4533,7 +4533,7 @@ mergeObservationCollections(
         {
             for( auto obs_it : currentObservationSets )
             {
-                for( link_end_it : obs_it.second )
+                for( auto link_end_it : obs_it.second )
                 {
                     auto listToAdd = link_end_it.second;
                     combinedObservationSets.insert( combinedObservationSets.end( ), listToAdd.begin( ), listToAdd.end( ) );
