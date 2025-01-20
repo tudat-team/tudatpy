@@ -2654,6 +2654,37 @@ class ObservationCollection
         }
     }
 
+    void appendObservationCollection(
+        std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollectionToAppend )
+    {
+        const SortedObservationSets& setsToAppend = observationCollectionToAppend->getObservationsReference( );
+
+        for( auto obs_it : currentObservationSets )
+        {
+            if( observationSetList_.count( obs_it.first ) == 0 )
+            {
+                observationSetList_[ obs_it.first ] == obs_it.second;
+            }
+            else
+            {
+                for ( link_end_it: obs_it.second )
+                {
+                    if( observationSetList_.at( obs_it ).count( link_end_it.first ) == 0 )
+                    {
+                        observationSetList_[ obs_it.first ][ link_end_it.first ] == link_end_it.second;
+                    }
+                    else
+                    {
+                        auto listToAdd = link_end_it.second;
+                        observationSetList_[ obs_it.first ][ link_end_it.first ].insert(
+                            observationSetList_[ obs_it.first ][ link_end_it.first ].end( ),
+                            listToAdd.begin( ), listToAdd.end( ));
+                    }
+                }
+            }
+        }
+    }
+
     void filterObservations(
             const std::map< std::shared_ptr< ObservationCollectionParser >,
                             std::shared_ptr< ObservationFilterBase > >& observationFilters,
@@ -4488,6 +4519,29 @@ createManualObservationCollection(
 {
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >(
             singleObservationSets );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > >
+mergeObservationCollections(
+    std::vector< std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > > observationCollectionList )
+{
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > combinedObservationSets;
+    for( unsigned int i = 0; i < observationCollectionList.size( ); i++ )
+    {
+        const SortedObservationSets& currentObservationSets = observationCollectionList.at( i )->getObservationsReference( );
+        {
+            for( auto obs_it : currentObservationSets )
+            {
+                for( link_end_it : obs_it.second )
+                {
+                    auto listToAdd = link_end_it.second;
+                    combinedObservationSets.insert( combinedObservationSets.end( ), listToAdd.begin( ), listToAdd.end( ) );
+                }
+            }
+        }
+    }
+    return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( combinedObservationSets );
 }
 
 }  // namespace observation_models
