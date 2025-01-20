@@ -35,8 +35,9 @@ from tudatpy.kernel.numerical_simulation.environment import \
      AtmosphereModel, \
      AtmosphericFlightConditions, \
      Body, \
+     BodyShapeModel, \
      ConstantEphemeris, \
-     ConstantFrequencyInterpolator, \
+     ConstantTransmittingFrequencyCalculator, \
      ControlSurfaceIncrementAerodynamicInterface, \
      CustomBodyFixedDirectionCalculator, \
      CustomControlSurfaceIncrementAerodynamicInterface, \
@@ -57,15 +58,14 @@ from tudatpy.kernel.numerical_simulation.environment import \
      PointingAnglesCalculator, \
      PolyhedronGravityField, \
      RotationalEphemeris, \
-     ShapeModel, \
      SphericalHarmonicsGravityField, \
-     StationFrequencyInterpolator, \
      SynchronousRotationalEphemeris, \
      SystemOfBodies, \
      TabulatedEphemeris, \
      TimingSystem, \
      Tle, \
      TleEphemeris, \
+     TransmittingFrequencyCalculator, \
      VehicleSystems, \
      aerodynamic_frame, \
      altitude_dependent, \
