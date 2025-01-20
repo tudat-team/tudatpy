@@ -17,6 +17,7 @@
 #include <tudat/astro/basic_astro/stateRepresentationConversions.h>
 #include <tudat/astro/basic_astro/attitudeElementConversions.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
+#include <tudat/interface/spice/spiceInterface.h>
 
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
@@ -29,6 +30,7 @@ namespace tla = tudat::linear_algebra;
 namespace te = tudat::ephemerides;
 namespace tba = tudat::basic_astrodynamics;
 namespace tmg = tudat::mission_geometry;
+namespace tsi = tudat::spice_interface;
 
 namespace tudatpy {
 
@@ -334,30 +336,39 @@ void expose_element_conversion(py::module &m) {
      **************   TLE  ******************
 
      */
-    m.def("teme_state_to_j2000",
-          py::overload_cast< double, Eigen::Vector6d >(
-                  &tba::convertStateFromTEMEtoJ2000 ),
+    m.def("teme_to_j2000",
+          &te::getRotationMatrixFromTemeToJ2000,
           py::arg("epoch"),
-          py::arg("teme_state") );
+          get_docstring("teme_to_j2000").c_str() );
 
-    m.def("teme_state_to_eclipj2000",
-          py::overload_cast< double, Eigen::Vector6d >(
-                  &tba::convertStateFromTEMEtoEclipJ2000 ),
-          py::arg("epoch"),
-          py::arg("teme_state") );
+    m.def("j2000_to_teme",
+          &te::getRotationMatrixFromTemeToJ2000,
+          py::arg("epoch") ,
+          get_docstring("j2000_to_teme").c_str());
 
-    m.def("j2000_state_to_teme",
-          py::overload_cast< double, Eigen::Vector6d >(
-                  &tba::convertStateFromJ2000ToTEME ),
-          py::arg("epoch"),
-          py::arg("j2000_state") );
+    /*!
+ **************   STANDARD FRAMES  ******************
 
-    m.def("eclipj2000_state_to_teme",
-          py::overload_cast< double, Eigen::Vector6d >(
-                  &tba::convertStateFromEclipJ2000ToTEME ),
-          py::arg("epoch"),
-          py::arg("eclipj2000_state") );
+ */
+    m.def("j2000_to_eclipj2000",
+          &tsi::getRotationFromJ2000ToEclipJ2000,
+          get_docstring("j2000_to_eclipj2000").c_str() );
 
+    m.def("eclipj2000_to_j2000",
+          &tsi::getRotationFromEclipJ2000ToJ2000,
+          get_docstring("eclipj2000_to_j2000").c_str() );
+
+    /*!
+**************   TRANSFORMATION FUNCTIONS  ******************
+
+*/
+
+    m.def("rotate_state_to_frame",
+          py::overload_cast< const Eigen::Vector6d&, const Eigen::Matrix3d&, const Eigen::Matrix3d& >( &te::transformStateToFrameFromRotations< double > ),
+          py::arg("original_state"),
+          py::arg("rotation_matrix"),
+          py::arg("rotation_matrix_time_derivative") = Eigen::Matrix3d::Zero( ),
+          get_docstring("rotate_state_to_frame").c_str()  );
 
 }
 } // namespace element_conversion
