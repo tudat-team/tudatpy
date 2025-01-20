@@ -287,6 +287,14 @@ namespace ephemeris {
               py::arg("interpolator_settings") =  std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ),
               get_docstring("tabulated_from_existing").c_str());
 
+        m.def("sgp4",
+              &tss::directTleEphemerisSettingsFromTleLines,
+              py::arg("tle_line_1"),
+              py::arg("tle_line_2"),
+              py::arg("frame_origin") = "SSB",
+              py::arg("frame_orientation") = "ECLIPJ2000",
+              get_docstring("sgp4").c_str());
+
         m.def("constant",
               &tss::constantEphemerisSettings,
               py::arg("constant_state"),
