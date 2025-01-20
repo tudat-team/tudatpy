@@ -155,6 +155,15 @@ Functions
 
    spherical_to_cartesian_elementwise
 
+   teme_to_j2000
+
+   j2000_to_teme
+
+   eclipj2000_to_j2000
+
+   j2000_to_eclipj2000
+
+   rotate_state_to_frame
 
 
 .. autofunction:: tudatpy.astro.element_conversion.cartesian_to_keplerian
@@ -226,6 +235,16 @@ Functions
 .. autofunction:: tudatpy.astro.element_conversion.spherical_to_cartesian
 
 .. autofunction:: tudatpy.astro.element_conversion.spherical_to_cartesian_elementwise
+
+.. autofunction:: teme_to_j2000
+
+.. autofunction:: j2000_to_teme
+
+.. autofunction:: eclipj2000_to_j2000
+
+.. autofunction:: j2000_to_eclipj2000
+
+.. autofunction:: rotate_state_to_frame
 
 
 
