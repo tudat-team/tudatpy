@@ -17,12 +17,16 @@ from tudatpy.kernel.astro.element_conversion import \
      cartesian_to_mee, \
      cartesian_to_mee_manual_singularity, \
      cartesian_to_spherical, \
+     cartesian_to_usm_6, \
+     cartesian_to_usm_7, \
+     cartesian_to_usm_em, \
      convert_position_elements, \
      delta_mean_anomaly_to_elapsed_time, \
      eccentric_to_mean_anomaly, \
      eccentric_to_true_anomaly, \
      eclipj2000_state_to_teme, \
      elapsed_time_to_delta_mean_anomaly, \
+     exponential_map_to_quaternion, \
      flip_mee_singularity, \
      j2000_state_to_teme, \
      keplerian_to_cartesian, \
@@ -34,7 +38,10 @@ from tudatpy.kernel.astro.element_conversion import \
      mean_to_true_anomaly, \
      mee_to_cartesian, \
      mee_to_keplerian, \
+     modified_rodrigues_parameters_to_quaternion, \
      quaternion_entries_to_rotation_matrix, \
+     quaternion_to_exponential_map, \
+     quaternion_to_modified_rodrigues_parameters, \
      rotation_matrix_to_quaternion_entries, \
      semi_major_axis_to_mean_motion, \
      spherical_to_cartesian, \
@@ -42,7 +49,10 @@ from tudatpy.kernel.astro.element_conversion import \
      teme_state_to_eclipj2000, \
      teme_state_to_j2000, \
      true_to_eccentric_anomaly, \
-     true_to_mean_anomaly
+     true_to_mean_anomaly, \
+     usm_6_to_cartesian, \
+     usm_7_to_cartesian, \
+     usm_em_to_cartesian
 # ----------------------------------------
 #                 OBJECTS                 
 # ----------------------------------------
