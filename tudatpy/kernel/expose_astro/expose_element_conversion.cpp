@@ -17,7 +17,7 @@
 #include <tudat/astro/basic_astro/stateRepresentationConversions.h>
 #include <tudat/astro/basic_astro/attitudeElementConversions.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
-#include <tudat/interface/spice/spiceInterface.h"
+#include <tudat/interface/spice/spiceInterface.h>
 
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
@@ -337,12 +337,12 @@ void expose_element_conversion(py::module &m) {
 
      */
     m.def("teme_to_j2000",
-          &tba::getRotationMatrixFromTemeToJ2000,
+          &te::getRotationMatrixFromTemeToJ2000,
           py::arg("epoch"),
           get_docstring("teme_to_j2000").c_str() );
 
     m.def("j2000_to_teme",
-          &tba::getRotationMatrixFromTemeToJ2000,
+          &te::getRotationMatrixFromTemeToJ2000,
           py::arg("epoch") ,
           get_docstring("j2000_to_teme").c_str());
 
@@ -355,8 +355,7 @@ void expose_element_conversion(py::module &m) {
           get_docstring("j2000_to_eclipj2000").c_str() );
 
     m.def("eclipj2000_to_j2000",
-          &tba::getRotationFromEclipJ2000ToJ2000,
-          py::arg("epoch"),
+          &tsi::getRotationFromEclipJ2000ToJ2000,
           get_docstring("eclipj2000_to_j2000").c_str() );
 
     /*!
@@ -365,7 +364,7 @@ void expose_element_conversion(py::module &m) {
 */
 
     m.def("rotate_state_to_frame",
-          &te::transformStateToFrameFromRotations< TIME_TYPE >,
+          py::overload_cast< const Eigen::Vector6d&, const Eigen::Matrix3d&, const Eigen::Matrix3d& >( &te::transformStateToFrameFromRotations< double > ),
           py::arg("original_state"),
           py::arg("rotation_matrix"),
           py::arg("rotation_matrix_time_derivative") = Eigen::Matrix3d::Zero( ),

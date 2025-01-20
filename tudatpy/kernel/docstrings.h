@@ -1229,6 +1229,106 @@ numpy.ndarray
 
 
 
+    } else if(name == "teme_to_j2000" ) {
+        return R"(
+
+Computes the rotation matrix from the TEME (True Equator Mean Equinox) frame to the J2000 frame, using the following:
+
+.. math::
+    \mathbf{R}^{(\text{J2000}/\text{TEME})}=\mathbf{PN}(t)\mathbf{R}_{z}(-\theta(t)))
+
+where :math:`\theta` is the difference between the actual and mean position of the first poing of Aries (or 'equation of the equinoxes`), computes using the ``iauEe00b`` function of the SOFA
+library (which computes this angle compatible with IAU 2000 resolutions but using the truncated nutation model IAU 2000B), and the precession-nutation matrix :math:`\mathbf{PN}` is computes using
+the function ``iauPnm80`` of the Sofa library, which uses th IAU 1976 precession model, and the IAU 1980 nutation model. The choice of slightly inconsistent IAU conventions is made for computational
+efficiency, as the 1976/1980 model includes fewer terms that the newer resolutions, and is combined with the truncated nutation model. Since the definition of the TEME frame is slightly ambiguous,
+the possible computational error that is incurred is insignificant for the application of the TEME frame: the transformation of SGP4-propagated TLEs to other epochs.
+
+Parameters
+----------
+epoch : float
+    Time as TDB seconds since J2000
+Returns
+-------
+numpy.ndarray
+    Rotation matrix from TEME to J2000 frame
+
+
+    )";
+
+
+
+    } else if(name == "j2000_to_teme" ) {
+        return R"(
+
+Computes the rotation matrix from the J2000 to the TEME (True Equator Mean Equinox) frame, which is the inverse of the :func:`~teme_to_j2000` function.
+
+Parameters
+----------
+epoch : float
+    Time as TDB seconds since J2000
+Returns
+-------
+numpy.ndarray
+    Rotation matrix from J2000 to TEME frame
+
+
+    )";
+
+
+    } else if(name == "j2000_to_eclipj2000" ) {
+        return R"(
+
+Provides the (constant) rotation matrix from the J2000 to the ECLIPJ2000 frame, as defined in the SPICE library (see :ref:`\`\`spice\`\`` for more details on our interface with this library).
+
+Returns
+-------
+numpy.ndarray
+    Rotation matrix from J2000 to ECLIPJ2000 frame
+
+
+    )";
+
+
+    } else if(name == "eclipj2000_to_j2000" ) {
+        return R"(
+
+Provides the (constant) rotation matrix from the ECLIPJ2000 to the J2000 frame, as defined in the SPICE library (see :ref:`\`\`spice\`\`` for more details on our interface with this library).
+
+Returns
+-------
+numpy.ndarray
+    Rotation matrix from ECLIPJ2000 to J2000 frame
+
+
+    )";
+
+    } else if(name == "rotate_state_to_frame" ) {
+        return R"(
+
+Rotates a Cartesian state (position and velocity) from one frame :math:`B` to another frame :math:`A`, using the rotation matrix :math:`\mathbf{R}^{(A/B)}` from frame :math:`B` to :math:`A`, and its time derivative
+:math:`\dot{\mathbf{R}}^{(A/B)}`.
+This function computes:
+
+.. math::
+   \mathbf{r}^{(A)}=\mathbf{R}^{(A/B)}\mathbf{r}^{(B)}+\dot{\mathbf{R}}^{(A/B)}\mathbf{v}^{(B)}\\
+   \mathbf{v}^{(A)}=\mathbf{R}^{(A/B)}\mathbf{v}^{(B)}
+
+Parameters
+----------
+original_state : ndarray[numpy.float64[6, 1]]
+    Cartesian state vector :math:`\mathbf{x}^{(B)}=[\mathbf{r}^{(B)};\mathbf{v}^{(B)}]` in frame :math:`B`
+rotation_matrix: ndarray[numpy.float64[3, 3]]
+    Rotation matrix :math:`\mathbf{R}^{(A/B)}` from frame :math:`B` to :math:`A`
+rotation_matrix_time_derivative: ndarray[numpy.float64[3, 3]], default = numpy.zeros((3, 3))
+    Time derivative of rotation matrix (:math:`\dot{\mathbf{R}}^{(A/B)})` from frame :math:`B` to :math:`A`; default zero indicates that frames :math:`A` and :math:`B` have a constant orientation w.r.t. one another.
+Returns
+-------
+numpy.ndarray
+    Input state in frame :math:`B`, rotated to frame :math:`A`
+
+
+    )";
+
     } else if(name == "cartesian_to_spherical" ) {
         return R"(
         
@@ -13665,6 +13765,51 @@ In this example, we create ephemeris settings for Jupiter, by scaling an existin
       scaling_vector_function ) 
 
 In the above case, the original Jupiter ephemeris setting is taken and each state element (x,y,z position and velocity) from the original ephemeris is multiplied by the corresponding scaling factor in the vector returned by ``vector_scaling_function``.
+
+
+    )";
+
+
+
+    } else if(name == "sgp4" ) {
+        return R"(
+
+Function for creating ephemeris model settings for an SGP4-propagated TLE.
+
+Function for creating ephemeris model settings for an SGP4-propagated two-line element (TLE). Our implementation uses the ``evsgp4_c`` function of the SPICE library
+to perform the SGP4 propagation, and the :func:`~tudatpy.astro.element_conversion.teme_to_j2000 ` function to rotate the resulting state from teh TEME frame to the J2000 frame
+(and, if required for this ephemeris model, a subsequent different inertial frame).
+
+Parameters
+----------
+tle_line_1 : str
+    First line of the two-line element set
+tle_line_2 : str
+    second line of the two-line element set
+frame_origin : str, default="Earth"
+    Origin of frame in which ephemeris data is defined.
+frame_orientation : str, default="J2000"
+    Orientation of frame in which ephemeris data is defined.
+Returns
+-------
+DirectTleEphemerisSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.DirectTleEphemerisSettings` class
+
+
+
+Examples
+--------
+In this example, we create ephemeris settings for Jupiter, by scaling an existing :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` object with factors from a custom function:
+
+.. code-block:: python
+
+  # Create ephemeris settings for Delfi C-3 spacecraft using launch TLE
+   body_settings.get( "DelfiC-3" ).ephemeris_settings =  environment_setup.ephemeris.sgp4(
+        '1 32789U 07021G   08119.60740078 -.00000054  00000-0  00000+0 0  9999',
+        '2 32789 098.0082 179.6267 0015321 307.2977 051.0656 14.81417433    68' )
+ )
+
+In the above case, the given TLE will be used as input to an SGP4 propagation, with the output given from this ephemeris model in the (default) Earth-centered J2000 frame.
 
 
     )";
@@ -27847,12 +27992,32 @@ Can be used for a custom coefficient interface with other variables, at the expe
     )";
 
 
-    } else if(name == "GroundStationState.cartesian_positon_at_reference_epoch" ) {
+    } else if(name == "GroundStationState.rotation_matrix_body_fixed_to_topocentric" ) {
             return R"(
 
         **read-only**
 
+        Rotation matrix from the body-fixed frame (of the station's central body) to the topocentric frame
+        of the ground station. The body-fixed frame is defined by the rotation model of the body object (:attr:`~tudatpy.numerical_simulation.environment.Body.rotation_model`).
+        The axes of the topocentric frame are defined such that the x-axis is in East direction, the z-direction is upwards, perpendicular to the body's surface sphere
+        (with properties defined by the central body's shape model:attr:`~tudatpy.numerical_simulation.environment.Body.shape_model`). The y-axis completes the frame, and is in northern direction.
+        For time-varying ground station positions, this function uses the station position at reference epoch for the computation of the axes.
+
+        :type: numpy.ndarray[numpy.float64[3, 3]]
+
+
+    )";
+
+
+    } else if(name == "GroundStationState.cartesian_positon_at_reference_epoch" ) {
+            return R"(
+
+
+        **read-only**
+
         Cartesian position of the ground station, at the reference epoch, in a body-fixed, body-centered frame.
+
+        :type: numpy.ndarray[numpy.float64[3, 1]]
 
     )";
 
@@ -27864,6 +28029,8 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Spherical position of the ground station (distance w.r.t. body center, latitude, longitude), at the reference epoch, in a body-fixed, body-centered frame.
 
+        :type: numpy.ndarray[numpy.float64[3, 1]]
+
     )";
 
 
@@ -27874,7 +28041,11 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Geodetic position of the ground station (altitude w.r.t. body shape model, geodetic latitude, longitude), at the reference epoch, in a body-fixed, body-centered frame.
 
+        :type: numpy.ndarray[numpy.float64[3, 1]]
+
     )";
+
+
 
 
     } else if(name == "EngineModel" ) {
@@ -28496,14 +28667,8 @@ Function to convert a Cartesian state vector from a body-fixed to an inertial fr
 object as a model for the rotation. The body-fixed frame from which the conversion takes place is the :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.body_fixed_frame_name` frame,
 the (assumedly) inertial frame to which the conversion is done is :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.inertial_frame_name`.
 
-This function computes:
-
-.. math::
-   \mathbf{r}^{(I)}=\mathbf{R}^{(I/B)}\mathbf{r}^{(B)}+\dot{\mathbf{R}}^{(I/B)}\mathbf{v}^{(B)}
-   \mathbf{v}^{(I)}=\mathbf{R}^{(I/B)}\mathbf{v}^{(B)}
-
-for position and velocity vectors in inertial frame (superscript :math:`I`) and body-fixed frame (superscript :math:`B`) using the rotation matrix from body-fixed to inertial frame
-:math:`\mathbf{R}^{I/B}` and its time-derivative.
+This function calls :func:`~tudaypy.astro.element_conversion.rotate_state_to_frame` (with frame :math:`A` the inertial frame, and frame :math:`B` the body-fixed frame). The present function
+computes the required rotation matrix and its time derivative from the ``rotational_ephemeris`` input given here.
 
 Parameters
 ----------
