@@ -1048,6 +1048,14 @@ inline std::shared_ptr< EphemerisSettings > directTleEphemerisSettings(
 	return std::make_shared< DirectTleEphemerisSettings >( tle, frameOrigin, frameOrientation );
 }
 
+inline std::shared_ptr< EphemerisSettings > directTleEphemerisSettingsFromTleLines(
+    const std::string& tleLine1, const std::string& tleLine2,
+    const std::string frameOrigin = "Earth",
+    const std::string frameOrientation = "J2000" )
+{
+    return std::make_shared< DirectTleEphemerisSettings >( std::make_shared< ephemerides::Tle >( tleLine1, tleLine2 ), frameOrigin, frameOrientation );
+}
+
 inline std::shared_ptr< EphemerisSettings > interpolatedTleEphemerisSettings(
 		const double initialTime, const double finalTime,
 		const double timeStep, std::shared_ptr< ephemerides::Tle > tle,
