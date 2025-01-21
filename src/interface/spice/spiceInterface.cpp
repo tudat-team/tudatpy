@@ -548,6 +548,16 @@ void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemeri
     loadSpiceKernelInTudat(kernelPath + "/naif0012.tls");
 }
 
+Eigen::Matrix3d getRotationFromJ2000ToEclipJ2000( )
+{
+    return spice_interface::computeRotationQuaternionBetweenFrames( "J2000", "ECLIPJ2000", 0.0 ).toRotationMatrix( );
+}
+
+Eigen::Matrix3d getRotationFromEclipJ2000ToJ2000( )
+{
+    return spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "J2000", 0.0 ).toRotationMatrix( );
+}
+
 void toggleErrorReturn( )
 {
     erract_c ( "SET", 0, "RETURN" );
