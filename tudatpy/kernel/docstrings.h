@@ -10803,7 +10803,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         List of objects that define the settings of time variations of the gravity field variation models that are to be created. Variables in this list are typically
-        assigned by using a function from the :ref:`\`\`gravity_field_variations\`\`` module.
+        assigned by using a function from the :ref:`\`\`gravity_field_variation\`\`` module.
 
 
         :type: list[GravityFieldVariationSettings]
@@ -11336,7 +11336,7 @@ Function that creates a rotation model, and adds it to an existing body.
 This function can be used to add  a :class:`~tudatpy.numerical_simulation.environment.RotationalEphemeris` object to an existing body.
 Typically, the ``RotationalEphemeris`` is created along with the `~tudatpy.numerical_simulation.environment.Body` itself However, in some cases it may be useful
 to create a rotation model after the Body objects have been created. This function requires
-settings for the rotation model, created using one of the functions from the :ref:`~tudatpy.numerical_simulation_environment_setup.rotation_model` module.
+settings for the rotation model, created using one of the functions from the :ref:`~tudatpy.numerical_simulation.environment_setup.rotation_model` module.
 This function creates the actual coefficient interface from these settings, and assigns it to the
 selected body. In addition to the identifier for the body to which it is assigned, this function
 requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
