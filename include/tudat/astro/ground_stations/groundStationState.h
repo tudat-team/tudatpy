@@ -190,6 +190,11 @@ public:
         return Eigen::Matrix3d( getRotationFromBodyFixedToTopocentricFrame( time ) );
     }
 
+    Eigen::Matrix3d getConstantRotationMatrixFromBodyFixedToTopocentricFrame( )
+    {
+        return Eigen::Matrix3d( getRotationFromBodyFixedToTopocentricFrame( 0.0 ) );
+    }
+
 
     //! Function to (re)set the nominal state of the station
     /*!
