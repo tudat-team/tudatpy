@@ -1597,9 +1597,7 @@ class ObservationCollection
    public:
     typedef std::map<
             ObservableType,
-            std::map< LinkEnds,
-                      std::vector< std::shared_ptr<
-                              SingleObservationSet< ObservationScalarType, TimeType > > > > >
+            std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
             SortedObservationSets;
 
     ObservationCollection(
