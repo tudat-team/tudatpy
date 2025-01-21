@@ -23,6 +23,7 @@ from tudatpy.kernel.numerical_simulation.estimation import \
      create_single_observation_set, \
      estimation_convergence_checker, \
      filter_observations, \
+     merge_observation_collections, \
      observation_filter, \
      observation_parser, \
      observation_set_splitter, \

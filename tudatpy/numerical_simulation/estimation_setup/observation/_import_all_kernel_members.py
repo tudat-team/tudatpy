@@ -88,6 +88,7 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      observation_settings_from_collection, \
      observations_from_fdets_files, \
      observations_from_ifms_files, \
+     observations_from_multi_station_ifms_files, \
      observations_from_odf_files, \
      one_way_closed_loop_doppler, \
      one_way_doppler_averaged, \
