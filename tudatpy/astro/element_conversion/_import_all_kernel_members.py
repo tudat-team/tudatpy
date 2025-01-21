@@ -24,11 +24,12 @@ from tudatpy.kernel.astro.element_conversion import \
      delta_mean_anomaly_to_elapsed_time, \
      eccentric_to_mean_anomaly, \
      eccentric_to_true_anomaly, \
-     eclipj2000_state_to_teme, \
+     eclipj2000_to_j2000, \
      elapsed_time_to_delta_mean_anomaly, \
      exponential_map_to_quaternion, \
      flip_mee_singularity, \
-     j2000_state_to_teme, \
+     j2000_to_eclipj2000, \
+     j2000_to_teme, \
      keplerian_to_cartesian, \
      keplerian_to_cartesian_elementwise, \
      keplerian_to_mee, \
@@ -42,12 +43,12 @@ from tudatpy.kernel.astro.element_conversion import \
      quaternion_entries_to_rotation_matrix, \
      quaternion_to_exponential_map, \
      quaternion_to_modified_rodrigues_parameters, \
+     rotate_state_to_frame, \
      rotation_matrix_to_quaternion_entries, \
      semi_major_axis_to_mean_motion, \
      spherical_to_cartesian, \
      spherical_to_cartesian_elementwise, \
-     teme_state_to_eclipj2000, \
-     teme_state_to_j2000, \
+     teme_to_j2000, \
      true_to_eccentric_anomaly, \
      true_to_mean_anomaly, \
      usm_6_to_cartesian, \
