@@ -25,6 +25,7 @@ from tudatpy.kernel.numerical_simulation.environment_setup.ephemeris import \
      scaled_by_constant, \
      scaled_by_vector, \
      scaled_by_vector_function, \
+     sgp4, \
      tabulated, \
      tabulated_from_existing
 # ----------------------------------------
