@@ -39,6 +39,7 @@ where the ``epoch`` input is (as always in Tudat) the time in seconds since J200
 **Creating ephemeris objects from ephemeris settings**
 Ephemeris objects can also be created directly from ephemeris settings using the :func:`~tudatpy.numerical_simulation.environment_setup.create_body_ephemeris` function.
 This can be useful if you want to create an ephemeris object for a body that is not part of a system of bodies to perform further analysis, such as the barycenter of the Martian system:
+
 .. code-block:: python
 
   frame_origin = "SSB"
@@ -46,7 +47,8 @@ This can be useful if you want to create an ephemeris object for a body that is 
   body_name_to_use =  "MARS BARYCENTER"
   mars_system_ephemeris_settings = environment_setup.ephemeris.direct_spice(
      frame_origin, frame_orientation, body_name_to_use ) # Create ephemeris settings
-  mars_system_ephemeris = environment_setup.create_body_ephemeris(mars_system_ephemeris_settings, "MARS BARYCENTER") # Create ephemeris object
+  mars_system_ephemeris = environment_setup.create_body_ephemeris(mars_system_ephemeris_settings,
+     "MARS BARYCENTER") # Create ephemeris object
 
 
 
