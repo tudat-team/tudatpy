@@ -1415,6 +1415,19 @@ void expose_observation_setup( py::module& m )
                    tss::getCombinedApproximateGroundStationPositions( ),
            get_docstring( "create_odf_observed_observation_collection" ).c_str( ) );
 
+    m.def( "observations_from_multi_station_ifms_files",
+           &tom::createMultiStationIfmsObservedObservationCollectionFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "ifms_file_names" ),
+           py::arg( "bodies" ),
+           py::arg( "target_name" ),
+           py::arg( "ground_station_names" ),
+           py::arg( "reception_band" ),
+           py::arg( "transmission_band" ),
+           py::arg( "apply_troposphere_correction" ) = true,
+           py::arg( "earth_fixed_station_positions" ) =
+               tss::getCombinedApproximateGroundStationPositions( ),
+           get_docstring( "create_odf_observed_observation_collection" ).c_str( ) );
+
     m.def( "observations_from_fdets_files",
            &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "ifms_file_name" ),
