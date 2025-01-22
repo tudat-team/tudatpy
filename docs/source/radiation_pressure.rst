@@ -23,8 +23,6 @@ Functions
 
    constant_luminosity
 
-   cannonball_radiation_target
-
    irradiance_based_constant_luminosity
 
    time_variable_luminosity
@@ -49,11 +47,11 @@ Functions
 
    variable_albedo_surface_radiosity
 
+   thermal_emission_angle_based_radiosity
+
    thermal_emission_blackbody_constant_emissivity
 
    thermal_emission_blackbody_variable_emissivity
-
-   thermal_emission_angle_based_radiosity
 
    specular_diffuse_body_panel_reflection
 
@@ -61,15 +59,15 @@ Functions
 
    isotropic_radiation_source
 
-   panelled_radiation_target
-
    panelled_extended_radiation_source
+
+   cannonball_radiation_target
+
+   panelled_radiation_target
 
 
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.constant_luminosity
-
-.. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball_radiation_target
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.irradiance_based_constant_luminosity
 
@@ -95,11 +93,11 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.variable_albedo_surface_radiosity
 
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.thermal_emission_angle_based_radiosity
+
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.thermal_emission_blackbody_constant_emissivity
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.thermal_emission_blackbody_variable_emissivity
-
-.. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.thermal_emission_angle_based_radiosity
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.specular_diffuse_body_panel_reflection
 
@@ -107,9 +105,11 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.isotropic_radiation_source
 
-.. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.panelled_radiation_target
-
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.panelled_extended_radiation_source
+
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball_radiation_target
+
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.panelled_radiation_target
 
 
 
