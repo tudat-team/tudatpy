@@ -99,7 +99,38 @@ namespace tudatpy {
                                                         STATE_SCALAR_TYPE>),
                       py::arg("bodies_to_propagate"), py::arg("central_bodies"),
                       py::arg("body_system"), py::arg("initial_time"),
-                      get_docstring("get_state_of_bodies").c_str());
+                      R"doc(
+
+Function to get the translational states of a set of bodies, with respect to some set of central bodies, at the requested time.
+
+Function to get the translational states of a set of bodies, with respect to some set of central bodies, at the requested time. This function
+is typically used to extract an initial state for a propagation of a set of bodies, for which the initial state is extracted from the
+existing ephemerides of the bodies.
+
+
+Parameters
+----------
+bodies_to_propagate : list[str]
+    List of names of bodies for which the state is to be extracted
+central_bodies : list[str]
+    List of central bodies, w.r.t. which the states are to be computed (in the same order as ``bodies_to_propagate``)
+bodies_to_propagate : SystemOfBodies
+    System of bodies that define the environment
+initial_time : float
+    Time at which the states are to be extracted from the environment
+Returns
+-------
+numpy.ndarray
+    Vector of size :math:`6\times N`, with the translational states of each entry of body from
+    ``bodies_to_propagate`` w.r.t. the corresponding central body in ``central_bodies``.
+
+
+
+
+
+
+
+    )doc");
 
 
                 m.def("get_initial_state_of_bodies",
@@ -138,30 +169,56 @@ namespace tudatpy {
                     std::shared_ptr<tp::DampedInitialRotationalStateResults<
                         TIME_TYPE, STATE_SCALAR_TYPE>>>(
                     m, "RotationalProperModeDampingResults",
-                    get_docstring("RotationalProperModeDampingResults").c_str())
+                    R"doc(
+
+        Object that stores the results of the algorithm to damp the proper mode of rotational dynamics for an initial state,
+        as computed by the :func:`~get_damped_proper_mode_initial_rotational_state` function
+
+
+
+
+
+
+     )doc")
                     .def_readwrite(
                         "damped_initial_state",
                         &tp::DampedInitialRotationalStateResults<
                             TIME_TYPE, STATE_SCALAR_TYPE>::initialState_,
-                        get_docstring("RotationalProperModeDampingResults."
-                                      "damped_initial_state")
-                            .c_str())
-                    .def_readwrite(
-                        "forward_backward_states",
-                        &tp::DampedInitialRotationalStateResults<
-                            TIME_TYPE, STATE_SCALAR_TYPE>::
-                            forwardBackwardPropagatedStates_,
-                        get_docstring("RotationalProperModeDampingResults."
-                                      "forward_backward_states")
-                            .c_str())
-                    .def_readwrite(
-                        "forward_backward_dependent_variables",
-                        &tp::DampedInitialRotationalStateResults<
-                            TIME_TYPE, STATE_SCALAR_TYPE>::
-                            forwardBackwardDependentVariables_,
-                        get_docstring("RotationalProperModeDampingResults."
-                                      "forward_backward_dependent_variables")
-                            .c_str());
+                        R"doc(
+
+        Initital state produced by the damping algorithm, for which the signature of the proper mode should be
+        removed (or at least, substantially reduced). Note that this initial state corresponds to the *full* state vector
+        that is provided to the ``get_damped_proper_mode_initial_rotational_state`` function (e.g. is size 7
+        for rotational dynamics of a single body, size 13 for coupled orbital-rotational dynamics of a single body, etc.)
+
+
+        :type: numpy.ndarray
+     )doc")
+                    .def_readwrite("forward_backward_states",
+                                   &tp::DampedInitialRotationalStateResults<
+                                       TIME_TYPE, STATE_SCALAR_TYPE>::
+                                       forwardBackwardPropagatedStates_,
+                                   R"doc(
+
+        Data structure that contains the full state histories used by the damping algorithm. The contents are are as follows:
+
+        * The :math:`i^{th}` entry of the list corresponds to the :math:`i^{th}` iteration of the forward-backward propagation
+        * Each tuple in the list contains two dictionaries, the first one corresponding to the forward propagation results, the seconds one to the backward propagation results
+
+
+        :type: list[tuple[dict[float,numpy.ndarray],dict[float,numpy.ndarray]]]
+     )doc")
+                    .def_readwrite("forward_backward_dependent_variables",
+                                   &tp::DampedInitialRotationalStateResults<
+                                       TIME_TYPE, STATE_SCALAR_TYPE>::
+                                       forwardBackwardDependentVariables_,
+                                   R"doc(
+
+        As ``forward_backward_states``, but for the dependent variables.
+
+
+        :type: list[tuple[dict[float,numpy.ndarray],dict[float,numpy.ndarray]]]
+     )doc");
 
                 m.def("get_damped_proper_mode_initial_rotational_state",
                       py::overload_cast<
@@ -175,15 +232,96 @@ namespace tudatpy {
                       py::arg("body_mean_rotational_rate"),
                       py::arg("dissipation_times"),
                       py::arg("propagate_undamped") = true,
-                      get_docstring(
-                          "get_damped_proper_mode_initial_rotational_state")
-                          .c_str());
+                      R"doc(
+
+Function to compute an initial rotational state for which the proper mode of rotation is damped.
+
+Function to compute an initial rotational state for which the proper mode of rotation is damped, using the algorithm
+used by Rambaux et al. (2010) to compute an initial rotational state for Phobos. This algorithm propagates the
+dynamics of the system a number of times, with the settings specified by the user and a specific modification to
+damp the proper mode. Since a number of propagations are performed by this function, it may take some time to run.
+Specifically, the algorithm works as follows:
+
+* Introduce a damping torque (see below) to damp the proper mode, with damping time :math:`\tau_{d}`
+* Propagate the dynamics forward in time for a period of :math:`10\tau_{d}`
+* Remove the virtual torque, and propagate the dynamics back to the initial time :math:`t_{0}`
+* Repeat the above for the list of damping times provided by the user
+
+The state after the final backwards propagation to :math:`t_{0}` is provided as output by this function, to be
+used as damped initial state. The output from this function also provides the user access to the full state history
+and dependent variable history of the forward and backward propagations, to allow a user to track and validate
+the pgress of the algorithm.
+
+The damping torque :math:`\Gamma` is defined as follows:
+
+.. math::
+   \boldsymbol{\Gamma}= -\frac{1}{\tau_{d}}\mathbf{I}\begin{pmatrix}\omega_{x}\\ \omega_{y}\\ \omega_{x}-\omega_{p} \end{pmatrix}
+
+where :math:\mathbf{I}` is the body's inertia tensor (in its body-fixed frame), :math:`\tau_{d}` the damping time of the
+current propagation, and :math:`\omega_{x}, \omega_{y}, \omega_{z}` the body's current rotation about its
+body-fixed, x-, y- and z-axes, respectively. The damping torque is implemented to damp out all rotations along
+the body-fixed x- and y-axes, and any deviations from constant rotation with frequency :\omega_{p}: about the body-fixed z-axis.
+
+.. note:: The mean rotation rate of the body :math:`\omega_{p}` is a user-defined input, and must be tuned to the dynamics of the system.
+
+
+Parameters
+----------
+bodies : SystemOfBodies
+    Set of body objects that defines the environment
+propagator_settings : SingleArcPropagatorSettings
+    Propagator settings for the dynamics of which the initial rotational state is to be damped. These propagator
+    settings must be for rotational dynamics only, or for multi-type rotational dynamics that contains rotational
+    dynamics for a single body (e.g. translational-rotational dynamics for a single body)
+
+body_mean_rotational_rate : float
+    Mean rotational rate :math:`\omega_{p}` to which the damping algorithm will force the body-fixed rotation about its z-axis.
+dissipation_times : list[ float ]
+    List of damping times :math:`\tau_{d}` for which the algorithm is to be run. Note that this list should be organized in ascending order for the algorithm to perform properly
+propagate_undamped : bool, default = True
+    Boolean defining whether the first forward/backward propagation performed by the damping algorithm has damping turned off (damping turned off if True, damping turned on if False).
+    Propagating without any damping before starting the damping algorithm is useful for verification purposes, but not required for the algorithm itself.
+
+Returns
+-------
+DampedInitialRotationalStateResults
+    Object that contains the results of the damping algorithm (final damped rotational state, and forward/backward propagation results).
+
+
+
+
+
+
+    )doc");
 
                 m.def("combine_initial_states",
                       &tp::createCombinedInitialState<STATE_SCALAR_TYPE,
                                                       TIME_TYPE>,
                       py::arg("propagator_settings_per_type"),
-                      get_docstring("combine_initial_states").c_str());
+                      R"doc(
+
+Function to retrieve the initial state for a list of propagator settings.
+
+Function to retrieve the initial state for a list of propagator settings. This way, the initial state for
+different quantities to be propagated (e.g., translational state, rotational state, mass) are retrieved and
+organized in a single container.
+
+
+Parameters
+----------
+propagator_settings_per_type : dict
+    Propagator settings where the type of propagation is reported as key and the respective list of propagator settings as value.
+Returns
+-------
+numpy.ndarray
+    Vector of initial states, sorted in order of IntegratedStateType, and then in the order of the vector of SingleArcPropagatorSettings of given type.
+
+
+
+
+
+
+    )doc");
 
                 py::class_<
                     tba::AccelerationModel<Eigen::Vector3d>,
@@ -197,7 +335,11 @@ namespace tudatpy {
 
                 py::enum_<tp::PropagationTerminationReason>(
                     m, "PropagationTerminationReason",
-                    get_docstring("PropagationTerminationReason").c_str())
+                    R"doc(
+
+        Enumeration of types of termination of propagation.
+
+     )doc")
                     .value(
                         "propagation_never_run",
                         tp::PropagationTerminationReason::propagation_never_run)
@@ -218,21 +360,40 @@ namespace tudatpy {
                 py::class_<tp::PropagationTerminationDetails,
                            std::shared_ptr<tp::PropagationTerminationDetails>>(
                     m, "PropagationTerminationDetails",
-                    get_docstring("PropagationTerminationDetails").c_str())
-                    .def_property_readonly(
-                        "termination_reason",
-                        &tp::PropagationTerminationDetails::
-                            getPropagationTerminationReason,
-                        get_docstring(
-                            "PropagationTerminationDetails.termination_reason")
-                            .c_str())
-                    .def_property_readonly(
-                        "terminated_on_exact_condition",
-                        &tp::PropagationTerminationDetails::
-                            getTerminationOnExactCondition,
-                        get_docstring("PropagationTerminationDetails."
-                                      "terminated_on_exact_condition")
-                            .c_str());
+                    R"doc(
+
+        Class that provides information on the reason for the
+        termination of the propagation.
+
+
+
+
+
+
+     )doc")
+                    .def_property_readonly("termination_reason",
+                                           &tp::PropagationTerminationDetails::
+                                               getPropagationTerminationReason,
+                                           R"doc(
+
+        Enum defining the reason the propagation was terminated
+
+
+        :type: PropagationTerminationReason
+     )doc")
+                    .def_property_readonly("terminated_on_exact_condition",
+                                           &tp::PropagationTerminationDetails::
+                                               getTerminationOnExactCondition,
+                                           R"doc(
+
+        Boolean defining whether the propagation was terminated on an *exact* final condition,
+        or once the propagation went *past* the determined final condition. The choice of behaviour is
+        defined by the termination settings provided as input to the Simulator object. This variable only
+        has a meaningful definition if the ``termination_reason`` has value ``termination_condition_reached``
+
+
+        :type: bool
+     )doc");
 
                 py::class_<
                     tp::PropagationTerminationDetailsFromHybridCondition,
@@ -240,36 +401,59 @@ namespace tudatpy {
                         tp::PropagationTerminationDetailsFromHybridCondition>,
                     tp::PropagationTerminationDetails>(
                     m, "PropagationTerminationDetailsFromHybridCondition",
-                    get_docstring(
-                        "PropagationTerminationDetailsFromHybridCondition")
-                        .c_str())
+                    R"doc(
+
+        Class that provides information on the reason for the termination of the propagation, for hybrid termination conditions
+
+
+        Derived class from :class:`PropagationTerminationDetails` that provides information on the reason for the termination of the propagation,
+        for the case of hybrid termination conditions (defined using the :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`)
+        function
+
+
+
+
+
+     )doc")
                     .def_property_readonly(
                         "was_condition_met_when_stopping",
                         &tp::PropagationTerminationDetailsFromHybridCondition::
                             getWasConditionMetWhenStopping,
-                        get_docstring(
-                            "PropagationTerminationDetailsFromHybridCondition."
-                            "was_condition_met_when_stopping")
-                            .c_str());
+                        R"doc(
+
+        List of booleans defining, per entry in ``termination_settings`` when calling :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`,
+        whether the corresponding entry of the hybrid termination settings was met or not
+
+
+        :type: list[bool]
+     )doc");
 
                 py::class_<tp::DependentVariablesInterface<TIME_TYPE>,
                            std::shared_ptr<
                                tp::DependentVariablesInterface<TIME_TYPE>>>(
                     m, "DependentVariablesInterface",
-                    get_docstring("DependentVariablesInterface").c_str());
+                    R"doc(No documentation found.)doc");
 
                 py::class_<tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>,
                            std::shared_ptr<tp::SimulationResults<
                                STATE_SCALAR_TYPE, TIME_TYPE>>>(
                     m, "SimulationResults",
-                    get_docstring("SimulationResults").c_str())
+                    R"doc(
+
+        Base class for objects that store all results of a numerical propagation.
+
+        Base class for objects that store all results of a numerical propagation. Derived class are implemented for single-, multi- and hybrid-arc propagation of botj dynamics and variational equations
+
+
+
+
+
+     )doc")
                     .def_property_readonly(
                         "dependent_variable_interface",
                         &tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>::
                             getDependentVariablesInterface,
-                        get_docstring(
-                            "SimulationResults.dependent_variable_interface")
-                            .c_str());
+                        R"doc(No documentation found.)doc");
 
                 py::class_<tp::SingleArcSimulationResults<STATE_SCALAR_TYPE,
                                                           TIME_TYPE>,
@@ -277,15 +461,41 @@ namespace tudatpy {
                                STATE_SCALAR_TYPE, TIME_TYPE>>,
                            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>>(
                     m, "SingleArcSimulationResults",
-                    get_docstring("SingleArcSimulationResults").c_str())
+                    R"doc(
+
+        Class that stores all the results (including logging data) of a single-arc propagation
+
+
+
+
+
+
+     )doc")
                     .def_property_readonly(
                         "state_history",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getEquationsOfMotionNumericalSolution,
-                        get_docstring(
-                            "SingleArcSimulationResults.state_history")
-                            .c_str())
+                        R"doc(
+
+        **read-only**
+
+        Numerical solution of the equations of motion as key-value pairs. The key denotes the epoch. The value contains the
+        numerically calculated state at this epoch. For this function, the states are always converted to so-called
+        'processed' formulations (e.g. Cartesian states for translational dynamics), see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`_
+        for details. For the history of the states that were actually propagated, use the ``unprocessed_state_history``.
+
+        .. note:: The propagated state at each epoch contains the state types in the following order: Translational ( **T** ), Rotational ( **R** ), Mass ( **M** ), and Custom ( **C** ).
+                  When propagating two bodies, an example of what the output state would look like is for instance:
+                  [ **T** Body 1, **T** Body 2, **R** Body 1, **R** Body 2, **M** Body 1, **M** Body 2 ] The specifics can be retrieved using the :attr:`state_ids` attribute of this class
+
+        .. note:: For propagation of translational dynamics using cowell
+                  propagator, the conventional and propagated
+                  coordinates are identical.
+
+
+        :type: dict[float, numpy.ndarray]
+     )doc")
                     .def_property_readonly(
                         "state_history_float",
                         &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE,
@@ -301,141 +511,193 @@ namespace tudatpy {
                         &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE,
                                                         TIME_TYPE>::
                             getEquationsOfMotionNumericalSolutionRaw,
-                        get_docstring("SingleArcSimulationResults.unprocessed_"
-                                      "state_history")
-                            .c_str())
+                        R"doc(
+
+        **read-only**
+
+        Numerical solution of the equations of motion as key-value pairs, without any processing applied. The key denotes the epoch. The value contains the
+        numerically calculated state at this epoch. This attribute contains the states of the propagated bodies expressed in the
+        "raw" form in which the propagation took place. For instance, when using a Gauss-Kepler propagation scheme, this
+        attribute will contain the numerically propagated Keplerian elements at each time epoch
+
+
+        :type: dict[float, numpy.ndarray]
+     )doc")
                     .def_property_readonly(
                         "dependent_variable_history",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getDependentVariableHistory,
-                        get_docstring("SingleArcSimulationResults.dependent_"
-                                      "variable_history")
-                            .c_str())
+                        R"doc(
+
+        **read-only**
+
+        Dependent variables computed during the propagation as key-value pairs.
+        The vector of all dependent variables concatenated into a single vector as value, with the epoch as key.
+        They order of the concatenated dependent variables in a single value is provided by the ``dependent_variable_ids`` attribute of this object.
+
+
+        :type: dict[float, numpy.ndarray]
+     )doc")
                     .def_property_readonly(
                         "cumulative_computation_time_history",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getCumulativeComputationTimeHistory,
-                        get_docstring("SingleArcSimulationResults.cumulative_"
-                                      "computation_time_history")
-                            .c_str())
+                        R"doc(
+
+        **read-only**
+
+        History of cumulative computation time in seconds needed during the propagation as key-value
+        pairs. At each epoch (key) the computation time (value) in seconds is the total computation time
+        used up to and including that time step. This includes the total time up to and including the current time step,
+        since the beginning of the (single-arc) propagation.
+
+
+        :type: dict[float, float]
+     )doc")
                     .def_property_readonly(
                         "cumulative_computation_time_history",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getCumulativeComputationTimeHistory,
-                        get_docstring("SingleArcSimulationResults.cumulative_"
-                                      "computation_time_history")
-                            .c_str())
+                        R"doc(
+
+        **read-only**
+
+        History of cumulative computation time in seconds needed during the propagation as key-value
+        pairs. At each epoch (key) the computation time (value) in seconds is the total computation time
+        used up to and including that time step. This includes the total time up to and including the current time step,
+        since the beginning of the (single-arc) propagation.
+
+
+        :type: dict[float, float]
+     )doc")
                     .def_property_readonly(
                         "cumulative_number_of_function_evaluations_history",
                         &tp::SingleArcSimulationResults<STATE_SCALAR_TYPE,
                                                         TIME_TYPE>::
                             getCumulativeNumberOfFunctionEvaluations,
-                        get_docstring("SingleArcSimulationResults.cumulative_"
-                                      "number_of_function_evaluations_history")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "total_computation_time",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getTotalComputationRuntime,
-                        get_docstring(
-                            "SingleArcSimulationResults.total_computation_time")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "total_number_of_function_evaluations",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getTotalNumberOfFunctionEvaluations,
-                        get_docstring("SingleArcSimulationResults.total_number_"
-                                      "of_function_evaluations")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "termination_details",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getPropagationTerminationReason,
-                        get_docstring(
-                            "SingleArcSimulationResults.termination_details")
-                            .c_str())
+                        R"doc(
+
+        **read-only**
+
+        Object describing the details of the event that triggered the termination of the last propagation.
+
+
+        :type: PropagationTerminationDetails
+     )doc")
                     .def_property_readonly(
                         "integration_completed_successfully",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::integrationCompletedSuccessfully,
-                        get_docstring("SingleArcSimulationResults.integration_"
-                                      "completed_successfully")
-                            .c_str())
+                        R"doc(
+
+        **read-only**
+
+        Boolean defining whether the last propagation was finished
+        successfully, as defined by the termination conditions, or if
+        it was terminated prematurely (for instance due to an
+        exception, or an Inf/NaN state entry being detected).
+
+
+        :type: bool
+     )doc")
                     .def_property_readonly(
                         "dependent_variable_ids",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getDependentVariableId,
-                        get_docstring(
-                            "SingleArcSimulationResults.dependent_variable_ids")
-                            .c_str())
+                        R"doc(
+
+        **read-only**
+
+        Key-value container with the starting entry of the dependent variables saved (key), along with associated ID (value).
+
+
+        :type: dict[[int,int], str]
+     )doc")
                     .def_property_readonly(
                         "ordered_dependent_variable_settings",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getOrderedDependentVariableSettings,
-                        get_docstring("SingleArcSimulationResults.ordered_"
-                                      "dependent_variable_settings")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "unordered_dependent_variable_settings",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getOriginalDependentVariableSettings,
-                        get_docstring("SingleArcSimulationResults.unordered_"
-                                      "dependent_variable_settings")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "processed_state_ids",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE, TIME_TYPE>::getProcessedStateIds,
-                        get_docstring("SingleArcSimulationResults.state_ids")
-                            .c_str())
+                        R"doc(
+
+        **read-only**
+
+        Key-value container with the starting entry of the states (key), along with associated ID (value).
+
+
+        :type: dict[[int,int] str]
+     )doc")
                     .def_property_readonly(
                         "propagated_state_ids",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getPropagatedStateIds,
-                        get_docstring("SingleArcSimulationResults.state_ids")
-                            .c_str())
+                        R"doc(
+
+        **read-only**
+
+        Key-value container with the starting entry of the states (key), along with associated ID (value).
+
+
+        :type: dict[[int,int] str]
+     )doc")
                     .def_property_readonly(
                         "initial_and_final_times",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getArcInitialAndFinalTime,
-                        get_docstring("SingleArcSimulationResults.initial_and_"
-                                      "final_times")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "propagated_state_vector_length",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getPropagatedStateSize,
-                        get_docstring("SingleArcSimulationResults.propagated_"
-                                      "state_vector_length")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "propagation_is_performed",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getPropagationIsPerformed,
-                        get_docstring("SingleArcSimulationResults.propagation_"
-                                      "is_performed")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "solution_is_cleared",
                         &tp::SingleArcSimulationResults<
                             STATE_SCALAR_TYPE, TIME_TYPE>::getSolutionIsCleared,
-                        get_docstring(
-                            "SingleArcSimulationResults.solution_is_cleared")
-                            .c_str());
+                        R"doc(No documentation found.)doc");
 
                 py::class_<
                     tp::SingleArcVariationalSimulationResults<STATE_SCALAR_TYPE,
@@ -444,31 +706,24 @@ namespace tudatpy {
                         STATE_SCALAR_TYPE, TIME_TYPE>>,
                     tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>>(
                     m, "SingleArcVariationalSimulationResults",
-                    get_docstring("SingleArcVariationalSimulationResults")
-                        .c_str())
+                    R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "state_transition_matrix_history",
                         &tp::SingleArcVariationalSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getStateTransitionSolution,
-                        get_docstring("SingleArcVariationalSimulationResults."
-                                      "state_transition_matrix_history")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "sensitivity_matrix_history",
                         &tp::SingleArcVariationalSimulationResults<
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getSensitivitySolution,
-                        get_docstring("SingleArcVariationalSimulationResults."
-                                      "sensitivity_matrix_history")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "dynamics_results",
                         &tp::SingleArcVariationalSimulationResults<
                             STATE_SCALAR_TYPE, TIME_TYPE>::getDynamicsResults,
-                        get_docstring("SingleArcVariationalSimulationResults."
-                                      "dynamics_results")
-                            .c_str());
+                        R"doc(No documentation found.)doc");
 
                 py::class_<tp::MultiArcSimulationResults<
                                tp::SingleArcSimulationResults,
@@ -478,46 +733,37 @@ namespace tudatpy {
                                STATE_SCALAR_TYPE, TIME_TYPE>>,
                            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>>(
                     m, "MultiArcSimulationResults",
-                    get_docstring("MultiArcSimulationResults").c_str())
+                    R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "single_arc_results",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcSimulationResults, STATE_SCALAR_TYPE,
                             TIME_TYPE>::getSingleArcResults,
-                        get_docstring(
-                            "MultiArcSimulationResults.single_arc_results")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "arc_start_times",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcSimulationResults, STATE_SCALAR_TYPE,
                             TIME_TYPE>::getArcStartTimes,
-                        get_docstring(
-                            "MultiArcSimulationResults.arc_start_times")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "arc_end_times",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcSimulationResults, STATE_SCALAR_TYPE,
                             TIME_TYPE>::getArcEndTimes,
-                        get_docstring("MultiArcSimulationResults.arc_end_times")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "propagation_is_performed",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcSimulationResults, STATE_SCALAR_TYPE,
                             TIME_TYPE>::getPropagationIsPerformed,
-                        get_docstring("MultiArcSimulationResults.propagation_"
-                                      "is_performed")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "solution_is_cleared",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcSimulationResults, STATE_SCALAR_TYPE,
                             TIME_TYPE>::getSolutionIsCleared,
-                        get_docstring(
-                            "MultiArcSimulationResults.solution_is_cleared")
-                            .c_str());
+                        R"doc(No documentation found.)doc");
 
                 py::class_<tp::MultiArcSimulationResults<
                                tp::SingleArcVariationalSimulationResults,
@@ -527,49 +773,38 @@ namespace tudatpy {
                                STATE_SCALAR_TYPE, TIME_TYPE>>,
                            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>>(
                     m, "MultiArcVariationalSimulationResults",
-                    get_docstring("MultiArcVariationalSimulationResults")
-                        .c_str())
+                    R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "single_arc_results",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults,
                             STATE_SCALAR_TYPE, TIME_TYPE>::getSingleArcResults,
-                        get_docstring("MultiArcVariationalSimulationResults."
-                                      "single_arc_results")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "arc_start_times",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults,
                             STATE_SCALAR_TYPE, TIME_TYPE>::getArcStartTimes,
-                        get_docstring("MultiArcVariationalSimulationResults."
-                                      "arc_start_times")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "arc_end_times",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults,
                             STATE_SCALAR_TYPE, TIME_TYPE>::getArcEndTimes,
-                        get_docstring("MultiArcVariationalSimulationResults."
-                                      "arc_end_times")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "propagation_is_performed",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults,
                             STATE_SCALAR_TYPE,
                             TIME_TYPE>::getPropagationIsPerformed,
-                        get_docstring("MultiArcVariationalSimulationResults."
-                                      "propagation_is_performed")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "solution_is_cleared",
                         &tp::MultiArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults,
                             STATE_SCALAR_TYPE, TIME_TYPE>::getSolutionIsCleared,
-                        get_docstring("MultiArcVariationalSimulationResults."
-                                      "solution_is_cleared")
-                            .c_str());
+                        R"doc(No documentation found.)doc");
 
                 py::class_<tp::HybridArcSimulationResults<
                                tp::SingleArcSimulationResults,
@@ -579,23 +814,19 @@ namespace tudatpy {
                                STATE_SCALAR_TYPE, TIME_TYPE>>,
                            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>>(
                     m, "HybridArcSimulationResults",
-                    get_docstring("HybridArcSimulationResults").c_str())
+                    R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "single_arc_results",
                         &tp::HybridArcSimulationResults<
                             tp::SingleArcSimulationResults, STATE_SCALAR_TYPE,
                             TIME_TYPE>::getSingleArcResults,
-                        get_docstring(
-                            "HybridArcSimulationResults.single_arc_results")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "multi_arc_results",
                         &tp::HybridArcSimulationResults<
                             tp::SingleArcSimulationResults, STATE_SCALAR_TYPE,
                             TIME_TYPE>::getMultiArcResults,
-                        get_docstring(
-                            "HybridArcSimulationResults.arc_start_times")
-                            .c_str());
+                        R"doc(No documentation found.)doc");
 
                 py::class_<tp::HybridArcSimulationResults<
                                tp::SingleArcVariationalSimulationResults,
@@ -605,24 +836,19 @@ namespace tudatpy {
                                STATE_SCALAR_TYPE, TIME_TYPE>>,
                            tp::SimulationResults<STATE_SCALAR_TYPE, TIME_TYPE>>(
                     m, "HybridArcVariationalSimulationResults",
-                    get_docstring("HybridArcVariationalSimulationResults")
-                        .c_str())
+                    R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "single_arc_results",
                         &tp::HybridArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults,
                             STATE_SCALAR_TYPE, TIME_TYPE>::getSingleArcResults,
-                        get_docstring("HybridArcVariationalSimulationResults."
-                                      "single_arc_results")
-                            .c_str())
+                        R"doc(No documentation found.)doc")
                     .def_property_readonly(
                         "multi_arc_results",
                         &tp::HybridArcSimulationResults<
                             tp::SingleArcVariationalSimulationResults,
                             STATE_SCALAR_TYPE, TIME_TYPE>::getMultiArcResults,
-                        get_docstring("HybridArcVariationalSimulationResults."
-                                      "arc_start_times")
-                            .c_str());
+                        R"doc(No documentation found.)doc");
 
                 py::class_<tpr::ThrustMagnitudeWrapper,
                            std::shared_ptr<tpr::ThrustMagnitudeWrapper>>(
