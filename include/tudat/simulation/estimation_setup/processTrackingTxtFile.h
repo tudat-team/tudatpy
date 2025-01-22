@@ -19,7 +19,7 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
-#include "tudat/simulation/estimation_setup/observations.h"
+#include "tudat/simulation/estimation_setup/observationCollection.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/math/interpolators/lookupScheme.h"
