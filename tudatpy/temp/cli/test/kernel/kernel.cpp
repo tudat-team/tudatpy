@@ -10,39 +10,38 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <pybind11/pybind11.h>
+
 #include "expose_test1.h"
 #include "expose_test2.h"
 #include "expose_test3.h"
 
-#include <pybind11/pybind11.h>
-
 namespace py = pybind11;
 
 PYBIND11_MODULE(kernel, m) {
+    // Disable automatic function signatures in the docs.
+    // NOTE: the 'options' object needs to stay alive
+    // throughout the whole definition of the module.
+    py::options options;
+    options.disable_function_signatures();
+    options.enable_user_defined_docstrings();
 
-  // Disable automatic function signatures in the docs.
-  // NOTE: the 'options' object needs to stay alive
-  // throughout the whole definition of the module.
-  py::options options;
-  options.disable_function_signatures();
-  options.enable_user_defined_docstrings();
+    // test1 module
+    auto test1 = m.def_submodule("test1");
+    test::expose_test1(test1);
 
-  // test1 module
-  auto test1 = m.def_submodule("test1");
-  test::expose_test1(test1);
+    // test2 module
+    auto test2 = m.def_submodule("test2");
+    test::expose_test2(test2);
 
-  // test2 module
-  auto test2 = m.def_submodule("test2");
-  test::expose_test2(test2);
+    // test3 module
+    auto test3 = m.def_submodule("test3");
+    test::expose_test3(test3);
 
-  // test3 module
-  auto test3 = m.def_submodule("test3");
-  test::expose_test3(test3);
 
-  
 #ifdef VERSION_INFO
-  m.attr("__version__") = VERSION_INFO;
+    m.attr("__version__") = VERSION_INFO;
 #else
-  m.attr("__version__") = "dev";
+    m.attr("__version__") = "dev";
 #endif
 }

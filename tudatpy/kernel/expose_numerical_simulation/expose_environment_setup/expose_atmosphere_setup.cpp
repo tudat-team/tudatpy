@@ -12,7 +12,6 @@
 
 #include <tudat/astro/aerodynamics/nrlmsise00Atmosphere.h>
 #include <tudat/astro/aerodynamics/nrlmsise00InputFunctions.h>
-#include <tudat/simulation/environment_setup.h>
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
@@ -51,10 +50,10 @@ namespace tudatpy {
 
                 void expose_atmosphere_setup(py::module &m) {
                     // NRLMSISE00
-                     py::class_<ta::NRLMSISE00Input,
-                                std::shared_ptr<ta::NRLMSISE00Input>>(
-                         m, "NRLMSISE00Input",
-                         R"doc(Input for computation of NRLMSISE00 atmospheric
+                    py::class_<ta::NRLMSISE00Input,
+                               std::shared_ptr<ta::NRLMSISE00Input>>(
+                        m, "NRLMSISE00Input",
+                        R"doc(Input for computation of NRLMSISE00 atmospheric
                          conditions at current time and position.
 
                          Input for computation of NRLMSISE00 atmospheric
@@ -74,17 +73,16 @@ namespace tudatpy {
                          index :param ap_vector: Current magnetic index data
                          vector: \sa ap_array :param switches: List of
                          NRLMSISE-specific flags: \sa nrlmsise_flags )doc")
-                         .def(py::init<int, int, double, double, double,
-                         double,
-                                       double, std::vector<double>,
-                                       std::vector<int>>(),
-                              py::arg("year") = 0, py::arg("day_of_year") = 0,
-                              py::arg("seconds_of_day") = 0.0,
-                              py::arg("local_solar_time") = 0.0,
-                              py::arg("f107") = 0.0, py::arg("f107a") = 0.0,
-                              py::arg("ap_daily") = 0.0,
-                              py::arg("ap_vector") = std::vector<double>(7,
-                              0.0), py::arg("switches") = std::vector<int>());
+                        .def(py::init<int, int, double, double, double, double,
+                                      double, std::vector<double>,
+                                      std::vector<int>>(),
+                             py::arg("year") = 0, py::arg("day_of_year") = 0,
+                             py::arg("seconds_of_day") = 0.0,
+                             py::arg("local_solar_time") = 0.0,
+                             py::arg("f107") = 0.0, py::arg("f107a") = 0.0,
+                             py::arg("ap_daily") = 0.0,
+                             py::arg("ap_vector") = std::vector<double>(7, 0.0),
+                             py::arg("switches") = std::vector<int>());
 
                     py::class_<ta::NRLMSISE00Atmosphere,
                                std::shared_ptr<ta::NRLMSISE00Atmosphere>>(
@@ -181,15 +179,17 @@ namespace tudatpy {
 
                     py::class_<
                         tss::CustomConstantTemperatureAtmosphereSettings,
-                        std::shared_ptr<tss::CustomConstantTemperatureAtmosphereSettings>,
+                        std::shared_ptr<
+                            tss::CustomConstantTemperatureAtmosphereSettings>,
                         tss::AtmosphereSettings>(
                         m, "CustomConstantTemperatureAtmosphereSettings",
-                        get_docstring("CustomConstantTemperatureAtmosphereSettings").c_str());
+                        get_docstring(
+                            "CustomConstantTemperatureAtmosphereSettings")
+                            .c_str());
 
-                    py::class_<
-                        tss::ScaledAtmosphereSettings,
-                        std::shared_ptr<tss::ScaledAtmosphereSettings>,
-                        tss::AtmosphereSettings>(
+                    py::class_<tss::ScaledAtmosphereSettings,
+                               std::shared_ptr<tss::ScaledAtmosphereSettings>,
+                               tss::AtmosphereSettings>(
                         m, "ScaledAtmosphereSettings",
                         get_docstring("ScaledAtmosphereSettings").c_str());
 
@@ -310,6 +310,6 @@ namespace tudatpy {
                 }
 
             }  // namespace atmosphere
-        }  // namespace environment_setup
-    }  // namespace numerical_simulation
+        }      // namespace environment_setup
+    }          // namespace numerical_simulation
 }  // namespace tudatpy
