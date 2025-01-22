@@ -46,6 +46,7 @@ namespace tba = tudat::basic_astrodynamics;
 namespace ta = tudat::aerodynamics;
 namespace tr = tudat::reference_frames;
 namespace te = tudat::ephemerides;
+namespace teo = tudat::earth_orientation;
 namespace tgs = tudat::ground_stations;
 namespace tr = tudat::reference_frames;
 namespace tg = tudat::gravitation;
@@ -174,6 +175,25 @@ void expose_environment(py::module &m) {
                get_docstring("AerodynamicCoefficientFrames.negative_aerodynamic_frame_coefficients").c_str())
         .export_values();
 
+    py::enum_<ta::AtmosphericCompositionSpecies>(m, "AtmosphericCompositionSpecies",
+                                                get_docstring("AtmosphericCompositionSpecies").c_str())
+        .value("o_species", ta::AtmosphericCompositionSpecies::o_species,
+               get_docstring("AtmosphericCompositionSpecies.o_species").c_str())
+        .value("o2_species", ta::AtmosphericCompositionSpecies::o2_species,
+               get_docstring("AtmosphericCompositionSpecies.o2_species").c_str())
+        .value("n2_species", ta::AtmosphericCompositionSpecies::n2_species,
+               get_docstring("AtmosphericCompositionSpecies.n2_species").c_str())
+        .value("he_species", ta::AtmosphericCompositionSpecies::he_species,
+               get_docstring("AtmosphericCompositionSpecies.he_species").c_str())
+        .value("h_species", ta::AtmosphericCompositionSpecies::h_species,
+               get_docstring("AtmosphericCompositionSpecies.h_species").c_str())
+        .value("ar_species", ta::AtmosphericCompositionSpecies::ar_species,
+               get_docstring("AtmosphericCompositionSpecies.ar_species").c_str())
+        .value("n_species", ta::AtmosphericCompositionSpecies::n_species,
+               get_docstring("AtmosphericCompositionSpecies.n_species").c_str())
+        .value("anomalous_o_species", ta::AtmosphericCompositionSpecies::anomalous_o_species,
+               get_docstring("AtmosphericCompositionSpecies.anomalous_o_species").c_str())
+        .export_values();
 
     py::class_<ta::AtmosphereModel,
             std::shared_ptr<ta::AtmosphereModel>>(
@@ -369,6 +389,23 @@ void expose_environment(py::module &m) {
             .def("set_timing_system",
                  &tsm::VehicleSystems::setTimingSystem,
                  py::arg("timing_system"));
+
+    py::class_<tss::RigidBodyProperties,
+        std::shared_ptr<tss::RigidBodyProperties>>(m, "RigidBodyProperties", get_docstring("RigidBodyProperties").c_str() )
+        .def("update",
+             &tss::RigidBodyProperties::update,
+             py::arg("time"),
+             get_docstring("RigidBodyProperties.update").c_str() )
+        .def_property_readonly("current_mass",
+             &tss::RigidBodyProperties::getCurrentMass,
+             get_docstring("RigidBodyProperties.current_mass").c_str() )
+        .def_property_readonly("current_center_of_mass",
+             &tss::RigidBodyProperties::getCurrentCenterOfMass,
+             get_docstring("RigidBodyProperties.current_center_of_mass").c_str() )
+        .def_property_readonly("current_inertia_tensor",
+             &tss::RigidBodyProperties::getCurrentInertiaTensor,
+             get_docstring("RigidBodyProperties.current_inertia_tensor").c_str() );
+
 
     py::class_<tsm::TimingSystem,
         std::shared_ptr<tsm::TimingSystem>>
@@ -677,10 +714,23 @@ void expose_environment(py::module &m) {
             .def("reset_aerodynamic_angle_function",
                           &te::AerodynamicAngleRotationalEphemeris::setAerodynamicAngleFunction );
 
+
+
+    py::class_<teo::EarthOrientationAnglesCalculator,
+        std::shared_ptr<teo::EarthOrientationAnglesCalculator> >(
+        m, "EarthOrientationAnglesCalculator", get_docstring("EarthOrientationAnglesCalculator").c_str())
+        .def("get_gcrs_to_itrs_rotation_angles",
+             &teo::EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs< TIME_TYPE >,
+                 py::arg( "epoch" ),
+                 py::arg( "time_scale" ) = tba::tdb_scale, get_docstring("EarthOrientationAnglesCalculator.get_gcrs_to_itrs_rotation_angles").c_str() );
+
+
     py::class_<te::GcrsToItrsRotationModel,
             std::shared_ptr<te::GcrsToItrsRotationModel>,
             te::RotationalEphemeris>(
-                m, "GcrsToItrsRotationModel");
+                m, "GcrsToItrsRotationModel", get_docstring("GcrsToItrsRotationModel").c_str() )
+            .def_property_readonly("angles_calculator",
+                          &te::GcrsToItrsRotationModel::getAnglesCalculator, get_docstring("GcrsToItrsRotationModel.angles_calculator").c_str() );
 
 
     py::class_<te::DirectionBasedRotationalEphemeris,
@@ -733,12 +783,21 @@ void expose_environment(py::module &m) {
             .def_property("sine_coefficients", &tg::SphericalHarmonicsGravityField::getSineCoefficients,
                           &tg::SphericalHarmonicsGravityField::setSineCoefficients, get_docstring("SphericalHarmonicsGravityField.sine_coefficients").c_str());
 
+    py::class_<tg::TimeDependentSphericalHarmonicsGravityField,
+        std::shared_ptr<tg::TimeDependentSphericalHarmonicsGravityField >,
+        tg::SphericalHarmonicsGravityField>(m, "TimeDependentSphericalHarmonicsGravityField", get_docstring("TimeDependentSphericalHarmonicsGravityField").c_str() )
+        .def_property_readonly("gravity_field_variation_models", &tg::TimeDependentSphericalHarmonicsGravityField::getGravityFieldVariations, get_docstring("TimeDependentSphericalHarmonicsGravityField.gravity_field_variation_models").c_str() );
+
     py::class_<tg::PolyhedronGravityField,
             std::shared_ptr<tg::PolyhedronGravityField >,
             tg::GravityFieldModel>(m, "PolyhedronGravityField")
             .def_property_readonly("volume", &tg::PolyhedronGravityField::getVolume )
             .def_property_readonly("vertices_coordinates", &tg::PolyhedronGravityField::getVerticesCoordinates )
             .def_property_readonly("vertices_defining_each_facet", &tg::PolyhedronGravityField::getVerticesDefiningEachFacet );
+
+    py::class_<tg::GravityFieldVariations,
+        std::shared_ptr<tg::GravityFieldVariations>>(
+        m, "GravityFieldVariationModel");
 
     /*!
      **************   SHAPE MODELS  ******************
@@ -747,7 +806,6 @@ void expose_environment(py::module &m) {
     py::class_<tba::BodyShapeModel,
             std::shared_ptr<tba::BodyShapeModel>>(m, "BodyShapeModel",
                 get_docstring("BodyShapeModel").c_str() )
-            .def("get_average_radius", &tba::BodyShapeModel::getAverageRadius)
             .def_property_readonly("average_radius", &tba::BodyShapeModel::getAverageRadius, get_docstring("BodyShapeModel.average_radius").c_str());
 
 
@@ -844,12 +902,11 @@ void expose_environment(py::module &m) {
             .def_property_readonly("inertial_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInGlobalFrame, get_docstring("Body.inertial_angular_velocity").c_str())
             .def_property_readonly("body_fixed_angular_velocity", &tss::Body::getCurrentAngularVelocityVectorInLocalFrame, get_docstring("Body.body_fixed_angular_velocity").c_str())
             .def_property("mass", &tss::Body::getBodyMass, &tss::Body::setConstantBodyMass, get_docstring("Body.mass").c_str())
-            .def("set_constant_mass", &tss::Body::setConstantBodyMass, py::arg( "mass" ) )
             .def_property("inertia_tensor", &tss::Body::getBodyInertiaTensor,
                           py::overload_cast<const Eigen::Matrix3d &>(
                               &tss::Body::setBodyInertiaTensor), get_docstring("Body.inertia_tensor").c_str())
             .def("state_in_base_frame_from_ephemeris",
-                 &tss::Body::getStateInBaseFrameFromEphemeris<STATE_SCALAR_TYPE, TIME_TYPE>, py::arg("time"))
+                 &tss::Body::getStateInBaseFrameFromEphemeris<STATE_SCALAR_TYPE, TIME_TYPE>, py::arg("time"), get_docstring("Body.state_in_base_frame_from_ephemeris").c_str())
             .def_property("ephemeris", &tss::Body::getEphemeris, &tss::Body::setEphemeris, get_docstring("Body.ephemeris").c_str())
             .def_property("atmosphere_model", &tss::Body::getAtmosphereModel, &tss::Body::setAtmosphereModel, get_docstring("Body.atmosphere_model").c_str())
             .def_property("shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel, get_docstring("Body.shape_model").c_str())
