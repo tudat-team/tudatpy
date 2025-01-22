@@ -783,10 +783,10 @@ void expose_environment(py::module &m) {
             .def_property("sine_coefficients", &tg::SphericalHarmonicsGravityField::getSineCoefficients,
                           &tg::SphericalHarmonicsGravityField::setSineCoefficients, get_docstring("SphericalHarmonicsGravityField.sine_coefficients").c_str());
 
-    py::class_<tg::TimeDependentSphericalHarmonicsGravityField,
-        std::shared_ptr<tg::TimeDependentSphericalHarmonicsGravityField >,
-        tg::SphericalHarmonicsGravityField>(m, "TimeDependentSphericalHarmonicsGravityField", get_docstring("TimeDependentSphericalHarmonicsGravityField").c_str() )
-        .def_property_readonly("gravity_field_variation_models", &tg::TimeDependentSphericalHarmonicsGravityField::getGravityFieldVariations, get_docstring("TimeDependentSphericalHarmonicsGravityField.gravity_field_variation_models").c_str() );
+//    py::class_<tg::TimeDependentSphericalHarmonicsGravityField,
+//        std::shared_ptr<tg::TimeDependentSphericalHarmonicsGravityField >,
+//        tg::SphericalHarmonicsGravityField>(m, "TimeDependentSphericalHarmonicsGravityField", get_docstring("TimeDependentSphericalHarmonicsGravityField").c_str() )
+//        .def_property_readonly("gravity_field_variation_models", &tg::TimeDependentSphericalHarmonicsGravityField::getGravityFieldVariations, get_docstring("TimeDependentSphericalHarmonicsGravityField.gravity_field_variation_models").c_str() );
 
     py::class_<tg::PolyhedronGravityField,
             std::shared_ptr<tg::PolyhedronGravityField >,
