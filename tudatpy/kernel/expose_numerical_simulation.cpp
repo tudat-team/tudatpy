@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "docstrings.h"
+//#include "docstrings.h"
 #include "scalarTypes.h"
 
 #include "expose_numerical_simulation.h"
