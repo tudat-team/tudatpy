@@ -25,7 +25,7 @@
 #include "tudat/math/quadrature/trapezoidQuadrature.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
-#include "tudat/simulation/estimation_setup/observations.h"
+#include "tudat/simulation/estimation_setup/observationCollection.h"
 
 namespace tudat
 {
