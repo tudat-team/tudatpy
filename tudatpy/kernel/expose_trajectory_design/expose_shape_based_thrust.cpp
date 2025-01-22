@@ -10,7 +10,6 @@
 
 #include "expose_shape_based_thrust.h"
 
-#include "docstrings.h"
 
 // #include <tudat/astro/low_thrust/lowThrustLeg.h>
 // #include <tudat/astro/low_thrust/shape_based/shapeBasedMethod.h>

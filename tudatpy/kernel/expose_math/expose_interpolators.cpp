@@ -14,7 +14,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "docstrings.h"
 #include "scalarTypes.h"
 
 namespace py = pybind11;
@@ -657,5 +656,5 @@ OneDimensionalInterpolatorMatrix
             }
 
         }  // namespace interpolators
-    }      // namespace math
+    }  // namespace math
 }  // namespace tudatpy

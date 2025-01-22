@@ -16,7 +16,6 @@
 #include <pybind11/stl.h>
 #include <tudat/astro/basic_astro.h>
 
-#include "docstrings.h"
 #include "tudat/interface/spice.h"
 
 namespace py = pybind11;
@@ -768,5 +767,5 @@ None
             };
 
         }  // namespace spice
-    }      // namespace interface
+    }  // namespace interface
 }  // namespace tudatpy

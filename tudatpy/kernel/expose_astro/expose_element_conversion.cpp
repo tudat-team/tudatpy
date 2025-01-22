@@ -20,7 +20,6 @@
 #include <tudat/interface/spice/spiceInterface.h>
 #include <tudat/math/basic.h>
 
-#include "docstrings.h"
 
 namespace py = pybind11;
 namespace toec = tudat::orbital_element_conversions;
@@ -1320,5 +1319,5 @@ numpy.ndarray
     )doc");
             }
         }  // namespace element_conversion
-    }      // namespace astro
+    }  // namespace astro
 }  // namespace tudatpy

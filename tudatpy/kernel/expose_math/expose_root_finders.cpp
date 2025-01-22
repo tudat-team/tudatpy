@@ -12,7 +12,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include "docstrings.h"
 #include "tudat/math/root_finders.h"
 
 namespace py = pybind11;
@@ -278,6 +277,6 @@ RootFinderSettings
             }
 
         }  // namespace root_finders
-    }      // namespace math
+    }  // namespace math
 
 }  // namespace tudatpy

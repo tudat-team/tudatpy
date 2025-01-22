@@ -17,7 +17,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "docstrings.h"
 #include "scalarTypes.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/basics/utilities.h"
@@ -2929,5 +2928,5 @@ Returns
             }
 
         }  // namespace estimation
-    }      // namespace numerical_simulation
+    }  // namespace numerical_simulation
 }  // namespace tudatpy

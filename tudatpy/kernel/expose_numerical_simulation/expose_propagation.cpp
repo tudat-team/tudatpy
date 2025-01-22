@@ -14,7 +14,6 @@
 #include <tudat/astro/basic_astro.h>
 #include <tudat/astro/propagators.h>
 
-#include "docstrings.h"
 #include "scalarTypes.h"
 
 
@@ -874,5 +873,5 @@ numpy.ndarray
                                       resetThrustMagnitudeFunction);
             }
         }  // namespace propagation
-    }      // namespace numerical_simulation
+    }  // namespace numerical_simulation
 }  // namespace tudatpy

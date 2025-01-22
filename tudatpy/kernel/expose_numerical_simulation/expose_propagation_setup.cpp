@@ -17,7 +17,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "docstrings.h"
 #include "expose_propagation_setup/expose_acceleration_setup.h"
 #include "expose_propagation_setup/expose_dependent_variable_setup.h"
 #include "expose_propagation_setup/expose_integrator_setup.h"
@@ -230,5 +229,5 @@ MassRateModelMap
     )doc");
             }
         }  // namespace propagation_setup
-    }      // namespace numerical_simulation
+    }  // namespace numerical_simulation
 }  // namespace tudatpy

@@ -17,7 +17,6 @@
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
 #include <tudat/astro/reference_frames.h>
 
-#include "docstrings.h"
 
 namespace trf = tudat::reference_frames;
 namespace te = tudat::ephemerides;
@@ -316,5 +315,5 @@ Euler angle rotation (see Archinal et al. [1]_).
             }
 
         }  // namespace frame_conversion
-    }      // namespace astro
+    }  // namespace astro
 }  // namespace tudatpy
