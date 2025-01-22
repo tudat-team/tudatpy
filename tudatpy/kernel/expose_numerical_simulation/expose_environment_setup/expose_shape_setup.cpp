@@ -35,19 +35,45 @@ namespace tudatpy {
                     py::class_<tss::BodyShapeSettings,
                                std::shared_ptr<tss::BodyShapeSettings>>(
                         m, "BodyShapeSettings",
-                        get_docstring("BodyShapeSettings").c_str());
+                        R"doc(
+
+        Base class for providing settings for body shape model.
+
+        Functional (base) class for settings of body shape models that require no information in addition to their type.
+        Body shape model settings requiring additional information must be defined using an object derived from this class.
+
+
+
+
+
+     )doc");
 
                     py::class_<tss::SphericalBodyShapeSettings,
                                std::shared_ptr<tss::SphericalBodyShapeSettings>,
                                tss::BodyShapeSettings>(
                         m, "SphericalBodyShapeSettings",
-                        get_docstring("SphericalBodyShapeSettings").c_str())
+                        R"doc(
+
+        Class for defining model settings of a strictly spherical body shape.
+
+        `BodyShapeSettings` derived class for strictly spherical body shape model settings.
+
+
+
+
+     )doc")
                         .def_property(
                             "radius",
                             &tss::SphericalBodyShapeSettings::getRadius,
                             &tss::SphericalBodyShapeSettings::resetRadius,
-                            get_docstring("SphericalBodyShapeSettings.radius")
-                                .c_str());
+                            R"doc(
+
+        **read-only**
+
+        Radius specifying spherical body shape.
+
+        :type: float
+     )doc");
 
 
                     py::class_<
@@ -55,131 +81,367 @@ namespace tudatpy {
                         std::shared_ptr<tss::OblateSphericalBodyShapeSettings>,
                         tss::BodyShapeSettings>(
                         m, "OblateSphericalBodyShapeSettings",
-                        get_docstring("OblateSphericalBodyShapeSettings")
-                            .c_str())
+                        R"doc(
+
+        Class for defining model settings of a oblate spherical body shape.
+
+        `BodyShapeSettings` derived class for oblate spherical body shape model settings.
+
+
+
+
+     )doc")
                         .def_property("equatorial_radius",
                                       &tss::OblateSphericalBodyShapeSettings::
                                           getEquatorialRadius,
                                       &tss::OblateSphericalBodyShapeSettings::
                                           resetEquatorialRadius,
-                                      get_docstring("OblateSphericalBodyShapeSe"
-                                                    "ttings.equatorial_radius")
-                                          .c_str())
-                        .def_property(
-                            "flattening",
-                            &tss::OblateSphericalBodyShapeSettings::
-                                getFlattening,
-                            &tss::OblateSphericalBodyShapeSettings::
-                                resetFlattening,
-                            get_docstring(
-                                "OblateSphericalBodyShapeSettings.flattening")
-                                .c_str());
+                                      R"doc(
+
+        **read-only**
+
+        Equatorial radius of the oblate spherical body shape.
+
+        :type: float
+     )doc")
+                        .def_property("flattening",
+                                      &tss::OblateSphericalBodyShapeSettings::
+                                          getFlattening,
+                                      &tss::OblateSphericalBodyShapeSettings::
+                                          resetFlattening,
+                                      R"doc(
+
+        **read-only**
+
+        Flattening of spheroid shape model.
+
+        :type: float
+     )doc");
 
                     py::class_<
                         tss::PolyhedronBodyShapeSettings,
                         std::shared_ptr<tss::PolyhedronBodyShapeSettings>,
-                        tss::BodyShapeSettings>(
-                        m, "PolyhedronBodyShapeSettings",
-                        get_docstring("PolyhedronBodyShapeSettings").c_str())
+                        tss::BodyShapeSettings>(m,
+                                                "PolyhedronBodyShapeSettings",
+                                                R"doc(
+
+        Class for defining model settings of a polyhedron body shape.
+
+        `BodyShapeSettings` derived class for polyhedron body shape model settings.
+
+
+
+
+     )doc")
                         .def_property("vertices_coordinates",
                                       &tss::PolyhedronBodyShapeSettings::
                                           getVerticesCoordinates,
                                       &tss::PolyhedronBodyShapeSettings::
                                           resetVerticesCoordinates,
-                                      get_docstring("PolyhedronBodyShapeSetting"
-                                                    "s.vertices_coordinates")
-                                          .c_str())
-                        .def_property(
-                            "vertices_defining_each_facet",
-                            &tss::PolyhedronBodyShapeSettings::
-                                getVerticesDefiningEachFacet,
-                            &tss::PolyhedronBodyShapeSettings::
-                                resetVerticesDefiningEachFacet,
-                            get_docstring("PolyhedronBodyShapeSettings."
-                                          "vertices_defining_each_facet")
-                                .c_str())
-                        .def_property(
-                            "compute_altitude_with_sign",
-                            &tss::PolyhedronBodyShapeSettings::
-                                getComputeAltitudeWithSign,
-                            &tss::PolyhedronBodyShapeSettings::
-                                resetComputeAltitudeWithSign,
-                            get_docstring("PolyhedronBodyShapeSettings.compute_"
-                                          "altitude_with_sign")
-                                .c_str())
-                        .def_property(
-                            "just_compute_distance_to_vertices",
-                            &tss::PolyhedronBodyShapeSettings::
-                                getJustComputeDistanceToVertices,
-                            &tss::PolyhedronBodyShapeSettings::
-                                resetJustComputeDistanceToVertices,
-                            get_docstring("PolyhedronBodyShapeSettings.just_"
-                                          "compute_distance_to_vertices")
-                                .c_str());
+                                      R"doc(
+
+        Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
+        row per vertex, 3 columns).
+
+
+        :type: numpy.ndarray
+     )doc")
+                        .def_property("vertices_defining_each_facet",
+                                      &tss::PolyhedronBodyShapeSettings::
+                                          getVerticesDefiningEachFacet,
+                                      &tss::PolyhedronBodyShapeSettings::
+                                          resetVerticesDefiningEachFacet,
+                                      R"doc(
+
+        Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
+        the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
+        when seen from the outside of the polyhedron.
+
+
+        :type: numpy.ndarray
+     )doc")
+                        .def_property("compute_altitude_with_sign",
+                                      &tss::PolyhedronBodyShapeSettings::
+                                          getComputeAltitudeWithSign,
+                                      &tss::PolyhedronBodyShapeSettings::
+                                          resetComputeAltitudeWithSign,
+                                      R"doc(
+
+        Flag indicating whether the altitude should be computed with sign (i.e. >0 if above surface, <0 otherwise) or
+        having always a positive value. If the the sign of the altitude is not relevant, then setting it to *false* is
+        recommended, as it reduces the CPU time for computing the altitude.
+
+
+        :type: bool, default=True
+     )doc")
+                        .def_property("just_compute_distance_to_vertices",
+                                      &tss::PolyhedronBodyShapeSettings::
+                                          getJustComputeDistanceToVertices,
+                                      &tss::PolyhedronBodyShapeSettings::
+                                          resetJustComputeDistanceToVertices,
+                                      R"doc(
+
+        Flag indicating whether the altitude should be computed just with respect to the polyhedron vertices (if flag
+        is set to *true*) or to all polyhedron features (vertices, facets and edges; happens if flag is set to
+        *false*). Depending on the application, it might be useful to set the flag to *true* for medium to high
+        altitudes, as it allows significantly reducing the CPU time (the resulting altitude errors depend on the
+        resolution of the used polyhedron and altitude itself).
+
+
+        :type: bool, default=False
+     )doc");
 
                     py::class_<tss::HybridBodyShapeSettings,
                                std::shared_ptr<tss::HybridBodyShapeSettings>,
                                tss::BodyShapeSettings>(
                         m, "HybridBodyShapeSettings",
-                        get_docstring("HybridBodyShapeSettings").c_str())
-                        .def_property(
-                            "low_resolution_body_shape_settings",
-                            &tss::HybridBodyShapeSettings::
-                                getLowResolutionBodyShapeSettings,
-                            &tss::HybridBodyShapeSettings::
-                                resetLowResolutionBodyShapeSettings,
-                            get_docstring(
-                                "HybridBodyShapeSettings.vertices_coordinates")
-                                .c_str())
-                        .def_property(
-                            "high_resolution_body_shape_settings",
-                            &tss::HybridBodyShapeSettings::
-                                getHighResolutionBodyShapeSettings,
-                            &tss::HybridBodyShapeSettings::
-                                resetHighResolutionBodyShapeSettings,
-                            get_docstring("HybridBodyShapeSettings.vertices_"
-                                          "defining_each_facet")
-                                .c_str())
-                        .def_property(
-                            "switchover_altitude",
-                            &tss::HybridBodyShapeSettings::
-                                getSwitchoverAltitude,
-                            &tss::HybridBodyShapeSettings::
-                                resetSwitchoverAltitude,
-                            get_docstring("HybridBodyShapeSettings.compute_"
-                                          "altitude_with_sign")
-                                .c_str());
+                        R"doc(
+
+        Class for defining model settings of a hybrid body shape.
+
+        `BodyShapeSettings` derived class for hybrid body shape model settings.
+
+
+
+
+     )doc")
+                        .def_property("low_resolution_body_shape_settings",
+                                      &tss::HybridBodyShapeSettings::
+                                          getLowResolutionBodyShapeSettings,
+                                      &tss::HybridBodyShapeSettings::
+                                          resetLowResolutionBodyShapeSettings,
+                                      R"doc(No documentation found.)doc")
+                        .def_property("high_resolution_body_shape_settings",
+                                      &tss::HybridBodyShapeSettings::
+                                          getHighResolutionBodyShapeSettings,
+                                      &tss::HybridBodyShapeSettings::
+                                          resetHighResolutionBodyShapeSettings,
+                                      R"doc(No documentation found.)doc")
+                        .def_property("switchover_altitude",
+                                      &tss::HybridBodyShapeSettings::
+                                          getSwitchoverAltitude,
+                                      &tss::HybridBodyShapeSettings::
+                                          resetSwitchoverAltitude,
+                                      R"doc(No documentation found.)doc");
 
 
                     m.def("spherical", &tss::sphericalBodyShapeSettings,
                           py::arg("radius"),
-                          get_docstring("spherical").c_str());
+                          R"doc(
+
+Function for creating spherical body shape model settings.
+
+Function for settings object, defining strictly spherical body shape model entirely from single radius parameter.
+
+
+Parameters
+----------
+radius : float
+    Radius specifying spherical body shape.
+Returns
+-------
+SphericalBodyShapeSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.shape.SphericalBodyShapeSettings` class
+
+
+
+
+
+Examples
+--------
+In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` using a perfectly spherical shape model:
+
+.. code-block:: python
+
+   # define parameters describing perfectly spherical model
+   body_radius = 6378.0E3
+   # create shape model settings
+   body_settings.get( "Earth" ).shape_settings = environment_setup.shape.spherical( body_radius )
+
+
+    )doc");
 
                     m.def("spherical_spice",
                           &tss::fromSpiceSphericalBodyShapeSettings,
-                          get_docstring("spherical_spice").c_str());
+                          R"doc(
+
+Function for creating spherical body shape model settings entirely from spice.
+
+Function for settings object, defining spherical body shape model entirely from spice parameters.
+
+Returns
+-------
+BodyShapeSettings
+    Instance of :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` class
+
+
+
+
+
+Examples
+--------
+In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` using a perfectly spherical shape model and data from Spice:
+
+.. code-block:: python
+
+   # create shape model settings
+   body_settings.get( "Earth" ).shape_settings = environment_setup.shape.spherical_spice( )
+
+
+    )doc");
 
                     m.def("oblate_spherical",
                           &tss::oblateSphericalBodyShapeSettings,
                           py::arg("equatorial_radius"), py::arg("flattening"),
-                          get_docstring("oblate_spherical").c_str());
+                          R"doc(
+
+Function for creating oblate spherical body shape model settings.
+
+Function for settings object, defining oblate spherical body shape model from equatorial radius and flattening parameter.
+
+
+Parameters
+----------
+equatorial_radius : float
+    Equatorial radius specifying oblate spherical body shape.
+flattening : float
+    Flattening parameter specifying oblate spherical body shape.
+Returns
+-------
+OblateSphericalBodyShapeSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.shape.OblateSphericalBodyShapeSettings` class
+
+
+
+
+
+Examples
+--------
+In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` using a perfectly oblate spherical shape model:
+
+.. code-block:: python
+
+   # define parameters describing oblate spherical model
+   body_radius = 6378.0E3
+   body_flattening = 1.0 / 300.0
+   # create shape model settings
+   body_settings.get( "Earth" ).shape_settings = environment_setup.shape.oblate_spherical( body_radius, body_flattening )
+
+
+    )doc");
 
                     m.def("oblate_spherical_spice",
                           &tss::fromSpiceOblateSphericalBodyShapeSettings,
-                          get_docstring("oblate_spherical_spice").c_str());
+                          R"doc(No documentation found.)doc");
 
                     m.def("polyhedron", &tss::polyhedronBodyShapeSettings,
                           py::arg("vertices_coordinates"),
                           py::arg("vertices_defining_each_facet"),
                           py::arg("compute_altitude_with_sign") = true,
                           py::arg("just_compute_distance_to_vertices") = false,
-                          get_docstring("polyhedron").c_str());
+                          R"doc(
+
+Function for creating a polyhedron body shape model settings.
+
+Function for settings object, defining a polyhedron shape model.
+
+Note 1: The evaluation of the altitude with a polyhedron model tends to be computationally expensive. To reduce the
+computational time, it might be useful to instead define a hybrid shape model (see
+:func:`~tudatpy.numerical_simulation.environment_setup.shape.hybrid`), which allows using a high-resolution
+polyhedron (with a large number of facets) at low altitudes and a low-resolution one (with smaller number of facets)
+at high-altitudes.
+
+Note 2: If the goal of using the shape model is only to detect collisions with the surface and not to explicitly
+obtain the altitude, it is instead recommended to use the Laplacian of the gravitational potential (see
+:func:`~tudatpy.numerical_simulation.propagation_setup.dependent_variable.gravity_field_laplacian_of_potential`).
+This allows reducing the computational time, but is only valid if the same polyhedron model that is used to define
+the gravitational acceleration should also be used to detect the impacts.
+
+
+Parameters
+----------
+vertices_coordinates : numpy.ndarray
+    Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
+    row per vertex, 3 columns).
+
+vertices_defining_each_facet : numpy.ndarray
+    Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
+    the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
+    when seen from the outside of the polyhedron.
+
+compute_altitude_with_sign : bool, default=True
+    Flag indicating whether the altitude should be computed with sign (i.e. >0 if above surface, <0 otherwise) or
+    having always a positive value. If the the sign of the altitude is not relevant, then setting it to *false* is
+    recommended, as it reduces the CPU time.
+
+just_compute_distance_to_vertices : bool, default=False
+    Flag indicating whether the altitude should be computed just with respect to the polyhedron vertices (if flag
+    is set to *true*) or to all polyhedron features (vertices, facets and edges; happens if flag is set to
+    *false*). Depending on the application, it might be useful to set the flag to *true* for medium to high
+    altitudes, as it allows significantly reducing the CPU time (the resulting altitude errors depend on the
+    resolution of the used polyhedron and altitude itself).
+
+Returns
+-------
+PolyhedronBodyShapeSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived
+    :class:`~tudatpy.numerical_simulation.environment_setup.shape.PolyhedronBodyShapeSettings` class
+
+
+
+
+
+
+
+    )doc");
 
                     m.def("hybrid", &tss::hybridBodyShapeSettings,
                           py::arg("low_resolution_body_shape_settings"),
                           py::arg("high_resolution_body_shape_settings"),
                           py::arg("switchover_altitude"),
-                          get_docstring("hybrid").c_str());
+                          R"doc(
+
+Function for creating hybrid body shape model settings.
+
+Function for settings object, defining a hybrid shape model.
+
+The hybrid shape model is constituded by two shape models: a low-resolution model which is used at high altitudes
+(above the switchover altitude) and a high-resolution model used at low altitudes (below the switchover altitude).
+In each computation of the altitude, the altitude is first computed with the low-resolution model. The
+low-resolution altitude is then compared to the switchover altitude to decide whether to compute the high-resolution
+altitude.
+
+The hybrid shape model is useful when the evaluation of the high-resolution model is computationally expensive
+(e.g. polyhedron model).
+
+
+Parameters
+----------
+low_resolution_body_shape_settings : BodyShapeSettings
+    Settings of the shape model that is to be used to compute the altitude at high altitudes (above the switchover
+    altitude).
+
+high_resolution_body_shape_settings : BodyShapeSettings
+    Settings of the shape model that is to be used to compute the altitude at low altitudes (below the switchover
+    altitude).
+
+switchover_altitude : float
+    Altitude at which the model used to compute the altitude is changed. The high-resolution model is used for
+    altitudes below the switchover altitude, the low-resolution model for altitudes above it.
+
+Returns
+-------
+HybridBodyShapeSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived
+    :class:`~tudatpy.numerical_simulation.environment_setup.shape.HybridBodyShapeSettings` class
+
+
+
+
+
+
+
+    )doc");
                 }
 
             }  // namespace shape
