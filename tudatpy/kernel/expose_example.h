@@ -13,11 +13,11 @@
 //
 //#include <pybind11/pybind11.h>
 //
-//namespace py = pybind11;
+// namespace py = pybind11;
 //
-//namespace tudatpy {
+// namespace tudatpy {
 //
-//void expose_example(py::module &m);
+// void expose_example(py::module &m);
 //
 //};
 //
