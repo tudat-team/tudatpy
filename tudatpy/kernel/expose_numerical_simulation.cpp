@@ -18,7 +18,7 @@
 #include "expose_numerical_simulation/expose_propagation_setup.h"
 
 #include "expose_numerical_simulation/expose_environment.h"
-//#include "expose_numerical_simulation/expose_estimation.h"
+#include "expose_numerical_simulation/expose_estimation.h"
 #include "expose_numerical_simulation/expose_propagation.h"
 
 #include "tudat/basics/timeType.h"
@@ -50,7 +50,7 @@ void expose_numerical_simulation(py::module &m) {
     propagation::expose_propagation(propagation_submodule);
 
     auto estimation_submodule = m.def_submodule("estimation");
-//    estimation::expose_estimation(estimation_submodule);
+    estimation::expose_estimation(estimation_submodule);
 
     auto environment_setup_submodule = m.def_submodule("environment_setup");
     environment_setup::expose_environment_setup(environment_setup_submodule);
