@@ -453,7 +453,8 @@ void expose_environment(py::module &m) {
      **************   FLIGHT CONDITIONS AND ASSOCIATED FUNCTIONALITY  ******************
      */
 
-    py::enum_<trf::AerodynamicsReferenceFrameAngles>(m, "AerodynamicsReferenceFrameAngles")
+    py::enum_<trf::AerodynamicsReferenceFrameAngles>(m, "AerodynamicsReferenceFrameAngles",
+                                                get_docstring("AerodynamicsReferenceFrameAngles").c_str())
             .value("latitude_angle", trf::AerodynamicsReferenceFrameAngles::latitude_angle)
             .value("longitude_angle", trf::AerodynamicsReferenceFrameAngles::longitude_angle)
             .value("heading_angle", trf::AerodynamicsReferenceFrameAngles::heading_angle)
