@@ -43,7 +43,7 @@ double getApproximateTioLocator( const double secondsSinceJ2000 );
  * Function to calculate rotation from CIRS to GCRS, i.e. applying CIO-based rotations due to nutation and precession, as
  * described by IERS Conventions, Eq. (5.10)
  * \param celestialPoleXPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
- * \param celestialPoleYPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
+ * \param celestialPoleYPosition Parameter Y in  IERS Conventions 2010, Section 5.4.4
  * \param cioLocator Celestial intermediate origin locator; parameter s in  IERS Conventions 2010, Section 5.4.4
  * \return Rotation from CIRS to GCRS
  */
