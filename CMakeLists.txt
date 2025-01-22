@@ -1,14 +1,17 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.20)
 
 if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
-# Get version+label from file.
+# Get version + label from file
 file(STRINGS "version" tudatpy_VERSION_LABEL)
+list(GET tudatpy_VERSION_LABEL 0 tudatpy_VERSION_LABEL)
+string(
+    REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)"
+    tudatpy_VERSION "${tudatpy_VERSION_LABEL}"
+)
 
-# Get version from version_label argument using regex (x.y.z-rc -> x.y.z).
-string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" tudatpy_VERSION "${tudatpy_VERSION_LABEL}")
 
 # Project declaration.
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
@@ -18,9 +21,7 @@ else()
 #    add_definitions(-DVERSION_INFO "${tudatpy_VERSION_LABEL}")
 endif()
 
-option(TUDAT_BUILD_WITH_FFTW3 "Build Tudat with FFTW3." OFF)
-
-include_directories("tudatpy/kernel")
+# include_directories("tudatpy/kernel")
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
@@ -59,6 +60,7 @@ message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_STATIC_RUNTIME OFF)
+
 
 if (NOT TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
     add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=0)
@@ -118,7 +120,6 @@ find_package(NRLMSISE00 0.1 REQUIRED)
 #    set(NRLMSISE00_INCLUDE_DIRS ${NRLMSISE00_BUILD_INCLUDE_DIRS})
 #endif ()
 
-
 if (TUDAT_BUILD_WITH_FFTW3)
     if(NOT APPLE)
         find_package(FFTW3)
@@ -162,10 +163,10 @@ enable_testing()
 # python.
 include(YACMAPythonSetup)
 
-# python version check.
-if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
-    message(FATAL_ERROR "Minimum supported python version is 3.4.")
-endif ()
+# # python version check.
+# if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
+#     message(FATAL_ERROR "Minimum supported python version is 3.4.")
+# endif ()
 
 # pybind11.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
@@ -178,8 +179,10 @@ endif ()
 # Configure the sphinx config file.
 #configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py" @ONLY)
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+# Define tudatpy's source directory
+set(TUDATPY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/tudatpy)
 
 # Add the module directory.
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-add_subdirectory(tudatpy)
+include_directories(include)
+add_subdirectory(src/tudatpy)
