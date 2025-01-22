@@ -1,0 +1,74 @@
+{
+  "name": "tudat_legacy",
+  "description": "tudat space website",
+  "prefix": "~/.tudat/cache",
+  "resources": {
+    "spice_kernels": {
+      "type": "directory",
+      "description": "Spice kernels",
+      "items": [
+        {
+          "type": "file",
+          "Description": "",
+          "resource_url": "http://data.tudat.space/de430_mar097_small.bsp",
+          "last_checked": ""
+        },
+        {
+          "type": "file",
+          "Description": "",
+          "resource_url": "http://data.tudat.space/naif0012.tls",
+          "last_checked": ""
+        },
+        {
+          "type": "file",
+          "Description": "",
+          "resource_url": "http://data.tudat.space/pck00010.tpc",
+          "last_checked": ""
+        },
+        {
+          "type": "file",
+          "Description": "",
+          "resource_url": "http://data.tudat.space/tudat_merged_spk_kernel.bsp",
+          "last_checked": ""
+        },
+        {
+          "type": "file",
+          "Description": "",
+          "resource_url": "http://data.tudat.space/tudat_merged_spk_kernel.inp",
+          "last_checked": ""
+        },
+        {
+          "type": "file",
+          "Description": "",
+          "resource_url": "http://data.tudat.space/moon_assoc_pa.tf",
+          "last_checked": ""
+        },
+        {
+          "type": "file",
+          "Description": "",
+          "resource_url": "http://data.tudat.space/moon_080317.tf",
+          "last_checked": ""
+        },
+        {
+          "type": "file",
+          "Description": "",
+          "resource_url": "http://data.tudat.space/gm_de431.tpc",
+          "last_checked": ""
+        },
+        {
+          "type": "file",
+          "Description": "",
+          "resource_url": "http://data.tudat.space/earth_fixed.tf",
+          "last_checked": ""
+        },
+        {
+          "type": "file",
+          "Description": "",
+          "resource_url": "http://data.tudat.space/earth_latest_high_prec.bpc",
+          "last_checked": ""
+        }
+      ]
+    }
+  }
+}
+

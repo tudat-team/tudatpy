@@ -1,0 +1,37 @@
+{
+  "name": "celestrak",
+  "description": "CelesTrak: Orbital Data on the WWW",
+  "prefix": "~/.tudat/cache",
+  "resources": {
+    "active_satellites": {
+      "type": "file",
+      "description": "Active Satellites",
+      "resource_url": "http://www.celestrak.com/NORAD/elements/active.txt",
+      "last_checked": ""
+    },
+    "space_stations": {
+      "type": "file",
+      "description": "Space Stations",
+      "resource_url": "http://www.celestrak.com/NORAD/elements/stations.txt",
+      "last_checked": ""
+    },
+    "space_weather": {
+      "type": "directory",
+      "description": "Space Weather Data",
+      "items": [
+        {
+          "type": "file",
+          "Description": "Starting 1957 Oct 01",
+          "resource_url": "http://www.celestrak.com/SpaceData/SW-All.txt",
+          "last_checked": ""
+        },
+        {
+          "type": "file",
+          "description": "Starting 2015 Jan 01",
+          "resource_url": "http://www.celestrak.com/SpaceData/SW-Last5Years.txt",
+          "last_checked": ""
+        }
+      ]
+    }
+  }
+}
