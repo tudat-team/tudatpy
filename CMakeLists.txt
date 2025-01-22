@@ -84,6 +84,7 @@ add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
 #set(TUDAT_BUNDLE_BUILD ON)
 #find_package(Python3 COMPONENTS Interpreter Development)
 
+
 if (TUDAT_INSTALL)
     add_definitions(-DTUDAT_INSTALL=1)
 endif ()
@@ -179,13 +180,6 @@ endif ()
 #configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py" @ONLY)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
-
-message(STATUS "Flags pre: ${CMAKE_CXX_FLAGS}")
-string(REPLACE "-MD" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-string(REPLACE "-MT" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-message(STATUS "Flags post: ${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-dependency")
-
 
 # Add the module directory.
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
