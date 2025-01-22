@@ -93,6 +93,9 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_numerical_simulation/expose_propagation.cpp
         kernel/expose_numerical_simulation/expose_environment.cpp
         kernel/expose_numerical_simulation/expose_estimation.cpp
+        kernel/expose_numerical_simulation/expose_observation_collection.cpp
+        kernel/expose_numerical_simulation/expose_single_observation_set.cpp
+        kernel/expose_numerical_simulation/expose_propagated_covariance.cpp
 
         kernel/expose_numerical_simulation/expose_environment_setup.cpp
         kernel/expose_numerical_simulation/expose_environment_setup/expose_aerodynamic_coefficient_setup.cpp

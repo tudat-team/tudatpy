@@ -51,6 +51,9 @@ void expose_numerical_simulation(py::module &m) {
 
     auto estimation_submodule = m.def_submodule("estimation");
     estimation::expose_estimation(estimation_submodule);
+    estimation::expose_single_observation_set(estimation_submodule);
+    estimation::expose_observation_collection(estimation_submodule);
+    estimation::expose_propagated_covariance(estimation_submodule);
 
     auto environment_setup_submodule = m.def_submodule("environment_setup");
     environment_setup::expose_environment_setup(environment_setup_submodule);
