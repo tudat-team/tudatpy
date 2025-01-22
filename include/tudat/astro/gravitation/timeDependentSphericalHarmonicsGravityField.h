@@ -323,6 +323,11 @@ public:
         return gravityFieldVariationsSet_;
     }
 
+    std::vector< std::shared_ptr< GravityFieldVariations > > getGravityFieldVariations( )
+    {
+        return gravityFieldVariationsSet_->getVariationObjects( );
+    }
+
 private:
 
     //! Nominal (i.e. with zero variations) cosine coefficients.
