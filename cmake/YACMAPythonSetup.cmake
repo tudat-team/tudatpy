@@ -141,6 +141,8 @@ function(YACMA_PYTHON_MODULE name)
     if(_YACMA_PYTHON_MODULE_NEED_LINK)
         target_link_libraries("${name}" PRIVATE ${PYTHON_LIBRARIES})
     endif()
+    target_compile_options("${name}" PRIVATE /Zm2000)
+
 endfunction()
 
 # Mark as included.
