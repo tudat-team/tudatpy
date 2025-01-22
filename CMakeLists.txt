@@ -180,6 +180,13 @@ endif ()
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 
+foreach (flag_var
+        CMAKE_CXX_FLAGS)
+    # Find all dynamic runtime (MD) references and replace with static (MT)
+    if (${flag_var} MATCHES "/MT")
+        string(REGEX REPLACE "/MT" "/MD" ${flag_var} "${${flag_var}}")
+    endif (${flag_var} MATCHES "/MT")
+endforeach (flag_var)
 # Add the module directory.
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory(tudatpy)
