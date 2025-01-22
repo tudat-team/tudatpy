@@ -13,7 +13,6 @@
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 
-#include "docstrings.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/constants.h"
 

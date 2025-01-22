@@ -19,7 +19,6 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
-#include "docstrings.h"
 #include "expose_environment_setup/expose_aerodynamic_coefficient_setup.h"
 #include "expose_environment_setup/expose_atmosphere_setup.h"
 #include "expose_environment_setup/expose_ephemeris_setup.h"
@@ -967,5 +966,5 @@ central_body_name : str
 
 
         }  // namespace environment_setup
-    }      // namespace numerical_simulation
+    }  // namespace numerical_simulation
 }  // namespace tudatpy

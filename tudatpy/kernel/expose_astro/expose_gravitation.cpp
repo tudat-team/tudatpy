@@ -16,7 +16,6 @@
 #include <tudat/astro/gravitation.h>
 #include <tudat/math/basic.h>
 
-#include "docstrings.h"
 
 namespace py = pybind11;
 namespace tg = tudat::gravitation;
@@ -195,5 +194,5 @@ tuple[numpy.ndarray, numpy.ndarray]
 
 
         }  // namespace gravitation
-    }      // namespace astro
+    }  // namespace astro
 }  // namespace tudatpy

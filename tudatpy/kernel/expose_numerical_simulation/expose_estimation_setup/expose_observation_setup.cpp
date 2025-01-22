@@ -12,7 +12,6 @@
 
 #include <pybind11/functional.h>
 
-#include "docstrings.h"
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
@@ -4836,6 +4835,6 @@ observable_type : :class:`ObservableType`
                 }
 
             }  // namespace observation
-        }      // namespace estimation_setup
-    }          // namespace numerical_simulation
+        }  // namespace estimation_setup
+    }  // namespace numerical_simulation
 }  // namespace tudatpy

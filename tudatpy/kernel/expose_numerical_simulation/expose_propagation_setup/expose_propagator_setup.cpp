@@ -19,7 +19,6 @@
 #include <tudat/astro/propagators/getZeroProperModeRotationalInitialState.h>
 #include <tudat/simulation/propagation_setup.h>
 
-#include "docstrings.h"
 #include "scalarTypes.h"
 
 namespace py = pybind11;
@@ -1883,6 +1882,6 @@ None
                 }
 
             }  // namespace propagator
-        }      // namespace propagation_setup
-    }          // namespace numerical_simulation
+        }  // namespace propagation_setup
+    }  // namespace numerical_simulation
 }  // namespace tudatpy

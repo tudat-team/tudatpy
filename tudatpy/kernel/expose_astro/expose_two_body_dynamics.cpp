@@ -15,7 +15,6 @@
 #include <tudat/astro/basic_astro.h>
 #include <tudat/astro/mission_segments.h>
 
-#include "docstrings.h"
 
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;

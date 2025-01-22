@@ -15,7 +15,6 @@
 #include <pybind11/stl.h>
 #include <tudat/basics/basicTypedefs.h>
 
-#include "docstrings.h"
 #include "tudat/astro/system_models/timingSystem.h"
 
 namespace py = pybind11;
