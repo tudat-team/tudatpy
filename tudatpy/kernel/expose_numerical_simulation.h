@@ -11,23 +11,22 @@
 #ifndef TUDATPY_EXPOSE_NUMERICAL_SIMULATION_H
 #define TUDATPY_EXPOSE_NUMERICAL_SIMULATION_H
 
-#include <pybind11/pybind11.h>
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/numpy.h>
 
 namespace py = pybind11;
 
 namespace tudatpy {
 
-namespace numerical_simulation{
+    namespace numerical_simulation {
 
-void expose_numerical_simulation(py::module &m);
+        void expose_numerical_simulation(py::module &m);
 
-}// namespace numerical_simulation
+    }  // namespace numerical_simulation
 
-}// namespace tudatpy
-#endif//TUDATPY_EXPOSE_NUMERICAL_SIMULATION_H
+}  // namespace tudatpy
+#endif  // TUDATPY_EXPOSE_NUMERICAL_SIMULATION_H

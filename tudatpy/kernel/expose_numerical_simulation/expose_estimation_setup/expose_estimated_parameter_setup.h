@@ -20,16 +20,16 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace estimation_setup {
-namespace parameter {
+    namespace numerical_simulation {
+        namespace estimation_setup {
+            namespace parameter {
 
-void expose_estimated_parameter_setup(py::module &m);
+                void expose_estimated_parameter_setup(py::module &m);
 
-}// namespace acceleration
-}// namespace propagation_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+            }  // namespace parameter
+        }      // namespace estimation_setup
+    }          // namespace numerical_simulation
+}  // namespace tudatpy
 
 
-#endif //TUDATPY_EXPOSE_ESTIMATED_PARAMETER_SETUP_H
+#endif  // TUDATPY_EXPOSE_ESTIMATED_PARAMETER_SETUP_H

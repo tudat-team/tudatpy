@@ -11,26 +11,24 @@
 #ifndef TUDATPY_EXPOSE_PROPAGATION_H
 #define TUDATPY_EXPOSE_PROPAGATION_H
 
-#include <pybind11/pybind11.h>
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/numpy.h>
 
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace propagation{
+    namespace numerical_simulation {
+        namespace propagation {
 
-void expose_propagation(py::module &m);
+            void expose_propagation(py::module &m);
 
-}// namespace propagation_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+        }  // namespace propagation
+    }      // namespace numerical_simulation
+}  // namespace tudatpy
 
 
-
-#endif// TUDATPY_EXPOSE_PROPAGATION_H
+#endif  // TUDATPY_EXPOSE_PROPAGATION_H

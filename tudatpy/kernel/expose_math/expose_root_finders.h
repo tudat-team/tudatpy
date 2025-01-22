@@ -15,19 +15,16 @@
 
 namespace py = pybind11;
 
-namespace tudatpy
-{
-namespace math
-{
+namespace tudatpy {
+    namespace math {
 
-namespace root_finders
-{
+        namespace root_finders {
 
-void expose_root_finders( py::module &m );
+            void expose_root_finders(py::module &m);
 
-}
+        }
 
-}
+    }  // namespace math
 
-}
-#endif//TUDATPY_EXPOSE_ROOT_FINDERS_H
+}  // namespace tudatpy
+#endif  // TUDATPY_EXPOSE_ROOT_FINDERS_H
