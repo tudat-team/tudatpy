@@ -15,7 +15,6 @@
 #include <tudat/astro/mission_segments/createTransferTrajectory.h>
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
 
-#include "docstrings.h"
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"
 #include "tudat/math/root_finders.h"
 
@@ -1220,5 +1219,5 @@ TransferTrajectory
             };
 
         }  // namespace transfer_trajectory
-    }      // namespace trajectory_design
+    }  // namespace trajectory_design
 }  // namespace tudatpy

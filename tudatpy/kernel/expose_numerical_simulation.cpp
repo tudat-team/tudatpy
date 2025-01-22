@@ -13,7 +13,6 @@
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
-#include "docstrings.h"
 #include "expose_numerical_simulation/expose_environment.h"
 #include "expose_numerical_simulation/expose_environment_setup.h"
 #include "expose_numerical_simulation/expose_estimation.h"

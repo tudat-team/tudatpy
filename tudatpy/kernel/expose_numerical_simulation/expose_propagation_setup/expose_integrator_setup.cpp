@@ -18,7 +18,6 @@
 #include <pybind11/stl.h>
 #include <tudat/simulation/propagation_setup.h>
 
-#include "docstrings.h"
 #include "scalarTypes.h"
 
 namespace py = pybind11;

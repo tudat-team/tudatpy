@@ -21,7 +21,6 @@
 #include <tudat/astro/gravitation.h>
 #include <tudat/basics/deprecationWarnings.h>
 
-#include "docstrings.h"
 #include "scalarTypes.h"
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -3219,5 +3218,5 @@ numpy.ndarray[numpy.float64[6, 1]]
                  */
             }
         }  // namespace environment
-    }      // namespace numerical_simulation
+    }  // namespace numerical_simulation
 }  // namespace tudatpy

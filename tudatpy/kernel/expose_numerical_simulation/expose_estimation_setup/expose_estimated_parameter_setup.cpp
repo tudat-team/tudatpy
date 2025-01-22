@@ -11,7 +11,6 @@
 
 #include "expose_estimated_parameter_setup.h"
 
-#include "docstrings.h"
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 
@@ -1501,6 +1500,6 @@ Returns
                 }
 
             }  // namespace parameter
-        }      // namespace estimation_setup
-    }          // namespace numerical_simulation
+        }  // namespace estimation_setup
+    }  // namespace numerical_simulation
 }  // namespace tudatpy
