@@ -26,7 +26,7 @@ namespace tba = tudat::basic_astrodynamics;
 namespace tudatpy {
     namespace constants {
         void expose_constants(py::module &m) {
-            m.attr("__doc__") = get_docstring("constants").c_str();
+            m.attr("__doc__") = R"doc(No documentation found.)doc";
 
             // physicalConstants.h
             m.attr("SEA_LEVEL_GRAVITATIONAL_ACCELERATION") =
