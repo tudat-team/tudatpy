@@ -3605,7 +3605,7 @@ ephemeris_time : float
 
 Returns
 -------
-cartesian_state_vector : np.ndarray[6,]    Cartesian state vector (x,y,z, position+velocity).
+cartesian_state_vector : numpy.ndarray[6,]    Cartesian state vector (x,y,z, position+velocity).
 
 
 
@@ -3689,7 +3689,7 @@ tle : :class:`~tudatpy.kernel.astro.ephemerides.Tle`
     Shared pointer to a Tle object containing the SGP/SDP model parameters as derived from the element set.
 Returns
 -------
-cartesian_state_vector : np.ndarray[6,]    Cartesian state vector (x,y,z, position+velocity).
+cartesian_state_vector : numpy.ndarray[6,]    Cartesian state vector (x,y,z, position+velocity).
 
 
 
@@ -15133,7 +15133,7 @@ station_name : string
     Name (unique identifier) by which the station is to be known.
 station_position_element_type : PositionElementTypes, default = cartesian_position
     Type of elements for ``station_nominal_position``. Choose between cartesian_position, spherical_position and geodetic_position
-station_nominal_position : np.ndarray([3,1])
+station_nominal_position : numpy.ndarray([3,1])
     Nominal position of the station in a body-fixed frame. Depending on the choice of ``station_position_element_type`` input, this vector must contain
     * Cartesian - :math:`[x,y,z]`, denoting :math:`x-`, :math:`y-` and :math:`z-` components of body-fixed position (w.r.t body-fixed frame origin, typically center of mass) * Spherical - :math:`[r,\phi',\theta]`, denoting distance from body-fixed frame origin (typically center of mass), latitude and longitude * Geodetic - :math:`[h,\phi,\theta]`, denoting the altitude w.r.t. the body shape model, geodetic latitude and longitude
 station_motion_settings : list[ GroundStationMotionSettings ], default = None
@@ -15206,7 +15206,7 @@ Function for creating settings for a linear station motion, implementing :math:`
 
 Parameters
 ----------
-linear_velocity : np.ndarray([3,1])
+linear_velocity : numpy.ndarray([3,1])
     Linear velocity :math:`\dot{\mathbf{r}}` of the station (in m/s)
 reference_epoch : float, default = 0.0
     Reference epoch :math:`t_{0}`, in seconds since J2000 epoch
@@ -15236,7 +15236,7 @@ When the resulting model is queried at a given time :math:`t`, the nearest lower
 
 Parameters
 ----------
-displacement_list : dict[float,np.ndarray([3,1])]
+displacement_list : dict[float,numpy.ndarray([3,1])]
     Dictionary with the epochs :math:`t_{i}` as values, and the associated displacement :math:`\Delta\mathbf{r}_{i}` as value
 Returns
 -------
@@ -15263,7 +15263,7 @@ applied to the station position
 
 Parameters
 ----------
-custom_displacement_function : dict[float,np.ndarray([3,1])]
+custom_displacement_function : dict[float,numpy.ndarray([3,1])]
     Function returning :math:`\Delta\mathbf{r}`, with the time :math:`t` as input.
 Returns
 -------
@@ -16673,13 +16673,38 @@ using full rotation model data from Spice:
         
 Function for creating high-accuracy Earth rotation model settings.
 
-Function for settings object, defining high-accuracy Earth rotation model according to the IERS Conventions 2010.
-This settings class has various options to deviate from the default settings, typical applications will use default.
+Function for settings object, defining high-accuracy Earth rotation model according to the IERS Conventions 2010.  The model
+computes the rotation from ITRS to GCRS (with rotation matrix :math:`\mathbf{R}^{(\text{GCRS}/\text{ITRS})}`) and its inverse from:
+
+.. math::
+   \mathbf{R}^{(\text{GCRS}/\text{ITRS})} = \mathbf{R}^{(\text{GCRS}/\text{CIRS})}(X,Y,s)\mathbf{R}^{(\text{CIRS}/\text{TIRS})}(\theta_{E})\mathbf{R}^{(\text{TIRS}/\text{ITRS})}(x_{p}, y_{p}, s')
+
+using the intermediate frames TIRS (Terrestial Intermediate Reference System) and CIRS (Celestial Intermediate Reference System) where (with equations referring to the IERS 2010 Conventions) :math:`\mathbf{R}^{(\text{GCRS}/\text{CIRS})}` implements Eq. (5.10), :math:`\mathbf{R}^{(\text{CIRS}/\text{TIRS})}` implements Eq. (5.5), and
+:math:`\mathbf{R}^{(\text{TIRS}/\text{ITRS})}` implements Eq. (5.3). The inputs to these rotation matrices are :
+
+* :math:`X`, :math:`Y`: Celestial pole position elements
+* :math:`s`: The CIO (Celestial Intermediate Origin)
+* :math:`\theta_{E}`: Earth rotation angle (denoted as :math:`ERA` in IERS Conventions)
+* :math:`x_{p}`, :math:`y_{p}`: Polar motion components
+* :math:`s'`: The TIO (Terrestial Intermediate Origin)
+
+Depending on the selected ``precession_nutation_theory`` input, the SOFA function ``iauXys00a``, ``iauXys00b`` or ``iauXys06a`` is used to compute :math:`X,Y,s`, when selecting
+:class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.IAUConventions` ``iau_2000a``, ``iau_2000b`` or ``iau_2006``, respectively. Corrections to the nominal values of :math:`X,Y`
+are applied using linear interpolation of daily corrections for :math:`X,Y` from the eopc04_14_IAU2000.62-now.txt file. The quantity :math:`s'` is computed from Eq. (5.13) (implemented in SOFA's ``iauSp00`` function).
+
+The value of :math:`\theta_{E}` is computed directtly from UTC-UT1, which is computed using settings given in :func:`~tudatpy.astro.time_conversions.default_time_scale_converter`, the computation of
+:math:`theta_{E}` from this quantity follows from Eq. (5.15), implemented by SOFA's ``iauEra00`` function.
+
+The polar motion components :math:`x_{p}`, :math:`y_{p}` are computed from:
+
+* Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1a (with :math:`n=2`) of IERS Conventions 2010
+* Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.1a and 8.1b of the IERS Conventions 2010
+* Linear interpolation (correcting for discontunities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
+
 Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
-The precession-nutation theory may be any member of :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.IAUConventions` (``iau_2000a`` / ``iau_2000b`` or ``iau_2006``).
-Alternative options to modify the input (not shown here) include the EOP correction file, input time scale, short period UT1 and polar motion variations.
 The target frame (e.g. body-fixed frame) name is ITRS.
 
+Alternative options to modify the input (not exposed here) include the EOP correction file, input time scale, short period UT1 and polar motion variations.
 
 Parameters
 ----------
@@ -26494,39 +26519,66 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
 
     } else if(name == "AerodynamicCoefficientsIndependentVariables.mach_number_dependent") {
          return R"(
-Mach number of the propagated vehicle.
      )";
 
 
     } else if(name == "AerodynamicCoefficientsIndependentVariables.angle_of_attack_dependent") {
          return R"(
-Angle of attack of the propagated vehicle.
      )";
 
 
     } else if(name == "AerodynamicCoefficientsIndependentVariables.sideslip_angle_dependent") {
          return R"(
-Sideslip angle of the propagated vehicle.
      )";
 
 
     } else if(name == "AerodynamicCoefficientsIndependentVariables.altitude_dependent") {
          return R"(
-Altitude of the propagated vehicle.
      )";
 
 
     } else if(name == "AerodynamicCoefficientsIndependentVariables.time_dependent") {
          return R"(
-Current simulation epoch.
      )";
 
-
-    } else if(name == "AerodynamicCoefficientsIndependentVariables.control_surface_deflection_dependent") {
+    } else if(name == "AerodynamicCoefficientsIndependentVariables.temperature_dependent") {
          return R"(
-Angle of deflection of the control surface of the propagated vehicle.
      )";
 
+    } else if(name == "AerodynamicCoefficientsIndependentVariables.velocity_dependent") {
+         return R"(
+     )";
+
+    } else if(name == "AerodynamicCoefficientsIndependentVariables.he_number_density_dependent") {
+         return R"(
+     )";
+
+    } else if(name == "AerodynamicCoefficientsIndependentVariables.o_number_density_dependent") {
+         return R"(
+     )";
+
+    } else if(name == "AerodynamicCoefficientsIndependentVariables.n2_number_density_dependent") {
+         return R"(
+     )";
+
+    } else if(name == "AerodynamicCoefficientsIndependentVariables.o2_number_density_dependent") {
+         return R"(
+     )";
+    } else if(name == "AerodynamicCoefficientsIndependentVariables.ar_number_density_dependent") {
+         return R"(
+     )";
+
+    } else if(name == "AerodynamicCoefficientsIndependentVariables.h_number_density_dependent") {
+         return R"(
+     )";
+
+    } else if(name == "AerodynamicCoefficientsIndependentVariables.n_number_density_dependent") {
+         return R"(
+     )";
+
+    } else if(name == "AerodynamicCoefficientsIndependentVariables.anomalous_o_number_density_dependent") {
+         return R"(
+     )";
 
     } else if(name == "AerodynamicCoefficientsIndependentVariables.undefined_independent_variable") {
          return R"(
@@ -26577,7 +26629,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
         as computed by the last call to the :meth:`~update_coefficients` function.
 
 
-        :type: np.ndarray
+        :type: numpy.ndarray
      )";
 
 
@@ -26590,7 +26642,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
         as computed by the last call to the :meth:`~update_coefficients` function.   
 
 
-        :type: np.ndarray
+        :type: numpy.ndarray
      )";
 
 
@@ -26602,7 +26654,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
         Concatenation of :attr:`~current_force_coefficients` and :attr:`~current_moment_coefficients`
 
 
-        :type: np.ndarray
+        :type: numpy.ndarray
      )";
 
 
@@ -26650,7 +26702,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
         Same as :attr:`current_force_coefficients`, but without contribution (if any) from control surfaces
 
 
-        :type: np.ndarray
+        :type: numpy.ndarray
      )";
 
 
@@ -26662,7 +26714,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
         Same as :attr:`current_moment_coefficients`, but without contribution (if any) from control surfaces
 
 
-        :type: np.ndarray
+        :type: numpy.ndarray
      )";
 
 
@@ -26694,7 +26746,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Contribution from the requested control surface to the aerodynamic force coefficient
 
 
@@ -26719,7 +26771,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Contribution from the requested control surface to the aerodynamic moment coefficients
 
 
@@ -26753,7 +26805,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Contribution from the requested control surface to the aerodynamic moment coefficients
 
 
@@ -27236,7 +27288,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Rotation matrix :math:`\mathbf{R}^{B/A}` from frame :math:`A` to frame `B`
 
 
@@ -27338,7 +27390,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Rotation matrix :math:`\mathbf{R}^{I/B}` from body-fixed frame :math:`B` to inertial frame `I`
 
 
@@ -27388,7 +27440,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Rotation matrix :math:`\dot{\mathbf{R}}^{I/B}` from body-fixed frame :math:`B` to inertial frame `I`
 
 
@@ -27416,7 +27468,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Rotation matrix :math:`\dot{\mathbf{R}}^{B/I}` from inertial frame `I` to body-fixed frame :math:`B`
 
 
@@ -27448,7 +27500,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Angular velocity vector of the body  :math:`\boldsymbol{\omega}^{(B)}` expressed in the body-fixed frame :math:`B`
 
 
@@ -27477,7 +27529,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Angular velocity vector of the body  :math:`\boldsymbol{\omega}^{(B)}` expressed in the body-fixed frame :math:`B`
 
 
@@ -27487,6 +27539,68 @@ Can be used for a custom coefficient interface with other variables, at the expe
     )";
 
 
+
+
+    } else if(name == "GcrsToItrsRotationModel" ) {
+            return R"(
+
+        Object for high-accuracy GCRS<->ITRS rotation.
+
+        Object derived from :class:`~RotationalEphemeris` that implements the high-accuracy GCRS<->ITRS rotation as per the IERS 2010 Conventions. The details of the model are described in
+        :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.gcrs_to_itrs`
+        With the exception of :math:`s'`, the list of angles used to compute the full rotation are computed by an object of type :class:`~EarthOrientationAnglesCalculator` (which can be retrieved from this rotation model
+        through :attr:`~GcrsToItrsRotationModel.angles_calculator`.
+
+    )";
+
+
+
+
+    } else if(name == "GcrsToItrsRotationModel.angles_calculator" ) {
+            return R"(
+
+        **read-only**
+
+        Object that computes the Earth rotation angles :math:`X,Y,s,\theta_{E},x_{p},y_{p}`
+
+
+        :type: EarthOrientationAnglesCalculator
+
+    )";
+
+
+
+
+    } else if(name == "EarthOrientationAnglesCalculator" ) {
+            return R"(
+
+        Object for computing high-accuracy Earth orientation angles
+
+    )";
+
+
+
+    } else if(name == "EarthOrientationAnglesCalculator.get_gcrs_to_itrs_rotation_angles" ) {
+            return R"(
+
+        Function to compute high-accuracy Earth orientation angles
+
+        Function to compute high-accuracy Earth orientation angle quantities :math:`X,Y,s,x_{p},y_{p}` and UT1 (from which :math:`\theta_{E}` is computed)
+        as described in :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.gcrs_to_itrs`
+
+        Parameters
+        ----------
+        epoch : float
+            Epoch at which the Earth orientation angles are to be compute
+        time_scale : TimeScales
+            Time scale in which the input epoch is given
+
+        Returns
+        -------
+        tuple[list[float],float]
+            Pair (tuple of size two) with the first entry a list of orientation angles :math:`X,Y,s,x_{p},y_{p}` (in that order) and the second entry the current UT1.
+
+    )";
 
 
     } else if(name == "VehicleSystems") {
@@ -27704,7 +27818,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Requested Cartesian state
 
 
@@ -27728,7 +27842,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Requested Cartesian position
 
 
@@ -27752,7 +27866,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Requested Cartesian velocity
 
 
@@ -27762,6 +27876,69 @@ Can be used for a custom coefficient interface with other variables, at the expe
     )";
 
 
+
+
+    } else if(name == "RigidBodyProperties") {
+         return R"(
+
+        Object that defines the mass, center of mass, and inertia tensor as a function of time.
+
+        Object that defines the mass, center of mass, and inertia tensor as a function of time, typically used for evaluation of torques and non-conservative forces
+        in numerical state propagation. Note that this object does *not* define properties of a gravity field (it defines the inertial mass rather than the gravitational mass)
+
+     )";
+
+
+    } else if(name == "RigidBodyProperties") {
+         return R"(
+
+        Object that defines the mass, center of mass, and inertia tensor as a function of time.
+
+        Object that defines the mass, center of mass, and inertia tensor as a function of time, typically used for evaluation of torques and non-conservative forces
+        in numerical state propagation. Note that this object does *not* define properties of a gravity field (it defines the inertial mass rather than the gravitational mass)
+
+     )";
+
+
+    } else if(name == "RigidBodyProperties.update") {
+         return R"(
+
+        Function to update the body properties to the current time. This function is called automatically during a propagation loop.
+        In case these properties are not time-dependent (e.g. when using the :func:`~tudatpy.numerical_simulation.environment_setup.rigid_body.constant_rigid_body_properties` settings)
+        this function does nothing (since no update is needed).
+
+        Parameters
+        ----------
+        current_time : float
+            Time (in seconds since J2000 TDB) to which this object is to be updated
+
+        Returns
+        -------
+
+     )";
+
+
+    } else if(name == "RigidBodyProperties.current_mass") {
+         return R"(
+
+        Mass of the object, as set by the latest call to the ``update`` function of this object.
+     )";
+
+
+    } else if(name == "RigidBodyProperties.current_center_of_mass") {
+         return R"(
+
+        Position of the center of mass of the object (in the body-centered, body-fixed frame), as set by the latest call to the ``update`` function of this object.
+
+     )";
+
+
+    } else if(name == "RigidBodyProperties.current_inertia_tensor") {
+         return R"(
+
+       Inertia tensor of the object (with axes along those of the body-fixed frame), as set by the latest call to the ``update`` function of this object.
+
+     )";
 
 
     } else if(name == "GravityFieldModel" ) {
@@ -27866,7 +28043,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
     } else if(name == "BodyShapeModel" ) {
             return R"(
 
-        Object that provides a sphape model for a natural body.
+        Object that provides a shape model for a natural body.
 
         Object (typically stored inside a :class:`~Body` object) that provides a shape model for a body, for instance to compute the altitude from a body-centered state, or w.r.t. which
         to place ground stations. This shape model is typically only associcated with natural bodies. Shape models for spacecraft (for non-conservative force models) use properties stored inside the
@@ -27882,6 +28059,140 @@ Can be used for a custom coefficient interface with other variables, at the expe
         Average radius of the body, for use in computations that assume a spherical body shape.
 
         :type: float
+
+
+    )";
+
+    } else if(name == "AtmosphereModel" ) {
+            return R"(
+
+        Object that provides the atmospheric properties of the body.
+
+        Object that provides the atmospheric properties of the body, as a function of altitude, latitude, longitude and time. Depending on the implementation, the
+        this dependence may be limited to altitude-only (e.g. standard atmosphere models). This object can be accessed directly by the user to compute atmospheric properties
+        outside the loop of the propagation by calling one of its member functions. During the propagation, each body undergoing aerodynamic forces has a :class:`AtmosphericFlightConditions`
+        object associated with it (accessed from a boyd through :attr:`~Body.flight_condition`) that links the atmosphere model to the aerodynamic model.
+
+    )";
+
+    } else if(name == "AtmosphereModel.get_density" ) {
+            return R"(
+
+        Function to compute the atmospheric freestream density at a given location.
+
+        Parameters
+        ----------
+        altitude : float
+            Local altitude above the body surface at which the property is to be computed
+        latitude : float
+            Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+        longitude : float
+            Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+        time : float
+            Time (in seconds since J2000 TDB) at which the property is to be computed.
+
+        Returns
+        -------
+        float
+            Freestream density at the given time and location
+
+
+    )";
+
+    } else if(name == "AtmosphereModel.get_pressure" ) {
+            return R"(
+
+        Function to compute the atmospheric freestream static pressure at a given location.
+
+        Parameters
+        ----------
+        altitude : float
+            Local altitude above the body surface at which the property is to be computed
+        latitude : float
+            Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+        longitude : float
+            Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+        time : float
+            Time (in seconds since J2000 TDB) at which the property is to be computed.
+
+        Returns
+        -------
+        float
+            Freestream static pressure at the given time and location
+
+
+    )";
+
+    } else if(name == "AtmosphereModel.get_temperature" ) {
+            return R"(
+
+        Function to compute the atmospheric freestream temperature at a given location.
+
+        Parameters
+        ----------
+        altitude : float
+            Local altitude above the body surface at which the property is to be computed
+        latitude : float
+            Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+        longitude : float
+            Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+        time : float
+            Time (in seconds since J2000 TDB) at which the property is to be computed.
+
+        Returns
+        -------
+        float
+            Freestream temperature at the given time and location
+
+
+    )";
+
+    } else if(name == "AtmosphereModel.get_speed_of_sound" ) {
+            return R"(
+
+        Function to compute the atmospheric freestream speed of sound at a given location.
+
+        Parameters
+        ----------
+        altitude : float
+            Local altitude above the body surface at which the property is to be computed
+        latitude : float
+            Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+        longitude : float
+            Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+        time : float
+            Time (in seconds since J2000 TDB) at which the property is to be computed.
+
+        Returns
+        -------
+        float
+            Freestream speed of sound at the given time and location
+
+
+    )";
+
+    } else if(name == "AtmosphereModel.get_number_density" ) {
+            return R"(
+
+        Function to compute the atmospheric freestream number density of a given specie at a given location.
+
+        Parameters
+        ----------
+        species : AtmosphericCompositionSpecies
+            Atmospheric species for which the number density is to be computed
+        altitude : float
+            Local altitude above the body surface at which the property is to be computed
+        latitude : float
+            Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+        longitude : float
+            Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+        time : float
+            Time (in seconds since J2000 TDB) at which the property is to be computed.
+
+        Returns
+        -------
+        float
+            Freestream number density of the requested specie at the given time and location
 
 
     )";
@@ -27986,7 +28297,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Cartesian position of the station at the current epoch, in a body-centered, body-fixed frame
 
     )";
@@ -28000,7 +28311,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
         Rotation matrix from the body-fixed frame (of the station's central body) to the topocentric frame
         of the ground station. The body-fixed frame is defined by the rotation model of the body object (:attr:`~tudatpy.numerical_simulation.environment.Body.rotation_model`).
         The axes of the topocentric frame are defined such that the x-axis is in East direction, the z-direction is upwards, perpendicular to the body's surface sphere
-        (with properties defined by the central body's shape model:attr:`~tudatpy.numerical_simulation.environment.Body.shape_model`). The y-axis completes the frame, and is in northern direction.
+        (with properties defined by the central body's shape model :attr:`~tudatpy.numerical_simulation.environment.Body.shape_model`). The y-axis completes the frame, and is in northern direction.
         For time-varying ground station positions, this function uses the station position at reference epoch for the computation of the axes.
 
         :type: numpy.ndarray[numpy.float64[3, 3]]
@@ -28246,9 +28557,9 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         The current mass :math:`m` of the vehicle, as used in the calculation of
         non-conservative acceleration. This attribute is a shorthand for accessing the
-        mass as computed/stored in the ``rigid_body_properties`` attribute. For certain
+        mass as computed/stored in the :attr:`Body.rigid_body_properties` attribute. For certain
         types of rigid-body properties, this attribute cannot be used to (re)set the current
-        mass. If the body has no ``rigid_body_properties``, and this function is used to
+        mass. If the body has no    :attr:`Body.rigid_body_properties`, and this function is used to
         set a mass, a new object is automatically created, with settings analogous to the
         the :func:`~tudatpy.numerical_simulation.environment_setup.rigid_body.constant_rigid_body_properties` setting.
 
@@ -28266,7 +28577,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         The current inertia tensor :math:`\mathbf{I}` of the vehicle, as used in the calculation of
         (for instance) the reponse to torques. This attribute is a shorthand for accessing the
-        inertia tensor as computed/stored in the ``rigid_body_properties`` attribute. For certain
+        inertia tensor as computed/stored in the :attr:`~Body.rigid_body_properties` attribute. For certain
         types of rigid-body properties, this attribute cannot be used to (re)set the current
         mass. 
 
@@ -28275,16 +28586,16 @@ Can be used for a custom coefficient interface with other variables, at the expe
         propagation *and* to define the mass of a vehicle.
 
 
-        :type: np.ndarray
+        :type: numpy.ndarray
      )";
 
 
     } else if(name == "Body.ephemeris") {
          return R"(
 
-        Ephemeris model of this body, used to calculate its current state as a function of time.
+        Object defining the ephemeris model of this body, used to calculate its current state as a function of time.
         Depending on the selected type of model, the type of this attribute
-        is of type Ephemeris, or a derived class thereof.
+        is of type :class:`~Ephemeris`, or a derived class thereof.
 
 
         :type: Ephemeris
@@ -28307,9 +28618,9 @@ Can be used for a custom coefficient interface with other variables, at the expe
     } else if(name == "Body.atmosphere_model") {
          return R"(
 
-        Atmosphere model of this body, used to calculate density, temperature, etc. at a given
+        Object defining the atmosphere model of this body, used to calculate density, temperature, etc. at a given
         state/time. Depending on the selected type of model, the type of this attribute
-        is of type AtmosphereModel, or a derived class thereof.
+        is of type :class:`~AtmosphereModel`, or a derived class thereof.
 
 
         :type: AtmosphereModel
@@ -28319,7 +28630,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
     } else if(name == "Body.shape_model") {
          return R"(
 
-        Shape model of this body, used to define the exterior shape of the body, for instance for
+        Object defining the a shape model of this body, used to define the exterior shape of the body, for instance for
         the calculation of vehicle's altitude. Depending on the selected type of model, the type of this attribute
         is of type BodyShapeModel, or a derived class thereof.
 
@@ -28331,7 +28642,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
     } else if(name == "Body.gravity_field_model") {
          return R"(
 
-        Gravity field model of this body, used to define the exterior gravitational potential, and
+        Object defining the a gravity field model of this body, used to define the exterior gravitational potential, and
         its gradient(s). Depending on the selected type of model, the type of this attribute
         is of type GravityFieldModel, or a derived class thereof.
 
@@ -28343,7 +28654,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
     } else if(name == "Body.aerodynamic_coefficient_interface") {
          return R"(
 
-        Object defining the aerodynamic coefficients of a vehicle (force-only, or force and moment)
+        Object defining the aerodynamic coefficients of the body (force-only, or force and moment)
         as a function of any number of independent variables. Depending on the selected type of model, the type of this attribute
         is of type AerodynamicCoefficientInterface, or a derived class thereof.
 
@@ -28355,13 +28666,25 @@ Can be used for a custom coefficient interface with other variables, at the expe
     } else if(name == "Body.rotation_model") {
          return R"(
 
-        Object defining the orientation of a body, used to calculate the rotation to/from a body-fixed
+        Object defining the orientation of the body, used to calculate the rotation to/from a body-fixed
         frame (and its derivate). Depending on the selected type of model, the type of this attribute
         is of type RotationalEphemeris, or a derived class thereof.
 
 
         :type: RotationalEphemeris
      )";
+
+    } else if(name == "Body.rigid_body_properties") {
+     return R"(
+
+       Object defining the mass, center of mass and inertia tensor of the body. This object is distinct from
+       the gravity field of a body (defined by the :attr:`Body.gravity_field` object). A body endowed with this property does *not*
+       automatically have a gravity field created for it. However, the whenever a body is endowed with a gravity field,
+       a rigid body properties attribute is created to be consistent with this gravity field (e.g. for a spherical harmonic gravity field
+       the mass, center of mass and inertia tensor are created from the gravitational parameter, degree-1 coefficients, and degree-2 coefficients plus mean moment of inertia, respetively).
+
+       :type: RigidBodyProperties
+    )";
 
 
     } else if(name == "Body.flight_conditions") {
@@ -28439,6 +28762,29 @@ Can be used for a custom coefficient interface with other variables, at the expe
     )";
 
 
+    } else if(name == "Body.state_in_base_frame_from_ephemeris" ) {
+            return R"(
+
+        This function returns the body's state, as computed from its ephemeris model (extracted from :attr:`~Body.ephemeris`) at the current time, and (if needed)
+        translates this state to the global frame origin. For the case where the origin of the body's ephemeris (extracted from :attr:`~Ephemeris.frame_origin`) is equal to the
+        global frame origin of the system of bodies it is in (extracted from :attr:`SystemOfBodies.global_frame_origin`), this function is equal to ``Body.ephemeris.cartesian_state( time )``.
+        Where the global frame origin and ephemeris origin is not equal, other bodies' ephemerides are queried as needed to provide this body's state w.r.t. the global frame origin
+
+
+        Parameters
+        ----------
+        time : float
+            Time (in TDB seconds since J2000) at which the state is to be computed
+        Returns
+        -------
+        numpy.ndarray
+            Cartesian state (position and velocity) of the body w.r.t. the global frame origin at the requeste time.
+
+
+
+
+
+    )";
 
 
     } else if(name == "SystemOfBodies") {
@@ -28491,6 +28837,52 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
         Deprecated version of :py:func:`~get`
 
+
+
+
+
+    )";
+
+
+
+    } else if(name == "SystemOfBodies.global_frame_origin" ) {
+            return R"(
+
+        Common global frame origin for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#global-origin>`_.
+
+    )";
+
+
+
+    } else if(name == "SystemOfBodies.global_frame_orientation" ) {
+            return R"(
+
+        Common global frame orientation for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#frame-orientation>`_.
+
+    )";
+
+
+    } else if(name == "SystemOfBodies.list_of_bodies" ) {
+            return R"(
+
+        List of names of bodies that are stored in this SystemOfBodies
+    )";
+
+
+    } else if(name == "SystemOfBodies.does_body_exist" ) {
+            return R"(
+
+        Function to check if a body with a given name exists in the SystemOfBodies
+
+        Parameters
+        ----------
+        body_name : string
+            Name of the Body whose existence is to be checked
+
+        Returns
+        -------
+        bool
+            True if the body exists in this object, false if not
 
 
 
@@ -28722,10 +29114,6 @@ static inline std::string get_docstring(std::string name) {
 
         Enumeration of types of termination of propagation.
 
-
-
-
-
      )";
 
 
@@ -28754,6 +29142,53 @@ static inline std::string get_docstring(std::string name) {
      )";
 
 
+
+
+    } else if(name == "AtmosphericCompositionSpecies") {
+         return R"(
+
+        Enumeration of types of species defined for atmospheric composition, typically used in :class:`~AtmosphereModel`
+
+     )";
+
+    } else if(name == "AtmosphericCompositionSpecies.he_species") {
+         return R"(
+     )";
+
+
+    } else if(name == "AtmosphericCompositionSpecies.o_species") {
+         return R"(
+     )";
+
+
+    } else if(name == "AtmosphericCompositionSpecies.n2_species") {
+         return R"(
+     )";
+
+
+    } else if(name == "AtmosphericCompositionSpecies.o2_species") {
+         return R"(
+     )";
+
+
+    } else if(name == "AtmosphericCompositionSpecies.ar_species") {
+         return R"(
+     )";
+
+
+    } else if(name == "AtmosphericCompositionSpecies.h_species") {
+         return R"(
+     )";
+
+
+    } else if(name == "AtmosphericCompositionSpecies.h_species") {
+         return R"(
+     )";
+
+
+    } else if(name == "AtmosphericCompositionSpecies.anomalous_o_species") {
+         return R"(
+     )";
 
 
     } else if(name == "SimulationResults") {
@@ -29015,7 +29450,7 @@ static inline std::string get_docstring(std::string name) {
         for rotational dynamics of a single body, size 13 for coupled orbital-rotational dynamics of a single body, etc.)
 
 
-        :type: np.ndarray
+        :type: numpy.ndarray
      )";
 
 
@@ -29028,7 +29463,7 @@ static inline std::string get_docstring(std::string name) {
         * Each tuple in the list contains two dictionaries, the first one corresponding to the forward propagation results, the seconds one to the backward propagation results
 
 
-        :type: list[tuple[dict[float,np.ndarray],dict[float,np.ndarray]]]
+        :type: list[tuple[dict[float,numpy.ndarray],dict[float,numpy.ndarray]]]
      )";
 
 
@@ -29038,7 +29473,7 @@ static inline std::string get_docstring(std::string name) {
         As ``forward_backward_states``, but for the dependent variables.
 
 
-        :type: list[tuple[dict[float,np.ndarray],dict[float,np.ndarray]]]
+        :type: list[tuple[dict[float,numpy.ndarray],dict[float,numpy.ndarray]]]
      )";
 
 

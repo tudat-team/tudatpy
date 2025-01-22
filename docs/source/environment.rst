@@ -48,6 +48,8 @@ Enumerations
    AerodynamicCoefficientFrames
 
    AerodynamicCoefficientsIndependentVariables
+   
+   AtmosphericCompositionSpecies
 
 
 
@@ -60,7 +62,8 @@ Enumerations
 .. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicCoefficientsIndependentVariables
    :members:
 
-
+.. autoclass:: tudatpy.numerical_simulation.environment.AtmosphericCompositionSpecies
+   :members:
 
 
 Classes
@@ -73,12 +76,20 @@ Classes
    Ephemeris
    
    RotationalEphemeris
-   
+
+   GcrsToItrsRotationModel
+
+   EarthOrientationAnglesCalculator
+
    GravityFieldModel
    
    SphericalHarmonicsGravityField
    
    BodyShapeModel
+   
+   RigidBodyProperties
+      
+   AtmosphereModel
    
    AerodynamicCoefficientInterface
 
@@ -110,7 +121,13 @@ Classes
 
 .. autoclass:: tudatpy.numerical_simulation.environment.RotationalEphemeris
    :members:
-   
+
+.. autoclass:: tudatpy.numerical_simulation.environment.GcrsToItrsRotationModel
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment.EarthOrientationAnglesCalculator
+   :members:
+
 .. autoclass:: tudatpy.numerical_simulation.environment.GravityFieldModel
    :members:
       
@@ -119,6 +136,12 @@ Classes
       
 .. autoclass:: tudatpy.numerical_simulation.environment.BodyShapeModel
    :members:
+  
+.. autoclass:: tudatpy.numerical_simulation.environment.RigidBodyProperties
+   :members: 
+
+.. autoclass:: tudatpy.numerical_simulation.environment.AtmosphereModel
+   :members:     
    
 .. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicCoefficientInterface
    :members:
