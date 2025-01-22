@@ -16,13 +16,13 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace data {
-namespace horizons {
+    namespace data {
+        namespace horizons {
 
-void expose_horizons(py::module &m);
+            void expose_horizons(py::module &m);
 
-}
-}
-}
+        }
+    }  // namespace data
+}  // namespace tudatpy
 
-#endif//TUDATPY_EXPOSE_HORIZONS_H
+#endif  // TUDATPY_EXPOSE_HORIZONS_H

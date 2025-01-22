@@ -11,24 +11,24 @@
 #ifndef TUDATPY_EXPOSE_ESTIMATION_SETUP_H
 #define TUDATPY_EXPOSE_ESTIMATION_SETUP_H
 
+#include <pybind11/eigen.h>
+#include <pybind11/functional.h>
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/eigen.h>
-#include <pybind11/numpy.h>
-#include <pybind11/functional.h>
 
 #include "tudat/simulation/estimation_setup.h"
 
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace estimation_setup {
+    namespace numerical_simulation {
+        namespace estimation_setup {
 
-    void expose_estimation_setup(py::module &m);
+            void expose_estimation_setup(py::module &m);
 
-}// namespace estimation_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+        }  // namespace estimation_setup
+    }      // namespace numerical_simulation
+}  // namespace tudatpy
 
-#endif // TUDATPY_EXPOSE_ESTIMATION_SETUP_H
+#endif  // TUDATPY_EXPOSE_ESTIMATION_SETUP_H

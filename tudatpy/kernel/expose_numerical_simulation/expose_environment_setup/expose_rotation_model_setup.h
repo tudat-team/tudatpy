@@ -16,15 +16,15 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace environment_setup {
-namespace rotation_model {
+    namespace numerical_simulation {
+        namespace environment_setup {
+            namespace rotation_model {
 
-    void expose_rotation_model_setup(py::module &m);
+                void expose_rotation_model_setup(py::module &m);
 
-}// namespace rotation_model
-}// namespace environment_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+            }  // namespace rotation_model
+        }      // namespace environment_setup
+    }          // namespace numerical_simulation
+}  // namespace tudatpy
 
-#endif //TUDATPY_EXPOSE_ROTATION_MODEL_SETUP_H
+#endif  // TUDATPY_EXPOSE_ROTATION_MODEL_SETUP_H
