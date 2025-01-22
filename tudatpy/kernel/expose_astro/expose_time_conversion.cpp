@@ -35,6 +35,36 @@ namespace tsi = tudat::sofa_interface;
 namespace pc  = tudat::physical_constants;
 namespace teo = tudat::earth_orientation;
 
+
+namespace tudat
+{
+
+namespace earth_orientation
+{
+std::shared_ptr<TerrestrialTimeScaleConverter> createDefaultTimeConverterPy( )
+{
+    return createDefaultTimeConverter( );
+}
+
+}
+
+namespace basic_astrodynamics
+{
+
+tba::DateTime convertYearAndDaysInYearToTudatDate( const int year, const int daysInYear )
+{
+    boost::gregorian::date boostDateTime = tba::convertYearAndDaysInYearToDate( year, daysInYear );
+    return tba::DateTime( boostDateTime.year( ), boostDateTime.month( ), boostDateTime.day( ), 0, 0, 0.0 );
+}
+
+}
+
+}
+
+
+namespace tudatpy {
+
+
 tba::DateTime timePointToDateTime(const std::chrono::system_clock::time_point datetime)
 {
     std::time_t tt = std::chrono::system_clock::to_time_t(datetime);
@@ -45,9 +75,9 @@ tba::DateTime timePointToDateTime(const std::chrono::system_clock::time_point da
     long long fractional_seconds = timeInMicroSeconds.count() % 1000000LL;
 
     return tba::DateTime( local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday,
-        local_tm.tm_hour, local_tm.tm_min, static_cast< long double >( local_tm.tm_sec ) +
-        static_cast< long double >( fractional_seconds ) /
-        tudat::mathematical_constants::getFloatingInteger< long double >( 1000000LL ) );
+                          local_tm.tm_hour, local_tm.tm_min, static_cast< long double >( local_tm.tm_sec ) +
+                                                             static_cast< long double >( fractional_seconds ) /
+                                                             tudat::mathematical_constants::getFloatingInteger< long double >( 1000000LL ) );
 }
 
 // Convert from Gregorian date to time_point (Python datetime). Only year/month/day, no time.
@@ -65,8 +95,8 @@ std::chrono::system_clock::time_point dateTimeToTimePoint(const tba::DateTime& d
     tm.tm_isdst = -1;
     std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t(std::mktime(&tm));
     return timePoint + std::chrono::microseconds ( static_cast< int >( std::round(
-                                                     ( dateTime.getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
-                                                     tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
+        ( dateTime.getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
+        tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
 }
 
 // Convert Julian day to calendar date. This code ensures that the value returned is a time_point (Python datetime).
@@ -96,22 +126,6 @@ TimeScalarType convertCalendarDateToJulianDaySinceEpochPy(
     return dateTime.julianDay< TimeScalarType >( ) - epochSinceJulianDayZero;
 }
 
-
-namespace tudat
-{
-
-namespace earth_orientation
-{
-std::shared_ptr<TerrestrialTimeScaleConverter> createDefaultTimeConverterPy( )
-{
-    return createDefaultTimeConverter( );
-}
-
-}
-
-}
-
-namespace tudatpy {
 
 namespace astro {
 namespace time_conversion {
@@ -148,7 +162,12 @@ void expose_time_conversion(py::module &m)
           get_docstring("add_days_to_datetime").c_str()
     );
 
-
+    m.def("year_and_days_in_year_to_calendar_date",
+          &tba::convertYearAndDaysInYearToTudatDate,
+          py::arg("year"),
+          py::arg("days_in_year"),
+          get_docstring("year_and_days_in_year_to_calendar_date").c_str()
+    );
 
 
 
@@ -158,6 +177,7 @@ void expose_time_conversion(py::module &m)
           py::arg("calendar_date"),
           get_docstring("calendar_date_to_julian_day").c_str()
           );
+
 
 
     m.def("julian_day_to_calendar_date",
@@ -198,6 +218,12 @@ void expose_time_conversion(py::module &m)
           py::arg("seconds_since_epoch"),
           get_docstring("seconds_since_epoch_to_julian_centuries_since_epoch").c_str()
           );
+
+    m.def("calendar_date_to_julian_day",
+          &convertCalendarDateToJulianDayPy< double >,
+          py::arg("calendar_date"),
+          get_docstring("calendar_date_to_julian_day").c_str()
+    );
 
     m.def("julian_day_to_modified_julian_day",
           &tba::convertJulianDayToModifiedJulianDay< double >,
