@@ -43,83 +43,83 @@ YACMA_PYTHON_MODULE(kernel
         # kernel
         kernel/kernel.cpp
 
-        # kernel/utils
-        kernel/expose_utils.cpp
-        kernel/expose_utils/expose_data.cpp
+#        # kernel/utils
+#        kernel/expose_utils.cpp
+#        kernel/expose_utils/expose_data.cpp
 
 
-        # kernel/astro
-        kernel/expose_astro.cpp
-        kernel/expose_astro/expose_gravitation.cpp
-        kernel/expose_astro/expose_element_conversion.cpp
-        kernel/expose_astro/expose_frame_conversion.cpp
-        kernel/expose_astro/expose_time_conversion.cpp
-        kernel/expose_astro/expose_two_body_dynamics.cpp
-        kernel/expose_astro/expose_fundamentals.cpp
-        kernel/expose_astro/expose_polyhedron_utilities.cpp
+#        # kernel/astro
+#        kernel/expose_astro.cpp
+#        kernel/expose_astro/expose_gravitation.cpp
+#        kernel/expose_astro/expose_element_conversion.cpp
+#        kernel/expose_astro/expose_frame_conversion.cpp
+#        kernel/expose_astro/expose_time_conversion.cpp
+#        kernel/expose_astro/expose_two_body_dynamics.cpp
+#        kernel/expose_astro/expose_fundamentals.cpp
+#        kernel/expose_astro/expose_polyhedron_utilities.cpp
+#
+#        # kernel/trajectory_design
+#        kernel/expose_trajectory_design.cpp
+#        kernel/expose_trajectory_design/expose_transfer_trajectory.cpp
+#        kernel/expose_trajectory_design/expose_shape_based_thrust.cpp
+#
+#        # kernel/constants
+#        kernel/expose_constants.cpp
+#
+#        # kernel/interface
+#        kernel/expose_interface.cpp
+#        kernel/expose_interface/expose_spice.cpp
+#
+#
+#
+#        # kernel/data
+#        kernel/expose_data.cpp
+#        kernel/expose_data/expose_mpc.cpp
+#        kernel/expose_data/expose_horizons.cpp
+#        kernel/expose_data/expose_sbdb.cpp
+#        kernel/expose_data/expose_mission_data_downloader.cpp
 
-        # kernel/trajectory_design
-        kernel/expose_trajectory_design.cpp
-        kernel/expose_trajectory_design/expose_transfer_trajectory.cpp
-        kernel/expose_trajectory_design/expose_shape_based_thrust.cpp
 
-        # kernel/constants
-        kernel/expose_constants.cpp
-
-        # kernel/interface
-        kernel/expose_interface.cpp
-        kernel/expose_interface/expose_spice.cpp
-
-
-
-        # kernel/data
-        kernel/expose_data.cpp
-        kernel/expose_data/expose_mpc.cpp
-        kernel/expose_data/expose_horizons.cpp
-        kernel/expose_data/expose_sbdb.cpp
-        kernel/expose_data/expose_mission_data_downloader.cpp
-
-
-        # kernel/math
-        kernel/expose_math.cpp
-        kernel/expose_math/expose_interpolators.cpp
-        kernel/expose_math/expose_numerical_integrators.cpp
-        kernel/expose_math/expose_root_finders.cpp
-        kernel/expose_math/expose_geometry.cpp
-        kernel/expose_math/expose_statistics.cpp
+#        # kernel/math
+#        kernel/expose_math.cpp
+#        kernel/expose_math/expose_interpolators.cpp
+#        kernel/expose_math/expose_numerical_integrators.cpp
+#        kernel/expose_math/expose_root_finders.cpp
+#        kernel/expose_math/expose_geometry.cpp
+#        kernel/expose_math/expose_statistics.cpp
 
         kernel/expose_numerical_simulation.cpp
 
-        kernel/expose_numerical_simulation/expose_propagation.cpp
-        kernel/expose_numerical_simulation/expose_environment.cpp
-        kernel/expose_numerical_simulation/expose_estimation.cpp
+#        kernel/expose_numerical_simulation/expose_propagation.cpp
+#        kernel/expose_numerical_simulation/expose_environment.cpp
+#        kernel/expose_numerical_simulation/expose_estimation.cpp
 
         kernel/expose_numerical_simulation/expose_environment_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_aerodynamic_coefficient_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_atmosphere_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_ephemeris_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_gravity_field_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_gravity_field_variation_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_radiation_pressure_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_deformation_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_rotation_model_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_ground_station_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_rigid_body_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_vehicle_systems_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_aerodynamic_coefficient_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_atmosphere_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_ephemeris_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_gravity_field_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_gravity_field_variation_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_radiation_pressure_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_deformation_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_rotation_model_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_ground_station_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_rigid_body_setup.cpp
+#        kernel/expose_numerical_simulation/expose_environment_setup/expose_vehicle_systems_setup.cpp
 
-
-        kernel/expose_numerical_simulation/expose_propagation_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_acceleration_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_dependent_variable_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_integrator_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_mass_rate_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_propagator_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_torque_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_thrust_setup.cpp
-
+#
+#        kernel/expose_numerical_simulation/expose_propagation_setup.cpp
+#        kernel/expose_numerical_simulation/expose_propagation_setup/expose_acceleration_setup.cpp
+#        kernel/expose_numerical_simulation/expose_propagation_setup/expose_dependent_variable_setup.cpp
+#        kernel/expose_numerical_simulation/expose_propagation_setup/expose_integrator_setup.cpp
+#        kernel/expose_numerical_simulation/expose_propagation_setup/expose_mass_rate_setup.cpp
+#        kernel/expose_numerical_simulation/expose_propagation_setup/expose_propagator_setup.cpp
+#        kernel/expose_numerical_simulation/expose_propagation_setup/expose_torque_setup.cpp
+#        kernel/expose_numerical_simulation/expose_propagation_setup/expose_thrust_setup.cpp
+#
         kernel/expose_numerical_simulation/expose_estimation_setup.cpp
-        kernel/expose_numerical_simulation/expose_estimation_setup/expose_observation_setup.cpp
+#        kernel/expose_numerical_simulation/expose_estimation_setup/expose_observation_setup.cpp
         kernel/expose_numerical_simulation/expose_estimation_setup/expose_estimated_parameter_setup.cpp
 
 #        kernel/expose_unit_tests.cpp

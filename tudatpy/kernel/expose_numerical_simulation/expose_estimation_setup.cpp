@@ -88,9 +88,9 @@ void expose_estimation_setup(py::module &m) {
 
     auto parameter_setup = m.def_submodule("parameter");
     parameter::expose_estimated_parameter_setup(parameter_setup);
-
-    auto observation_setup = m.def_submodule("observation");
-    observation::expose_observation_setup(observation_setup);
+//
+//    auto observation_setup = m.def_submodule("observation");
+//    observation::expose_observation_setup(observation_setup);
 }
 
 }
