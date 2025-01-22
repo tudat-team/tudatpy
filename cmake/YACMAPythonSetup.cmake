@@ -124,6 +124,8 @@ function(YACMA_PYTHON_MODULE name)
         set(CMAKE_CXX_STANDARD_INCLUDE_FLAG "")
         set(CMAKE_C_FLAGS_RELEASE "-MD")
         set(CMAKE_CXX_FLAGS_RELEASE "-MD")
+        target_compile_options(${name} PRIVATE -Xclang -MD)
+
         if(${PYTHON_VERSION_MAJOR} LESS 3)
             message(STATUS "Python < 3 detected, setting up extra compiler flag '-fno-strict-aliasing' for the Python module '${name}'.")
             target_compile_options(${name} PRIVATE "-fno-strict-aliasing")
