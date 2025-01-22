@@ -15,7 +15,6 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
-#include "docstrings.h"
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -817,6 +816,6 @@ by modifying an existing :class:`~tudatpy.numerical_simulation.environment_setup
                 }
 
             }  // namespace atmosphere
-        }      // namespace environment_setup
-    }          // namespace numerical_simulation
+        }  // namespace environment_setup
+    }  // namespace numerical_simulation
 }  // namespace tudatpy

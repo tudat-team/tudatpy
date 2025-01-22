@@ -22,7 +22,6 @@
 #include <chrono>
 #include <ctime>
 
-#include "docstrings.h"
 #include "scalarTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -1332,5 +1331,5 @@ DateTime
                           tba::JULIAN_DAY_ON_J2000);
             }
         }  // namespace time_conversion
-    }      // namespace astro
+    }  // namespace astro
 }  // namespace tudatpy

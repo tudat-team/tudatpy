@@ -14,7 +14,6 @@
 #include <pybind11/pybind11.h>
 #include <tudat/astro/basic_astro.h>
 
-#include "docstrings.h"
 
 namespace py = pybind11;
 namespace tmg = tudat::mission_geometry;
@@ -63,5 +62,5 @@ float
             }
 
         }  // namespace fundamentals
-    }      // namespace astro
+    }  // namespace astro
 }  // namespace tudatpy

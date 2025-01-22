@@ -13,7 +13,6 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
-#include "docstrings.h"
 #include "expose_data/expose_horizons.h"
 #include "expose_data/expose_mission_data_downloader.h"
 #include "expose_data/expose_mpc.h"

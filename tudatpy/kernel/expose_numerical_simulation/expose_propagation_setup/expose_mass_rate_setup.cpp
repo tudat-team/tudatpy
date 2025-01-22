@@ -19,7 +19,6 @@
 #include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/propagation_setup.h>
 
-#include "docstrings.h"
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -214,6 +213,6 @@ CustomMassRateSettings
                 }
 
             }  // namespace mass_rate
-        }      // namespace propagation_setup
-    }          // namespace numerical_simulation
+        }  // namespace propagation_setup
+    }  // namespace numerical_simulation
 }  // namespace tudatpy
