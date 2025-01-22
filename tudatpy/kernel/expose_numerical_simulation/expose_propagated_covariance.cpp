@@ -198,24 +198,11 @@ std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > getTargetAngl
                                targetAnglesAndRange ) );
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSetWithoutDependentVariables(
-            const tom::ObservableType observableType,
-            const tom::LinkDefinition& linkEnds,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-            const std::vector< TimeType > observationTimes,
-            const tom::LinkEndType referenceLinkEnd,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
-{
-    return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >(
-            observableType, linkEnds, observations, observationTimes, referenceLinkEnd,
-            std::vector< Eigen::VectorXd >( ), nullptr, ancilliarySettings );
-}
-
-
 }
 
 }
+
+
 
 namespace tudatpy {
 namespace numerical_simulation {

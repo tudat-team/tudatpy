@@ -26,6 +26,7 @@ namespace tudatpy {
 namespace numerical_simulation{
 
 void expose_numerical_simulation(py::module &m);
+void expose_numerical_simulation_direct(py::module &m);
 
 }// namespace numerical_simulation
 

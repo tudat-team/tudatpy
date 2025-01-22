@@ -89,6 +89,7 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_math/expose_statistics.cpp
 
         kernel/expose_numerical_simulation.cpp
+        kernel/expose_numerical_simulation_direct.cpp
 
         kernel/expose_numerical_simulation/expose_propagation.cpp
         kernel/expose_numerical_simulation/expose_environment.cpp

@@ -41,6 +41,7 @@ namespace estimation {
 
 
 
+
 void expose_single_observation_set(py::module &m) {
 
 
@@ -143,20 +144,12 @@ void expose_single_observation_set(py::module &m) {
                                     get_docstring( "SingleObservationSet.dependent_variables_matrix" ).c_str() );
 
 
-    m.def("single_observation_set",
-          &tss::singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
-          py::arg("observable_type"),
-          py::arg("link_definition" ),
-          py::arg("observations" ),
-          py::arg("observation_times"),
-          py::arg("reference_link_end"),
-          py::arg("ancilliary_settings") = nullptr,
-          get_docstring("single_observation_set").c_str() );
-
 
 
 }
 
 }
+
 }
+
 }// namespace tudatpy
