@@ -4,13 +4,13 @@ endif()
 
 # NOTE: this is a heuristic to determine whether we need to link to the Python library.
 # The linking seems to be necessary only on Windows.
-if(WIN32)
-    message(STATUS "Python modules require linking to the Python library.")
-    set(_YACMA_PYTHON_MODULE_NEED_LINK TRUE)
-else()
-    message(STATUS "Python modules do NOT require linking to the Python library.")
-    set(_YACMA_PYTHON_MODULE_NEED_LINK FALSE)
-endif()
+#if(WIN32)
+#    message(STATUS "Python modules require linking to the Python library.")
+#    set(_YACMA_PYTHON_MODULE_NEED_LINK TRUE)
+#else()
+message(STATUS "Python modules do NOT require linking to the Python library.")
+set(_YACMA_PYTHON_MODULE_NEED_LINK FALSE)
+#endif()
 
 # Find Python interpreter.
 find_package(PythonInterp REQUIRED)
