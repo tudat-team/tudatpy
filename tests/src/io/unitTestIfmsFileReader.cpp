@@ -19,7 +19,7 @@
 #include <utility>
 #include "tudat/basics/testMacros.h"
 #include "tudat/io/basicInputOutput.h"
-#include "tudat/simulation/estimation_setup/observations.h"
+#include "tudat/simulation/estimation_setup/observationCollection.h"
 
 #include "tudat/io/readTrackingTxtFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
