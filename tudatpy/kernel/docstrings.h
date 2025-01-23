@@ -10803,7 +10803,7 @@ static inline std::string get_docstring(std::string name) {
          return R"(
 
         List of objects that define the settings of time variations of the gravity field variation models that are to be created. Variables in this list are typically
-        assigned by using a function from the :ref:`\`\`gravity_field_variations\`\`` module.
+        assigned by using a function from the :ref:`\`\`gravity_field_variation\`\`` module.
 
 
         :type: list[GravityFieldVariationSettings]
@@ -10878,7 +10878,12 @@ Function that retrieves the default settings for the given set of input bodies.
 Function that retrieves the default settings for the given set of input bodies. Default settings are described in
 detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models.html>`_ .
 Note that if a body is provided as input for which default settings do not exist, an exception is thrown. In addition
-to settings for each separate body, this function returns an object that defines the global frame origin and orientation,
+to settings for each separate body, this function returns an object that defines the global frame origin and orientation.
+
+.. note:: 
+
+    Before calling this function make sure that the appropriate SPICE kernels are loaded. A set of default SPICE kernels
+    can be loaded by calling :func:`~tudatpy.interface.spice.load_standard_kernels`.
 
 
 Parameters
@@ -11261,17 +11266,17 @@ Returns
 
 
 
-    } else if(name == "add_radiation_pressure_interface" ) {
+    } else if(name == "add_radiation_pressure_target_model" ) {
         return R"(
         
-Function that creates an radiation pressure interface from settings, and adds it to an existing body.
+Function that creates a radiation pressure target model from settings, and adds it to an existing body.
 
 This function can be used to add an radiation pressure interface to an existing body. It requires
-settings for the radiation pressure interface, created using one of the functions from the :ref:`\`\`radiation_pressure\`\`` module.
+settings for the radiation pressure target model, created using one of the functions from the :ref:`\`\`radiation_pressure\`\`` module.
 This function creates the actual coefficient interface from these settings, and assigns it to the
 selected body. In addition to the identifier for the body to which it is assigned, this function
 requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
-inter-body dependencies in the radiation pressure interface
+inter-body dependencies in the radiation pressure interface.
 
 
 Parameters
@@ -11279,9 +11284,9 @@ Parameters
 bodies : SystemOfBodies
     Object defining the physical environment, with all properties of artificial and natural bodies.
 body_name : str
-    Name of the body to which the radiation pressure interface is to be assigned
-radiation_pressure_settings : RadiationPressureInterfaceSettings
-    Settings defining the radiation pressure interface that is to be created.
+    Name of the body to which the radiation pressure target model is to be assigned
+radiation_pressure_target_settings : RadiationPressureTargetModelSettings
+    Settings defining the radiation pressure target that is to be created.
 
 
 
@@ -11331,7 +11336,7 @@ Function that creates a rotation model, and adds it to an existing body.
 This function can be used to add  a :class:`~tudatpy.numerical_simulation.environment.RotationalEphemeris` object to an existing body.
 Typically, the ``RotationalEphemeris`` is created along with the `~tudatpy.numerical_simulation.environment.Body` itself However, in some cases it may be useful
 to create a rotation model after the Body objects have been created. This function requires
-settings for the rotation model, created using one of the functions from the :ref:`~tudatpy.numerical_simulation_environment_setup.rotation_model` module.
+settings for the rotation model, created using one of the functions from the :ref:`~tudatpy.numerical_simulation.environment_setup.rotation_model` module.
 This function creates the actual coefficient interface from these settings, and assigns it to the
 selected body. In addition to the identifier for the body to which it is assigned, this function
 requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
@@ -13295,7 +13300,7 @@ frame_origin : str, default="SSB"
     Origin of frame in which ephemeris data is defined.
 frame_orientation : str, default="ECLIPJ2000"
     Orientation of frame in which ephemeris data is defined.
-interpolator_settings : std::make_shared< interpolators::InterpolatorSettings >, default=std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 )
+interpolator_settings : InterpolatorSettings, default = tudatpy.math.interpolators.lagrange_interpolation(6)
     Settings to be used for the state interpolation.
 body_name_to_use : str, default = ""
     Body from which Spice ephemeris is to be created.
@@ -13777,7 +13782,7 @@ In the above case, the original Jupiter ephemeris setting is taken and each stat
 Function for creating ephemeris model settings for an SGP4-propagated TLE.
 
 Function for creating ephemeris model settings for an SGP4-propagated two-line element (TLE). Our implementation uses the ``evsgp4_c`` function of the SPICE library
-to perform the SGP4 propagation, and the :func:`~tudatpy.astro.element_conversion.teme_to_j2000 ` function to rotate the resulting state from teh TEME frame to the J2000 frame
+to perform the SGP4 propagation, and the :func:`~tudatpy.astro.element_conversion.teme_to_j2000` function to rotate the resulting state from teh TEME frame to the J2000 frame
 (and, if required for this ephemeris model, a subsequent different inertial frame).
 
 Parameters
@@ -18774,7 +18779,7 @@ Parameters
 ----------
 use_schwarzschild : bool, default=False
     Boolean defining whether or not to use the Schwarzschild contribution to the acceleration correction
-use_lense_thirring : bool
+use_lense_thirring : bool, default=False
     Boolean defining whether or not to use the Lense-Thirring contribution to the acceleration correction
 use_de_sitter : bool, default=False
     Boolean defining whether or not to use the de Sitter contribution to the acceleration correction
