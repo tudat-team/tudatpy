@@ -26,6 +26,7 @@ namespace numerical_simulation {
 namespace estimation {
 
 void expose_estimation(py::module &m);
+void expose_estimation2(py::module &m);
 void expose_single_observation_set(py::module &m);
 void expose_observation_collection(py::module &m);
 void expose_propagated_covariance(py::module &m);

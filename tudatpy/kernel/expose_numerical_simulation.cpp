@@ -50,6 +50,7 @@ void expose_numerical_simulation(py::module &m) {
     propagation::expose_propagation(propagation_submodule);
 
     auto estimation_submodule = m.def_submodule("estimation");
+    estimation::expose_estimation2(estimation_submodule);
     estimation::expose_estimation(estimation_submodule);
     estimation::expose_single_observation_set(estimation_submodule);
     estimation::expose_observation_collection(estimation_submodule);
