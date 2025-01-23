@@ -1131,7 +1131,7 @@ public:
             const simulation_setup::SystemOfBodies& bodies,
             const std::vector< std::string >& bodiesToIntegrate ):
         SingleArcIntegratedStateProcessor<  TimeType, StateScalarType >(
-            body_mass_state, std::make_pair( startIndex, bodiesToIntegrate.size( ) ), bodies, bodiesToIntegrate )
+            body_mass_state, std::make_pair( startIndex, static_cast< int >( bodiesToIntegrate.size( ) ) ), bodies, bodiesToIntegrate )
     { }
 
     //! Destructor

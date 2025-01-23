@@ -848,8 +848,8 @@ createDifferencedObservablePartials(
         if( currentDifferencedObservationPartial != nullptr )
         {
             // Add partial to the list.
-            std::pair< double, double > currentPair = std::pair< int, int >(
-                    parameterIterator->first, parameterIterator->second->getParameterSize( ) );
+            std::pair< double, double > currentPair = std::pair< double, double >(
+                static_cast< double >( parameterIterator->first ), static_cast< double >( parameterIterator->second->getParameterSize( ) ) );
             differencedObservationPartialList[ currentPair ] = currentDifferencedObservationPartial;
         }
     }
