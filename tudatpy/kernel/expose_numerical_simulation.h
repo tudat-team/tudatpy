@@ -27,6 +27,8 @@ namespace numerical_simulation{
 
 void expose_numerical_simulation(py::module &m);
 void expose_numerical_simulation_direct(py::module &m);
+void expose_numerical_simulation_direct2(py::module &m);
+void expose_numerical_simulation_direct3(py::module &m);
 
 }// namespace numerical_simulation
 

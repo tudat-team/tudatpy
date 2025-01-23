@@ -40,7 +40,19 @@ namespace numerical_simulation {
 namespace estimation {
 
 
-
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > singleObservationSetWithoutDependentVariables(
+    const tom::ObservableType observableType,
+    const tom::LinkDefinition& linkEnds,
+    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+    const std::vector< TimeType > observationTimes,
+    const tom::LinkEndType referenceLinkEnd,
+    const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
+{
+    return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >(
+        observableType, linkEnds, observations, observationTimes, referenceLinkEnd,
+        std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >( ), nullptr, ancilliarySettings );
+}
 
 void expose_single_observation_set(py::module &m) {
 
@@ -145,7 +157,15 @@ void expose_single_observation_set(py::module &m) {
 
 
 
-
+    m.def("single_observation_set",
+          &singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
+          py::arg("observable_type"),
+          py::arg("link_definition" ),
+          py::arg("observations" ),
+          py::arg("observation_times"),
+          py::arg("reference_link_end"),
+          py::arg("ancilliary_settings") = nullptr,
+          get_docstring("single_observation_set").c_str() );
 }
 
 }
