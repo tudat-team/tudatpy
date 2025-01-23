@@ -48,17 +48,15 @@ Functions
 
    get_default_single_alternate_body_settings
 
-   get_default_single_body_settings_time_limited
-
-   add_aerodynamic_coefficient_interface
-
    create_system_of_bodies
 
    create_simplified_system_of_bodies
 
    create_body_ephemeris
 
-   add_radiation_pressure_interface
+   add_aerodynamic_coefficient_interface
+
+   add_radiation_pressure_target_model
 
    add_flight_conditions
 
@@ -82,17 +80,15 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.get_default_single_alternate_body_settings
 
-.. autofunction:: tudatpy.numerical_simulation.environment_setup.get_default_single_body_settings_time_limited
-
-.. autofunction:: tudatpy.numerical_simulation.environment_setup.add_aerodynamic_coefficient_interface
-
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.create_system_of_bodies
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.create_simplified_system_of_bodies
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.create_body_ephemeris
 
-.. autofunction:: tudatpy.numerical_simulation.environment_setup.add_radiation_pressure_interface
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.add_aerodynamic_coefficient_interface
+
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.add_radiation_pressure_target_model
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.add_flight_conditions
 
