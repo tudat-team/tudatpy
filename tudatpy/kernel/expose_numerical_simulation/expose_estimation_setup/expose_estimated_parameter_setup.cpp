@@ -27,8 +27,7 @@ namespace tudatpy {
 
                 void expose_estimated_parameter_setup(py::module& m) {
                     py::enum_<tep::EstimatebleParametersEnum>(
-                        m, "EstimatableParameterTypes",
-                        R"doc(
+                        m, "EstimatableParameterTypes", R"doc(
 
         Enumeration of model parameters that are available for estimation.
         In order to establish a parameter estimation settings for a parameter of a certain type, use the function dedicated to this parameter type.
@@ -1500,6 +1499,6 @@ Returns
                 }
 
             }  // namespace parameter
-        }  // namespace estimation_setup
-    }  // namespace numerical_simulation
+        }      // namespace estimation_setup
+    }          // namespace numerical_simulation
 }  // namespace tudatpy

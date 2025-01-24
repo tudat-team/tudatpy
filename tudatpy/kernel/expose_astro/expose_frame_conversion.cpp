@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
 #include "expose_frame_conversion.h"
 
 #include <pybind11/eigen.h>
@@ -16,7 +17,6 @@
 #include <pybind11/pybind11.h>
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
 #include <tudat/astro/reference_frames.h>
-
 
 namespace trf = tudat::reference_frames;
 namespace te = tudat::ephemerides;
@@ -315,5 +315,5 @@ Euler angle rotation (see Archinal et al. [1]_).
             }
 
         }  // namespace frame_conversion
-    }  // namespace astro
+    }      // namespace astro
 }  // namespace tudatpy

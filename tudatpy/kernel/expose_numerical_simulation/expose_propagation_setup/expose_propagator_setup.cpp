@@ -664,7 +664,8 @@ Entries 1-4: The exponential map defining the rotation from inertial to body-fix
                                R"doc(No propagator documentation found.)doc")
                         .export_values();
 
-                    py::enum_<tp::IntegratedStateType>(m, "StateType", R"doc(
+                    py::enum_<tp::IntegratedStateType>(m, "StateType",
+                                                       R"doc(
 
         Enumeration of available integrated state types.
 
@@ -1882,6 +1883,6 @@ None
                 }
 
             }  // namespace propagator
-        }  // namespace propagation_setup
-    }  // namespace numerical_simulation
+        }      // namespace propagation_setup
+    }          // namespace numerical_simulation
 }  // namespace tudatpy

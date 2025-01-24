@@ -873,5 +873,5 @@ numpy.ndarray
                                       resetThrustMagnitudeFunction);
             }
         }  // namespace propagation
-    }  // namespace numerical_simulation
+    }      // namespace numerical_simulation
 }  // namespace tudatpy
