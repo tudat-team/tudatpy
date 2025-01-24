@@ -17,7 +17,6 @@
 #include <pybind11/stl.h>
 #include <tudat/simulation/environment_setup/createBodyDeformationModel.h>
 
-
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 
@@ -191,6 +190,6 @@ BodyDeformationSettings
                 }
 
             }  // namespace shape_deformation
-        }  // namespace environment_setup
-    }  // namespace numerical_simulation
+        }      // namespace environment_setup
+    }          // namespace numerical_simulation
 }  // namespace tudatpy

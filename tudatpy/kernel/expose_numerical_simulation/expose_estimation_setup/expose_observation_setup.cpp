@@ -595,8 +595,7 @@ Examples
 
                     py::class_<tom::LinkDefinition,
                                std::shared_ptr<tom::LinkDefinition> >(
-                        m, "LinkDefinition",
-                        R"doc(
+                        m, "LinkDefinition", R"doc(
 
         Base class storing the link ends involved in a given observation.
         Instances of this class are typically created defining a *Link_Ends* dictionary via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.link_definition` function,
@@ -713,8 +712,7 @@ Examples
 
     )doc");
 
-                    py::enum_<tom::ObservableType>(m, "ObservableType",
-                                                   R"doc(
+                    py::enum_<tom::ObservableType>(m, "ObservableType", R"doc(
 
         Enumeration of available observable types.
 
@@ -789,8 +787,7 @@ Examples
 
                     py::class_<tom::ObservationModelSettings,
                                std::shared_ptr<tom::ObservationModelSettings> >(
-                        m, "ObservationSettings",
-                        R"doc(
+                        m, "ObservationSettings", R"doc(
 
         Base class to define settings of observation models.
 
@@ -911,8 +908,7 @@ Examples
      )doc");
 
                     py::enum_<tom::LightTimeFailureHandling>(
-                        m, "LightTimeFailureHandling",
-                        R"doc(
+                        m, "LightTimeFailureHandling", R"doc(
 
         Enumeration of behaviour when failing to converge light-time with required settings.
 
@@ -2263,8 +2259,7 @@ Examples
 
                     py::class_<tom::ObservationBiasSettings,
                                std::shared_ptr<tom::ObservationBiasSettings> >(
-                        m, "ObservationBiasSettings",
-                        R"doc(
+                        m, "ObservationBiasSettings", R"doc(
 
         Base class to defining observation bias settings.
 
@@ -2856,8 +2851,7 @@ Examples
                     // #############
 
                     py::enum_<tom::ObservationViabilityType>(
-                        m, "ObservationViabilityType",
-                        R"doc(
+                        m, "ObservationViabilityType", R"doc(
 
         Enumeration of observation viability criterion types.
 
@@ -4835,6 +4829,6 @@ observable_type : :class:`ObservableType`
                 }
 
             }  // namespace observation
-        }  // namespace estimation_setup
-    }  // namespace numerical_simulation
+        }      // namespace estimation_setup
+    }          // namespace numerical_simulation
 }  // namespace tudatpy

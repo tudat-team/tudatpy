@@ -71,8 +71,7 @@ namespace tudatpy {
 
      )doc")
                     .def_readwrite("constant_mass",
-                                   &tss::BodySettings::constantMass,
-                                   R"doc(
+                                   &tss::BodySettings::constantMass, R"doc(
 
         Mass that gets assigned to the vehicle. This mass does *not* automatically define a gravity field
         model, but is instead used for the calculation of non-conservative forces only. When creating a body with a gravity field,
@@ -94,8 +93,7 @@ namespace tudatpy {
         :type: AtmosphereSettings
      )doc")
                     .def_readwrite("ephemeris_settings",
-                                   &tss::BodySettings::ephemerisSettings,
-                                   R"doc(
+                                   &tss::BodySettings::ephemerisSettings, R"doc(
 
         Object that defines the settings of the ephemeris model that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`ephemeris\`\`` module.
@@ -182,8 +180,7 @@ namespace tudatpy {
                         R"doc(No documentation found.)doc")
                     .def_readwrite(
                         "vehicle_shape_settings",
-                        &tss::BodySettings::bodyExteriorPanelSettings_,
-                        R"doc(
+                        &tss::BodySettings::bodyExteriorPanelSettings_, R"doc(
 
         Object that defines the settings of an exterior panelled vehicle shape that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`vehicle_systems\`\`` module.
@@ -199,8 +196,7 @@ namespace tudatpy {
 
                 py::class_<tss::BodyListSettings,
                            std::shared_ptr<tss::BodyListSettings>>(
-                    m, "BodyListSettings",
-                    R"doc(
+                    m, "BodyListSettings", R"doc(
 
         Class for defining settings for the creation of a system of bodies.
 
@@ -214,8 +210,7 @@ namespace tudatpy {
      )doc")
                     .def(py::init<const std::string, const std::string>(),
                          py::arg("frame_origin"), py::arg("frame_orientation"))
-                    .def("get", &tss::BodyListSettings::get,
-                         R"doc(
+                    .def("get", &tss::BodyListSettings::get, R"doc(
 
         This function extracts a single BodySettings object .
 
@@ -251,8 +246,7 @@ namespace tudatpy {
      )doc")
                     .def_property_readonly(
                         "frame_orientation",
-                        &tss::BodyListSettings::getFrameOrientation,
-                        R"doc(
+                        &tss::BodyListSettings::getFrameOrientation, R"doc(
 
         **read-only**
 

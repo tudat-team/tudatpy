@@ -204,8 +204,7 @@ Returns
                 std::shared_ptr<tp::SingleArcDynamicsSimulator<
                     STATE_SCALAR_TYPE, TIME_TYPE>>,
                 tp::DynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>>(
-                m, "SingleArcSimulator",
-                R"doc(
+                m, "SingleArcSimulator", R"doc(
 
         Class for consolidating single arc dynamics simulation functionality.
 
@@ -604,7 +603,8 @@ Returns
             py::class_<
                 tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>,
                 std::shared_ptr<tss::OrbitDeterminationManager<
-                    STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "Estimator", R"doc(
+                    STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "Estimator",
+                                                    R"doc(
 
         Class for consolidating all estimation functionality.
 

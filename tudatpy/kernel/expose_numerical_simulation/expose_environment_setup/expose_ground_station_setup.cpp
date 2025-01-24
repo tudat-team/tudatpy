@@ -18,7 +18,6 @@
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 
-
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tcc = tudat::coordinate_conversions;
@@ -294,6 +293,6 @@ GroundStationMotionSettings
                 }
 
             }  // namespace ground_station
-        }  // namespace environment_setup
-    }  // namespace numerical_simulation
+        }      // namespace environment_setup
+    }          // namespace numerical_simulation
 }  // namespace tudatpy

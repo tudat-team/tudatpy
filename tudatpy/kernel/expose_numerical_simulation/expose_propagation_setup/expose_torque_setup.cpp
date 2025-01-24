@@ -19,7 +19,6 @@
 #include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/propagation_setup.h>
 
-
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;

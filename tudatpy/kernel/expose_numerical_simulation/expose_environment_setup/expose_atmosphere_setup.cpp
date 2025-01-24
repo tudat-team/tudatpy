@@ -816,6 +816,6 @@ by modifying an existing :class:`~tudatpy.numerical_simulation.environment_setup
                 }
 
             }  // namespace atmosphere
-        }  // namespace environment_setup
-    }  // namespace numerical_simulation
+        }      // namespace environment_setup
+    }          // namespace numerical_simulation
 }  // namespace tudatpy

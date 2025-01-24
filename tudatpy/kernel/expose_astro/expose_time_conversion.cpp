@@ -694,7 +694,8 @@ In this example, the number of seconds that have elapsed at the Julian day `2451
                 // Time scales conversion (inputs and outputs are always time in
                 // seconds since J2000)
                 m.def("TCB_to_TDB", &tba::convertTcbToTdb<double>,
-                      py::arg("TCB_time"), R"doc(
+                      py::arg("TCB_time"),
+                      R"doc(
 
 Convert time from the TCB scale to the TDB scale.
 
@@ -735,7 +736,8 @@ Then, this date and time is converted from the TCB scale to the TDB scale.
     )doc");
 
                 m.def("TDB_to_TCB", &tba::convertTdbToTcb<double>,
-                      py::arg("TDB_time"), R"doc(
+                      py::arg("TDB_time"),
+                      R"doc(
 
 Convert time from the TBD scale to the TCB scale.
 
@@ -761,7 +763,8 @@ float
     )doc");
 
                 m.def("TCG_to_TT", &tba::convertTcgToTt<double>,
-                      py::arg("TCG_time"), R"doc(
+                      py::arg("TCG_time"),
+                      R"doc(
 
 Convert time from the TCG scale to the TT scale.
 
@@ -784,7 +787,8 @@ float
     )doc");
 
                 m.def("TT_to_TCG", &tba::convertTtToTcg<double>,
-                      py::arg("TT_time"), R"doc(
+                      py::arg("TT_time"),
+                      R"doc(
 
 Convert time from the TT scale to the TCG scale.
 
@@ -810,7 +814,8 @@ float
     )doc");
 
                 m.def("TAI_to_TT", &tba::convertTAItoTT<double>,
-                      py::arg("TAI_time"), R"doc(
+                      py::arg("TAI_time"),
+                      R"doc(
 
 Convert time from the TAI scale to the TT scale.
 
@@ -833,7 +838,8 @@ float
     )doc");
 
                 m.def("TT_to_TAI", &tba::convertTTtoTAI<double>,
-                      py::arg("TT_time"), R"doc(
+                      py::arg("TT_time"),
+                      R"doc(
 
 Convert time from the TT scale to the TAI scale.
 
@@ -949,20 +955,15 @@ float
         Enumeration of available time scales between which the :class:`~TimeScaleConverter` can automaticaly convert.
 
      )doc")
-                    .value("tai_scale", tba::tai_scale,
-                           R"doc(
+                    .value("tai_scale", tba::tai_scale, R"doc(
      )doc")
-                    .value("tt_scale", tba::tt_scale,
-                           R"doc(
+                    .value("tt_scale", tba::tt_scale, R"doc(
      )doc")
-                    .value("tdb_scale", tba::tdb_scale,
-                           R"doc(
+                    .value("tdb_scale", tba::tdb_scale, R"doc(
      )doc")
-                    .value("utc_scale", tba::utc_scale,
-                           R"doc(
+                    .value("utc_scale", tba::utc_scale, R"doc(
      )doc")
-                    .value("ut1_scale", tba::ut1_scale,
-                           R"doc(
+                    .value("ut1_scale", tba::ut1_scale, R"doc(
      )doc")
                     .export_values();
 
@@ -1020,8 +1021,7 @@ TimeScaleConverter
                              Eigen::Vector3d::Zero());
 
 
-                py::class_<tba::DateTime>(m, "DateTime",
-                                          R"doc(
+                py::class_<tba::DateTime>(m, "DateTime", R"doc(
 
         Class to store a calendar date and time of day, with high resolution.
 
@@ -1042,8 +1042,7 @@ TimeScaleConverter
                          py::arg("hour") = 12, py::arg("minute") = 0,
                          py::arg("seconds") = 0.0L)
                     .def_property("year", &tba::DateTime::getYear,
-                                  &tba::DateTime::setYear,
-                                  R"doc(
+                                  &tba::DateTime::setYear, R"doc(
 
         Calendar year
 
@@ -1051,8 +1050,7 @@ TimeScaleConverter
         :type: int
      )doc")
                     .def_property("month", &tba::DateTime::getMonth,
-                                  &tba::DateTime::setMonth,
-                                  R"doc(
+                                  &tba::DateTime::setMonth, R"doc(
 
         Calendar month (value must be 1-12)
 
@@ -1060,8 +1058,7 @@ TimeScaleConverter
         :type: int
      )doc")
                     .def_property("day", &tba::DateTime::getDay,
-                                  &tba::DateTime::setDay,
-                                  R"doc(
+                                  &tba::DateTime::setDay, R"doc(
 
         Calendar day in current month, value must be larger than 0, and smaller or equal to the number of days in the month
 
@@ -1069,8 +1066,7 @@ TimeScaleConverter
         :type: int
      )doc")
                     .def_property("hour", &tba::DateTime::getHour,
-                                  &tba::DateTime::setHour,
-                                  R"doc(
+                                  &tba::DateTime::setHour, R"doc(
 
         Full hours into the current day (value must be 0-23)
 
@@ -1078,8 +1074,7 @@ TimeScaleConverter
         :type: int
      )doc")
                     .def_property("minute", &tba::DateTime::getMinute,
-                                  &tba::DateTime::setMinute,
-                                  R"doc(
+                                  &tba::DateTime::setMinute, R"doc(
 
         Full minutes into the current hour (value must be 0-59)
 
@@ -1087,8 +1082,7 @@ TimeScaleConverter
         :type: int
      )doc")
                     .def_property("seconds", &tba::DateTime::getSeconds,
-                                  &tba::DateTime::setSeconds,
-                                  R"doc(
+                                  &tba::DateTime::setSeconds, R"doc(
 
         Number of seconds into the current minute. Note that this value is stored as ``long double`` in Tudat, which may be 64-bit or 80-bit (16 or 19 digits) depending on the compiler used.
 
@@ -1331,5 +1325,5 @@ DateTime
                           tba::JULIAN_DAY_ON_J2000);
             }
         }  // namespace time_conversion
-    }  // namespace astro
+    }      // namespace astro
 }  // namespace tudatpy
