@@ -9,7 +9,7 @@
  */
 
 #include "expose_acceleration_setup.h"
-// #include "kernel/expose_numerical_simulation/deprecation_support.h"
+//#include "kernel/expose_numerical_simulation/deprecation_support.h"
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -18,7 +18,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <tudat/simulation/propagation_setup.h>
-
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -435,6 +434,6 @@ FromFunctionThrustMagnitudeSettings
                 }
 
             }  // namespace thrust
-        }  // namespace propagation_setup
-    }  // namespace numerical_simulation
+        }      // namespace propagation_setup
+    }          // namespace numerical_simulation
 }  // namespace tudatpy

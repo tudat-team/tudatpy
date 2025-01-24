@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
 #include "expose_polyhedron_utilities.h"
 
 #include <pybind11/eigen.h>
@@ -15,7 +16,6 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <tudat/astro/basic_astro/polyhedronFuntions.h>
-
 
 namespace tba = tudat::basic_astrodynamics;
 
@@ -247,5 +247,5 @@ numpy.ndarray
             }
 
         }  // namespace polyhedron_utilities
-    }  // namespace astro
+    }      // namespace astro
 }  // namespace tudatpy

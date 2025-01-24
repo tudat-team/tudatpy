@@ -17,7 +17,6 @@
 
 namespace py = pybind11;
 
-
 namespace tgs = tudat::geometric_shapes;
 
 namespace tudatpy {

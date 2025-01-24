@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
 #include "expose_propagation_setup.h"
 
 #include <pybind11/chrono.h>
@@ -229,5 +230,5 @@ MassRateModelMap
     )doc");
             }
         }  // namespace propagation_setup
-    }  // namespace numerical_simulation
+    }      // namespace numerical_simulation
 }  // namespace tudatpy

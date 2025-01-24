@@ -767,5 +767,5 @@ None
             };
 
         }  // namespace spice
-    }  // namespace interface
+    }      // namespace interface
 }  // namespace tudatpy

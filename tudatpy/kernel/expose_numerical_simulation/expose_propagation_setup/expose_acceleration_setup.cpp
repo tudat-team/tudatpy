@@ -20,7 +20,6 @@
 #include <tudat/basics/deprecationWarnings.h>
 #include <tudat/simulation/propagation_setup.h>
 
-
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
 namespace tss = tudat::simulation_setup;
@@ -124,8 +123,7 @@ namespace tudatpy {
 
 
                     py::enum_<tba::AvailableAcceleration>(
-                        m, "AvailableAcceleration",
-                        R"doc(
+                        m, "AvailableAcceleration", R"doc(
 
         Enumeration of available acceleration types.
 
@@ -146,8 +144,7 @@ namespace tudatpy {
                                R"doc(
      )doc")
                         .value("aerodynamic_type",
-                               tba::AvailableAcceleration::aerodynamic,
-                               R"doc(
+                               tba::AvailableAcceleration::aerodynamic, R"doc(
      )doc")
                         .value("cannonball_radiation_pressure_type",
                                tba::AvailableAcceleration::
@@ -169,8 +166,7 @@ namespace tudatpy {
                                R"doc(
      )doc")
                         .value("ring_gravity_type",
-                               tba::AvailableAcceleration::ring_gravity,
-                               R"doc(
+                               tba::AvailableAcceleration::ring_gravity, R"doc(
      )doc")
                         .value("thrust_acceleration_type",
                                tba::AvailableAcceleration::thrust_acceleration,

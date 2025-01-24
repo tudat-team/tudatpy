@@ -248,5 +248,5 @@ This code snippet closely follows what is done in: The following snippet closely
             }
 
         }  // namespace estimation_setup
-    }  // namespace numerical_simulation
+    }      // namespace numerical_simulation
 }  // namespace tudatpy

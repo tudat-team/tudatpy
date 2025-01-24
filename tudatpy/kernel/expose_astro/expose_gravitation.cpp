@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
 #include "expose_gravitation.h"
 
 #include <pybind11/eigen.h>
@@ -15,7 +16,6 @@
 #include <pybind11/pybind11.h>
 #include <tudat/astro/gravitation.h>
 #include <tudat/math/basic.h>
-
 
 namespace py = pybind11;
 namespace tg = tudat::gravitation;
@@ -194,5 +194,5 @@ tuple[numpy.ndarray, numpy.ndarray]
 
 
         }  // namespace gravitation
-    }  // namespace astro
+    }      // namespace astro
 }  // namespace tudatpy
