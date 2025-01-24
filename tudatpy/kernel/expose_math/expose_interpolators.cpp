@@ -54,8 +54,7 @@ namespace tudatpy {
 
             void expose_interpolators(py::module &m) {
                 py::enum_<ti::BoundaryInterpolationType>(
-                    m, "BoundaryInterpolationType",
-                    R"doc(
+                    m, "BoundaryInterpolationType", R"doc(
 
         Enumeration of types of behaviour to be used beyond the edges of the interpolation domain.
 
@@ -74,7 +73,6 @@ namespace tudatpy {
                            R"doc(
 The program will terminate with an error message when the interpolator is interrogated beyond the range :math:`[t_{0}...t_{N}]`
      )doc")
-
                     .value("use_boundary_value",
                            ti::BoundaryInterpolationType::use_boundary_value,
                            R"doc(
@@ -132,8 +130,7 @@ With this option, the algorithm uses a binary search algorithm to find the neare
                     .export_values();
 
                 py::enum_<ti::LagrangeInterpolatorBoundaryHandling>(
-                    m, "LagrangeInterpolatorBoundaryHandling",
-                    R"doc(
+                    m, "LagrangeInterpolatorBoundaryHandling", R"doc(
 
         Enumeration of types of behaviour to be used close to the edges of the interpolation domain, for the Lagrange interpolator.
 
@@ -656,5 +653,5 @@ OneDimensionalInterpolatorMatrix
             }
 
         }  // namespace interpolators
-    }  // namespace math
+    }      // namespace math
 }  // namespace tudatpy

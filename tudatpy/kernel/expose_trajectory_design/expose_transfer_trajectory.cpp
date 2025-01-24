@@ -18,6 +18,7 @@
 #include "tudat/astro/mission_segments/createTransferTrajectory.h"
 #include "tudat/math/root_finders.h"
 
+
 namespace py = pybind11;
 namespace tms = tudat::mission_segments;
 namespace tss = tudat::simulation_setup;
@@ -1219,5 +1220,5 @@ TransferTrajectory
             };
 
         }  // namespace transfer_trajectory
-    }  // namespace trajectory_design
+    }      // namespace trajectory_design
 }  // namespace tudatpy

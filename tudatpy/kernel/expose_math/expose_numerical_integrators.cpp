@@ -40,7 +40,7 @@ namespace tudatpy {
         /// std::shared_ptr<tni::RungeKutta4Integrator < double,
         /// Eigen::VectorXd, Eigen::VectorXd >> /             >(m,
         /// "RungeKutta4Integrator") / .def(py::init< /           const
-        /// stateDerivativeFunction &, / const double, /           const double
+        ///stateDerivativeFunction &, / const double, /           const double
         /// &>());
 
         //  // Alias

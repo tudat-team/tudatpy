@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
 #include "expose_element_conversion.h"
 
 #include <pybind11/eigen.h>
@@ -19,7 +20,6 @@
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
 #include <tudat/interface/spice/spiceInterface.h>
 #include <tudat/math/basic.h>
-
 
 namespace py = pybind11;
 namespace toec = tudat::orbital_element_conversions;
@@ -1205,7 +1205,8 @@ numpy.ndarray
 
                  */
                 m.def("teme_to_j2000", &te::getRotationMatrixFromTemeToJ2000,
-                      py::arg("epoch"), R"doc(
+                      py::arg("epoch"),
+                      R"doc(
 
 Computes the rotation matrix from the TEME (True Equator Mean Equinox) frame to the J2000 frame, using the following:
 
@@ -1231,7 +1232,8 @@ numpy.ndarray
     )doc");
 
                 m.def("j2000_to_teme", &te::getRotationMatrixFromTemeToJ2000,
-                      py::arg("epoch"), R"doc(
+                      py::arg("epoch"),
+                      R"doc(
 
 Computes the rotation matrix from the J2000 to the TEME (True Equator Mean Equinox) frame, which is the inverse of the :func:`~teme_to_j2000` function.
 
@@ -1319,5 +1321,5 @@ numpy.ndarray
     )doc");
             }
         }  // namespace element_conversion
-    }  // namespace astro
+    }      // namespace astro
 }  // namespace tudatpy

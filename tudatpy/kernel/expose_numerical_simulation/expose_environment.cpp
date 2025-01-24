@@ -910,8 +910,7 @@ output_file_prefix : str, default=''
 
                 py::class_<tsm::VehicleSystems,
                            std::shared_ptr<tsm::VehicleSystems>>(
-                    m, "VehicleSystems",
-                    R"doc(
+                    m, "VehicleSystems", R"doc(
 
         Object used to store physical (hardware) properties of a vehicle.
 
@@ -1042,8 +1041,7 @@ output_file_prefix : str, default=''
 
                 py::class_<tss::RigidBodyProperties,
                            std::shared_ptr<tss::RigidBodyProperties>>(
-                    m, "RigidBodyProperties",
-                    R"doc(
+                    m, "RigidBodyProperties", R"doc(
 
         Object that defines the mass, center of mass, and inertia tensor as a function of time.
 
@@ -1217,8 +1215,7 @@ The body-fixed frame of the body itself.
 
                 py::class_<trf::AerodynamicAngleCalculator,
                            std::shared_ptr<trf::AerodynamicAngleCalculator>>(
-                    m, "AerodynamicAngleCalculator",
-                    R"doc(
+                    m, "AerodynamicAngleCalculator", R"doc(
 
         Object to calculate (aerodynamic) orientation angles, and frame transformations,
         from current vehicle state.
@@ -1317,8 +1314,7 @@ The body-fixed frame of the body itself.
 
                 py::class_<ta::FlightConditions,
                            std::shared_ptr<ta::FlightConditions>>(
-                    m, "FlightConditions",
-                    R"doc(
+                    m, "FlightConditions", R"doc(
 
         Object that calculates various state-derived quantities typically
         relevant for flight dynamics.
@@ -1402,8 +1398,7 @@ The body-fixed frame of the body itself.
         :type: float
      )doc")
                     .def_property_readonly(
-                        "time", &ta::FlightConditions::getCurrentTime,
-                        R"doc(
+                        "time", &ta::FlightConditions::getCurrentTime, R"doc(
 
         **read-only**
 
@@ -1443,9 +1438,8 @@ The body-fixed frame of the body itself.
 
                 py::class_<ta::AtmosphericFlightConditions,
                            std::shared_ptr<ta::AtmosphericFlightConditions>,
-                           ta::FlightConditions>(m,
-                                                 "AtmosphericFlightConditions",
-                                                 R"doc(
+                           ta::FlightConditions>(
+                    m, "AtmosphericFlightConditions", R"doc(
 
         Object that calculates various state-derived quantities typically
         relevant for flight dynamics, for flight in an atmosphere.
@@ -1824,8 +1818,7 @@ The body-fixed frame of the body itself.
 
                 py::class_<te::RotationalEphemeris,
                            std::shared_ptr<te::RotationalEphemeris>>(
-                    m, "RotationalEphemeris",
-                    R"doc(
+                    m, "RotationalEphemeris", R"doc(
 
         Object that stores the rotational state of the bodies.
 
@@ -2106,8 +2099,7 @@ numpy.ndarray[numpy.float64[6, 1]]
                 py::class_<
                     teo::EarthOrientationAnglesCalculator,
                     std::shared_ptr<teo::EarthOrientationAnglesCalculator>>(
-                    m, "EarthOrientationAnglesCalculator",
-                    R"doc(
+                    m, "EarthOrientationAnglesCalculator", R"doc(
 
         Object for computing high-accuracy Earth orientation angles
 
@@ -2116,8 +2108,7 @@ numpy.ndarray[numpy.float64[6, 1]]
                          &teo::EarthOrientationAnglesCalculator::
                              getRotationAnglesFromItrsToGcrs<TIME_TYPE>,
                          py::arg("epoch"),
-                         py::arg("time_scale") = tba::tdb_scale,
-                         R"doc(
+                         py::arg("time_scale") = tba::tdb_scale, R"doc(
 
         Function to compute high-accuracy Earth orientation angles
 
@@ -2141,9 +2132,8 @@ numpy.ndarray[numpy.float64[6, 1]]
 
                 py::class_<te::GcrsToItrsRotationModel,
                            std::shared_ptr<te::GcrsToItrsRotationModel>,
-                           te::RotationalEphemeris>(m,
-                                                    "GcrsToItrsRotationModel",
-                                                    R"doc(
+                           te::RotationalEphemeris>(
+                    m, "GcrsToItrsRotationModel", R"doc(
 
         Object for high-accuracy GCRS<->ITRS rotation.
 
@@ -2242,8 +2232,7 @@ numpy.ndarray[numpy.float64[6, 1]]
                 py::class_<tg::SphericalHarmonicsGravityField,
                            std::shared_ptr<tg::SphericalHarmonicsGravityField>,
                            tg::GravityFieldModel>(
-                    m, "SphericalHarmonicsGravityField",
-                    R"doc(
+                    m, "SphericalHarmonicsGravityField", R"doc(
 
         Object that provides a spherical harmonic gravity field of a body.
 
@@ -2354,8 +2343,7 @@ numpy.ndarray[numpy.float64[6, 1]]
     )doc")
                     .def_property_readonly(
                         "average_radius",
-                        &tba::BodyShapeModel::getAverageRadius,
-                        R"doc(
+                        &tba::BodyShapeModel::getAverageRadius, R"doc(
 
         **read-only**
 
@@ -2375,8 +2363,7 @@ numpy.ndarray[numpy.float64[6, 1]]
 
                 py::class_<tgs::GroundStationState,
                            std::shared_ptr<tgs::GroundStationState>>(
-                    m, "GroundStationState",
-                    R"doc(
+                    m, "GroundStationState", R"doc(
 
         Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
 
@@ -2511,8 +2498,7 @@ numpy.ndarray[numpy.float64[6, 1]]
     )doc")
                     .def_property_readonly(
                         "temperature_function",
-                        &tgs::GroundStation::getTemperatureFunction,
-                        R"doc(
+                        &tgs::GroundStation::getTemperatureFunction, R"doc(
 
         Function that provides the local temperature at the ground station (typically use for media corrections) as a function of time
 
@@ -2521,8 +2507,7 @@ numpy.ndarray[numpy.float64[6, 1]]
     )doc")
                     .def_property_readonly(
                         "pressure_function",
-                        &tgs::GroundStation::getPressureFunction,
-                        R"doc(
+                        &tgs::GroundStation::getPressureFunction, R"doc(
 
         Function that provides the local pressure at the ground station (typically use for media corrections) as a function of time
 
@@ -2531,8 +2516,7 @@ numpy.ndarray[numpy.float64[6, 1]]
     )doc")
                     .def_property_readonly(
                         "relative_humidity_function",
-                        &tgs::GroundStation::getRelativeHumidityFunction,
-                        R"doc(
+                        &tgs::GroundStation::getRelativeHumidityFunction, R"doc(
 
         Function that provides the local relative humidity at the ground station (typically use for media corrections) as a function of time
 
@@ -2541,8 +2525,7 @@ numpy.ndarray[numpy.float64[6, 1]]
     )doc")
                     .def_property_readonly(
                         "pointing_angles_calculator",
-                        &tgs::GroundStation::getPointingAnglesCalculator,
-                        R"doc(
+                        &tgs::GroundStation::getPointingAnglesCalculator, R"doc(
 
         **read-only**
 
@@ -2553,8 +2536,7 @@ numpy.ndarray[numpy.float64[6, 1]]
     )doc")
                     .def_property_readonly(
                         "station_state",
-                        &tgs::GroundStation::getNominalStationState,
-                        R"doc(
+                        &tgs::GroundStation::getNominalStationState, R"doc(
 
         **read-only**
 
@@ -2629,8 +2611,7 @@ numpy.ndarray[numpy.float64[6, 1]]
                     .def_property("ephemeris_frame_to_base_frame",
                                   &tss::Body::getEphemerisFrameToBaseFrame,
                                   &tss::Body::setEphemerisFrameToBaseFrame)
-                    .def_property_readonly("state", &tss::Body::getState,
-                                           R"doc(
+                    .def_property_readonly("state", &tss::Body::getState, R"doc(
 
         **read-only**
 
@@ -2675,8 +2656,7 @@ numpy.ndarray[numpy.float64[6, 1]]
      )doc")
                     .def_property_readonly(
                         "inertial_to_body_fixed_frame",
-                        &tss::Body::getCurrentRotationMatrixToLocalFrame,
-                        R"doc(
+                        &tss::Body::getCurrentRotationMatrixToLocalFrame, R"doc(
 
         **read-only**
 
@@ -2767,8 +2747,7 @@ numpy.ndarray[numpy.float64[6, 1]]
         :type: numpy.ndarray
      )doc")
                     .def_property("mass", &tss::Body::getBodyMass,
-                                  &tss::Body::setConstantBodyMass,
-                                  R"doc(
+                                  &tss::Body::setConstantBodyMass, R"doc(
 
         The current mass :math:`m` of the vehicle, as used in the calculation of
         non-conservative acceleration. This attribute is a shorthand for accessing the
@@ -2807,8 +2786,7 @@ numpy.ndarray[numpy.float64[6, 1]]
                     .def("state_in_base_frame_from_ephemeris",
                          &tss::Body::getStateInBaseFrameFromEphemeris<
                              STATE_SCALAR_TYPE, TIME_TYPE>,
-                         py::arg("time"),
-                         R"doc(
+                         py::arg("time"), R"doc(
 
         This function returns the body's state, as computed from its ephemeris model (extracted from :attr:`~Body.ephemeris`) at the current time, and (if needed)
         translates this state to the global frame origin. For the case where the origin of the body's ephemeris (extracted from :attr:`~Ephemeris.frame_origin`) is equal to the
@@ -2831,8 +2809,7 @@ numpy.ndarray[numpy.float64[6, 1]]
 
     )doc")
                     .def_property("ephemeris", &tss::Body::getEphemeris,
-                                  &tss::Body::setEphemeris,
-                                  R"doc(
+                                  &tss::Body::setEphemeris, R"doc(
 
         Object defining the ephemeris model of this body, used to calculate its current state as a function of time.
         Depending on the selected type of model, the type of this attribute
@@ -2843,8 +2820,7 @@ numpy.ndarray[numpy.float64[6, 1]]
      )doc")
                     .def_property("atmosphere_model",
                                   &tss::Body::getAtmosphereModel,
-                                  &tss::Body::setAtmosphereModel,
-                                  R"doc(
+                                  &tss::Body::setAtmosphereModel, R"doc(
 
         Object defining the atmosphere model of this body, used to calculate density, temperature, etc. at a given
         state/time. Depending on the selected type of model, the type of this attribute
@@ -2854,8 +2830,7 @@ numpy.ndarray[numpy.float64[6, 1]]
         :type: AtmosphereModel
      )doc")
                     .def_property("shape_model", &tss::Body::getShapeModel,
-                                  &tss::Body::setShapeModel,
-                                  R"doc(
+                                  &tss::Body::setShapeModel, R"doc(
 
         Object defining the a shape model of this body, used to define the exterior shape of the body, for instance for
         the calculation of vehicle's altitude. Depending on the selected type of model, the type of this attribute
@@ -2866,8 +2841,7 @@ numpy.ndarray[numpy.float64[6, 1]]
      )doc")
                     .def_property("gravity_field_model",
                                   &tss::Body::getGravityFieldModel,
-                                  &tss::Body::setGravityFieldModel,
-                                  R"doc(
+                                  &tss::Body::setGravityFieldModel, R"doc(
 
         Object defining the a gravity field model of this body, used to define the exterior gravitational potential, and
         its gradient(s). Depending on the selected type of model, the type of this attribute
@@ -2879,8 +2853,7 @@ numpy.ndarray[numpy.float64[6, 1]]
                     .def_property(
                         "aerodynamic_coefficient_interface",
                         &tss::Body::getAerodynamicCoefficientInterface,
-                        &tss::Body::setAerodynamicCoefficientInterface,
-                        R"doc(
+                        &tss::Body::setAerodynamicCoefficientInterface, R"doc(
 
         Object defining the aerodynamic coefficients of the body (force-only, or force and moment)
         as a function of any number of independent variables. Depending on the selected type of model, the type of this attribute
@@ -2891,8 +2864,7 @@ numpy.ndarray[numpy.float64[6, 1]]
      )doc")
                     .def_property("flight_conditions",
                                   &tss::Body::getFlightConditions,
-                                  &tss::Body::setFlightConditions,
-                                  R"doc(
+                                  &tss::Body::setFlightConditions, R"doc(
 
         Object used to calculated and store the current flight conditions of a vehicle (altitude, latitude, longitude,
         flight-path angle, etc.) w.r.t. a central body. In case the central body contains an atmosphere, this object
@@ -2904,8 +2876,7 @@ numpy.ndarray[numpy.float64[6, 1]]
      )doc")
                     .def_property("rotation_model",
                                   &tss::Body::getRotationalEphemeris,
-                                  &tss::Body::setRotationalEphemeris,
-                                  R"doc(
+                                  &tss::Body::setRotationalEphemeris, R"doc(
 
         Object defining the orientation of the body, used to calculate the rotation to/from a body-fixed
         frame (and its derivate). Depending on the selected type of model, the type of this attribute
@@ -2916,8 +2887,7 @@ numpy.ndarray[numpy.float64[6, 1]]
      )doc")
                     .def_property("system_models",
                                   &tss::Body::getVehicleSystems,
-                                  &tss::Body::setVehicleSystems,
-                                  R"doc(
+                                  &tss::Body::setVehicleSystems, R"doc(
 
         Object used to store physical (hardware) properties of a vehicle, such as engines, control surfaces, etc. This
         object is typically created automatically whenever such a hardware model needs to be assigned to a vehicle.
@@ -2927,8 +2897,7 @@ numpy.ndarray[numpy.float64[6, 1]]
      )doc")
                     .def_property("rigid_body_properties",
                                   &tss::Body::getMassProperties,
-                                  &tss::Body::setMassProperties,
-                                  R"doc(
+                                  &tss::Body::setMassProperties, R"doc(
 
        Object defining the mass, center of mass and inertia tensor of the body. This object is distinct from
        the gravity field of a body (defined by the :attr:`Body.gravity_field` object). A body endowed with this property does *not*
@@ -2940,8 +2909,7 @@ numpy.ndarray[numpy.float64[6, 1]]
     )doc")
                     .def_property_readonly(
                         "gravitational_parameter",
-                        &tss::Body::getGravitationalParameter,
-                        R"doc(
+                        &tss::Body::getGravitationalParameter, R"doc(
 
         **read-only**
 
@@ -2951,8 +2919,7 @@ numpy.ndarray[numpy.float64[6, 1]]
         :type: float
      )doc")
                     .def("get_ground_station", &tss::Body::getGroundStation,
-                         py::arg("station_name"),
-                         R"doc(
+                         py::arg("station_name"), R"doc(
 
         This function extracts a ground station object from the body.
 
@@ -2989,8 +2956,7 @@ numpy.ndarray[numpy.float64[6, 1]]
 
                 py::class_<tss::SystemOfBodies,
                            std::shared_ptr<tss::SystemOfBodies>>(
-                    m, "SystemOfBodies",
-                    R"doc(
+                    m, "SystemOfBodies", R"doc(
 
         Object that contains a set of Body objects and associated frame
         information.
@@ -3218,5 +3184,5 @@ numpy.ndarray[numpy.float64[6, 1]]
                  */
             }
         }  // namespace environment
-    }  // namespace numerical_simulation
+    }      // namespace numerical_simulation
 }  // namespace tudatpy

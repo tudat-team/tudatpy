@@ -277,6 +277,6 @@ RootFinderSettings
             }
 
         }  // namespace root_finders
-    }  // namespace math
+    }      // namespace math
 
 }  // namespace tudatpy

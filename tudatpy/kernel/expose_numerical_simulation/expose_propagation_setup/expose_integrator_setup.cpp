@@ -39,8 +39,7 @@ namespace tudatpy {
                 void expose_integrator_setup(py::module &m) {
                     // ENUMS
                     py::enum_<tni::MinimumIntegrationTimeStepHandling>(
-                        m, "MinimumIntegrationTimeStepHandling",
-                        R"doc(
+                        m, "MinimumIntegrationTimeStepHandling", R"doc(
 
         Enumeration defining possible behaviours when :math:`\Delta t_{rec}<\Delta t_{\min}`. in step-size control (e.g. recommended time step is smaller than minimum time step)
 
@@ -76,9 +75,8 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
                         .export_values();
 
 
-                    py::enum_<tni::AvailableIntegrators>(m,
-                                                         "AvailableIntegrators",
-                                                         R"doc(
+                    py::enum_<tni::AvailableIntegrators>(
+                        m, "AvailableIntegrators", R"doc(
 
         Enumeration of integrators available with tudat.
 
