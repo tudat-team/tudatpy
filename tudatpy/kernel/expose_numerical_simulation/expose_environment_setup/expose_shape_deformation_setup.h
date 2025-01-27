@@ -11,26 +11,24 @@
 #ifndef TUDATPY_EXPOSE_SHAPE_DEFORMATION_SETUP_H
 #define TUDATPY_EXPOSE_SHAPE_DEFORMATION_SETUP_H
 
+#include <pybind11/complex.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/complex.h>
 
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace environment_setup {
-namespace shape_deformation {
+    namespace numerical_simulation {
+        namespace environment_setup {
+            namespace shape_deformation {
 
-    void expose_shape_deformation_setup(py::module &m);
+                void expose_shape_deformation_setup(py::module &m);
 
-}// namespace shape_deformation
-}// namespace environment_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+            }  // namespace shape_deformation
+        }      // namespace environment_setup
+    }          // namespace numerical_simulation
+}  // namespace tudatpy
 
-#endif //TUDATPY_EXPOSE_SHAPE_DEFORMATION_SETUP_H
-
-
+#endif  // TUDATPY_EXPOSE_SHAPE_DEFORMATION_SETUP_H
