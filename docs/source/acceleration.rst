@@ -22,8 +22,6 @@ Functions
 
    radiation_pressure
 
-   cannonball_radiation_pressure
-
    spherical_harmonic_gravity
 
    mutual_spherical_harmonic_gravity
@@ -57,8 +55,6 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.cannonball_radiation_pressure
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic_gravity
 

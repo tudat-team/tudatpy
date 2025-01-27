@@ -65,10 +65,6 @@ namespace tudatpy {
         Class for defining settings for the creation of a single body, this object is typically stored inside a
         :class:`BodyListSettings`, object.
 
-
-
-
-
      )doc")
                     .def_readwrite("constant_mass",
                                    &tss::BodySettings::constantMass, R"doc(

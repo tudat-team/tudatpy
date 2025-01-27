@@ -32,8 +32,34 @@ namespace tsi = tudat::sofa_interface;
 namespace pc = tudat::physical_constants;
 namespace teo = tudat::earth_orientation;
 
-tba::DateTime timePointToDateTime(
-    const std::chrono::system_clock::time_point datetime) {
+
+namespace tudat
+{
+
+namespace earth_orientation
+{
+std::shared_ptr<TerrestrialTimeScaleConverter> createDefaultTimeConverterPy( )
+{
+    return createDefaultTimeConverter( );
+}
+
+}
+
+namespace basic_astrodynamics
+{
+
+tba::DateTime convertYearAndDaysInYearToTudatDate( const int year, const int daysInYear )
+{
+    boost::gregorian::date boostDateTime = tba::convertYearAndDaysInYearToDate( year, daysInYear );
+    return tba::DateTime( boostDateTime.year( ), boostDateTime.month( ), boostDateTime.day( ), 0, 0, 0.0 );
+}
+
+}
+
+}
+
+tba::DateTime timePointToDateTime(const std::chrono::system_clock::time_point datetime)
+{
     std::time_t tt = std::chrono::system_clock::to_time_t(datetime);
     std::tm local_tm = *localtime(&tt);
 
@@ -41,14 +67,10 @@ tba::DateTime timePointToDateTime(
     microseconds timeInMicroSeconds =
         duration_cast<microseconds>(datetime.time_since_epoch());
     long long fractional_seconds = timeInMicroSeconds.count() % 1000000LL;
-
-    return tba::DateTime(
-        local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday,
-        local_tm.tm_hour, local_tm.tm_min,
-        static_cast<long double>(local_tm.tm_sec) +
-            static_cast<long double>(fractional_seconds) /
-                tudat::mathematical_constants::getFloatingInteger<long double>(
-                    1000000LL));
+    return tba::DateTime( local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday,
+                          local_tm.tm_hour, local_tm.tm_min, static_cast< long double >( local_tm.tm_sec ) +
+                                                             static_cast< long double >( fractional_seconds ) /
+                                                             tudat::mathematical_constants::getFloatingInteger< long double >( 1000000LL ) );
 }
 
 // Convert from Gregorian date to time_point (Python datetime). Only
@@ -64,13 +86,10 @@ std::chrono::system_clock::time_point dateTimeToTimePoint(
 
     };
     tm.tm_isdst = -1;
-    std::chrono::system_clock::time_point timePoint =
-        std::chrono::system_clock::from_time_t(std::mktime(&tm));
-    return timePoint +
-           std::chrono::microseconds(static_cast<int>(std::round(
-               (dateTime.getSeconds() - static_cast<long double>(tm.tm_sec)) *
-               tudat::mathematical_constants::getFloatingInteger<long double>(
-                   1E6))));
+    std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+    return timePoint + std::chrono::microseconds ( static_cast< int >( std::round(
+        ( dateTime.getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
+        tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
 }
 
 // Convert Julian day to calendar date. This code ensures that the value
@@ -119,6 +138,7 @@ namespace tudatpy {
     namespace astro {
         namespace time_conversion {
 
+
             void expose_time_conversion(py::module& m) {
                 //    m.attr("default_time_converter") =
                 //    tudat::earth_orientation::defaultTimeConverter;
@@ -140,7 +160,12 @@ Returns
 DateTime
     DateTime object defined in Tudat
 
-
+    m.def("year_and_days_in_year_to_calendar_date",
+          &tba::convertYearAndDaysInYearToTudatDate,
+          py::arg("year"),
+          py::arg("days_in_year"),
+          get_docstring("year_and_days_in_year_to_calendar_date").c_str()
+    );
 
 
 
@@ -153,7 +178,6 @@ DateTime
 
 Function to convert a Tudat :class:`DateTime` object to a Python datetime.datetime object. This is the inverse of the :func:`datetime_to_tudat` function
 
-
 Parameters
 ----------
 datetime : DateTime
@@ -162,12 +186,6 @@ Returns
 -------
 datetime.datetime
     Datetime object, using the Python datetime library
-
-
-
-
-
-
     )doc");
 
                 m.def("add_seconds_to_datetime",
