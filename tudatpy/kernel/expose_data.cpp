@@ -17,6 +17,8 @@
 
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
+#include <pybind11/numpy.h>
+#include <pybind11/eigen.h>
 
 #include "tudat/io/missileDatcomData.h"
 #include "tudat/io/readHistoryFromFile.h"
@@ -26,8 +28,6 @@
 #include "tudat/io/solarActivityData.h"
 #include "docstrings.h"
 #include "tudat/io/readVariousPdsFiles.h"
-
-#include <pybind11/stl.h>
 
 namespace py = pybind11;
 namespace tio = tudat::input_output;
