@@ -21,8 +21,8 @@ namespace tudatpy {
 
             void expose_two_body_dynamics(py::module &m);
 
-} // namespace two_body_dynamics
-} // namespace astro
-} // namespace tudatpy
+        }  // namespace two_body_dynamics
+    }      // namespace astro
+}  // namespace tudatpy
 
-#endif//TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
+#endif  // TUDATPY_EXPOSE_TWO_BODY_DYNAMICS_H
