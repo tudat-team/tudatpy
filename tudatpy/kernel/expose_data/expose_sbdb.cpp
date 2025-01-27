@@ -18,13 +18,13 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace data {
-namespace sbdb {
+    namespace data {
+        namespace sbdb {
 
-    void expose_sbdb(py::module &m) {
+            void expose_sbdb(py::module &m){
 
-    };
+            };
 
-}// namespace sbdb
-}// namespace data
-}// namespace tudatpy
+        }  // namespace sbdb
+    }      // namespace data
+}  // namespace tudatpy

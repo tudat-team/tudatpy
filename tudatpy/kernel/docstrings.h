@@ -2218,49 +2218,10 @@ In this example, the Modified Julian date `51544.5` ( corresponding to J2000) is
 
 
 
-    } else if(name == "calendar_date_to_day_of_year" ) {
-        return R"(
-        
-Determine the number of full days that have passed in the year of a given calendar date.
-
-
-Parameters
-----------
-calendar_date : datetime.datetime
-    Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified. Milliseconds are ignored."
-Returns
--------
-int
-    Number of full days that have passed in the year at the given calendar date.
-
-
-
-
-
-Examples
---------
-In this example, the number of days that have passed in 2020 when the date is the 2nd of May is computed.
-
-.. code-block:: python
-
-  # Define the 2nd of May 2020
-  date = datetime.datetime(2020, 5, 2)
-  # Compute the number of full days that have passed in 2020 when at the given date
-  days_passed = time_conversion.calendar_date_to_day_of_year(date)
-  # Print the converted output
-  print(J2000)  # prints 122.0
-
-
-    )";
-
-
-
     } else if(name == "year_and_days_in_year_to_calendar_date" ) {
         return R"(
         
 Create the calendar date from the year and the number of days in the year.
-
-Can be seen as the inverse function of :func:`calendar_date_to_day_of_year`.
 
 Parameters
 ----------
@@ -2270,8 +2231,8 @@ days_in_year : int
     Number of days that have passed in the year.
 Returns
 -------
-datetime.datetime
-    Corresponding calendar date as a datetime object, using the Python datetime library. .
+DateTime
+    Corresponding calendar date as a :class:`DateTime` object. Note: the hours, minutes and seconds in the object are set to 0 when calling this function.
 
 
 
@@ -2284,9 +2245,9 @@ In this example, the calendar date corresponding to when 122 days have passed in
 .. code-block:: python
 
   # Compute the calendar date when 122 days have passed in 2020
-  date = time_conversion.year_and_days_in_year_to_calendar_date(2020, 122)
+  currentDate = time_conversion.year_and_days_in_year_to_calendar_date(2020, 122)
   # Print the converted output
-  print(J2000)  # prints datetime.datetime(2020, 5, 2, 0, 0)
+  print(currentDate)  # prints (2020, 5, 2, 0, 0)
 
 
     )";
