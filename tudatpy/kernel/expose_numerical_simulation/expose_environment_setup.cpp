@@ -209,7 +209,7 @@ namespace environment_setup {
         m.def("add_radiation_pressure_target_model",
               &tss::addRadiationPressureTargetModel,
               py::arg("bodies"), py::arg("body_name"), py::arg("radiation_pressure_target_settings"),
-              get_docstring("add_radiation_pressure_interface").c_str());
+              get_docstring("add_radiation_pressure_target_model").c_str());
 
         m.def("add_rotation_model",
               &tss::addRotationModel,
