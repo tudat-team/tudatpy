@@ -120,19 +120,6 @@ TimeScalarType convertCalendarDateToJulianDaySinceEpochPy(
     return dateTime.julianDay<TimeScalarType>() - epochSinceJulianDayZero;
 }
 
-
-namespace tudat {
-
-    namespace earth_orientation {
-        std::shared_ptr<TerrestrialTimeScaleConverter>
-        createDefaultTimeConverterPy() {
-            return createDefaultTimeConverter();
-        }
-
-    }  // namespace earth_orientation
-
-}  // namespace tudat
-
 namespace tudatpy {
 
     namespace astro {
