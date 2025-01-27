@@ -16,15 +16,15 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace environment_setup {
-namespace vehicle_systems {
+    namespace numerical_simulation {
+        namespace environment_setup {
+            namespace vehicle_systems {
 
-    void expose_vehicle_systems_setup(py::module &m);
+                void expose_vehicle_systems_setup(py::module &m);
 
-}// namespace vehicle_systems
-}// namespace environment_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+            }  // namespace vehicle_systems
+        }      // namespace environment_setup
+    }          // namespace numerical_simulation
+}  // namespace tudatpy
 
-#endif //TUDATPY_EXPOSE_VEHICLE_SYSTEMS_SETUP_H
+#endif  // TUDATPY_EXPOSE_VEHICLE_SYSTEMS_SETUP_H

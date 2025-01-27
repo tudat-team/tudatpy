@@ -17,14 +17,14 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
-namespace astro {
-namespace time_conversion {
+    namespace astro {
+        namespace time_conversion {
 
-void expose_time_conversion(py::module &m);
+            void expose_time_conversion(py::module &m);
 
-} // namespace time_conversion
-} // namespace astro
-}
+        }  // namespace time_conversion
+    }      // namespace astro
+}  // namespace tudatpy
 
 
-#endif// TUDATPY_EXPOSE_TIME_CONVERSIONS_H
+#endif  // TUDATPY_EXPOSE_TIME_CONVERSIONS_H
