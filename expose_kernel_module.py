@@ -216,7 +216,7 @@ args = parser.parse_args()
 
 # Use custom compiled Tudat version
 import sys
-sys.path.insert(0, f'/mnt/e/studio/professional/work/2023-2024 Tudat/repos/tudat-bundle/{args.build_dir}/tudatpy/')
+sys.path.insert(0, f'../{args.build_dir}/tudatpy/')
 
 # Import Tudat kernel
 import tudatpy.kernel as kernel

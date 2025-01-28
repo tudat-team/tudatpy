@@ -9,17 +9,15 @@
  */
 
 #include "expose_mass_rate_setup.h"
-#include <tudat/basics/deprecationWarnings.h>
-
-#include "tudatpy/docstrings.h"
-#include <tudat/simulation/propagation_setup.h>
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/numpy.h>
+#include <tudat/basics/deprecationWarnings.h>
+#include <tudat/simulation/propagation_setup.h>
 
 namespace py = pybind11;
 namespace tba = tudat::basic_astrodynamics;
@@ -32,87 +30,188 @@ namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 
 
-namespace tudat
-{
-namespace simulation_setup
-{
+namespace tudat {
+    namespace simulation_setup {
 
-inline std::shared_ptr< MassRateModelSettings > customMassRateDeprecated(
-        const std::function< double( const double ) > massRateFunction )
+        inline std::shared_ptr<MassRateModelSettings> customMassRateDeprecated(
+            const std::function<double(const double)> massRateFunction)
 
-{
-    static bool isWarningPrinted = false;
-    if( isWarningPrinted == false )
-    {
-        tudat::utilities::printDeprecationWarning( "tudatpy.numerical_simulation.propagation_setup.mass_rate.custom",
-                             "tudatpy.numerical_simulation.propagation_setup.mass_rate.custom_mass_rate");
-        isWarningPrinted = true;
-    }
+        {
+            static bool isWarningPrinted = false;
+            if(isWarningPrinted == false) {
+                tudat::utilities::printDeprecationWarning(
+                    "tudatpy.numerical_simulation.propagation_setup.mass_rate."
+                    "custom",
+                    "tudatpy.numerical_simulation.propagation_setup.mass_rate."
+                    "custom_mass_rate");
+                isWarningPrinted = true;
+            }
 
-    return customMassRate( massRateFunction );
-
-}
-}
-}
+            return customMassRate(massRateFunction);
+        }
+    }  // namespace simulation_setup
+}  // namespace tudat
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace propagation_setup {
-namespace mass_rate {
+    namespace numerical_simulation {
+        namespace propagation_setup {
+            namespace mass_rate {
 
-    void expose_mass_rate_setup(py::module &m) {
+                void expose_mass_rate_setup(py::module &m) {
+                    // Enums
 
-        // Enums
+                    py::enum_<tba::AvailableMassRateModels>(
+                        m, "AvailableMassRateModels",
+                        R"doc(
 
-        py::enum_<tba::AvailableMassRateModels>(m, "AvailableMassRateModels",
-                                                get_docstring("AvailableMassRateModels").c_str())
-                .value("undefined_mass_rate_type", tba::AvailableMassRateModels::undefined_mass_rate_model,
-                       get_docstring("AvailableMassRateModels.undefined_mass_rate_type").c_str())
-                .value("custom_mass_rate_type", tba::AvailableMassRateModels::custom_mass_rate_model,
-                       get_docstring("AvailableMassRateModels.custom_mass_rate_type").c_str())
-                .value("from_thrust_mass_rate_type", tba::AvailableMassRateModels::from_thrust_mass_rate_model,
-                       get_docstring("AvailableMassRateModels.from_thrust_mass_rate_type").c_str())
-                .export_values();
+        Enumeration of available mass rate models.
 
-        // Classes
-
-        py::class_<tss::MassRateModelSettings,
-                std::shared_ptr<tss::MassRateModelSettings>>(m, "MassRateModelSettings",
-                        get_docstring("MassRateModelSettings").c_str());
-//                .def(py::init<const tudat::basic_astrodynamics::AvailableMassRateModels>(),
-//                     py::arg("mass_rate_type"));
-
-        py::class_<tss::FromThrustMassRateSettings,
-                std::shared_ptr<tss::FromThrustMassRateSettings>,
-                tss::MassRateModelSettings>(m, "FromThrustMassRateSettings",
-                                            get_docstring("FromThrustMassRateSettings").c_str());
-//                .def(py::init<const bool, const std::string &>(),
-//                     py::arg("use_all_thrust_models") = 1,
-//                     py::arg("associated_thrust_source") = "");
-
-        py::class_<tss::CustomMassRateSettings,
-                std::shared_ptr<tss::CustomMassRateSettings>,
-                tss::MassRateModelSettings>(m, "CustomMassRateSettings",
-                                            get_docstring("CustomMassRateSettings").c_str());
+        Enumeration of mass rate models supported by tudat.
 
 
-        // Factory functions
 
-        m.def("from_thrust", &tss::fromThrustMassRate,
-              py::arg("use_all_thrust_models") = 1,
-              py::arg("associated_thrust_source") = "",
-              get_docstring("from_thrust").c_str());
 
-        m.def("custom", &tss::customMassRateDeprecated,
-              py::arg("mass_rate_function") );
 
-        m.def("custom_mass_rate", &tss::customMassRate,
-              py::arg("mass_rate_function"),
-              get_docstring("custom_mass_rate").c_str());
+     )doc")
+                        .value("undefined_mass_rate_type",
+                               tba::AvailableMassRateModels::
+                                   undefined_mass_rate_model,
+                               R"doc(
+     )doc")
+                        .value("custom_mass_rate_type",
+                               tba::AvailableMassRateModels::
+                                   custom_mass_rate_model,
+                               R"doc(
+     )doc")
+                        .value("from_thrust_mass_rate_type",
+                               tba::AvailableMassRateModels::
+                                   from_thrust_mass_rate_model,
+                               R"doc(
+     )doc")
+                        .export_values();
 
-    }
+                    // Classes
 
-}// namespace mass
-}// namespace propagation_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+                    py::class_<tss::MassRateModelSettings,
+                               std::shared_ptr<tss::MassRateModelSettings>>(
+                        m, "MassRateModelSettings",
+                        R"doc(
+
+        Functional base class to define settings for mass rates.
+
+        Base class for providing settings for a mass rate model, that defines the models to be used to numerically propagate the
+        mass of a body during a simulation. If any additional information (besides the type of the mass rate model) is required,
+        these must be implemented in a derived class (dedicated for each mass rate model type).
+
+
+
+
+
+     )doc");
+                    //                .def(py::init<const
+                    //                tudat::basic_astrodynamics::AvailableMassRateModels>(),
+                    //                     py::arg("mass_rate_type"));
+
+                    py::class_<tss::FromThrustMassRateSettings,
+                               std::shared_ptr<tss::FromThrustMassRateSettings>,
+                               tss::MassRateModelSettings>(
+                        m, "FromThrustMassRateSettings",
+                        R"doc(
+
+        `MassRateModelSettings`-derived class to define settings for a mass rate model derived from a thrust model.
+
+        `MassRateModelSettings`-derived class to define settings for a mass rate model derived from a thrust model.
+
+
+
+
+
+     )doc");
+                    //                .def(py::init<const bool, const
+                    //                std::string &>(),
+                    //                     py::arg("use_all_thrust_models") = 1,
+                    //                     py::arg("associated_thrust_source") =
+                    //                     "");
+
+                    py::class_<tss::CustomMassRateSettings,
+                               std::shared_ptr<tss::CustomMassRateSettings>,
+                               tss::MassRateModelSettings>(
+                        m, "CustomMassRateSettings",
+                        R"doc(
+
+        `MassRateModelSettings`-derived class to define settings for a custom mass rate model.
+
+        `MassRateModelSettings`-derived class to define settings for a custom mass rate model.
+
+
+
+
+
+     )doc");
+
+
+                    // Factory functions
+
+                    m.def("from_thrust", &tss::fromThrustMassRate,
+                          py::arg("use_all_thrust_models") = 1,
+                          py::arg("associated_thrust_source") = "",
+                          R"doc(
+
+Creates the settings for a mass rate model defined from a thrust model.
+
+Creates the settings for a mass rate model defined from a thrust model. The mass rate model is derived from
+the associated body's engine model. It is possible to consider only a specific engine or all engines.
+
+
+Parameters
+----------
+use_all_thrust_models : bool, default=true
+    Denotes whether all engines of the associated body are to be combined into a single thrust model.
+associated_thrust_source : str, default=""
+    Name of engine model from which thrust is to be derived (must be empty if the first argument is set to true).
+Returns
+-------
+FromThrustMassRateSettings
+    From thrust mass rate settings object.
+
+
+
+
+
+
+    )doc");
+
+                    m.def("custom", &tss::customMassRateDeprecated,
+                          py::arg("mass_rate_function"));
+
+                    m.def("custom_mass_rate", &tss::customMassRate,
+                          py::arg("mass_rate_function"),
+                          R"doc(
+
+Creates the settings for a mass rate model defined from a thrust model.
+
+Creates the settings for a custom mass rate model defined through a mass rate function. The function must have
+time as an independent variable.
+
+
+Parameters
+----------
+mass_rate_function : callable[[float], float]
+    Function of time defining the custom mass rate.
+Returns
+-------
+CustomMassRateSettings
+    Custom mass rate settings object.
+
+
+
+
+
+
+    )doc");
+                }
+
+            }  // namespace mass_rate
+        }      // namespace propagation_setup
+    }          // namespace numerical_simulation
+}  // namespace tudatpy

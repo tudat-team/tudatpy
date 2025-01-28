@@ -11,7 +11,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
@@ -31,15 +30,15 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace propagation_setup {
-namespace torque {
+    namespace numerical_simulation {
+        namespace propagation_setup {
+            namespace torque {
 
-    void expose_torque_setup(py::module &m);
+                void expose_torque_setup(py::module &m);
 
-}// namespace torque
-}// namespace propagation_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+            }  // namespace torque
+        }      // namespace propagation_setup
+    }          // namespace numerical_simulation
+}  // namespace tudatpy
 
-#endif //TUDATPY_EXPOSE_TORQUE_SETUP_H
+#endif  // TUDATPY_EXPOSE_TORQUE_SETUP_H

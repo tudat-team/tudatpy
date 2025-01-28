@@ -18,13 +18,13 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace math {
-namespace interpolators {
+    namespace math {
+        namespace interpolators {
 
-void expose_interpolators(py::module &m);
+            void expose_interpolators(py::module &m);
 
-}
-}
-}
+        }
+    }  // namespace math
+}  // namespace tudatpy
 
-#endif//TUDATPY_EXPOSE_INTERPOLATORS_H
+#endif  // TUDATPY_EXPOSE_INTERPOLATORS_H

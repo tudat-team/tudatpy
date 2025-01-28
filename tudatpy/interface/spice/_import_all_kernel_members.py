@@ -18,10 +18,12 @@ from tudatpy.kernel.interface.spice import \
      compute_rotation_matrix_between_frames, \
      compute_rotation_matrix_derivative_between_frames, \
      compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames, \
+     continue_after_errors, \
      convert_body_name_to_naif_id, \
      convert_date_string_to_ephemeris_time, \
      convert_ephemeris_time_to_julian_date, \
      convert_julian_date_to_ephemeris_time, \
+     convert_naif_id_to_body_name, \
      get_angular_velocity_vector_of_frame_in_original_frame, \
      get_average_radius, \
      get_body_cartesian_position_at_epoch, \
@@ -32,9 +34,5 @@ from tudatpy.kernel.interface.spice import \
      get_total_count_of_kernels_loaded, \
      load_kernel, \
      load_standard_deprecated_kernels, \
-     load_standard_kernels
-# ----------------------------------------
-#                 OBJECTS                 
-# ----------------------------------------
-from tudatpy.kernel.interface.spice import \
-     SpiceEphemeris
+     load_standard_kernels, \
+     suppress_error_output
