@@ -21,7 +21,10 @@ from tudatpy.kernel.numerical_simulation import \
 #                 OBJECTS                 
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation import \
+     DynamicsSimulator, \
      Estimator, \
+     HybridArcDynamicsSimulator, \
+     MultiArcDynamicsSimulator, \
      SingleArcSimulator, \
      SingleArcVariationalSimulator, \
      Time

@@ -17,7 +17,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
 #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
@@ -36,34 +35,31 @@
 
 namespace py = pybind11;
 
-//Deprecated
-namespace tudat
-{
+// Deprecated
+namespace tudat {
 
-namespace simulation_setup
-{
-enum ThrustFrames
-{
-    unspecified_thrust_frame = -1,
-    inertial_thrust_frame = 0,
-    tnw_thrust_frame = 1
-};
+    namespace simulation_setup {
+        enum ThrustFrames {
+            unspecified_thrust_frame = -1,
+            inertial_thrust_frame = 0,
+            tnw_thrust_frame = 1
+        };
 
-}
+    }
 
-}
+}  // namespace tudat
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace propagation_setup {
-namespace acceleration {
+    namespace numerical_simulation {
+        namespace propagation_setup {
+            namespace acceleration {
 
-    void expose_acceleration_setup(py::module &m);
+                void expose_acceleration_setup(py::module &m);
 
-}// namespace acceleration
-}// namespace propagation_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+            }  // namespace acceleration
+        }      // namespace propagation_setup
+    }          // namespace numerical_simulation
+}  // namespace tudatpy
 
 
-#endif //TUDATPY_EXPOSE_ACCELERATION_SETUP_H
+#endif  // TUDATPY_EXPOSE_ACCELERATION_SETUP_H

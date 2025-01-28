@@ -17,12 +17,15 @@ from tudatpy.kernel.numerical_simulation.environment_setup import \
      add_empty_tabulated_ephemeris, \
      add_engine_model, \
      add_flight_conditions, \
+     add_gravity_field_model, \
      add_ground_station, \
      add_mass_properties_model, \
      add_radiation_pressure_interface, \
      add_radiation_pressure_target_model, \
+     add_rigid_body_properties, \
      add_rotation_model, \
      add_variable_direction_engine_model, \
+     convert_ground_station_state_between_itrf_frames, \
      create_aerodynamic_coefficient_interface, \
      create_body_ephemeris, \
      create_ground_station_ephemeris, \
@@ -38,7 +41,6 @@ from tudatpy.kernel.numerical_simulation.environment_setup import \
      get_default_single_body_settings_time_limited, \
      get_ground_station_list, \
      get_safe_interpolation_interval, \
-     get_target_elevation_angles, \
      set_aerodynamic_guidance, \
      set_aerodynamic_orientation_functions, \
      set_constant_aerodynamic_orientation

@@ -60,6 +60,7 @@ from tudatpy.kernel.numerical_simulation.propagation_setup.acceleration import \
      quasi_impulsive_shots_acceleration_type, \
      radiation_pressure_type, \
      relativistic_correction_acceleration_type, \
+     ring_gravity_type, \
      spherical_harmonic_gravity_type, \
      thrust_acceleration_type, \
      undefined_acceleration_type
