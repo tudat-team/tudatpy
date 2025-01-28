@@ -15,7 +15,9 @@
 from tudatpy.kernel.numerical_simulation.environment_setup.shape_deformation import \
      basic_solid_body_tidal, \
      degree_two_basic_solid_body_tidal, \
-     iers_2010_solid_body_tidal
+     iers_2010_solid_body_tidal, \
+     ocean_tidal, \
+     pole_tidal
 # ----------------------------------------
 #                 OBJECTS                 
 # ----------------------------------------

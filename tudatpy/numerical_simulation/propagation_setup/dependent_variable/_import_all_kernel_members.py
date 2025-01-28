@@ -55,9 +55,12 @@ from tudatpy.kernel.numerical_simulation.propagation_setup.dependent_variable im
      minimum_body_distance, \
      minimum_visible_station_body_distances, \
      modified_equinoctial_state, \
+     per_target_panel_radiation_pressure_force, \
      periapsis_altitude, \
      radiation_pressure, \
      radiation_pressure_coefficient, \
+     radiation_pressure_source_panel_geometry, \
+     radiation_pressure_source_panel_irradiance, \
      received_irradiance, \
      received_irradiance_shadow_function, \
      relative_distance, \
@@ -86,6 +89,8 @@ from tudatpy.kernel.numerical_simulation.propagation_setup.dependent_variable im
      total_spherical_harmonic_sine_coefficien_variations_from_indices, \
      total_torque, \
      total_torque_norm, \
+     vehicle_panel_surface_normals_body_fixed_frame, \
+     vehicle_panel_surface_normals_inertial_frame, \
      visible_radiation_source_area
 # ----------------------------------------
 #                 OBJECTS                 

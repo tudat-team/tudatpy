@@ -14,16 +14,19 @@
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.estimation_setup.parameter import \
      absolute_observation_bias, \
+     arc_wise_polynomial_clock_corrections, \
      arcwise_absolute_observation_bias, \
      arcwise_constant_drag_coefficient, \
      arcwise_constant_empirical_acceleration_terms, \
      arcwise_empirical_accelerations, \
      arcwise_radiation_pressure_coefficient, \
      arcwise_relative_observation_bias, \
+     arcwise_time_bias, \
      arcwise_time_drift_observation_bias, \
      constant_drag_coefficient, \
      constant_empirical_acceleration_terms, \
      constant_rotation_rate, \
+     constant_time_bias, \
      core_factor, \
      custom_analytical_partial, \
      custom_numerical_partial, \
@@ -31,19 +34,28 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.parameter import \
      direct_tidal_dissipation_time_lag, \
      empirical_accelerations, \
      free_core_nutation_rate, \
+     full_empirical_acceleration_terms, \
+     global_polynomial_clock_corrections, \
      gravitational_parameter, \
      ground_station_position, \
      initial_states, \
      inverse_tidal_quality_factor, \
      mean_moment_of_inertia, \
+     mode_coupled_k_love_numbers, \
+     monomial_full_block_gravity_field_variation_amplitudes, \
+     monomial_gravity_field_variation_amplitudes, \
      order_invariant_k_love_number, \
      order_varying_k_love_number, \
      periodic_spin_variations, \
      polar_motion_amplitudes, \
+     polynomial_gravity_field_variation_amplitudes, \
      ppn_parameter_beta, \
      ppn_parameter_gamma, \
      quasi_impulsive_shots, \
      radiation_pressure_coefficient, \
+     radiation_pressure_target_direction_scaling, \
+     radiation_pressure_target_perpendicular_direction_scaling, \
+     reference_point_position, \
      relative_observation_bias, \
      rotation_pole_position, \
      scaled_longitude_libration_amplitude, \
@@ -58,27 +70,35 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.parameter import \
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.estimation_setup.parameter import \
      CustomAccelerationPartialSettings, \
+     EmpiricalAccelerationComponents, \
+     EmpiricalAccelerationFunctionalShapes, \
      EstimatableParameterSettings, \
      EstimatableParameterTypes, \
+     across_track_empirical_acceleration_component, \
+     along_track_empirical_acceleration_component, \
      arc_wise_constant_drag_coefficient_type, \
      arc_wise_empirical_acceleration_coefficients_type, \
      arc_wise_initial_body_state_type, \
+     arc_wise_polynomial_clock_corrections_type, \
      arc_wise_radiation_pressure_coefficient_type, \
      arc_wise_time_drift_observation_bias_type, \
      arcwise_constant_additive_observation_bias_type, \
      arcwise_constant_relative_observation_bias_type, \
      constant_additive_observation_bias_type, \
      constant_drag_coefficient_type, \
+     constant_empirical, \
      constant_relative_observation_bias_type, \
      constant_rotation_rate_type, \
      constant_time_drift_observation_bias_type, \
      core_factor_type, \
+     cosine_empirical, \
      desaturation_delta_v_values_type, \
      direct_dissipation_tidal_time_lag_type, \
      empirical_acceleration_coefficients_type, \
      equivalence_principle_lpi_violation_parameter_type, \
      free_core_nutation_rate_type, \
      full_degree_tidal_love_number_type, \
+     global_polynomial_clock_corrections_type, \
      gravitational_parameter_type, \
      ground_station_position_type, \
      initial_body_state_type, \
@@ -89,8 +109,10 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.parameter import \
      polar_motion_amplitude_type, \
      ppn_parameter_beta_type, \
      ppn_parameter_gamma_type, \
+     radial_empirical_acceleration_component, \
      radiation_pressure_coefficient_type, \
      rotation_pole_position_type, \
+     sine_empirical, \
      single_degree_variable_tidal_love_number_type, \
      spherical_harmonics_cosine_coefficient_block_type, \
      spherical_harmonics_sine_coefficient_block_type
