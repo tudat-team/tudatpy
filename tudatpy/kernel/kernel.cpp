@@ -58,8 +58,10 @@ PYBIND11_MODULE(kernel, m) {
 
     // simulation module
     auto numerical_simulation = m.def_submodule("numerical_simulation");
-    tudatpy::numerical_simulation::expose_numerical_simulation(
-        numerical_simulation);
+    tudatpy::numerical_simulation::expose_numerical_simulation( numerical_simulation);
+    tudatpy::numerical_simulation::expose_numerical_simulation_simulator( numerical_simulation);
+    tudatpy::numerical_simulation::expose_numerical_simulation_variational( numerical_simulation);
+    tudatpy::numerical_simulation::expose_numerical_simulation_estimator( numerical_simulation);
 
     //    // example module
     //    auto example = m.def_submodule("example");
