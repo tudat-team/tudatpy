@@ -15,15 +15,15 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace numerical_simulation {
-namespace environment_setup {
-namespace aerodynamic_coefficients {
+    namespace numerical_simulation {
+        namespace environment_setup {
+            namespace aerodynamic_coefficients {
 
-    void expose_aerodynamic_coefficient_setup(py::module &m);
+                void expose_aerodynamic_coefficient_setup(py::module &m);
 
-}// namespace aerodynamic_coefficients
-}// namespace environment_setup
-}// namespace numerical_simulation
-}// namespace tudatpy
+            }  // namespace aerodynamic_coefficients
+        }      // namespace environment_setup
+    }          // namespace numerical_simulation
+}  // namespace tudatpy
 
-#endif //TUDATPY_EXPOSE_AERODYNAMIC_COEFFICIENT_SETUP_H
+#endif  // TUDATPY_EXPOSE_AERODYNAMIC_COEFFICIENT_SETUP_H

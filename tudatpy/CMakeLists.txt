@@ -26,9 +26,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/_version.py.in" "${CMAKE_CURRENT_BIN
 # The list of pygmo's Python files.
 set(TUDATPY_PYTHON_FILES
         __init__.py
-#        elements.py
-        prototype.py
-#        io.py
         )
 
 # Copy the python files in the current binary dir,
@@ -73,11 +70,15 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_interface.cpp
         kernel/expose_interface/expose_spice.cpp
 
-        #        kernel/expose_interface/expose_json_interface.cpp
-        #        kernel/expose_interface/expose_sofa_interface.cpp
 
-        # kernel/io
-        kernel/expose_io.cpp
+
+        # kernel/data
+        kernel/expose_data.cpp
+        kernel/expose_data/expose_mpc.cpp
+        kernel/expose_data/expose_horizons.cpp
+        kernel/expose_data/expose_sbdb.cpp
+        kernel/expose_data/expose_mission_data_downloader.cpp
+
 
         # kernel/math
         kernel/expose_math.cpp
@@ -85,12 +86,20 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_math/expose_numerical_integrators.cpp
         kernel/expose_math/expose_root_finders.cpp
         kernel/expose_math/expose_geometry.cpp
+        kernel/expose_math/expose_statistics.cpp
 
         kernel/expose_numerical_simulation.cpp
+        kernel/expose_numerical_simulation_simulator.cpp
+        kernel/expose_numerical_simulation_variational.cpp
+        kernel/expose_numerical_simulation_estimator.cpp
 
         kernel/expose_numerical_simulation/expose_propagation.cpp
         kernel/expose_numerical_simulation/expose_environment.cpp
         kernel/expose_numerical_simulation/expose_estimation.cpp
+        kernel/expose_numerical_simulation/expose_estimation_filter_parser.cpp
+        kernel/expose_numerical_simulation/expose_estimation_observation_collection.cpp
+        kernel/expose_numerical_simulation/expose_estimation_propagated_covariance.cpp
+        kernel/expose_numerical_simulation/expose_estimation_single_observation_set.cpp
 
         kernel/expose_numerical_simulation/expose_environment_setup.cpp
         kernel/expose_numerical_simulation/expose_environment_setup/expose_aerodynamic_coefficient_setup.cpp
@@ -120,9 +129,9 @@ YACMA_PYTHON_MODULE(kernel
         kernel/expose_numerical_simulation/expose_estimation_setup/expose_observation_setup.cpp
         kernel/expose_numerical_simulation/expose_estimation_setup/expose_estimated_parameter_setup.cpp
 
-        kernel/expose_unit_tests.cpp
+#        kernel/expose_unit_tests.cpp
 
-        kernel/expose_example.cpp
+#        kernel/expose_example.cpp
         )
 
 target_link_libraries(kernel PRIVATE
@@ -176,12 +185,9 @@ INSTALL_HYBRID_CPP_PYTHON_MODULE(interface)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(math)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(numerical_simulation)
 # Pure Python modules
-INSTALL_HYBRID_CPP_PYTHON_MODULE(apps)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(bodies)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(plotting)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(data)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(util)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(io)
 
 #install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
 file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)

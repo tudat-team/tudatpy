@@ -16,13 +16,13 @@
 namespace py = pybind11;
 
 namespace tudatpy {
-namespace trajectory_design {
-namespace shape_based_thrust {
+    namespace trajectory_design {
+        namespace shape_based_thrust {
 
-void expose_shape_based_thrust(py::module &m);
+            void expose_shape_based_thrust(py::module &m);
 
-}// namespace shape_based_thrust
-}// namespace trajectory_design
-}// namespace tudatpy
+        }  // namespace shape_based_thrust
+    }      // namespace trajectory_design
+}  // namespace tudatpy
 
-#endif//TUDATPY_EXPOSE_SHAPE_BASED_THRUST_H
+#endif  // TUDATPY_EXPOSE_SHAPE_BASED_THRUST_H

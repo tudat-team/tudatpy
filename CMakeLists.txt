@@ -18,7 +18,9 @@ else()
 #    add_definitions(-DVERSION_INFO "${tudatpy_VERSION_LABEL}")
 endif()
 
-include_directories(include)
+option(TUDAT_BUILD_WITH_FFTW3 "Build Tudat with FFTW3." OFF)
+
+include_directories("tudatpy/kernel")
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
@@ -50,8 +52,9 @@ if (MSVC)
     # https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=vs-2019
     # This is equivalent to the big-obj for MinGW, this should stop error C1128.
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif ()
-
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
 set(Boost_USE_STATIC_LIBS OFF)
@@ -74,7 +77,6 @@ include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 
 # TODO: Make Tudat export definitions to the config for inheritence to this project.
 add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
-add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
 
 #if (DEFINED _GLIBCXX_USE_CXX11_ABI)
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
@@ -115,6 +117,30 @@ find_package(NRLMSISE00 0.1 REQUIRED)
 #else ()
 #    set(NRLMSISE00_INCLUDE_DIRS ${NRLMSISE00_BUILD_INCLUDE_DIRS})
 #endif ()
+
+
+if (TUDAT_BUILD_WITH_FFTW3)
+    if(NOT APPLE)
+        find_package(FFTW3)
+        message(STATUS "FFTW " ${FFTW3_LIBRARIES})
+        include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+        if(WIN32)
+            set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/fftw3.lib")
+        else()
+            set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/libfftw3.so")
+        endif()
+        add_definitions(-DTUDAT_BUILD_WITH_FFTW3=1)
+    else( )
+        find_package(FFTW3)
+        message(STATUS ${FFTW3_LIBRARIES})
+        include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${FFTW3_INCLUDE_DIR}\"")
+        set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/libfftw3.dylib")
+        add_definitions(-DTUDAT_BUILD_WITH_FFTW3=1)
+    endif( )
+else( )
+    add_definitions(-DTUDAT_BUILD_WITH_FFTW3=0)
+endif( )
 
 # Sofa dependency if in build settings.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})

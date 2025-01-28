@@ -13,11 +13,15 @@
 #                 METHODS                 
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation.environment_setup.ground_station import \
+     add_motion_model_to_each_groun_station, \
+     approximate_ground_stations_position, \
      basic_station, \
      custom_station_motion, \
      dsn_stations, \
+     evn_stations, \
      linear_station_motion, \
-     piecewise_constant_station_motion
+     piecewise_constant_station_motion, \
+     radio_telescope_stations
 # ----------------------------------------
 #                 OBJECTS                 
 # ----------------------------------------

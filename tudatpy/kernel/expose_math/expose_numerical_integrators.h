@@ -17,8 +17,8 @@ namespace py = pybind11;
 
 namespace tudatpy {
 
-void expose_numerical_integrators(py::module &m);
+    void expose_numerical_integrators(py::module &m);
 
 }
 
-#endif//TUDATPY_EXPOSE_NUMERICAL_INTEGRATORS_H
+#endif  // TUDATPY_EXPOSE_NUMERICAL_INTEGRATORS_H
