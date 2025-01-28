@@ -26,6 +26,10 @@ namespace tudatpy {
         namespace estimation {
 
             void expose_estimation(py::module &m);
+            void expose_estimation_filter_parser(py::module &m);
+            void expose_estimation_observation_collection(py::module &m);
+            void expose_estimation_propagated_covariance(py::module &m);
+            void expose_estimation_single_observation_set(py::module &m);
 
         }  // namespace estimation
     }      // namespace numerical_simulation
