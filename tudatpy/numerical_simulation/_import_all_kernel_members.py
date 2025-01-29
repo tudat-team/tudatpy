@@ -14,15 +14,17 @@
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation import \
      create_dynamics_simulator, \
-     create_variational_equations_solver
+     create_variational_equations_solver, \
+     get_integrated_type_and_body_list, \
+     get_single_integration_size
 # ----------------------------------------
 #                 OBJECTS                 
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation import \
      DynamicsSimulator, \
      Estimator, \
-     HybridArcDynamicsSimulator, \
-     MultiArcDynamicsSimulator, \
+     HybridArcSimulator, \
+     MultiArcSimulator, \
      SingleArcSimulator, \
      SingleArcVariationalSimulator, \
      Time
