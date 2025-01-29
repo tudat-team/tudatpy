@@ -37,10 +37,9 @@ namespace tudatpy {
         Base class for providing settings for the creation of a ground station.
 
 
-
-
-
-     )doc");
+     )doc")
+                        .def_property("station_position", &tss::GroundStationSettings::getGroundStationPosition,
+                                      &tss::GroundStationSettings::resetGroundStationPosition );
 
                     py::class_<
                         tss::GroundStationMotionSettings,
