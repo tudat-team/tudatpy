@@ -51,38 +51,194 @@ namespace tudatpy {
                 mission_data_downloader);
 
             m.def("get_resource_path", &tudat::paths::get_resource_path,
-                  R"doc(No documentation available.)doc");
+                  R"doc(
+        
+Get the path at which tudat resources are located.
+
+Returns
+-------
+str
+    Local path at which tudat resources are located.
+
+
+
+
+
+
+    )doc");
             m.def("get_ephemeris_path",
                   &tudat::paths::getEphemerisDataFilesPath,
-                  R"doc(No documentation available.)doc");
+                  R"doc(
+        
+Get the path at which the ephemeris used by tudat are located.
+
+Returns
+-------
+str
+    Local path at which the tudat ephemeris resources are located.
+
+
+
+
+
+
+    )doc");
             m.def("get_earth_orientation_path",
                   &tudat::paths::getEarthOrientationDataFilesPath,
-                  R"doc(No documentation available.)doc");
+                  R"doc(
+        
+Get the path at which the Earth orientation resources used by tudat are located.
+
+Returns
+-------
+str
+    Local path at which tudat Earth orientation resources are located.
+
+
+
+
+
+
+    )doc");
             m.def("get_quadrature_path", &tudat::paths::getQuadratureDataPath,
-                  R"doc(No documentation available.)doc");
+                  R"doc(
+        
+Get the path at which the Gaussian quadrature resources are located.
+
+Returns
+-------
+str
+    Local path at which tudat Gaussian quadrature resources are located.
+
+
+
+
+
+
+    )doc");
             m.def("get_spice_kernel_path", &tudat::paths::getSpiceKernelPath,
-                  R"doc(No documentation available.)doc");
+                  R"doc(
+        
+Get the path at which the SPICE kernel used by tudat is located.
+
+Returns
+-------
+str
+    Local path at which the SPICE kernel is located.
+
+
+
+
+
+
+    )doc");
             m.def("get_atmosphere_tables_path",
                   &tudat::paths::getAtmosphereTablesPath,
-                  R"doc(No documentation available.)doc");
+                  R"doc(
+        
+Get the path at which tudat atmosphere tables are located.
+
+Returns
+-------
+str
+    Local path at which tudat atmosphere tables are located.
+
+
+
+
+
+
+    )doc");
             m.def("get_gravity_models_path",
                   &tudat::paths::getGravityModelsPath,
-                  R"doc(No documentation available.)doc");
+                  R"doc(
+        
+Get the path at which tudat gravity models are located.
+
+Returns
+-------
+str
+    Local path at which tudat gravity models are located.
+
+
+
+
+
+
+    )doc");
             m.def("get_space_weather_path",
                   &tudat::paths::getSpaceWeatherDataPath,
-                  R"doc(No documentation available.)doc");
+                  R"doc(
+        
+Get the path at which tudat space weather is located.
+
+Returns
+-------
+str
+    Local path at which tudat space weather is located.
+
+
+
+
+
+
+    )doc");
 
             m.def(
                 "read_vector_history_from_file",
                 &tudat::input_output::readVectorHistoryFromFile<double, double>,
                 py::arg("vector_size"), py::arg("file_name"),
-                R"doc(No documentation available.)doc");
+                R"doc(
+        
+Read a vector history from a file.
+
+
+Parameters
+----------
+vector_size : int
+    Size of the vector at each epoch.
+file_name : str
+    Name of the file containing the vector history.
+Returns
+-------
+Dict[float, numpy.ndarray]
+    Dictionary mapping epochs to the vector at the given epoch.
+
+
+
+
+
+
+    )doc");
 
             m.def(
                 "read_matrix_history_from_file",
                 &tudat::input_output::readMatrixHistoryFromFile<double, double>,
                 py::arg("matrix_rows"), py::arg("matrix_columns"),
-                py::arg("file_name"), R"doc(No documentation available.)doc");
+                py::arg("file_name"), R"doc(
+        
+Read a matrix history from a file.
+
+
+Parameters
+----------
+matrix_rows : int
+    Number of rows in the matrix at each epoch.
+matrix_columns : int
+    Number of columns in the matrix at each epoch.
+file_name : str
+    Name of the file containing the matrix history.
+Returns
+-------
+Dict[float, numpy.ndarray]
+    Dictionary mapping epochs to the matrix at the given epoch.
+
+
+
+
+
+
+    )doc");
 
             py::class_<tudat::input_output::MissileDatcomData,
                        std::shared_ptr<tudat::input_output::MissileDatcomData>>(
