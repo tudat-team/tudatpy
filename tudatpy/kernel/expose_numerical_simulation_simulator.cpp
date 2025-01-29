@@ -270,7 +270,7 @@ initial_state : New initial state from which the dynamics is to be propagated
                 std::shared_ptr<tp::MultiArcDynamicsSimulator<STATE_SCALAR_TYPE,
                                                               TIME_TYPE>>,
                 tp::DynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>>(
-                m, "MultiArcDynamicsSimulator",
+                m, "MultiArcSimulator",
                 R"doc(
 
         Class for propagation of multi-arc dynamics.
@@ -331,7 +331,7 @@ initial_state : New initial state from which the dynamics is to be propagated, c
                 std::shared_ptr<tp::HybridArcDynamicsSimulator<
                     STATE_SCALAR_TYPE, TIME_TYPE>>,
                 tp::DynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>>(
-                m, "HybridArcDynamicsSimulator",
+                m, "HybridArcSimulator",
                 R"doc(
 
         Class for propagation of hybrid-arc dynamics.
@@ -369,7 +369,7 @@ initial_state : New initial state from which the dynamics is to be propagated, c
         Object used to propagate the single-arc portion of the hybrid-arc dynamics
 
 
-        :type: SingleArcDynamicsSimulator
+        :type: SingleArcSimulator
         )doc")
                 .def_property_readonly(
                     "multi_arc_simulator",
@@ -382,7 +382,7 @@ initial_state : New initial state from which the dynamics is to be propagated, c
 
         Object used to propagate the multi-arc portion of the hybrid-arc dynamics
 
-        :type: MultiArcDynamicsSimulator
+        :type: MultiArcSimulator
         )doc")
                 .def_property_readonly(
                     "propagation_results",
