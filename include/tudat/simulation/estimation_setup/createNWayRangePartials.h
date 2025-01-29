@@ -157,7 +157,7 @@ createNWayRangePartials(
 
     // Create n-way range scaling object
     std::shared_ptr< NWayRangeScaling > nWayRangeScaler =
-            std::make_shared< NWayRangeScaling >( oneWayRangeScalers, nWayRangeLinkEnds.size( ) );
+            std::make_shared< NWayRangeScaling >( oneWayRangeScalers, static_cast< int >( nWayRangeLinkEnds.size( ) ) );
 
     // Create n-way range partial object
     for( std::map< std::pair< int, int >,
