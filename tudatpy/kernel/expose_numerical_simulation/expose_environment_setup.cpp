@@ -63,7 +63,7 @@ namespace tudatpy {
         Class for defining settings for the creation of a single body.
 
         Class for defining settings for the creation of a single body, this object is typically stored inside a
-        :class:`BodyListSettings`, object.
+        :class:`BodyListSettings` object.
 
      )doc")
                     .def_readwrite("constant_mass",
@@ -165,15 +165,37 @@ namespace tudatpy {
                     .def_readwrite(
                         "rigid_body_settings",
                         &tss::BodySettings::rigidBodyPropertiesSettings,
-                        R"doc(No documentation found.)doc")
+                        R"doc(
+
+        Object that defines the settings of the body rigid body (mass, center of mass, inertia) properties that are to be created. A variable of this type is typically
+        assigned by using a function from the :ref:`\`\`rigid_body\`\`` module. Note that this setting does *not* define
+        the gravity field, but rather only the mass, center of mass and inertia tensor.
+
+
+        :type: RigidBodyPropertiesSettings
+     )doc")
                     .def_readwrite("radiation_pressure_target_settings",
                                    &tss::BodySettings::
                                        radiationPressureTargetModelSettings,
-                                   R"doc(No documentation found.)doc")
+                                   R"doc(
+
+        Object that defines the settings of the radiation pressure target model that is to be created. A variable of this type is typically
+        assigned by using a function from the :ref:`\`\`radiation_pressure\`\`` module. 
+
+
+        :type: RadiationPressureTargetModelSettings
+     )doc")
                     .def_readwrite(
                         "radiation_source_settings",
                         &tss::BodySettings::radiationSourceModelSettings,
-                        R"doc(No documentation found.)doc")
+                        R"doc(
+
+        Object that defines the settings of the radiation source model that is to be created. A variable of this type is typically
+        assigned by using a function from the :ref:`\`\`radiation_pressure\`\`` module. 
+
+
+        :type: RadiationSourceModelSettings
+     )doc")
                     .def_readwrite(
                         "vehicle_shape_settings",
                         &tss::BodySettings::bodyExteriorPanelSettings_, R"doc(
@@ -187,7 +209,14 @@ namespace tudatpy {
                     .def_readwrite(
                         "radiation_pressure_settings",
                         &tss::BodySettings::radiationPressureSettings,
-                        R"doc(No documentation found.)doc");
+                        R"doc(
+
+        .. warning::
+
+            This interface is deprecated and will be removed in a future release. Use :attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.radiation_source_settings` and :attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.radiation_pressure_target_settings` instead.
+
+
+     )doc");
 
 
                 py::class_<tss::BodyListSettings,
@@ -205,10 +234,30 @@ namespace tudatpy {
 
      )doc")
                     .def(py::init<const std::string, const std::string>(),
-                         py::arg("frame_origin"), py::arg("frame_orientation"))
-                    .def("get", &tss::BodyListSettings::get, R"doc(
+                         py::arg("frame_origin"), py::arg("frame_orientation"), R"doc(
 
-        This function extracts a single BodySettings object .
+        Class initialization method.
+
+        Class method to initialize an empty BodyListSettings object.
+
+        .. note::
+
+            When creating BodyListSettings from this method, the settings for each body will have to be added manually.
+            It is typically more convenient to use the :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings` function to create a BodyListSettings object with default settings for all bodies, and then modify the settings for specific bodies as needed.
+
+
+        Parameters
+        ----------
+        frame_origin : str
+            Definition of the global frame origin for the bodies.
+        frame_orientation : str
+            Definition of the global frame orientation for the bodies.
+
+
+     )doc")
+                    .def("get", &tss::BodyListSettings::get, py::arg("body_name"), R"doc(
+
+        This function extracts a single BodySettings object.
 
 
         Parameters
@@ -217,7 +266,10 @@ namespace tudatpy {
             Name of the body for which settings are to be retrieved
 
 
-
+        Returns
+        -------
+        BodySettings
+            Settings for the requested body
 
 
     )doc")
@@ -225,11 +277,47 @@ namespace tudatpy {
                          py::overload_cast<std::shared_ptr<tss::BodySettings>,
                                            const std::string>(
                              &tss::BodyListSettings::addSettings),
-                         py::arg("settings_to_add"), py::arg("body_name"))
+                         py::arg("settings_to_add"), py::arg("body_name"), R"doc(
+
+        Add a single :class:`BodySettings` object to the :class:`BodyListSettings` instance.
+
+        .. warning::
+
+            This method is rarely called by the user, as :class:`BodySettings` objects cannot be created directly but only be extracted from a BodyListSettings instance.
+            Instead, users are recommended to use the :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings` to create settings for major celestial bodies, and the :func:`~tudatpy.numerical_simulation.environment_setup.BodyListSettings.add_empty_settings` function to create settings for custom bodies.
+            See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`_ for more information.
+
+
+        Parameters
+        ----------
+        settings_to_add : BodySettings
+            Settings to be added
+        body_name : str
+            Name of the body for which settings are added
+
+
+
+
+    )doc")
                     .def("add_empty_settings",
                          py::overload_cast<const std::string>(
                              &tss::BodyListSettings::addSettings),
-                         py::arg("body_name"))
+                         py::arg("body_name"), R"doc(
+
+        This method adds empty settings to the :class:`BodyListSettings` instance.
+
+        Adds empty settings to the :class:`BodyListSettings` instance. This is typically used to add settings for custom bodies, for which no default settings are available.
+        See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`_ for more information. 
+
+        Parameters
+        ----------
+        body_name : str
+            Name of the body for which settings are added
+
+
+
+
+    )doc")
                     .def_property_readonly(
                         "frame_origin", &tss::BodyListSettings::getFrameOrigin,
                         R"doc(
@@ -688,9 +776,9 @@ radiation_pressure_settings : RadiationPressureInterfaceSettings
 Function that creates a rotation model, and adds it to an existing body.
 
 This function can be used to add  a :class:`~tudatpy.numerical_simulation.environment.RotationalEphemeris` object to an existing body.
-Typically, the ``RotationalEphemeris`` is created along with the `~tudatpy.numerical_simulation.environment.Body` itself However, in some cases it may be useful
+Typically, the ``RotationalEphemeris`` is created along with the :class:`~tudatpy.numerical_simulation.environment.Body` itself. However, in some cases it may be useful
 to create a rotation model after the Body objects have been created. This function requires
-settings for the rotation model, created using one of the functions from the :ref:`~tudatpy.numerical_simulation_environment_setup.rotation_model` module.
+settings for the rotation model, created using one of the functions from the :ref:`rotation_model` module.
 This function creates the actual coefficient interface from these settings, and assigns it to the
 selected body. In addition to the identifier for the body to which it is assigned, this function
 requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
@@ -727,7 +815,32 @@ rotation_model_settings
                 m.def("add_rigid_body_properties", &tss::addRigidBodyProperties,
                       py::arg("bodies"), py::arg("body_name"),
                       py::arg("rigid_body_property_settings"),
-                      R"doc(No documentation found.)doc");
+                      R"doc(
+        
+Function that creates a rigid body property model, and adds it to an existing body.
+
+This function can be used to add a :class:`~tudatpy.numerical_simulation.environment.RigidBodyProperties` object to an existing body.
+Typically, the ``RigidBodyProperties`` are created along with the :class:`~tudatpy.numerical_simulation.environment.Body` itself. However, in some cases it may be useful
+to create body mass properties after the Body objects have been created. This function requires
+settings for the rigid body properties, created using one of the functions from the :ref:`rigid_body` module.
+This function creates the actual rigid body properties from these settings, and assigns it to the
+selected body.
+
+
+Parameters
+----------
+bodies : SystemOfBodies
+    Object defining the physical environment, with all properties of artificial and natural bodies.
+body_name : str
+    Name of the body to which the model is to be assigned
+rigid_body_property_settings : RigidBodyPropertiesSettings
+    Settings defining the rigid body properties model that is to be created.
+
+
+
+
+
+    )doc");
 
 
                 m.def("add_engine_model", &tss::addEngineModel,
@@ -742,6 +855,7 @@ Function that creates an engine model (to be used for thrust calculations), and 
 Function that creates an engine model (to be used for thrust calculations), and adds it to an existing body. It creates and
 object of class :class:`~tudatpy.numerical_simulation.environment.EngineModel`, and adds it to an existing body. Properties
 assigned to this engine model are:
+
 * The (constant) direction in body-fixed frame in which the engine is pointing (e.g. the body-fixed thrust direction when the engine is on)
 * Settings for computing the thrust magnitude (as a function of time and/or other parameters), using a suitable function from the :ref:`\`\`thrust\`\`` submodule
 
