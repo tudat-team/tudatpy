@@ -19,6 +19,8 @@ from tudatpy.kernel.numerical_simulation.propagation_setup.propagator import \
      custom_termination, \
      custom_termination_with_state_input, \
      dependent_variable_termination, \
+     get_integrated_type_and_body_list, \
+     get_single_integration_size, \
      hybrid_arc, \
      hybrid_termination, \
      mass, \

@@ -339,7 +339,7 @@ numpy.ndarray
 
     )doc");
 
-                m.attr("rotate_state_to_frame") = m.attr("transform_cartesian_state_to_frame");
+                m.attr("transform_cartesian_state_to_frame") = m.attr("rotate_state_to_frame");
 
 
             }
