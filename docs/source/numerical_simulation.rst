@@ -52,6 +52,10 @@ Classes
 
    SingleArcSimulator
 
+   MultiArcSimulator
+
+   HybridArcSimulator
+   
    SingleArcVariationalSimulator
 
    Estimator
@@ -60,8 +64,12 @@ Classes
 
 .. autoclass:: tudatpy.numerical_simulation.SingleArcSimulator
    :members:
-   :special-members: __init__
 
+.. autoclass:: tudatpy.numerical_simulation.MultiArcSimulator
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.HybridArcSimulator
+   :members:
 
 
 .. autoclass:: tudatpy.numerical_simulation.SingleArcVariationalSimulator

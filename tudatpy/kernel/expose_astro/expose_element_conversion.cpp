@@ -37,48 +37,95 @@ namespace tudatpy {
 
             void expose_element_conversion(py::module& m) {
                 py::enum_<toec::KeplerianElementIndices>(
-                    m, "KeplerianElementIndices")
+                    m, "KeplerianElementIndices",
+                    R"doc(
+        Enumeration for indices of Keplerian elements"
+     )doc")
                     .value("semi_major_axis_index",
-                           toec::KeplerianElementIndices::semiMajorAxisIndex)
+                           toec::KeplerianElementIndices::semiMajorAxisIndex,
+                           R"doc(
+Element 0 in vector of Keplerian elements (for eccentricity not equal to 1.0)
+     )doc")
+                    .value("semi_latus_rectum_index",
+                           toec::KeplerianElementIndices::semiLatusRectumIndex,
+                           R"doc(
+Element 0 in vector of Keplerian elements (for eccentricity equal to 1.0)
+     )doc")
                     .value("eccentricity_index",
-                           toec::KeplerianElementIndices::eccentricityIndex)
+                           toec::KeplerianElementIndices::eccentricityIndex,
+                           R"doc(
+Element 1 in vector of Keplerian elements
+     )doc")
                     .value("inclination_index",
-                           toec::KeplerianElementIndices::inclinationIndex)
+                           toec::KeplerianElementIndices::inclinationIndex,
+                           R"doc(
+Element 2 in vector of Keplerian elements
+     )doc")
                     .value(
                         "argument_of_periapsis_index",
-                        toec::KeplerianElementIndices::argumentOfPeriapsisIndex)
+                        toec::KeplerianElementIndices::argumentOfPeriapsisIndex,
+                        R"doc(
+Element 3 in vector of Keplerian elements
+     )doc")
                     .value("longitude_of_ascending_node_index",
-                           toec::KeplerianElementIndices::
-                               longitudeOfAscendingNodeIndex)
+                           toec::KeplerianElementIndices::longitudeOfAscendingNodeIndex,
+                           R"doc(
+Element 4 in vector of Keplerian elements
+     )doc")
                     .value("true_anomaly_index",
-                           toec::KeplerianElementIndices::trueAnomalyIndex)
-                    .value("semi_latus_rectum_index",
-                           toec::KeplerianElementIndices::semiLatusRectumIndex)
+                           toec::KeplerianElementIndices::trueAnomalyIndex,
+                           R"doc(
+Element 5 in vector of Keplerian elements
+     )doc")
                     .export_values();
 
                 py::enum_<toec::SphericalOrbitalStateElementIndices>(
-                    m, "SphericalOrbitalStateElementIndices")
+                    m, "SphericalOrbitalStateElementIndices",
+                    R"doc(
+        Enumeration for indices of spherical orbital state elements"
+     )doc")
                     .value(
                         "radius_index",
-                        toec::SphericalOrbitalStateElementIndices::radiusIndex)
+                        toec::SphericalOrbitalStateElementIndices::radiusIndex,
+                        R"doc(
+Element 0 in vector of spherical orbital state elements
+     )doc")
                     .value("latitude_index",
                            toec::SphericalOrbitalStateElementIndices::
-                               latitudeIndex)
+                               latitudeIndex,
+                           R"doc(
+Element 1 in vector of spherical orbital state elements
+     )doc")
                     .value("longitude_index",
                            toec::SphericalOrbitalStateElementIndices::
-                               longitudeIndex)
+                               longitudeIndex,
+                           R"doc(
+Element 2 in vector of spherical orbital state elements
+     )doc")
                     .value(
                         "speed_index",
-                        toec::SphericalOrbitalStateElementIndices::speedIndex)
+                        toec::SphericalOrbitalStateElementIndices::speedIndex,
+                        R"doc(
+Element 3 in vector of spherical orbital state elements
+     )doc")
                     .value("flight_path_index",
                            toec::SphericalOrbitalStateElementIndices::
-                               flightPathIndex)
+                               flightPathIndex,
+                           R"doc(
+Element 4 in vector of spherical orbital state elements
+     )doc")
                     .value("heading_angle_index",
                            toec::SphericalOrbitalStateElementIndices::
-                               headingAngleIndex)
+                               headingAngleIndex,
+                           R"doc(
+Element 5 in vector of spherical orbital state elements
+     )doc")
                     .export_values();
 
-                py::enum_<tcc::PositionElementTypes>(m, "PositionElementTypes")
+                py::enum_<tcc::PositionElementTypes>(m, "PositionElementTypes",
+                                                     R"doc(
+Enumeration describing different types of position element types (typically used for body-centered, body-0fixed position)
+     )doc")
                     .value("cartesian_position_type",
                            tcc::PositionElementTypes::cartesian_position)
                     .value("spherical_position_type",
@@ -86,15 +133,47 @@ namespace tudatpy {
                     .value("geodetic_position_type",
                            tcc::PositionElementTypes::geodetic_position)
                     .export_values();
-                /*!
-                 **************   KEPLER ELEMENTS  ******************
-                 */
+
                 m.def("convert_position_elements",
                       &tcc::convertPositionElements,
                       py::arg("original_elements"),
                       py::arg("original_element_type"),
-                      py::arg("new_element_type"), py::arg("shape_model"),
-                      py::arg("tolerance"), R"doc(No documentation found.)doc");
+                      py::arg("new_element_type"),
+                      py::arg("shape_model"),
+                      py::arg("tolerance"),
+                      R"doc(
+
+Convert position from one element set to another
+
+Parameters
+----------
+original_elements : numpy.ndarray
+    Position from which the conversion is to be performed
+original_element_type : PositionElementTypes
+    Element type in which ``original_elements`` is provided
+new_element_type : PositionElementTypes
+    Element type to which the ``original_elements`` are to be converted
+shape_model : BodyShapeModel
+    Shape model of body sed to transform altitudes (w.r.t. this shape)
+    to/from distances from the center of the body (can be set to ``None`` if requested conversion does not require this model)
+tolerance : float
+    Tolerance (in meters) used as convergence criterion for converting to/from geodetic altitude
+Returns
+-------
+numpy.ndarray
+    Keplerian elements, as computed from Cartesian element input.
+
+
+
+
+
+
+    )doc");
+
+                /*!
+                 **************   KEPLER ELEMENTS  ******************
+                 */
+
 
 
                 m.def("cartesian_to_keplerian",
@@ -1281,44 +1360,6 @@ numpy.ndarray
 
     )doc");
 
-                /*!
-            **************   TRANSFORMATION FUNCTIONS  ******************
-
-            */
-
-                m.def("rotate_state_to_frame",
-                      py::overload_cast<const Eigen::Vector6d&,
-                                        const Eigen::Matrix3d&,
-                                        const Eigen::Matrix3d&>(
-                          &te::transformStateToFrameFromRotations<double>),
-                      py::arg("original_state"), py::arg("rotation_matrix"),
-                      py::arg("rotation_matrix_time_derivative") =
-                          Eigen::Matrix3d::Zero(),
-                      R"doc(
-
-Rotates a Cartesian state (position and velocity) from one frame :math:`B` to another frame :math:`A`, using the rotation matrix :math:`\mathbf{R}^{(A/B)}` from frame :math:`B` to :math:`A`, and its time derivative
-:math:`\dot{\mathbf{R}}^{(A/B)}`.
-This function computes:
-
-.. math::
-   \mathbf{r}^{(A)}=\mathbf{R}^{(A/B)}\mathbf{r}^{(B)}+\dot{\mathbf{R}}^{(A/B)}\mathbf{v}^{(B)}\\
-   \mathbf{v}^{(A)}=\mathbf{R}^{(A/B)}\mathbf{v}^{(B)}
-
-Parameters
-----------
-original_state : ndarray[numpy.float64[6, 1]]
-    Cartesian state vector :math:`\mathbf{x}^{(B)}=[\mathbf{r}^{(B)};\mathbf{v}^{(B)}]` in frame :math:`B`
-rotation_matrix: ndarray[numpy.float64[3, 3]]
-    Rotation matrix :math:`\mathbf{R}^{(A/B)}` from frame :math:`B` to :math:`A`
-rotation_matrix_time_derivative: ndarray[numpy.float64[3, 3]], default = numpy.zeros((3, 3))
-    Time derivative of rotation matrix (:math:`\dot{\mathbf{R}}^{(A/B)})` from frame :math:`B` to :math:`A`; default zero indicates that frames :math:`A` and :math:`B` have a constant orientation w.r.t. one another.
-Returns
--------
-numpy.ndarray
-    Input state in frame :math:`B`, rotated to frame :math:`A`
-
-
-    )doc");
             }
         }  // namespace element_conversion
     }      // namespace astro

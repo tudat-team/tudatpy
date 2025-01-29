@@ -63,7 +63,7 @@ bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
 propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
     Settings to be used for the numerical propagation (dynamics type, termination conditions, integrator, etc.)
 
-simulate_dynamics_on_creation : Bool, default=True
+simulate_dynamics_on_creation : bool, default=True
     Boolean defining whether to propagate the dynamics upon creation of the Simulator. If false, the dynamics c
     can be propagated at a later time by calling the :class:`~tudatpy.numerical_simulation.Simulator.integrate_equations_of_motion` function
 
@@ -149,7 +149,7 @@ Returns
             Object defining a consolidated set of (estimatable) parameters (w.r.t. variational equations are defined),
             linked to the environment and acceleration settings of the simulation.
 
-        integrate_equations_concurrently : Bool, default = True
+        integrate_equations_concurrently : bool, default = True
             Boolean defining whether equations of motion and variational equations are to be propagated concurrently
             (if true) or sequentially (of false).
 
@@ -158,15 +158,15 @@ Returns
             If none is given (default), the numerical integration settings are taken to be the same as the ones applied
             in the integration of the equations of motions (specified by the `integrator_settings` parameter).
 
-        clear_numerical_solutions : Bool, default = False
+        clear_numerical_solutions : bool, default = False
             Boolean to determine whether to clear the raw numerical solution member variables
             and to reset the state transition interface after propagation.
 
-        integrate_on_creation : Bool, default = True
+        integrate_on_creation : bool, default = True
             Boolean defining whether the propagation should be performed immediately (default), or at a later time
             (when calling the :func:`integrate_full_equations` or :func:`integrate_equations_of_motion_only` member function).
 
-        set_integrated_result : Bool, default = True
+        set_integrated_result : bool, default = True
             Boolean to determine whether to automatically use the integrated results to set ephemerides for the
             propagated bodies.
 
@@ -220,7 +220,7 @@ Returns
         initial_states : numpy.ndarray([m, 1])
             Initial state to be used for the parameters in the equations of motion.
 
-        integrate_equations_concurrently : Bool, default = True
+        integrate_equations_concurrently : bool, default = True
             Boolean defining whether equations of motion and variational equations are to be propagated concurrently
             (if true) or sequentially (of false).
 

@@ -1107,7 +1107,7 @@ TimeScaleConverter
 
         Parameters
         ----------
-        add_T : Bool
+        add_T : bool
             Boolean denoting whether to use a 'T' or a blank space to separate the date from the time
 
         number_of_digits_seconds : int, default = 15

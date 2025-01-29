@@ -305,13 +305,43 @@ Euler angle rotation (see Archinal et al. [1]_).
     )doc");
 
 
-                m.def("transform_cartesian_state_to_frame",
+                m.def("rotate_state_to_frame",
                       py::overload_cast<const Eigen::Vector6d &,
                                         const Eigen::Matrix3d &,
                                         const Eigen::Matrix3d &>(
                           &te::transformStateToFrameFromRotations<double>),
                       py::arg("original_state"), py::arg("rotation_matrix"),
-                      py::arg("transform_cartesian_state_to_frame"));
+                      py::arg("rotation_matrix_time_derivative") =
+                          Eigen::Matrix3d::Zero(),
+                      R"doc(
+
+Rotates a Cartesian state (position and velocity) from one frame :math:`B` to another frame :math:`A`, using the rotation matrix :math:`\mathbf{R}^{(A/B)}` from frame :math:`B` to :math:`A`, and its time derivative
+:math:`\dot{\mathbf{R}}^{(A/B)}`.
+This function computes:
+
+.. math::
+   \mathbf{r}^{(A)}=\mathbf{R}^{(A/B)}\mathbf{r}^{(B)}+\dot{\mathbf{R}}^{(A/B)}\mathbf{v}^{(B)}\\
+   \mathbf{v}^{(A)}=\mathbf{R}^{(A/B)}\mathbf{v}^{(B)}
+
+Parameters
+----------
+original_state : ndarray[numpy.float64[6, 1]]
+    Cartesian state vector :math:`\mathbf{x}^{(B)}=[\mathbf{r}^{(B)};\mathbf{v}^{(B)}]` in frame :math:`B`
+rotation_matrix: ndarray[numpy.float64[3, 3]]
+    Rotation matrix :math:`\mathbf{R}^{(A/B)}` from frame :math:`B` to :math:`A`
+rotation_matrix_time_derivative: ndarray[numpy.float64[3, 3]], default = numpy.zeros((3, 3))
+    Time derivative of rotation matrix (:math:`\dot{\mathbf{R}}^{(A/B)})` from frame :math:`B` to :math:`A`; default zero indicates that frames :math:`A` and :math:`B` have a constant orientation w.r.t. one another.
+Returns
+-------
+numpy.ndarray
+    Input state in frame :math:`B`, rotated to frame :math:`A`
+
+
+    )doc");
+
+                m.attr("rotate_state_to_frame") = m.attr("transform_cartesian_state_to_frame");
+
+
             }
 
         }  // namespace frame_conversion
