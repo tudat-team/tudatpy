@@ -224,7 +224,6 @@ struct ObservationAncilliarySimulationSettings {
     std::map< ObservationAncilliarySimulationVariable, double > doubleData_;
     std::map< ObservationAncilliarySimulationVariable, std::vector< double > > doubleVectorData_;
 
-    std::map< ObservationAncilliarySimulationVariable, std::map< < double, double > doubleMapData_;
 
 };
 
