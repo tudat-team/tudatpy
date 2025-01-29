@@ -930,7 +930,7 @@ float
                       py::arg("TDB_time"), py::arg("earth_fixed_position"),
                       R"doc(
 
-Convert time from the TDT scale to the TT scale.
+Convert time from the TDB scale to the TT scale.
 
 Convert time from the TT scale to the TDB scale, using the `iauDtdb <https://www2.mpia-hd.mpg.de/~mathar/progs/sofa_api/group__SR.html#gaeab39417bb16e66c570232102a055f2d>`_ function in Sofa, which has an accuracy of 3 nanoseconds or better in the time span 1950-2050
 To call the Sofa function, we assume UTC=UT1 and TT=TDB to compute UT1 from the input TDB. For this function, UT1 is only used in this sofa function to compute the local solar time, which in turn is used to compute the time-modulation of the topocentric term
