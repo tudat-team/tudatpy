@@ -219,6 +219,11 @@ public:
         return groundStationPosition_;
     }
 
+    void resetGroundStationPosition( const Eigen::Vector3d& groundStationPosition )
+    {
+        groundStationPosition_ = groundStationPosition;
+    }
+
     coordinate_conversions::PositionElementTypes getPositionElementType( )
     {
         return positionElementType_;
