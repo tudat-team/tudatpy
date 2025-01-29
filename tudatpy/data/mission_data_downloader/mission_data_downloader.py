@@ -1918,21 +1918,26 @@ class LoadPDS:
 
     def get_mex_volume_ID(self, start_date, end_date, interval_dict):
         self.volume_id_list = []
-        for (key_start, key_end), item in interval_dict.items():
+        for (key_start, key_end), items in interval_dict.items():
             # Check if either start or end of the input interval overlaps with the dictionary interval
-            if (start_date <= key_end and end_date >= key_start):
-                self.volume_id_list.append(item['volume_id'])
+            if key_end and start_date <= key_end and end_date >= key_start:
+            # Iterate over the list of dictionaries and collect volume IDs
+                for entry in items:
+                    self.volume_id_list.append(entry['volume_id'])
+            elif not key_end and end_date >= key_start:
+                for entry in items:
+                    self.volume_id_list.append(entry['volume_id'])
 
         if self.volume_id_list:
             return self.volume_id_list
         else:
-            raise ValueError(f'No MEX Volume_ID found associated to input interval: {start_date} - {end_date}.')
+            raise ValueError(f'No MEX Volume_ID found associated with input interval: {start_date} - {end_date}.')
 
     #########################################################################################################
 
     def get_url_mex_radio_science_files(self, start_date_mex, end_date_mex):
 
-        url = "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-v1/mexmrs_0735/aareadme.txt"
+        url = "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext9-v1/mexmrs_4405/aareadme.txt"
         radio_science_base_url = "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-v1/"
         mapping_dict = self.get_mex_volume_ID_mapping(url)
 
@@ -1977,26 +1982,31 @@ class LoadPDS:
 
         # Step 2: Parse content using regex to extract the table entries
         self.mapping_dict = {}
-        pattern = re.compile(r'^\s*(MEXMRS_\d{4})\s+(\d{4}-\d{2}-\d{2})\s+(\d{4}-\d{2}-\d{2})\s+(.+?)\s*$', re.MULTILINE)
+        pattern = re.compile(r'^\s*(MEXMRS_\d{4})\s+(MEXMRS_\d{4}|\d{4}-\d{2}-\d{2})\s+(\d{4}-\d{2}-\d{2})\s+(.+?)\s*$', re.MULTILINE)
 
         # Step 3: Find all matches and populate the dictionary
         for match in pattern.finditer(aareadme_text):
             volume_id = match.group(1)
-            start_date_file = match.group(2)
-            end_date_file = match.group(3)
-            start_date_utc = self.format_string_to_datetime(match.group(2))
-            end_date_utc = self.format_string_to_datetime(match.group(3))
+            start_date_file = match.group(2) if len(match.group(2)) == 10 else match.group(3)
+            end_date_file = match.group(3) if len(match.group(2)) == 10 else None
+            start_date_utc = self.format_string_to_datetime(start_date_file)
+            end_date_utc = self.format_string_to_datetime(end_date_file) if end_date_file != None else None
             interval_key_for_retrieval = (start_date_utc, end_date_utc)
             observation_type = match.group(4).strip()
 
             # Add entry to dictionary
-            self.mapping_dict[interval_key_for_retrieval] = {
+            if interval_key_for_retrieval not in self.mapping_dict:
+                self.mapping_dict[interval_key_for_retrieval] = []  # Initialize as a list
+
+            # Append the current entry to the list
+            self.mapping_dict[interval_key_for_retrieval].append({
                 "volume_id": volume_id,
                 "start_date_file": start_date_file,
                 "end_date_file": end_date_file,
+                "start_date_utc": start_date_utc,
+                "end_date_utc": end_date_utc,
                 "observation_type": observation_type
-            }
-
+            })
         return self.mapping_dict
 
     ########################################################################################################################################
