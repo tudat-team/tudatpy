@@ -14,9 +14,7 @@
 # ----------------------------------------
 from tudatpy.kernel.numerical_simulation import \
      create_dynamics_simulator, \
-     create_variational_equations_solver, \
-     get_integrated_type_and_body_list, \
-     get_single_integration_size
+     create_variational_equations_solver
 # ----------------------------------------
 #                 OBJECTS                 
 # ----------------------------------------
