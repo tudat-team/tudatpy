@@ -1849,6 +1849,11 @@ public:
         integrateEquationsOfMotion( splitInitialState );
     }
 
+    void integrate(
+        const Eigen::Matrix<StateScalarType, Eigen::Dynamic, Eigen::Dynamic> &concatenatedInitialStates ) {
+        integrateEquationsOfMotion( concatenatedInitialStates );
+    }
+
     //! This function numerically (re-)integrates the equations of motion, using separate states for all arcs
     /*!
      *  This function numerically (re-)integrates the equations of motion, using the settings set through the constructor
@@ -2347,6 +2352,11 @@ public:
         multiArcDynamicsSimulator_->integrateEquationsOfMotion(
                     initialGlobalStates.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
         printPostPropagationMessages( );
+    }
+
+    void integrate(
+        const Eigen::Matrix<StateScalarType, Eigen::Dynamic, Eigen::Dynamic> &concatenatedInitialStates ) {
+        integrateEquationsOfMotion( concatenatedInitialStates );
     }
 
     //! This function updates the environment with the numerical solution of the propagation
