@@ -223,6 +223,9 @@ struct ObservationAncilliarySimulationSettings {
    protected:
     std::map< ObservationAncilliarySimulationVariable, double > doubleData_;
     std::map< ObservationAncilliarySimulationVariable, std::vector< double > > doubleVectorData_;
+
+    std::map< ObservationAncilliarySimulationVariable, std::map< < double, double > doubleMapData_;
+
 };
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings >

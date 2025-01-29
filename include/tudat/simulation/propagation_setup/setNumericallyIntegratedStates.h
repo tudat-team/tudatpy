@@ -1090,7 +1090,7 @@ public:
             const simulation_setup::SystemOfBodies& bodies,
             const std::vector< std::string >& bodiesToIntegrate ):
         SingleArcIntegratedStateProcessor< TimeType, StateScalarType >(
-            rotational_state, std::make_pair( startIndex, 7 * bodiesToIntegrate.size( ) ),
+            rotational_state, std::make_pair( startIndex, static_cast< int >( 7 * bodiesToIntegrate.size( ) ) ),
             bodies, bodiesToIntegrate )
     { }
 
