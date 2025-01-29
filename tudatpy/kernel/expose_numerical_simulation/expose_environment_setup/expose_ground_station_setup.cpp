@@ -39,7 +39,9 @@ namespace tudatpy {
 
      )doc")
                         .def_property("station_position", &tss::GroundStationSettings::getGroundStationPosition,
-                                      &tss::GroundStationSettings::resetGroundStationPosition );
+                                      &tss::GroundStationSettings::resetGroundStationPosition )
+
+                        .def_property("station_name", &tss::GroundStationSettings::getStationName);
 
                     py::class_<
                         tss::GroundStationMotionSettings,
