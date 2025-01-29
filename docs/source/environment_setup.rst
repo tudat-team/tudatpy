@@ -64,6 +64,8 @@ Functions
 
    add_mass_properties_model
 
+   add_rigid_body_properties
+
    add_engine_model
 
    add_variable_direction_engine_model
@@ -96,6 +98,8 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.add_mass_properties_model
 
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.add_rigid_body_properties
+
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.add_engine_model
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.add_variable_direction_engine_model
@@ -120,8 +124,11 @@ Classes
 .. autoclass:: tudatpy.numerical_simulation.environment_setup.BodyListSettings
    :members:
 
+   .. automethod:: __init__
+
 .. autoclass:: tudatpy.numerical_simulation.environment_setup.BodySettings
    :members:
+   :exclude-members: radiation_pressure_settings
 
 
 
