@@ -109,7 +109,7 @@ namespace tudatpy {
      )doc");
 
 
-                    m.def("add_motion_model_to_each_groun_station",
+                    m.def("add_motion_model_to_each_ground_station",
                           &tss::addStationMotionModelToEachGroundStation,
                           py::arg("ground_station_settings_list"),
                           py::arg("station_motion_setting"));
