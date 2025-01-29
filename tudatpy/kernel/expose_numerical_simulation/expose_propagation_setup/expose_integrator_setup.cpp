@@ -111,10 +111,6 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
         with global truncation error of :math:`O(\Delta t^{x})`. Some of these coefficients also contain an embedded integrator of :math:`O(\Delta t^{y})`
         for step size control.
 
-
-
-
-
      )doc")
                         .value("euler_forward", tni::forwardEuler,
                                R"doc(
