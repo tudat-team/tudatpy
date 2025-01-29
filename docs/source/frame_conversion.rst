@@ -65,6 +65,8 @@ Functions
 
 .. autosummary::
 
+   rotate_state_to_frame
+   
    inertial_to_rsw_rotation_matrix
 
    rsw_to_inertial_rotation_matrix
@@ -78,6 +80,7 @@ Functions
    body_fixed_to_inertial_rotation_matrix
 
 
+.. autofunction:: rotate_state_to_frame
 
 .. autofunction:: tudatpy.astro.frame_conversion.inertial_to_rsw_rotation_matrix
 

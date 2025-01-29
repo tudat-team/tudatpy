@@ -100,7 +100,7 @@ namespace tudatpy {
             Settings to create the propagator that is to be
             used for the propagation of dynamics
 
-        integrate_on_creation : Bool, default = True
+        integrate_on_creation : bool, default = True
             Boolean defining whether the propagation should be
             performed immediately (default), or at a later time
             (when calling the :func:`perform_estimation` member function.

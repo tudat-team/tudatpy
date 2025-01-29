@@ -74,8 +74,28 @@ The element :math:`I`, which defines the location of the MEE singularity is not 
 
 
 
+Enumerations
+------------
+.. currentmodule:: tudatpy.astro.element_conversion
+
+.. autosummary::
+
+   KeplerianElementIndices
+
+   SphericalOrbitalStateElementIndices
+
+   PositionElementTypes
 
 
+
+.. autoclass:: tudatpy.astro.element_conversion.KeplerianElementIndices
+   :members:
+
+.. autoclass:: tudatpy.astro.element_conversion.SphericalOrbitalStateElementIndices
+   :members:
+
+.. autoclass:: tudatpy.astro.element_conversion.PositionElementTypes
+   :members:
 
 
 
@@ -84,6 +104,8 @@ Functions
 .. currentmodule:: tudatpy.astro.element_conversion
 
 .. autosummary::
+
+   convert_position_elements
 
    cartesian_to_keplerian
 
@@ -163,8 +185,10 @@ Functions
 
    j2000_to_eclipj2000
 
-   rotate_state_to_frame
 
+
+
+.. autofunction:: tudatpy.astro.element_conversion.convert_position_elements
 
 .. autofunction:: tudatpy.astro.element_conversion.cartesian_to_keplerian
 
@@ -244,7 +268,7 @@ Functions
 
 .. autofunction:: j2000_to_eclipj2000
 
-.. autofunction:: rotate_state_to_frame
+
 
 
 

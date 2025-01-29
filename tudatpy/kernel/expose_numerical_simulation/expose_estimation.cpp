@@ -269,7 +269,7 @@ target_body : str
 observation_times : list[float]
     List of times at which the ground station observations are to be analyzed
 
-is_station_transmitting : Bool
+is_station_transmitting : bool
     Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
     This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
 
@@ -314,7 +314,7 @@ target_body : str
 observation_times : list[float]
     List of times at which the ground station observations are to be analyzed
 
-is_station_transmitting : Bool
+is_station_transmitting : bool
     Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
     This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
 

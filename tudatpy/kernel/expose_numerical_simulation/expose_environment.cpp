@@ -816,7 +816,7 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
         moment_reference_point : numpy.ndarray
             Reference point wrt which aerodynamic moments are calculated.
 
-        save_pressure_coefficients : Bool
+        save_pressure_coefficients : bool
             Boolean denoting whether to save the pressure coefficients that are computed to files
 
 
