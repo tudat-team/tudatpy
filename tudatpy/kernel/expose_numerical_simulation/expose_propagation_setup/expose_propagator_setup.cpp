@@ -1881,13 +1881,7 @@ None
 
     )doc");
 
-                    m.def(
-                        "get_integrated_type_and_body_list",
-                        &tp::getIntegratedTypeAndBodyList<STATE_SCALAR_TYPE, TIME_TYPE>,
-                        py::arg("propagator_settings"));
 
-                    m.def("get_single_integration_size", &tp::getSingleIntegrationSize,
-                          py::arg("state_type"));
                 }
 
             }  // namespace propagator
