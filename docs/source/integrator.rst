@@ -20,22 +20,6 @@ Functions
 
 .. autosummary::
 
-   step_size_validation
-
-   step_size_control_elementwise_scalar_tolerance
-
-   step_size_control_elementwise_matrix_tolerance
-
-   step_size_control_blockwise_scalar_tolerance
-
-   step_size_control_blockwise_matrix_tolerance
-
-   step_size_control_custom_blockwise_scalar_tolerance
-
-   step_size_control_custom_blockwise_matrix_tolerance
-
-   standard_cartesian_state_element_blocks
-
    runge_kutta_fixed_step
 
    runge_kutta_variable_step
@@ -54,29 +38,25 @@ Functions
 
    print_butcher_tableau
 
-   runge_kutta_variable_step_size
+   step_size_validation
 
-   runge_kutta_variable_step_size_vector_tolerances
+   step_size_control_elementwise_scalar_tolerance
 
-   bulirsch_stoer
+   step_size_control_elementwise_matrix_tolerance
+
+   step_size_control_blockwise_scalar_tolerance
+
+   step_size_control_blockwise_matrix_tolerance
+
+   step_size_control_custom_blockwise_scalar_tolerance
+
+   step_size_control_custom_blockwise_matrix_tolerance
+
+   standard_cartesian_state_element_blocks
 
 
 
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_validation
 
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_elementwise_matrix_tolerance
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_blockwise_scalar_tolerance
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_blockwise_matrix_tolerance
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_custom_blockwise_scalar_tolerance
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_custom_blockwise_matrix_tolerance
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.runge_kutta_fixed_step
 
@@ -96,11 +76,22 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.print_butcher_tableau
 
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.runge_kutta_variable_step_size
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_validation
 
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.runge_kutta_variable_step_size_vector_tolerances
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance
 
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.bulirsch_stoer
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_elementwise_matrix_tolerance
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_blockwise_scalar_tolerance
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_blockwise_matrix_tolerance
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_custom_blockwise_scalar_tolerance
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_custom_blockwise_matrix_tolerance
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks
+
 
 
 
