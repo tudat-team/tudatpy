@@ -11,8 +11,11 @@
 #include "expose_interpolators.h"
 
 #include <pybind11/eigen.h>
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
+#include <pybind11/functional.h>
 
 #include "scalarTypes.h"
 
@@ -417,110 +420,6 @@ InterpolatorSettings
                       py::arg("boundary_interpolation") =
                           ti::extrapolate_at_boundary_with_warning);
 
-                m.def("create_one_dimensional_scalar_interpolator",
-                      &ti::createOneDimensionalInterpolatorBasic<
-                          TIME_TYPE, STATE_SCALAR_TYPE>,
-                      py::arg("data_to_interpolate"),
-                      py::arg("interpolator_settings"),
-                      py::arg("data_first_derivatives") = std::vector<double>(),
-                      R"doc(
-
-Function to create an interpolator for scalar dependent variables.
-
-Function to create an interpolator for scalar dependent variables, with a single independent
-variable. This function takes the interpolator settings, and the data that is to be interpolated,
-as input to create the object that can perform the actual interpolation
-
-
-Parameters
-----------
-data_to_interpolate : dict[float, float]
-    Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
-interpolator_settings : InterpolatorSettings
-    Settings that define the type of interpolator that is to be used
-data_first_derivatives : dict[float, float] = dict()
-    Key-value container with pairs of independent variables (key) and first derivative dependent variables w.r.t. independent variable (value) from which the interpolation is to be performed. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator
-Returns
--------
-OneDimensionalInterpolatorScalar
-    Interpolator object
-
-
-
-
-
-
-    )doc");
-
-                m.def(
-                    "create_one_dimensional_vector_interpolator",
-                    &ti::createOneDimensionalInterpolatorBasic<TIME_TYPE,
-                                                               Eigen::VectorXd>,
-                    py::arg("data_to_interpolate"),
-                    py::arg("interpolator_settings"),
-                    py::arg("data_first_derivatives") =
-                        std::vector<Eigen::VectorXd>(),
-                    R"doc(
-
-Function to create an interpolator for vector dependent variables.
-
-As :func:`create_one_dimensional_scalar_interpolator`, but with vectors as dependent variables
-
-
-Parameters
-----------
-data_to_interpolate : dict[float, np.array]
-    Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
-interpolator_settings : InterpolatorSettings
-    Settings that define the type of interpolator that is to be used
-data_first_derivatives : dict[float, np.array] = dict()
-    Key-value container with pairs of independent variables (key) and first derivative dependent variables w.r.t. independent variable (value) from which the interpolation is to be performed. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).
-Returns
--------
-OneDimensionalInterpolatorVector
-    Interpolator object
-
-
-
-
-
-
-    )doc");
-
-                m.def(
-                    "create_one_dimensional_matrix_interpolator",
-                    &ti::createOneDimensionalInterpolatorBasic<TIME_TYPE,
-                                                               Eigen::MatrixXd>,
-                    py::arg("data_to_interpolate"),
-                    py::arg("interpolator_settings"),
-                    py::arg("data_first_derivatives") =
-                        std::vector<Eigen::MatrixXd>(),
-                    R"doc(
-
-Function to create an interpolator for matrix dependent variables.
-
-As :func:`create_one_dimensional_scalar_interpolator`, but with matrices (2-dimensional arrays) as dependent variables
-
-
-Parameters
-----------
-data_to_interpolate : dict[float, np.array]
-    Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
-interpolator_settings : InterpolatorSettings
-    Settings that define the type of interpolator that is to be used
-data_first_derivatives : dict[float, np.array] = dict()
-    Key-value container with pairs of independent variables (key) and first derivative dependent variables w.r.t. independent variable (value) from which the interpolation is to be performed. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator
-Returns
--------
-OneDimensionalInterpolatorMatrix
-    Interpolator object
-
-
-
-
-
-
-    )doc");
 
                 py::class_<ti::OneDimensionalInterpolator<TIME_TYPE,
                                                           STATE_SCALAR_TYPE>,
@@ -650,6 +549,113 @@ OneDimensionalInterpolatorMatrix
 
 
     )doc");
+
+
+                m.def("create_one_dimensional_scalar_interpolator",
+                      &ti::createOneDimensionalInterpolatorBasic<
+                          TIME_TYPE, STATE_SCALAR_TYPE>,
+                      py::arg("data_to_interpolate"),
+                      py::arg("interpolator_settings"),
+                      py::arg("data_first_derivatives") = std::vector<double>(),
+                      R"doc(
+
+Function to create an interpolator for scalar dependent variables.
+
+Function to create an interpolator for scalar dependent variables, with a single independent
+variable. This function takes the interpolator settings, and the data that is to be interpolated,
+as input to create the object that can perform the actual interpolation
+
+
+Parameters
+----------
+data_to_interpolate : dict[float, float]
+    Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
+interpolator_settings : InterpolatorSettings
+    Settings that define the type of interpolator that is to be used
+data_first_derivatives : dict[float, float] = dict()
+    Key-value container with pairs of independent variables (key) and first derivative dependent variables w.r.t. independent variable (value) from which the interpolation is to be performed. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator
+Returns
+-------
+OneDimensionalInterpolatorScalar
+    Interpolator object
+
+
+
+
+
+
+    )doc");
+
+                m.def(
+                    "create_one_dimensional_vector_interpolator",
+                    &ti::createOneDimensionalInterpolatorBasic<TIME_TYPE,
+                                                               Eigen::VectorXd>,
+                    py::arg("data_to_interpolate"),
+                    py::arg("interpolator_settings"),
+                    py::arg("data_first_derivatives") =
+                        std::vector<Eigen::VectorXd>(),
+                    R"doc(
+
+Function to create an interpolator for vector dependent variables.
+
+As :func:`create_one_dimensional_scalar_interpolator`, but with vectors as dependent variables
+
+
+Parameters
+----------
+data_to_interpolate : dict[float, np.array]
+    Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
+interpolator_settings : InterpolatorSettings
+    Settings that define the type of interpolator that is to be used
+data_first_derivatives : dict[float, np.array] = dict()
+    Key-value container with pairs of independent variables (key) and first derivative dependent variables w.r.t. independent variable (value) from which the interpolation is to be performed. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).
+Returns
+-------
+OneDimensionalInterpolatorVector
+    Interpolator object
+
+
+
+
+
+
+    )doc");
+
+                m.def(
+                    "create_one_dimensional_matrix_interpolator",
+                    &ti::createOneDimensionalInterpolatorBasic<TIME_TYPE,
+                                                               Eigen::MatrixXd>,
+                    py::arg("data_to_interpolate"),
+                    py::arg("interpolator_settings"),
+                    py::arg("data_first_derivatives") =
+                        std::vector<Eigen::MatrixXd>(),
+                    R"doc(
+
+Function to create an interpolator for matrix dependent variables.
+
+As :func:`create_one_dimensional_scalar_interpolator`, but with matrices (2-dimensional arrays) as dependent variables
+
+
+Parameters
+----------
+data_to_interpolate : dict[float, np.array]
+    Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
+interpolator_settings : InterpolatorSettings
+    Settings that define the type of interpolator that is to be used
+data_first_derivatives : dict[float, np.array] = dict()
+    Key-value container with pairs of independent variables (key) and first derivative dependent variables w.r.t. independent variable (value) from which the interpolation is to be performed. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator
+Returns
+-------
+OneDimensionalInterpolatorMatrix
+    Interpolator object
+
+
+
+
+
+
+    )doc");
+
             }
 
         }  // namespace interpolators
