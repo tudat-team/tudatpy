@@ -997,8 +997,8 @@ Function to create translational state propagator settings for N bodies.
 The propagated state vector is defined by the combination of integrated bodies, and their central body, the combination
 of which define the relative translational states for which a differential equation is to be solved. The propagator
 input defines the formulation in which the differential equations are set up
-The dynamical models are defined by an ``AccelerationMap``, as created by :func:`~create_acceleration_models` function.
-Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational.html>`_
+The dynamical models are defined by an ``AccelerationMap``, as created by :func:`~tudatpy.numerical_simulation.propagation_setup.create_acceleration_models` function.
+Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational.html>`_.
 
 
 Parameters
@@ -1025,7 +1025,7 @@ propagator : TranslationalPropagatorType, default=cowell
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide<https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
 Returns
@@ -1116,7 +1116,7 @@ propagator : RotationalPropagatorType, default=quaternions
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide<https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
 Returns
@@ -1201,7 +1201,7 @@ termination_settings : PropagationTerminationSettings
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide<https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
 Returns
@@ -1258,7 +1258,7 @@ termination_settings : PropagationTerminationSettings
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide<https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
 Returns
@@ -1331,7 +1331,7 @@ termination_settings : PropagationTerminationSettings
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide<https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
 Returns
@@ -1674,19 +1674,21 @@ at 25 km, so we set ``terminate_exactly_on_final_condition`` to ``True``, and we
 
 .. code-block:: python
 
-  # Set dependent variable to be checked as termination setting
-  termination_variable = propagation_setup.dependent_variable.altitude( "Spacecraft", "Earth" )
-  # Create termination settings
-  termination_settings = propagation_setup.propagator.dependent_variable_termination(
-    dependent_variable_settings = termination_variable,
-    limit_value = 25.0E3,
-    use_as_lower_limit = True,
-    terminate_exactly_on_final_condition=True,
-    termination_root_finder_settings=root_finders.secant(
-        maximum_iteration=5,
-        maximum_iteration_handling=root_finders.MaximumIterationHandling.accept_result)
+    # Set dependent variable to be checked as termination setting
+    termination_variable = propagation_setup.dependent_variable.altitude(
+        "Spacecraft", "Earth"
     )
-  )
+    # Create termination settings
+    termination_settings = propagation_setup.propagator.dependent_variable_termination(
+        dependent_variable_settings=termination_variable,
+        limit_value=25.0e3,
+        use_as_lower_limit=True,
+        terminate_exactly_on_final_condition=True,
+        termination_root_finder_settings=root_finders.secant(
+            maximum_iteration=5,
+            maximum_iteration_handling=root_finders.MaximumIterationHandling.accept_result,
+        ),
+    )
 
 
     )doc");
