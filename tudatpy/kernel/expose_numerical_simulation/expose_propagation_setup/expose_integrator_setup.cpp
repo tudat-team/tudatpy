@@ -409,7 +409,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
                     // FACTORY FUNCTIONS
-                    m.def("print_butcher_tableau", &tni::printButcherTableau,
+                    m.def("print_butcher_tableau", &tni::printButcherTableau, py::arg("coefficient_set"),
                           R"doc(
 
 Print the Butcher tableau of a given coefficient set.
@@ -861,7 +861,7 @@ In this example, settings for the classical RK4 integrator with 30 second time s
   # Create RK4 settings
   integrator_settings = integrator.runge_kutta_fixed_step(
       time_step = 30.0,
-      coefficient_set = integrator.rk_4 )
+      coefficient_set = integrator.CoefficientSets.rk_4 )
 
 In this example, settings for fixed-step integration using the higher-order (8th-order) of the two
 embedded propagators of the RKF7(8) method are created, with a time-step of 120 seconds.
@@ -871,8 +871,8 @@ embedded propagators of the RKF7(8) method are created, with a time-step of 120 
   # Create 8th order RKF settings
   integrator_settings = integrator.runge_kutta_fixed_step(
       time_step = 120.0,
-      coefficient_set = integrator.rkf_78,
-      order_to_use = integrator.higher )
+      coefficient_set = integrator.CoefficientSets.rkf_78,
+      order_to_use = integrator.OrderToIntegrate.higher )
 
 
 
@@ -890,7 +890,7 @@ embedded propagators of the RKF7(8) method are created, with a time-step of 120 
 Creates the settings for the Runge-Kutta fixed step size integrator.
 
 Function to create settings for the Runge-Kutta variable step size integrator.
-Different coefficient sets (Butcher's tableau) can be used (see the `CoefficientSets` enum).
+Different coefficient sets (Butcher's tableau) can be used (see the :class:`CoefficientSets` enum).
 The step-size control algorithm is defined by a :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeControlSettings` and
 :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeValidationSettings` object, created using one of the functions
 listed above.
@@ -932,11 +932,11 @@ and the initial step is set to 30 seconds. All other inputs are left on their de
 .. code-block:: python
 
   # Create RK4(5) settings
-  control_settings = integator.step_size_control_elementwise_scalar_tolerance( 1.0E-10, 1.0E-10 )
+  control_settings = integrator.step_size_control_elementwise_scalar_tolerance( 1.0E-10, 1.0E-10 )
   validation_settings = integrator.step_size_validation( 0.001, 1000.0 )
   integrator_settings = integrator.runge_kutta_variable_step(
       initial_time_step = 30.0,
-      coefficient_set = integrator.rkf_45,
+      coefficient_set = integrator.CoefficientSets.rkf_45,
       step_size_control_settings = control_settings,
       step_size_validation_settings = validation_settings )
 
@@ -946,13 +946,13 @@ element blocks.
 .. code-block:: python
 
   # Create RK4(5) settings
-  control_settings = integator.step_size_control_custom_blockwise_scalar_tolerance(
+  control_settings = integrator.step_size_control_custom_blockwise_scalar_tolerance(
       integrator.standard_cartesian_state_element_blocks
       1.0E-10, 1.0E-10 )
   validation_settings = integrator.step_size_validation( 0.001, 1000.0 )
   integrator_settings = integrator.runge_kutta_variable_step(
       initial_time_step = 30.0,
-      coefficient_set = integrator.rkf_45,
+      coefficient_set = integrator.CoefficientSets.rkf_45,
       step_size_control_settings = control_settings,
       step_size_validation_settings = validation_settings )
 
@@ -1025,12 +1025,12 @@ and the initial step is set to 600 seconds. All other inputs are left on their d
 .. code-block:: python
 
   # Create BS settings
-  control_settings = integator.step_size_control_elementwise_scalar_tolerance( 1.0E-10, 1.0E-10 )
+  control_settings = integrator.step_size_control_elementwise_scalar_tolerance( 1.0E-10, 1.0E-10 )
   validation_settings = integrator.step_size_validation( 0.1, 10000.0 )
   integrator_settings = integrator.bulirsch_stoer_variable_step(
       initial_time_step = 600.0,
       extrapolation_sequence = integrator.bulirsch_stoer_sequence,
-      maximum_number_of_steps = 6
+      maximum_number_of_steps = 6,
       step_size_control_settings = control_settings,
       step_size_validation_settings = validation_settings )
 

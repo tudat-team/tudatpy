@@ -122,9 +122,10 @@ julian_date : float    Julian date calculated from ephemeris time.
 Converts a date string to ephemeris time.
 
 Function to convert a date string, for instance
-1988 June 13, 3:29:48 to ephemeris time, wrapper for `str2et_c`
+1988 June 13, 3:29:48 to ephemeris time, wrapper for `str2et_c`_
 spice function.
 
+.. _`str2et_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/str2et_c.html
 
 Parameters
 ----------
@@ -162,8 +163,9 @@ This function returns the position of a body, relative to another
 body, in a frame specified by the user. Corrections for light-time
 correction and stellar aberration can be applied to obtain the
 state of one of the bodies, as observed from the other. Wrapper
-for `spkpos_c` spice function.
+for `spkpos_c`_ spice function.
 
+.. _`spkpos_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/spkpos_c.html
 
 Parameters
 ----------
@@ -220,8 +222,9 @@ This function returns the state of a body, relative to another
 body, in a frame specified by the user. Corrections for light-time
 correction and stellar aberration can be applied to obtain the
 state of one of the bodies, as observed from the other. Wrapper
-for `spkezr_c` spice function.
+for `spkezr_c`_ spice function.
 
+.. _`spkezr_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/spkezr_c.html
 
 Parameters
 ----------
@@ -277,7 +280,7 @@ Get Cartesian state of a satellite from its two-line element set at a specified 
 This function retrieves the state of a satellite at a certain epoch
 by propagating the SGP or SDP models (near-Earth resp. deep space)
 with the given two-line elements (TLE). This function serves as a
-wrapper for the `ev2lin_` function in CSpice.
+wrapper for the `ev2lin` function in CSpice.
 
 
 Parameters
@@ -310,8 +313,9 @@ Computes rotation matrix between two frames.
 This function computes the rotation matrix
 between two frames at a given time instant. Kernels defining the
 two frames, as well as any required intermediate frames, at the
-requested time must have been loaded. Wrapper for `pxform_c` spice function.
+requested time must have been loaded. Wrapper for `pxform_c`_ spice function.
 
+.. _`pxform_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/pxform_c.html
 
 Parameters
 ----------
@@ -351,8 +355,9 @@ Computes time derivative of rotation matrix between two frames.
 This function computes the derivative of the rotation matrix
 between two frames at a given time instant. kernels defining the
 two frames, as well as any required intermediate frames, at the
-requested time must have been loaded. Wrapper for (part of) `sxform_c` spice function.
+requested time must have been loaded. Wrapper for (part of) `sxform_c`_ spice function.
 
+.. _`sxform_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/sxform_c.html
 
 Parameters
 ----------
@@ -427,8 +432,9 @@ Angular velocity of newFrame w.r.t. originalFrame, expressed in originalFrame.
 
 Get property of a body from Spice.
 
-Function to retrieve a property of a body from Spice, wraps the bodvrd_c Spice function.
+Function to retrieve a property of a body from Spice, wraps the `bodvrd_c`_ Spice function.
 
+.. _`bodvrd_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html
 
 Parameters
 ----------
@@ -495,7 +501,7 @@ Gravitational parameter of requested body.
 Get the (arithmetic) mean of the three principal axes of the tri-axial ellipsoid shape.
 
 Returns the (arithmetic) mean of the three principal axes of the
-tri-axial ellipsoid shape of the requested body. Uses the `bodvrd_c` spice function with "RADII" as property type.
+tri-axial ellipsoid shape of the requested body. Uses the `bodvrd_c`_ spice function with "RADII" as property type.
 
 .. _`bodvrd_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html
 
@@ -525,8 +531,9 @@ Convert a body name to its NAIF identification number.
 This function converts a body name to its NAIF identification
 number. The NAIF id number is required for a number of spice
 functions, whereas the name is easily interpretable by the user.
-Wrapper for the ``bods2c_c`` function.
+Wrapper for the `bods2c_c`_ function.
 
+.. _`bods2c_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bods2c_c.html
 
 Parameters
 ----------
