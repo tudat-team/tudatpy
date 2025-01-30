@@ -322,7 +322,7 @@ initial_state : New initial state from which the dynamics is to be propagated, c
         List of single-arc simulators, that were used to propagate the dynamics on the constituent single arcs
 
 
-        :type: list[SingleArcDynamicsSimulator]
+        :type: list[SingleArcSimulator]
         )doc");
 
 
