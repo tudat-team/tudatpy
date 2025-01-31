@@ -11,8 +11,6 @@
 #ifndef TUDAT_CREATETORQUEPARTIALS_H
 #define TUDAT_CREATETORQUEPARTIALS_H
 
-
-
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createAccelerationPartials.h"
@@ -60,9 +58,8 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
         const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector = basic_astrodynamics::SingleBodyTorqueModelMap( ),
         const simulation_setup::SystemOfBodies& bodies = simulation_setup::SystemOfBodies( ),
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
-        parametersToEstimate =
-        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >( ) )
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > parametersToEstimate =
+                std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >( ) )
 {
     using namespace gravitation;
     using namespace basic_astrodynamics;
@@ -76,90 +73,96 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
     AvailableTorque torqueType = getTorqueModelType( torqueModel );
     switch( torqueType )
     {
-    case second_order_gravitational_torque:
+        case second_order_gravitational_torque:
 
-        // Check if identifier is consistent with type.
-        if( std::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ) == nullptr )
-        {
-            throw std::runtime_error( "Torque class type does not match torque type (second_order_gravitational_torque) when making torque partial" );
-        }
-        else
-        {
-            // Create partial-calculating object.
+            // Check if identifier is consistent with type.
+            if( std::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ) == nullptr )
+            {
+                throw std::runtime_error(
+                        "Torque class type does not match torque type (second_order_gravitational_torque) when making torque partial" );
+            }
+            else
+            {
+                // Create partial-calculating object.
+                std::function< double( ) > inertiaTensorNormalizationFunction;
+                if( std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) ) !=
+                    nullptr )
+                {
+                    inertiaTensorNormalizationFunction = std::bind( &SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
+                                                                    std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                                                                            acceleratedBody.second->getGravityFieldModel( ) ) );
+                }
+                torquePartial = std::make_shared< SecondDegreeGravitationalTorquePartial >(
+                        std::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ),
+                        inertiaTensorNormalizationFunction,
+                        acceleratedBody.first,
+                        acceleratingBody.first );
+            }
+            break;
+        case spherical_harmonic_gravitational_torque:
+
+            // Check if identifier is consistent with type.
+            if( std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ) == nullptr )
+            {
+                throw std::runtime_error(
+                        "Torque class type does not match torque type (spherical_harmonic_gravitational_torque) when making torque "
+                        "partial" );
+            }
+            else
+            {
+                // Create partial-calculating object.
+                torquePartial = std::make_shared< SphericalHarmonicGravitationalTorquePartial >(
+                        std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ),
+                        std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
+                                std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel )
+                                        ->getSphericalHarmonicAcceleration( ),
+                                acceleratingBody,
+                                acceleratedBody,
+                                bodies,
+                                parametersToEstimate ) ),
+                        acceleratedBody.first,
+                        acceleratingBody.first );
+            }
+            break;
+        case radiation_pressure_torque:
+            throw std::runtime_error( "Error, radiation pressure torque partial not yet supported" );
+            break;
+        case inertial_torque: {
+            std::function< Eigen::Vector3d( ) > angularVelocityFunction =
+                    std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, acceleratedBody.second );
+            std::function< Eigen::Matrix3d( ) > inertiaTensorFunction = std::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
+
+            std::function< double( ) > gravitationalParameterFunction;
+            if( acceleratedBody.second->getGravityFieldModel( ) != nullptr )
+            {
+                gravitationalParameterFunction = std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                                            acceleratedBody.second->getGravityFieldModel( ) );
+            }
+
             std::function< double( ) > inertiaTensorNormalizationFunction;
-            if( std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) )
-                    != nullptr )
+            if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                        acceleratedBody.second->getGravityFieldModel( ) ) != nullptr )
             {
                 inertiaTensorNormalizationFunction =
-                        std::bind( &SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
-                                     std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
-                                         acceleratedBody.second->getGravityFieldModel( ) ) );
+                        std::bind( &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
+                                   std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                                           acceleratedBody.second->getGravityFieldModel( ) ) );
             }
-            torquePartial = std::make_shared< SecondDegreeGravitationalTorquePartial >
-                    ( std::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ),
-                      inertiaTensorNormalizationFunction, acceleratedBody.first, acceleratingBody.first );
-        }
-        break;
-    case spherical_harmonic_gravitational_torque:
 
-        // Check if identifier is consistent with type.
-        if( std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ) == nullptr )
-        {
-            throw std::runtime_error( "Torque class type does not match torque type (spherical_harmonic_gravitational_torque) when making torque partial" );
+            torquePartial = std::make_shared< acceleration_partials::InertialTorquePartial >( angularVelocityFunction,
+                                                                                              inertiaTensorFunction,
+                                                                                              inertiaTensorNormalizationFunction,
+                                                                                              gravitationalParameterFunction,
+                                                                                              acceleratedBody.first );
+            break;
         }
-        else
-        {
-            // Create partial-calculating object.
-            torquePartial = std::make_shared< SphericalHarmonicGravitationalTorquePartial >
-                    ( std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ),
-                      std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
-                          std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >(
-                              torqueModel )->getSphericalHarmonicAcceleration( ), acceleratingBody, acceleratedBody,
-                          bodies, parametersToEstimate ) ),
-                      acceleratedBody.first, acceleratingBody.first );
-        }
-        break;
-    case radiation_pressure_torque:
-        throw std::runtime_error( "Error, radiation pressure torque partial not yet supported" );
-        break;
-    case inertial_torque:
-    {
-        std::function< Eigen::Vector3d( ) > angularVelocityFunction =
-                std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, acceleratedBody.second );
-        std::function< Eigen::Matrix3d( ) > inertiaTensorFunction =
-                std::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
-
-        std::function< double( ) > gravitationalParameterFunction;
-        if( acceleratedBody.second->getGravityFieldModel( ) != nullptr )
-        {
-            gravitationalParameterFunction =
-                    std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                 acceleratedBody.second->getGravityFieldModel( ) );
-        }
-
-        std::function< double( ) > inertiaTensorNormalizationFunction;
-        if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) )
-                != nullptr )
-        {
-            inertiaTensorNormalizationFunction =
-                    std::bind( &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
-                                 std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-                                     acceleratedBody.second->getGravityFieldModel( ) ) );
-        }
-
-        torquePartial = std::make_shared< acceleration_partials::InertialTorquePartial >(
-                    angularVelocityFunction, inertiaTensorFunction, inertiaTensorNormalizationFunction,
-                    gravitationalParameterFunction, acceleratedBody.first );
-        break;
-    }
-    case custom_torque:
-        throw std::runtime_error( "Custom torque does not yet have an associated partial." );
-        break;
-    default:
-        std::string errorMessage = "Torque model " + std::to_string( torqueType ) +
-                " not found when making torque partial";
-        throw std::runtime_error( errorMessage );
-        break;
+        case custom_torque:
+            throw std::runtime_error( "Custom torque does not yet have an associated partial." );
+            break;
+        default:
+            std::string errorMessage = "Torque model " + std::to_string( torqueType ) + " not found when making torque partial";
+            throw std::runtime_error( errorMessage );
+            break;
     }
 
     return torquePartial;
@@ -180,45 +183,43 @@ template< typename InitialStateParameterType >
 orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
         const basic_astrodynamics::TorqueModelMap& torqueMap,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
-        parametersToEstimate )
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > parametersToEstimate )
 {
     // Declare return map.
     orbit_determination::StateDerivativePartialsMap torquePartialsList;
 
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatable_parameters::getListOfRotationalStateParametersToEstimate( parametersToEstimate );
+    std::vector< std::shared_ptr<
+            estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatable_parameters::getListOfRotationalStateParametersToEstimate( parametersToEstimate );
     torquePartialsList.resize( initialDynamicalParameters.size( ) );
 
     // Iterate over list of bodies of which the partials of the torques acting on them are required.
-    for( basic_astrodynamics::TorqueModelMap::const_iterator torqueIterator = torqueMap.begin( );
-         torqueIterator != torqueMap.end( ); torqueIterator++ )
+    for( basic_astrodynamics::TorqueModelMap::const_iterator torqueIterator = torqueMap.begin( ); torqueIterator != torqueMap.end( );
+         torqueIterator++ )
     {
         for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
         {
             if( initialDynamicalParameters.at( i )->getParameterName( ).second.first == torqueIterator->first )
             {
-                if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_rotational_body_state ) )
+                if( ( initialDynamicalParameters.at( i )->getParameterName( ).first ==
+                      estimatable_parameters::initial_rotational_body_state ) )
                 {
                     // Get object for body undergoing torque
                     const std::string acceleratedBody = torqueIterator->first;
                     std::shared_ptr< simulation_setup::Body > acceleratedBodyObject = bodies.at( acceleratedBody );
 
                     // Retrieve list of torques acting on current body.
-                    basic_astrodynamics::SingleBodyTorqueModelMap torqueVector =
-                            torqueMap.at( acceleratedBody );
+                    basic_astrodynamics::SingleBodyTorqueModelMap torqueVector = torqueMap.at( acceleratedBody );
 
                     // Declare list of torque partials of current body.
                     std::vector< std::shared_ptr< orbit_determination::StateDerivativePartial > > torquePartialVector;
                     torquePartialVector.push_back( createConstantTorqueRotationalDynamicsPartial(
-                                                      std::make_pair( acceleratedBody, acceleratedBodyObject ),
-                                                       torqueVector ) );
+                            std::make_pair( acceleratedBody, acceleratedBodyObject ), torqueVector ) );
 
                     // Iterate over all torque models and generate their partial-calculating objects.
-                    for(  basic_astrodynamics::SingleBodyTorqueModelMap::iterator
-                          innerTorqueIterator = torqueVector.begin( );
-                          innerTorqueIterator != torqueVector.end( ); innerTorqueIterator++ )
+                    for( basic_astrodynamics::SingleBodyTorqueModelMap::iterator innerTorqueIterator = torqueVector.begin( );
+                         innerTorqueIterator != torqueVector.end( );
+                         innerTorqueIterator++ )
                     {
                         // Get object for body exerting torque
                         std::string acceleratingBody = innerTorqueIterator->first;
@@ -232,11 +233,12 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                         {
                             // Create single partial object
                             std::shared_ptr< acceleration_partials::TorquePartial > currentTorquePartial =
-                                    createAnalyticalTorquePartial(
-                                        innerTorqueIterator->second[ j ],
-                                        std::make_pair( acceleratedBody, acceleratedBodyObject ),
-                                        std::make_pair( acceleratingBody, acceleratingBodyObject ),
-                                        torqueVector, bodies, parametersToEstimate );
+                                    createAnalyticalTorquePartial( innerTorqueIterator->second[ j ],
+                                                                   std::make_pair( acceleratedBody, acceleratedBodyObject ),
+                                                                   std::make_pair( acceleratingBody, acceleratingBodyObject ),
+                                                                   torqueVector,
+                                                                   bodies,
+                                                                   parametersToEstimate );
 
                             torquePartialVector.push_back( currentTorquePartial );
                         }
@@ -251,8 +253,8 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
     return torquePartialsList;
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CREATETORQUEPARTIALS_H
+#endif  // TUDAT_CREATETORQUEPARTIALS_H

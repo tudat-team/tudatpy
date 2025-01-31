@@ -22,10 +22,6 @@
 
 #include <iostream>
 
-
-
-
-
 #include <memory>
 
 #include "tudat/basics/utilityMacros.h"
@@ -59,7 +55,6 @@ template< typename DataType = double >
 class Bisection : public RootFinder< DataType >
 {
 public:
-
     //! Useful type definition for the function pointer (from base class).
     typedef typename RootFinder< DataType >::FunctionPointer FunctionPointer;
 
@@ -77,10 +72,8 @@ public:
      *  \param lowerBound Lower bound of the interval containing a root. (Default is -1.0).
      *  \param upperBound Upper bound of the interval containing a root. (Default is 1.0).
      */
-    Bisection( const TerminationFunction terminationFunction,
-               const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ) :
-        RootFinder< DataType >( terminationFunction ),
-        lowerBound_( lowerBound ), upperBound_( upperBound )
+    Bisection( const TerminationFunction terminationFunction, const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ):
+        RootFinder< DataType >( terminationFunction ), lowerBound_( lowerBound ), upperBound_( upperBound )
     { }
 
     //! Constructor taking typical convergence criteria and the bracket of the solution.
@@ -97,11 +90,11 @@ public:
      *  \param lowerBound Lower bound of the interval containing a root. (Default is -1.0).
      *  \param upperBound Upper bound of the interval containing a root. (Default is 1.0).
      */
-    Bisection( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations,
-               const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ) :
-        RootFinder< DataType >(
-            createTerminationCondition(
-                relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) ),
+    Bisection( const DataType relativeIndependentVariableTolerance,
+               const unsigned int maxIterations,
+               const DataType lowerBound = -1.0,
+               const DataType upperBound = 1.0 ):
+        RootFinder< DataType >( createTerminationCondition( relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) ),
         lowerBound_( lowerBound ), upperBound_( upperBound )
     { }
 
@@ -143,11 +136,11 @@ public:
         DataType currentUpperBoundFunctionValue = this->rootFunction->evaluate( currentUpperBound );
         if( currentLowerBoundFunctionValue == mathematical_constants::getFloatingInteger< DataType >( 0 ) )
         {
-            rootValue =  currentLowerBound;
+            rootValue = currentLowerBound;
         }
         else if( currentUpperBoundFunctionValue == mathematical_constants::getFloatingInteger< DataType >( 0 ) )
         {
-            rootValue =  currentUpperBound;
+            rootValue = currentUpperBound;
         }
         else
         {
@@ -157,8 +150,9 @@ public:
             // (requirement).
             if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
             {
-                throw std::runtime_error( "The Bisection algorithm requires that the values at the upper, "
-                                          "and lower bounds have a different sign." );
+                throw std::runtime_error(
+                        "The Bisection algorithm requires that the values at the upper, "
+                        "and lower bounds have a different sign." );
             }
 
             // Loop counter.
@@ -170,8 +164,9 @@ public:
                 // Sanity check.
                 if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
                 {
-                    throw std::runtime_error( "The Bisection algorithm requires that the values at the upper, "
-                                              "and lower bounds have a different sign, error during iteration." );
+                    throw std::runtime_error(
+                            "The Bisection algorithm requires that the values at the upper, "
+                            "and lower bounds have a different sign, error during iteration." );
                 }
 
                 // Save old values.
@@ -198,10 +193,8 @@ public:
                 rootFunctionValue = this->rootFunction->evaluate( rootValue );
 
                 counter++;
-            }
-            while( rootFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
-                   !this->terminationFunction_( rootValue, previousRootValue, rootFunctionValue,
-                                                previousRootFunctionValue, counter ) );
+            } while( rootFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
+                     !this->terminationFunction_( rootValue, previousRootValue, rootFunctionValue, previousRootFunctionValue, counter ) );
         }
         return rootValue;
     }
@@ -220,20 +213,16 @@ public:
     }
 
 protected:
-
 private:
-
     //! Lower bound of the bracket containing the solution.
     double lowerBound_;
 
     //! Upper bound of the bracket containing the solution.
     double upperBound_;
-
 };
 
+}  // namespace root_finders
 
-} // namespace root_finders
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_BISECTION_H
+#endif  // TUDAT_BISECTION_H

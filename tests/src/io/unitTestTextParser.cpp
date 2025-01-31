@@ -16,7 +16,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/io/textParser.h"
@@ -30,15 +29,13 @@ namespace input_output
 class dummyTextParser : public TextParser
 {
 public:
-
     // Default constructor with parseAsStream == false.
-    dummyTextParser( bool parseAsStream = false ) : TextParser( parseAsStream ){ }
+    dummyTextParser( bool parseAsStream = false ): TextParser( parseAsStream ) { }
 
     // Default destructor.
-    ~dummyTextParser( ){ }
+    ~dummyTextParser( ) { }
 
 protected:
-
     // Parse line functionality.
     void parseLine( std::string& line )
     {
@@ -46,26 +43,24 @@ protected:
         typedef std::pair< FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
         // Create a new pointer to map of line data.
-        parsed_data_vector_utilities::ParsedDataLineMapPtr currentLineData
-                = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                    std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
+        parsed_data_vector_utilities::ParsedDataLineMapPtr currentLineData =
+                std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+                        std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
         // Register the data line with the global current parsed data vector.
         parsedData->push_back( currentLineData );
 
         // Store the field-value string.
-        parsed_data_vector_utilities::FieldValuePtr value(
-                    new FieldValue( field_types::general::name, line ) );
+        parsed_data_vector_utilities::FieldValuePtr value( new FieldValue( field_types::general::name, line ) );
 
         // Store the type and value in the current line data.
         currentLineData->insert( FieldDataPair( field_types::general::name, value ) );
     }
 
 private:
-
 };
 
-} // namespace input_output
+}  // namespace input_output
 
 namespace unit_tests
 {
@@ -98,13 +93,10 @@ BOOST_AUTO_TEST_CASE( textParser_parseLine )
     BOOST_CHECK_EQUAL( testLineData->size( ), 1 );
 
     // Check if the data was correctly separated.
-    BOOST_CHECK_EQUAL( testLineData->find(
-                           input_output::field_types::general::name )->second->getRaw( ),
-                       testString );
+    BOOST_CHECK_EQUAL( testLineData->find( input_output::field_types::general::name )->second->getRaw( ), testString );
 
     // Check if it fails to find a field that is not passed in the constructor.
-    BOOST_CHECK( testLineData->find( input_output::field_types::state::trueAnomaly )
-                 == testLineData->end( ) );
+    BOOST_CHECK( testLineData->find( input_output::field_types::state::trueAnomaly ) == testLineData->end( ) );
 }
 
 //! Test the parsing of a stream on a line-per-line basis.
@@ -135,17 +127,14 @@ BOOST_AUTO_TEST_CASE( textParser_parseStreamAsLine )
     BOOST_CHECK_EQUAL( testLineData->size( ), 1 );
 
     // Check if the data was correctly separated.
-    BOOST_CHECK_EQUAL( testLineData->find(
-                           input_output::field_types::general::name )->second->getRaw( ),
-                       testString );
+    BOOST_CHECK_EQUAL( testLineData->find( input_output::field_types::general::name )->second->getRaw( ), testString );
 
     // Check if it fails to find a field that is not passed in the constructor.
-    BOOST_CHECK( testLineData->find( input_output::field_types::state::trueAnomaly )
-                 == testLineData->end( ) );
+    BOOST_CHECK( testLineData->find( input_output::field_types::state::trueAnomaly ) == testLineData->end( ) );
 }
 
 // Close Boost test suite.
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

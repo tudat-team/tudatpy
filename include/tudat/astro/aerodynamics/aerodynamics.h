@@ -42,8 +42,7 @@ namespace aerodynamics
  *  undefined_independent_variable variable type, but at the expense of being able to use the
  *  FlightConditions class to automatically updates the aerodynamic coefficients during propagation.
  */
-enum AerodynamicCoefficientsIndependentVariables
-{
+enum AerodynamicCoefficientsIndependentVariables {
     mach_number_dependent = 0,
     angle_of_attack_dependent = 1,
     angle_of_sideslip_dependent = 2,
@@ -62,7 +61,7 @@ enum AerodynamicCoefficientsIndependentVariables
     control_surface_deflection_dependent = 15,
     undefined_independent_variable = 16
 };
- 
+
 //! Function to combined the force and moment coefficients from separate function pointers.
 /*!
  *  Function to combined the force and moment coefficients from separate function pointers.
@@ -76,22 +75,19 @@ enum AerodynamicCoefficientsIndependentVariables
  *  which the coefficients depend.
  */
 inline Eigen::Vector6d concatenateForceAndMomentCoefficients(
-        const std::function< Eigen::Vector3d( const std::vector< double >& ) >&
-        forceCoefficientFunction,
-        const std::function< Eigen::Vector3d( const std::vector< double >& ) >&
-        momentCoefficientFunction,
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) >& forceCoefficientFunction,
+        const std::function< Eigen::Vector3d( const std::vector< double >& ) >& momentCoefficientFunction,
         const std::vector< double >& independentVariables )
 {
-    return ( Eigen::Vector6d( ) << forceCoefficientFunction( independentVariables ),
-             momentCoefficientFunction( independentVariables ) ).finished( );
+    return ( Eigen::Vector6d( ) << forceCoefficientFunction( independentVariables ), momentCoefficientFunction( independentVariables ) )
+            .finished( );
 }
 
 //! Maximum Prandtl-Meyer function value.
 /*!
  * Maximum Prandtl-Meyer function value for ratio of specific heats = 1.4.
  */
-static const double maximumPrandtlMeyerFunctionValue = 
-    mathematical_constants::PI / 2.0 * ( std::sqrt( 6.0 ) - 1.0 );
+static const double maximumPrandtlMeyerFunctionValue = mathematical_constants::PI / 2.0 * ( std::sqrt( 6.0 ) - 1.0 );
 
 //! Constant for use in inverse Prandtl-Meyer function calculation.
 /*!
@@ -137,8 +133,7 @@ static const double PrandtlMeyerParameter5 = -0.3278;
  *         specific heat at constant volume.
  * \return Local-to-static pressure ratio.
  */
-double computeLocalToStaticPressureRatio( double machNumber,
-                                          double ratioOfSpecificHeats );
+double computeLocalToStaticPressureRatio( double machNumber, double ratioOfSpecificHeats );
 
 //! Compute Prandtl-Meyer function.
 /*!
@@ -178,8 +173,7 @@ double computeNewtonianPressureCoefficient( double inclinationAngle );
  * \param stagnationPressureCoefficient Stagnation pressure coefficient.
  * \return Newtonian pressure coefficient.
  */
-double computeModifiedNewtonianPressureCoefficient(
-        double inclinationAngle, double stagnationPressureCoefficient );
+double computeModifiedNewtonianPressureCoefficient( double inclinationAngle, double stagnationPressureCoefficient );
 
 //! Compute pressure coefficient using empirical tangent wedge method.
 /*!
@@ -189,8 +183,7 @@ double computeModifiedNewtonianPressureCoefficient(
  * \param machNumber Flow Mach number.
  * \return Empirical tangent wedge pressure coefficient.
  */
-double computeEmpiricalTangentWedgePressureCoefficient(
-        double inclinationAngle, double machNumber );
+double computeEmpiricalTangentWedgePressureCoefficient( double inclinationAngle, double machNumber );
 
 //! Compute pressure coefficient using empirical tangent cone method.
 /*!
@@ -200,8 +193,7 @@ double computeEmpiricalTangentWedgePressureCoefficient(
  * \param machNumber Flow Mach number.
  * \return Empirical tangent wedge pressure coefficient.
  */
-double computeEmpiricalTangentConePressureCoefficient(
-        double inclinationAngle, double machNumber );
+double computeEmpiricalTangentConePressureCoefficient( double inclinationAngle, double machNumber );
 
 //! Compute pressure coefficient using modified Dahlem-Buck method.
 /*!
@@ -211,8 +203,7 @@ double computeEmpiricalTangentConePressureCoefficient(
  * \param machNumber Flow Mach number.
  * \return Dahlem-Buck pressure coefficient.
  */
-double computeModifiedDahlemBuckPressureCoefficient(
-        double inclinationAngle, double machNumber );
+double computeModifiedDahlemBuckPressureCoefficient( double inclinationAngle, double machNumber );
 
 //! Compute pressure coefficient using the Hankey flat surface method.
 /*!
@@ -222,8 +213,7 @@ double computeModifiedDahlemBuckPressureCoefficient(
  * \param machNumber Flow Mach number.
  * \return Hankey Flat surface pressure coefficient.
  */
-double computeHankeyFlatSurfacePressureCoefficient(
-        double inclinationAngle, double machNumber );
+double computeHankeyFlatSurfacePressureCoefficient( double inclinationAngle, double machNumber );
 
 //! Compute pressure coefficient using the Smyth delta wing method.
 /*!
@@ -233,8 +223,7 @@ double computeHankeyFlatSurfacePressureCoefficient(
  * \param machNumber Flow Mach number.
  * \return Smyth delta wing pressure coefficient.
  */
-double computeSmythDeltaWingPressureCoefficient(
-        double inclinationAngle, double machNumber );
+double computeSmythDeltaWingPressureCoefficient( double inclinationAngle, double machNumber );
 
 //! Compute pressure coefficient using the van Dyke unified method.
 /*!
@@ -247,9 +236,7 @@ double computeSmythDeltaWingPressureCoefficient(
  * \param type ( expansion ( 1 ) or compression( -1 ) ).
  * \return Hankey Flat surface pressure coefficient.
  */
-double computeVanDykeUnifiedPressureCoefficient(
-        double inclinationAngle, double machNumber,
-        double ratioOfSpecificHeats, int type );
+double computeVanDykeUnifiedPressureCoefficient( double inclinationAngle, double machNumber, double ratioOfSpecificHeats, int type );
 
 //! Compute pressure coefficient using Prandtl-Meyer expansion.
 /*!
@@ -264,9 +251,10 @@ double computeVanDykeUnifiedPressureCoefficient(
  * \param freestreamPrandtlMeyerFunction Freestream Prandtl-Meyer function.
  * \return Prandtl-Meyer pressure coefficient.
  */
-double computePrandtlMeyerFreestreamPressureCoefficient(
-        double inclinationAngle,  double machNumber,
-        double ratioOfSpecificHeats, double freestreamPrandtlMeyerFunction );
+double computePrandtlMeyerFreestreamPressureCoefficient( double inclinationAngle,
+                                                         double machNumber,
+                                                         double ratioOfSpecificHeats,
+                                                         double freestreamPrandtlMeyerFunction );
 
 //! Compute pressure coefficient at vacuum.
 /*!
@@ -277,8 +265,7 @@ double computePrandtlMeyerFreestreamPressureCoefficient(
  *         specific heat at constant volume.
  * \return Vacuum pressure coefficient.
  */
-double computeVacuumPressureCoefficient(
-        double machNumber, double ratioOfSpecificHeats );
+double computeVacuumPressureCoefficient( double machNumber, double ratioOfSpecificHeats );
 
 //! Compute high Mach base pressure coefficient.
 /*!
@@ -296,8 +283,7 @@ double computeHighMachBasePressure( double machNumber );
  * \param machNumber Flow Mach number.
  * \return ACM empirical surface pressure coefficient.
  */
-double computeAcmEmpiricalPressureCoefficient(
-        double inclinationAngle, double machNumber );
+double computeAcmEmpiricalPressureCoefficient( double inclinationAngle, double machNumber );
 
 //! Compute Mach number from Prandtl-Meyer function.
 /*!
@@ -316,8 +302,7 @@ double computeInversePrandtlMeyerFunction( double prandtlMeyerFunctionValue );
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *          specific heat at constant volume.
  */
-double computeShockPressureRatio( double normalMachNumber,
-                                  double ratioOfSpecificHeats );
+double computeShockPressureRatio( double normalMachNumber, double ratioOfSpecificHeats );
 
 //! Compute ratio of post- to pre-shock density.
 /*!
@@ -326,8 +311,7 @@ double computeShockPressureRatio( double normalMachNumber,
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *         specific heat at constant volume.
  */
-double computeShockDensityRatio( double normalMachNumber,
-                                 double ratioOfSpecificHeats );
+double computeShockDensityRatio( double normalMachNumber, double ratioOfSpecificHeats );
 
 //! Compute ratio of post- to pre-shock temperature.
 /*!
@@ -337,8 +321,7 @@ double computeShockDensityRatio( double normalMachNumber,
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *         specific heat at constant volume.
  */
-double computeShockTemperatureRatio( double normalMachNumber,
-                                     double ratioOfSpecificHeats );
+double computeShockTemperatureRatio( double normalMachNumber, double ratioOfSpecificHeats );
 
 //! Compute jump in entropy across a shock wave.
 /*!
@@ -348,8 +331,7 @@ double computeShockTemperatureRatio( double normalMachNumber,
  *         specific heat at constant volume.
  * \param specificGasConstant gas constant per unit mass for flow composition.
  */
-double computeShockEntropyJump( double normalMachNumber, double ratioOfSpecificHeats,
-                                double specificGasConstant );
+double computeShockEntropyJump( double normalMachNumber, double ratioOfSpecificHeats, double specificGasConstant );
 
 //! Compute post- to pre-shock total pressure ratio.
 /*!
@@ -360,9 +342,7 @@ double computeShockEntropyJump( double normalMachNumber, double ratioOfSpecificH
  *         specific heat at constant volume.
  * \param specificGasConstant gas constant per unit mass for flow composition.
  */
-double computeShockTotalPressureRatio( double normalMachNumber,
-                                       double ratioOfSpecificHeats,
-                                       double specificGasConstant );
+double computeShockTotalPressureRatio( double normalMachNumber, double ratioOfSpecificHeats, double specificGasConstant );
 
 //! Compute shock deflection angle.
 /*!
@@ -372,8 +352,7 @@ double computeShockTotalPressureRatio( double normalMachNumber,
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *          specific heat at constant volume.
  */
-double computeShockDeflectionAngle( double shockAngle, double machNumber,
-                                    double ratioOfSpecificHeats );
+double computeShockDeflectionAngle( double shockAngle, double machNumber, double ratioOfSpecificHeats );
 
 //! Function to compute the speed of sound in a gas
 /*!
@@ -383,8 +362,7 @@ double computeShockDeflectionAngle( double shockAngle, double machNumber,
  * \param specificGasConstant Specific gas constant of the gas
  * \return Speed of sound in the gas.
  */
-double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
-                            const double specificGasConstant );
+double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats, const double specificGasConstant );
 
 //! Compute Mach number
 /*!
@@ -490,12 +468,13 @@ double computeFayRiddellHeatFlux( const double airDensity,
  * recovered at the wal
  * \return Adiabatic wall temperature experienced by the vehicle.
  */
-double computeAdiabaticWallTemperature(
-        const double airTemperature, const double machNumber, const double ratioSpecificHeats = 1.4,
-        const double recoveryFactor = 0.845 );
+double computeAdiabaticWallTemperature( const double airTemperature,
+                                        const double machNumber,
+                                        const double ratioSpecificHeats = 1.4,
+                                        const double recoveryFactor = 0.845 );
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_AERODYNAMICS_H
+#endif  // TUDAT_AERODYNAMICS_H

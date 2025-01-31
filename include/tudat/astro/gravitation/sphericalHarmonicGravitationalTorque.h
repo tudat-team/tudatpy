@@ -11,7 +11,6 @@
 #ifndef TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUE_H
 #define TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUE_H
 
-
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 
@@ -33,10 +32,9 @@ namespace gravitation
  *  of the spherical harmonic gravity field of the body on which the torque is acting. This class uses the
  *  SphericalHarmonicsGravitationalAccelerationModel class to compute the acceleration that causes the torque
  */
-class SphericalHarmonicGravitationalTorqueModel: public basic_astrodynamics::TorqueModel
+class SphericalHarmonicGravitationalTorqueModel : public basic_astrodynamics::TorqueModel
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -50,9 +48,9 @@ public:
             const std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration,
             const std::function< Eigen::Quaterniond( ) > rotationToBodyUndergoingTorque,
             const std::function< double( ) > perturberMassFunction ):
-        sphericalHarmonicAcceleration_( sphericalHarmonicAcceleration ),
-        rotationToBodyUndergoingTorque_( rotationToBodyUndergoingTorque ),
-        perturberMassFunction_( perturberMassFunction ){ }
+        sphericalHarmonicAcceleration_( sphericalHarmonicAcceleration ), rotationToBodyUndergoingTorque_( rotationToBodyUndergoingTorque ),
+        perturberMassFunction_( perturberMassFunction )
+    { }
 
     //! Get gravitational torque.
     /*!
@@ -80,8 +78,8 @@ public:
         sphericalHarmonicAcceleration_->updateMembers( currentTime );
 
         currentTorque_ = -perturberMassFunction_( ) *
-                ( ( sphericalHarmonicAcceleration_->getCurrentRelativePosition( ) ).cross(
-                      sphericalHarmonicAcceleration_->getAccelerationInBodyFixedFrame( ) ) );
+                ( ( sphericalHarmonicAcceleration_->getCurrentRelativePosition( ) )
+                          .cross( sphericalHarmonicAcceleration_->getAccelerationInBodyFixedFrame( ) ) );
     }
 
     //! Function to retrieve spherical harmonic acceleration
@@ -96,11 +94,8 @@ public:
         return sphericalHarmonicAcceleration_;
     }
 
-
 protected:
-
 private:
-
     //! Spherical harmonic acceleration that the body that undergoes the torque exerts on the body that exerts the torque
     std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration_;
 
@@ -114,8 +109,8 @@ private:
     Eigen::Vector3d currentTorque_;
 };
 
-}
+}  // namespace gravitation
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUE_H
+#endif  // TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUE_H

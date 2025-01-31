@@ -26,9 +26,7 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename )                                                                          \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ) \
-            .string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_observation )
 
@@ -105,8 +103,7 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
     // std::map< LinkEnds, std::vector< std::shared_ptr < ObservationSettings > > >
     // observationSettingsMap;
 
-    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator =
-                 linkEndsPerObservable.begin( );
+    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( );
          linkEndIterator++ )
     {
@@ -120,22 +117,16 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
             std::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections;
             if( currentObservable == one_way_range )
             {
-                biasSettings = std::make_shared< ConstantObservationBiasSettings >(
-                        Eigen::Vector1d::Constant( 1.0 ), true );
+                biasSettings = std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d::Constant( 1.0 ), true );
                 std::vector< std::string > perturbingBodies = { "Mars", "Moon" };
-                lightTimeCorrections =
-                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                perturbingBodies );
+                lightTimeCorrections = std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies );
             }
 
             if( currentObservable == angular_position && i == 1 )
             {
-                biasSettings = std::make_shared< ConstantObservationBiasSettings >(
-                        Eigen::Vector2d::Constant( 1.0E-6 ), false );
+                biasSettings = std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector2d::Constant( 1.0E-6 ), false );
                 std::vector< std::string > perturbingBodies = { "Mars", "Moon" };
-                lightTimeCorrections =
-                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                perturbingBodies );
+                lightTimeCorrections = std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies );
             }
 
             if( currentObservable == angular_position && i == 1 )
@@ -151,14 +142,13 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
                 observationBiases.push_back( Eigen::Vector2d::Constant( 2.0E-6 ) );
                 observationBiases[ 2 ]( 1 ) = 1.0E5;
 
-                biasSettings = std::make_shared< ArcWiseConstantObservationBiasSettings >(
-                        arcStartTimes, observationBiases, transmitter, true );
+                biasSettings =
+                        std::make_shared< ArcWiseConstantObservationBiasSettings >( arcStartTimes, observationBiases, transmitter, true );
             }
 
             if( currentObservable == one_way_doppler && i == 0 )
             {
-                biasSettings = std::make_shared< ConstantObservationBiasSettings >(
-                        Eigen::Vector1d::Constant( 1.0E-12 ), true );
+                biasSettings = std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d::Constant( 1.0E-12 ), true );
             }
 
             if( currentObservable == one_way_doppler && i == 1 )
@@ -173,19 +163,17 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
                 observationBiases.push_back( Eigen::Vector1d::Constant( 1.0E-13 ) );
                 observationBiases.push_back( Eigen::Vector1d::Constant( 2.0E-12 ) );
 
-                biasSettings = std::make_shared< ArcWiseConstantObservationBiasSettings >(
-                        arcStartTimes, observationBiases, transmitter, true );
+                biasSettings =
+                        std::make_shared< ArcWiseConstantObservationBiasSettings >( arcStartTimes, observationBiases, transmitter, true );
             }
 
             if( currentObservable == one_way_range && i == 0 )
             {
                 std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
-                biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >(
-                        Eigen::Vector1d::Constant( 1.0E-6 ), false ) );
-                biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >(
-                        Eigen::Vector1d::Constant( 2.0 ), true ) );
-                biasSettings =
-                        std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
+                biasSettingsList.push_back(
+                        std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d::Constant( 1.0E-6 ), false ) );
+                biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d::Constant( 2.0 ), true ) );
+                biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
             }
 
             std::shared_ptr< ObservationSettings > currentObservationSettings;
@@ -193,16 +181,14 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
             {
                 currentObservationSettings = std::make_shared< OneWayDopplerObservationSettings >(
                         lightTimeCorrections,
-                        std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >(
-                                "Earth" ),
+                        std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                         std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Sun" ),
                         biasSettings );
             }
             else if( currentObservable == one_way_differenced_range )
             {
                 currentObservationSettings =
-                        std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
-                                [ = ]( const double ) { return 60.0; } );
+                        std::make_shared< OneWayDifferencedRangeRateObservationSettings >( [ = ]( const double ) { return 60.0; } );
             }
             else if( currentObservable == n_way_range )
             {
@@ -211,45 +197,33 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
                 if( i == 0 )
                 {
                     currentObservationSettings = std::make_shared< NWayRangeObservationSettings >(
-                            lightTimeCorrections,
-                            3,
-                            [ = ]( const double ) { return retransmissionTimes; },
-                            biasSettings );
+                            lightTimeCorrections, 3, [ = ]( const double ) { return retransmissionTimes; }, biasSettings );
                 }
                 else if( i == 1 )
                 {
                     std::vector< std::string > perturbingBodies = { "Mars", "Moon" };
 
-                    std::vector< std::shared_ptr< ObservationSettings > >
-                            oneWayRangeObservationSettings;
-                    oneWayRangeObservationSettings.push_back( std::make_shared<
-                                                              ObservationSettings >(
+                    std::vector< std::shared_ptr< ObservationSettings > > oneWayRangeObservationSettings;
+                    oneWayRangeObservationSettings.push_back( std::make_shared< ObservationSettings >(
+                            one_way_range, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ) );
+                    oneWayRangeObservationSettings.push_back( std::make_shared< ObservationSettings >(
                             one_way_range,
-                            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                    perturbingBodies ) ) );
-                    oneWayRangeObservationSettings.push_back(
-                            std::make_shared< ObservationSettings >(
-                                    one_way_range,
-                                    nullptr,
-                                    std::make_shared< ConstantObservationBiasSettings >(
-                                            Eigen::Vector1d::Constant( 1.0 ), true ) ) );
+                            nullptr,
+                            std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d::Constant( 1.0 ), true ) ) );
 
                     currentObservationSettings = std::make_shared< NWayRangeObservationSettings >(
-                            oneWayRangeObservationSettings,
-                            [ = ]( const double ) { return retransmissionTimes; },
-                            biasSettings );
+                            oneWayRangeObservationSettings, [ = ]( const double ) { return retransmissionTimes; }, biasSettings );
                 }
             }
             else
             {
-                currentObservationSettings = std::make_shared< ObservationSettings >(
-                        currentObservable, lightTimeCorrections, biasSettings );
+                currentObservationSettings =
+                        std::make_shared< ObservationSettings >( currentObservable, lightTimeCorrections, biasSettings );
             }
 
             // Define settings for observable, no light-time corrections, and biases for selected
             // links
-            observationSettingsMap[ currentLinkEndsList.at( i ) ].push_back(
-                    currentObservationSettings );
+            observationSettingsMap[ currentLinkEndsList.at( i ) ].push_back( currentObservationSettings );
         }
     }
 

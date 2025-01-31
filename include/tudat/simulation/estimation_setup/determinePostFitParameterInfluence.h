@@ -13,8 +13,6 @@
 
 #include <algorithm>
 
-
-
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
@@ -62,11 +60,12 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
 
     // Check input consistency
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< StateScalarType, TimeType > > translationalPropagatorSettings =
-            std::dynamic_pointer_cast< propagators::TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) ;
+            std::dynamic_pointer_cast< propagators::TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                    propagatorSettings );
     if( translationalPropagatorSettings == nullptr )
     {
         throw std::runtime_error(
-                    "Error in determinePostfitParameterInfluence, only single-arc translational dynamics currently supported" );
+                "Error in determinePostfitParameterInfluence, only single-arc translational dynamics currently supported" );
     }
 
     // Getlist of bodies for which the dynamics is to be fit
@@ -74,7 +73,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
 
     // Create list of ideal observation settings and initial states to estimate
     std::vector< LinkEnds > linkEndsList;
-    std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
 
     for( unsigned int i = 0; i < observedBodies.size( ); i++ )
     {
@@ -82,13 +81,10 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
         LinkEnds observationLinkEnds;
         observationLinkEnds[ observed_body ] = std::pair< std::string, std::string >( std::make_pair( observedBodies.at( i ), "" ) );
         linkEndsList.push_back( observationLinkEnds );
-        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
-                                        position_observable, observationLinkEnds ) );
-
+        observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, observationLinkEnds ) );
     }
     std::vector< std::shared_ptr< EstimatableParameterSettings > > initialStateParameterNames =
             getInitialStateParameterSettings< double >( propagatorSettings, bodies );
-
 
     // Create initial state estimation objects
     std::shared_ptr< EstimatableParameterSet< StateScalarType > > initialStateParametersToEstimate =
@@ -97,8 +93,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                bodies, initialStateParametersToEstimate, observationSettingsList,
-                integratorSettings, propagatorSettings );
+                    bodies, initialStateParametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
 
     // Retrieve nominal (e.g. pre-fit) body states
     Eigen::VectorXd nominalBodyStates = initialStateParametersToEstimate->template getFullParameterValues< double >( );
@@ -120,24 +115,20 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
     for( unsigned int i = 0; i < linkEndsList.size( ); i++ )
     {
-
-        measurementSimulationInput.push_back(
-                    std::make_shared< TabulatedObservationSimulationSettings< > >(
-                        position_observable, linkEndsList.at( i ), baseTimeList, observed_body ) );
+        measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings<> >(
+                position_observable, linkEndsList.at( i ), baseTimeList, observed_body ) );
     }
 
     // Simulate ideal observations
-    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
-    //input_output::writeMatrixToFile( observationsAndTimes.begin( )->second.begin( )->second.first, "preFitObservations.dat" );
+    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
+            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    // input_output::writeMatrixToFile( observationsAndTimes.begin( )->second.begin( )->second.first, "preFitObservations.dat" );
 
     // Define estimation input
     std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
-            std::make_shared< EstimationInput< StateScalarType, TimeType > >(
-                observationsAndTimes );
+            std::make_shared< EstimationInput< StateScalarType, TimeType > >( observationsAndTimes );
     estimationInput->defineEstimationSettings( true, true, false, true, true );
-    estimationInput->setConvergenceChecker(
-                std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
+    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Create parameters that are to be perturbed
     std::vector< std::shared_ptr< EstimatableParameterSettings > > perturbedParameterSettingsList;
@@ -152,7 +143,8 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     {
         if( parameterIndices.at( i ) >= parameterVectorToPerturb.rows( ) )
         {
-            throw std::runtime_error( "Error, inconsistent input to determinePostfitParameterInfluence function, perturbation index is too high" );
+            throw std::runtime_error(
+                    "Error, inconsistent input to determinePostfitParameterInfluence function, perturbation index is too high" );
         }
         else
         {
@@ -162,20 +154,17 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     perturbedParameters->resetParameterValues( parameterVectorToPerturb );
 
     // Fit nominal dynamics to pertrubed dynamical model
-    std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput );
+    std::shared_ptr< EstimationOutput< StateScalarType > > estimationOutput =
+            orbitDeterminationManager.estimateParameters( estimationInput );
 
     // Reset parameter to nominal value
     perturbedParameters->resetParameterValues( unperturbedParameterVector );
 
-    return std::make_pair(
-                estimationOutput, initialStateParametersToEstimate->template getFullParameterValues< double >( ) - nominalBodyStates );
-
-
-
+    return std::make_pair( estimationOutput,
+                           initialStateParametersToEstimate->template getFullParameterValues< double >( ) - nominalBodyStates );
 }
 
-}
+}  // namespace simulation_setup
 
-}
-#endif // TUDAT_DETERMINEPARAMETERPOSTFITINFLUENCE_H
+}  // namespace tudat
+#endif  // TUDAT_DETERMINEPARAMETERPOSTFITINFLUENCE_H

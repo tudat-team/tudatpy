@@ -27,7 +27,6 @@ namespace tudat
 class SurfaceGeometry
 {
 public:
-
     //! Default destructor.
     /*!
      * Default destructor.
@@ -35,10 +34,9 @@ public:
     virtual ~SurfaceGeometry( ) { }
 
 protected:
-
 private:
 };
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_SURFACEGEOMETRY_H
+#endif  // TUDAT_SURFACEGEOMETRY_H

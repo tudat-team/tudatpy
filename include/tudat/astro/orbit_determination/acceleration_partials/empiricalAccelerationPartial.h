@@ -35,21 +35,23 @@ namespace acceleration_partials
  *  \param cartesianStateElementPerturbations Numerical perturbations of Cartesian state that are to be used
  *  \return Partial of Cartesian state wrt true anomaly of orbit.
  */
-Eigen::Matrix< double, 1, 6 > calculateNumericalPartialOfTrueAnomalyWrtState(
-        const Eigen::Vector6d& cartesianElements, const double gravitationalParameter,
-        const Eigen::Vector6d& cartesianStateElementPerturbations );
+Eigen::Matrix< double, 1, 6 > calculateNumericalPartialOfTrueAnomalyWrtState( const Eigen::Vector6d& cartesianElements,
+                                                                              const double gravitationalParameter,
+                                                                              const Eigen::Vector6d& cartesianStateElementPerturbations );
 
-class EmpiricalAccelerationPartial: public AccelerationPartial
+class EmpiricalAccelerationPartial : public AccelerationPartial
 {
 public:
     using AccelerationPartial::getParameterPartialFunction;
 
-    EmpiricalAccelerationPartial(
-            std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
-            std::string acceleratedBody,
-            std::string acceleratingBody ):
+    EmpiricalAccelerationPartial( std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
+                                  std::string acceleratedBody,
+                                  std::string acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::empirical_acceleration ),
-        empiricalAcceleration_( empiricalAcceleration ){ cartesianStateElementPerturbations << 0.1, 0.1, 0.1, 0.001, 0.001, 0.001; }
+        empiricalAcceleration_( empiricalAcceleration )
+    {
+        cartesianStateElementPerturbations << 0.1, 0.1, 0.1, 0.001, 0.001, 0.001;
+    }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -62,9 +64,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtPositionOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -88,7 +91,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -111,9 +116,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtVelocityOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -137,7 +143,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -189,7 +197,7 @@ public:
             Eigen::MatrixXd& partialDerivativeMatrix )
     {
         return wrtEmpiricalAccelerationCoefficientFromIndices(
-                    parameter->getParameterSize( ), parameter->getIndices( ), partialDerivativeMatrix );
+                parameter->getParameterSize( ), parameter->getIndices( ), partialDerivativeMatrix );
     }
 
     //! Function to compute the partial w.r.t. time-independent empirical acceleration components
@@ -209,9 +217,7 @@ public:
             const std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >& accelerationIndices,
             Eigen::MatrixXd& partialDerivativeMatrix );
 
-
 private:
-
     //! Acceleration w.r.t. which partials are to be computed.
     std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration_;
 
@@ -223,10 +229,9 @@ private:
 
     //! Perturbations to use on Cartesian state elements when computing partial of true anomaly w.r.t. state.
     Eigen::Matrix< double, 1, 6 > cartesianStateElementPerturbations;
-
 };
 
-}
-}
+}  // namespace acceleration_partials
+}  // namespace tudat
 
-#endif // TUDAT_EMPIRICALACCELERATIONPARTIAL_H
+#endif  // TUDAT_EMPIRICALACCELERATIONPARTIAL_H

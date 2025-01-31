@@ -24,4 +24,4 @@
 #include "interpolators/oneDimensionalInterpolator.h"
 #include "interpolators/piecewiseConstantInterpolator.h"
 
-#endif//TUDAT_INTERPOLATORS_H
+#endif  // TUDAT_INTERPOLATORS_H

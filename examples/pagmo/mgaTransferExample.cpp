@@ -1,12 +1,12 @@
 /*    Copyright (c) 2010-2019, Delft University of Technology
-*    All rigths reserved
-*
-*    This file is part of the Tudat. Redistribution and use in source and
-*    binary forms, with or without modification, are permitted exclusively
-*    under the terms of the Modified BSD license. You should have received
-*    a copy of the license with this file. If not, please or visit:
-*    http://tudat.tudelft.nl/LICENSE.
-*/
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 
 #include <iostream>
 #include <fstream>
@@ -33,8 +33,6 @@ using namespace simulation_setup;
 
 simulation_setup::NamedBodyMap getApproximatePlanetBodyMap( )
 {
-
-
     NamedBodyMap bodyMap;
     bodyMap[ "Sun" ] = std::make_shared< Body >( );
     bodyMap[ "Mercury" ] = std::make_shared< Body >( );
@@ -45,18 +43,18 @@ simulation_setup::NamedBodyMap getApproximatePlanetBodyMap( )
     bodyMap[ "Saturn" ] = std::make_shared< Body >( );
 
     bodyMap[ "Sun" ]->setEphemeris( std::make_shared< ConstantEphemeris >( Eigen::Vector6d::Zero( ) ) );
-    bodyMap[ "Mercury" ]->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                            ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury ) );
-    bodyMap[ "Venus" ]->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                          ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus ) );
+    bodyMap[ "Mercury" ]->setEphemeris(
+            std::make_shared< ApproximatePlanetPositions >( ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury ) );
+    bodyMap[ "Venus" ]->setEphemeris(
+            std::make_shared< ApproximatePlanetPositions >( ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus ) );
     bodyMap[ "Earth" ]->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                          ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ) );
+            ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ) );
     bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                          ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ) );
-    bodyMap[ "Jupiter" ]->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                            ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter ) );
-    bodyMap[ "Saturn" ]->setEphemeris( std::make_shared< ApproximatePlanetPositions >(
-                                           ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn ) );
+            ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ) );
+    bodyMap[ "Jupiter" ]->setEphemeris(
+            std::make_shared< ApproximatePlanetPositions >( ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter ) );
+    bodyMap[ "Saturn" ]->setEphemeris(
+            std::make_shared< ApproximatePlanetPositions >( ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn ) );
 
     bodyMap[ "Sun" ]->setGravityFieldModel( std::make_shared< GravityFieldModel >( 1.32712428e20 ) );
     bodyMap[ "Mercury" ]->setGravityFieldModel( std::make_shared< GravityFieldModel >( 2.2321e13 ) );
@@ -71,27 +69,26 @@ simulation_setup::NamedBodyMap getApproximatePlanetBodyMap( )
 
 namespace std
 {
-template <typename T>
-ostream& operator<<(ostream& output, std::vector<T> const& values)
+template< typename T >
+ostream& operator<<( ostream& output, std::vector< T > const& values )
 {
-    std::cout<<"[ ";
-    for (auto const& value : values)
+    std::cout << "[ ";
+    for( auto const& value: values )
     {
-        output << value <<", ";
+        output << value << ", ";
     }
-    std::cout<<" ]"<<std::endl;
+    std::cout << " ]" << std::endl;
     return output;
 }
-}
+}  // namespace std
 //! Execute  main
 int main( )
 {
-    //Set seed for reproducible results
+    // Set seed for reproducible results
     pagmo::random_device::set_seed( 123456789 );
 
     // Set transfer order
-    std::vector< std::string > bodyOrder = {
-        "Earth", "Venus", "Venus", "Earth", "Jupiter", "Saturn" };
+    std::vector< std::string > bodyOrder = { "Earth", "Venus", "Venus", "Earth", "Jupiter", "Saturn" };
     int numberOfNodes = bodyOrder.size( );
 
     // Create leg settings (all unpowered)
@@ -104,11 +101,11 @@ int main( )
     transferLegSettings[ 4 ] = unpoweredLeg( );
 
     // Define minimum periapsis altitudes for flybys;
-    std::map< std::string, double >minimumPeriapses;
+    std::map< std::string, double > minimumPeriapses;
     minimumPeriapses[ "Venus" ] = 6351800.0;
     minimumPeriapses[ "Earth" ] = 6778000.0;
     minimumPeriapses[ "Mars" ] = 3696200.0;
-    minimumPeriapses[ "Jupiter" ] =  600000000;
+    minimumPeriapses[ "Jupiter" ] = 600000000;
 
     std::vector< std::shared_ptr< TransferNodeSettings > > transferNodeSettings;
     transferNodeSettings.resize( numberOfNodes );
@@ -124,8 +121,8 @@ int main( )
 
     // Define search bounds: first parameter is start date, following parameters are leg durations
     std::vector< std::vector< double > > bounds( 2, std::vector< double >( 14, 0.0 ) );
-    bounds[ 0 ][ 0 ] = -2000.0; //MJD2000
-    bounds[ 1 ][ 0 ] = 0.0; //MJD2000
+    bounds[ 0 ][ 0 ] = -2000.0;  // MJD2000
+    bounds[ 1 ][ 0 ] = 0.0;      // MJD2000
     bounds[ 0 ][ 1 ] = 50.0;
     bounds[ 1 ][ 1 ] = 500.0;
     bounds[ 0 ][ 2 ] = 100.0;
@@ -136,16 +133,16 @@ int main( )
     bounds[ 1 ][ 4 ] = 2000.0;
     bounds[ 0 ][ 5 ] = 1000.0;
     bounds[ 1 ][ 5 ] = 10000.0;
-//    bounds[ 0 ][ 6 ] = 0.0;
-//    bounds[ 1 ][ 6 ] = 2.0E3;;
-//    bounds[ 0 ][ 7 ] = 0.0;
-//    bounds[ 1 ][ 7 ] = 2.0 * mathematical_constants::PI;
+    //    bounds[ 0 ][ 6 ] = 0.0;
+    //    bounds[ 1 ][ 6 ] = 2.0E3;;
+    //    bounds[ 0 ][ 7 ] = 0.0;
+    //    bounds[ 1 ][ 7 ] = 2.0 * mathematical_constants::PI;
 
-//    bounds[ 0 ][ 8 ] = 0.0;
-//    bounds[ 1 ][ 8 ] = 2.0 * mathematical_constants::PI;
+    //    bounds[ 0 ][ 8 ] = 0.0;
+    //    bounds[ 1 ][ 8 ] = 2.0 * mathematical_constants::PI;
 
-//    bounds[ 0 ][ 9 ] = 0.05;
-//    bounds[ 1 ][ 9 ] = 0.95;
+    //    bounds[ 0 ][ 9 ] = 0.05;
+    //    bounds[ 1 ][ 9 ] = 0.95;
     int currentIndex = 5;
     for( int i = 1; i < 3; i++ )
     {
@@ -167,38 +164,33 @@ int main( )
     }
 
     // Create object to compute the problem fitness
-    problem prob{ MultipleGravityAssist(
-                    bodyMap, transferLegSettings, transferNodeSettings, bodyOrder, "Sun", bounds ) };
-
+    problem prob{ MultipleGravityAssist( bodyMap, transferLegSettings, transferNodeSettings, bodyOrder, "Sun", bounds ) };
 
     // Select NSGA2 algorithm for priblem
-    algorithm algo{sade( )};
+    algorithm algo{ sade( ) };
 
     // Create an island with 1000 individuals
-    island isl{algo, prob, 500 };
+    island isl{ algo, prob, 500 };
 
     // Evolve for 512 generations
-    for( int i = 0 ; i < 10000; i++ )
+    for( int i = 0; i < 10000; i++ )
     {
-
         isl.evolve( );
-        while( isl.status( ) != pagmo::evolve_status::idle &&
-               isl.status( ) != pagmo::evolve_status::idle_error )
+        while( isl.status( ) != pagmo::evolve_status::idle && isl.status( ) != pagmo::evolve_status::idle_error )
         {
             isl.wait( );
         }
 
-        isl.wait_check( ); // Raises errors
+        isl.wait_check( );  // Raises errors
 
-        if( i% 100 == 0 )
+        if( i % 100 == 0 )
         {
-            std::cout<<i<<" "<<isl.get_population().champion_f()[0]<<"***  "<<
-                       isl.get_population().champion_x()<<std::endl;        // Write current iteration results to file
+            std::cout << i << " " << isl.get_population( ).champion_f( )[ 0 ] << "***  " << isl.get_population( ).champion_x( )
+                      << std::endl;  // Write current iteration results to file
         }
-//        printPopulationToFile( isl.get_population( ).get_x( ), "mo_mga_EVEEJ_" + std::to_string( i ), false );
-//        printPopulationToFile( isl.get_population( ).get_f( ), "mo_mga_EVEEJ_" + std::to_string( i ), true );
+        //        printPopulationToFile( isl.get_population( ).get_x( ), "mo_mga_EVEEJ_" + std::to_string( i ), false );
+        //        printPopulationToFile( isl.get_population( ).get_f( ), "mo_mga_EVEEJ_" + std::to_string( i ), true );
     }
 
     return 0;
-
 }

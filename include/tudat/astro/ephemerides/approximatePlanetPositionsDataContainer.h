@@ -30,31 +30,18 @@ namespace ephemerides
 /*!
  * Data container class for JPL "Approximate Positions of Major Planets" ephemeris data.
  */
-struct ApproximateSolarSystemEphemerisDataContainer
-{
+struct ApproximateSolarSystemEphemerisDataContainer {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    ApproximateSolarSystemEphemerisDataContainer( )
-        : semiMajorAxis_( -0.0 ),
-          eccentricity_( -0.0 ),
-          inclination_( -0.0 ),
-          meanLongitude_( -0.0 ),
-          longitudeOfPerihelion_( -0.0 ),
-          longitudeOfAscendingNode_( -0.0 ),
-          rateOfChangeOfSemiMajorAxis_( -0.0 ),
-          rateOfChangeOfEccentricity_( -0.0 ),
-          rateOfChangeOfInclination_( -0.0 ),
-          rateOfChangeOfMeanLongitude_( -0.0 ),
-          rateOfChangeOfLongitudeOfPerihelion_( -0.0 ),
-          rateOfChangeOfLongitudeOfAscendingNode_( -0.0 ),
-          additionalTermB_( -0.0 ),
-          additionalTermC_( -0.0 ),
-          additionalTermS_( -0.0 ),
-          additionalTermF_( -0.0 )
+    ApproximateSolarSystemEphemerisDataContainer( ):
+        semiMajorAxis_( -0.0 ), eccentricity_( -0.0 ), inclination_( -0.0 ), meanLongitude_( -0.0 ), longitudeOfPerihelion_( -0.0 ),
+        longitudeOfAscendingNode_( -0.0 ), rateOfChangeOfSemiMajorAxis_( -0.0 ), rateOfChangeOfEccentricity_( -0.0 ),
+        rateOfChangeOfInclination_( -0.0 ), rateOfChangeOfMeanLongitude_( -0.0 ), rateOfChangeOfLongitudeOfPerihelion_( -0.0 ),
+        rateOfChangeOfLongitudeOfAscendingNode_( -0.0 ), additionalTermB_( -0.0 ), additionalTermC_( -0.0 ), additionalTermS_( -0.0 ),
+        additionalTermF_( -0.0 )
     { }
 
     //! Overload ostream to print class information.
@@ -65,24 +52,17 @@ public:
      *          positions data container.
      * \return Stream object.
      */
-    friend std::ostream& operator << ( std::ostream& stream,
-                                     ApproximateSolarSystemEphemerisDataContainer&
-                                     approximatePlanetPositionsDataContainer )
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     ApproximateSolarSystemEphemerisDataContainer& approximatePlanetPositionsDataContainer )
     {
-
         stream << "This is an ApproximateSolarSystemEphemerisDataContainer object. " << std::endl;
-        stream << "The data corresponds to the table entry for "
-               << approximatePlanetPositionsDataContainer.planetName_ << std::endl;
-        stream << "The semi-major axis in AU is set to: "
-               << approximatePlanetPositionsDataContainer.semiMajorAxis_ << std::endl;
-        stream << "The eccentricity in radians is set to: "
-               << approximatePlanetPositionsDataContainer.eccentricity_ << std::endl;
-        stream << "The inclination in degrees is set to: "
-               << approximatePlanetPositionsDataContainer.inclination_ << std::endl;
-        stream << "The mean longitude in degrees is set to: "
-               << approximatePlanetPositionsDataContainer.meanLongitude_ << std::endl;
-        stream << "The longitude of perihelion in degrees is set to: "
-               << approximatePlanetPositionsDataContainer.longitudeOfPerihelion_ << std::endl;
+        stream << "The data corresponds to the table entry for " << approximatePlanetPositionsDataContainer.planetName_ << std::endl;
+        stream << "The semi-major axis in AU is set to: " << approximatePlanetPositionsDataContainer.semiMajorAxis_ << std::endl;
+        stream << "The eccentricity in radians is set to: " << approximatePlanetPositionsDataContainer.eccentricity_ << std::endl;
+        stream << "The inclination in degrees is set to: " << approximatePlanetPositionsDataContainer.inclination_ << std::endl;
+        stream << "The mean longitude in degrees is set to: " << approximatePlanetPositionsDataContainer.meanLongitude_ << std::endl;
+        stream << "The longitude of perihelion in degrees is set to: " << approximatePlanetPositionsDataContainer.longitudeOfPerihelion_
+               << std::endl;
         stream << "The longitude of the ascending node in degrees is set to: "
                << approximatePlanetPositionsDataContainer.longitudeOfAscendingNode_ << std::endl;
         stream << "The rate of change of semi-major axis AU per century is set to: "
@@ -96,20 +76,15 @@ public:
         stream << "The rate of change of longitude of perihelion in degrees per century is set to: "
                << approximatePlanetPositionsDataContainer.rateOfChangeOfLongitudeOfPerihelion_ << std::endl;
         stream << "The rate of change of longitude of ascending node in degrees per century is set "
-               << "to: " << approximatePlanetPositionsDataContainer
-                  .rateOfChangeOfLongitudeOfAscendingNode_ << std::endl;
+               << "to: " << approximatePlanetPositionsDataContainer.rateOfChangeOfLongitudeOfAscendingNode_ << std::endl;
 
         // Check if additional terms are defined for outer planets.
-        if ( approximatePlanetPositionsDataContainer.additionalTermB_ != -0.0 )
+        if( approximatePlanetPositionsDataContainer.additionalTermB_ != -0.0 )
         {
-            stream << "The additional term B is set to: "
-                   << approximatePlanetPositionsDataContainer.additionalTermB_ << std::endl;
-            stream << "The additional term C is set to: "
-                   << approximatePlanetPositionsDataContainer.additionalTermC_ << std::endl;
-            stream << "The additional term S is set to: "
-                   << approximatePlanetPositionsDataContainer.additionalTermS_ << std::endl;
-            stream << "The additional term F is set to: "
-                   << approximatePlanetPositionsDataContainer .additionalTermF_ << std::endl;
+            stream << "The additional term B is set to: " << approximatePlanetPositionsDataContainer.additionalTermB_ << std::endl;
+            stream << "The additional term C is set to: " << approximatePlanetPositionsDataContainer.additionalTermC_ << std::endl;
+            stream << "The additional term S is set to: " << approximatePlanetPositionsDataContainer.additionalTermS_ << std::endl;
+            stream << "The additional term F is set to: " << approximatePlanetPositionsDataContainer.additionalTermF_ << std::endl;
         }
 
         // Return stream.
@@ -225,15 +200,13 @@ public:
     double additionalTermF_;
 
 protected:
-
 private:
 };
 
 //! Typedef for shared-pointer to ApproximateSolarSystemEphemerisDataContainer object.
-typedef std::shared_ptr< ApproximateSolarSystemEphemerisDataContainer >
-ApproximateSolarSystemEphemerisDataContainerPointer;
+typedef std::shared_ptr< ApproximateSolarSystemEphemerisDataContainer > ApproximateSolarSystemEphemerisDataContainerPointer;
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat
 
-#endif // TUDAT_APPROXIMATE_PLANET_POSITIONS_DATA_CONTAINER_H
+#endif  // TUDAT_APPROXIMATE_PLANET_POSITIONS_DATA_CONTAINER_H

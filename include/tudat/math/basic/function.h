@@ -29,7 +29,6 @@ template< typename IndependentVariable = double, typename DependentVariable = do
 class Function
 {
 public:
-
     //! Default destructor.
     virtual ~Function( ) { }
 
@@ -41,7 +40,7 @@ public:
      * \return Computed mathematical function value.
      */
     virtual DependentVariable evaluate( const IndependentVariable inputValue ) = 0;
-    
+
     //! Alias for evaluate( double ).
     inline DependentVariable operator( )( const double inputValue )
     {
@@ -55,8 +54,7 @@ public:
      * \param independentVariable Location where to evaluate the derivative.
      * \return the derivative of the function
      */
-    virtual DependentVariable computeDerivative(
-            const unsigned int order, const IndependentVariable independentVariable ) = 0;
+    virtual DependentVariable computeDerivative( const unsigned int order, const IndependentVariable independentVariable ) = 0;
 
     //! Evaluate the definite integral of the function.
     /*!
@@ -69,7 +67,6 @@ public:
     virtual DependentVariable computeDefiniteIntegral( const unsigned int order,
                                                        const IndependentVariable lowerBound,
                                                        const IndependentVariable upperbound ) = 0;
-
 };
 
 //! Typedef for shared-pointer to Function object.
@@ -77,9 +74,9 @@ public:
  * Typedef for shared-pointer to Function object with IndependentVariable=double,
  * DependentVariable=double.
  */
-typedef std::shared_ptr< Function< > > FunctionPointer;
+typedef std::shared_ptr< Function<> > FunctionPointer;
 
-} // namespace basic_mathematics
-} // namespace tudat
+}  // namespace basic_mathematics
+}  // namespace tudat
 
-#endif // TUDAT_FUNCTION_H
+#endif  // TUDAT_FUNCTION_H

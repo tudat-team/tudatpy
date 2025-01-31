@@ -18,7 +18,6 @@
 #include <boost/random.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
-
 #include "tudat/math/statistics/boostProbabilityDistributions.h"
 
 namespace tudat
@@ -32,16 +31,15 @@ template< typename DependentVariableType >
 class RandomVariableGenerator
 {
 public:
-
     //! Constructor, sets the seed for the base random number generator.
     /*!
      *  Constructor, sets the seed for the base random number generator.
      *  \param seed Seed of random number generator (default is pseudo-random time(0))
      */
-    RandomVariableGenerator( const double seed ):randomNumberGenerator_( seed ){ }
+    RandomVariableGenerator( const double seed ): randomNumberGenerator_( seed ) { }
 
     //! Destructor
-    virtual ~RandomVariableGenerator( ){ }
+    virtual ~RandomVariableGenerator( ) { }
 
     //! Function to generate random number
     /*!
@@ -53,7 +51,6 @@ public:
     virtual DependentVariableType getRandomVariableValue( ) = 0;
 
 protected:
-
     //! Uniform (0,1) random number generator, to be mapped to specific distribution by derived classes.
     boost::random::mt19937 randomNumberGenerator_;
 };
@@ -67,21 +64,19 @@ protected:
  *  distribution is generated from the boost::random::mt19937 generator; its seed may be either pseudo-random (time( 0 ))
  *  or user-defined.
  */
-class ContinuousRandomVariableGenerator: public RandomVariableGenerator< double >
+class ContinuousRandomVariableGenerator : public RandomVariableGenerator< double >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param randomVariable Probability distribution from which random number is generated.
      * \param seed Seed of random number generator.
      */
-    ContinuousRandomVariableGenerator(
-            const std::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > randomVariable,
-            const double seed ):
-        RandomVariableGenerator< double >( seed ), randomVariable_( randomVariable ),
-        randomUniformCdfGenerator_( randomNumberGenerator_ ){ }
+    ContinuousRandomVariableGenerator( const std::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > randomVariable,
+                                       const double seed ):
+        RandomVariableGenerator< double >( seed ), randomVariable_( randomVariable ), randomUniformCdfGenerator_( randomNumberGenerator_ )
+    { }
 
     //! Function to generate random number
     /*!
@@ -96,7 +91,6 @@ public:
     }
 
 private:
-
     //! Probability distribution from which random number is generated.
     std::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > randomVariable_;
 
@@ -106,15 +100,12 @@ private:
      *  mapped to a random number by calling the inverse cdf function in randomVariable_.
      */
     boost::random::uniform_01< boost::random::mt19937 > randomUniformCdfGenerator_;
-
 };
 
-
-std::function< Eigen::VectorXd( const double ) > getIndependentGaussianNoiseFunction(
-        const double standardDeviation,
-        const double mean = 0.0,
-        const double seed = 0.0,
-        const int outputSize = 1 );
+std::function< Eigen::VectorXd( const double ) > getIndependentGaussianNoiseFunction( const double standardDeviation,
+                                                                                      const double mean = 0.0,
+                                                                                      const double seed = 0.0,
+                                                                                      const int outputSize = 1 );
 
 //! Function to create a random number generating function from a continuous univariate distribution implemented in boost
 /*!
@@ -129,8 +120,6 @@ std::function< double( ) > createBoostContinuousRandomVariableGeneratorFunction(
         const ContinuousBoostStatisticalDistributions boostDistribution,
         const std::vector< double >& parameters,
         const double seed );
-
-
 
 //! Function to create a random number generator from a continuous univariate distribution implemented in boost
 /*!
@@ -147,11 +136,10 @@ std::shared_ptr< RandomVariableGenerator< double > > createBoostContinuousRandom
         const double seed );
 
 static const std::shared_ptr< RandomVariableGenerator< double > > defaultRandomSeedGenerator =
-        createBoostContinuousRandomVariableGenerator(
-                uniform_boost_distribution, std::vector< double >( { 0.0, 1.0E16 } ), 42 );
+        createBoostContinuousRandomVariableGenerator( uniform_boost_distribution, std::vector< double >( { 0.0, 1.0E16 } ), 42 );
 
-} // namespace statistics
+}  // namespace statistics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_RANDOMVARIABLEGENERATION_H
+#endif  // TUDAT_RANDOMVARIABLEGENERATION_H

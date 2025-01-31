@@ -30,14 +30,14 @@ namespace tudat
 namespace unit_tests
 {
 
-
 BOOST_AUTO_TEST_SUITE( test_customAccelerationAndTorqueModels )
 
 Eigen::Vector3d customAcceleration( const double time )
 {
-    return ( Eigen::Vector3d( ) << 1.0E-6 * std::sin ( 2.0 * mathematical_constants::PI * time / 1.0E4 + 0.1 ),
-             -2.0E-6 * std::sin ( 2.0 * mathematical_constants::PI * time / 3.0E4 + 0.5 ),
-             -8.0E-7 * std::sin ( 2.0 * mathematical_constants::PI * time / 5.0E4 + 1.5 ) ).finished( );
+    return ( Eigen::Vector3d( ) << 1.0E-6 * std::sin( 2.0 * mathematical_constants::PI * time / 1.0E4 + 0.1 ),
+             -2.0E-6 * std::sin( 2.0 * mathematical_constants::PI * time / 3.0E4 + 0.5 ),
+             -8.0E-7 * std::sin( 2.0 * mathematical_constants::PI * time / 5.0E4 + 1.5 ) )
+            .finished( );
 }
 
 BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
@@ -61,8 +61,7 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
 
     // Create body objects.
     std::vector< std::string > bodiesToCreate = { "Earth", "Sun" };
-    BodyListSettings bodySettings = getDefaultBodySettings(
-                bodiesToCreate, "Sun", "ECLIPJ2000" );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "Sun", "ECLIPJ2000" );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
 
@@ -80,11 +79,8 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
 
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Earth" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
 
     std::map< double, Eigen::Vector3d > customAccelerationMap;
     double timeStep = 30.0;
@@ -95,27 +91,26 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
         currentTime += timeStep;
     }
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > customAccelerationInterpolator =
-            interpolators::createOneDimensionalInterpolator(
-                customAccelerationMap, std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) );
+            interpolators::createOneDimensionalInterpolator( customAccelerationMap,
+                                                             std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) );
 
-    std::function< Eigen::Vector3d( const double ) > customAccelerationFunction =
-            std::bind( static_cast< Eigen::Vector3d( interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d >::* )
-                       ( const double ) >( &interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d >::interpolate ),
-                       customAccelerationInterpolator, std::placeholders::_1 );
+    std::function< Eigen::Vector3d( const double ) > customAccelerationFunction = std::bind(
+            static_cast< Eigen::Vector3d ( interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d >::* )( const double ) >(
+                    &interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d >::interpolate ),
+            customAccelerationInterpolator,
+            std::placeholders::_1 );
 
-    std::function< double( const double) > customAccelerationScalingFunction =
-            tudat::simulation_setup::getOccultationFunction(
-                bodies, "Sun", "Earth", "Vehicle" );
+    std::function< double( const double ) > customAccelerationScalingFunction =
+            tudat::simulation_setup::getOccultationFunction( bodies, "Sun", "Earth", "Vehicle" );
 
     accelerationsOfVehicle[ "Earth" ].push_back(
-                std::make_shared< CustomAccelerationSettings >(
-                    customAccelerationFunction, customAccelerationScalingFunction ) );
+            std::make_shared< CustomAccelerationSettings >( customAccelerationFunction, customAccelerationScalingFunction ) );
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -130,66 +125,65 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
     vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
     vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
     vehicleInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 0.0 );
-    vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) =
-            convertDegreesToRadians( 235.7 );
-    vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) =
-            convertDegreesToRadians( 23.4 );
+    vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 235.7 );
+    vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 23.4 );
     vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
     // Convert Vehicle state from Keplerian elements to Cartesian elements.
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
-                vehicleInitialStateInKeplerianElements,
-                earthGravitationalParameter );
+    Eigen::VectorXd systemInitialState =
+            convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create numerical integrator settings.
     double simulationStartEpoch = 0.0;
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
     // Create propagator settings.
     // Set variables to save
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    dependentVariables.push_back(
-                std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                    basic_astrodynamics::custom_acceleration, "Vehicle", "Earth", 0 ) );
+    dependentVariables.push_back( std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+            basic_astrodynamics::custom_acceleration, "Vehicle", "Earth", 0 ) );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationStartEpoch,
-              integratorSettings,
-              std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
-              cowell, dependentVariables );
-
-
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    systemInitialState,
+                    simulationStartEpoch,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                    cowell,
+                    dependentVariables );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, propagatorSettings );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
     std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
     std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     double sourceBodyRadius = bodies.at( "Sun" )->getShapeModel( )->getAverageRadius( );
     double occultingBodyRadius = bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( );
 
-    for( auto it : dependentVariableHistory )
+    for( auto it: dependentVariableHistory )
     {
-        double shadowFunction =
-                mission_geometry::computeShadowFunction(
-                    bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ), sourceBodyRadius,
-                    bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ), occultingBodyRadius,
-                    stateHistory.at( it.first ).segment( 0, 3 ) +
-                    bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ) );
+        double shadowFunction = mission_geometry::computeShadowFunction(
+                bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ),
+                sourceBodyRadius,
+                bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ),
+                occultingBodyRadius,
+                stateHistory.at( it.first ).segment( 0, 3 ) +
+                        bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ) );
 
         Eigen::Vector3d expectedAcceleration = shadowFunction * customAcceleration( it.first );
         Eigen::Vector3d savedAcceleration = it.second;
 
-//        std::cout<<savedAcceleration.transpose( )<<std::endl;
-//        std::cout<<expectedAcceleration.transpose( )<<std::endl<<std::endl;
+        //        std::cout<<savedAcceleration.transpose( )<<std::endl;
+        //        std::cout<<expectedAcceleration.transpose( )<<std::endl<<std::endl;
 
         BOOST_CHECK_SMALL( savedAcceleration( 0 ) - expectedAcceleration( 0 ), 1.0E-19 );
         BOOST_CHECK_SMALL( savedAcceleration( 1 ) - expectedAcceleration( 1 ), 1.0E-19 );
@@ -199,9 +193,10 @@ BOOST_AUTO_TEST_CASE( test_customAccelerationModelCreation )
 
 Eigen::Vector3d customTorque( const double time )
 {
-    return ( Eigen::Vector3d( ) << 1.0E-6 * std::sin ( 2.0 * mathematical_constants::PI * time / 1.0E4 + 0.1 ),
-             -2.0E-6 * std::sin ( 2.0 * mathematical_constants::PI * time / 3.0E4 + 0.5 ),
-             -8.0E-7 * std::sin ( 2.0 * mathematical_constants::PI * time / 5.0E4 + 1.5 ) ).finished( );
+    return ( Eigen::Vector3d( ) << 1.0E-6 * std::sin( 2.0 * mathematical_constants::PI * time / 1.0E4 + 0.1 ),
+             -2.0E-6 * std::sin( 2.0 * mathematical_constants::PI * time / 3.0E4 + 0.5 ),
+             -8.0E-7 * std::sin( 2.0 * mathematical_constants::PI * time / 5.0E4 + 1.5 ) )
+            .finished( );
 }
 
 BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
@@ -226,8 +221,7 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
 
     // Create body objects.
     std::vector< std::string > bodiesToCreate = { "Earth", "Sun" };
-    BodyListSettings bodySettings = getDefaultBodySettings(
-                bodiesToCreate, "Sun", "ECLIPJ2000" );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "Sun", "ECLIPJ2000" );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( 10.0 );
@@ -251,16 +245,14 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
 
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Earth" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back(
-                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -275,33 +267,29 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
     vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
     vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
     vehicleInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 0.0 );
-    vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) =
-            convertDegreesToRadians( 235.7 );
-    vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) =
-            convertDegreesToRadians( 23.4 );
+    vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 235.7 );
+    vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 23.4 );
     vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
     // Convert Vehicle state from Keplerian elements to Cartesian elements.
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    Eigen::VectorXd systemInitialTranslationalState = convertKeplerianToCartesianElements(
-                vehicleInitialStateInKeplerianElements,
-                earthGravitationalParameter );
+    Eigen::VectorXd systemInitialTranslationalState =
+            convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create propagator settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialTranslationalState, simulationEndEpoch );
-
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialTranslationalState, simulationEndEpoch );
 
     Eigen::VectorXd systemInitialRotationalState = Eigen::VectorXd::Zero( 7 );
-    systemInitialRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
-                Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
+    systemInitialRotationalState.segment( 0, 4 ) =
+            linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
     systemInitialRotationalState.segment( 4, 3 ) = Eigen::Vector3d::Constant( 1.0E-5 );
 
     // Create torque models
     SelectedTorqueMap torqueMap;
-    torqueMap[ "Vehicle" ][ "Earth" ].push_back( std::make_shared< TorqueSettings >(
-                                                     basic_astrodynamics::second_order_gravitational_torque ) );
+    torqueMap[ "Vehicle" ][ "Earth" ].push_back(
+            std::make_shared< TorqueSettings >( basic_astrodynamics::second_order_gravitational_torque ) );
 
     std::map< double, Eigen::Vector3d > customTorqueMap;
     double timeStep = 30.0;
@@ -312,76 +300,69 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
         currentTime += timeStep;
     }
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > customTorqueInterpolator =
-            interpolators::createOneDimensionalInterpolator(
-                customTorqueMap, std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) );
+            interpolators::createOneDimensionalInterpolator( customTorqueMap,
+                                                             std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) );
 
-    std::function< Eigen::Vector3d( const double ) > customTorqueFunction =
-            std::bind( static_cast< Eigen::Vector3d( interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d >::* )
-                       ( const double ) >( &interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d >::interpolate ),
-                       customTorqueInterpolator, std::placeholders::_1 );
+    std::function< Eigen::Vector3d( const double ) > customTorqueFunction = std::bind(
+            static_cast< Eigen::Vector3d ( interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d >::* )( const double ) >(
+                    &interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d >::interpolate ),
+            customTorqueInterpolator,
+            std::placeholders::_1 );
 
-    std::function< double( const double) > customTorqueScalingFunction =
-            tudat::simulation_setup::getOccultationFunction(
-                bodies, "Sun", "Earth", "Vehicle" );
+    std::function< double( const double ) > customTorqueScalingFunction =
+            tudat::simulation_setup::getOccultationFunction( bodies, "Sun", "Earth", "Vehicle" );
 
-    torqueMap[ "Vehicle" ][ "Earth" ].push_back( std::make_shared< CustomTorqueSettings >(
-                                                     customTorqueFunction, customTorqueScalingFunction ) );
+    torqueMap[ "Vehicle" ][ "Earth" ].push_back(
+            std::make_shared< CustomTorqueSettings >( customTorqueFunction, customTorqueScalingFunction ) );
 
-    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                bodies, torqueMap, bodiesToPropagate );
-
+    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, torqueMap, bodiesToPropagate );
 
     // Define propagator settings.
     std::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
-            std::make_shared< RotationalStatePropagatorSettings< double > >
-            ( torqueModelMap, bodiesToPropagate, systemInitialRotationalState, std::make_shared< PropagationTimeTerminationSettings >(
-                  simulationEndEpoch ) );
+            std::make_shared< RotationalStatePropagatorSettings< double > >(
+                    torqueModelMap,
+                    bodiesToPropagate,
+                    systemInitialRotationalState,
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Set variables to save
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    dependentVariables.push_back(
-                std::make_shared< SingleTorqueDependentVariableSaveSettings >(
-                    custom_torque, "Vehicle", "Earth" ) );
+    dependentVariables.push_back( std::make_shared< SingleTorqueDependentVariableSaveSettings >( custom_torque, "Vehicle", "Earth" ) );
 
-    std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList;
     propagatorSettingsList.push_back( translationalPropagatorSettings );
     propagatorSettingsList.push_back( rotationalPropagatorSettings );
 
     // Create numerical integrator settings.
     double simulationStartEpoch = 0.0;
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
-    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-            std::make_shared< MultiTypePropagatorSettings< double > >(
-                propagatorSettingsList,
-                std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ),
-                dependentVariables );
-
-
+    std::shared_ptr< PropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+            propagatorSettingsList, std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ), dependentVariables );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
     std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     double sourceBodyRadius = bodies.at( "Sun" )->getShapeModel( )->getAverageRadius( );
     double occultingBodyRadius = bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( );
 
-    for( auto it : dependentVariableHistory )
+    for( auto it: dependentVariableHistory )
     {
-        double shadowFunction =
-                mission_geometry::computeShadowFunction(
-                    bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ), sourceBodyRadius,
-                    bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ), occultingBodyRadius,
-                    stateHistory.at( it.first ).segment( 0, 3 ) +
-                    bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ) );
+        double shadowFunction = mission_geometry::computeShadowFunction(
+                bodies.at( "Sun" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ),
+                sourceBodyRadius,
+                bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ),
+                occultingBodyRadius,
+                stateHistory.at( it.first ).segment( 0, 3 ) +
+                        bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( it.first ).segment( 0, 3 ) );
 
         Eigen::Vector3d expectedTorque = shadowFunction * customTorque( it.first );
         Eigen::Vector3d savedTorque = it.second;
@@ -391,8 +372,7 @@ BOOST_AUTO_TEST_CASE( test_customTorqueModelCreation )
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

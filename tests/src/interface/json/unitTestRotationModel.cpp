@@ -20,17 +20,14 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_rotationModel )
 
 // Test 1: rotation model types
 BOOST_AUTO_TEST_CASE( test_json_rotationModel_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
-                            simulation_setup::rotationModelTypes,
-                            simulation_setup::unsupportedRotationModelTypes );
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ), simulation_setup::rotationModelTypes, simulation_setup::unsupportedRotationModelTypes );
 }
 
 // Test 2: simple rotation model
@@ -55,11 +52,7 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_simple )
             spice_interface::computeRotationQuaternionBetweenFrames( originalFrame, targetFrame, initialTime );
     const double rotationRate = 2.0e-5;
     const std::shared_ptr< RotationModelSettings > manualSettings =
-            std::make_shared< SimpleRotationModelSettings >( originalFrame,
-                                                               targetFrame,
-                                                               initialOrientation,
-                                                               initialTime,
-                                                               rotationRate );
+            std::make_shared< SimpleRotationModelSettings >( originalFrame, targetFrame, initialOrientation, initialTime, rotationRate );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -79,9 +72,7 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_spice )
     const std::string originalFrame = "foo";
     const std::string targetFrame = "oof";
     const std::shared_ptr< RotationModelSettings > manualSettings =
-            std::make_shared< RotationModelSettings >( spice_rotation_model,
-                                                         originalFrame,
-                                                         targetFrame );
+            std::make_shared< RotationModelSettings >( spice_rotation_model, originalFrame, targetFrame );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -102,8 +93,7 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_gcrs_itrs )
     const basic_astrodynamics::IAUConventions iauConvention = basic_astrodynamics::iau_2000_b;
 
     const std::shared_ptr< RotationModelSettings > manualSettings =
-            std::make_shared< GcrsToItrsRotationModelSettings >(
-                iauConvention, originalFrame );
+            std::make_shared< GcrsToItrsRotationModelSettings >( iauConvention, originalFrame );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -121,14 +111,13 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_synchronous )
 
     // Create RotationModelSettings manually
     const std::shared_ptr< RotationModelSettings > manualSettings =
-            std::make_shared< SynchronousRotationModelSettings >(
-                "Sun", "ECLIPJ2000", "IAU_Earth" );
+            std::make_shared< SynchronousRotationModelSettings >( "Sun", "ECLIPJ2000", "IAU_Earth" );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

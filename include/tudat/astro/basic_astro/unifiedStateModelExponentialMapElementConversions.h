@@ -101,9 +101,9 @@ Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelExponentialMapE
 
 //! Convert unified state model elements with exponential map to Cartesian elements.
 /*!
-* Converts unified state model elements with exponential map to Cartesian elements.
-* \param unifiedStateModelElements Vector containing unified state model elements with exponential map.
-*        Order of elements is important!
+ * Converts unified state model elements with exponential map to Cartesian elements.
+ * \param unifiedStateModelElements Vector containing unified state model elements with exponential map.
+ *        Order of elements is important!
  *         unifiedStateModelElements( 0 ) = C hodograph element,                              [m/s]
  *         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                            [m/s]
  *         unifiedStateModelElements( 2 ) = Rf1 hodograph element,                            [m/s]
@@ -111,21 +111,21 @@ Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelExponentialMapE
  *         unifiedStateModelElements( 4 ) = e2 exponential map element,                         [-]
  *         unifiedStateModelElements( 5 ) = e3 exponential map element,                         [-]
  *         unifiedStateModelElements( 6 ) = shadow exponential map flag.                        [-]
-* \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
-* \return convertedCartesianElements Converted state in Cartesian elements. The order of elements is fixed!
+ * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
+ * \return convertedCartesianElements Converted state in Cartesian elements. The order of elements is fixed!
  *         convertedCartesianElements( 0 ) = x-position coordinate,                            [m]
  *         convertedCartesianElements( 1 ) = y-position coordinate,                            [m]
  *         convertedCartesianElements( 2 ) = z-position coordinate,                            [m]
  *         convertedCartesianElements( 3 ) = x-velocity coordinate,                          [m/s]
  *         convertedCartesianElements( 4 ) = y-velocity coordinate,                          [m/s]
  *         convertedCartesianElements( 5 ) = z-velocity coordinate.                          [m/s]
-*/
+ */
 Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelExponentialMapToCartesianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
-} // namespace orbital_element_conversions
+}  // namespace orbital_element_conversions
 
-} // close tudat
+}  // namespace tudat
 
-#endif // TUDAT_UNIFIED_STATE_MODEL_EXPONENTIAL_MAP_ELEMENT_CONVERSIONS_H
+#endif  // TUDAT_UNIFIED_STATE_MODEL_EXPONENTIAL_MAP_ELEMENT_CONVERSIONS_H

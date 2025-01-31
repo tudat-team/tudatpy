@@ -6,8 +6,6 @@ namespace tudat
 namespace numerical_quadrature
 {
 
+}  // namespace numerical_quadrature
 
-} // namespace numerical_quadrature
-
-} // namespace tudat
-
+}  // namespace tudat

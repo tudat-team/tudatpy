@@ -102,9 +102,9 @@ Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelModifiedRodrigu
 
 //! Convert unified state model elements with modified rodrigues parameters to Cartesian elements.
 /*!
-* Converts unified state model elements with modified rodrigues parameters to Cartesian elements.
-* \param unifiedStateModelElements Vector containing unified state model elements with modified rodrigues parameters.
-*        Order of elements is important!
+ * Converts unified state model elements with modified rodrigues parameters to Cartesian elements.
+ * \param unifiedStateModelElements Vector containing unified state model elements with modified rodrigues parameters.
+ *        Order of elements is important!
  *         unifiedStateModelElements( 0 ) = C hodograph element,                             [m/s]
  *         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                           [m/s]
  *         unifiedStateModelElements( 2 ) = Rf1 hodograph element,                           [m/s]
@@ -112,21 +112,21 @@ Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelModifiedRodrigu
  *         unifiedStateModelElements( 4 ) = sigma2 modified rodrigues parameters element,      [-]
  *         unifiedStateModelElements( 5 ) = sigma3 modified rodrigues parameters element.      [-]
  *         unifiedStateModelElements( 6 ) = shadow modified rodrigues parameters flag.         [-]
-* \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
-* \return convertedCartesianElements Converted state in Cartesian elements. The order of elements is fixed!
+ * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
+ * \return convertedCartesianElements Converted state in Cartesian elements. The order of elements is fixed!
  *         convertedCartesianElements( 0 ) = x-position coordinate,                            [m]
  *         convertedCartesianElements( 1 ) = y-position coordinate,                            [m]
  *         convertedCartesianElements( 2 ) = z-position coordinate,                            [m]
  *         convertedCartesianElements( 3 ) = x-velocity coordinate,                          [m/s]
  *         convertedCartesianElements( 4 ) = y-velocity coordinate,                          [m/s]
  *         convertedCartesianElements( 5 ) = z-velocity coordinate.                          [m/s]
-*/
+ */
 Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
-} // namespace orbital_element_conversions
+}  // namespace orbital_element_conversions
 
-} // close tudat
+}  // namespace tudat
 
-#endif // TUDAT_UNIFIED_STATE_MODEL_MODIFIED_RODRIGUES_PARAMETER_ELEMENT_CONVERSIONS_H
+#endif  // TUDAT_UNIFIED_STATE_MODEL_MODIFIED_RODRIGUES_PARAMETER_ELEMENT_CONVERSIONS_H

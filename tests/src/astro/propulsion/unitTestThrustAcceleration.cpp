@@ -13,9 +13,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
-
-
 #include <memory>
 
 #include "tudat/astro/aerodynamics/testApolloCapsuleCoefficients.h"
@@ -48,7 +45,6 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_thrust_acceleration )
 
-
 BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 {
     using namespace tudat;
@@ -68,13 +64,12 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     Eigen::Vector3d thrustDirection;
     thrustDirection << -1.4, 2.4, 5.6;
 
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
-            [=](const double){ return thrustDirection; };
-    bodies.at( "Vehicle" )->setRotationalEphemeris(
-                createRotationModel(
-                    std::make_shared< BodyFixedDirectionBasedRotationSettings >(
-                        thrustDirectionFunction, "ECLIPJ2000", "VehicleFixed" ),
-                    "Vehicle", bodies ) );
+    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double ) { return thrustDirection; };
+    bodies.at( "Vehicle" )
+            ->setRotationalEphemeris( createRotationModel(
+                    std::make_shared< BodyFixedDirectionBasedRotationSettings >( thrustDirectionFunction, "ECLIPJ2000", "VehicleFixed" ),
+                    "Vehicle",
+                    bodies ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -86,16 +81,11 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     double massRate = thrustMagnitude / ( specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
 
     addEngineModel(
-                "Vehicle", "MainEngine",
-                std::make_shared< ConstantThrustMagnitudeSettings >(
-                    thrustMagnitude, specificImpulse ), bodies );
-
-
+            "Vehicle", "MainEngine", std::make_shared< ConstantThrustMagnitudeSettings >( thrustMagnitude, specificImpulse ), bodies );
 
     // Define acceleration model settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                       "MainEngine" ) );
+    accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
@@ -106,48 +96,45 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
             std::make_shared< propagators::PropagationTimeTerminationSettings >( 10.0 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings );
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, 0.0, 0.1 );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 0.1 );
     {
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
                 dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
         Eigen::Vector3d constantAcceleration = thrustDirection.normalized( ) * thrustMagnitude / vehicleMass;
-        for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
-             numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
+        for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator = numericalSolution.begin( );
+             outputIterator != numericalSolution.end( );
+             outputIterator++ )
         {
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( outputIterator->second.segment( 0, 3 ) ),
+                                               ( 0.5 * constantAcceleration * std::pow( outputIterator->first, 2.0 ) ),
+                                               1.0E-12 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        ( outputIterator->second.segment( 0, 3 ) ),
-                        ( 0.5 * constantAcceleration * std::pow( outputIterator->first, 2.0 ) ), 1.0E-12 );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        ( outputIterator->second.segment( 3, 3 ) ),
-                        ( constantAcceleration * outputIterator->first ), 1.0E-12 );
+                    ( outputIterator->second.segment( 3, 3 ) ), ( constantAcceleration * outputIterator->first ), 1.0E-12 );
         }
     }
     {
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-        massRateModels[ "Vehicle" ] = (
-                    createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >(1 ),
-                                         bodies, accelerationModelMap ) );
+        massRateModels[ "Vehicle" ] =
+                ( createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >( 1 ), bodies, accelerationModelMap ) );
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
-                std::make_shared< MassPropagatorSettings< double > >(
-                    std::vector< std::string >{ "Vehicle" }, massRateModels,
-                    ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ), terminationSettings );
+                std::make_shared< MassPropagatorSettings< double > >( std::vector< std::string >{ "Vehicle" },
+                                                                      massRateModels,
+                                                                      ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
+                                                                      terminationSettings );
 
         std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
@@ -157,36 +144,31 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
                 std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
 
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
                 dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
-        for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
-             numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
+        for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator = numericalSolution.begin( );
+             outputIterator != numericalSolution.end( );
+             outputIterator++ )
         {
             double currentMass = vehicleMass - outputIterator->first * massRate;
 
-            Eigen::Vector3d currentVelocity = thrustDirection.normalized( ) *
-                    specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION *
-                    std::log( vehicleMass / currentMass );
+            Eigen::Vector3d currentVelocity = thrustDirection.normalized( ) * specificImpulse *
+                    physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * std::log( vehicleMass / currentMass );
             BOOST_CHECK_CLOSE_FRACTION( outputIterator->second( 6 ), currentMass, 1.0E-12 );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        ( outputIterator->second.segment( 3, 3 ) ), currentVelocity, 1.0E-11 );
-
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( outputIterator->second.segment( 3, 3 ) ), currentVelocity, 1.0E-11 );
         }
     }
 }
 
 Eigen::Vector3d getEarthJupiterVector( const double time )
 {
-    return spice_interface::getBodyCartesianPositionAtEpoch(
-                "Jupiter", "Earth", "J2000", "None", time );
+    return spice_interface::getBodyCartesianPositionAtEpoch( "Jupiter", "Earth", "J2000", "None", time );
 }
 
-Eigen::Vector3d getEarthJupiterVectorFromEnvironment(
-        const double time, const simulation_setup::SystemOfBodies& bodies )
+Eigen::Vector3d getEarthJupiterVectorFromEnvironment( const double time, const simulation_setup::SystemOfBodies& bodies )
 {
     return bodies.at( "Jupiter" )->getPosition( ) - bodies.at( "Earth" )->getPosition( );
 }
@@ -195,7 +177,6 @@ double getFreeRotationAngle( const double time )
 {
     return 2.0 * std::sin( 2.0 * mathematical_constants::PI * time / 3600.0 );
 }
-
 
 BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
 {
@@ -230,8 +211,7 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
         bodiesToCreate.push_back( "Jupiter" );
 
         // Create body objects.
-        BodyListSettings bodySettings =
-                getDefaultBodySettings( bodiesToCreate, "Earth", "J2000" );
+        BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "Earth", "J2000" );
         SystemOfBodies bodies;
 
         std::function< double( const double ) > freeRotationAngleFunction = nullptr;
@@ -243,17 +223,16 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
         if( ( test % 4 ) == 3 )
         {
             bodySettings.addSettings( "Vehicle" );
-            bodySettings.at( "Vehicle" )->rotationModelSettings =
-                    std::make_shared< BodyFixedDirectionBasedRotationSettings >(
-                        std::function< Eigen::Vector3d( const double ) >( ), "J2000", "VehicleFixed" );
+            bodySettings.at( "Vehicle" )->rotationModelSettings = std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+                    std::function< Eigen::Vector3d( const double ) >( ), "J2000", "VehicleFixed" );
             bodies = createSystemOfBodies( bodySettings );
             std::dynamic_pointer_cast< tudat::ephemerides::DirectionBasedRotationalEphemeris >(
-                        bodies.at( "Vehicle")->getRotationalEphemeris( ) )->setInertialBodyAxisDirectionCalculator(
-                        std::make_shared< CustomBodyFixedDirectionCalculator >(
-                        std::bind( &getEarthJupiterVectorFromEnvironment, std::placeholders::_1, bodies ) ) );
+                    bodies.at( "Vehicle" )->getRotationalEphemeris( ) )
+                    ->setInertialBodyAxisDirectionCalculator( std::make_shared< CustomBodyFixedDirectionCalculator >(
+                            std::bind( &getEarthJupiterVectorFromEnvironment, std::placeholders::_1, bodies ) ) );
             std::dynamic_pointer_cast< tudat::ephemerides::DirectionBasedRotationalEphemeris >(
-                        bodies.at( "Vehicle")->getRotationalEphemeris( ) )->setFreeRotationAngleFunction(
-                        freeRotationAngleFunction );
+                    bodies.at( "Vehicle" )->getRotationalEphemeris( ) )
+                    ->setFreeRotationAngleFunction( freeRotationAngleFunction );
         }
         else if( ( test % 4 ) == 2 )
         {
@@ -261,23 +240,21 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
 
             // Create spacecraft object.
             bodies.createEmptyBody( "Vehicle" );
-            bodies.at( "Vehicle" )->setRotationalEphemeris(
-                        createRotationModel(
-                            std::make_shared< BodyFixedDirectionBasedRotationSettings >(
-                                &getEarthJupiterVector, "J2000", "VehicleFixed", freeRotationAngleFunction ),
-                            "Vehicle", bodies ) );
+            bodies.at( "Vehicle" )
+                    ->setRotationalEphemeris(
+                            createRotationModel( std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+                                                         &getEarthJupiterVector, "J2000", "VehicleFixed", freeRotationAngleFunction ),
+                                                 "Vehicle",
+                                                 bodies ) );
         }
         else
         {
             bodySettings.addSettings( "Vehicle" );
-            bodySettings.at( "Vehicle" )->rotationModelSettings =
-                    std::make_shared< BodyFixedDirectionBasedRotationSettings >(
-                        &getEarthJupiterVector, "J2000", "VehicleFixed", freeRotationAngleFunction );
+            bodySettings.at( "Vehicle" )->rotationModelSettings = std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+                    &getEarthJupiterVector, "J2000", "VehicleFixed", freeRotationAngleFunction );
             bodies = createSystemOfBodies( bodySettings );
-
         }
         bodies.at( "Vehicle" )->setConstantBodyMass( bodyMass );
-
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -295,72 +272,67 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
             bodyFixedThrustDirection = Eigen::Vector3d::UnitX( );
         }
 
-        addEngineModel(
-                    "Vehicle", "MainEngine",
-                    std::make_shared< ConstantThrustMagnitudeSettings >(
-                        thrustMagnitude1, specificImpulse1 ), bodies, bodyFixedThrustDirection );
-
+        addEngineModel( "Vehicle",
+                        "MainEngine",
+                        std::make_shared< ConstantThrustMagnitudeSettings >( thrustMagnitude1, specificImpulse1 ),
+                        bodies,
+                        bodyFixedThrustDirection );
 
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-        accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::point_mass_gravity ) );
-        accelerationsOfVehicle[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::point_mass_gravity ) );
+        accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+        accelerationsOfVehicle[ "Jupiter" ].push_back(
+                std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
         accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
 
         accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
         bodiesToPropagate.push_back( "Vehicle" );
         centralBodies.push_back( "Earth" );
-        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set Keplerian elements for Vehicle.
         Eigen::Vector6d vehicleInitialStateInKeplerianElements;
         vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 8000.0E3;
         vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
         vehicleInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
-        vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-                = unit_conversions::convertDegreesToRadians( 235.7 );
-        vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-                = unit_conversions::convertDegreesToRadians( 23.4 );
+        vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+        vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
         vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
         double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-        const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
-                    vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
-
+        const Eigen::Vector6d vehicleInitialState =
+                convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
 
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        inertial_to_body_fixed_rotation_matrix_variable, "Vehicle" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( inertial_to_body_fixed_rotation_matrix_variable, "Vehicle" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                        thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
-//        dependentVariables.push_back(
-//                    std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
-//                        "Vehicle", reference_frames::inertial_frame, reference_frames::body_frame ) );
+                std::make_shared< SingleAccelerationDependentVariableSaveSettings >( thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+        //        dependentVariables.push_back(
+        //                    std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+        //                        "Vehicle", reference_frames::inertial_frame, reference_frames::body_frame ) );
 
         // Define propagator settings (Cowell)
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch,
-                  cowell, dependentVariables );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                    accelerationModelMap,
+                                                                                    bodiesToPropagate,
+                                                                                    vehicleInitialState,
+                                                                                    simulationEndEpoch,
+                                                                                    cowell,
+                                                                                    dependentVariables );
 
         // Define integrator settings.
         const double fixedStepSize = 5.0;
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< IntegratorSettings< > >
-                ( rungeKutta4, 0.0, fixedStepSize );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
         // Propagate orbit with Cowell method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
 
         std::map< double, Eigen::Matrix3d > currentRotationMatrixHistory;
-        for( auto it : dynamicsSimulator.getDependentVariableHistory( ) )
+        for( auto it: dynamicsSimulator.getDependentVariableHistory( ) )
         {
             double currentTime = it.first;
             Eigen::Matrix3d currentRotationMatrixToBodyFixedFrame =
@@ -371,12 +343,11 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
             }
             else
             {
-                Eigen::Matrix3d remainingRotationMatrix =
-                        rotationMatrixHistoriesWithoutFreeRotationAngle[ test - 4 ][ currentTime ] *
+                Eigen::Matrix3d remainingRotationMatrix = rotationMatrixHistoriesWithoutFreeRotationAngle[ test - 4 ][ currentTime ] *
                         currentRotationMatrixToBodyFixedFrame.inverse( );
                 double freeRotationAngle = getFreeRotationAngle( currentTime );
-                Eigen::Matrix3d testRemainingRotationMatrix = Eigen::AngleAxisd(
-                            freeRotationAngle, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( );
+                Eigen::Matrix3d testRemainingRotationMatrix =
+                        Eigen::AngleAxisd( freeRotationAngle, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( );
                 for( int i = 0; i < 3; i++ )
                 {
                     for( int j = 0; j < 3; j++ )
@@ -385,9 +356,9 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
                                            8.0 * std::numeric_limits< double >::epsilon( ) );
                     }
                 }
-//                std::cout<<test<<" "<<freeRotationAngle<<std::endl<<remainingRotationMatrix - testRemainingRotationMatrix<<std::endl<<std::endl;
-//                std::cout<<testRemainingRotationMatrix<<std::endl<<std::endl<<std::endl;
-
+                //                std::cout<<test<<" "<<freeRotationAngle<<std::endl<<remainingRotationMatrix -
+                //                testRemainingRotationMatrix<<std::endl<<std::endl;
+                //                std::cout<<testRemainingRotationMatrix<<std::endl<<std::endl<<std::endl;
             }
 
             Eigen::Vector3d inertialThrustVector = it.second.segment( 9, 3 );
@@ -414,14 +385,13 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
             }
             if( it.first < 50.0 )
             {
-//                std::cout<<"Test "<<test<<" Time "<<it.first<<std::endl;
+                //                std::cout<<"Test "<<test<<" Time "<<it.first<<std::endl;
             }
-            BOOST_CHECK_CLOSE_FRACTION( bodyFixedThrustVector( nonZeroIndex ), thrustMagnitude1 / bodyMass,
-                                        5.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( bodyFixedThrustVector( zeroIndex ), thrustMagnitude1 / bodyMass *
-                               5.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( bodyFixedThrustVector( 2 ), thrustMagnitude1 / bodyMass *
-                               10.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_CLOSE_FRACTION(
+                    bodyFixedThrustVector( nonZeroIndex ), thrustMagnitude1 / bodyMass, 5.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( bodyFixedThrustVector( zeroIndex ),
+                               thrustMagnitude1 / bodyMass * 5.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( bodyFixedThrustVector( 2 ), thrustMagnitude1 / bodyMass * 10.0 * std::numeric_limits< double >::epsilon( ) );
         }
         if( test < 4 )
         {
@@ -429,7 +399,6 @@ BOOST_AUTO_TEST_CASE( testDirectionBasedRotationWithThrustAcceleration )
         }
     }
 }
-
 
 //! In this unit test, the thrust acceleration is tested for the case where the thrust force is taken from a (set of)
 //! engine objects stored in the VehicleSystems object. This is tested for a single engine (out of two), two engines, as
@@ -445,7 +414,6 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
     using namespace basic_mathematics;
     using namespace basic_astrodynamics;
 
-
     for( unsigned int i = 0; i < 4; i++ )
     {
         // Create Earth object
@@ -460,35 +428,27 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         double thrustMagnitude1 = 1.0E3;
         double specificImpulse1 = 250.0;
-        double massFlow1 = propulsion::computePropellantMassRateFromSpecificImpulse(
-                    thrustMagnitude1, specificImpulse1 );
+        double massFlow1 = propulsion::computePropellantMassRateFromSpecificImpulse( thrustMagnitude1, specificImpulse1 );
 
         double thrustMagnitude2 = 2.0E3;
         double specificImpulse2 = 300.0;
-        double massFlow2 = propulsion::computePropellantMassRateFromSpecificImpulse(
-                    thrustMagnitude2, specificImpulse2 );
+        double massFlow2 = propulsion::computePropellantMassRateFromSpecificImpulse( thrustMagnitude2, specificImpulse2 );
 
         addEngineModel(
-                    "Vehicle", "Engine1",
-                    std::make_shared< ConstantThrustMagnitudeSettings >(
-                        thrustMagnitude1, specificImpulse1 ), bodies );
+                "Vehicle", "Engine1", std::make_shared< ConstantThrustMagnitudeSettings >( thrustMagnitude1, specificImpulse1 ), bodies );
 
         addEngineModel(
-                    "Vehicle", "Engine2",
-                    std::make_shared< ConstantThrustMagnitudeSettings >(
-                        thrustMagnitude2, specificImpulse2 ), bodies );
-
+                "Vehicle", "Engine2", std::make_shared< ConstantThrustMagnitudeSettings >( thrustMagnitude2, specificImpulse2 ), bodies );
 
         Eigen::Vector3d thrustDirection;
         thrustDirection << -1.4, 2.4, 5.6;
 
-        std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
-                [=](const double){ return thrustDirection; };
-        bodies.at( "Vehicle" )->setRotationalEphemeris(
-                    createRotationModel(
-                        std::make_shared< BodyFixedDirectionBasedRotationSettings >(
-                            thrustDirectionFunction, "ECLIPJ2000", "VehicleFixed" ),
-                        "Vehicle", bodies ) );
+        std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double ) { return thrustDirection; };
+        bodies.at( "Vehicle" )
+                ->setRotationalEphemeris( createRotationModel( std::make_shared< BodyFixedDirectionBasedRotationSettings >(
+                                                                       thrustDirectionFunction, "ECLIPJ2000", "VehicleFixed" ),
+                                                               "Vehicle",
+                                                               bodies ) );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -499,36 +459,28 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         // Define acceleration model settings.
         switch( i )
         {
-        case 0:
-        {
-            accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-            std::vector< std::string >( { "Engine1", "Engine2" } ) ) );
-            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
-            break;
-        }
-        case 1:
-        {
-            accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                                   "Engine1" ) );
-            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
-            break;
-        }
-        case 2:
-        {
-            accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                               "Engine2" ) );
-            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
-            break;
-        }
-        case 3:
-        {
-            accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                                   "Engine1" ) );
-            accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                                    "Engine2" ) );
-            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
-            break;
-        }
+            case 0: {
+                accelerationsOfVehicle[ "Vehicle" ].push_back(
+                        std::make_shared< ThrustAccelerationSettings >( std::vector< std::string >( { "Engine1", "Engine2" } ) ) );
+                accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+                break;
+            }
+            case 1: {
+                accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >( "Engine1" ) );
+                accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+                break;
+            }
+            case 2: {
+                accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >( "Engine2" ) );
+                accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+                break;
+            }
+            case 3: {
+                accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >( "Engine1" ) );
+                accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >( "Engine2" ) );
+                accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+                break;
+            }
         }
 
         bodiesToPropagate.push_back( "Vehicle" );
@@ -538,69 +490,60 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
         // Create acceleration models and propagation settings.
-        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings );
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< IntegratorSettings< > >
-                ( rungeKutta4, 0.0, 0.1 );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 0.1 );
 
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
 
         double totalMassRate = TUDAT_NAN, totalThrust = TUDAT_NAN;
         switch( i )
         {
-        case 0:
-        {
-            massRateModels[ "Vehicle" ] = (
-                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >(1 ),
-                                             bodies, accelerationModelMap ) );
-            totalMassRate = massFlow1 + massFlow2;
-            totalThrust = thrustMagnitude1 + thrustMagnitude2;
-            break;
-        }
-        case 1:
-        {
-            massRateModels[ "Vehicle" ] = (
-                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >(0, "Engine1" ),
-                                             bodies, accelerationModelMap ) );
-            totalMassRate = massFlow1;
-            totalThrust = thrustMagnitude1;
-            break;
-        }
-        case 2:
-        {
-            massRateModels[ "Vehicle" ] = (
-                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >(0, "Engine2" ),
-                                             bodies, accelerationModelMap ) );
-            totalMassRate = massFlow2;
-            totalThrust = thrustMagnitude2;
-            break;
-        }
-        case 3:
-        {
-            massRateModels[ "Vehicle" ] = (
-                        createMassRateModel( "Vehicle", std::make_shared< FromThrustMassRateSettings >(0, "Engine1" ),
-                                             bodies, accelerationModelMap ) );
-            totalMassRate = massFlow1;
-            totalThrust = thrustMagnitude1 + thrustMagnitude2;
-            break;
-        }
-        default:
-            throw std::runtime_error( "Error in thrust acceleration test, case not recognized" );
+            case 0: {
+                massRateModels[ "Vehicle" ] = ( createMassRateModel(
+                        "Vehicle", std::make_shared< FromThrustMassRateSettings >( 1 ), bodies, accelerationModelMap ) );
+                totalMassRate = massFlow1 + massFlow2;
+                totalThrust = thrustMagnitude1 + thrustMagnitude2;
+                break;
+            }
+            case 1: {
+                massRateModels[ "Vehicle" ] = ( createMassRateModel(
+                        "Vehicle", std::make_shared< FromThrustMassRateSettings >( 0, "Engine1" ), bodies, accelerationModelMap ) );
+                totalMassRate = massFlow1;
+                totalThrust = thrustMagnitude1;
+                break;
+            }
+            case 2: {
+                massRateModels[ "Vehicle" ] = ( createMassRateModel(
+                        "Vehicle", std::make_shared< FromThrustMassRateSettings >( 0, "Engine2" ), bodies, accelerationModelMap ) );
+                totalMassRate = massFlow2;
+                totalThrust = thrustMagnitude2;
+                break;
+            }
+            case 3: {
+                massRateModels[ "Vehicle" ] = ( createMassRateModel(
+                        "Vehicle", std::make_shared< FromThrustMassRateSettings >( 0, "Engine1" ), bodies, accelerationModelMap ) );
+                totalMassRate = massFlow1;
+                totalThrust = thrustMagnitude1 + thrustMagnitude2;
+                break;
+            }
+            default:
+                throw std::runtime_error( "Error in thrust acceleration test, case not recognized" );
         }
 
         double totalSpecificImpulse = totalThrust / ( physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * totalMassRate );
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
-                std::make_shared< MassPropagatorSettings< double > >(
-                    std::vector< std::string >{ "Vehicle" }, massRateModels,
-                    ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ), terminationSettings );
+                std::make_shared< MassPropagatorSettings< double > >( std::vector< std::string >{ "Vehicle" },
+                                                                      massRateModels,
+                                                                      ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
+                                                                      terminationSettings );
 
         std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
@@ -610,27 +553,23 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
                 std::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
 
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
                 dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
-        for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
-             numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
+        for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator = numericalSolution.begin( );
+             outputIterator != numericalSolution.end( );
+             outputIterator++ )
         {
             double currentMass = vehicleMass - outputIterator->first * totalMassRate;
 
-            Eigen::Vector3d currentVelocity = thrustDirection.normalized( ) *
-                    totalSpecificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION *
-                    std::log( vehicleMass / currentMass );
+            Eigen::Vector3d currentVelocity = thrustDirection.normalized( ) * totalSpecificImpulse *
+                    physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * std::log( vehicleMass / currentMass );
             BOOST_CHECK_CLOSE_FRACTION( outputIterator->second( 6 ), currentMass, 1.0E-12 );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        ( outputIterator->second.segment( 3, 3 ) ), currentVelocity, 1.0E-11 );
-
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( outputIterator->second.segment( 3, 3 ) ), currentVelocity, 1.0E-11 );
         }
     }
-
 }
 
 //! In this unit test, the thrust force set to be colinear with the position and velocity vectors is checked.
@@ -644,7 +583,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
     using namespace basic_mathematics;
     using namespace basic_astrodynamics;
 
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     double thrustMagnitude1 = 1.0E3;
@@ -660,11 +599,11 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         bodies.createEmptyBody( "Earth" );
 
         bodies.at( "Earth" )->setEphemeris(
-                    std::make_shared< ephemerides::ConstantEphemeris >( Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" ) );
+                std::make_shared< ephemerides::ConstantEphemeris >( Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" ) );
 
-//                    std::make_shared< ephemerides::SpiceEphemeris >( "Sun", "SSB", false, false ) );
-        bodies.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
-                                                      spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
+        //                    std::make_shared< ephemerides::SpiceEphemeris >( "Sun", "SSB", false, false ) );
+        bodies.at( "Earth" )->setGravityFieldModel(
+                std::make_shared< gravitation::GravityFieldModel >( spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
 
         bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
@@ -685,21 +624,21 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
             isThurstInVelocityDirection = 1;
         }
 
-        bodies.at( "Vehicle" )->setRotationalEphemeris(
-                    createRotationModel(
-                        std::make_shared< OrbitalStateBasedRotationSettings >(
-                            "Earth", isThurstInVelocityDirection, true, "ECLIPJ2000", "BodyFixed" ),
-                        "Vehicle", bodies ) );
+        bodies.at( "Vehicle" )
+                ->setRotationalEphemeris(
+                        createRotationModel( std::make_shared< OrbitalStateBasedRotationSettings >(
+                                                     "Earth", isThurstInVelocityDirection, true, "ECLIPJ2000", "BodyFixed" ),
+                                             "Vehicle",
+                                             bodies ) );
 
-        addEngineModel(
-                    "Vehicle", "MainEngine",
-                    std::make_shared< ConstantThrustMagnitudeSettings >(
-                        thrustMagnitude1, specificImpulse1 ), bodies );
+        addEngineModel( "Vehicle",
+                        "MainEngine",
+                        std::make_shared< ConstantThrustMagnitudeSettings >( thrustMagnitude1, specificImpulse1 ),
+                        bodies );
 
         // Define acceleration model settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-        accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
-                                                           "MainEngine" ) );
+        accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
         if( i == 1 )
         {
             accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
@@ -724,34 +663,32 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         {
             systemInitialState( 0 ) = 8.0E6;
             systemInitialState( 4 ) = 7.5E3;
-
         }
 
         // Create acceleration models and propagation settings.
-        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
         if( i == 1 )
         {
             dependentVariables.push_back(
-                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                            thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
-
+                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >( thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
         }
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
-                  cowell, dependentVariables );
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< IntegratorSettings< > >
-                ( rungeKutta4, 0.0, 0.1 );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                    accelerationModelMap,
+                                                                                    bodiesToPropagate,
+                                                                                    systemInitialState,
+                                                                                    terminationSettings,
+                                                                                    cowell,
+                                                                                    dependentVariables );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 0.1 );
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -765,57 +702,49 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
             double angularVelocity = circularVelocity / radius;
 
             // Check if the spacecraft is in a circular orbit, with the orbit being maintained exactly by the radial thrust.
-            for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
-                 numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
+            for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator = numericalSolution.begin( );
+                 outputIterator != numericalSolution.end( );
+                 outputIterator++ )
             {
                 double currentAngle = angularVelocity * outputIterator->first;
 
                 // Check constancy of position and velocoty scalars.
+                BOOST_CHECK_CLOSE_FRACTION( ( outputIterator->second.segment( 0, 3 ).norm( ) ), radius, 1.0E-10 * radius );
                 BOOST_CHECK_CLOSE_FRACTION(
-                            ( outputIterator->second.segment( 0, 3 ).norm( ) ), radius, 1.0E-10 * radius );
-                BOOST_CHECK_CLOSE_FRACTION(
-                            ( outputIterator->second.segment( 3, 3 ).norm( ) ),
-                            circularVelocity, 1.0E-10 * circularVelocity );
+                        ( outputIterator->second.segment( 3, 3 ).norm( ) ), circularVelocity, 1.0E-10 * circularVelocity );
 
                 // Check whether orbit is planar (in xy-plane) with a constant angular motion at the prescribed mean motion.
-                BOOST_CHECK_SMALL(
-                            std::fabs( outputIterator->second( 0 ) - radius * std::cos( currentAngle ) ), 1.0E-9 * radius );
-                BOOST_CHECK_SMALL(
-                            std::fabs( outputIterator->second( 1 ) - radius * std::sin( currentAngle ) ), 1.0E-9 * radius );
-                BOOST_CHECK_SMALL(
-                            std::fabs( outputIterator->second( 2 ) ), 1.0E-15 );
-                BOOST_CHECK_SMALL(
-                            std::fabs( outputIterator->second( 3 ) + circularVelocity * std::sin( currentAngle ) ),
-                            1.0E-9 * circularVelocity  );
-                BOOST_CHECK_SMALL(
-                            std::fabs( outputIterator->second( 4 ) - circularVelocity * std::cos( currentAngle ) ),
-                            1.0E-9 * circularVelocity  );
-                BOOST_CHECK_SMALL(
-                            std::fabs( outputIterator->second( 5 ) ), 1.0E-15 );
+                BOOST_CHECK_SMALL( std::fabs( outputIterator->second( 0 ) - radius * std::cos( currentAngle ) ), 1.0E-9 * radius );
+                BOOST_CHECK_SMALL( std::fabs( outputIterator->second( 1 ) - radius * std::sin( currentAngle ) ), 1.0E-9 * radius );
+                BOOST_CHECK_SMALL( std::fabs( outputIterator->second( 2 ) ), 1.0E-15 );
+                BOOST_CHECK_SMALL( std::fabs( outputIterator->second( 3 ) + circularVelocity * std::sin( currentAngle ) ),
+                                   1.0E-9 * circularVelocity );
+                BOOST_CHECK_SMALL( std::fabs( outputIterator->second( 4 ) - circularVelocity * std::cos( currentAngle ) ),
+                                   1.0E-9 * circularVelocity );
+                BOOST_CHECK_SMALL( std::fabs( outputIterator->second( 5 ) ), 1.0E-15 );
             }
         }
         else if( i == 1 )
         {
-            for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
-                 numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
+            for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator = numericalSolution.begin( );
+                 outputIterator != numericalSolution.end( );
+                 outputIterator++ )
             {
-
                 // Check if the thrust acceleration is of the correct magnitude, and in the same direction as the velocity.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            ( -1.0 * thrustMagnitude1 / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
-                            ( dependentVariableSolution.at( outputIterator->first ) ), 1.0E-14 );
-//                }
-
+                        ( -1.0 * thrustMagnitude1 / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
+                        ( dependentVariableSolution.at( outputIterator->first ) ),
+                        1.0E-14 );
+                //                }
             }
         }
     }
-
 }
 
 //! Test the thrust force direction when it is taken from a predetermined vehicle rotation (RotationalEphemeris)
 BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 {
-    std::cout<<"testThrustAccelerationFromExistingRotation"<<std::endl;
+    std::cout << "testThrustAccelerationFromExistingRotation" << std::endl;
     using namespace tudat;
     using namespace numerical_integrators;
     using namespace simulation_setup;
@@ -824,10 +753,8 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     using namespace basic_mathematics;
     using namespace basic_astrodynamics;
 
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
-
-
 
     double thrustMagnitude1 = 1.0E3;
     double specificImpulse1 = 250.0;
@@ -837,17 +764,14 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 
     // Create vehicle objects.
     bodies.createEmptyBody( "Earth" );
-    bodies.at( "Earth" )->setEphemeris(
-                std::make_shared< ephemerides::SpiceEphemeris >( "Sun", "SSB", false, false ) );
-    bodies.at( "Earth" )->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
-                                                    spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
+    bodies.at( "Earth" )->setEphemeris( std::make_shared< ephemerides::SpiceEphemeris >( "Sun", "SSB", false, false ) );
+    bodies.at( "Earth" )->setGravityFieldModel(
+            std::make_shared< gravitation::GravityFieldModel >( spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
 
     double vehicleMass = 5.0E3;
     bodies.createEmptyBody( "Vehicle" );
     bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
-    bodies.at( "Vehicle" )->setRotationalEphemeris(
-                std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
-    
+    bodies.at( "Vehicle" )->setRotationalEphemeris( std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -857,15 +781,15 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     // Define acceleration model settings.
     Eigen::Vector3d bodyFixedThrustDirection = ( Eigen::Vector3d( ) << 1.4, 3.1, -0.5 ).finished( ).normalized( );
 
-    addEngineModel(
-                "Vehicle", "MainEngine",
-                std::make_shared< ConstantThrustMagnitudeSettings >(
-                    thrustMagnitude1, specificImpulse1 ), bodies, bodyFixedThrustDirection );
+    addEngineModel( "Vehicle",
+                    "MainEngine",
+                    std::make_shared< ConstantThrustMagnitudeSettings >( thrustMagnitude1, specificImpulse1 ),
+                    bodies,
+                    bodyFixedThrustDirection );
 
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
@@ -875,34 +799,31 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     // Set initial state
     Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
-
     systemInitialState( 0 ) = 8.0E6;
     systemInitialState( 4 ) = 7.5E3;
 
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
     dependentVariables.push_back(
-                std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                    thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
-
+            std::make_shared< SingleAccelerationDependentVariableSaveSettings >( thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
 
     std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
             std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
-              cowell, dependentVariables );
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, 0.0, 2.5 );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                accelerationModelMap,
+                                                                                bodiesToPropagate,
+                                                                                systemInitialState,
+                                                                                terminationSettings,
+                                                                                cowell,
+                                                                                dependentVariables );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 2.5 );
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
@@ -910,17 +831,17 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 
     double thrustAcceleration = thrustMagnitude1 / vehicleMass;
     Eigen::Quaterniond rotationToInertialFrame;
-    for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
-         dependentVariableOutput.begin( ); outputIterator != dependentVariableOutput.end( ); outputIterator++ )
+    for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator = dependentVariableOutput.begin( );
+         outputIterator != dependentVariableOutput.end( );
+         outputIterator++ )
     {
-        rotationToInertialFrame = bodies.at( "Vehicle" )->getRotationalEphemeris( )->getRotationToBaseFrame(
-                    outputIterator->first );
+        rotationToInertialFrame = bodies.at( "Vehicle" )->getRotationalEphemeris( )->getRotationToBaseFrame( outputIterator->first );
         for( unsigned int i = 0; i < 3; i++ )
         {
             // Test thrust direction during propagation against rotational ephemeris of vehicle.
-            BOOST_CHECK_CLOSE_FRACTION(
-                        ( thrustAcceleration * ( rotationToInertialFrame * bodyFixedThrustDirection )( i ) ),
-                        outputIterator->second( i ), 2.0E-15 );
+            BOOST_CHECK_CLOSE_FRACTION( ( thrustAcceleration * ( rotationToInertialFrame * bodyFixedThrustDirection )( i ) ),
+                                        outputIterator->second( i ),
+                                        2.0E-15 );
         }
     }
 }
@@ -945,7 +866,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-
     // Set simulation start epoch.
     const double simulationStartEpoch = 0.0;
 
@@ -955,29 +875,23 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     // Set numerical integration fixed step size.
     const double fixedStepSize = 1.0;
 
-
     // Set Keplerian elements for Capsule.
     Vector6d apolloInitialStateInKeplerianElements;
     apolloInitialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
     apolloInitialStateInKeplerianElements( eccentricityIndex ) = 0.005;
     apolloInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
-    apolloInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-            = unit_conversions::convertDegreesToRadians( 235.7 );
-    apolloInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-            = unit_conversions::convertDegreesToRadians( 23.4 );
+    apolloInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+    apolloInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
     apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     // Convert apollo state from Keplerian elements to Cartesian elements.
-    const Vector6d apolloInitialState = convertKeplerianToCartesianElements(
-                apolloInitialStateInKeplerianElements,
-                getBodyGravitationalParameter( "Earth" ) );
+    const Vector6d apolloInitialState =
+            convertKeplerianToCartesianElements( apolloInitialStateInKeplerianElements, getBodyGravitationalParameter( "Earth" ) );
 
     // Define simulation body settings.
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize,
-                                    simulationEndEpoch + 10.0 * fixedStepSize );
-    bodySettings.at( "Earth" )->gravityFieldSettings =
-            std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    BodyListSettings bodySettings = getDefaultBodySettings(
+            { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize, simulationEndEpoch + 10.0 * fixedStepSize );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
@@ -990,14 +904,10 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         bodies.at( "Apollo" )->setConstantBodyMass( vehicleMass );
 
         // Create vehicle aerodynamic coefficients
-        bodies.at( "Apollo" )->setAerodynamicCoefficientInterface(
-                    unit_tests::getApolloCoefficientInterface( ) );
-        bodies.at( "Apollo" )->setRotationalEphemeris(
-                    createRotationModel(
-                        std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ),
-                        "Apollo", bodies ) );
-
-
+        bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
+        bodies.at( "Apollo" )
+                ->setRotationalEphemeris( createRotationModel(
+                        std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ), "Apollo", bodies ) );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -1014,10 +924,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         double specificImpulse1 = 250.0;
 
         addEngineModel(
-                    "Apollo", "MainEngine",
-                    std::make_shared< ConstantThrustMagnitudeSettings >(
-                        thrustMagnitude1, specificImpulse1 ), bodies );
-
+                "Apollo", "MainEngine", std::make_shared< ConstantThrustMagnitudeSettings >( thrustMagnitude1, specificImpulse1 ), bodies );
 
         accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
 
@@ -1029,74 +936,59 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         // Set initial state
         Eigen::Vector6d systemInitialState = apolloInitialState;
 
-
         // Create acceleration models and propagation settings.
-        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Define list of dependent variables to save.
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+        dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >( mach_number_dependent_variable, "Apollo" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >( mach_number_dependent_variable, "Apollo" ) );
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >( "Apollo", reference_frames::angle_of_attack ) );
         dependentVariables.push_back(
-                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                        "Apollo", reference_frames::angle_of_attack ) );
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >( "Apollo", reference_frames::angle_of_sideslip ) );
         dependentVariables.push_back(
-                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                        "Apollo", reference_frames::angle_of_sideslip ) );
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >( "Apollo", reference_frames::bank_angle ) );
         dependentVariables.push_back(
-                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                        "Apollo", reference_frames::bank_angle ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( airspeed_dependent_variable, "Apollo", "Earth" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        airspeed_dependent_variable, "Apollo", "Earth" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( local_density_dependent_variable, "Apollo", "Earth" ) );
+        dependentVariables.push_back( std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                "Apollo", reference_frames::inertial_frame, reference_frames::body_frame ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        local_density_dependent_variable, "Apollo", "Earth" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( inertial_to_body_fixed_rotation_matrix_variable, "Apollo" ) );
         dependentVariables.push_back(
-                    std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
-                        "Apollo", reference_frames::inertial_frame, reference_frames::body_frame ) );
+                std::make_shared< SingleAccelerationDependentVariableSaveSettings >( aerodynamic, "Apollo", "Earth", 0 ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                            inertial_to_body_fixed_rotation_matrix_variable, "Apollo" ) );
+                std::make_shared< SingleAccelerationDependentVariableSaveSettings >( thrust_acceleration, "Apollo", "Apollo", 0 ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                        aerodynamic, "Apollo", "Earth", 0 ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                        thrust_acceleration, "Apollo", "Apollo", 0 ) );
-        dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
-        dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        aerodynamic_moment_coefficients_dependent_variable, "Apollo" ) );
-        dependentVariables.push_back(
-                    std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
-                        "Apollo", reference_frames::inertial_frame, reference_frames::aerodynamic_frame ) );
-        dependentVariables.push_back(
-                    std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
-                        "Apollo", reference_frames::aerodynamic_frame, reference_frames::body_frame ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_moment_coefficients_dependent_variable, "Apollo" ) );
+        dependentVariables.push_back( std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                "Apollo", reference_frames::inertial_frame, reference_frames::aerodynamic_frame ) );
+        dependentVariables.push_back( std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                "Apollo", reference_frames::aerodynamic_frame, reference_frames::body_frame ) );
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
-                  std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
-                  dependentVariables );
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< IntegratorSettings< > >
-                ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        systemInitialState,
+                        std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
+                        cowell,
+                        dependentVariables );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
                 dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > dependentVariableSolution =
-                dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
 
         // Iterate over results for dependent variables, and check against computed values.
         Eigen::Matrix3d rotationToBodyFixedFrame1, rotationToBodyFixedFrame2;
@@ -1111,7 +1003,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
                 bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
 
         for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
-             variableIterator != dependentVariableSolution.end( ); variableIterator++ )
+             variableIterator != dependentVariableSolution.end( );
+             variableIterator++ )
         {
             double currentMachNumber = variableIterator->second( 0 );
             double currentAngleOfAttack = variableIterator->second( 1 );
@@ -1121,15 +1014,11 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
             double currentAirspeed = variableIterator->second( 4 );
             double currentDensity = variableIterator->second( 5 );
 
-            BOOST_CHECK_SMALL(
-                        std::fabs( currentAngleOfSideSlip ), std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL(
-                        std::fabs( currentBankAngle ), std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( currentAngleOfSideSlip ), std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( currentBankAngle ), std::numeric_limits< double >::epsilon( ) );
 
-            rotationToBodyFixedFrame1 =
-                    getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 6, 9 ) );
-            rotationToBodyFixedFrame2 =
-                    getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 15, 9 ) );
+            rotationToBodyFixedFrame1 = getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 6, 9 ) );
+            rotationToBodyFixedFrame2 = getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 15, 9 ) );
 
             Eigen::Vector3d currentAerodynamicAcceleration = variableIterator->second.segment( 24, 3 );
             Eigen::Vector3d currentThrustAcceleration = variableIterator->second.segment( 27, 3 );
@@ -1143,74 +1032,57 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
             Eigen::Matrix3d currentRotationFromAerodynamicToBodyFixedFrame =
                     getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 45, 9 ) );
 
-            vehicelCoefficientInterface->updateFullCurrentCoefficients( { currentMachNumber, currentAngleOfAttack, currentAngleOfSideSlip } );
+            vehicelCoefficientInterface->updateFullCurrentCoefficients(
+                    { currentMachNumber, currentAngleOfAttack, currentAngleOfSideSlip } );
             aerodynamicCoefficients = vehicelCoefficientInterface->getCurrentForceCoefficients( );
-
-
 
             expectedThrustDirection = rotationToBodyFixedFrame1.transpose( ) * bodyFixedThrustDirection;
             computedThrustDirection = currentThrustAcceleration.normalized( );
 
             // Check thrust magnitude
-            BOOST_CHECK_CLOSE_FRACTION(
-                        ( currentThrustAcceleration ).norm( ), thrustMagnitude1 / vehicleMass,
-                        20.0 * std::numeric_limits< double >::epsilon( ) );
-
-
-
+            BOOST_CHECK_CLOSE_FRACTION( ( currentThrustAcceleration ).norm( ),
+                                        thrustMagnitude1 / vehicleMass,
+                                        20.0 * std::numeric_limits< double >::epsilon( ) );
 
             Eigen::Vector3d expectedAerodynamicAcceleration = 0.5 * currentDensity * currentAirspeed * currentAirspeed *
                     bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( )->getReferenceArea( ) *
-                    ( currentRotationFromInertialToAerodynamicFrame.inverse( ) ) *
-                    currentAerodynamicForceCoefficients / vehicleMass;
-
+                    ( currentRotationFromInertialToAerodynamicFrame.inverse( ) ) * currentAerodynamicForceCoefficients / vehicleMass;
 
             // Check aerodynamic coefficients
-            BOOST_CHECK_SMALL(
-                        std::fabs( currentAerodynamicForceCoefficients( 0 ) - aerodynamicCoefficients( 0 ) ), 1.0E-10 );
-            BOOST_CHECK_SMALL(
-                        std::fabs( currentAerodynamicForceCoefficients( 1 ) - aerodynamicCoefficients( 1 ) ), 1.0E-10 );
-            BOOST_CHECK_SMALL(
-                        std::fabs( currentAerodynamicForceCoefficients( 2 ) - aerodynamicCoefficients( 2 ) ), 1.0E-10 );
+            BOOST_CHECK_SMALL( std::fabs( currentAerodynamicForceCoefficients( 0 ) - aerodynamicCoefficients( 0 ) ), 1.0E-10 );
+            BOOST_CHECK_SMALL( std::fabs( currentAerodynamicForceCoefficients( 1 ) - aerodynamicCoefficients( 1 ) ), 1.0E-10 );
+            BOOST_CHECK_SMALL( std::fabs( currentAerodynamicForceCoefficients( 2 ) - aerodynamicCoefficients( 2 ) ), 1.0E-10 );
 
             // Check trimmed condition (y-term)/symmetric vehicle shape (x- and z-term).
-            BOOST_CHECK_SMALL(
-                        std::fabs( currentAerodynamicMomentCoefficients( 0 ) ), 1.0E-14 );
-            BOOST_CHECK_SMALL(
-                        std::fabs( currentAerodynamicMomentCoefficients( 1 ) ), 1.0E-10 );
-            BOOST_CHECK_SMALL(
-                        std::fabs( currentAerodynamicMomentCoefficients( 2 ) ), 1.0E-14 );
+            BOOST_CHECK_SMALL( std::fabs( currentAerodynamicMomentCoefficients( 0 ) ), 1.0E-14 );
+            BOOST_CHECK_SMALL( std::fabs( currentAerodynamicMomentCoefficients( 1 ) ), 1.0E-10 );
+            BOOST_CHECK_SMALL( std::fabs( currentAerodynamicMomentCoefficients( 2 ) ), 1.0E-14 );
             Eigen::Matrix3d currentRotationFromAerodynamicToBodyFixedFrame2 =
                     rotationToBodyFixedFrame1 * ( currentRotationFromInertialToAerodynamicFrame.inverse( ) );
             Eigen::Matrix3d computedAerodynamicToBodyFixedFrame =
-                    reference_frames::getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
-                        currentAngleOfAttack, 0.0 );
+                    reference_frames::getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( currentAngleOfAttack, 0.0 );
 
-
-            for( unsigned int i = 0; i < 3; i ++ )
+            for( unsigned int i = 0; i < 3; i++ )
             {
                 // Check rotation matrices
                 for( unsigned int j = 0; j < 3; j++ )
                 {
-                    BOOST_CHECK_SMALL(
-                                std::fabs( rotationToBodyFixedFrame1( i, j ) - rotationToBodyFixedFrame2( i, j ) ),
-                                20.0 * std::numeric_limits< double >::epsilon( ) );
-                    BOOST_CHECK_SMALL(
-                                std::fabs( currentRotationFromAerodynamicToBodyFixedFrame( i, j ) -
-                                           computedAerodynamicToBodyFixedFrame( i, j ) ),
-                                10.0 * std::numeric_limits< double >::epsilon( ) );
-                    BOOST_CHECK_SMALL(
-                                std::fabs( currentRotationFromAerodynamicToBodyFixedFrame2( i, j ) -
-                                           computedAerodynamicToBodyFixedFrame( i, j ) ),
-                                20.0 * std::numeric_limits< double >::epsilon( ) );
+                    BOOST_CHECK_SMALL( std::fabs( rotationToBodyFixedFrame1( i, j ) - rotationToBodyFixedFrame2( i, j ) ),
+                                       20.0 * std::numeric_limits< double >::epsilon( ) );
+                    BOOST_CHECK_SMALL( std::fabs( currentRotationFromAerodynamicToBodyFixedFrame( i, j ) -
+                                                  computedAerodynamicToBodyFixedFrame( i, j ) ),
+                                       10.0 * std::numeric_limits< double >::epsilon( ) );
+                    BOOST_CHECK_SMALL( std::fabs( currentRotationFromAerodynamicToBodyFixedFrame2( i, j ) -
+                                                  computedAerodynamicToBodyFixedFrame( i, j ) ),
+                                       20.0 * std::numeric_limits< double >::epsilon( ) );
                 }
                 // Check thrust direction
                 BOOST_CHECK_SMALL( std::fabs( expectedThrustDirection( i ) - computedThrustDirection( i ) ),
                                    40.0 * std::numeric_limits< double >::epsilon( ) );
 
-                BOOST_CHECK_SMALL( std::fabs( expectedAerodynamicAcceleration( i ) - currentAerodynamicAcceleration( i ) ),
-                                   std::max( 10.0 * currentAerodynamicAcceleration.norm( ), 1.0 ) *
-                                   std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL(
+                        std::fabs( expectedAerodynamicAcceleration( i ) - currentAerodynamicAcceleration( i ) ),
+                        std::max( 10.0 * currentAerodynamicAcceleration.norm( ), 1.0 ) * std::numeric_limits< double >::epsilon( ) );
             }
         }
     }
@@ -1224,9 +1096,7 @@ void createRotationAndEngineModelForFullThrust(
         const simulation_setup::SystemOfBodies& bodies,
         const ephemerides::SatelliteBasedFrames directionFrame = ephemerides::SatelliteBasedFrames::inertial_satellite_based_frame )
 {
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
-            [=](const double time) -> Eigen::Vector3d
-    {
+    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double time ) -> Eigen::Vector3d {
         if( time == time )
         {
             return thrustFunction( time ).normalized( );
@@ -1236,9 +1106,7 @@ void createRotationAndEngineModelForFullThrust(
             return Eigen::Vector3d::Constant( TUDAT_NAN );
         }
     };
-    std::function< double( const double ) > thrustMagnitudeFunction =
-            [=](const double time)
-    {
+    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double time ) {
         if( time == time )
         {
             return thrustFunction( time ).norm( );
@@ -1249,24 +1117,26 @@ void createRotationAndEngineModelForFullThrust(
         }
     };
 
-    bodies.at( bodyName )->setRotationalEphemeris(
-                createRotationModel(
-                    std::make_shared< simulation_setup::BodyFixedDirectionBasedRotationSettings >(
-                        thrustDirectionFunction, bodies.getFrameOrientation( ), bodyFixedDirectionName, nullptr,
-                        std::make_pair( directionFrame, "Earth" ) ),
-                    bodyName, bodies ) );
+    bodies.at( bodyName )
+            ->setRotationalEphemeris( createRotationModel( std::make_shared< simulation_setup::BodyFixedDirectionBasedRotationSettings >(
+                                                                   thrustDirectionFunction,
+                                                                   bodies.getFrameOrientation( ),
+                                                                   bodyFixedDirectionName,
+                                                                   nullptr,
+                                                                   std::make_pair( directionFrame, "Earth" ) ),
+                                                           bodyName,
+                                                           bodies ) );
     std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > thrustSettings =
-            std::make_shared< simulation_setup::CustomThrustMagnitudeSettings >( thrustMagnitudeFunction , [=](const double){return TUDAT_NAN; } );
+            std::make_shared< simulation_setup::CustomThrustMagnitudeSettings >( thrustMagnitudeFunction,
+                                                                                 [ = ]( const double ) { return TUDAT_NAN; } );
 
-    addEngineModel( bodyName,  engineName, thrustSettings,
-                    bodies );
+    addEngineModel( bodyName, engineName, thrustSettings, bodies );
 }
 
 //! Test whether the thrust is properly computed if the full vector (*magnitude and direction) is imposed in either the
 //! inertial or TNW frame.
 BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 {
-
     using namespace simulation_setup;
     using namespace propagators;
     using namespace numerical_integrators;
@@ -1277,7 +1147,6 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     using namespace unit_conversions;
     using namespace interpolators;
     using namespace ephemerides;
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE ENVIRONMENT AND VEHICLE       //////////////////////////////////////////////////////
@@ -1308,19 +1177,13 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         bodies.createEmptyBody( "Asterix" );
         bodies.at( "Asterix" )->setConstantBodyMass( bodyMass );
 
-
-
-
-
         // Set Keplerian elements for Asterix.
         Eigen::Vector6d asterixInitialStateInKeplerianElements;
         asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
         asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
         asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );
-        asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-                = convertDegreesToRadians( 235.7 );
-        asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-                = convertDegreesToRadians( 23.4 );
+        asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 235.7 );
+        asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 23.4 );
         asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
         std::map< double, Eigen::Vector3d > randomThrustMap;
@@ -1337,26 +1200,29 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
         std::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > thrustDataInterpolation =
                 std::make_shared< DataInterpolationSettings< double, Eigen::Vector3d > >(
-                    std::make_shared< DataMapSettings< double, Eigen::Vector3d > >( randomThrustMap ),
-                    std::make_shared< InterpolatorSettings >( linear_interpolator ) );
+                        std::make_shared< DataMapSettings< double, Eigen::Vector3d > >( randomThrustMap ),
+                        std::make_shared< InterpolatorSettings >( linear_interpolator ) );
 
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
                 interpolators::createOneDimensionalInterpolator( thrustDataInterpolation );
         typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
         std::function< Eigen::Vector3d( const double ) > thrustFunction =
-                std::bind(
-                    static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
-                    ( &LocalInterpolator::interpolate ), thrustInterpolator, std::placeholders::_1 );
-//        std::function< Eigen::Vector3d( const double ) > thrustFunction =
-//                [=](const double time){
-//            std::cout<<time<<" "<<thrustFunction2( time ).transpose( )<<std::endl<<std::endl;
-//            return thrustFunction2( time );
+                std::bind( static_cast< Eigen::Vector3d ( LocalInterpolator::* )( const double ) >( &LocalInterpolator::interpolate ),
+                           thrustInterpolator,
+                           std::placeholders::_1 );
+        //        std::function< Eigen::Vector3d( const double ) > thrustFunction =
+        //                [=](const double time){
+        //            std::cout<<time<<" "<<thrustFunction2( time ).transpose( )<<std::endl<<std::endl;
+        //            return thrustFunction2( time );
 
-//        };
+        //        };
 
-        createRotationAndEngineModelForFullThrust(
-                    "Asterix", thrustFunction, "MainEngine", "Vehicle_Fixed", bodies,
-                    testCase == 0 ? inertial_satellite_based_frame : tnw_satellite_based_frame );
+        createRotationAndEngineModelForFullThrust( "Asterix",
+                                                   thrustFunction,
+                                                   "MainEngine",
+                                                   "Vehicle_Fixed",
+                                                   bodies,
+                                                   testCase == 0 ? inertial_satellite_based_frame : tnw_satellite_based_frame );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -1365,12 +1231,9 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
         // Define propagation settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::point_mass_gravity ) );
+        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
 
-
-        std::shared_ptr< ThrustAccelerationSettings > thrustSettings =
-                std::make_shared< ThrustAccelerationSettings >( "MainEngine" );
+        std::shared_ptr< ThrustAccelerationSettings > thrustSettings = std::make_shared< ThrustAccelerationSettings >( "MainEngine" );
 
         accelerationsOfAsterix[ "Asterix" ].push_back( thrustSettings );
         accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
@@ -1378,10 +1241,8 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         centralBodies.push_back( "Earth" );
 
         // Create acceleration models and propagation settings.
-        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
-
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -1391,49 +1252,41 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         // The initial conditions are given in Keplerian elements and later on converted to Cartesian
         // elements.
 
-
         // Convert Asterix state from Keplerian elements to Cartesian elements.
         double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-        Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
-                    asterixInitialStateInKeplerianElements,
-                    earthGravitationalParameter );
+        Eigen::VectorXd systemInitialState =
+                convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
         // Define list of dependent variables to save.
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+        dependentVariables.push_back( std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                basic_astrodynamics::thrust_acceleration, "Asterix", "Asterix", 0 ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                        basic_astrodynamics::thrust_acceleration, "Asterix", "Asterix", 0 ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( relative_position_dependent_variable, "Asterix", "Earth" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        relative_position_dependent_variable, "Asterix", "Earth" ) );
-        dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        relative_velocity_dependent_variable, "Asterix", "Earth" ) );
-        dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        tnw_to_inertial_frame_rotation_dependent_variable, "Asterix", "Earth" ) );
-
+                std::make_shared< SingleDependentVariableSaveSettings >( relative_velocity_dependent_variable, "Asterix", "Earth" ) );
+        dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+                tnw_to_inertial_frame_rotation_dependent_variable, "Asterix", "Earth" ) );
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch,
-                  cowell, dependentVariables );
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< IntegratorSettings< > >
-                ( rungeKutta4, 0.0, fixedStepSize );
-
+                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                    accelerationModelMap,
+                                                                                    bodiesToPropagate,
+                                                                                    systemInitialState,
+                                                                                    simulationEndEpoch,
+                                                                                    cowell,
+                                                                                    dependentVariables );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            /////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
-
 
         Eigen::Vector3d thrustDifference;
 
@@ -1441,10 +1294,10 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         {
             // Test whether thrust direction is indeed the imposed direction (in inertial frame).
             for( std::map< double, Eigen::VectorXd >::iterator outputIterator = dependentVariableResult.begin( );
-                 outputIterator != dependentVariableResult.end( ); outputIterator++ )
+                 outputIterator != dependentVariableResult.end( );
+                 outputIterator++ )
             {
-                thrustDifference =  outputIterator->second.segment( 0, 3 ) -
-                        thrustFunction( outputIterator->first );
+                thrustDifference = outputIterator->second.segment( 0, 3 ) - thrustFunction( outputIterator->first );
 
                 for( unsigned int i = 0; i < 3; i++ )
                 {
@@ -1456,24 +1309,21 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         {
             // Test whether thrust direction is indeed the imposed direction (in tnw frame).
             for( std::map< double, Eigen::VectorXd >::iterator outputIterator = dependentVariableResult.begin( );
-                 outputIterator != dependentVariableResult.end( ); outputIterator++ )
+                 outputIterator != dependentVariableResult.end( );
+                 outputIterator++ )
             {
                 Eigen::Matrix3d manualRotationMatrix =
-                        reference_frames::getTnwToInertialRotation(
-                            outputIterator->second.segment( 3, 6 ), Eigen::Vector6d::Zero( ) );
-                Eigen::Matrix3d currentRotationMatrix =
-                        getMatrixFromVectorRotationRepresentation( outputIterator->second.segment( 9, 9 ) );
-                thrustDifference = manualRotationMatrix
-                        * thrustFunction( outputIterator->first ) - outputIterator->second.segment( 0, 3 );
-                double currentThrustMagnitude = thrustFunction( outputIterator->first ).norm( ) ;
+                        reference_frames::getTnwToInertialRotation( outputIterator->second.segment( 3, 6 ), Eigen::Vector6d::Zero( ) );
+                Eigen::Matrix3d currentRotationMatrix = getMatrixFromVectorRotationRepresentation( outputIterator->second.segment( 9, 9 ) );
+                thrustDifference = manualRotationMatrix * thrustFunction( outputIterator->first ) - outputIterator->second.segment( 0, 3 );
+                double currentThrustMagnitude = thrustFunction( outputIterator->first ).norm( );
 
                 for( unsigned int i = 0; i < 3; i++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( thrustDifference( i ) ), 1.0E-12 * currentThrustMagnitude );
                     for( unsigned int j = 0; j < 3; j++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( manualRotationMatrix( i, j ) -
-                                                      currentRotationMatrix( i, j ) ), 1.0E-12 );
+                        BOOST_CHECK_SMALL( std::fabs( manualRotationMatrix( i, j ) - currentRotationMatrix( i, j ) ), 1.0E-12 );
                     }
                 }
             }
@@ -1485,18 +1335,21 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 //! This class sets (using an algorithm with no physical basis). It computes a 'regular' guidance input, as well as a thrust
 //! multiplier (throttle) if required. The regular guidance input is used as the Mach number when interpolating the thrust
 //! tables.
-class ThrustMultiplierComputation: public simulation_setup::ThrustInputParameterGuidance
+class ThrustMultiplierComputation : public simulation_setup::ThrustInputParameterGuidance
 {
 public:
-    ThrustMultiplierComputation( const double startTime, const double endTime,
-                                 const bool useDummyMachNumber, const bool useThrustMultiplier ):
-        ThrustInputParameterGuidance(
-            static_cast< int >( useDummyMachNumber ) + static_cast< int >( useThrustMultiplier ), 0,
-            useThrustMultiplier, ( useThrustMultiplier == true ) ? static_cast< int >( useDummyMachNumber ) : -1 ),
-        startTime_( startTime ), endTime_( endTime ),
-        useDummyMachNumber_( useDummyMachNumber ), useThrustMultiplier_( useThrustMultiplier ){ }
+    ThrustMultiplierComputation( const double startTime,
+                                 const double endTime,
+                                 const bool useDummyMachNumber,
+                                 const bool useThrustMultiplier ):
+        ThrustInputParameterGuidance( static_cast< int >( useDummyMachNumber ) + static_cast< int >( useThrustMultiplier ),
+                                      0,
+                                      useThrustMultiplier,
+                                      ( useThrustMultiplier == true ) ? static_cast< int >( useDummyMachNumber ) : -1 ),
+        startTime_( startTime ), endTime_( endTime ), useDummyMachNumber_( useDummyMachNumber ), useThrustMultiplier_( useThrustMultiplier )
+    { }
 
-    void updateGuidanceParameters(  )
+    void updateGuidanceParameters( )
     {
         if( useDummyMachNumber_ )
         {
@@ -1513,7 +1366,6 @@ public:
     }
 
 private:
-
     double startTime_;
 
     double endTime_;
@@ -1543,7 +1395,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-
     // Set simulation start epoch.
     const double simulationStartEpoch = 0.0;
 
@@ -1553,28 +1404,21 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
     // Set numerical integration fixed step size.
     const double fixedStepSize = 1.0;
 
-
     // Set spherical elements for Apollo.
     Vector6d apolloSphericalEntryState;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
-            spice_interface::getAverageRadius( "Earth" ) + 50.0E3;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) = spice_interface::getAverageRadius( "Earth" ) + 50.0E3;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 6.0E3;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
-            1.0 * mathematical_constants::PI / 180.0;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) = 1.0 * mathematical_constants::PI / 180.0;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
 
     // Convert apollo state from spherical elements to Cartesian elements.
-    Vector6d apolloInitialState = orbital_element_conversions::convertSphericalOrbitalToCartesianState(
-                apolloSphericalEntryState );
+    Vector6d apolloInitialState = orbital_element_conversions::convertSphericalOrbitalToCartesianState( apolloSphericalEntryState );
 
     // Define simulation body settings.
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 1.0E4,
-                                    simulationEndEpoch + 1.0E4 );
-    bodySettings.at( "Earth" )->gravityFieldSettings =
-            std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 1.0E4, simulationEndEpoch + 1.0E4 );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
     // Create Earth object
     simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
@@ -1586,10 +1430,9 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-    bodies.at( "Apollo" )->setRotationalEphemeris(
-                createRotationModel(
-                    std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ),
-                    "Apollo", bodies ) );
+    bodies.at( "Apollo" )
+            ->setRotationalEphemeris( createRotationModel(
+                    std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ), "Apollo", bodies ) );
 
     int numberOfCasesPerSet = 4;
     for( int i = 0; i < numberOfCasesPerSet * 2; i++ )
@@ -1648,23 +1491,20 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
             thrustInputParameterGuidance =
                     std::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch, 1, 1 );
-
         }
 
         // Load thrust tables from files (as a function of Mach number and specific impulse) and create interpolators.
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > thrustValues =
-                MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    tudat::paths::getTudatTestDataPath( ) + "/Tmax_test.txt" );
+                MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables( tudat::paths::getTudatTestDataPath( ) +
+                                                                                  "/Tmax_test.txt" );
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > specificImpulseValues =
-                MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    tudat::paths::getTudatTestDataPath( ) + "/Isp_test.txt" );
+                MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables( tudat::paths::getTudatTestDataPath( ) + "/Isp_test.txt" );
 
         std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator =
-                std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
-                    thrustValues.second, thrustValues.first );
+                std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >( thrustValues.second, thrustValues.first );
         std::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator =
-                std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
-                    specificImpulseValues.second, specificImpulseValues.first );
+                std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >( specificImpulseValues.second,
+                                                                                                 specificImpulseValues.first );
 
         double constantSpecificImpulse = 1000.0;
 
@@ -1674,30 +1514,27 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             // Thrust requires no guidance.
             if( !( i % numberOfCasesPerSet == 0 ) )
             {
-                addEngineModel(
-                            "Apollo", "MainEngine",
-                            createParameterizedThrustMagnitudeSettings(
-                                thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
-                                specificImpulseInterpolator, specificImpulseDependencies ), bodies );
-                accelerationsOfApollo[ "Apollo" ].push_back(
-                            std::make_shared< ThrustAccelerationSettings >(
-                                 "MainEngine" ) );
+                addEngineModel( "Apollo",
+                                "MainEngine",
+                                createParameterizedThrustMagnitudeSettings( thrustInputParameterGuidance,
+                                                                            thrustMagnitudeInterpolator,
+                                                                            thrustDependencies,
+                                                                            specificImpulseInterpolator,
+                                                                            specificImpulseDependencies ),
+                                bodies );
+                accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
             }
             // Thrust requires guidance.
             else
             {
                 addEngineModel(
-                            "Apollo", "MainEngine",
-                            std::make_shared< ParameterizedThrustMagnitudeSettings >(
-                                thrustMagnitudeInterpolator, thrustDependencies,
-                                specificImpulseInterpolator, specificImpulseDependencies ), bodies );
-                accelerationsOfApollo[ "Apollo" ].push_back(
-                            std::make_shared< ThrustAccelerationSettings >(
-                                 "MainEngine" ) );
+                        "Apollo",
+                        "MainEngine",
+                        std::make_shared< ParameterizedThrustMagnitudeSettings >(
+                                thrustMagnitudeInterpolator, thrustDependencies, specificImpulseInterpolator, specificImpulseDependencies ),
+                        bodies );
+                accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
             }
-
-
-
         }
         // Test with constant specific impulse
         else
@@ -1706,25 +1543,22 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             if( !( i % numberOfCasesPerSet == 0 ) )
             {
                 addEngineModel(
-                            "Apollo", "MainEngine",
-                            createParameterizedThrustMagnitudeSettings(
-                                thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
-                                constantSpecificImpulse ), bodies );
-                accelerationsOfApollo[ "Apollo" ].push_back(
-                            std::make_shared< ThrustAccelerationSettings >(
-                                  "MainEngine") );
+                        "Apollo",
+                        "MainEngine",
+                        createParameterizedThrustMagnitudeSettings(
+                                thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies, constantSpecificImpulse ),
+                        bodies );
+                accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
             }
             // Thrust requires guidance.
             else
             {
-                addEngineModel(
-                            "Apollo", "MainEngine",
-                            std::make_shared< ParameterizedThrustMagnitudeSettings >(
-                                thrustMagnitudeInterpolator, thrustDependencies,
-                                constantSpecificImpulse ), bodies );
-                accelerationsOfApollo[ "Apollo" ].push_back(
-                            std::make_shared< ThrustAccelerationSettings >(
-                                 "MainEngine") );
+                addEngineModel( "Apollo",
+                                "MainEngine",
+                                std::make_shared< ParameterizedThrustMagnitudeSettings >(
+                                        thrustMagnitudeInterpolator, thrustDependencies, constantSpecificImpulse ),
+                                bodies );
+                accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
             }
         }
 
@@ -1736,48 +1570,44 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         // Set initial state
         Eigen::Vector6d systemInitialState = apolloInitialState;
 
-
         // Create acceleration models and propagation settings.
-        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-//        // Set trimmed conditions for body orientation.
-//        setTrimmedConditions( bodies.at( "Apollo" ) );
+        //        // Set trimmed conditions for body orientation.
+        //        setTrimmedConditions( bodies.at( "Apollo" ) );
 
         // Define list of dependent variables to save.
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+        dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >( mach_number_dependent_variable, "Apollo" ) );
+        dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >( airspeed_dependent_variable, "Apollo" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        mach_number_dependent_variable, "Apollo" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( local_density_dependent_variable, "Apollo" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        airspeed_dependent_variable, "Apollo" ) );
+                std::make_shared< SingleAccelerationDependentVariableSaveSettings >( thrust_acceleration, "Apollo", "Apollo", 1 ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        local_density_dependent_variable, "Apollo" ) );
-        dependentVariables.push_back(
-                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                        thrust_acceleration, "Apollo", "Apollo", 1 ) );
-        dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        total_mass_rate_dependent_variables, "Apollo" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( total_mass_rate_dependent_variables, "Apollo" ) );
 
         // Define propagation settings.
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
-                  std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ), cowell,
-                  dependentVariables );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        systemInitialState,
+                        std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                        cowell,
+                        dependentVariables );
 
         std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-        massRateModels[ "Apollo" ] = createMassRateModel( "Apollo", std::make_shared< FromThrustMassRateSettings >(1 ),
-                                                          bodies, accelerationModelMap );
+        massRateModels[ "Apollo" ] =
+                createMassRateModel( "Apollo", std::make_shared< FromThrustMassRateSettings >( 1 ), bodies, accelerationModelMap );
 
-        std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
-                std::make_shared< MassPropagatorSettings< double > >(
-                    std::vector< std::string >{ "Apollo" }, massRateModels,
-                    ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+        std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings = std::make_shared< MassPropagatorSettings< double > >(
+                std::vector< std::string >{ "Apollo" },
+                massRateModels,
+                ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
+                std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
         std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
@@ -1785,24 +1615,21 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 std::make_shared< MultiTypePropagatorSettings< double > >(
-                    propagatorSettingsVector, std::make_shared< propagators::PropagationTimeTerminationSettings >(
-                        simulationEndEpoch ),
-                    dependentVariables );
+                        propagatorSettingsVector,
+                        std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                        dependentVariables );
 
         // Define integration settings.
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< IntegratorSettings< > >
-                ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
 
         // Retrieve numerical solutions for state and dependent variables
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
                 dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > dependentVariableSolution =
-                dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
 
         // Declare test variables
         double currentDynamicPressure, currentMachNumber, currentMass;
@@ -1812,13 +1639,13 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         std::vector< double > specificImpulseInput;
 
         for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
-             variableIterator != dependentVariableSolution.end( ); variableIterator++ )
+             variableIterator != dependentVariableSolution.end( );
+             variableIterator++ )
         {
             // Retrieve data from dependent variables/propagated dynamics
             currentMass = numericalSolution.at( variableIterator->first )( 6 );
 
-            currentDynamicPressure =
-                    0.5 * variableIterator->second( 2 ) * variableIterator->second( 1 ) * variableIterator->second( 1 );
+            currentDynamicPressure = 0.5 * variableIterator->second( 2 ) * variableIterator->second( 1 ) * variableIterator->second( 1 );
             currentMachNumber = variableIterator->second( 0 );
             currentThrustForce = variableIterator->second( 3 ) * currentMass;
 
@@ -1830,7 +1657,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             }
             currentThrustInput.clear( );
 
-            if( ( i % numberOfCasesPerSet == 0 )  || ( i % numberOfCasesPerSet == 1 ) )
+            if( ( i % numberOfCasesPerSet == 0 ) || ( i % numberOfCasesPerSet == 1 ) )
             {
                 currentThrustInput.push_back( currentMachNumber );
             }
@@ -1844,7 +1671,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             if( ( i % numberOfCasesPerSet == 1 ) || ( i % numberOfCasesPerSet == 3 ) || ( i % numberOfCasesPerSet == 4 ) )
             {
                 expectedThrust *= thrustInputParameterGuidance->getThrustInputGuidanceParameter(
-                            thrustInputParameterGuidance->getThrottleSettingIndex( ) );
+                        thrustInputParameterGuidance->getThrottleSettingIndex( ) );
             }
 
             specificImpulseInput.clear( );
@@ -1860,17 +1687,13 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                 currentSpecificImpulse = specificImpulseInterpolator->interpolate( specificImpulseInput );
             }
 
-            expectedMassRate = expectedThrust /
-                    ( currentSpecificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
+            expectedMassRate = expectedThrust / ( currentSpecificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
 
-            BOOST_CHECK_CLOSE_FRACTION( expectedThrust, currentThrustForce,
-                                        24.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_CLOSE_FRACTION( currentMassRate, expectedMassRate,
-                                        12.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_CLOSE_FRACTION( expectedThrust, currentThrustForce, 24.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_CLOSE_FRACTION( currentMassRate, expectedMassRate, 12.0 * std::numeric_limits< double >::epsilon( ) );
         }
     }
 }
-
 
 //! Test to check whether the acceleration-limited thrust guidance (i.e throttle from a maximum impoised acceleration)
 //! works correctly
@@ -1901,28 +1724,21 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     // Set numerical integration fixed step size.
     const double fixedStepSize = 1.0;
 
-
     // Set spherical elements for Apollo.
     Vector6d apolloSphericalEntryState;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
-            spice_interface::getAverageRadius( "Earth" ) + 50.0E3;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) = spice_interface::getAverageRadius( "Earth" ) + 50.0E3;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 6.0E3;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
-            1.0 * mathematical_constants::PI / 180.0;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) = 1.0 * mathematical_constants::PI / 180.0;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
 
     // Convert apollo state from spherical elements to Cartesian elements.
-    Vector6d apolloInitialState = orbital_element_conversions::convertSphericalOrbitalToCartesianState(
-                apolloSphericalEntryState );
+    Vector6d apolloInitialState = orbital_element_conversions::convertSphericalOrbitalToCartesianState( apolloSphericalEntryState );
 
     // Define simulation body settings.
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 1.0E4,
-                                    simulationEndEpoch + 1.0E4 );
-    bodySettings.at( "Earth" )->gravityFieldSettings =
-            std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 1.0E4, simulationEndEpoch + 1.0E4 );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
     // Create Earth object
     simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
@@ -1934,10 +1750,9 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Create vehicle aerodynamic coefficients
     bodies.at( "Apollo" )->setAerodynamicCoefficientInterface( unit_tests::getApolloCoefficientInterface( ) );
-    bodies.at( "Apollo" )->setRotationalEphemeris(
-                createRotationModel(
-                    std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ),
-                    "Apollo", bodies ) );
+    bodies.at( "Apollo" )
+            ->setRotationalEphemeris( createRotationModel(
+                    std::make_shared< PitchTrimRotationSettings >( "Earth", "ECLIPJ2000", "VehicleFixed" ), "Apollo", bodies ) );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
@@ -1959,21 +1774,22 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     specificImpulseDependencies.push_back( propulsion::mach_number_dependent_thrust );
     specificImpulseDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 
-    std::string thrustFile =
-            tudat::paths::getTudatTestDataPath( ) + "/Tmax_test.txt";
-    std::string specificImpulseFile =
-            tudat::paths::getTudatTestDataPath( ) + "/Isp_test.txt";
+    std::string thrustFile = tudat::paths::getTudatTestDataPath( ) + "/Tmax_test.txt";
+    std::string specificImpulseFile = tudat::paths::getTudatTestDataPath( ) + "/Isp_test.txt";
 
-    addEngineModel(
-                "Apollo", "MainEngine",
-                createAccelerationLimitedParameterizedThrustMagnitudeSettings(
-                    bodies, "Apollo", physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION,
-                    thrustFile, thrustDependencies,
-                    specificImpulseFile, specificImpulseDependencies, "Earth" ), bodies );
+    addEngineModel( "Apollo",
+                    "MainEngine",
+                    createAccelerationLimitedParameterizedThrustMagnitudeSettings( bodies,
+                                                                                   "Apollo",
+                                                                                   physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION,
+                                                                                   thrustFile,
+                                                                                   thrustDependencies,
+                                                                                   specificImpulseFile,
+                                                                                   specificImpulseDependencies,
+                                                                                   "Earth" ),
+                    bodies );
 
-    accelerationsOfApollo[ "Apollo" ].push_back(
-                std::make_shared< ThrustAccelerationSettings >(
-                     "MainEngine" ) );
+    accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >( "MainEngine" ) );
 
     accelerationMap[ "Apollo" ] = accelerationsOfApollo;
 
@@ -1983,67 +1799,62 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     // Set initial state
     Eigen::Vector6d systemInitialState = apolloInitialState;
 
-
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Define list of dependent variables to save.
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
     dependentVariables.push_back(
-                std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                    thrust_acceleration, "Apollo", "Apollo", 1 ) );
-
+            std::make_shared< SingleAccelerationDependentVariableSaveSettings >( thrust_acceleration, "Apollo", "Apollo", 1 ) );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
-              std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ), cowell,
-              dependentVariables );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    systemInitialState,
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                    cowell,
+                    dependentVariables );
 
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Apollo" ] = createMassRateModel( "Apollo", std::make_shared< FromThrustMassRateSettings >(1 ),
-                                                      bodies, accelerationModelMap );
+    massRateModels[ "Apollo" ] =
+            createMassRateModel( "Apollo", std::make_shared< FromThrustMassRateSettings >( 1 ), bodies, accelerationModelMap );
 
-    std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
-            std::make_shared< MassPropagatorSettings< double > >(
-                std::vector< std::string >{ "Apollo" }, massRateModels,
-                ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
-                std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+    std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings = std::make_shared< MassPropagatorSettings< double > >(
+            std::vector< std::string >{ "Apollo" },
+            massRateModels,
+            ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
+            std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
     propagatorSettingsVector.push_back( translationalPropagatorSettings );
     propagatorSettingsVector.push_back( massPropagatorSettings );
 
-    std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
-            std::make_shared< MultiTypePropagatorSettings< double > >(
-                propagatorSettingsVector, std::make_shared< propagators::PropagationTimeTerminationSettings >(
-                    simulationEndEpoch ),
-                dependentVariables );
+    std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
+            propagatorSettingsVector,
+            std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
+            dependentVariables );
 
-
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
             dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableSolution =
-            dynamicsSimulator.getDependentVariableHistory( );
+    std::map< double, Eigen::VectorXd > dependentVariableSolution = dynamicsSimulator.getDependentVariableHistory( );
 
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
-         variableIterator != dependentVariableSolution.end( ); variableIterator++ )
+         variableIterator != dependentVariableSolution.end( );
+         variableIterator++ )
     {
-
-        BOOST_CHECK_EQUAL(
-                    ( variableIterator->second( 0 ) ) <=
-                    physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * (
-                        1.0 + 4.0 * std::numeric_limits< double >::epsilon( ) ), true );
+        BOOST_CHECK_EQUAL( ( variableIterator->second( 0 ) ) <= physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION *
+                                           ( 1.0 + 4.0 * std::numeric_limits< double >::epsilon( ) ),
+                           true );
     }
 }
 
@@ -2076,7 +1887,6 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 ////    // Set numerical integration fixed step size.
 ////    const double fixedStepSize = 15.0;
 
-
 ////    // Set spherical elements for Apollo.
 ////    Eigen::Vector6d asterixInitialStateInKeplerianElements;
 ////    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
@@ -2102,7 +1912,6 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
 ////    // Create vehicle objects.
 ////    bodies.createEmptyBody( "Asterix" );
-
 
 ////    double vehicleMass = 5.0E5;
 
@@ -2140,7 +1949,6 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
 ////        // Set initial state
 ////        Eigen::Vector6d systemInitialState = asterixInitialState;
-
 
 ////        // Create acceleration models and propagation settings.
 ////        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -2277,13 +2085,9 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
     // Set numerical integration fixed step size.
     const double fixedStepSize = 2.0;
 
-
     // Create vehicle objects.
     simulation_setup::SystemOfBodies bodies;
     bodies.createEmptyBody( "Asterix" );
-
-
-
 
     double vehicleMass = 5.0E5;
 
@@ -2296,18 +2100,16 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
     // Define times and deltaV magnitudes for momentum wheel desaturation maneuvers.
     std::vector< double > thrustMidTimes = { 1.0 * 3600.0, 2.0 * 3600.0, 3.0 * 3600.0 };
-    std::vector< Eigen::Vector3d > deltaVValues =
-    { 1.0E-3 * ( Eigen::Vector3d( ) << 0.3, -2.5, 3.4 ).finished( ),
-      1.0E-3 * ( Eigen::Vector3d( ) << 2.0, 5.9, -0.5 ).finished( ),
-      1.0E-3 * ( Eigen::Vector3d( ) << -1.6, 4.4, -5.8 ).finished( ) };
+    std::vector< Eigen::Vector3d > deltaVValues = { 1.0E-3 * ( Eigen::Vector3d( ) << 0.3, -2.5, 3.4 ).finished( ),
+                                                    1.0E-3 * ( Eigen::Vector3d( ) << 2.0, 5.9, -0.5 ).finished( ),
+                                                    1.0E-3 * ( Eigen::Vector3d( ) << -1.6, 4.4, -5.8 ).finished( ) };
     double totalManeuverTime = 90.0;
     double maneuverRiseTime = 15.0;
 
     // Define acceleration model settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-    accelerationsOfAsterix[ "Asterix" ].push_back(
-                std::make_shared< MomentumWheelDesaturationAccelerationSettings >(
-                    thrustMidTimes, deltaVValues, totalManeuverTime, maneuverRiseTime ) );
+    accelerationsOfAsterix[ "Asterix" ].push_back( std::make_shared< MomentumWheelDesaturationAccelerationSettings >(
+            thrustMidTimes, deltaVValues, totalManeuverTime, maneuverRiseTime ) );
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
 
     bodiesToPropagate.push_back( "Asterix" );
@@ -2317,29 +2119,29 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
     Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Define list of dependent variables to save.
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    dependentVariables.push_back(
-                std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                    momentum_wheel_desaturation_acceleration, "Asterix", "Asterix" ) );
+    dependentVariables.push_back( std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+            momentum_wheel_desaturation_acceleration, "Asterix", "Asterix" ) );
 
     // Create propagator/integrator settings
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
-              std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ), cowell,
-              dependentVariables );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    systemInitialState,
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
+                    cowell,
+                    dependentVariables );
 
-    std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
-            translationalPropagatorSettings;
+    std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings = translationalPropagatorSettings;
 
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
-
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
     // Define list of parameters to estimate.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
@@ -2351,10 +2153,15 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
             createParametersToEstimate< double >( parameterNames, bodies, propagatorSettings );
 
     // Create simulation object and propagate dynamics.
-    SingleArcVariationalEquationsSolver< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, parametersToEstimate,
-                true, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-                false, true, false );
+    SingleArcVariationalEquationsSolver<> dynamicsSimulator( bodies,
+                                                             integratorSettings,
+                                                             propagatorSettings,
+                                                             parametersToEstimate,
+                                                             true,
+                                                             std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+                                                             false,
+                                                             true,
+                                                             false );
 
     auto stateHistory = dynamicsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
     auto dependentVariableResult = dynamicsSimulator.getDynamicsSimulator( )->getDependentVariableHistory( );
@@ -2372,10 +2179,9 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
     // Create interpolator to look up maneuvers start times.
     std::shared_ptr< tudat::interpolators::LookUpScheme< double > > timeLookup =
-            std::make_shared< tudat::interpolators::HuntingAlgorithmLookupScheme< double > >(
-                thrustStartTimes );
+            std::make_shared< tudat::interpolators::HuntingAlgorithmLookupScheme< double > >( thrustStartTimes );
 
-    for( auto variableIterator : dependentVariableResult )
+    for( auto variableIterator: dependentVariableResult )
     {
         // Identify maneuver start time closest to current time.
         double currentTime = variableIterator.first;
@@ -2387,11 +2193,10 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
         double scalingNorm = 0.0;
 
         // If maneuver still ongoing at current time.
-        if( ( std::fabs( currentTime - currentStartTime ) < totalManeuverTime ) && ( currentTime > currentStartTime )  )
+        if( ( std::fabs( currentTime - currentStartTime ) < totalManeuverTime ) && ( currentTime > currentStartTime ) )
         {
             // Compute peak desaturation acceleration.
-            Eigen::Vector3d peakAcceleration = deltaVValues.at( currentNearestNeighbour ) /
-                    ( totalManeuverTime - maneuverRiseTime );
+            Eigen::Vector3d peakAcceleration = deltaVValues.at( currentNearestNeighbour ) / ( totalManeuverTime - maneuverRiseTime );
             scalingNorm = peakAcceleration.norm( );
 
             // Compute time elapsed since maneuver start.
@@ -2401,8 +2206,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
             if( timeSinceStart < maneuverRiseTime )
             {
                 double timeRatio = timeSinceStart / maneuverRiseTime;
-                expectedAcceleration = peakAcceleration * timeRatio * timeRatio * (
-                            3.0 - 2.0 * timeRatio );
+                expectedAcceleration = peakAcceleration * timeRatio * timeRatio * ( 3.0 - 2.0 * timeRatio );
             }
             else if( timeSinceStart < totalManeuverTime - maneuverRiseTime )
             {
@@ -2411,8 +2215,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
             else
             {
                 double timeRatio = ( totalManeuverTime - timeSinceStart ) / maneuverRiseTime;
-                expectedAcceleration = peakAcceleration * timeRatio * timeRatio * (
-                            3.0 - 2.0 * timeRatio );
+                expectedAcceleration = peakAcceleration * timeRatio * timeRatio * ( 3.0 - 2.0 * timeRatio );
             }
         }
 
@@ -2430,16 +2233,16 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
                 if( currentTime - currentStartTime > totalManeuverTime )
                 {
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                                sensitivityHistory.at( currentTime ).block( 3, i * 3, 3, 3 ), Eigen::Matrix3d::Identity( ), 1.0E-4 );
+                            sensitivityHistory.at( currentTime ).block( 3, i * 3, 3, 3 ), Eigen::Matrix3d::Identity( ), 1.0E-4 );
                 }
             }
             for( int i = currentNearestNeighbour + 1; i <= 2; i++ )
             {
                 // Check that the sensitivity matrix blocks which describe the velocity partials w.r.t. the deltaV values
                 // of the upcoming maneuvers are filled with zeros.
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            sensitivityHistory.at( currentTime ).block( 3, i * 3, 3, 3 ), Eigen::Matrix3d::Zero( ),
-                            std::numeric_limits< double >::epsilon( ) );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sensitivityHistory.at( currentTime ).block( 3, i * 3, 3, 3 ),
+                                                   Eigen::Matrix3d::Zero( ),
+                                                   std::numeric_limits< double >::epsilon( ) );
             }
 
             Eigen::Vector3d currentVelocity = stateHistory.at( variableIterator.first ).segment( 3, 3 );
@@ -2449,7 +2252,6 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
             {
                 BOOST_CHECK_SMALL( std::fabs( expectedDeltaV( i ) - currentVelocity( i ) ), 1.0E-5 * currentVelocity.norm( ) );
             }
-
         }
 
         // Check accelerations consistency.
@@ -2459,25 +2261,21 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
                                5.0 * std::numeric_limits< double >::epsilon( ) * scalingNorm );
         }
 
-
         // Check state transition matrix consistency.
         // The state transition matrix is expected to be equal to the identity matrix, expect for the current
         // position partials w.r.t. the initial velocity, expected to show a linear time-dependence.
         Eigen::Matrix6d stateTransitionMatrix = stateTransitionHistory.at( currentTime );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    stateTransitionMatrix.block( 0, 3, 3, 3 ),
-                    ( ( currentTime - simulationStartEpoch ) * Eigen::Matrix3d::Identity( ) ),
-                    1.0E-8 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateTransitionMatrix.block( 0, 3, 3, 3 ),
+                                           ( ( currentTime - simulationStartEpoch ) * Eigen::Matrix3d::Identity( ) ),
+                                           1.0E-8 );
         stateTransitionMatrix.block( 0, 3, 3, 3 ) = Eigen::Matrix3d::Zero( );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    stateTransitionMatrix, Eigen::Matrix6d::Identity( ),
-                    std::numeric_limits< double >::epsilon( ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateTransitionMatrix, Eigen::Matrix6d::Identity( ), std::numeric_limits< double >::epsilon( ) );
     }
 }
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

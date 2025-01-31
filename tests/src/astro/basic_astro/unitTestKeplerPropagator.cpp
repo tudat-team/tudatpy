@@ -28,7 +28,6 @@
 #include <map>
 #include <limits>
 
-
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 #include "tudat/basics/testMacros.h"
@@ -40,7 +39,6 @@
 #include "tudat/astro/basic_astro/keplerPropagatorTestData.h"
 #include "tudat/astro/basic_astro/keplerPropagator.h"
 #include "tudat/io/basicInputOutput.h"
-
 
 namespace tudat
 {
@@ -59,18 +57,16 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_Melman )
     PropagationHistory benchmarkKeplerPropagationHistory = getMelmanBenchmarkData( );
 
     // Propagate to final state in Keplerian elements.
-    Eigen::Vector6d computedFinalStateInKeplerianElements
-            = propagateKeplerOrbit(
-                benchmarkKeplerPropagationHistory.begin( )->second,
-                benchmarkKeplerPropagationHistory.rbegin( )->first -
-                benchmarkKeplerPropagationHistory.begin( )->first,
-                getMelmanEarthGravitationalParameter( ) );
+    Eigen::Vector6d computedFinalStateInKeplerianElements =
+            propagateKeplerOrbit( benchmarkKeplerPropagationHistory.begin( )->second,
+                                  benchmarkKeplerPropagationHistory.rbegin( )->first - benchmarkKeplerPropagationHistory.begin( )->first,
+                                  getMelmanEarthGravitationalParameter( ) );
 
     // Check that computed results match expected results.
     BOOST_CHECK_CLOSE_FRACTION(
-                benchmarkKeplerPropagationHistory.rbegin( )->second( 5 ),
-                basic_mathematics::computeModulo( computedFinalStateInKeplerianElements( 5 ),
-                                                  2.0 * mathematical_constants::PI ), 1.0e-8 );
+            benchmarkKeplerPropagationHistory.rbegin( )->second( 5 ),
+            basic_mathematics::computeModulo( computedFinalStateInKeplerianElements( 5 ), 2.0 * mathematical_constants::PI ),
+            1.0e-8 );
 }
 
 //! Test 2: Comparison of kepprop2b() test output from (GSFC, 2012) using modulo option.
@@ -89,23 +85,18 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_kepprop2b_modulo )
     PropagationHistory computedPropagationHistory;
     computedPropagationHistory[ 0.0 ] = expectedPropagationHistory[ 0.0 ];
 
-    for ( unsigned int i = 1; i < expectedPropagationHistory.size( ); i++ )
+    for( unsigned int i = 1; i < expectedPropagationHistory.size( ); i++ )
     {
-        computedPropagationHistory[ static_cast< double >( i ) * timeStep ]
-                = propagateKeplerOrbit(
-                    computedPropagationHistory[ static_cast< double >( i - 1 ) * timeStep ],
-                    timeStep, earthGravitationalParameter  );
+        computedPropagationHistory[ static_cast< double >( i ) * timeStep ] = propagateKeplerOrbit(
+                computedPropagationHistory[ static_cast< double >( i - 1 ) * timeStep ], timeStep, earthGravitationalParameter );
 
-        computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
-                = basic_mathematics::computeModulo(
-                    computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                    2.0 * mathematical_constants::PI );
+        computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ) = basic_mathematics::computeModulo(
+                computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ), 2.0 * mathematical_constants::PI );
 
         // Check that computed results match expected results.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    computedPropagationHistory[ static_cast< double >( i ) * timeStep ],
-                    expectedPropagationHistory[ static_cast< double >( i ) * timeStep ],
-                    1.0e-13 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedPropagationHistory[ static_cast< double >( i ) * timeStep ],
+                                           expectedPropagationHistory[ static_cast< double >( i ) * timeStep ],
+                                           1.0e-13 );
     }
 }
 
@@ -125,23 +116,18 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_kepprop2b_backwards )
     PropagationHistory computedPropagationHistory;
     computedPropagationHistory[ 10.0 * 8640.0 ] = expectedPropagationHistory[ 10.0 * 8640.0 ];
 
-    for ( int i = expectedPropagationHistory.size( ) - 2; i >= 0; i-- )
+    for( int i = expectedPropagationHistory.size( ) - 2; i >= 0; i-- )
     {
-        computedPropagationHistory[ static_cast< double >( i ) * timeStep ]
-                = propagateKeplerOrbit(
-                    computedPropagationHistory[ static_cast< double >( i + 1 ) * timeStep ],
-                    -timeStep, earthGravitationalParameter );
+        computedPropagationHistory[ static_cast< double >( i ) * timeStep ] = propagateKeplerOrbit(
+                computedPropagationHistory[ static_cast< double >( i + 1 ) * timeStep ], -timeStep, earthGravitationalParameter );
 
-        computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
-                = basic_mathematics::computeModulo(
-                    computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                    2.0 * mathematical_constants::PI );
+        computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ) = basic_mathematics::computeModulo(
+                computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ), 2.0 * mathematical_constants::PI );
 
         // Check that computed results match expected results.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    computedPropagationHistory[ static_cast< double >( i ) * timeStep ],
-                    expectedPropagationHistory[ static_cast< double >( i ) * timeStep ],
-                    1.0e-13 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedPropagationHistory[ static_cast< double >( i ) * timeStep ],
+                                           expectedPropagationHistory[ static_cast< double >( i ) * timeStep ],
+                                           1.0e-13 );
     }
 }
 
@@ -158,19 +144,16 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_hyperbolic_GTOP )
     PropagationHistory computedPropagationHistory;
     computedPropagationHistory[ 0.0 ] = expectedPropagationHistory[ 0.0 ];
 
-    for ( unsigned int i = 1; i < expectedPropagationHistory.size( ); i++ )
+    for( unsigned int i = 1; i < expectedPropagationHistory.size( ); i++ )
     {
         // Compute next entry.
-        computedPropagationHistory[ static_cast< double >( i ) * timeStep ] =
-                propagateKeplerOrbit(
-                    computedPropagationHistory[ static_cast< double >( i - 1 ) * timeStep ],
-                    timeStep, getGTOPGravitationalParameter( ) );
+        computedPropagationHistory[ static_cast< double >( i ) * timeStep ] = propagateKeplerOrbit(
+                computedPropagationHistory[ static_cast< double >( i - 1 ) * timeStep ], timeStep, getGTOPGravitationalParameter( ) );
 
         // Check that computed results match expected results.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                    expectedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                    1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
+                                    expectedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
+                                    1.0e-15 );
     }
 }
 
@@ -188,17 +171,14 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_FunctionFailingOnOldModuloFunctio
 
     // Set initial Keplerian elements.
     Eigen::Vector6d keplerElements;
-    keplerElements << 56618890355.593132, 0.99961601437304082, 1.0238269559089248,
-            3.1526292818328812, 1.5807574453453865, 3.1478950321924795;
+    keplerElements << 56618890355.593132, 0.99961601437304082, 1.0238269559089248, 3.1526292818328812, 1.5807574453453865,
+            3.1478950321924795;
 
     // Propagate Keplerian elements.
-    keplerElements = propagateKeplerOrbit(
-                keplerElements, propagationTime, gravitationalParameter );
+    keplerElements = propagateKeplerOrbit( keplerElements, propagationTime, gravitationalParameter );
 
     // Check that computed results match expected results.
-    BOOST_CHECK_CLOSE_FRACTION( keplerElements( trueAnomalyIndex ),
-                                expectedTrueAnomaly,
-                                1.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( keplerElements( trueAnomalyIndex ), expectedTrueAnomaly, 1.0e-15 );
 }
 
 //! Test 6. propagation test using ODTBX test Kepler elements.
@@ -210,31 +190,26 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyAgainstMeanMotion )
         double gravitationalParameter = 398600.4415e9;
         Eigen::Vector6d initialStateInKeplerianElements;
 
-        initialStateInKeplerianElements << 42165.3431351313e3, 0.26248354351331, 0.30281462522101,
-                4.71463172847351, 4.85569272927819, 2.37248926702153;
+        initialStateInKeplerianElements << 42165.3431351313e3, 0.26248354351331, 0.30281462522101, 4.71463172847351, 4.85569272927819,
+                2.37248926702153;
         double timeStep = 600.0;
-        double meanMotion = std::sqrt( gravitationalParameter /
-                                       std::pow( initialStateInKeplerianElements( 0 ), 3.0 ) );
+        double meanMotion = std::sqrt( gravitationalParameter / std::pow( initialStateInKeplerianElements( 0 ), 3.0 ) );
 
         double initialMeanAnomaly = convertEccentricAnomalyToMeanAnomaly(
-                    convertTrueAnomalyToEccentricAnomaly(
-                        initialStateInKeplerianElements( 5 ), initialStateInKeplerianElements( 1 ) ),
-                    initialStateInKeplerianElements( 1 ) );
+                convertTrueAnomalyToEccentricAnomaly( initialStateInKeplerianElements( 5 ), initialStateInKeplerianElements( 1 ) ),
+                initialStateInKeplerianElements( 1 ) );
 
         double propagationTime, propagatedMeanAnomaly;
 
         Eigen::Vector6d propagatedKeplerElements;
 
-
         for( int i = -25; i < 26; i++ )
         {
             propagationTime = static_cast< double >( i ) * timeStep;
-            propagatedKeplerElements = propagateKeplerOrbit(
-                        initialStateInKeplerianElements, propagationTime, gravitationalParameter );
+            propagatedKeplerElements = propagateKeplerOrbit( initialStateInKeplerianElements, propagationTime, gravitationalParameter );
             propagatedMeanAnomaly = convertEccentricAnomalyToMeanAnomaly(
-                        convertTrueAnomalyToEccentricAnomaly(
-                            propagatedKeplerElements( 5 ), initialStateInKeplerianElements( 1 ) ),
-                        initialStateInKeplerianElements( 1 ) );
+                    convertTrueAnomalyToEccentricAnomaly( propagatedKeplerElements( 5 ), initialStateInKeplerianElements( 1 ) ),
+                    initialStateInKeplerianElements( 1 ) );
             doubleErrors.push_back( meanMotion * propagationTime - ( propagatedMeanAnomaly - initialMeanAnomaly ) );
         }
     }
@@ -245,38 +220,35 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyAgainstMeanMotion )
         long double gravitationalParameter = 398600.4415e9L;
         Eigen::Matrix< long double, 6, 1 > initialStateInKeplerianElements;
 
-        initialStateInKeplerianElements << 42165.3431351313e3L, 0.26248354351331L, 0.30281462522101L,
-                4.71463172847351L, 4.85569272927819L, 2.37248926702153L;
+        initialStateInKeplerianElements << 42165.3431351313e3L, 0.26248354351331L, 0.30281462522101L, 4.71463172847351L, 4.85569272927819L,
+                2.37248926702153L;
         long double timeStep = 600.0L;
-        long double meanMotion = std::sqrt( gravitationalParameter /
-                                            ( initialStateInKeplerianElements( 0 ) *
-                                              initialStateInKeplerianElements( 0 ) *
-                                              initialStateInKeplerianElements( 0 ) ) );
+        long double meanMotion = std::sqrt(
+                gravitationalParameter /
+                ( initialStateInKeplerianElements( 0 ) * initialStateInKeplerianElements( 0 ) * initialStateInKeplerianElements( 0 ) ) );
 
         long double initialMeanAnomaly = convertEccentricAnomalyToMeanAnomaly< long double >(
-                    convertTrueAnomalyToEccentricAnomaly< long double >(
-                        initialStateInKeplerianElements( 5 ), initialStateInKeplerianElements( 1 ) ),
-                    initialStateInKeplerianElements( 1 ) );
+                convertTrueAnomalyToEccentricAnomaly< long double >( initialStateInKeplerianElements( 5 ),
+                                                                     initialStateInKeplerianElements( 1 ) ),
+                initialStateInKeplerianElements( 1 ) );
 
         long double propagationTime, propagatedMeanAnomaly;
 
         Eigen::Matrix< long double, 6, 1 > propagatedKeplerElements;
 
-
         for( int i = -25; i < 26; i++ )
         {
             propagationTime = static_cast< long double >( i ) * timeStep;
 
-            propagatedKeplerElements = propagateKeplerOrbit< long double >(
-                        initialStateInKeplerianElements, propagationTime, gravitationalParameter );
+            propagatedKeplerElements =
+                    propagateKeplerOrbit< long double >( initialStateInKeplerianElements, propagationTime, gravitationalParameter );
             propagatedMeanAnomaly = convertEccentricAnomalyToMeanAnomaly< long double >(
-                        convertTrueAnomalyToEccentricAnomaly< long double >(
-                            propagatedKeplerElements( 5 ), initialStateInKeplerianElements( 1 ) ),
-                        initialStateInKeplerianElements( 1 ) );
+                    convertTrueAnomalyToEccentricAnomaly< long double >( propagatedKeplerElements( 5 ),
+                                                                         initialStateInKeplerianElements( 1 ) ),
+                    initialStateInKeplerianElements( 1 ) );
 
-            longDoubleErrors.push_back( static_cast< double >(
-                                            meanMotion * propagationTime -
-                                            ( propagatedMeanAnomaly - initialMeanAnomaly ) ) );
+            longDoubleErrors.push_back(
+                    static_cast< double >( meanMotion * propagationTime - ( propagatedMeanAnomaly - initialMeanAnomaly ) ) );
         }
     }
 
@@ -288,5 +260,5 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyAgainstMeanMotion )
                            static_cast< double >( 5.0 * std::numeric_limits< double >::epsilon( ) ) );
     }
 }
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

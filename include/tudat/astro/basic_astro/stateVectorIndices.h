@@ -19,8 +19,7 @@ namespace orbital_element_conversions
 {
 
 //! Cartesian elements indices.
-enum CartesianElementIndices
-{
+enum CartesianElementIndices {
     xCartesianPositionIndex = 0,
     yCartesianPositionIndex = 1,
     zCartesianPositionIndex = 2,
@@ -30,8 +29,7 @@ enum CartesianElementIndices
 };
 
 //! Keplerian elements indices.
-enum KeplerianElementIndices
-{
+enum KeplerianElementIndices {
     semiMajorAxisIndex = 0,
     eccentricityIndex = 1,
     inclinationIndex = 2,
@@ -42,8 +40,7 @@ enum KeplerianElementIndices
 };
 
 //! Modified equinoctial element vector indices.
-enum ModifiedEquinoctialElementVectorIndices
-{
+enum ModifiedEquinoctialElementVectorIndices {
     semiParameterIndex = 0,
     fElementIndex = 1,
     gElementIndex = 2,
@@ -53,8 +50,7 @@ enum ModifiedEquinoctialElementVectorIndices
 };
 
 //! Spherical orbital state element indices
-enum SphericalOrbitalStateElementIndices
-{
+enum SphericalOrbitalStateElementIndices {
     radiusIndex = 0,
     latitudeIndex = 1,
     longitudeIndex = 2,
@@ -64,8 +60,7 @@ enum SphericalOrbitalStateElementIndices
 };
 
 //! Unified state model with quaternions indices.
-enum UnifiedStateModelQuaternionsElementIndices
-{
+enum UnifiedStateModelQuaternionsElementIndices {
     CHodographUSM7Index = 0,
     Rf1HodographUSM7Index = 1,
     Rf2HodographUSM7Index = 2,
@@ -76,8 +71,7 @@ enum UnifiedStateModelQuaternionsElementIndices
 };
 
 //! Unified state model with modified Rodrigues parameters indices.
-enum UnifiedStateModelModifiedRodriguesParametersElementIndices
-{
+enum UnifiedStateModelModifiedRodriguesParametersElementIndices {
     CHodographUSM6Index = 0,
     Rf1HodographUSM6Index = 1,
     Rf2HodographUSM6Index = 2,
@@ -88,8 +82,7 @@ enum UnifiedStateModelModifiedRodriguesParametersElementIndices
 };
 
 //! Unified state model with exponential map indices.
-enum UnifiedStateModelExponentialMapElementIndices
-{
+enum UnifiedStateModelExponentialMapElementIndices {
     CHodographUSMEMIndex = 0,
     Rf1HodographUSMEMIndex = 1,
     Rf2HodographUSMEMIndex = 2,
@@ -100,8 +93,7 @@ enum UnifiedStateModelExponentialMapElementIndices
 };
 
 //! Quaternions indices.
-enum QuaternionsElementIndices
-{
+enum QuaternionsElementIndices {
     etaQuaternionIndex = 0,
     epsilon1QuaternionIndex = 1,
     epsilon2QuaternionIndex = 2,
@@ -109,8 +101,7 @@ enum QuaternionsElementIndices
 };
 
 //! Modified Rodrigues parameters indices.
-enum ModifiedRodriguesParametersElementIndices
-{
+enum ModifiedRodriguesParametersElementIndices {
     sigma1ModifiedRodriguesParametersIndex = 0,
     sigma2ModifiedRodriguesParametersIndex = 1,
     sigma3ModifiedRodriguesParametersIndex = 2,
@@ -118,16 +109,15 @@ enum ModifiedRodriguesParametersElementIndices
 };
 
 //! Exponential map indices.
-enum ExponentialMapElementIndices
-{
+enum ExponentialMapElementIndices {
     e1ExponentialMapIndex = 0,
     e2ExponentialMapIndex = 1,
     e3ExponentialMapIndex = 2,
     shadowFlagExponentialMapIndex = 3
 };
 
-} // namespace orbital_element_conversions
+}  // namespace orbital_element_conversions
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_STATE_INDICES_H
+#endif  // TUDAT_STATE_INDICES_H

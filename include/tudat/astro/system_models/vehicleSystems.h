@@ -38,17 +38,15 @@ namespace system_models
 class VehicleSystems
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param dryMass Total dry mass of the vehicle (not defined; NaN by default).
      */
-    VehicleSystems( const double dryMass = TUDAT_NAN ):
-        currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ){ }
+    VehicleSystems( const double dryMass = TUDAT_NAN ): currentOrientationTime_( TUDAT_NAN ), dryMass_( dryMass ) { }
 
     //! Destructor
-    ~VehicleSystems( ){ }
+    ~VehicleSystems( ) { }
 
     //! Function to retrieve the engine models
     /*!
@@ -76,13 +74,13 @@ public:
      * \param engineModel Model of engine that is to be set
      * \param engineName Reference id of the engine that is to be set.
      */
-    void setEngineModel(
-            const std::shared_ptr< EngineModel > engineModel )
+    void setEngineModel( const std::shared_ptr< EngineModel > engineModel )
     {
         // Check if engine with this name already exists.
         if( engineModels_.count( engineModel->getEngineName( ) ) )
         {
-            std::cerr << "Warning, engine model of name " << engineModel->getEngineName( ) << " already exists, overriding old model" << std::endl;
+            std::cerr << "Warning, engine model of name " << engineModel->getEngineName( ) << " already exists, overriding old model"
+                      << std::endl;
         }
 
         engineModels_[ engineModel->getEngineName( ) ] = engineModel;
@@ -114,10 +112,9 @@ public:
      * \param controlSurfaceId Name of control surface for which deflection is to be set
      * \param deflectionAngle Current deflection of control surface that is to be set.
      */
-    void setCurrentControlSurfaceDeflection(
-            const std::string& controlSurfaceId, const double deflectionAngle )
+    void setCurrentControlSurfaceDeflection( const std::string& controlSurfaceId, const double deflectionAngle )
     {
-        currentControlSurfaceDeflections_[ controlSurfaceId ] =  deflectionAngle;
+        currentControlSurfaceDeflections_[ controlSurfaceId ] = deflectionAngle;
     }
 
     bool doesControlSurfaceExist( const std::string& controlSurfaceName )
@@ -131,13 +128,12 @@ public:
      * \param controlSurfaceId Name of control surface for which deflection is to be set
      * \return Current deflection of control surface that is requested.
      */
-    double getCurrentControlSurfaceDeflection(
-            const std::string& controlSurfaceId )
+    double getCurrentControlSurfaceDeflection( const std::string& controlSurfaceId )
     {
         if( currentControlSurfaceDeflections_.count( controlSurfaceId ) == 0 )
         {
             throw std::runtime_error( "Error when retrieving control surface deflection of control surface " + controlSurfaceId +
-                ", control surface not yet created" );
+                                      ", control surface not yet created" );
         }
         return currentControlSurfaceDeflections_.at( controlSurfaceId );
     }
@@ -189,9 +185,9 @@ public:
 
     void updatePartOrientations( const double time )
     {
-        if( !(time == currentOrientationTime_ ) )
+        if( !( time == currentOrientationTime_ ) )
         {
-            for( auto it : vehiclePartOrientation_ )
+            for( auto it: vehiclePartOrientation_ )
             {
                 currentVehiclePartRotationToBodyFixedFrame_[ it.first ] = it.second->getRotationToBaseFrame( time );
             }
@@ -209,13 +205,12 @@ public:
         {
             if( vehiclePartOrientation_.count( partName ) == 0 )
             {
-                throw std::runtime_error(
-                    "Error when retrieving orientation of body part " + partName + ", part rotation model not defined" );
+                throw std::runtime_error( "Error when retrieving orientation of body part " + partName +
+                                          ", part rotation model not defined" );
             }
             else
             {
-                throw std::runtime_error(
-                    "Error when retrieving orientation of body part " + partName + ", part not updated" );
+                throw std::runtime_error( "Error when retrieving orientation of body part " + partName + ", part not updated" );
             }
         }
 
@@ -223,7 +218,7 @@ public:
     }
 
     void setVehicleExteriorPanels(
-        const std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > vehicleExteriorPanels )
+            const std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > vehicleExteriorPanels )
     {
         vehicleExteriorPanels_ = vehicleExteriorPanels;
     }
@@ -236,7 +231,7 @@ public:
     int getTotalNumberOfPanels( )
     {
         int numberOfPanels = 0;
-        for( auto it : vehicleExteriorPanels_ )
+        for( auto it: vehicleExteriorPanels_ )
         {
             numberOfPanels += it.second.size( );
         }
@@ -244,44 +239,40 @@ public:
     }
 
     void setVehiclePartOrientation(
-        const std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation )
+            const std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation )
     {
         vehiclePartOrientation_ = vehiclePartOrientation;
     }
 
     void setTransponderTurnaroundRatio(
-             std::function< double (
-                     observation_models::FrequencyBands uplinkBand,
-                     observation_models::FrequencyBands downlinkBand ) > transponderRatioFunction = &observation_models::getDsnDefaultTurnaroundRatios )
+            std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
+                    transponderRatioFunction = &observation_models::getDsnDefaultTurnaroundRatios )
     {
         transponderTurnaroundRatio_ = transponderRatioFunction;
     }
-
 
     void setDefaultTransponderTurnaroundRatio( )
     {
         setTransponderTurnaroundRatio( );
     }
 
-    void setTransponderTurnaroundRatio(
-            std::map< std::pair< observation_models::FrequencyBands, observation_models::FrequencyBands >, double >&
-                    transponderRatioPerUplinkAndDownlinkFrequencyBand )
+    void setTransponderTurnaroundRatio( std::map< std::pair< observation_models::FrequencyBands, observation_models::FrequencyBands >,
+                                                  double >& transponderRatioPerUplinkAndDownlinkFrequencyBand )
     {
-        transponderTurnaroundRatio_ = [=] (
-                observation_models::FrequencyBands uplinkBand,
-                observation_models::FrequencyBands downlinkBand )
-        {
+        transponderTurnaroundRatio_ = [ = ]( observation_models::FrequencyBands uplinkBand,
+                                             observation_models::FrequencyBands downlinkBand ) {
             return transponderRatioPerUplinkAndDownlinkFrequencyBand.at( std::make_pair( uplinkBand, downlinkBand ) );
         };
     }
 
-    std::function< double ( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
-            getTransponderTurnaroundRatio( )
+    std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
+    getTransponderTurnaroundRatio( )
     {
         if( transponderTurnaroundRatio_ == nullptr )
         {
-            throw std::runtime_error( "Error when retrieving transponder turnaround ratio from vehicle systems: "
-                                      "turnaround ratio function is not defined." );
+            throw std::runtime_error(
+                    "Error when retrieving transponder turnaround ratio from vehicle systems: "
+                    "turnaround ratio function is not defined." );
         }
         return transponderTurnaroundRatio_;
     }
@@ -301,12 +292,15 @@ public:
         return referencePoints_.at( referencePoint )->getCartesianPosition( time );
     }
 
-    void setReferencePointPosition( const std::string referencePoint, const Eigen::Vector3d& location,
-                                    const std::string frameOrigin = "", const std::string frameOrientation = "" )
+    void setReferencePointPosition( const std::string referencePoint,
+                                    const Eigen::Vector3d& location,
+                                    const std::string frameOrigin = "",
+                                    const std::string frameOrientation = "" )
     {
         Eigen::Vector6d pointState = Eigen::Vector6d::Zero( );
         pointState.segment( 0, 3 ) = location;
-        referencePoints_[ referencePoint ] = std::make_shared< ephemerides::ConstantEphemeris >( pointState, frameOrigin, frameOrientation );
+        referencePoints_[ referencePoint ] =
+                std::make_shared< ephemerides::ConstantEphemeris >( pointState, frameOrigin, frameOrientation );
     }
 
     void setReferencePointPosition( const std::string referencePoint, std::shared_ptr< ephemerides::Ephemeris > referencePointEphemeris )
@@ -323,9 +317,9 @@ public:
     std::map< std::string, std::shared_ptr< ephemerides::ConstantEphemeris > > getFixedReferencePoints( )
     {
         std::map< std::string, std::shared_ptr< ephemerides::ConstantEphemeris > > fixedReferencePoints;
-        for ( auto it : referencePoints_ )
+        for( auto it: referencePoints_ )
         {
-            if ( std::dynamic_pointer_cast< ephemerides::ConstantEphemeris >( it.second ) != nullptr )
+            if( std::dynamic_pointer_cast< ephemerides::ConstantEphemeris >( it.second ) != nullptr )
             {
                 fixedReferencePoints[ it.first ] = std::dynamic_pointer_cast< ephemerides::ConstantEphemeris >( it.second );
             }
@@ -334,15 +328,12 @@ public:
     }
 
     template< typename StateScalarType, typename TimeType >
-    Eigen::Matrix< StateScalarType, 6, 1 > getReferencePointStateInBodyFixedFrame(
-            const std::string referencePoint, const TimeType& time )
+    Eigen::Matrix< StateScalarType, 6, 1 > getReferencePointStateInBodyFixedFrame( const std::string referencePoint, const TimeType& time )
     {
         return referencePoints_.at( referencePoint )->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time );
     }
 
-
 private:
-
     std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > referencePoints_;
 
     std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation_;
@@ -370,11 +361,12 @@ private:
     //! Wall emissivity of the vehicle (used for heating computations)
     double wallEmissivity_;
 
-    std::function< double ( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) > transponderTurnaroundRatio_;
+    std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
+            transponderTurnaroundRatio_;
 };
 
-} // namespace system_models
+}  // namespace system_models
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_VEHICLESYSTEMS_H
+#endif  // TUDAT_VEHICLESYSTEMS_H

@@ -33,7 +33,6 @@ void getFullVariationalEquationsSolutionHistory(
         const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
         const std::vector< double > evaluationTimes );
 
-
 //! Function to retrueve full state transition and sensitivity matrices at epochs
 /*!
  *  Function to retrueve full state transition and sensitivity matrices at epochs from associated interface object
@@ -59,10 +58,9 @@ void getFullVariationalEquationsSolutionHistory(
  * \param fullVariationalEquationsSolutionHistory List of combined state transition and sensitivity matrices, given
  * at the epochs where the state covariance is to be computed
  */
-void propagateCovariance(
-        std::map< double, Eigen::MatrixXd >& propagatedCovariance,
-        const Eigen::MatrixXd& initialCovariance,
-        const std::map< double, Eigen::MatrixXd >& fullVariationalEquationsSolutionHistory );
+void propagateCovariance( std::map< double, Eigen::MatrixXd >& propagatedCovariance,
+                          const Eigen::MatrixXd& initialCovariance,
+                          const std::map< double, Eigen::MatrixXd >& fullVariationalEquationsSolutionHistory );
 
 //! Function to propagate full covariance at the initial time to state covariance at later times
 /*!
@@ -72,18 +70,16 @@ void propagateCovariance(
  * \param stateTransitionInterface Object that is used to obtain state transition and sensitivity matrices
  * \param evaluationTimes Times at which the covariance is to be evaluated
  */
-void propagateCovariance(
-        std::map< double, Eigen::MatrixXd >& propagatedCovariance,
-        const Eigen::MatrixXd& initialCovariance,
-        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const std::vector< double > evaluationTimes );
+void propagateCovariance( std::map< double, Eigen::MatrixXd >& propagatedCovariance,
+                          const Eigen::MatrixXd& initialCovariance,
+                          const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+                          const std::vector< double > evaluationTimes );
 
 //! Function to propagate full covariance at the initial time to state formal errors at later times
 std::map< double, Eigen::MatrixXd > propagateCovariance(
         const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
         const std::vector< double > evaluationTimes );
-
 
 //! Function to propagate full covariance at the initial time to state covariance at later times
 /*!
@@ -95,19 +91,17 @@ std::map< double, Eigen::MatrixXd > propagateCovariance(
  * \param initialTime Initial time at which covariance is to be provided
  * \param finalTime Final time at which covariance is to be provided
  */
-void propagateCovariance(
-        std::map< double, Eigen::MatrixXd >& propagatedCovariance,
-        const Eigen::MatrixXd& initialCovariance,
-        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const double timeStep,
-        const double initialTime,
-        const double finalTime );
+void propagateCovariance( std::map< double, Eigen::MatrixXd >& propagatedCovariance,
+                          const Eigen::MatrixXd& initialCovariance,
+                          const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+                          const double timeStep,
+                          const double initialTime,
+                          const double finalTime );
 
-Eigen::MatrixXd convertCovarianceToFrame(
-        const Eigen::MatrixXd inputCovariance,
-        const Eigen::VectorXd inertialCartesianRelativeState,
-        const reference_frames::SatelliteReferenceFrames inputFrame,
-        const reference_frames::SatelliteReferenceFrames outputFrame );
+Eigen::MatrixXd convertCovarianceToFrame( const Eigen::MatrixXd inputCovariance,
+                                          const Eigen::VectorXd inertialCartesianRelativeState,
+                                          const reference_frames::SatelliteReferenceFrames inputFrame,
+                                          const reference_frames::SatelliteReferenceFrames outputFrame );
 
 std::map< double, Eigen::MatrixXd > convertCovarianceHistoryToFrame(
         const std::map< double, Eigen::MatrixXd > inputCovariances,
@@ -115,10 +109,8 @@ std::map< double, Eigen::MatrixXd > convertCovarianceHistoryToFrame(
         const reference_frames::SatelliteReferenceFrames inputFrame,
         const reference_frames::SatelliteReferenceFrames outputFrame );
 
-void convertCovarianceHistoryToFormalErrorHistory(
-        std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
-        std::map< double, Eigen::MatrixXd >& propagatedCovariance );
-
+void convertCovarianceHistoryToFormalErrorHistory( std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
+                                                   std::map< double, Eigen::MatrixXd >& propagatedCovariance );
 
 //! Function to propagate full covariance at the initial time to state formal errors at later times
 /*!
@@ -128,11 +120,10 @@ void convertCovarianceHistoryToFormalErrorHistory(
  * \param stateTransitionInterface Object that is used to obtain state transition and sensitivity matrices
  * \param evaluationTimes Times at which the covariance is to be evaluated
  */
-void propagateFormalErrors(
-        std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
-        const Eigen::MatrixXd& initialCovariance,
-        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const std::vector< double > evaluationTimes );
+void propagateFormalErrors( std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
+                            const Eigen::MatrixXd& initialCovariance,
+                            const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+                            const std::vector< double > evaluationTimes );
 
 //! Function to propagate full covariance at the initial time to state formal errors at later times
 std::map< double, Eigen::VectorXd > propagateFormalErrors(
@@ -150,16 +141,15 @@ std::map< double, Eigen::VectorXd > propagateFormalErrors(
  * \param initialTime Initial time at which formal errors is to be provided
  * \param finalTime Final time at which formal errors is to be provided
  */
-void propagateFormalErrors(
-        std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
-        const Eigen::MatrixXd& initialCovariance,
-        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const double timeStep,
-        const double initialTime,
-        const double finalTime );
+void propagateFormalErrors( std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
+                            const Eigen::MatrixXd& initialCovariance,
+                            const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+                            const double timeStep,
+                            const double initialTime,
+                            const double finalTime );
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_PROPAGATECOVARIANCE_H
+#endif  // TUDAT_PROPAGATECOVARIANCE_H

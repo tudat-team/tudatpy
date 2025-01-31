@@ -22,4 +22,4 @@
 #include "geometric/surfaceGeometry.h"
 #include "geometric/torus.h"
 
-#endif // TUDAT_GEOMETRIC_H
+#endif  // TUDAT_GEOMETRIC_H

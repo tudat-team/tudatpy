@@ -36,7 +36,7 @@ double computeEscapeOrCaptureDeltaV( const double gravitationalParameter,
                                      const double eccentricity,
                                      const double excessVelocity );
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat
 
-#endif // TUDAT_ESCAPE_AND_CAPTURE_H
+#endif  // TUDAT_ESCAPE_AND_CAPTURE_H

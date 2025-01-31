@@ -15,10 +15,9 @@
 
 #include <Eigen/Core>
 
-extern "C"
-{
-    #include <sofa/sofa.h>
-    #include <sofa/sofam.h>
+extern "C" {
+#include <sofa/sofa.h>
+#include <sofa/sofam.h>
 }
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -29,7 +28,6 @@ namespace tudat
 
 namespace sofa_interface
 {
-
 
 //! Function to calculate number of leap seconds from UTC input
 /*!
@@ -48,7 +46,6 @@ double getDeltaAtFromUtc( const double utcInJulianDays );
  *  \return Number of leap seconds at requested time.
  */
 double getDeltaAtFromTai( const double taiInJulianDays );
-
 
 //! Function to convert TAI to UTC
 /*!
@@ -87,7 +84,6 @@ TimeType convertUTCtoTAI( const TimeType utcSeconds )
     return utcSeconds + static_cast< TimeType >( deltaAt );
 }
 
-
 //! Function to convert TT to UTC
 /*!
  *  Function to convert TT (Terrestrial Time) to UTC (Universal Coordinated Time)  by determining bias
@@ -116,7 +112,6 @@ TimeType convertUTCtoTT( const TimeType utc )
     return basic_astrodynamics::convertTAItoTT( convertUTCtoTAI( utc ) );
 }
 
-
 ////! Function to convert UTC to UT1
 ///*!
 // * Function to convert UTC (Universal Coordinated Time) to UT1 (Universal Time version 1) by looking up the difference
@@ -125,7 +120,7 @@ TimeType convertUTCtoTT( const TimeType utc )
 // * @param utc Time in UTC in seconds since J2000
 // * @return Time in UT1 in seconds since J2000
 // */
-//double convertUTCtoUT1( const double utc );
+// double convertUTCtoUT1( const double utc );
 
 //! Function to calculate difference between TDB and TT.
 /*!
@@ -140,8 +135,11 @@ TimeType convertUTCtoTT( const TimeType utc )
  *  \param distanceFromEquatorialPlane Distance from Earth equatorial plane where difference is to be calculated
  *  \return Difference between TDB and TT at requested position and TDB
  */
-double getTDBminusTT( const double tdbTime, const double universalTimeFractionOfDay, const double stationLongitude,
-                      const double distanceFromSpinAxis, const double distanceFromEquatorialPlane );
+double getTDBminusTT( const double tdbTime,
+                      const double universalTimeFractionOfDay,
+                      const double stationLongitude,
+                      const double distanceFromSpinAxis,
+                      const double distanceFromEquatorialPlane );
 
 //! Function to calculate difference between TDB and TT.
 /*!
@@ -154,8 +152,7 @@ double getTDBminusTT( const double tdbTime, const double universalTimeFractionOf
  *  \param stationCartesianPosition Earth-fixed Cartesian position of evaluation point
  *  \return Difference between TDB and TT at requested position and TDB
  */
-double getTDBminusTT( const double tdbTime, const double universalTimeFractionOfDay,
-                      const Eigen::Vector3d& stationCartesianPosition );
+double getTDBminusTT( const double tdbTime, const double universalTimeFractionOfDay, const Eigen::Vector3d& stationCartesianPosition );
 
 //! Function to calculate difference between TDB and TT
 /*!
@@ -172,7 +169,9 @@ double getTDBminusTT( const double tdbTime, const double universalTimeFractionOf
  *  \param distanceFromEquatorialPlane Distance from Earth equatorial plane where difference is to be calculated
  *  \return Difference between TDB and TT at requested position and TDB
  */
-double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongitude, const double distanceFromSpinAxis,
+double getTDBminusTT( const double ttOrTdbSinceJ2000,
+                      const double stationLongitude,
+                      const double distanceFromSpinAxis,
                       const double distanceFromEquatorialPlane );
 
 //! Function to calculate difference between TDB and TT
@@ -206,16 +205,19 @@ TimeScalarType convertSecondsSinceEpochToSecondsOfYear(
     int year, month, day;
     double fractionOfDay;
     iauJd2cal( static_cast< double >( epochSinceJulianDayZero ),
-               static_cast< double >( secondsSinceEpoch ) / physical_constants::JULIAN_DAY, &year, &month, &day, &fractionOfDay );
+               static_cast< double >( secondsSinceEpoch ) / physical_constants::JULIAN_DAY,
+               &year,
+               &month,
+               &day,
+               &fractionOfDay );
 
     // Get time since start of the calendar year
-    double timeStartOfYear = basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
-            year, 1, 1, 0, 0, 0.0, epochSinceJulianDayZero ) * physical_constants::JULIAN_DAY;
+    double timeStartOfYear =
+            basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch( year, 1, 1, 0, 0, 0.0, epochSinceJulianDayZero ) *
+            physical_constants::JULIAN_DAY;
 
     return secondsSinceEpoch - static_cast< TimeScalarType >( timeStartOfYear );
 }
-
-
 
 template< typename TimeType >
 TimeType convertTTtoTDB( const TimeType ttTime, const Eigen::Vector3d& stationCartesianPosition )
@@ -223,18 +225,14 @@ TimeType convertTTtoTDB( const TimeType ttTime, const Eigen::Vector3d& stationCa
     return ttTime + static_cast< TimeType >( sofa_interface::getTDBminusTT( ttTime, stationCartesianPosition ) );
 }
 
-
 template< typename TimeType >
 TimeType convertTDBtoTT( const TimeType tdbTime, const Eigen::Vector3d& stationCartesianPosition )
 {
     return tdbTime - static_cast< TimeType >( sofa_interface::getTDBminusTT( tdbTime, stationCartesianPosition ) );
 }
 
+}  // namespace sofa_interface
 
+}  // namespace tudat
 
-
-} // namespace sofa_interfaces
-
-} // namespace tudat
-
-#endif // TUDAT_SOFATIMECONVERSIONS_H
+#endif  // TUDAT_SOFATIMECONVERSIONS_H

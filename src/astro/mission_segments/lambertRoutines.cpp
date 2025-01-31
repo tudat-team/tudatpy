@@ -19,10 +19,6 @@
 #include <cmath>
 #include <stdexcept>
 
-
-
-
-
 #include <boost/math/special_functions.hpp>
 
 #include <Eigen/Core>
@@ -53,7 +49,7 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
                               const unsigned int maximumNumberOfIterations )
 {
     // Sanity check for specified time-of-flight.
-    if ( timeOfFlight <= 0.0 )
+    if( timeOfFlight <= 0.0 )
     {
         // Throw exception.
         throw std::runtime_error( "Specified time-of-flight must be strictly positive: " + std::to_string( timeOfFlight ) + " days." );
@@ -61,23 +57,19 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
 
     // Compute normalizing values.
     const double distanceNormalizingValue = cartesianPositionAtDeparture.norm( );
-    const double velocityNormalizingValue = std::sqrt( gravitationalParameter /
-                                                       distanceNormalizingValue );
+    const double velocityNormalizingValue = std::sqrt( gravitationalParameter / distanceNormalizingValue );
     const double timeNormalizingValue = distanceNormalizingValue / velocityNormalizingValue;
 
     // Compute transfer geometry parameters in adimensional units.
     // Cosine of transfer angle.
-    const double cosineOfTransferAngle =
-            cartesianPositionAtDeparture.dot( cartesianPositionAtArrival )
-            / (distanceNormalizingValue * cartesianPositionAtArrival.norm( ) );
+    const double cosineOfTransferAngle = cartesianPositionAtDeparture.dot( cartesianPositionAtArrival ) /
+            ( distanceNormalizingValue * cartesianPositionAtArrival.norm( ) );
 
     // Normalized Cartesian position at arrival.
-    const double normalizedRadiusAtArrival = cartesianPositionAtArrival.norm( )
-            / distanceNormalizingValue;
+    const double normalizedRadiusAtArrival = cartesianPositionAtArrival.norm( ) / distanceNormalizingValue;
 
     // Chord.
-    const double chord = std::sqrt( 1.0 + normalizedRadiusAtArrival
-                                    * ( normalizedRadiusAtArrival - 2.0 * cosineOfTransferAngle ) );
+    const double chord = std::sqrt( 1.0 + normalizedRadiusAtArrival * ( normalizedRadiusAtArrival - 2.0 * cosineOfTransferAngle ) );
 
     // Semi-perimeter.
     const double semiPerimeter = ( 1.0 + normalizedRadiusAtArrival + chord ) / 2.0;
@@ -85,14 +77,15 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     // Assuming a prograde motion, determine whether the transfer corresponds to the long- or the
     // short-way solution: longway if x1*y2 - x2*y1 < 0.
     bool isLongway = false;
-    if ( cartesianPositionAtDeparture.x( ) * cartesianPositionAtArrival.y( )
-         - cartesianPositionAtDeparture.y( ) * cartesianPositionAtArrival.x( ) < 0.0 )
+    if( cartesianPositionAtDeparture.x( ) * cartesianPositionAtArrival.y( ) -
+                cartesianPositionAtDeparture.y( ) * cartesianPositionAtArrival.x( ) <
+        0.0 )
     {
         isLongway = true;
     }
 
     // If retrograde is true, switch longway flag.
-    if ( isRetrograde )
+    if( isRetrograde )
     {
         isLongway = !isLongway;
     }
@@ -102,14 +95,13 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
 
     // Transfer angle.
     double transferAngle = std::acos( cosineOfTransferAngle );
-    if ( isLongway )
+    if( isLongway )
     {
         transferAngle = 2.0 * mathematical_constants::PI - transferAngle;
     }
 
     // Lambda parameter.
-    const double lambdaParameter = std::sqrt( normalizedRadiusAtArrival )
-            * std::cos( transferAngle / 2.0 ) / semiPerimeter;
+    const double lambdaParameter = std::sqrt( normalizedRadiusAtArrival ) * std::cos( transferAngle / 2.0 ) / semiPerimeter;
 
     // Optimize log(t_spec).
     const double normalizedSpecifiedTimeOfFlight = timeOfFlight / timeNormalizingValue;
@@ -119,22 +111,18 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     // Define initial guesses for abcissae (x) and ordinates (y).
     double x1 = std::log( 0.5 ), x2 = std::log( 1.5 );
 
-    double y1 = std::log( computeTimeOfFlightIzzo( -0.5, semiPerimeter, chord, isLongway,
-                                                   semiMajorAxisOfTheMinimumEnergyEllipse ) )
-            - logarithmOfTheSpecifiedTimeOfFlight;
+    double y1 = std::log( computeTimeOfFlightIzzo( -0.5, semiPerimeter, chord, isLongway, semiMajorAxisOfTheMinimumEnergyEllipse ) ) -
+            logarithmOfTheSpecifiedTimeOfFlight;
 
-    double y2 = std::log( computeTimeOfFlightIzzo( 0.5, semiPerimeter, chord, isLongway,
-                                                   semiMajorAxisOfTheMinimumEnergyEllipse ) )
-            - logarithmOfTheSpecifiedTimeOfFlight;
+    double y2 = std::log( computeTimeOfFlightIzzo( 0.5, semiPerimeter, chord, isLongway, semiMajorAxisOfTheMinimumEnergyEllipse ) ) -
+            logarithmOfTheSpecifiedTimeOfFlight;
 
     // Declare and initialize root-finding parameters.
     double rootFindingError = 1.0, xNew = 0.0, yNew = 0.0;
     unsigned int iterator = 0;
 
-
     // Root-finding loop.
-    while ( ( rootFindingError > convergenceTolerance ) && (y1 != y2)
-            && ( iterator < maximumNumberOfIterations ) )
+    while( ( rootFindingError > convergenceTolerance ) && ( y1 != y2 ) && ( iterator < maximumNumberOfIterations ) )
     {
         // Update iterator.
         iterator++;
@@ -143,10 +131,9 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
         xNew = ( x1 * y2 - y1 * x2 ) / ( y2 - y1 );
 
         // Compute corresponding y-value.
-        yNew = std::log( computeTimeOfFlightIzzo( std::exp( xNew ) - 1.0, semiPerimeter, chord,
-                                                  isLongway,
-                                                  semiMajorAxisOfTheMinimumEnergyEllipse ) )
-                - logarithmOfTheSpecifiedTimeOfFlight;
+        yNew = std::log( computeTimeOfFlightIzzo(
+                       std::exp( xNew ) - 1.0, semiPerimeter, chord, isLongway, semiMajorAxisOfTheMinimumEnergyEllipse ) ) -
+                logarithmOfTheSpecifiedTimeOfFlight;
 
         // Update abcissae and ordinates.
         x1 = x2;
@@ -159,10 +146,10 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     }
 
     // Verify that root-finder has converged.
-    if ( iterator == maximumNumberOfIterations )
+    if( iterator == maximumNumberOfIterations )
     {
-        std::string errorMessage = "Lambert Solver did not converge within the maximum number of iterations: " +
-                std::to_string( maximumNumberOfIterations );
+        std::string errorMessage =
+                "Lambert Solver did not converge within the maximum number of iterations: " + std::to_string( maximumNumberOfIterations );
         throw std::runtime_error( errorMessage );
     }
 
@@ -170,23 +157,21 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     const double xParameter = std::exp( xNew ) - 1.0;
 
     // Determine semi-major axis of the conic.
-    const double semiMajorAxis = semiMajorAxisOfTheMinimumEnergyEllipse
-            / ( 1.0 - xParameter * xParameter );
+    const double semiMajorAxis = semiMajorAxisOfTheMinimumEnergyEllipse / ( 1.0 - xParameter * xParameter );
 
     // Declare variables.
     double etaParameter, etaParameterSquared, psiParameter;
 
     // If x < 1, the solution is an ellipse.
-    if ( xParameter < 1.0 )
+    if( xParameter < 1.0 )
     {
         // Alpha parameter.
         const double alphaParameter = 2.0 * std::acos( xParameter );
 
         // Beta parameter.
-        double betaParameter = 2.0 * std::asin( std::sqrt( ( semiPerimeter - chord )
-                                                           / ( 2.0 * semiMajorAxis ) ) );
+        double betaParameter = 2.0 * std::asin( std::sqrt( ( semiPerimeter - chord ) / ( 2.0 * semiMajorAxis ) ) );
 
-        if ( isLongway )
+        if( isLongway )
         {
             betaParameter = -betaParameter;
         }
@@ -195,8 +180,7 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
         psiParameter = ( alphaParameter - betaParameter ) / 2.0;
 
         // Eta parameter.
-        etaParameterSquared = 2.0 * semiMajorAxis * std::sin( psiParameter )
-                * std::sin( psiParameter ) / semiPerimeter;
+        etaParameterSquared = 2.0 * semiMajorAxis * std::sin( psiParameter ) * std::sin( psiParameter ) / semiPerimeter;
         etaParameter = std::sqrt( etaParameterSquared );
     }
 
@@ -207,47 +191,37 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
         const double alphaParameter = 2.0 * boost::math::acosh( xParameter );
 
         // Beta parameter.
-        double betaParameter = 2.0 * boost::math::asinh (
-                    std::sqrt( ( semiPerimeter - chord ) / ( -2.0 * semiMajorAxis ) ) );
+        double betaParameter = 2.0 * boost::math::asinh( std::sqrt( ( semiPerimeter - chord ) / ( -2.0 * semiMajorAxis ) ) );
 
-        if ( isLongway )
+        if( isLongway )
         {
             betaParameter = -betaParameter;
         }
 
         // Psi parameter.
-        psiParameter = (alphaParameter - betaParameter ) / 2.0;
+        psiParameter = ( alphaParameter - betaParameter ) / 2.0;
 
         // Eta parameter.
-        etaParameterSquared = -2.0 * semiMajorAxis * std::sinh( psiParameter )
-                * std::sinh( psiParameter ) / semiPerimeter;
+        etaParameterSquared = -2.0 * semiMajorAxis * std::sinh( psiParameter ) * std::sinh( psiParameter ) / semiPerimeter;
         etaParameter = std::sqrt( etaParameterSquared );
     }
 
     // Determine semi-latus rectum, p.
-    const double semiLatusRectum = ( normalizedRadiusAtArrival
-                                     / ( semiMajorAxisOfTheMinimumEnergyEllipse
-                                         * etaParameterSquared ) )
-            * std::sin( transferAngle / 2.0 )
-            * std::sin( transferAngle / 2.0 );
+    const double semiLatusRectum = ( normalizedRadiusAtArrival / ( semiMajorAxisOfTheMinimumEnergyEllipse * etaParameterSquared ) ) *
+            std::sin( transferAngle / 2.0 ) * std::sin( transferAngle / 2.0 );
 
     // Determine sigma.
-    const double sigmaParameter =
-            ( 1.0 / ( etaParameter * std::sqrt( semiMajorAxisOfTheMinimumEnergyEllipse ) ) )
-            * ( 2.0 * lambdaParameter * semiMajorAxisOfTheMinimumEnergyEllipse
-                - ( lambdaParameter + xParameter * etaParameter ) );
+    const double sigmaParameter = ( 1.0 / ( etaParameter * std::sqrt( semiMajorAxisOfTheMinimumEnergyEllipse ) ) ) *
+            ( 2.0 * lambdaParameter * semiMajorAxisOfTheMinimumEnergyEllipse - ( lambdaParameter + xParameter * etaParameter ) );
 
     // Velocity components at departure.
     const double radialVelocityAtDeparture = sigmaParameter;
     const double transverseVelocityAtDeparture = std::sqrt( semiLatusRectum );
 
     // Velocity components at arrival.
-    const double transverseVelocityAtArrival = transverseVelocityAtDeparture
-            / normalizedRadiusAtArrival;
-    const double radialVelocityAtArrival = ( transverseVelocityAtDeparture
-                                             - transverseVelocityAtArrival )
-                                           / std::tan( transferAngle / 2.0 )
-                                           - radialVelocityAtDeparture;
+    const double transverseVelocityAtArrival = transverseVelocityAtDeparture / normalizedRadiusAtArrival;
+    const double radialVelocityAtArrival =
+            ( transverseVelocityAtDeparture - transverseVelocityAtArrival ) / std::tan( transferAngle / 2.0 ) - radialVelocityAtDeparture;
 
     // Determine radial unit vectors.
     const Eigen::Vector3d radialUnitVectorAtDeparture = cartesianPositionAtDeparture.normalized( );
@@ -256,7 +230,7 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     // Determine plane of motion.
     Eigen::Vector3d angularMomentumVector;
 
-    if ( isLongway )
+    if( isLongway )
     {
         angularMomentumVector = radialUnitVectorAtArrival.cross( radialUnitVectorAtDeparture );
     }
@@ -269,62 +243,54 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     const Eigen::Vector3d angularMomentumUnitVector = angularMomentumVector.normalized( );
 
     // Compute transverse unit vectors.
-    const Eigen::Vector3d transverseUnitVectorAtDeparture =
-            radialUnitVectorAtDeparture.cross( angularMomentumUnitVector );
-    const Eigen::Vector3d transverseUnitVectorAtArrival =
-            radialUnitVectorAtArrival.cross( angularMomentumUnitVector );
+    const Eigen::Vector3d transverseUnitVectorAtDeparture = radialUnitVectorAtDeparture.cross( angularMomentumUnitVector );
+    const Eigen::Vector3d transverseUnitVectorAtArrival = radialUnitVectorAtArrival.cross( angularMomentumUnitVector );
 
     // Reconstruct non-dimensional velocity vectors.
-    cartesianVelocityAtDeparture
-            << radialVelocityAtDeparture * radialUnitVectorAtDeparture.x( )
-               - transverseVelocityAtDeparture * transverseUnitVectorAtDeparture.x( ),
-            radialVelocityAtDeparture * radialUnitVectorAtDeparture.y( )
-            - transverseVelocityAtDeparture * transverseUnitVectorAtDeparture.y( ),
-            radialVelocityAtDeparture * radialUnitVectorAtDeparture.z( )
-            - transverseVelocityAtDeparture * transverseUnitVectorAtDeparture.z( );
+    cartesianVelocityAtDeparture << radialVelocityAtDeparture * radialUnitVectorAtDeparture.x( ) -
+                    transverseVelocityAtDeparture * transverseUnitVectorAtDeparture.x( ),
+            radialVelocityAtDeparture * radialUnitVectorAtDeparture.y( ) -
+            transverseVelocityAtDeparture * transverseUnitVectorAtDeparture.y( ),
+            radialVelocityAtDeparture * radialUnitVectorAtDeparture.z( ) -
+            transverseVelocityAtDeparture * transverseUnitVectorAtDeparture.z( );
 
-    cartesianVelocityAtArrival
-            << radialVelocityAtArrival * radialUnitVectorAtArrival.x( )
-               - transverseVelocityAtArrival * transverseUnitVectorAtArrival.x( ),
-            radialVelocityAtArrival * radialUnitVectorAtArrival.y( )
-            - transverseVelocityAtArrival * transverseUnitVectorAtArrival.y( ),
-            radialVelocityAtArrival * radialUnitVectorAtArrival.z( )
-            - transverseVelocityAtArrival * transverseUnitVectorAtArrival.z( );
+    cartesianVelocityAtArrival << radialVelocityAtArrival * radialUnitVectorAtArrival.x( ) -
+                    transverseVelocityAtArrival * transverseUnitVectorAtArrival.x( ),
+            radialVelocityAtArrival * radialUnitVectorAtArrival.y( ) - transverseVelocityAtArrival * transverseUnitVectorAtArrival.y( ),
+            radialVelocityAtArrival * radialUnitVectorAtArrival.z( ) - transverseVelocityAtArrival * transverseUnitVectorAtArrival.z( );
 
     // Return dimensions.
     cartesianVelocityAtDeparture *= velocityNormalizingValue;
     cartesianVelocityAtArrival *= velocityNormalizingValue;
-
 }
 
 //! Compute time-of-flight using Lagrange's equation.
-double computeTimeOfFlightIzzo( const double xParameter, const double semiPerimeter,
-                                const double chord, const bool isLongway,
+double computeTimeOfFlightIzzo( const double xParameter,
+                                const double semiPerimeter,
+                                const double chord,
+                                const bool isLongway,
                                 const double semiMajorAxisOfTheMinimumEnergyEllipse )
 {
     // Determine semi-major axis.
-    const double semiMajorAxis = semiMajorAxisOfTheMinimumEnergyEllipse
-            / ( 1.0 - xParameter * xParameter );
+    const double semiMajorAxis = semiMajorAxisOfTheMinimumEnergyEllipse / ( 1.0 - xParameter * xParameter );
 
     // If x < 1, the solution is an ellipse.
-    if ( xParameter < 1.0 )
+    if( xParameter < 1.0 )
     {
         // Alpha parameter.
         const double alphaParameter = 2.0 * std::acos( xParameter );
 
         // Beta parameter.
-        double betaParameter = 2.0 * std::asin ( std::sqrt( ( semiPerimeter - chord )
-                                                            / ( 2.0 * semiMajorAxis ) ) );
+        double betaParameter = 2.0 * std::asin( std::sqrt( ( semiPerimeter - chord ) / ( 2.0 * semiMajorAxis ) ) );
 
-        if ( isLongway )
+        if( isLongway )
         {
             betaParameter = -betaParameter;
         }
 
         // Time-of-flight according to Lagrange.
         const double timeOfFlight = semiMajorAxis * std::sqrt( semiMajorAxis ) *
-                ( ( alphaParameter - std::sin( alphaParameter ) )
-                  - ( betaParameter - std::sin( betaParameter ) ) );
+                ( ( alphaParameter - std::sin( alphaParameter ) ) - ( betaParameter - std::sin( betaParameter ) ) );
 
         return timeOfFlight;
     }
@@ -335,23 +301,19 @@ double computeTimeOfFlightIzzo( const double xParameter, const double semiPerime
         const double alphaParameter = 2.0 * boost::math::acosh( xParameter );
 
         // Beta parameter.
-        double betaParameter = 2.0 * boost::math::asinh(
-                    std::sqrt( ( semiPerimeter - chord ) / ( -2.0 * semiMajorAxis ) ) );
+        double betaParameter = 2.0 * boost::math::asinh( std::sqrt( ( semiPerimeter - chord ) / ( -2.0 * semiMajorAxis ) ) );
 
-        if ( isLongway )
+        if( isLongway )
         {
             betaParameter = -betaParameter;
         }
 
         // Time-of-flight according to Lagrange.
         const double timeOfFlight = -semiMajorAxis * std::sqrt( -semiMajorAxis ) *
-                ( ( std::sinh( alphaParameter ) - alphaParameter )
-                  - ( std::sinh( betaParameter ) - betaParameter ) );
+                ( ( std::sinh( alphaParameter ) - alphaParameter ) - ( std::sinh( betaParameter ) - betaParameter ) );
 
         return timeOfFlight;
     }
-
-
 }
 
 //! Solve Lambert Problem using Gooding's algorithm.
@@ -363,9 +325,9 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
                                  Eigen::Vector3d& cartesianVelocityAtArrival,
                                  RootFinderPointer rootFinder )
 {
-    if ( !rootFinder.get( ) )
+    if( !rootFinder.get( ) )
     {
-        rootFinder = std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 );
+        rootFinder = std::make_shared< root_finders::NewtonRaphson<> >( 1.0e-12, 1000 );
     }
 
     // Normalize positions.
@@ -373,37 +335,30 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
     const double radiusAtArrival = cartesianPositionAtArrival.norm( );
 
     // Compute angle between positions.
-    Eigen::Vector3d planeNormalPosition =
-            cartesianPositionAtDeparture.cross( cartesianPositionAtArrival ).normalized( );
+    Eigen::Vector3d planeNormalPosition = cartesianPositionAtDeparture.cross( cartesianPositionAtArrival ).normalized( );
 
-    double reducedLambertAngle = linear_algebra::computeAngleBetweenVectors(
-                cartesianPositionAtDeparture, cartesianPositionAtArrival );
+    double reducedLambertAngle = linear_algebra::computeAngleBetweenVectors( cartesianPositionAtDeparture, cartesianPositionAtArrival );
 
-    if ( planeNormalPosition.z( ) < 0.0 )
+    if( planeNormalPosition.z( ) < 0.0 )
     {
-        reducedLambertAngle = 2.0 * mathematical_constants::PI
-                - reducedLambertAngle;
+        reducedLambertAngle = 2.0 * mathematical_constants::PI - reducedLambertAngle;
     }
 
     // Compute chord.
-    const double chord = std::sqrt( radiusAtDeparture * radiusAtDeparture +
-                                    radiusAtArrival * radiusAtArrival -
-                                    2.0 * radiusAtDeparture * radiusAtArrival *
-                                    std::cos( reducedLambertAngle ) );
+    const double chord = std::sqrt( radiusAtDeparture * radiusAtDeparture + radiusAtArrival * radiusAtArrival -
+                                    2.0 * radiusAtDeparture * radiusAtArrival * std::cos( reducedLambertAngle ) );
 
     // Compute semi-perimeter.
     const double semiPerimeter = ( radiusAtDeparture + radiusAtArrival + chord ) / 2.0;
 
     // Compute normalized time of flight.
     // Formula (7) [3].
-    const double normalizedTimeOfFlight = std::sqrt( 8.0 * gravitationalParameter / semiPerimeter
-                                                     / semiPerimeter / semiPerimeter )
-                                          * timeOfFlight;
+    const double normalizedTimeOfFlight =
+            std::sqrt( 8.0 * gravitationalParameter / semiPerimeter / semiPerimeter / semiPerimeter ) * timeOfFlight;
 
     // Compute q-parameter.
     // Formula (5) [3].
-    const double qParameter = ( std::sqrt( radiusAtDeparture * radiusAtArrival ) /
-                                semiPerimeter ) * cos( reducedLambertAngle / 2.0 );
+    const double qParameter = ( std::sqrt( radiusAtDeparture * radiusAtArrival ) / semiPerimeter ) * cos( reducedLambertAngle / 2.0 );
 
     // Compute values of parameters needed to compute the initial guess of x-parameter.
     const double zParameterInitial = std::sqrt( 1.0 - qParameter * qParameter );
@@ -425,52 +380,46 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
 
     // Value of T(x) for x=0.
     // Formula (6.9) [2].
-    const double tFunctionInitial = -2.0 * ( qParameter * zParameterInitial +
-            dParameterInitial / yParameterInitial ) / lambertEccentricAnomalyInitial;
+    const double tFunctionInitial =
+            -2.0 * ( qParameter * zParameterInitial + dParameterInitial / yParameterInitial ) / lambertEccentricAnomalyInitial;
 
     // Declare initial guess of x-parameter.
     double initialLambertGuess;
 
     // Determine initial Lambert guess.
-    if ( tFunctionInitial > normalizedTimeOfFlight )
+    if( tFunctionInitial > normalizedTimeOfFlight )
     {
         // Formula (11) [3].
-        initialLambertGuess = tFunctionInitial *
-                ( tFunctionInitial - normalizedTimeOfFlight ) /
-                ( 4.0 * normalizedTimeOfFlight );
+        initialLambertGuess = tFunctionInitial * ( tFunctionInitial - normalizedTimeOfFlight ) / ( 4.0 * normalizedTimeOfFlight );
     }
     else
     {
         // Formula (13) [3].
-        const double x01 = -1.0 * ( normalizedTimeOfFlight - tFunctionInitial ) /
-                     ( normalizedTimeOfFlight - tFunctionInitial + 4.0 );
+        const double x01 = -1.0 * ( normalizedTimeOfFlight - tFunctionInitial ) / ( normalizedTimeOfFlight - tFunctionInitial + 4.0 );
 
         // Formula (15) [3].
-        const double x02 = -1.0 * std::sqrt( ( normalizedTimeOfFlight -
-                     tFunctionInitial ) / ( normalizedTimeOfFlight +
-                     0.5 * tFunctionInitial ) );
+        const double x02 =
+                -1.0 * std::sqrt( ( normalizedTimeOfFlight - tFunctionInitial ) / ( normalizedTimeOfFlight + 0.5 * tFunctionInitial ) );
 
         // Formula (20) [3].
         const double phi = 2.0 * atan2( ( 1.0 - qParameter * qParameter ), 2.0 * qParameter );
 
         // Formula (16) [3].
-        const double W = x01 + 1.7 * std::sqrt(
-                    2.0 - phi / mathematical_constants::PI );
+        const double W = x01 + 1.7 * std::sqrt( 2.0 - phi / mathematical_constants::PI );
 
         // Formula (17) [3].
         double x03;
-        if ( W >= 0.0 )
+        if( W >= 0.0 )
         {
-           x03 = x01;
+            x03 = x01;
         }
         else
         {
-           x03 = x01 + std::pow( -W , 1.0 / 16.0 ) * ( x02 - x01 );
+            x03 = x01 + std::pow( -W, 1.0 / 16.0 ) * ( x02 - x01 );
         }
 
         // Formula (19) [3].
-        const double lambdax = 1.0 + 0.5 * x03 * ( 1.0 + x01 ) - 0.03 * x03 * x03
-                * std::sqrt( 1.0 + x01 );
+        const double lambdax = 1.0 + 0.5 * x03 * ( 1.0 + x01 ) - 0.03 * x03 * x03 * std::sqrt( 1.0 + x01 );
 
         // Formula (18) [3].
         initialLambertGuess = lambdax * x03;
@@ -481,16 +430,16 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
     LambertFunctionsGooding lambertFunctionsGooding( qParameter, normalizedTimeOfFlight );
 
     // Create an object containing the function of which we whish to obtain the root from.
-    using basic_mathematics::UnivariateProxyPointer;
     using basic_mathematics::UnivariateProxy;
+    using basic_mathematics::UnivariateProxyPointer;
     UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
-                std::bind( &LambertFunctionsGooding::computeLambertFunctionGooding,
-                             lambertFunctionsGooding, std::placeholders::_1 ) );
+            std::bind( &LambertFunctionsGooding::computeLambertFunctionGooding, lambertFunctionsGooding, std::placeholders::_1 ) );
 
     // Add the first derivative of the root function.
-    rootFunction->addBinding( -1, std::bind( &LambertFunctionsGooding::
-                                               computeFirstDerivativeLambertFunctionGooding,
-                                               lambertFunctionsGooding, std::placeholders::_1 ) );
+    rootFunction->addBinding( -1,
+                              std::bind( &LambertFunctionsGooding::computeFirstDerivativeLambertFunctionGooding,
+                                         lambertFunctionsGooding,
+                                         std::placeholders::_1 ) );
 
     // Initialize the xParameter.
     double xParameter = TUDAT_NAN;
@@ -498,7 +447,7 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
     // Set initial guess of the variable computed in Newton-Rapshon method. A patch for negative
     // initialLambertGuess is applied. This has not been stated in the paper by Gooding, but this
     // patch has been found by trial and error.
-    if ( initialLambertGuess * initialLambertGuess - 1.0 < 0.0 )
+    if( initialLambertGuess * initialLambertGuess - 1.0 < 0.0 )
     {
         // Set xParameter based on result of Newton-Raphson root-finding algorithm.
         xParameter = rootFinder->execute( rootFunction, std::fabs( initialLambertGuess ) );
@@ -513,8 +462,7 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
 
     // Compute gamma, rho and sigma parameters, needed to compute the velocities.
     // Formula (8) [3].
-    const double zParameter = std::sqrt( 1.0 - qParameter * qParameter +
-            qParameter * qParameter * xParameter * xParameter );
+    const double zParameter = std::sqrt( 1.0 - qParameter * qParameter + qParameter * qParameter * xParameter * xParameter );
 
     // Formula (6.23) [2].
     const double lambertGamma = std::sqrt( gravitationalParameter * semiPerimeter / 2.0 );
@@ -523,27 +471,21 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
     const double lambertRho = ( radiusAtDeparture - radiusAtArrival ) / chord;
 
     // Formula (6.25) [2].
-    const double lambertSigma = 2.0 * ( std::sqrt(
-                                            radiusAtDeparture * radiusAtArrival / chord / chord ) )
-            * std::sin( reducedLambertAngle / 2.0 );
+    const double lambertSigma =
+            2.0 * ( std::sqrt( radiusAtDeparture * radiusAtArrival / chord / chord ) ) * std::sin( reducedLambertAngle / 2.0 );
 
     // Compute radial speeds at departure and at arrival.
     // Formula (23) [3].
-    const double radialSpeedAtDeparture =
-            lambertGamma * ( qParameter * zParameter - xParameter -
-                             lambertRho * ( qParameter * zParameter + xParameter ) ) /
-            radiusAtDeparture;
+    const double radialSpeedAtDeparture = lambertGamma *
+            ( qParameter * zParameter - xParameter - lambertRho * ( qParameter * zParameter + xParameter ) ) / radiusAtDeparture;
 
     // Formula (24) [3].
-    const double radialSpeedAtArrival =
-            -lambertGamma * ( qParameter * zParameter - xParameter +
-                              lambertRho * ( qParameter * zParameter + xParameter ) ) /
-            radiusAtArrival;
+    const double radialSpeedAtArrival = -lambertGamma *
+            ( qParameter * zParameter - xParameter + lambertRho * ( qParameter * zParameter + xParameter ) ) / radiusAtArrival;
 
     // Compute transverse speeds at departure and at arrival.
     // Compute large part of formulas (25) and (26).
-    const double transverseSpeedHelper = lambertGamma * lambertSigma *
-            ( zParameter + qParameter * xParameter );
+    const double transverseSpeedHelper = lambertGamma * lambertSigma * ( zParameter + qParameter * xParameter );
 
     // Formula (25) [3].
     const double transverseSpeedAtDeparture = transverseSpeedHelper / radiusAtDeparture;
@@ -564,41 +506,32 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
     unitZVector.z( ) = 1.0;
 
     Eigen::Vector3d planeNormal =
-            ( ( cartesianPositionAtDeparture.cross( unitZVector ) ).cross(
-                    cartesianPositionAtDeparture ) ).normalized( );
+            ( ( cartesianPositionAtDeparture.cross( unitZVector ) ).cross( cartesianPositionAtDeparture ) ).normalized( );
 
     // Compute unit vector that is normal to the plane in which the trajectory takes place, and
     // points in the positive z-direction.
-    if ( planeNormal.z( ) < 0.0 )
+    if( planeNormal.z( ) < 0.0 )
     {
         planeNormal = -planeNormal;
     }
 
     // Compute transverse unit vectors at departure and at arrival.
-    const Eigen::Vector3d transverseUnitVectorAtDeparture = planeNormal.cross(
-            cartesianPositionAtDeparture.normalized( ) );
-    const Eigen::Vector3d transverseUnitVectorAtArrival = planeNormal.cross(
-            cartesianPositionAtArrival.normalized( ) );
+    const Eigen::Vector3d transverseUnitVectorAtDeparture = planeNormal.cross( cartesianPositionAtDeparture.normalized( ) );
+    const Eigen::Vector3d transverseUnitVectorAtArrival = planeNormal.cross( cartesianPositionAtArrival.normalized( ) );
 
     // Compute radial inertial velocities at departure and at arrival.
-    const Eigen::Vector3d radialInertialVelocityAtDeparture
-            = radialSpeedAtDeparture * radialUnitVectorAtDeparture;
-    const Eigen::Vector3d radialInertialVelocityAtArrival
-            = radialSpeedAtArrival * radialUnitVectorAtArrival;
+    const Eigen::Vector3d radialInertialVelocityAtDeparture = radialSpeedAtDeparture * radialUnitVectorAtDeparture;
+    const Eigen::Vector3d radialInertialVelocityAtArrival = radialSpeedAtArrival * radialUnitVectorAtArrival;
 
     // Compute transverse heliocentric velocities at departure and
     // at arrival.
-    const Eigen::Vector3d transverseInertialVelocityAtDeparture
-            = transverseSpeedAtDeparture * transverseUnitVectorAtDeparture;
-    const Eigen::Vector3d transverseInertialVelocityAtArrival
-            = transverseSpeedAtArrival * transverseUnitVectorAtArrival;
+    const Eigen::Vector3d transverseInertialVelocityAtDeparture = transverseSpeedAtDeparture * transverseUnitVectorAtDeparture;
+    const Eigen::Vector3d transverseInertialVelocityAtArrival = transverseSpeedAtArrival * transverseUnitVectorAtArrival;
 
     // Compute heliocentric velocities at departure and at arrival.
     // Define output velocities.
-    cartesianVelocityAtDeparture
-            = radialInertialVelocityAtDeparture + transverseInertialVelocityAtDeparture;
-    cartesianVelocityAtArrival
-            = radialInertialVelocityAtArrival + transverseInertialVelocityAtArrival;
+    cartesianVelocityAtDeparture = radialInertialVelocityAtDeparture + transverseInertialVelocityAtDeparture;
+    cartesianVelocityAtArrival = radialInertialVelocityAtArrival + transverseInertialVelocityAtArrival;
 }
 
 //! Define general Lambert function.
@@ -606,7 +539,7 @@ double LambertFunctionsGooding::computeLambertFunctionGooding( const double xPar
 {
     const double lambertEccentricAnomaly = xParameter * xParameter - 1.0;
 
-    if ( lambertEccentricAnomaly > 0.0 )
+    if( lambertEccentricAnomaly > 0.0 )
     {
         return lambertFunctionPositiveGooding( xParameter );
     }
@@ -622,7 +555,7 @@ double LambertFunctionsGooding::computeFirstDerivativeLambertFunctionGooding( co
 {
     const double lambertEccentricAnomaly = xParameter * xParameter - 1.0;
 
-    if ( lambertEccentricAnomaly > 0.0 )
+    if( lambertEccentricAnomaly > 0.0 )
     {
         return lambertFirstDerivativeFunctionPositiveGooding( xParameter );
     }
@@ -638,14 +571,12 @@ double LambertFunctionsGooding::lambertFunctionPositiveGooding( const double xPa
 {
     const double lambertEccentricAnomaly = xParameter * xParameter - 1.0;
     const double yParameter = std::sqrt( std::fabs( lambertEccentricAnomaly ) );
-    const double zParameter = std::sqrt( 1.0 - qParameter * qParameter+
-                                         qParameter * qParameter * xParameter  * xParameter );
+    const double zParameter = std::sqrt( 1.0 - qParameter * qParameter + qParameter * qParameter * xParameter * xParameter );
     const double fParameter = yParameter * ( zParameter - qParameter * xParameter );
     const double gParameter = xParameter * zParameter - qParameter * lambertEccentricAnomaly;
     const double dParameter = log( fParameter + gParameter );
 
-    return normalizedTimeOfFlight - 2.0 * ( xParameter - qParameter * zParameter - dParameter /
-                                            yParameter ) / lambertEccentricAnomaly;
+    return normalizedTimeOfFlight - 2.0 * ( xParameter - qParameter * zParameter - dParameter / yParameter ) / lambertEccentricAnomaly;
 }
 
 //! Define Lambert function for negative lambertEccentricAnomaly.
@@ -653,80 +584,64 @@ double LambertFunctionsGooding::lambertFunctionNegativeGooding( const double xPa
 {
     const double lambertEccentricAnomaly = xParameter * xParameter - 1.0;
     const double yParameter = std::sqrt( std::fabs( lambertEccentricAnomaly ) );
-    const double zParameter = std::sqrt( 1.0 - qParameter * qParameter +
-                                         qParameter * qParameter * xParameter * xParameter );
+    const double zParameter = std::sqrt( 1.0 - qParameter * qParameter + qParameter * qParameter * xParameter * xParameter );
     const double fParameter = yParameter * ( zParameter - qParameter * xParameter );
     const double gParameter = xParameter * zParameter - qParameter * lambertEccentricAnomaly;
     const double dParameter = std::atan( fParameter / gParameter );
 
-    return normalizedTimeOfFlight - 2.0 * ( xParameter - qParameter * zParameter - dParameter
-                                            / yParameter ) / lambertEccentricAnomaly;
+    return normalizedTimeOfFlight - 2.0 * ( xParameter - qParameter * zParameter - dParameter / yParameter ) / lambertEccentricAnomaly;
 }
 
 //! Define first derivative of Lambert function for positive lambertEccentricAnomaly.
-double LambertFunctionsGooding::lambertFirstDerivativeFunctionPositiveGooding(
-        const double xParameter )
+double LambertFunctionsGooding::lambertFirstDerivativeFunctionPositiveGooding( const double xParameter )
 {
     const double lambertEccentricAnomaly = xParameter * xParameter - 1.0;
     const double yParameter = std::sqrt( std::fabs( lambertEccentricAnomaly ) );
-    const double zParameter = std::sqrt( 1.0 - qParameter * qParameter +
-                                         qParameter * qParameter * xParameter * xParameter );
+    const double zParameter = std::sqrt( 1.0 - qParameter * qParameter + qParameter * qParameter * xParameter * xParameter );
     const double fParameter = yParameter * ( zParameter - qParameter * xParameter );
     const double gParameter = xParameter * zParameter - qParameter * lambertEccentricAnomaly;
     const double dParameter = std::log( fParameter + gParameter );
     const double lambertEccentricAnomalyDerivative = 2.0 * xParameter;
     const double yParameterDerivative = xParameter / std::sqrt( xParameter * xParameter - 1.0 );
     const double zParameterDerivative = qParameter * qParameter * xParameter / zParameter;
-    const double fParameterDerivative = yParameterDerivative  *
-            ( zParameter - xParameter * qParameter ) + yParameter *
-            ( zParameterDerivative - qParameter );
-    const double gParameterDerivative = zParameter + xParameter *
-            zParameterDerivative - qParameter * lambertEccentricAnomalyDerivative;
-    const double dParameterDerivative = ( fParameterDerivative + gParameterDerivative ) /
-            ( fParameter + gParameter );
+    const double fParameterDerivative =
+            yParameterDerivative * ( zParameter - xParameter * qParameter ) + yParameter * ( zParameterDerivative - qParameter );
+    const double gParameterDerivative = zParameter + xParameter * zParameterDerivative - qParameter * lambertEccentricAnomalyDerivative;
+    const double dParameterDerivative = ( fParameterDerivative + gParameterDerivative ) / ( fParameter + gParameter );
 
-    return - 2.0 * ( lambertEccentricAnomaly
-                     * ( 1.0 - qParameter * zParameterDerivative
-                         - ( ( dParameterDerivative * yParameter
-                               - yParameterDerivative * dParameter )
-                             / ( yParameter * yParameter ) ) )
-                     - ( ( xParameter - qParameter * zParameter - ( dParameter / yParameter ) )
-                         * lambertEccentricAnomalyDerivative ) )
-            / ( lambertEccentricAnomaly * lambertEccentricAnomaly );
+    return -2.0 *
+            ( lambertEccentricAnomaly *
+                      ( 1.0 - qParameter * zParameterDerivative -
+                        ( ( dParameterDerivative * yParameter - yParameterDerivative * dParameter ) / ( yParameter * yParameter ) ) ) -
+              ( ( xParameter - qParameter * zParameter - ( dParameter / yParameter ) ) * lambertEccentricAnomalyDerivative ) ) /
+            ( lambertEccentricAnomaly * lambertEccentricAnomaly );
 }
 
 //! Define first derivative of Lambert function for negative lambertEccentricAnomaly.
-double LambertFunctionsGooding::lambertFirstDerivativeFunctionNegativeGooding(
-        const double xParameter )
+double LambertFunctionsGooding::lambertFirstDerivativeFunctionNegativeGooding( const double xParameter )
 {
     const double lambertEccentricAnomaly = xParameter * xParameter - 1.0;
     const double yParameter = std::sqrt( std::fabs( lambertEccentricAnomaly ) );
-    const double zParameter = std::sqrt( 1.0 - qParameter * qParameter +
-                                         qParameter * qParameter * xParameter * xParameter );
+    const double zParameter = std::sqrt( 1.0 - qParameter * qParameter + qParameter * qParameter * xParameter * xParameter );
     const double fParameter = yParameter * ( zParameter - qParameter * xParameter );
     const double gParameter = xParameter * zParameter - qParameter * lambertEccentricAnomaly;
     const double dParameter = std::atan( fParameter / gParameter );
     const double lambertEccentricAnomalyDerivative = 2.0 * xParameter;
-    const double yParameterDerivative = -1.0 * xParameter
-            / std::sqrt( 1.0 - xParameter * xParameter);
+    const double yParameterDerivative = -1.0 * xParameter / std::sqrt( 1.0 - xParameter * xParameter );
     const double zParameterDerivative = qParameter * qParameter * xParameter / zParameter;
-    const double fParameterDerivative = yParameterDerivative *
-            ( zParameter - xParameter * qParameter ) + yParameter *
-            ( zParameterDerivative - qParameter );
-    const double gParameterDerivative = zParameter + xParameter *
-            zParameterDerivative - qParameter *  lambertEccentricAnomalyDerivative;
-    const double dParameterDerivative = ( fParameterDerivative * gParameter -
-                                          fParameter * gParameterDerivative ) /
+    const double fParameterDerivative =
+            yParameterDerivative * ( zParameter - xParameter * qParameter ) + yParameter * ( zParameterDerivative - qParameter );
+    const double gParameterDerivative = zParameter + xParameter * zParameterDerivative - qParameter * lambertEccentricAnomalyDerivative;
+    const double dParameterDerivative = ( fParameterDerivative * gParameter - fParameter * gParameterDerivative ) /
             ( fParameter * fParameter + gParameter * gParameter );
 
-    return - 2.0 * ( lambertEccentricAnomaly * ( 1.0 - qParameter * zParameterDerivative -
-                                                 ( ( dParameterDerivative * yParameter -
-                                                     yParameterDerivative * dParameter ) /
-                                                   yParameter / yParameter ) ) -
-                     ( ( xParameter - qParameter * zParameter - ( dParameter / yParameter ) ) *
-                       lambertEccentricAnomalyDerivative ) ) /
+    return -2.0 *
+            ( lambertEccentricAnomaly *
+                      ( 1.0 - qParameter * zParameterDerivative -
+                        ( ( dParameterDerivative * yParameter - yParameterDerivative * dParameter ) / yParameter / yParameter ) ) -
+              ( ( xParameter - qParameter * zParameter - ( dParameter / yParameter ) ) * lambertEccentricAnomalyDerivative ) ) /
             ( lambertEccentricAnomaly * lambertEccentricAnomaly );
 }
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat

@@ -23,8 +23,8 @@ namespace tudat
 /**
  * Implementation of \p std::enable_if_t, from C++14. See: http://en.cppreference.com/w/cpp/types/enable_if.
  */
-template <bool B, typename T = void>
-using enable_if_t = typename std::enable_if<B, T>::type;
+template< bool B, typename T = void >
+using enable_if_t = typename std::enable_if< B, T >::type;
 
 namespace is_eigen_matrix_detail
 {
@@ -32,80 +32,75 @@ template< typename T >
 std::true_type test( const Eigen::MatrixBase< T >* );
 
 std::false_type test( ... );
-}
+}  // namespace is_eigen_matrix_detail
 
 template< typename T >
-struct is_eigen_matrix: public decltype( is_eigen_matrix_detail::test( std::declval< T* >( ) ) )
-{ };
+struct is_eigen_matrix : public decltype( is_eigen_matrix_detail::test( std::declval< T* >( ) ) ){ };
 
-//template< typename T,
-//          enable_if_t< is_eigen_matrix< T >::value, int > = 0 >
-//struct is_eigen_vector
+// template< typename T,
+//           enable_if_t< is_eigen_matrix< T >::value, int > = 0 >
+// struct is_eigen_vector
 //{
-//    static const int value = ( T::ColsAtCompileTime == 1 );
-//};
+//     static const int value = ( T::ColsAtCompileTime == 1 );
+// };
 
-//template< typename T,
-//          enable_if_t< !is_eigen_matrix< T >::value, int > = 0 >
-//struct is_eigen_vector
+// template< typename T,
+//           enable_if_t< !is_eigen_matrix< T >::value, int > = 0 >
+// struct is_eigen_vector
 //{
-//    static const int value = false;
-//};
+//     static const int value = false;
+// };
 
 template< typename T >
 struct is_state_scalar {
-  static const bool value = false;
+    static const bool value = false;
 };
 
-template< >
+template<>
 struct is_state_scalar< double > {
-  static const bool value = true;
+    static const bool value = true;
 };
 
-template< >
+template<>
 struct is_state_scalar< long double > {
-  static const bool value = true;
+    static const bool value = true;
 };
 
 template< typename T >
 struct is_time_type {
-  static const bool value = false;
+    static const bool value = false;
 };
 
-template< >
+template<>
 struct is_time_type< double > {
-  static const bool value = true;
+    static const bool value = true;
 };
 
-template< >
+template<>
 struct is_time_type< Time > {
-  static const bool value = true;
+    static const bool value = true;
 };
 
 template< typename StateScalarType, typename TimeType >
 struct is_state_scalar_and_time_type {
-  static const bool value = ( is_time_type< TimeType >::value && is_state_scalar< StateScalarType >::value );
+    static const bool value = ( is_time_type< TimeType >::value && is_state_scalar< StateScalarType >::value );
 };
 
-
-template <typename TimeType>
+template< typename TimeType >
 struct scalar_type;
 
-template <>
-struct scalar_type< double >
-{
+template<>
+struct scalar_type< double > {
     using value_type = double;
 };
 
-template <>
-struct scalar_type< long double >
-{
+template<>
+struct scalar_type< long double > {
     using value_type = long double;
 };
 
-template <>
-struct scalar_type< Time >
-{
+template<>
+struct scalar_type< Time > {
     using value_type = long double;
 };
 
@@ -119,7 +114,7 @@ namespace acceleration_partials
 class CentralGravitationPartial;
 }
 
-template< >
+template<>
 struct is_direct_gravity_partial< acceleration_partials::CentralGravitationPartial > {
     static const bool value = true;
 };
@@ -129,7 +124,7 @@ namespace acceleration_partials
 class SphericalHarmonicsGravityPartial;
 }
 
-template< >
+template<>
 struct is_direct_gravity_partial< acceleration_partials::SphericalHarmonicsGravityPartial > {
     static const bool value = true;
 };
@@ -139,7 +134,7 @@ namespace acceleration_partials
 class MutualSphericalHarmonicsGravityPartial;
 }
 
-template< >
+template<>
 struct is_direct_gravity_partial< acceleration_partials::MutualSphericalHarmonicsGravityPartial > {
     static const bool value = true;
 };
@@ -149,7 +144,7 @@ namespace acceleration_partials
 class PolyhedronGravityPartial;
 }
 
-template< >
+template<>
 struct is_direct_gravity_partial< acceleration_partials::PolyhedronGravityPartial > {
     static const bool value = true;
 };
@@ -159,7 +154,7 @@ namespace acceleration_partials
 class RingGravityPartial;
 }
 
-template< >
+template<>
 struct is_direct_gravity_partial< acceleration_partials::RingGravityPartial > {
     static const bool value = true;
 };
@@ -175,7 +170,7 @@ template< typename ReturnType >
 class CentralGravitationalAccelerationModel;
 }
 
-template< >
+template<>
 struct is_direct_gravity_acceleration< gravitation::CentralGravitationalAccelerationModel< Eigen::Vector3d > > {
     static const bool value = true;
 };
@@ -185,7 +180,7 @@ namespace gravitation
 class SphericalHarmonicsGravitationalAccelerationModel;
 }
 
-template< >
+template<>
 struct is_direct_gravity_acceleration< gravitation::SphericalHarmonicsGravitationalAccelerationModel > {
     static const bool value = true;
 };
@@ -195,7 +190,7 @@ namespace gravitation
 class MutualSphericalHarmonicsGravitationalAccelerationModel;
 }
 
-template< >
+template<>
 struct is_direct_gravity_acceleration< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel > {
     static const bool value = true;
 };
@@ -205,7 +200,7 @@ namespace gravitation
 class PolyhedronGravitationalAccelerationModel;
 }
 
-template< >
+template<>
 struct is_direct_gravity_acceleration< gravitation::PolyhedronGravitationalAccelerationModel > {
     static const bool value = true;
 };
@@ -215,7 +210,7 @@ namespace gravitation
 class RingGravitationalAccelerationModel;
 }
 
-template< >
+template<>
 struct is_direct_gravity_acceleration< gravitation::RingGravitationalAccelerationModel > {
     static const bool value = true;
 };
@@ -232,6 +227,6 @@ static int getEigenCompileTimeNumberOfCols( )
     return VariableType::ColsAtCompileTime;
 }
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_TYPE_TRAITS_H
+#endif  // TUDAT_TYPE_TRAITS_H

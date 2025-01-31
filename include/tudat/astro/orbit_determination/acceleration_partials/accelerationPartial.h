@@ -15,10 +15,6 @@
 #include <map>
 #include <Eigen/Core>
 
-
-
-
-
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
@@ -31,9 +27,7 @@ namespace tudat
 namespace acceleration_partials
 {
 
-inline Eigen::Vector3d computeDerivativeOfForceBasedAccelerationWrtMass(
-        const Eigen::Vector3d& acceleration,
-        const double mass )
+inline Eigen::Vector3d computeDerivativeOfForceBasedAccelerationWrtMass( const Eigen::Vector3d& acceleration, const double mass )
 {
     if( mass == 0.0 )
     {
@@ -49,9 +43,8 @@ inline Eigen::Vector3d computeDerivativeOfForceBasedAccelerationWrtMass(
  *  Derived classes implement derivative-calculating models for specific acceleration models, so that the calculation
  *  of all partials of a single type acceleration model is encompassed in a single derived class.
  */
-class AccelerationPartial: public orbit_determination::StateDerivativePartial
+class AccelerationPartial : public orbit_determination::StateDerivativePartial
 {
-
 public:
     //! Base class constructor.
     /*!
@@ -61,10 +54,12 @@ public:
      *  \param acceleratingBody Body exerting acceleration.
      *  \param accelerationType Type of acceleration w.r.t. which partial is taken.
      */
-    AccelerationPartial( const std::string& acceleratedBody, const std::string& acceleratingBody,
+    AccelerationPartial( const std::string& acceleratedBody,
+                         const std::string& acceleratingBody,
                          const basic_astrodynamics::AvailableAcceleration accelerationType ):
         StateDerivativePartial( propagators::translational_state, std::make_pair( acceleratedBody, "" ) ),
-        acceleratedBody_( acceleratedBody ), acceleratingBody_( acceleratingBody ),accelerationType_( accelerationType ) { }
+        acceleratedBody_( acceleratedBody ), acceleratingBody_( acceleratingBody ), accelerationType_( accelerationType )
+    { }
 
     //! Virtual destructor.
     virtual ~AccelerationPartial( ) { }
@@ -76,81 +71,95 @@ public:
      * \param integratedStateType Type of propagated state.
      * \return Pair with function, returning partial derivative, and number of columns in partial vector,
      */
-    std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
-    getDerivativeFunctionWrtStateOfIntegratedBody(
+    std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > getDerivativeFunctionWrtStateOfIntegratedBody(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {
         // Initialize to empty function; 0 parameter size.
-        std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
-                partialFunction = std::make_pair( std::function< void( Eigen::Block< Eigen::MatrixXd > ) >( ), 0 );
+        std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
+                std::make_pair( std::function< void( Eigen::Block< Eigen::MatrixXd > ) >( ), 0 );
 
         // Check if state dependency exists
         switch( integratedStateType )
         {
-        case propagators::translational_state:
-        {
-            // Check if reference id is consistent.
-            if( stateReferencePoint.second != "" )
-            {
-                throw std::runtime_error( "Error when getting state derivative partial acceleration model, cannot have reference point on body for dynamics" );
+            case propagators::translational_state: {
+                // Check if reference id is consistent.
+                if( stateReferencePoint.second != "" )
+                {
+                    throw std::runtime_error(
+                            "Error when getting state derivative partial acceleration model, cannot have reference point on body for "
+                            "dynamics" );
+                }
+                // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
+                else if( stateReferencePoint.first == acceleratedBody_ )
+                {
+                    partialFunction =
+                            std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this, std::placeholders::_1 ), 6 );
+                }
+                else if( stateReferencePoint.first == acceleratingBody_ )
+                {
+                    partialFunction =
+                            std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this, std::placeholders::_1 ), 6 );
+                }
+                else if( isAccelerationPartialWrtAdditionalBodyNonnullptr( stateReferencePoint.first ) )
+                {
+                    partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAdditionalBody,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 stateReferencePoint.first ),
+                                                      6 );
+                }
+                break;
             }
-            // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
-            else if( stateReferencePoint.first == acceleratedBody_ )
-            {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this, std::placeholders::_1 ), 6 );
+            case propagators::rotational_state: {
+                // Check if reference id is consistent.
+                if( stateReferencePoint.second != "" )
+                {
+                    throw std::runtime_error(
+                            "Error when getting state derivative partial acceleration model, cannot have reference point on body for body "
+                            "mass" );
+                }
+                else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
+                {
+                    partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 stateReferencePoint,
+                                                                 integratedStateType,
+                                                                 true ),
+                                                      7 );
+                }
+                break;
             }
-            else if( stateReferencePoint.first == acceleratingBody_ )
-            {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this, std::placeholders::_1 ), 6 );
+            case propagators::body_mass_state: {
+                // Check if reference id is consistent.
+                if( stateReferencePoint.second != "" )
+                {
+                    throw std::runtime_error(
+                            "Error when getting state derivative partial acceleration model, cannot have reference point on body for body "
+                            "mass" );
+                }
+                else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
+                {
+                    partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 stateReferencePoint,
+                                                                 integratedStateType,
+                                                                 true ),
+                                                      1 );
+                }
+                break;
             }
-            else if( isAccelerationPartialWrtAdditionalBodyNonnullptr( stateReferencePoint.first ) )
-            {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAdditionalBody,
-                                                               this, std::placeholders::_1, stateReferencePoint.first ), 6 );
+            case propagators::custom_state: {
+                break;
             }
-            break;
+            default:
+                std::string errorMessage = "Error when getting state derivative partial acceleration model, dynamics type " +
+                        std::to_string( integratedStateType ) + "not recognized";
+                throw std::runtime_error( errorMessage );
+                break;
         }
-        case propagators::rotational_state:
-        {
-            // Check if reference id is consistent.
-            if( stateReferencePoint.second != "" )
-            {
-                throw std::runtime_error( "Error when getting state derivative partial acceleration model, cannot have reference point on body for body mass" );
-            }
-            else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
-            {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
-                                                               this, std::placeholders::_1, stateReferencePoint, integratedStateType, true ), 7 );
-            }
-            break;
-        }
-        case propagators::body_mass_state:
-        {
-            // Check if reference id is consistent.
-            if( stateReferencePoint.second != "" )
-            {
-                throw std::runtime_error( "Error when getting state derivative partial acceleration model, cannot have reference point on body for body mass" );
-            }
-            else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
-            {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
-                                                               this, std::placeholders::_1, stateReferencePoint, integratedStateType, true ), 1 );
-            }
-            break;
-        }
-        case propagators::custom_state:
-        {
-            break;
-        }
-        default:
-            std::string errorMessage =
-                    "Error when getting state derivative partial acceleration model, dynamics type " +
-                    std::to_string( integratedStateType ) + "not recognized" ;
-            throw std::runtime_error( errorMessage );
-            break;
-        }
-
 
         return partialFunction;
     }
@@ -170,7 +179,6 @@ public:
         return false;
     }
 
-
     //! Function to check whether a partial w.r.t. some integrated state is non-zero.
     /*!
      * Function to check whether a partial w.r.t. some integrated state is non-zero.
@@ -178,34 +186,34 @@ public:
      * \param integratedStateType Type of propagated state.
      * \return True if dependency exists, false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedState(
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
+    bool isStateDerivativeDependentOnIntegratedState( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                      const propagators::IntegratedStateType integratedStateType )
     {
         bool isDependent = 0;
 
         // Check if state is translational.
         switch( integratedStateType )
         {
-        case propagators::translational_state:
-        {
-            // Check if reference id is consistent.
-            if( stateReferencePoint.second != "" )
-            {
-                throw std::runtime_error( "Error when checking state derivative partial dependency of acceleration model, cannot have reference point on body for dynamics" );
-            }
+            case propagators::translational_state: {
+                // Check if reference id is consistent.
+                if( stateReferencePoint.second != "" )
+                {
+                    throw std::runtime_error(
+                            "Error when checking state derivative partial dependency of acceleration model, cannot have reference point on "
+                            "body for dynamics" );
+                }
 
-            // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
-            else if( stateReferencePoint.first == acceleratedBody_ || stateReferencePoint.first == acceleratingBody_ ||
-                     isAccelerationPartialWrtAdditionalBodyNonnullptr( stateReferencePoint.first ) )
-            {
-                isDependent = 1;
+                // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
+                else if( stateReferencePoint.first == acceleratedBody_ || stateReferencePoint.first == acceleratingBody_ ||
+                         isAccelerationPartialWrtAdditionalBodyNonnullptr( stateReferencePoint.first ) )
+                {
+                    isDependent = 1;
+                }
+                break;
             }
-            break;
-        }
-        default:
-            isDependent = isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType );
-            break;
+            default:
+                isDependent = isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType );
+                break;
         }
         return isDependent;
     }
@@ -220,9 +228,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtPositionOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ) = 0;
+    virtual void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                               const bool addContribution = 1,
+                                               const int startRow = 0,
+                                               const int startColumn = 0 ) = 0;
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of the accelerated body.
     /*!
@@ -234,9 +243,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtVelocityOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
+    virtual void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                               const bool addContribution = 1,
+                                               const int startRow = 0,
+                                               const int startColumn = 3 )
     { }
 
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body undergoing acceleration.
@@ -262,9 +272,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtPositionOfAcceleratingBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ) = 0;
+    virtual void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                const bool addContribution = 1,
+                                                const int startRow = 0,
+                                                const int startColumn = 0 ) = 0;
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of the body exerting acceleration.
     /*!
@@ -276,9 +287,11 @@ public:
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
      *  exerting acceleration where current partial is to be added.
      */
-    virtual void wrtVelocityOfAcceleratingBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 ){ }
+    virtual void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                const bool addContribution = 1,
+                                                const int startRow = 0,
+                                                const int startColumn = 3 )
+    { }
 
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body exerting acceleration.
     /*!
@@ -304,9 +317,12 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtPositionOfAdditionalBody(
-            const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
+    virtual void wrtPositionOfAdditionalBody( const std::string& bodyName,
+                                              Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                              const bool addContribution = 1,
+                                              const int startRow = 0,
+                                              const int startColumn = 0 )
+    { }
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of the third body.
     /*!
@@ -320,9 +336,12 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtVelocityOfAdditionalBody(
-            const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 ){ }
+    virtual void wrtVelocityOfAdditionalBody( const std::string& bodyName,
+                                              Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                              const bool addContribution = 1,
+                                              const int startRow = 0,
+                                              const int startColumn = 3 )
+    { }
 
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the third body.
     /*!
@@ -348,11 +367,11 @@ public:
      *  \param integratedStateType Type of propagated state for which partial is to be computed.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      */
-    virtual void wrtNonTranslationalStateOfAdditionalBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType,
-            const bool addContribution = true ){ }
+    virtual void wrtNonTranslationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                           const std::pair< std::string, std::string >& stateReferencePoint,
+                                                           const propagators::IntegratedStateType integratedStateType,
+                                                           const bool addContribution = true )
+    { }
 
     //! Function to check whether the partial derivative w.r.t. the translational state of a third body is non-zero.
     /*!
@@ -371,14 +390,20 @@ public:
      *  Function to retrieve the name of the body undergoing acceleration.
      *  \return Name of the body undergoing acceleration.
      */
-    std::string getAcceleratedBody( ) { return acceleratedBody_; }
+    std::string getAcceleratedBody( )
+    {
+        return acceleratedBody_;
+    }
 
     //! Function to retrieve the name of the body exerting acceleration.
     /*!
      *  Function to retrieve the name of the body exerting acceleration.
      *  \return Name of the body exerting acceleration.
      */
-    std::string getAcceleratingBody( ) { return acceleratingBody_; }
+    std::string getAcceleratingBody( )
+    {
+        return acceleratingBody_;
+    }
 
     //! Function to retrieve the type of acceleration w.r.t. which partial is taken..
     /*!
@@ -390,7 +415,7 @@ public:
         return accelerationType_;
     }
 
-protected:    
+protected:
     //! Name of the body undergoing acceleration.
     std::string acceleratedBody_;
 
@@ -401,9 +426,8 @@ protected:
     basic_astrodynamics::AvailableAcceleration accelerationType_;
 };
 
+}  // namespace acceleration_partials
 
-} // namespace acceleration_partials
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_ACCELERATIONPARTIALS_H
+#endif  // TUDAT_ACCELERATIONPARTIALS_H

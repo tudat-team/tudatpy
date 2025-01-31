@@ -12,9 +12,9 @@
  *        http://www.iers.org/IERS/EN/Publications/TechnicalNotes/tn36.html
  *      JPL, NASA. Astrodynamic Constants, http://ssd.jpl.nasa.gov/?constants,
  *        last updated: 13 Dec, 2012, last accessed: 19th March, 2013.
- *      JPL, NASA. Introduction to SPICE, 
+ *      JPL, NASA. Introduction to SPICE,
  *        http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/info/intrdctn.html, last updated:
- *        29th Feb, 2008, last accessed: 22nd March, 2012. 
+ *        29th Feb, 2008, last accessed: 22nd March, 2012.
  *      EGM 2008 gravity field model, http://earth-info.nga.mil/GandG/wgs84/gravitymod/egm2008/
  *        last accessed: 21 March, 2013.
  *      IAU, NOMINAL VALUES FOR SELECTED SOLAR AND PLANETARY QUANTITIES: IAU 2015 RESOLUTION B3, 2016.
@@ -87,8 +87,7 @@ const static double EARTH_GRAVITATIONAL_PARAMETER = 3.986004418E14;
 /*!
  * Moon gravitational constant in squared meters per second squared [m^3 s^-2] (JPL, 2012).
  */
-const static double MOON_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETER /
-        ( 328900.56 * ( 1.0 + 81.30059 ) );
+const static double MOON_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETER / ( 328900.56 * ( 1.0 + 81.30059 ) );
 
 //! Mars gravitational constant.
 /*!
@@ -106,7 +105,7 @@ const static double JUPITER_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETE
 /*!
  * Gravitational constant of Saturn, derived from Sun/Saturn mass ratio [m^3 s^-2] (JPL, 2012).
  */
-const static double SATURN_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETER / 3497.898 ;
+const static double SATURN_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETER / 3497.898;
 
 //! Uranus gravitational constant.
 /*!
@@ -132,36 +131,36 @@ const static double PLUTO_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETER 
  */
 const static double SUN_LUMINOSITY = 3.828e26;
 
-//static std::map< int, std::string > planetNames =
+// static std::map< int, std::string > planetNames =
 //{
-//    { 0, "Sun" },
-//    { 1, "Mercury" },
-//    { 2, "Venus" },
-//    { 3, "Earth" },
-//    { 4, "Mars" },
-//    { 5, "Jupiter" },
-//    { 6, "Saturn" },
-//    { 7, "Uranus" },
-//    { 8, "Neptune" },
-//    { 9, "Pluto" }
-//};
+//     { 0, "Sun" },
+//     { 1, "Mercury" },
+//     { 2, "Venus" },
+//     { 3, "Earth" },
+//     { 4, "Mars" },
+//     { 5, "Jupiter" },
+//     { 6, "Saturn" },
+//     { 7, "Uranus" },
+//     { 8, "Neptune" },
+//     { 9, "Pluto" }
+// };
 
-//static std::map< std::string, int > planetIdNumbers =
+// static std::map< std::string, int > planetIdNumbers =
 //{
-//    { "Sun", 0 },
-//    { "Mercury", 1 },
-//    { "Venus", 2 },
-//    { "Earth", 3 },
-//    { "Mars", 4 },
-//    { "Jupiter", 5 },
-//    { "Saturn", 6 },
-//    { "Uranus", 7 },
-//    { "Neptune", 8 },
-//    { "Pluto", 9 }
-//};
+//     { "Sun", 0 },
+//     { "Mercury", 1 },
+//     { "Venus", 2 },
+//     { "Earth", 3 },
+//     { "Mars", 4 },
+//     { "Jupiter", 5 },
+//     { "Saturn", 6 },
+//     { "Uranus", 7 },
+//     { "Neptune", 8 },
+//     { "Pluto", 9 }
+// };
 
-} // namespace celestial_body_constants
+}  // namespace celestial_body_constants
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CELESTIAL_BODY_CONSTANTS_H
+#endif  // TUDAT_CELESTIAL_BODY_CONSTANTS_H

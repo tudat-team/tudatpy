@@ -45,19 +45,14 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForFullShadow )
 
     const Eigen::Vector3d occultedBodyPosition = -149598000.0e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
     const Eigen::Vector3d occultingBodyPosition = Eigen::Vector3d::Zero( );
-    const double occultedBodyRadius = 6.96e8; // Siedelmann 1992.
-    const double occultingBodyRadius = 6378.137e3; // WGS-84.
+    const double occultedBodyRadius = 6.96e8;       // Siedelmann 1992.
+    const double occultingBodyRadius = 6378.137e3;  // WGS-84.
 
-    const Eigen::Vector3d satellitePosition = ( occultingBodyRadius + 1.0e6 )
-            * Eigen::Vector3d( 1.0, 0.0, 0.0 );
+    const Eigen::Vector3d satellitePosition = ( occultingBodyRadius + 1.0e6 ) * Eigen::Vector3d( 1.0, 0.0, 0.0 );
 
     // Compute shadow function.
     const double shadowFunction = mission_geometry::computeShadowFunction(
-                occultedBodyPosition,
-                occultedBodyRadius,
-                occultingBodyPosition,
-                occultingBodyRadius,
-                satellitePosition );
+            occultedBodyPosition, occultedBodyRadius, occultingBodyPosition, occultingBodyRadius, satellitePosition );
 
     // Test values.
     BOOST_CHECK_EQUAL( 0.0, shadowFunction );
@@ -70,19 +65,14 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForFullLight )
 
     const Eigen::Vector3d occultedBodyPosition = -149598000.0e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
     const Eigen::Vector3d occultingBodyPosition = Eigen::Vector3d::Zero( );
-    const double occultedBodyRadius = 6.96e8; // Siedelmann 1992.
-    const double occultingBodyRadius = 6378.137e3; // WGS-84.
+    const double occultedBodyRadius = 6.96e8;       // Siedelmann 1992.
+    const double occultingBodyRadius = 6378.137e3;  // WGS-84.
 
-    const Eigen::Vector3d satellitePosition = ( occultingBodyRadius + 1.0e6 )
-            * Eigen::Vector3d( 0.0, 1.0, 0.0 );
+    const Eigen::Vector3d satellitePosition = ( occultingBodyRadius + 1.0e6 ) * Eigen::Vector3d( 0.0, 1.0, 0.0 );
 
     // Compute shadow function.
     const double shadowFunction = mission_geometry::computeShadowFunction(
-                occultedBodyPosition,
-                occultedBodyRadius,
-                occultingBodyPosition,
-                occultingBodyRadius,
-                satellitePosition );
+            occultedBodyPosition, occultedBodyRadius, occultingBodyPosition, occultingBodyRadius, satellitePosition );
 
     // Test values
     BOOST_CHECK_EQUAL( 1.0, shadowFunction );
@@ -96,8 +86,8 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForPartialShadow )
 
     const Eigen::Vector3d occultedBodyPosition = -149598000.0e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
     const Eigen::Vector3d occultingBodyPosition = Eigen::Vector3d::Zero( );
-    const double occultedBodyRadius = 6.96e8; // Siedelmann 1992.
-    const double occultingBodyRadius = 6378.137e3; // WGS-84.
+    const double occultedBodyRadius = 6.96e8;       // Siedelmann 1992.
+    const double occultingBodyRadius = 6378.137e3;  // WGS-84.
 
     Eigen::Vector3d satelliteDirection( 0.018, 1.0, 0.0 );
     satelliteDirection.normalize( );
@@ -106,11 +96,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForPartialShadow )
 
     // Compute shadow function
     const double shadowFunction = mission_geometry::computeShadowFunction(
-                occultedBodyPosition,
-                occultedBodyRadius,
-                occultingBodyPosition,
-                occultingBodyRadius,
-                satellitePosition );
+            occultedBodyPosition, occultedBodyRadius, occultingBodyPosition, occultingBodyRadius, satellitePosition );
 
     // Test values.
     BOOST_CHECK_CLOSE_FRACTION( 0.4547, shadowFunction, 0.001 );
@@ -121,20 +107,16 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForAnnularEclipse_Centered )
     // Satellite is in antumbra and eclipse is annular. According to analytical derivations on paper the shadow function
     // should be around 0.485156.
 
-    const Eigen::Vector3d occultedBodyPosition = Eigen::Vector3d(1, 0, 0);
-    const Eigen::Vector3d occultingBodyPosition = Eigen::Vector3d(2, 0, 0);
+    const Eigen::Vector3d occultedBodyPosition = Eigen::Vector3d( 1, 0, 0 );
+    const Eigen::Vector3d occultingBodyPosition = Eigen::Vector3d( 2, 0, 0 );
     const double occultedBodyRadius = 2;
     const double occultingBodyRadius = 1;
 
-    const Eigen::Vector3d satellitePosition = Eigen::Vector3d(4, 0, 0);
+    const Eigen::Vector3d satellitePosition = Eigen::Vector3d( 4, 0, 0 );
 
     // Compute shadow function
     const double shadowFunction = mission_geometry::computeShadowFunction(
-                occultedBodyPosition,
-                occultedBodyRadius,
-                occultingBodyPosition,
-                occultingBodyRadius,
-                satellitePosition);
+            occultedBodyPosition, occultedBodyRadius, occultingBodyPosition, occultingBodyRadius, satellitePosition );
 
     // Test values.
     BOOST_CHECK_CLOSE_FRACTION( 0.485156, shadowFunction, 0.001 );
@@ -150,9 +132,7 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceEarth )
     // Test 1: test function taking masses.
     {
         // Calculate the sphere of influence of the Earth with respect to the Sun.
-        const double sphereOfInfluenceEarth
-                = mission_geometry::computeSphereOfInfluence(
-                    distanceEarthSun, massEarth, massSun );
+        const double sphereOfInfluenceEarth = mission_geometry::computeSphereOfInfluence( distanceEarthSun, massEarth, massSun );
 
         // Test values (Wikipedia, Sphere of Influence)
         BOOST_CHECK_CLOSE_FRACTION( 9.25e8, sphereOfInfluenceEarth, 5.0e-4 );
@@ -161,9 +141,7 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceEarth )
     // Test 2: test function taking mass ratio.
     {
         // Calculate the sphere of influence of the Earth with respect to the Sun.
-        const double sphereOfInfluenceEarth
-                = mission_geometry::computeSphereOfInfluence(
-                    distanceEarthSun, massEarth / massSun );
+        const double sphereOfInfluenceEarth = mission_geometry::computeSphereOfInfluence( distanceEarthSun, massEarth / massSun );
 
         // Test values (Wikipedia, Sphere of Influence)
         BOOST_CHECK_CLOSE_FRACTION( 9.25e8, sphereOfInfluenceEarth, 5.0e-4 );
@@ -180,9 +158,7 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceMoon )
     // Test 1: test function taking masses.
     {
         // Calculate the sphere of influence of the Moon with respect to the Earth.
-        const double sphereOfInfluenceEarth
-                = mission_geometry::computeSphereOfInfluence(
-                    distanceMoonEarth, massMoon, massEarth );
+        const double sphereOfInfluenceEarth = mission_geometry::computeSphereOfInfluence( distanceMoonEarth, massMoon, massEarth );
 
         // Test values (Wikipedia, Sphere of Influence)
         BOOST_CHECK_CLOSE_FRACTION( 6.61e7, sphereOfInfluenceEarth, 2.0e-3 );
@@ -190,9 +166,7 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceMoon )
 
     // Test 2: test function taking mass ratio.
     {
-        const double sphereOfInfluenceMoon
-                = mission_geometry::computeSphereOfInfluence(
-                    distanceMoonEarth, massMoon / massEarth );
+        const double sphereOfInfluenceMoon = mission_geometry::computeSphereOfInfluence( distanceMoonEarth, massMoon / massEarth );
 
         // Test values (Wikipedia, Sphere of Influence)
         BOOST_CHECK_CLOSE_FRACTION( 6.61e7, sphereOfInfluenceMoon, 2.0e-3 );
@@ -346,5 +320,5 @@ BOOST_AUTO_TEST_CASE( testIsOrbitRetrograde )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

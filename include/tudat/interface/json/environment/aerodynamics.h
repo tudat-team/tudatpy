@@ -24,8 +24,7 @@ namespace aerodynamics
 // AerodynamicCoefficientsIndependentVariables
 
 //! Map of `AerodynamicCoefficientsIndependentVariables` string representations.
-static std::map< AerodynamicCoefficientsIndependentVariables, std::string > aerodynamicVariables =
-{
+static std::map< AerodynamicCoefficientsIndependentVariables, std::string > aerodynamicVariables = {
     { mach_number_dependent, "machNumber" },
     { angle_of_attack_dependent, "angleOfAttack" },
     { angle_of_sideslip_dependent, "angleOfSideslip" },
@@ -51,25 +50,20 @@ inline void from_json( const nlohmann::json& jsonObject, AerodynamicCoefficients
 
 }  // namespace aerodynamics
 
-
 namespace simulation_setup
 {
 
 // AerodynamicCoefficientTypes
 
 //! Map of `AerodynamicCoefficientTypes` string representations.
-static std::map< AerodynamicCoefficientTypes, std::string > aerodynamicCoefficientTypes =
-{
+static std::map< AerodynamicCoefficientTypes, std::string > aerodynamicCoefficientTypes = {
     { constant_aerodynamic_coefficients, "constant" },
     { hypersonic_local_inclincation_coefficients, "hypersonicLocalInclincation" },
     { tabulated_coefficients, "tabulated" }
 };
 
 //! `AerodynamicCoefficientTypes` not supported by `json_interface`.
-static std::vector< AerodynamicCoefficientTypes > unsupportedAerodynamicCoefficientTypes =
-{
-    hypersonic_local_inclincation_coefficients
-};
+static std::vector< AerodynamicCoefficientTypes > unsupportedAerodynamicCoefficientTypes = { hypersonic_local_inclincation_coefficients };
 
 //! Convert `AerodynamicCoefficientTypes` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AerodynamicCoefficientTypes& aerodynamicCoefficientType )
@@ -83,18 +77,16 @@ inline void from_json( const nlohmann::json& jsonObject, AerodynamicCoefficientT
     aerodynamicCoefficientType = json_interface::enumFromString( jsonObject, aerodynamicCoefficientTypes );
 }
 
-
 // AerodynamicCoefficientSettings
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
-void to_json( nlohmann::json& jsonObject,
-              const std::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings );
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
-void from_json(const nlohmann::json& jsonObject, std::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_AERODYNAMICS_H
+#endif  // TUDAT_JSONINTERFACE_AERODYNAMICS_H

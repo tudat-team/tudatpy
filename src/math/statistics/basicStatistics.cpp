@@ -38,7 +38,7 @@ double computeStandardDeviationOfVectorComponents( const Eigen::VectorXd& vector
     double varianceOfComponents = 0.0;
 
     // Compute variance of components.
-    for ( int i = 0 ; i < vectorOfData.rows( ) ; i++ )
+    for( int i = 0; i < vectorOfData.rows( ); i++ )
     {
         varianceOfComponents += std::pow( ( vectorOfData( i ) - averageOfComponents ), 2.0 );
     }
@@ -53,8 +53,7 @@ double computeStandardDeviationOfVectorComponents( const Eigen::VectorXd& vector
 double computeSampleMean( const std::vector< double >& sampleData )
 {
     // Return sample mean.
-    return std::accumulate( sampleData.begin( ), sampleData.end( ), 0.0 )
-            / static_cast< double >( sampleData.size( ) );
+    return std::accumulate( sampleData.begin( ), sampleData.end( ), 0.0 ) / static_cast< double >( sampleData.size( ) );
 }
 
 //! Compute sample mean for a sample of VectorXd
@@ -62,8 +61,7 @@ Eigen::VectorXd computeSampleMean( const std::vector< Eigen::VectorXd >& sampleD
 {
     // Return sample mean.
     Eigen::VectorXd initialValue = Eigen::VectorXd::Zero( sampleData.at( 0 ).rows( ) );
-    return std::accumulate( sampleData.begin( ), sampleData.end( ), initialValue )
-            / static_cast< double >( sampleData.size( ) );
+    return std::accumulate( sampleData.begin( ), sampleData.end( ), initialValue ) / static_cast< double >( sampleData.size( ) );
 }
 
 //! Compute sample variance.
@@ -77,7 +75,7 @@ double computeSampleVariance( const std::vector< double >& sampleData )
     double sumOfResidualsSquared = 0.0;
 
     // Compute sum of residuals of sample data squared.
-    for ( unsigned int i = 0; i < sampleData.size( ); i++ )
+    for( unsigned int i = 0; i < sampleData.size( ); i++ )
     {
         sumOfResidualsSquared += std::pow( sampleData.at( i ) - sampleMean, 2.0 );
     }
@@ -90,7 +88,7 @@ double computeSampleVariance( const std::vector< double >& sampleData )
 double computeSampleMedian( std::vector< double > sampleData )
 {
     // Sort data
-    std::sort( sampleData.begin() , sampleData.end());
+    std::sort( sampleData.begin( ), sampleData.end( ) );
 
     // Check if odd number of samples or even
     double numberOfSamples = static_cast< double >( sampleData.size( ) );
@@ -98,13 +96,13 @@ double computeSampleMedian( std::vector< double > sampleData )
 
     // Calculate sample median
     double sampleMedian;
-    if( odd == 0 ) // even
+    if( odd == 0 )  // even
     {
         // 0 .. 99 (100) ->
         unsigned int index = static_cast< unsigned int >( numberOfSamples / 2.0 - 0.5 );
         sampleMedian = ( sampleData[ index ] + sampleData[ index + 1 ] ) / 2.0;
     }
-    else // odd
+    else  // odd
     {
         // 0 .. 100 (101) -> 50
         unsigned int index = static_cast< unsigned int >( numberOfSamples / 2.0 - 0.5 );
@@ -125,7 +123,7 @@ Eigen::VectorXd computeSampleVariance( const std::vector< Eigen::VectorXd >& sam
     Eigen::VectorXd sumOfResidualsSquared = Eigen::VectorXd::Zero( sampleData.at( 0 ).rows( ) );
 
     // Compute sum of residuals of sample data squared.
-    for ( unsigned int i = 0; i < sampleData.size( ); i++ )
+    for( unsigned int i = 0; i < sampleData.size( ); i++ )
     {
         sumOfResidualsSquared += ( sampleData.at( i ) - sampleMean ).cwiseProduct( sampleData.at( i ) - sampleMean );
     }
@@ -143,7 +141,7 @@ Eigen::VectorXd computeMovingAverage( const Eigen::VectorXd& sampleData, const u
     movingAverage.resize( numberOfSamplePoints );
 
     // Check that number of samples to be used for averaging is odd
-    if ( ( numberOfAveragingPoints % 2 ) == 0 )
+    if( ( numberOfAveragingPoints % 2 ) == 0 )
     {
         throw std::runtime_error( "Error while computing moving average. The number of points used to average has to be odd." );
     }
@@ -151,19 +149,19 @@ Eigen::VectorXd computeMovingAverage( const Eigen::VectorXd& sampleData, const u
 
     // Loop over each element and compute moving average
     unsigned int lowerIndex, upperIndex;
-    for ( int i = 0; i < numberOfSamplePoints; i++ )
+    for( int i = 0; i < numberOfSamplePoints; i++ )
     {
         lowerIndex = ( ( i - numberOfPointsOnEachSide ) < 0 ) ? 0 : ( i - numberOfPointsOnEachSide );
-        upperIndex = ( ( i + numberOfPointsOnEachSide ) > ( numberOfSamplePoints - 1 ) ) ?
-                  ( numberOfSamplePoints - 1 ) : ( i + numberOfPointsOnEachSide );
+        upperIndex = ( ( i + numberOfPointsOnEachSide ) > ( numberOfSamplePoints - 1 ) ) ? ( numberOfSamplePoints - 1 )
+                                                                                         : ( i + numberOfPointsOnEachSide );
         movingAverage[ i ] = computeAverageOfVectorComponents( sampleData.segment( lowerIndex, ( upperIndex - lowerIndex + 1 ) ) );
     }
     return movingAverage;
 }
 
 //! Compute moving average of a set of Eigen vectors in a STL vector.
-std::vector< Eigen::Vector3d > computeMovingAverage(
-        const std::vector< Eigen::Vector3d >& sampleData, const unsigned int numberOfAveragingPoints )
+std::vector< Eigen::Vector3d > computeMovingAverage( const std::vector< Eigen::Vector3d >& sampleData,
+                                                     const unsigned int numberOfAveragingPoints )
 {
     // Convert map to Eigen matrix
     Eigen::MatrixXd matrixOfSampleData = utilities::convertStlVectorToEigenMatrix< double, 3 >( sampleData );
@@ -173,14 +171,14 @@ std::vector< Eigen::Vector3d > computeMovingAverage(
     movingAverage.resizeLike( matrixOfSampleData );
 
     // Loop over rows and compute sample mean
-    for ( int i = 0; i < movingAverage.rows( ); i++ )
+    for( int i = 0; i < movingAverage.rows( ); i++ )
     {
         movingAverage.row( i ) = computeMovingAverage( matrixOfSampleData.row( i ).transpose( ), numberOfAveragingPoints ).transpose( );
     }
 
     // Output data as vector
     std::vector< Eigen::Vector3d > outputData;
-    for ( unsigned int i = 0; i < movingAverage.cols( ); i++ )
+    for( unsigned int i = 0; i < movingAverage.cols( ); i++ )
     {
         outputData.push_back( movingAverage.col( i ) );
     }
@@ -188,19 +186,18 @@ std::vector< Eigen::Vector3d > computeMovingAverage(
 }
 
 //! Compute moving average of a set of Eigen vectors in a map.
-std::map< double, Eigen::VectorXd > computeMovingAverage(
-        const std::map< double, Eigen::VectorXd >& sampleData, const unsigned int numberOfAveragingPoints )
+std::map< double, Eigen::VectorXd > computeMovingAverage( const std::map< double, Eigen::VectorXd >& sampleData,
+                                                          const unsigned int numberOfAveragingPoints )
 {
     // Convert map to Eigen matrix
-    Eigen::MatrixXd matrixOfSampleData =
-            utilities::extractKeyAndValuesFromMap< double, double, Eigen::Dynamic >( sampleData ).second;
+    Eigen::MatrixXd matrixOfSampleData = utilities::extractKeyAndValuesFromMap< double, double, Eigen::Dynamic >( sampleData ).second;
 
     // Declare moving average vector
     Eigen::MatrixXd movingAverage;
     movingAverage.resizeLike( matrixOfSampleData );
 
     // Loop over rows and compute sample mean
-    for ( int i = 0; i < movingAverage.rows( ); i++ )
+    for( int i = 0; i < movingAverage.rows( ); i++ )
     {
         movingAverage.row( i ) = computeMovingAverage( matrixOfSampleData.row( i ).transpose( ), numberOfAveragingPoints ).transpose( );
     }
@@ -208,14 +205,14 @@ std::map< double, Eigen::VectorXd > computeMovingAverage(
     // Output data as map
     unsigned int i = 0;
     std::map< double, Eigen::VectorXd > outputData;
-    for ( typename std::map< double, Eigen::VectorXd >::const_iterator
-          mapIterator = sampleData.begin( ); mapIterator != sampleData.end( ); mapIterator++, i++ )
+    for( typename std::map< double, Eigen::VectorXd >::const_iterator mapIterator = sampleData.begin( ); mapIterator != sampleData.end( );
+         mapIterator++, i++ )
     {
         outputData[ mapIterator->first ] = movingAverage.col( i );
     }
     return outputData;
 }
 
-} // namespace statistics
+}  // namespace statistics
 
-} // namespace tudat
+}  // namespace tudat

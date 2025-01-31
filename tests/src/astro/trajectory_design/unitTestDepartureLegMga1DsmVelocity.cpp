@@ -49,14 +49,13 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     // GTOP software distributed and downloadable from the ESA website, or within the PaGMO
     // Astrotoolbox.
     const double expectedDeltaV = 1408.99421278 + 910.801673341206;
-    const Eigen::Vector3d expectedVelocity ( 17969.3166254715, -23543.6915939142,
-                                             6.38384671663485 );
+    const Eigen::Vector3d expectedVelocity( 17969.3166254715, -23543.6915939142, 6.38384671663485 );
 
     // Specify the required parameters.
     // Set the planetary positions and velocities.
-    const Eigen::Vector3d planet1Position ( -148689402143.081, 7454242895.97607, 0. );
-    const Eigen::Vector3d planet2Position ( -128359548637.032, -78282803797.7343, 0. );
-    const Eigen::Vector3d planet1Velocity ( -1976.48781307596, -29863.4035321021, 0. );
+    const Eigen::Vector3d planet1Position( -148689402143.081, 7454242895.97607, 0. );
+    const Eigen::Vector3d planet2Position( -128359548637.032, -78282803797.7343, 0. );
+    const Eigen::Vector3d planet1Velocity( -1976.48781307596, -29863.4035321021, 0. );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 399.999999715 * 24 * 60 * 60;
@@ -73,17 +72,22 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     const double dsmTimeOfFlightFraction = 0.234594654679;
     const double excessVelocityMagnitude = 1408.99421278;
     const double excessVelocityInPlaneAngle = 0.37992647165 * 2 * 3.14159265358979;
-    const double excessVelocityOutOfPlaneAngle = std::acos(  2 * 0.498004040298 - 1 ) -
-                                                 3.14159265358979 / 2;
+    const double excessVelocityOutOfPlaneAngle = std::acos( 2 * 0.498004040298 - 1 ) - 3.14159265358979 / 2;
 
     // Set test case.
     using namespace tudat::transfer_trajectories;
-    DepartureLegMga1DsmVelocity legTest ( planet1Position, planet2Position, timeOfFlight,
-                                          planet1Velocity, sunGravitationalParameter,
-                                          earthGravitationalParameter, semiMajorAxis, eccentricity,
-                                          dsmTimeOfFlightFraction, excessVelocityMagnitude,
-                                          excessVelocityInPlaneAngle,
-                                          excessVelocityOutOfPlaneAngle );
+    DepartureLegMga1DsmVelocity legTest( planet1Position,
+                                         planet2Position,
+                                         timeOfFlight,
+                                         planet1Velocity,
+                                         sunGravitationalParameter,
+                                         earthGravitationalParameter,
+                                         semiMajorAxis,
+                                         eccentricity,
+                                         dsmTimeOfFlightFraction,
+                                         excessVelocityMagnitude,
+                                         excessVelocityInPlaneAngle,
+                                         excessVelocityOutOfPlaneAngle );
 
     // Prepare the variables for the results.
     Eigen::Vector3d resultingVelocity;
@@ -110,14 +114,13 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     // GTOP software distributed and downloadable from the ESA website, or within the PaGMO
     // Astrotoolbox.
     const double expectedDeltaV = 1408.99421278 + 910.801673341206;
-    const Eigen::Vector3d expectedVelocity ( 17969.3166254715, -23543.6915939142,
-                                             6.38384671663485 );
+    const Eigen::Vector3d expectedVelocity( 17969.3166254715, -23543.6915939142, 6.38384671663485 );
 
     // Specify the required parameters.
     // Set the dummy positions and velocities.
-    const Eigen::Vector3d dummyPosition1 ( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
-    const Eigen::Vector3d dummyPosition2 ( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
-    const Eigen::Vector3d dummyVelocity1 ( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
+    const Eigen::Vector3d dummyPosition1( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
+    const Eigen::Vector3d dummyPosition2( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
+    const Eigen::Vector3d dummyVelocity1( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
 
     // Set the dummy time of flight.
     const double dummyTimeOfFlight = TUDAT_NAN;
@@ -138,11 +141,18 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
 
     // Set test case.
     using namespace tudat::transfer_trajectories;
-    DepartureLegMga1DsmVelocity legTest ( dummyPosition1, dummyPosition2, dummyTimeOfFlight,
-                                          dummyVelocity1, sunGravitationalParameter,
-                                          earthGravitationalParameter, semiMajorAxis, eccentricity,
-                                          dummyVariable1, dummyVariable2, dummyVariable3,
-                                          dummyVariable4 );
+    DepartureLegMga1DsmVelocity legTest( dummyPosition1,
+                                         dummyPosition2,
+                                         dummyTimeOfFlight,
+                                         dummyVelocity1,
+                                         sunGravitationalParameter,
+                                         earthGravitationalParameter,
+                                         semiMajorAxis,
+                                         eccentricity,
+                                         dummyVariable1,
+                                         dummyVariable2,
+                                         dummyVariable3,
+                                         dummyVariable4 );
 
     // Prepare the variables for the results.
     Eigen::Vector3d resultingVelocity;
@@ -154,13 +164,13 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
         legTest.calculateLeg( resultingVelocity, resultingDeltaV );
     }
     catch( std::runtime_error const& )
- { }
+    { }
 
     // Specify the values for the parameters that are to be updated.
     // Set the planetary positions and velocities.
-    const Eigen::Vector3d planet1Position ( -148689402143.081, 7454242895.97607, 0. );
-    const Eigen::Vector3d planet2Position ( -128359548637.032, -78282803797.7343, 0. );
-    const Eigen::Vector3d planet1Velocity ( -1976.48781307596, -29863.4035321021, 0. );
+    const Eigen::Vector3d planet1Position( -148689402143.081, 7454242895.97607, 0. );
+    const Eigen::Vector3d planet2Position( -128359548637.032, -78282803797.7343, 0. );
+    const Eigen::Vector3d planet1Velocity( -1976.48781307596, -29863.4035321021, 0. );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 399.999999715 * physical_constants::JULIAN_DAY;
@@ -169,13 +179,12 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     const double dsmTimeOfFlightFraction = 0.234594654679;
     const double excessVelocityMagnitude = 1408.99421278;
     const double excessVelocityInPlaneAngle = 0.37992647165 * 2 * 3.14159265358979;
-    const double excessVelocityOutOfPlaneAngle = std::acos(  2 * 0.498004040298 - 1 ) -
-                                                 3.14159265358979 / 2;
+    const double excessVelocityOutOfPlaneAngle = std::acos( 2 * 0.498004040298 - 1 ) - 3.14159265358979 / 2;
 
     // Create a variable vector containing these parameters.
     Eigen::VectorXd variableVector( 5 );
-    variableVector << timeOfFlight, dsmTimeOfFlightFraction, excessVelocityMagnitude,
-                      excessVelocityInPlaneAngle, excessVelocityOutOfPlaneAngle;
+    variableVector << timeOfFlight, dsmTimeOfFlightFraction, excessVelocityMagnitude, excessVelocityInPlaneAngle,
+            excessVelocityOutOfPlaneAngle;
 
     // Pass both the new ephemeris and trajectory defining variables to the leg.
     legTest.updateEphemeris( planet1Position, planet2Position, planet1Velocity );
@@ -199,9 +208,9 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
 
     // Specify the required parameters, for the first leg of Messenger within GTOP.
     // Set the planetary positions and velocities.
-    const Eigen::Vector3d planet1Position ( -148689402143.081, 7454242895.97607, 0. );
-    const Eigen::Vector3d planet2Position ( -128359548637.032, -78282803797.7343, 0. );
-    const Eigen::Vector3d planet1Velocity ( -1976.48781307596, -29863.4035321021, 0. );
+    const Eigen::Vector3d planet1Position( -148689402143.081, 7454242895.97607, 0. );
+    const Eigen::Vector3d planet2Position( -128359548637.032, -78282803797.7343, 0. );
+    const Eigen::Vector3d planet1Velocity( -1976.48781307596, -29863.4035321021, 0. );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 399.999999715 * 24 * 60 * 60;
@@ -214,26 +223,30 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
     const double semiMajorAxis = 1e300;
     const double eccentricity = 0.;
 
-
     // Set DSM parameters
     const double dsmTimeOfFlightFraction = 0.234594654679;
     const double excessVelocityMagnitude = 1408.99421278;
     const double excessVelocityInPlaneAngle = 0.37992647165 * 2 * 3.14159265358979;
-    const double excessVelocityOutOfPlaneAngle = std::acos(  2 * 0.498004040298 - 1 ) -
-                                                 3.14159265358979 / 2;
+    const double excessVelocityOutOfPlaneAngle = std::acos( 2 * 0.498004040298 - 1 ) - 3.14159265358979 / 2;
 
     // Set test case.
     using namespace tudat::transfer_trajectories;
-    DepartureLegMga1DsmVelocity legTest ( planet1Position, planet2Position, timeOfFlight,
-                                          planet1Velocity, sunGravitationalParameter,
-                                          earthGravitationalParameter, semiMajorAxis, eccentricity,
-                                          dsmTimeOfFlightFraction, excessVelocityMagnitude,
-                                          excessVelocityInPlaneAngle,
-                                          excessVelocityOutOfPlaneAngle );
+    DepartureLegMga1DsmVelocity legTest( planet1Position,
+                                         planet2Position,
+                                         timeOfFlight,
+                                         planet1Velocity,
+                                         sunGravitationalParameter,
+                                         earthGravitationalParameter,
+                                         semiMajorAxis,
+                                         eccentricity,
+                                         dsmTimeOfFlightFraction,
+                                         excessVelocityMagnitude,
+                                         excessVelocityInPlaneAngle,
+                                         excessVelocityOutOfPlaneAngle );
 
     // Initiate vectors for storing the results.
-    std::vector < Eigen::Vector3d > positionVector1, positionVector2;
-    std::vector < double > timeVector1, timeVector2;
+    std::vector< Eigen::Vector3d > positionVector1, positionVector2;
+    std::vector< double > timeVector1, timeVector2;
 
     // Test the functionality in case the leg has not been calculated yet.
     legTest.intermediatePoints( 160. * 24 * 60 * 60, positionVector1, timeVector1 );
@@ -250,11 +263,11 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
 
     // Test if the halfway points in the first part of the leg match between the intermediate
     // points functions.
-    BOOST_CHECK_CLOSE_FRACTION( timeVector1[1] , timeVector2[2], tolerance );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( positionVector1[1], positionVector2[2], tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( timeVector1[ 1 ], timeVector2[ 2 ], tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( positionVector1[ 1 ], positionVector2[ 2 ], tolerance );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

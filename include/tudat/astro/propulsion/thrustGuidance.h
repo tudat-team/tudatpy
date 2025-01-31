@@ -16,7 +16,7 @@
 
 #include "tudat/astro/ephemerides/directionBasedRotationalEphemeris.h"
 #include "tudat/astro/reference_frames/referenceFrameTransformations.h"
-//#include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
+// #include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/math/basic/linearAlgebra.h"
@@ -29,8 +29,6 @@ namespace tudat
 namespace propulsion
 {
 
-
-
 //! Function to get the unit vector colinear with velocity segment of a translational state.
 /*!
  * Function to get the unit vector colinear with velocity segment of a translational state.
@@ -41,9 +39,9 @@ namespace propulsion
  * direction (if false) as velocity segment of currentState
  * \return Unit vector colinear with velocity segment of currentState.
  */
-Eigen::Vector3d getDirectionColinearWithVelocity(
-        const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
-        const double currentTime, const bool putVectorInOppositeDirection );
+Eigen::Vector3d getDirectionColinearWithVelocity( const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
+                                                  const double currentTime,
+                                                  const bool putVectorInOppositeDirection );
 
 //! Function to get the unit vector colinear with position segment of a translational state.
 /*!
@@ -55,9 +53,9 @@ Eigen::Vector3d getDirectionColinearWithVelocity(
  * direction (if false) as position segment of current state
  * \return Unit vector colinear with position segment of current state.
  */
-Eigen::Vector3d getDirectionColinearWithPosition(
-        const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
-        const double currentTime, const bool putVectorInOppositeDirection );
+Eigen::Vector3d getDirectionColinearWithPosition( const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
+                                                  const double currentTime,
+                                                  const bool putVectorInOppositeDirection );
 
 //! Function to get the force direction from a time-only function.
 /*!
@@ -66,17 +64,15 @@ Eigen::Vector3d getDirectionColinearWithPosition(
  * \param timeOnlyFunction Function returning unit vector (thrust direction) as a funtion of time.
  * \return Thrust direction.
  */
-Eigen::Vector3d getForceDirectionFromTimeOnlyFunction(
-        const double currentTime,
-        const std::function< Eigen::Vector3d( const double ) > timeOnlyFunction );
+Eigen::Vector3d getForceDirectionFromTimeOnlyFunction( const double currentTime,
+                                                       const std::function< Eigen::Vector3d( const double ) > timeOnlyFunction );
 
 class ThrustDirectionCalculator
 {
 public:
-    ThrustDirectionCalculator( ):
-    currentTime_( TUDAT_NAN ){ }
+    ThrustDirectionCalculator( ): currentTime_( TUDAT_NAN ) { }
 
-    virtual ~ThrustDirectionCalculator( ){ }
+    virtual ~ThrustDirectionCalculator( ) { }
 
     void resetCurrentTime( )
     {
@@ -84,29 +80,24 @@ public:
         resetDerivedClassCurrentTime( );
     }
 
-    virtual void resetDerivedClassCurrentTime( ){ }
+    virtual void resetDerivedClassCurrentTime( ) { }
 
     virtual void update( const double time ) = 0;
 
-
-    virtual Eigen::Vector3d getInertialThrustDirection(
-            const std::shared_ptr< system_models::EngineModel > engineModel ) = 0;
+    virtual Eigen::Vector3d getInertialThrustDirection( const std::shared_ptr< system_models::EngineModel > engineModel ) = 0;
 
 protected:
-
     double currentTime_;
-
 };
 
-class DirectThrustDirectionCalculator: public ThrustDirectionCalculator
+class DirectThrustDirectionCalculator : public ThrustDirectionCalculator
 {
 public:
-    DirectThrustDirectionCalculator(
-            const std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotationModel ):
-        directionBasedRotationModel_( directionBasedRotationModel ),
-    currentQuaterionTime_( TUDAT_NAN ){ }
+    DirectThrustDirectionCalculator( const std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotationModel ):
+        directionBasedRotationModel_( directionBasedRotationModel ), currentQuaterionTime_( TUDAT_NAN )
+    { }
 
-    virtual ~DirectThrustDirectionCalculator( ){ }
+    virtual ~DirectThrustDirectionCalculator( ) { }
 
     void resetDerivedClassCurrentTime( )
     {
@@ -116,23 +107,18 @@ public:
 
     void update( const double time )
     {
-        if( time != currentTime_  && time == time )
+        if( time != currentTime_ && time == time )
         {
             currentInertialDirection_ = directionBasedRotationModel_->getCurrentInertialDirection( time );
         }
         currentTime_ = time;
     }
 
-
     void updateQuaternion( const double time );
 
-
-    Eigen::Vector3d getInertialThrustDirection(
-            const std::shared_ptr< system_models::EngineModel > engineModel );
-
+    Eigen::Vector3d getInertialThrustDirection( const std::shared_ptr< system_models::EngineModel > engineModel );
 
 protected:
-
     std::shared_ptr< ephemerides::DirectionBasedRotationalEphemeris > directionBasedRotationModel_;
 
     Eigen::Vector3d currentInertialDirection_;
@@ -142,15 +128,14 @@ protected:
     double currentQuaterionTime_;
 };
 
-class OrientationBasedThrustDirectionCalculator: public ThrustDirectionCalculator
+class OrientationBasedThrustDirectionCalculator : public ThrustDirectionCalculator
 {
 public:
-    OrientationBasedThrustDirectionCalculator(
-            const std::function< Eigen::Quaterniond( ) > rotationFunction ):
-        ThrustDirectionCalculator( ),
-        rotationFunction_( rotationFunction ){ }
+    OrientationBasedThrustDirectionCalculator( const std::function< Eigen::Quaterniond( ) > rotationFunction ):
+        ThrustDirectionCalculator( ), rotationFunction_( rotationFunction )
+    { }
 
-    virtual ~OrientationBasedThrustDirectionCalculator( ){ }
+    virtual ~OrientationBasedThrustDirectionCalculator( ) { }
 
     virtual void update( const double time )
     {
@@ -161,9 +146,7 @@ public:
         currentTime_ = time;
     }
 
-
-    Eigen::Vector3d getInertialThrustDirection(
-            const std::shared_ptr< system_models::EngineModel > engineModel );
+    Eigen::Vector3d getInertialThrustDirection( const std::shared_ptr< system_models::EngineModel > engineModel );
 
     Eigen::Quaterniond getCurrentRotation( )
     {
@@ -171,17 +154,13 @@ public:
     }
 
 protected:
-
     const std::function< Eigen::Quaterniond( ) > rotationFunction_;
 
     Eigen::Quaterniond currentRotation_;
 };
 
+}  // namespace propulsion
 
+}  // namespace tudat
 
-} // namespace propulsion
-
-} // namespace tudat
-
-
-#endif // TUDAT_THRUSTGUIDANCE_H
+#endif  // TUDAT_THRUSTGUIDANCE_H

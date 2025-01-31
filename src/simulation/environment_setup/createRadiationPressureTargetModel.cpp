@@ -17,43 +17,40 @@
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 
-
 namespace tudat
 {
 namespace simulation_setup
 {
 
-
-std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPressureTargetModelOfType(
-    const std::shared_ptr< Body > target,
-    const RadiationPressureTargetModelType targetModelType,
-    const std::string errorOutput )
+std::shared_ptr< electromagnetism::RadiationPressureTargetModel > getRadiationPressureTargetModelOfType(
+        const std::shared_ptr< Body > target,
+        const RadiationPressureTargetModelType targetModelType,
+        const std::string errorOutput )
 {
     std::string targetName = target->getBodyName( );
-    std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel;
+    std::shared_ptr< electromagnetism::RadiationPressureTargetModel > targetModel;
     if( target->getRadiationPressureTargetModels( ).size( ) == 1 )
     {
-        std::shared_ptr<electromagnetism::RadiationPressureTargetModel> availableTargetModel = target->getRadiationPressureTargetModels( ).at( 0 );
+        std::shared_ptr< electromagnetism::RadiationPressureTargetModel > availableTargetModel =
+                target->getRadiationPressureTargetModels( ).at( 0 );
         if( getTargetModelType( availableTargetModel ) == targetModelType || targetModelType == undefined_target )
         {
             targetModel = availableTargetModel;
         }
         else
         {
-            throw std::runtime_error( "Error " + errorOutput + ", body " +
-                                      targetName +
+            throw std::runtime_error( "Error " + errorOutput + ", body " + targetName +
                                       " has no radiation pressure target model of type ." + std::to_string( targetModelType ) );
         }
     }
     else if( targetModelType == undefined_target )
     {
-        throw std::runtime_error( "Error " + errorOutput + ", body " +
-                                  targetName +
-                                  " has multiple radiation pressure target models" );
+        throw std::runtime_error( "Error " + errorOutput + ", body " + targetName + " has multiple radiation pressure target models" );
     }
     else
     {
-        std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > availableTargetModels = target->getRadiationPressureTargetModels( );
+        std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > availableTargetModels =
+                target->getRadiationPressureTargetModels( );
         for( unsigned int i = 0; i < availableTargetModels.size( ); i++ )
         {
             if( getTargetModelType( availableTargetModels.at( i ) ) == targetModelType )
@@ -64,8 +61,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPres
                 }
                 else
                 {
-                    throw std::runtime_error( "Error " + errorOutput + ", body " +
-                                              targetName +
+                    throw std::runtime_error( "Error " + errorOutput + ", body " + targetName +
                                               " has multiple martching radiation pressure target models" );
                 }
             }
@@ -73,8 +69,7 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPres
 
         if( targetModel == nullptr )
         {
-            throw std::runtime_error( "Error " + errorOutput + ", body " +
-                                      targetName +
+            throw std::runtime_error( "Error " + errorOutput + ", body " + targetName +
                                       " has multiple radiation pressure target models, but none match required type" );
         }
     }
@@ -82,34 +77,33 @@ std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPres
 }
 
 std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
-    const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings )
+        const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings )
 {
     std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw;
-    switch ( reflectionLawSettings->bodyPanelReflectionLawType_ )
+    switch( reflectionLawSettings->bodyPanelReflectionLawType_ )
     {
-    case specular_diffuse_reflection_law:
-    {
-        std::shared_ptr< SpecularDiffuseBodyPanelReflectionLawSettings > specularDiffuseReflectionLawSettings =
-            std::dynamic_pointer_cast< SpecularDiffuseBodyPanelReflectionLawSettings >( reflectionLawSettings );
-        if( specularDiffuseReflectionLawSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when creating specular-diffuse reflection law; settings are incompatible" );
+        case specular_diffuse_reflection_law: {
+            std::shared_ptr< SpecularDiffuseBodyPanelReflectionLawSettings > specularDiffuseReflectionLawSettings =
+                    std::dynamic_pointer_cast< SpecularDiffuseBodyPanelReflectionLawSettings >( reflectionLawSettings );
+            if( specularDiffuseReflectionLawSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating specular-diffuse reflection law; settings are incompatible" );
+            }
+            reflectionLaw = std::make_shared< electromagnetism::SpecularDiffuseMixReflectionLaw >(
+                    specularDiffuseReflectionLawSettings->absorptivity_,
+                    specularDiffuseReflectionLawSettings->specularReflectivity_,
+                    specularDiffuseReflectionLawSettings->diffuseReflectivity_,
+                    specularDiffuseReflectionLawSettings->withInstantaneousReradiation_ );
+            break;
         }
-        reflectionLaw = std::make_shared< electromagnetism::SpecularDiffuseMixReflectionLaw >(
-            specularDiffuseReflectionLawSettings->absorptivity_,
-            specularDiffuseReflectionLawSettings->specularReflectivity_,
-            specularDiffuseReflectionLawSettings->diffuseReflectivity_,
-            specularDiffuseReflectionLawSettings->withInstantaneousReradiation_ );
-        break;
-    }
-    default:
-        throw std::runtime_error( "Error when creating panel reflection law; type not recognzied " +
-                                  std::to_string( static_cast< int>( reflectionLawSettings->bodyPanelReflectionLawType_ ) ) );
+        default:
+            throw std::runtime_error( "Error when creating panel reflection law; type not recognzied " +
+                                      std::to_string( static_cast< int >( reflectionLawSettings->bodyPanelReflectionLawType_ ) ) );
     }
     return reflectionLaw;
 }
 
-RadiationPressureTargetModelType getTargetModelType( const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel )
+RadiationPressureTargetModelType getTargetModelType( const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > targetModel )
 {
     RadiationPressureTargetModelType targetModelType;
     if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModel ) != nullptr )
@@ -127,53 +121,50 @@ RadiationPressureTargetModelType getTargetModelType( const std::shared_ptr<elect
     return targetModelType;
 }
 
-
-std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > createRadiationPressureTargetModel(
-        const std::shared_ptr<RadiationPressureTargetModelSettings>& modelSettings,
+std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > createRadiationPressureTargetModel(
+        const std::shared_ptr< RadiationPressureTargetModelSettings >& modelSettings,
         const std::string& body,
-        const SystemOfBodies& bodies)
+        const SystemOfBodies& bodies )
 {
     using namespace tudat::electromagnetism;
 
-    std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > radiationPressureTargetModels;
+    std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > radiationPressureTargetModels;
 
     // Validate occulting bodies map: can either have
     //  - multiple entries with source body names as keys
     //  - a single entry with the empty string as key (use same occulting bodies for all sources)
-    auto sourceToTargetOccultingBodies = modelSettings->getSourceToTargetOccultingBodies();
-    if (sourceToTargetOccultingBodies.count("") > 0 && sourceToTargetOccultingBodies.size() > 1)
+    auto sourceToTargetOccultingBodies = modelSettings->getSourceToTargetOccultingBodies( );
+    if( sourceToTargetOccultingBodies.count( "" ) > 0 && sourceToTargetOccultingBodies.size( ) > 1 )
     {
-        throw std::runtime_error("Error, invalid occulting bodies map for " + body );
+        throw std::runtime_error( "Error, invalid occulting bodies map for " + body );
     }
 
-    switch(modelSettings->getRadiationPressureTargetModelType())
+    switch( modelSettings->getRadiationPressureTargetModelType( ) )
     {
-        case RadiationPressureTargetModelType::cannonball_target:
-        {
+        case RadiationPressureTargetModelType::cannonball_target: {
             auto cannonballTargetModelSettings =
-                    std::dynamic_pointer_cast< CannonballRadiationPressureTargetModelSettings >(modelSettings);
+                    std::dynamic_pointer_cast< CannonballRadiationPressureTargetModelSettings >( modelSettings );
 
-            if(cannonballTargetModelSettings == nullptr)
+            if( cannonballTargetModelSettings == nullptr )
             {
-                throw std::runtime_error(
-                        "Error, expected cannonball radiation pressure target for body " + body );
+                throw std::runtime_error( "Error, expected cannonball radiation pressure target for body " + body );
             }
 
-            radiationPressureTargetModels.push_back( std::make_shared<CannonballRadiationPressureTargetModel>(
-                    cannonballTargetModelSettings->getArea(),
-                    cannonballTargetModelSettings->getCoefficient(),
-                    sourceToTargetOccultingBodies) );
+            radiationPressureTargetModels.push_back(
+                    std::make_shared< CannonballRadiationPressureTargetModel >( cannonballTargetModelSettings->getArea( ),
+                                                                                cannonballTargetModelSettings->getCoefficient( ),
+                                                                                sourceToTargetOccultingBodies ) );
             break;
         }
-        case RadiationPressureTargetModelType::paneled_target:
-        {
+        case RadiationPressureTargetModelType::paneled_target: {
             if( bodies.at( body )->getVehicleSystems( ) == nullptr )
             {
-                throw std::runtime_error( "Error, requested panelled radiation pressure model for " + body + ", but no system models found" );
+                throw std::runtime_error( "Error, requested panelled radiation pressure model for " + body +
+                                          ", but no system models found" );
             }
 
             std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > sortedBodyPanelMap =
-                bodies.at( body )->getVehicleSystems()->getVehicleExteriorPanels( );
+                    bodies.at( body )->getVehicleSystems( )->getVehicleExteriorPanels( );
             if( sortedBodyPanelMap.size( ) == 0 )
             {
                 throw std::runtime_error( "Error, requested panelled radiation pressure model for " + body + ", no panels defined" );
@@ -183,13 +174,13 @@ std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > c
             std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > segmentFixedPanels;
             std::map< std::string, std::function< Eigen::Quaterniond( ) > > segmentFixedToBodyFixedRotations;
 
-            for( auto it : sortedBodyPanelMap )
+            for( auto it: sortedBodyPanelMap )
             {
                 if( it.first != "" )
                 {
                     segmentFixedPanels[ it.first ] = it.second;
                     segmentFixedToBodyFixedRotations[ it.first ] = std::bind(
-                        &system_models::VehicleSystems::getPartRotationToBaseFrame, bodies.at( body )->getVehicleSystems(), it.first );
+                            &system_models::VehicleSystems::getPartRotationToBaseFrame, bodies.at( body )->getVehicleSystems( ), it.first );
                 }
                 else
                 {
@@ -197,29 +188,29 @@ std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > c
                 }
             }
 
-
-            radiationPressureTargetModels.push_back( std::make_shared<PaneledRadiationPressureTargetModel>(
-                bodyFixedPanels, segmentFixedPanels, segmentFixedToBodyFixedRotations, sourceToTargetOccultingBodies) );
+            radiationPressureTargetModels.push_back( std::make_shared< PaneledRadiationPressureTargetModel >(
+                    bodyFixedPanels, segmentFixedPanels, segmentFixedToBodyFixedRotations, sourceToTargetOccultingBodies ) );
             break;
         }
-        case RadiationPressureTargetModelType::multi_type_target:
-        {
+        case RadiationPressureTargetModelType::multi_type_target: {
             std::shared_ptr< MultiRadiationPressureTargetModelSettings > multiTargetModelSettings =
-                std::dynamic_pointer_cast< MultiRadiationPressureTargetModelSettings >(modelSettings);
+                    std::dynamic_pointer_cast< MultiRadiationPressureTargetModelSettings >( modelSettings );
 
-            if(multiTargetModelSettings == nullptr)
+            if( multiTargetModelSettings == nullptr )
             {
-                throw std::runtime_error(
-                    "Error, expected multi-type radiation pressure target for body " + body );
+                throw std::runtime_error( "Error, expected multi-type radiation pressure target for body " + body );
             }
             for( unsigned int i = 0; i < multiTargetModelSettings->radiationPressureTargetModelSettings_.size( ); i++ )
             {
-                if( multiTargetModelSettings->radiationPressureTargetModelSettings_.at( i )->getRadiationPressureTargetModelType( ) == multi_type_target )
+                if( multiTargetModelSettings->radiationPressureTargetModelSettings_.at( i )->getRadiationPressureTargetModelType( ) ==
+                    multi_type_target )
                 {
                     throw std::runtime_error( "Error, cannot have multiple nested multi-type target model settings" );
                 }
-                radiationPressureTargetModels.push_back( createRadiationPressureTargetModel(
-                    multiTargetModelSettings->radiationPressureTargetModelSettings_.at( i ), body, bodies ).at( 0 ) );
+                radiationPressureTargetModels.push_back(
+                        createRadiationPressureTargetModel(
+                                multiTargetModelSettings->radiationPressureTargetModelSettings_.at( i ), body, bodies )
+                                .at( 0 ) );
             }
             break;
         }
@@ -230,5 +221,5 @@ std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > c
     return radiationPressureTargetModels;
 }
 
-} // tudat
-} // electromagnetism
+}  // namespace simulation_setup
+}  // namespace tudat

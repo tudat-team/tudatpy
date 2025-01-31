@@ -20,26 +20,22 @@ TrajectoryOptimisationProblem::TrajectoryOptimisationProblem(
         std::function< Eigen::Vector6d( const double ) > arrivalStateFunction,
         std::pair< double, double > departureTimeBounds,
         std::pair< double, double > timeOfFlightBounds,
-        const std::shared_ptr< low_thrust_trajectories::LowThrustLegSettings >& lowThrustLegSettings ) :
-    departureStateFunction_( departureStateFunction ),
-    arrivalStateFunction_( arrivalStateFunction ),
-    departureTimeBounds_( departureTimeBounds ),
-    timeOfFlightBounds_( timeOfFlightBounds ),
-    lowThrustLegSettings_( lowThrustLegSettings )
+        const std::shared_ptr< low_thrust_trajectories::LowThrustLegSettings >& lowThrustLegSettings ):
+    departureStateFunction_( departureStateFunction ), arrivalStateFunction_( arrivalStateFunction ),
+    departureTimeBounds_( departureTimeBounds ), timeOfFlightBounds_( timeOfFlightBounds ), lowThrustLegSettings_( lowThrustLegSettings )
 {
-    initialSpacecraftMass_ = bodies_[ bodyToPropagate_ ]->getBodyMass();
-
+    initialSpacecraftMass_ = bodies_[ bodyToPropagate_ ]->getBodyMass( );
 }
 
-
 //! Descriptive name of the problem
-std::string TrajectoryOptimisationProblem::get_name() const {
+std::string TrajectoryOptimisationProblem::get_name( ) const
+{
     return "Low-thrust trajectory leg optimisation to minimise the required deltaV.";
 }
 
 //! Get bounds
-std::pair< std::vector< double >, std::vector< double > > TrajectoryOptimisationProblem::get_bounds() const {
-
+std::pair< std::vector< double >, std::vector< double > > TrajectoryOptimisationProblem::get_bounds( ) const
+{
     // Define lower bounds.
     std::vector< double > lowerBounds;
     lowerBounds.push_back( departureTimeBounds_.first );
@@ -53,10 +49,9 @@ std::pair< std::vector< double >, std::vector< double > > TrajectoryOptimisation
     return { lowerBounds, upperBounds };
 }
 
-
 //! Fitness function.
-std::vector< double > TrajectoryOptimisationProblem::fitness( const std::vector< double > &designVariables ) const{
-
+std::vector< double > TrajectoryOptimisationProblem::fitness( const std::vector< double >& designVariables ) const
+{
     std::vector< double > fitness;
 
     double departureTime = designVariables[ 0 ];
@@ -65,14 +60,14 @@ std::vector< double > TrajectoryOptimisationProblem::fitness( const std::vector<
     Eigen::Vector6d stateAtDeparture = departureStateFunction_( departureTime );
     Eigen::Vector6d stateAtArrival = arrivalStateFunction_( departureTime + timeOfFlight );
 
-    std::shared_ptr< LowThrustLeg > lowThrustLeg = createLowThrustLeg(
-                lowThrustLegSettings_, stateAtDeparture, stateAtArrival, timeOfFlight );
+    std::shared_ptr< LowThrustLeg > lowThrustLeg =
+            createLowThrustLeg( lowThrustLegSettings_, stateAtDeparture, stateAtArrival, timeOfFlight );
 
     fitness.push_back( lowThrustLeg->computeDeltaV( ) );
 
     return fitness;
 }
 
-} // namespace low_thrust_trajectories
+}  // namespace low_thrust_trajectories
 
-} // namespace tudat
+}  // namespace tudat

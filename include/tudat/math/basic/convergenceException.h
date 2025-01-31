@@ -31,37 +31,30 @@ namespace basic_mathematics
  *
  * \sa Boost.Exception.
  */
-struct ConvergenceException : public virtual boost::exception, public virtual std::exception
-{
+struct ConvergenceException : public virtual boost::exception, public virtual std::exception {
 public:
-
     //! Constructor that sets exception message to default string.
-    ConvergenceException( )
-        : message( "Failed to converge to a solution.")
-    { }
+    ConvergenceException( ): message( "Failed to converge to a solution." ) { }
 
     //! Constructor that sets exception message based on input character array.
-    ConvergenceException( const char* errMessage )
-        : message( errMessage )
-    { }
+    ConvergenceException( const char* errMessage ): message( errMessage ) { }
 
     //! Constructor that sets exception message based on input string.
-    ConvergenceException( const std::string& errMessage )
-        : message( errMessage.c_str( ) )
-    { }
+    ConvergenceException( const std::string& errMessage ): message( errMessage.c_str( ) ) { }
 
     //! Return what the exception message stored is.
-    const char* what( ) const throw( ) { return message; }
+    const char* what( ) const throw( )
+    {
+        return message;
+    }
 
 protected:
-
 private:
-
     //! Stored exception message.
     const char* message;
 };
 
-} // namespace basic_mathematics
-} // namespace tudat
+}  // namespace basic_mathematics
+}  // namespace tudat
 
 #endif  // TUDAT_CONVERGENCE_EXEPTION_H

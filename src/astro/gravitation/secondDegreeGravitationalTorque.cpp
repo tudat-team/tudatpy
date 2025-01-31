@@ -19,30 +19,25 @@ namespace gravitation
 {
 
 //! Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field
-Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
-        const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
-        const double premultipler,
-        const Eigen::Vector3d& inertiaTensorTimesRelativePositionOfBody )
+Eigen::Vector3d calculateSecondDegreeGravitationalTorque( const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
+                                                          const double premultipler,
+                                                          const Eigen::Vector3d& inertiaTensorTimesRelativePositionOfBody )
 {
-    return premultipler *
-            relativePositionOfBodySubjectToTorque.cross( inertiaTensorTimesRelativePositionOfBody );
+    return premultipler * relativePositionOfBodySubjectToTorque.cross( inertiaTensorTimesRelativePositionOfBody );
 }
 
 //! Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field
-Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
-        const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
-        const double gravitationalParameterOfAttractingBody,
-        const Eigen::Matrix3d& inertiaTensorOfRotatingBody )
+Eigen::Vector3d calculateSecondDegreeGravitationalTorque( const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
+                                                          const double gravitationalParameterOfAttractingBody,
+                                                          const Eigen::Matrix3d& inertiaTensorOfRotatingBody )
 {
-    double distanceBetweenBodies = relativePositionOfBodySubjectToTorque.norm( ) ;
-    Eigen::Vector3d multipliedRelativePosition =  inertiaTensorOfRotatingBody * relativePositionOfBodySubjectToTorque;
+    double distanceBetweenBodies = relativePositionOfBodySubjectToTorque.norm( );
+    Eigen::Vector3d multipliedRelativePosition = inertiaTensorOfRotatingBody * relativePositionOfBodySubjectToTorque;
     return calculateSecondDegreeGravitationalTorque( relativePositionOfBodySubjectToTorque,
-             3.0 * gravitationalParameterOfAttractingBody / std::pow( distanceBetweenBodies, 5.0 ),
-             multipliedRelativePosition );
-
+                                                     3.0 * gravitationalParameterOfAttractingBody / std::pow( distanceBetweenBodies, 5.0 ),
+                                                     multipliedRelativePosition );
 }
 
-} // namespace gravitation
+}  // namespace gravitation
 
-
-} // namespace tudat
+}  // namespace tudat

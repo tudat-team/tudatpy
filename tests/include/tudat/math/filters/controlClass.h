@@ -26,21 +26,18 @@ template< typename IndependentVariableType, typename DependentVariableType, int 
 class ControlWrapper
 {
 public:
-
     //! Typedef of the control vector.
     typedef Eigen::Matrix< DependentVariableType, NumberOfElements, 1 > DependentVector;
 
     //! Typedef of the function describing the system.
-    typedef std::function< DependentVector( const IndependentVariableType,
-                                            const DependentVector& ) > ControlFunction;
+    typedef std::function< DependentVector( const IndependentVariableType, const DependentVector& ) > ControlFunction;
 
     //! Default constructor.
     /*!
      *  Default constructor.
      *  \param controlFunction Function to compute the control vector.
      */
-    ControlWrapper( const ControlFunction& controlFunction ) :
-        controlFunction_( controlFunction )
+    ControlWrapper( const ControlFunction& controlFunction ): controlFunction_( controlFunction )
     {
         // Set control vector to zero
         currentControlVector_.setZero( );
@@ -67,24 +64,21 @@ public:
      *  \param currentTime Double denoting the current time.
      *  \param currentStateVector Vector denoting the current state.
      */
-    void setCurrentControlVector( const IndependentVariableType currentTime,
-                                  const DependentVector& currentStateVector )
+    void setCurrentControlVector( const IndependentVariableType currentTime, const DependentVector& currentStateVector )
     {
         currentControlVector_ = controlFunction_( currentTime, currentStateVector );
     }
 
 private:
-
     //! Function to compute the control vector.
     ControlFunction controlFunction_;
 
     //! Vector denoting the current control.
     DependentVector currentControlVector_;
-
 };
 
-} // namespace filters
+}  // namespace filters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CONTROL_CLASS_H
+#endif  // TUDAT_CONTROL_CLASS_H

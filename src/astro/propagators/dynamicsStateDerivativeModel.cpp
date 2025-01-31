@@ -1,6 +1,6 @@
 #include "tudat/astro/propagators/dynamicsStateDerivativeModel.h"
 
-#if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/acceleration_partials/thirdBodyGravityPartial.h"
 #endif
 
@@ -9,7 +9,7 @@ namespace tudat
 namespace propagators
 {
 
-#if(TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 //! Function to retrieve specific acceleration partial object from list of state derivative partials
 std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPartialForBody(
         const orbit_determination::StateDerivativePartialsMap& accelerationPartials,
@@ -26,20 +26,19 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
         {
             // Check id state derivative type is acceleration
             std::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial =
-                    std::dynamic_pointer_cast< acceleration_partials::AccelerationPartial >(
-                        accelerationPartials.at( i ).at( j ) );
+                    std::dynamic_pointer_cast< acceleration_partials::AccelerationPartial >( accelerationPartials.at( i ).at( j ) );
             if( accelerationPartial != nullptr )
             {
                 // Compare current partial against required data
                 if( ( accelerationPartial->getAccelerationType( ) == accelerationType ) &&
-                        ( accelerationPartial->getAcceleratedBody( ) == bodyExertingAcceleration ) &&
-                        ( accelerationPartial->getAcceleratingBody( ) == bodyUndergoignAcceleration ) )
+                    ( accelerationPartial->getAcceleratedBody( ) == bodyExertingAcceleration ) &&
+                    ( accelerationPartial->getAcceleratingBody( ) == bodyUndergoignAcceleration ) )
                 {
                     if( matchingAccelerationPartial != nullptr )
                     {
                         throw std::runtime_error( "Error when getting acceleration partial exerted by " + bodyExertingAcceleration +
-                                                  " on " + bodyUndergoignAcceleration +
-                                                  " of type " + basic_astrodynamics::getAccelerationModelName( accelerationType ) +
+                                                  " on " + bodyUndergoignAcceleration + " of type " +
+                                                  basic_astrodynamics::getAccelerationModelName( accelerationType ) +
                                                   ", found multiple matching accelerations." );
                     }
                     else
@@ -55,28 +54,27 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
     {
         if( basic_astrodynamics::isAccelerationDirectGravitational( accelerationType ) )
         {
-            matchingAccelerationPartial = getAccelerationPartialForBody(
-                        accelerationPartials,
-                        basic_astrodynamics::getAssociatedThirdBodyAcceleration( accelerationType ),
-                        bodyExertingAcceleration, bodyUndergoignAcceleration );
+            matchingAccelerationPartial =
+                    getAccelerationPartialForBody( accelerationPartials,
+                                                   basic_astrodynamics::getAssociatedThirdBodyAcceleration( accelerationType ),
+                                                   bodyExertingAcceleration,
+                                                   bodyUndergoignAcceleration );
         }
     }
 
     if( matchingAccelerationPartial == nullptr )
     {
-        throw std::runtime_error( "Error when getting acceleration partial exerted by " + bodyExertingAcceleration +
-                                  " on " + bodyUndergoignAcceleration +
-                                  " of type " + basic_astrodynamics::getAccelerationModelName( accelerationType ) +
-                                  ", found no matching accelerations." );
+        throw std::runtime_error(
+                "Error when getting acceleration partial exerted by " + bodyExertingAcceleration + " on " + bodyUndergoignAcceleration +
+                " of type " + basic_astrodynamics::getAccelerationModelName( accelerationType ) + ", found no matching accelerations." );
     }
 
     return matchingAccelerationPartial;
 }
 #endif
 
-//template class DynamicsStateDerivativeModel< double, double >;
+// template class DynamicsStateDerivativeModel< double, double >;
 
+}  // namespace propagators
 
-} // namespace propagators
-
-} // namespace tudat
+}  // namespace tudat

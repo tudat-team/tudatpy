@@ -24,7 +24,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
-//#include <boost/iostreams/device/file.hpp>
+// #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/lexical_cast.hpp>
@@ -33,7 +33,6 @@
 
 #include "tudat/io/matrixTextFileReader.h"
 #include "tudat/io/streamFilters.h"
-
 
 namespace tudat
 {
@@ -54,10 +53,9 @@ namespace input_output
  * \return The map with data as read from the file.
  */
 template< typename EigenVectorType = Eigen::VectorXd >
-std::map< typename EigenVectorType::Scalar, EigenVectorType > readEigenVectorMapFromFile(
-        const std::string& relativePath,
-        const std::string& separators = "\t ;,",
-        const std::string& skipLinesCharacter = "%" )
+std::map< typename EigenVectorType::Scalar, EigenVectorType > readEigenVectorMapFromFile( const std::string& relativePath,
+                                                                                          const std::string& separators = "\t ;,",
+                                                                                          const std::string& skipLinesCharacter = "%" )
 {
     // Load data into matrix
     Eigen::Matrix< typename EigenVectorType::Scalar, Eigen::Dynamic, Eigen::Dynamic > matrix =
@@ -65,22 +63,22 @@ std::map< typename EigenVectorType::Scalar, EigenVectorType > readEigenVectorMap
 
     // Fill map using Eigen matrix
     std::map< typename EigenVectorType::Scalar, EigenVectorType > map;
-    for ( int i = 0; i < matrix.rows( ); i++ )
+    for( int i = 0; i < matrix.rows( ); i++ )
     {
         const Eigen::Matrix< typename EigenVectorType::Scalar, Eigen::Dynamic, 1 > dynamicSizeColumnVector =
                 matrix.row( i ).rightCols( matrix.cols( ) - 1 ).transpose( );
         EigenVectorType columnVector;
-        if ( columnVector.rows( ) == 0 )
+        if( columnVector.rows( ) == 0 )
         {
             columnVector = EigenVectorType( dynamicSizeColumnVector.rows( ) );
         }
-        else if ( dynamicSizeColumnVector.rows( ) != columnVector.rows( ) )
+        else if( dynamicSizeColumnVector.rows( ) != columnVector.rows( ) )
         {
             std::cerr << "The size of the vectors in \"" << relativePath << "\" (" << dynamicSizeColumnVector.rows( )
                       << ") is not consistent with the requested size (" << columnVector.rows( ) << ")." << std::endl;
             throw;
         }
-        for ( int j = 0; j < columnVector.rows( ); j++ )
+        for( int j = 0; j < columnVector.rows( ); j++ )
         {
             columnVector( j ) = dynamicSizeColumnVector( j );
         }
@@ -88,7 +86,6 @@ std::map< typename EigenVectorType::Scalar, EigenVectorType > readEigenVectorMap
     }
     return map;
 }
-
 
 //! Read a map of std vector from a text file.
 /*!
@@ -102,13 +99,13 @@ std::map< typename EigenVectorType::Scalar, EigenVectorType > readEigenVectorMap
  * \return The map with data as read from the file.
  */
 template< typename KeyType, typename ScalarValueType >
-std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile(
-        const std::string& relativePath,  const std::string& separators = "\t ;,",
-        const std::string& skipLinesCharacter = "%" )
+std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile( const std::string& relativePath,
+                                                                              const std::string& separators = "\t ;,",
+                                                                              const std::string& skipLinesCharacter = "%" )
 {
     // Open input and output.
     std::fstream file( relativePath.c_str( ), std::ios::in );
-    if ( file.fail( ) )
+    if( file.fail( ) )
     {
         throw std::runtime_error( "Data file could not be opened: " + relativePath );
     }
@@ -119,11 +116,10 @@ std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile(
         // flush( ) does not work if the underlying end point is a stringstream, so the flush has
         // to be forced by letting the filtering_stream go out of scope.
         boost::iostreams::filtering_ostream filterProcessor;
-        for ( unsigned int i = 0; i < skipLinesCharacter.size( ); i++ )
+        for( unsigned int i = 0; i < skipLinesCharacter.size( ); i++ )
         {
             // Remove all comments from the stream.
-            filterProcessor.push( input_output::stream_filters::RemoveComment(
-                                      skipLinesCharacter[ i ], true ) );
+            filterProcessor.push( input_output::stream_filters::RemoveComment( skipLinesCharacter[ i ], true ) );
         }
 
         // Add the output to the filter chain.
@@ -138,11 +134,11 @@ std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile(
 
     // Read the filtered stream into lines.
     std::vector< std::string > lines_;
-    while ( !filteredStream.eof( ) )
+    while( !filteredStream.eof( ) )
     {
         std::string line_;
         getline( filteredStream, line_ );
-        if ( !line_.empty( ) )
+        if( !line_.empty( ) )
         {
             boost::trim_all( line_ );
             lines_.push_back( line_ );
@@ -153,27 +149,26 @@ std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile(
     std::map< KeyType, std::vector< ScalarValueType > > dataMap_;
 
     // If there are no lines, return an empty matrix.
-    if ( lines_.empty( ) )
+    if( lines_.empty( ) )
     {
         return dataMap_;
     }
 
     const std::string realSeparators = std::string( separators ) + " ";
 
-    for ( unsigned int rowIndex = 0; rowIndex < lines_.size( ); rowIndex++ )
+    for( unsigned int rowIndex = 0; rowIndex < lines_.size( ); rowIndex++ )
     {
         // Determine the number of columns from.
         std::vector< std::string > lineSplit_;
-        boost::algorithm::split( lineSplit_, lines_[ rowIndex ], boost::is_any_of( realSeparators ),
-                                 boost::algorithm::token_compress_on );
+        boost::algorithm::split( lineSplit_, lines_[ rowIndex ], boost::is_any_of( realSeparators ), boost::algorithm::token_compress_on );
 
         // Determine key and put single line entries into vector.
         KeyType key = KeyType( );
         std::vector< ScalarValueType > values;
-        for ( unsigned int columnIndex = 0; columnIndex < lineSplit_.size( ); columnIndex++ )
+        for( unsigned int columnIndex = 0; columnIndex < lineSplit_.size( ); columnIndex++ )
         {
             boost::trim( lineSplit_.at( columnIndex ) );
-            if ( columnIndex == 0 )
+            if( columnIndex == 0 )
             {
                 key = boost::lexical_cast< KeyType >( lineSplit_.at( columnIndex ) );
             }
@@ -189,8 +184,8 @@ std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile(
     return dataMap_;
 }
 
-} // namespace input_output
+}  // namespace input_output
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_MAP_TEXT_FILEREADER_H
+#endif  // TUDAT_MAP_TEXT_FILEREADER_H

@@ -23,11 +23,9 @@ namespace estimatable_parameters
 
 //! Interface class for the estimation of an initial rotational state.
 template< typename InitialStateParameterType = double >
-class InitialRotationalStateParameter: public EstimatableParameter<
-        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
+class InitialRotationalStateParameter : public EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
 {
 public:
-
     //! Constructor, sets initial value of rotational state.
     /*!
      * Constructor, sets initial value of rotational state.
@@ -37,15 +35,15 @@ public:
      * \param centralBody Body w.r.t. which the initial state is to be estimated.
      * \param frameOrientation Orientation of the frame in which the state is defined.
      */
-    InitialRotationalStateParameter(
-            const std::string& associatedBody,
-            const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialRotationalState,
-            const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
-            const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
-        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >(
-            initial_rotational_body_state, associatedBody ),
-        initialRotationalState_( initialRotationalState ), centralBody_( centralBody ),
-        frameOrientation_( frameOrientation ), inertiaTensorFunction_( inertiaTensorFunction )
+    InitialRotationalStateParameter( const std::string& associatedBody,
+                                     const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialRotationalState,
+                                     const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
+                                     const std::string& centralBody = "SSB",
+                                     const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( initial_rotational_body_state,
+                                                                                               associatedBody ),
+        initialRotationalState_( initialRotationalState ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
+        inertiaTensorFunction_( inertiaTensorFunction )
     { }
 
     //! Function to get the current value of initial state w.r.t. centralBody.
@@ -63,7 +61,7 @@ public:
      * Function to reset the current value of initial state w.r.t. centralBody.
      * \param parameterValue The new value of initial state w.r.t. centralBody.
      */
-    void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  parameterValue )
+    void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
         initialRotationalState_ = parameterValue;
         initialRotationalState_.segment( 0, 4 ).normalize( );
@@ -132,7 +130,6 @@ public:
     }
 
 private:
-
     //! Current value of initial state (w.r.t. centralBody)
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialRotationalState_;
 
@@ -144,12 +141,10 @@ private:
 
     //! Function that returns the current inertia tensor
     std::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
-
 };
 
+}  // namespace estimatable_parameters
 
-} // namespace estimatable_parameters
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_INITIALROTATIONALSTATE_H
+#endif  // TUDAT_INITIALROTATIONALSTATE_H

@@ -26,37 +26,30 @@ namespace ephemerides
 class LongitudeLibrationCalculator
 {
 public:
-    LongitudeLibrationCalculator( ){ }
+    LongitudeLibrationCalculator( ) { }
 
-    virtual ~LongitudeLibrationCalculator( ){ }
+    virtual ~LongitudeLibrationCalculator( ) { }
 
-    virtual double getLibrationAngleWrtFullySynchronousRotation(
-            const Eigen::Vector6d& relativeState,
-            const double time ) = 0;
+    virtual double getLibrationAngleWrtFullySynchronousRotation( const Eigen::Vector6d& relativeState, const double time ) = 0;
+
 protected:
-
 private:
 };
 
-class DirectLongitudeLibrationCalculator: public LongitudeLibrationCalculator
+class DirectLongitudeLibrationCalculator : public LongitudeLibrationCalculator
 {
 public:
-    DirectLongitudeLibrationCalculator(
-            const double scaledLibrationAmplitude ):
-        LongitudeLibrationCalculator( ),
-        scaledLibrationAmplitude_( scaledLibrationAmplitude )
+    DirectLongitudeLibrationCalculator( const double scaledLibrationAmplitude ):
+        LongitudeLibrationCalculator( ), scaledLibrationAmplitude_( scaledLibrationAmplitude )
     { }
 
-    ~DirectLongitudeLibrationCalculator( ){ }
+    ~DirectLongitudeLibrationCalculator( ) { }
 
-    double getLibrationAngleWrtFullySynchronousRotationFromScaledLibration(
-            const Eigen::Vector6d& relativeState,
-            const double time,
-            const double scaledLibrationAmplitude );
+    double getLibrationAngleWrtFullySynchronousRotationFromScaledLibration( const Eigen::Vector6d& relativeState,
+                                                                            const double time,
+                                                                            const double scaledLibrationAmplitude );
 
-    double getLibrationAngleWrtFullySynchronousRotation(
-            const Eigen::Vector6d& relativeState,
-            const double time )
+    double getLibrationAngleWrtFullySynchronousRotation( const Eigen::Vector6d& relativeState, const double time )
     {
         return getLibrationAngleWrtFullySynchronousRotationFromScaledLibration( relativeState, time, scaledLibrationAmplitude_ );
     }
@@ -72,9 +65,7 @@ public:
     }
 
 private:
-
     double scaledLibrationAmplitude_;
-
 };
 
 //! Class to define a fully synchronous rotation model for a body
@@ -83,10 +74,9 @@ private:
  *  central body, and itts z-axis is along the orbital angular momentum vector (r x v).
  *  NOTE: The time derivative of the rotation matrix is not yet implemented.
  */
-class SynchronousRotationalEphemeris: public RotationalEphemeris
+class SynchronousRotationalEphemeris : public RotationalEphemeris
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -96,19 +86,14 @@ public:
      * \param baseFrameOrientation Name of base frame
      * \param targetFrameOrientation Name of target frame
      */
-    SynchronousRotationalEphemeris(
-            const std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction,
-            const std::string& centralBodyName,
-            const std::string& baseFrameOrientation,
-            const std::string& targetFrameOrientation,
-            const std::shared_ptr< LongitudeLibrationCalculator > longitudeLibrationCalculator = nullptr  ):
-        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
-        relativeStateFunction_( relativeStateFunction ),
-        isBodyInPropagation_( 0 ),
-        centralBodyName_( centralBodyName ),
-        longitudeLibrationCalculator_( longitudeLibrationCalculator ),
-        warningPrinted_( false ),
-        isLibrationOn_( false )
+    SynchronousRotationalEphemeris( const std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction,
+                                    const std::string& centralBodyName,
+                                    const std::string& baseFrameOrientation,
+                                    const std::string& targetFrameOrientation,
+                                    const std::shared_ptr< LongitudeLibrationCalculator > longitudeLibrationCalculator = nullptr ):
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), relativeStateFunction_( relativeStateFunction ),
+        isBodyInPropagation_( 0 ), centralBodyName_( centralBodyName ), longitudeLibrationCalculator_( longitudeLibrationCalculator ),
+        warningPrinted_( false ), isLibrationOn_( false )
     {
         if( longitudeLibrationCalculator != nullptr )
         {
@@ -117,19 +102,15 @@ public:
     }
 
     //! Destructor
-    ~SynchronousRotationalEphemeris( ){ }
+    ~SynchronousRotationalEphemeris( ) { }
 
-   Eigen::Matrix3d getFullyLockedRotationToBaseFrame(
-           const Eigen::Vector6d& relativeState,
-           const double currentTime );
+    Eigen::Matrix3d getFullyLockedRotationToBaseFrame( const Eigen::Vector6d& relativeState, const double currentTime );
 
-   Eigen::Matrix3d getFullyLockedRotationToBaseFrame( const double currentTime );
+    Eigen::Matrix3d getFullyLockedRotationToBaseFrame( const double currentTime );
 
-   Eigen::Matrix3d getLibrationRotation(
-           const Eigen::Vector6d& relativeState,
-           const double currentTime );
+    Eigen::Matrix3d getLibrationRotation( const Eigen::Vector6d& relativeState, const double currentTime );
 
-   Eigen::Matrix3d getLibrationRotation( const double currentTime );
+    Eigen::Matrix3d getLibrationRotation( const double currentTime );
 
     //! Calculate rotation quaternion from target frame to base frame.
     /*!
@@ -146,8 +127,7 @@ public:
      * \param currentTime Seconds since epoch at which ephemeris is to be evaluated.
      * \return Rotation quaternion computed.
      */
-    Eigen::Quaterniond getRotationToTargetFrame(
-            const double currentTime )
+    Eigen::Quaterniond getRotationToTargetFrame( const double currentTime )
     {
         return getRotationToBaseFrame( currentTime ).inverse( );
     }
@@ -168,8 +148,7 @@ public:
      *  \param currentTime Seconds since epoch at which ephemeris is to be evaluated.
      *  \return Derivative of rotation from base to target frame at specified time.
      */
-    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
-            const double currentTime )
+    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double currentTime )
     {
         return getDerivativeOfRotationToBaseFrame( currentTime ).transpose( );
     }
@@ -195,8 +174,7 @@ public:
         return relativeStateFunction_( currentTime, isBodyInPropagation_ );
     }
 
-    void setLibrationCalculation(
-            const std::shared_ptr< LongitudeLibrationCalculator > longitudeLibrationCalculator )
+    void setLibrationCalculation( const std::shared_ptr< LongitudeLibrationCalculator > longitudeLibrationCalculator )
     {
         longitudeLibrationCalculator_ = longitudeLibrationCalculator;
 
@@ -221,7 +199,6 @@ public:
     }
 
 private:
-
     //! Function returning the current state of the body relative to the central body, in the base frame
     const std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction_;
 
@@ -239,9 +216,8 @@ private:
     bool isLibrationOn_;
 };
 
-}
+}  // namespace ephemerides
 
-}
+}  // namespace tudat
 
-
-#endif // TUDAT_SYNCHRONOUSROTATIONALEPHEMERIS_H
+#endif  // TUDAT_SYNCHRONOUSROTATIONALEPHEMERIS_H

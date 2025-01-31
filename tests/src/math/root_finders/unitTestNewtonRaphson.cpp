@@ -15,10 +15,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
-
-
-
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -39,7 +35,6 @@ BOOST_AUTO_TEST_SUITE( testsuite_rootfinders )
 using namespace tudat;
 using namespace root_finders;
 
-
 //! Check if Newton-Raphson converges on test function #1 (TestFunction1).
 BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction1 )
 {
@@ -47,13 +42,17 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction1 )
     std::shared_ptr< TestFunction1 > testFunction = std::make_shared< TestFunction1 >( 1 );
 
     // The termination condition.
-    NewtonRaphson< >::TerminationFunction terminationConditionFunction =
+    NewtonRaphson<>::TerminationFunction terminationConditionFunction =
             std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+                       std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >( testFunction->getTrueRootAccuracy( ) ),
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::placeholders::_3,
+                       std::placeholders::_4,
+                       std::placeholders::_5 );
 
     // Test Newton-Raphson object.
-    NewtonRaphson< > newtonRaphson( terminationConditionFunction );
+    NewtonRaphson<> newtonRaphson( terminationConditionFunction );
 
     // Let Newton-Raphson search for the root.
     const double root = newtonRaphson.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -70,13 +69,17 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction2 )
     std::shared_ptr< TestFunction2 > testFunction = std::make_shared< TestFunction2 >( 1 );
 
     // The termination condition.
-    NewtonRaphson< >::TerminationFunction terminationConditionFunction =
+    NewtonRaphson<>::TerminationFunction terminationConditionFunction =
             std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
-    
+                       std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >( testFunction->getTrueRootAccuracy( ) ),
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::placeholders::_3,
+                       std::placeholders::_4,
+                       std::placeholders::_5 );
+
     // Test Newton-Raphson object.
-    NewtonRaphson< > newtonRaphson( terminationConditionFunction );
+    NewtonRaphson<> newtonRaphson( terminationConditionFunction );
 
     // Let Newton-Raphson search for the root.
     const double root = newtonRaphson.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -93,13 +96,17 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction3 )
     std::shared_ptr< TestFunction3 > testFunction = std::make_shared< TestFunction3 >( 1 );
 
     // The termination condition.
-    NewtonRaphson< >::TerminationFunction terminationConditionFunction =
+    NewtonRaphson<>::TerminationFunction terminationConditionFunction =
             std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+                       std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >( testFunction->getTrueRootAccuracy( ) ),
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::placeholders::_3,
+                       std::placeholders::_4,
+                       std::placeholders::_5 );
 
     // Test Newton-Raphson object.
-    NewtonRaphson< > newtonRaphson( terminationConditionFunction );
+    NewtonRaphson<> newtonRaphson( terminationConditionFunction );
 
     // Let Newton-Raphson search for the root.
     const double root = newtonRaphson.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -124,20 +131,22 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithLargeRootDifference )
     // Create objects containing the test functions. Values were obtained during a limit case
     // gravity assist calculation (while evaluating Cassini-1 trajectory).
     std::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionLowCase =
-            std::make_shared< TestFunctionWithLargeRootDifference >
-            ( 1, -3.24859999867635e18, -3248600.0, 1.5707963267949 );
+            std::make_shared< TestFunctionWithLargeRootDifference >( 1, -3.24859999867635e18, -3248600.0, 1.5707963267949 );
     std::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionHighCase =
-            std::make_shared< TestFunctionWithLargeRootDifference >
-            ( 1, -3248600.0, -3.24859999867635e18, 1.5707963267949 );
+            std::make_shared< TestFunctionWithLargeRootDifference >( 1, -3248600.0, -3.24859999867635e18, 1.5707963267949 );
 
     // The termination condition.
-    NewtonRaphson< >::TerminationFunction terminationConditionFunction
-            = std::bind( &RootRelativeToleranceTerminationCondition< >::checkTerminationCondition,
-                           std::make_shared< RootRelativeToleranceTerminationCondition< > >(
-                               1.0e-10 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    NewtonRaphson<>::TerminationFunction terminationConditionFunction =
+            std::bind( &RootRelativeToleranceTerminationCondition<>::checkTerminationCondition,
+                       std::make_shared< RootRelativeToleranceTerminationCondition<> >( 1.0e-10 ),
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::placeholders::_3,
+                       std::placeholders::_4,
+                       std::placeholders::_5 );
 
     // Make the Newton-Raphson object.
-    NewtonRaphson< > newtonRaphson( terminationConditionFunction );
+    NewtonRaphson<> newtonRaphson( terminationConditionFunction );
 
     // Let Newton-Raphson search for the root for both cases.
     double rootLowCase = newtonRaphson.execute( testFunctionLowCase, 1.0 + 1.0e-10 );
@@ -155,16 +164,14 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithLargeRootDifference )
 BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithZeroRoot )
 {
     // Create object containing the test functions.
-    std::shared_ptr< TestFunctionWithZeroRoot > testFunction =
-            std::make_shared< TestFunctionWithZeroRoot >( 1 );
+    std::shared_ptr< TestFunctionWithZeroRoot > testFunction = std::make_shared< TestFunctionWithZeroRoot >( 1 );
 
     // The termination condition.
-    NewtonRaphson< >::TerminationFunction terminationConditionFunction
-            = tudat::root_finders::createTerminationConditionFunction(
-                1.0e-15, 1.0E-308 );
+    NewtonRaphson<>::TerminationFunction terminationConditionFunction =
+            tudat::root_finders::createTerminationConditionFunction( 1.0e-15, 1.0E-308 );
 
     // Test Newton-Raphson object.
-    NewtonRaphson< > newtonRaphson( terminationConditionFunction );
+    NewtonRaphson<> newtonRaphson( terminationConditionFunction );
 
     // Let Newton-Raphson search for the root.
     const double root = newtonRaphson.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -174,7 +181,7 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithZeroRoot )
     BOOST_CHECK_LT( testFunction->evaluate( root ), testFunction->getTrueRootAccuracy( ) );
 }
 
-BOOST_AUTO_TEST_SUITE_END( ) // testsuite_rootfinders
+BOOST_AUTO_TEST_SUITE_END( )  // testsuite_rootfinders
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

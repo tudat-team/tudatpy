@@ -26,8 +26,7 @@ namespace basic_astrodynamics
 {
 
 //! Function to identify the derived class type of a torque model.
-AvailableTorque getTorqueModelType(
-        std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel )
+AvailableTorque getTorqueModelType( std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel )
 {
     AvailableTorque torqueType = underfined_torque;
     if( std::dynamic_pointer_cast< gravitation::SecondDegreeGravitationalTorqueModel >( torqueModel ) != nullptr )
@@ -71,52 +70,49 @@ std::string getTorqueModelName( const AvailableTorque torqueType )
     std::string torqueName;
     switch( torqueType )
     {
-    case second_order_gravitational_torque:
-        torqueName = "second-order gravitational torque ";
-        break;
-    case aerodynamic_torque:
-        torqueName = "aerodynamic torque ";
-        break;
-    case spherical_harmonic_gravitational_torque:
-        torqueName = "spherical harmonic gravitational torque ";
-        break;
-    case radiation_pressure_torque:
-        torqueName = "radiation pressure torque ";
-        break;
-    case inertial_torque:
-        torqueName = "inertial torque ";
-        break;
-    case dissipative_torque:
-        torqueName = "dissipative torque ";
-        break;
-    case custom_torque:
-        torqueName = "custom torque ";
-        break;
-    default:
-        std::string errorMessage = "Error, torque type " +
-                std::to_string( torqueType ) +
-                "not found when retrieving torque name ";
-        throw std::runtime_error( errorMessage );
+        case second_order_gravitational_torque:
+            torqueName = "second-order gravitational torque ";
+            break;
+        case aerodynamic_torque:
+            torqueName = "aerodynamic torque ";
+            break;
+        case spherical_harmonic_gravitational_torque:
+            torqueName = "spherical harmonic gravitational torque ";
+            break;
+        case radiation_pressure_torque:
+            torqueName = "radiation pressure torque ";
+            break;
+        case inertial_torque:
+            torqueName = "inertial torque ";
+            break;
+        case dissipative_torque:
+            torqueName = "dissipative torque ";
+            break;
+        case custom_torque:
+            torqueName = "custom torque ";
+            break;
+        default:
+            std::string errorMessage = "Error, torque type " + std::to_string( torqueType ) + "not found when retrieving torque name ";
+            throw std::runtime_error( errorMessage );
     }
     return torqueName;
 }
 
 //! Function to get all torque models of a given type from a list of models
-std::vector< std::shared_ptr< TorqueModel > > getTorqueModelsOfType(
-        const std::vector< std::shared_ptr< TorqueModel > >& fullList,
-        const AvailableTorque modelType )
+std::vector< std::shared_ptr< TorqueModel > > getTorqueModelsOfType( const std::vector< std::shared_ptr< TorqueModel > >& fullList,
+                                                                     const AvailableTorque modelType )
 {
     std::vector< std::shared_ptr< TorqueModel > > torqueList;
     for( unsigned int i = 0; i < fullList.size( ); i++ )
     {
         if( getTorqueModelType( fullList.at( i ) ) == modelType )
         {
-            torqueList.push_back( fullList.at( i  ) );
+            torqueList.push_back( fullList.at( i ) );
         }
     }
     return torqueList;
 }
 
-}
+}  // namespace basic_astrodynamics
 
-}
+}  // namespace tudat

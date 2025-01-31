@@ -16,37 +16,35 @@ namespace tudat
 namespace observation_models
 {
 
-
-double getEvaluationEpochOfViabilityBody(
-    const std::vector< Eigen::Vector6d >& linkEndStates,
-    const std::vector< double >& linkEndTimes,
-    const std::pair< int, int > linkEndIndexPair,
-    const std::function< Eigen::Vector6d( const double ) > viabilityBodyStateFunction )
+double getEvaluationEpochOfViabilityBody( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                          const std::vector< double >& linkEndTimes,
+                                          const std::pair< int, int > linkEndIndexPair,
+                                          const std::function< Eigen::Vector6d( const double ) > viabilityBodyStateFunction )
 {
-
     double firstEndEpoch = linkEndTimes.at( linkEndIndexPair.first );
     double secondEndEpoch = linkEndTimes.at( linkEndIndexPair.second );
 
-    Eigen::Vector3d positionOfFirstEnd = linkEndStates.at( linkEndIndexPair.first  ).segment( 0, 3 );
+    Eigen::Vector3d positionOfFirstEnd = linkEndStates.at( linkEndIndexPair.first ).segment( 0, 3 );
     Eigen::Vector3d positionOfSecondEnd = linkEndStates.at( linkEndIndexPair.second ).segment( 0, 3 );
 
     // Get position of occulting body
-    Eigen::Vector3d positionOfOccultingBodyAtFirstInstant = viabilityBodyStateFunction(
-        linkEndTimes.at( linkEndIndexPair.first )).segment( 0, 3 );
-    Eigen::Vector3d positionOfOccultingBodyAtSecondInstant = viabilityBodyStateFunction(
-        linkEndTimes.at( linkEndIndexPair.second )).segment( 0, 3 );
+    Eigen::Vector3d positionOfOccultingBodyAtFirstInstant =
+            viabilityBodyStateFunction( linkEndTimes.at( linkEndIndexPair.first ) ).segment( 0, 3 );
+    Eigen::Vector3d positionOfOccultingBodyAtSecondInstant =
+            viabilityBodyStateFunction( linkEndTimes.at( linkEndIndexPair.second ) ).segment( 0, 3 );
 
+    double distanceToFirstEnd = ( positionOfOccultingBodyAtFirstInstant - positionOfFirstEnd ).norm( );
+    double distanceToSecondEnd = ( positionOfOccultingBodyAtSecondInstant - positionOfSecondEnd ).norm( );
 
-    double distanceToFirstEnd = (positionOfOccultingBodyAtFirstInstant - positionOfFirstEnd).norm();
-    double distanceToSecondEnd = (positionOfOccultingBodyAtSecondInstant - positionOfSecondEnd).norm();
-
-    return firstEndEpoch * (distanceToSecondEnd / (distanceToFirstEnd + distanceToSecondEnd)) +
-           secondEndEpoch * (distanceToFirstEnd / (distanceToFirstEnd + distanceToSecondEnd));
+    return firstEndEpoch * ( distanceToSecondEnd / ( distanceToFirstEnd + distanceToSecondEnd ) ) +
+            secondEndEpoch * ( distanceToFirstEnd / ( distanceToFirstEnd + distanceToSecondEnd ) );
 }
 
 //! Function to check whether an observation is viable
 bool isObservationViable(
-        const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times, const LinkEnds& linkEnds,
+        const std::vector< Eigen::Vector6d >& states,
+        const std::vector< double >& times,
+        const LinkEnds& linkEnds,
         const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators )
 {
     bool isObservationFeasible = 1;
@@ -60,9 +58,9 @@ bool isObservationViable(
 }
 
 //! Function to check whether an observation is viable
-bool isObservationViable(
-        const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times,
-        const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators )
+bool isObservationViable( const std::vector< Eigen::Vector6d >& states,
+                          const std::vector< double >& times,
+                          const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators )
 {
     bool isObservationFeasible = 1;
 
@@ -79,9 +77,8 @@ bool isObservationViable(
 }
 
 //! Function for determining whether the elevation angle at station is sufficient to allow observation
-bool MinimumElevationAngleCalculator::isObservationViable(
-        const std::vector< Eigen::Vector6d >& linkEndStates,
-        const std::vector< double >& linkEndTimes )
+bool MinimumElevationAngleCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                           const std::vector< double >& linkEndTimes )
 {
     bool isObservationPossible = 1;
 
@@ -89,7 +86,7 @@ bool MinimumElevationAngleCalculator::isObservationViable(
     for( unsigned int i = 0; i < linkEndIndices_.size( ); i++ )
     {
         double elevationAngle = ground_stations::calculateGroundStationElevationAngle(
-                    pointingAngleCalculator_, linkEndStates, linkEndTimes, linkEndIndices_.at( i ) );
+                pointingAngleCalculator_, linkEndStates, linkEndTimes, linkEndIndices_.at( i ) );
         // Check if elevation angle criteria is met for current link.
         if( elevationAngle < minimumElevationAngle_ )
         {
@@ -131,32 +128,28 @@ double computeMinimumLinkDistanceToPoint( const Eigen::Vector3d& observingBody,
     else
     {
         // Compute as average value with both points as reference, to minimuze numerical errors
-        minimumDistance =
-            ( ( transmitterToObserver.cross( transmitterToPoint ) ).norm( ) / transmitterToObserver.norm( ) +
-             ( observerToTransmitter.cross( observerToPoint ) ).norm( ) / observerToTransmitter.norm( ) ) / 2.0;
+        minimumDistance = ( ( transmitterToObserver.cross( transmitterToPoint ) ).norm( ) / transmitterToObserver.norm( ) +
+                            ( observerToTransmitter.cross( observerToPoint ) ).norm( ) / observerToTransmitter.norm( ) ) /
+                2.0;
     }
 
     return minimumDistance;
-
 }
 
 double computeCosineBodyAvoidanceAngle( const Eigen::Vector3d& observingBody,
                                         const Eigen::Vector3d& transmittingBody,
                                         const Eigen::Vector3d& bodyToAvoid )
 {
-    return linear_algebra::computeCosineOfAngleBetweenVectors(
-                bodyToAvoid - observingBody,
-                transmittingBody - observingBody );
+    return linear_algebra::computeCosineOfAngleBetweenVectors( bodyToAvoid - observingBody, transmittingBody - observingBody );
 }
 
 double computeCosineBodyAvoidanceAngle( const std::vector< Eigen::Vector6d >& linkEndStates,
                                         const std::pair< int, int > observingAndTransmittingIndex,
                                         const Eigen::Vector3d& bodyToAvoid )
 {
-    return computeCosineBodyAvoidanceAngle(
-                linkEndStates.at( observingAndTransmittingIndex.first ).segment< 3 >( 0 ),
-                linkEndStates.at( observingAndTransmittingIndex.second ).segment< 3 >( 0 ),
-                bodyToAvoid );
+    return computeCosineBodyAvoidanceAngle( linkEndStates.at( observingAndTransmittingIndex.first ).segment< 3 >( 0 ),
+                                            linkEndStates.at( observingAndTransmittingIndex.second ).segment< 3 >( 0 ),
+                                            bodyToAvoid );
 }
 
 //! Function for determining whether the avoidance angle to a given body at station is sufficient to allow observation.
@@ -170,13 +163,12 @@ bool BodyAvoidanceAngleCalculator::isObservationViable( const std::vector< Eigen
     // Iterate over all sets of entries of input vector for which avoidance angle is to be checked.
     for( unsigned int i = 0; i < linkEndIndices_.size( ); i++ )
     {
-        double evaluationEpoch = getEvaluationEpochOfViabilityBody( linkEndStates, linkEndTimes, linkEndIndices_.at( i ), stateFunctionOfBodyToAvoid_ );
+        double evaluationEpoch =
+                getEvaluationEpochOfViabilityBody( linkEndStates, linkEndTimes, linkEndIndices_.at( i ), stateFunctionOfBodyToAvoid_ );
 
         // Compute cosine of avoidance angles
-        positionOfBodyToAvoid = stateFunctionOfBodyToAvoid_( evaluationEpoch  )
-                .segment( 0, 3 );
-        currentCosineOfAngle = computeCosineBodyAvoidanceAngle(
-                    linkEndStates, linkEndIndices_.at( i ), positionOfBodyToAvoid );
+        positionOfBodyToAvoid = stateFunctionOfBodyToAvoid_( evaluationEpoch ).segment( 0, 3 );
+        currentCosineOfAngle = computeCosineBodyAvoidanceAngle( linkEndStates, linkEndIndices_.at( i ), positionOfBodyToAvoid );
 
         // Check if avoidance angle is sufficiently large
         if( currentCosineOfAngle > std::cos( bodyAvoidanceAngle_ ) )
@@ -189,23 +181,23 @@ bool BodyAvoidanceAngleCalculator::isObservationViable( const std::vector< Eigen
     return isObservationPossible;
 }
 
-bool computeOccultation(
-    const Eigen::Vector3d observer1Position,
-    const Eigen::Vector3d observer2Position,
-    const Eigen::Vector3d occulterPosition,
-    const double radius )
+bool computeOccultation( const Eigen::Vector3d observer1Position,
+                         const Eigen::Vector3d observer2Position,
+                         const Eigen::Vector3d occulterPosition,
+                         const double radius )
 {
-
-    double observerRelativeDistance = (observer2Position - observer1Position ).norm( );
-    double observer1OcculterDistance = (occulterPosition - observer1Position ).norm( );
-    double observer2OcculterDistance = (occulterPosition - observer2Position ).norm( );
+    double observerRelativeDistance = ( observer2Position - observer1Position ).norm( );
+    double observer1OcculterDistance = ( occulterPosition - observer1Position ).norm( );
+    double observer2OcculterDistance = ( occulterPosition - observer2Position ).norm( );
 
     double cosineBody1Angle =
-       - ( observer1OcculterDistance * observer1OcculterDistance - observer2OcculterDistance * observer2OcculterDistance - observerRelativeDistance * observerRelativeDistance ) /
+            -( observer1OcculterDistance * observer1OcculterDistance - observer2OcculterDistance * observer2OcculterDistance -
+               observerRelativeDistance * observerRelativeDistance ) /
             ( 2.0 * observer2OcculterDistance * observerRelativeDistance );
     double cosineBody2Angle =
-        - ( observer2OcculterDistance * observer2OcculterDistance - observer1OcculterDistance * observer1OcculterDistance - observerRelativeDistance * observerRelativeDistance ) /
-        ( 2.0 * observer1OcculterDistance * observerRelativeDistance );
+            -( observer2OcculterDistance * observer2OcculterDistance - observer1OcculterDistance * observer1OcculterDistance -
+               observerRelativeDistance * observerRelativeDistance ) /
+            ( 2.0 * observer1OcculterDistance * observerRelativeDistance );
 
     if( cosineBody1Angle < 0.0 || cosineBody2Angle < 0.0 )
     {
@@ -214,7 +206,7 @@ bool computeOccultation(
     else
     {
         double distanceToTest = observer2OcculterDistance * std::sqrt( 1.0 - cosineBody1Angle * cosineBody1Angle );
-        if ( distanceToTest < radius )
+        if( distanceToTest < radius )
         {
             return true;
         }
@@ -231,27 +223,26 @@ bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vecto
 {
     bool isObservationPossible = 1;
 
-
     // Iterate over all sets of entries of input vector for which occultation is to be checked.
     for( unsigned int i = 0; i < linkEndIndices_.size( ); i++ )
     {
+        double evaluationEpoch =
+                getEvaluationEpochOfViabilityBody( linkEndStates, linkEndTimes, linkEndIndices_.at( i ), stateFunctionOfOccultingBody_ );
 
-        double evaluationEpoch = getEvaluationEpochOfViabilityBody( linkEndStates, linkEndTimes, linkEndIndices_.at( i ), stateFunctionOfOccultingBody_ );
-
-//        std::cout<<"Epoch "<<evaluationEpoch<<" "<<linkEndTimes.at( 0 )<<" "<<linkEndTimes.at( 1 )<<std::endl;
-//        std::cout<<"Epoch diff "<<" "<<linkEndTimes.at( 0 ) - evaluationEpoch<<" "<<linkEndTimes.at( 1 )- evaluationEpoch<<std::endl;
-//        std::cout<<"Position diff "<<( linkEndStates.at( 1 ) - stateFunctionOfOccultingBody_( linkEndTimes.at( 1 ) ) ).segment( 0, 3 ).norm( )<<std::endl;
-//        // Check if observing link end is occulted by body.
-//        if( mission_geometry::computeShadowFunction(
-//                    linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ), 0.0,
-//                    stateFunctionOfOccultingBody_( evaluationEpoch ).segment( 0, 3 ),
-//                    radiusOfOccultingBody_,
-//                    linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ) ) < 1.0E-10 )
-        if( computeOccultation(
-            linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ),
-            linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ),
-            stateFunctionOfOccultingBody_( evaluationEpoch ).segment( 0, 3 ),
-            radiusOfOccultingBody_ ) )
+        //        std::cout<<"Epoch "<<evaluationEpoch<<" "<<linkEndTimes.at( 0 )<<" "<<linkEndTimes.at( 1 )<<std::endl;
+        //        std::cout<<"Epoch diff "<<" "<<linkEndTimes.at( 0 ) - evaluationEpoch<<" "<<linkEndTimes.at( 1 )-
+        //        evaluationEpoch<<std::endl; std::cout<<"Position diff "<<( linkEndStates.at( 1 ) - stateFunctionOfOccultingBody_(
+        //        linkEndTimes.at( 1 ) ) ).segment( 0, 3 ).norm( )<<std::endl;
+        //        // Check if observing link end is occulted by body.
+        //        if( mission_geometry::computeShadowFunction(
+        //                    linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ), 0.0,
+        //                    stateFunctionOfOccultingBody_( evaluationEpoch ).segment( 0, 3 ),
+        //                    radiusOfOccultingBody_,
+        //                    linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ) ) < 1.0E-10 )
+        if( computeOccultation( linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ),
+                                linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ),
+                                stateFunctionOfOccultingBody_( evaluationEpoch ).segment( 0, 3 ),
+                                radiusOfOccultingBody_ ) )
         {
             isObservationPossible = 0;
             break;
@@ -261,8 +252,6 @@ bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vecto
     return isObservationPossible;
 }
 
+}  // namespace observation_models
 
-
-}
-
-}
+}  // namespace tudat

@@ -15,7 +15,6 @@
 #ifndef TUDAT_EMPIRICALACCELERATION_H
 #define TUDAT_EMPIRICALACCELERATION_H
 
-
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 
@@ -32,43 +31,34 @@ namespace basic_astrodynamics
 {
 
 //! Enum defining shape of empirical accelerations
-enum EmpiricalAccelerationFunctionalShapes
-{
-    constant_empirical = 0,
-    sine_empirical = 1,
-    cosine_empirical = 2
-};
+enum EmpiricalAccelerationFunctionalShapes { constant_empirical = 0, sine_empirical = 1, cosine_empirical = 2 };
 
-inline std::string getEmpiricalAccelerationFunctionalShapeString(
-        const EmpiricalAccelerationFunctionalShapes functionalShape )
+inline std::string getEmpiricalAccelerationFunctionalShapeString( const EmpiricalAccelerationFunctionalShapes functionalShape )
 {
     std::string parameterDescription = "";
     switch( functionalShape )
     {
-    case constant_empirical:
-        parameterDescription = "constant";
-        break;
-    case sine_empirical:
-        parameterDescription = "sine of true anomaly";
-        break;
-    case cosine_empirical:
-        parameterDescription = "cosine of true anomaly";
-        break;
-    default:
-        throw std::runtime_error( "Error when getting functional shape string, type not recognized" );
+        case constant_empirical:
+            parameterDescription = "constant";
+            break;
+        case sine_empirical:
+            parameterDescription = "sine of true anomaly";
+            break;
+        case cosine_empirical:
+            parameterDescription = "cosine of true anomaly";
+            break;
+        default:
+            throw std::runtime_error( "Error when getting functional shape string, type not recognized" );
     }
     return parameterDescription;
 }
 
-
 //! Enum defining component of empirical accelerations
-enum EmpiricalAccelerationComponents
-{
+enum EmpiricalAccelerationComponents {
     radial_empirical_acceleration_component = 0,
     along_track_empirical_acceleration_component = 1,
     across_track_empirical_acceleration_component = 2
 };
-
 
 //! Class for calculating an empirical acceleration, based on a once per orbit model, (Montenbruck and Gill, 2000)
 /*!
@@ -78,10 +68,9 @@ enum EmpiricalAccelerationComponents
  *  cosine fo the true anomaly of the  accelerated body, respectively. The acceleration is evaluated in the satellite's RSW
  *  frame and then transformed to the inertial frame.
  */
-class EmpiricalAcceleration: public AccelerationModel< Eigen::Vector3d >
+class EmpiricalAcceleration : public AccelerationModel< Eigen::Vector3d >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -98,8 +87,7 @@ public:
             const Eigen::Vector3d cosineAcceleration,
             const std::function< Eigen::Vector6d( ) > bodyStateFunction,
             const std::function< double( ) > centralBodyGravitationalParameterFunction,
-            const std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
-            [ ]( ){ return Eigen::Vector6d::Zero( ); } ):
+            const std::function< Eigen::Vector6d( ) > centralBodyStateFunction = []( ) { return Eigen::Vector6d::Zero( ); } ):
         bodyStateFunction_( bodyStateFunction ), centralBodyStateFunction_( centralBodyStateFunction ),
         centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction )
     {
@@ -108,14 +96,14 @@ public:
         accelerationComponents.block( 0, 0, 3, 1 ) = constantAcceleration;
         accelerationComponents.block( 0, 1, 3, 1 ) = sineAcceleration;
         accelerationComponents.block( 0, 2, 3, 1 ) = cosineAcceleration;
-        accelerationComponentsFunction_ = [ = ]( const double ){ return accelerationComponents; };
+        accelerationComponentsFunction_ = [ = ]( const double ) { return accelerationComponents; };
 
         updateAccelerationComponents( 0.0 );
         areAccelerationComponentsTimeDependent_ = 0;
     }
 
     //! Destructor
-    ~EmpiricalAcceleration( ){ }
+    ~EmpiricalAcceleration( ) { }
 
     //! Function to update constituent elements of empirical acceleration to current time
     /*!
@@ -130,17 +118,17 @@ public:
             currentState_ = bodyStateFunction_( ) - centralBodyStateFunction_( );
 
             // Calculate current body-fixed state of accelerated body.
-            currentRotationFromRswToInertialFrame_ = Eigen::Quaterniond(
-                        reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix( currentState_ ) ).inverse( );
+            currentRotationFromRswToInertialFrame_ =
+                    Eigen::Quaterniond( reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix( currentState_ ) )
+                            .inverse( );
 
             // Calculate current true anomaly of accelerated body.
             currentTrueAnomaly_ = orbital_element_conversions::convertCartesianToKeplerianElements(
-                        currentState_, centralBodyGravitationalParameterFunction_( ) )( 5 );
+                    currentState_, centralBodyGravitationalParameterFunction_( ) )( 5 );
 
             // Calculate acceleration
             updateAccelerationComponents( currentTime );
-            currentLocalAcclereration_ = ( currentConstantAcceleration_ +
-                                           currentSineAcceleration_ * std::sin( currentTrueAnomaly_ ) +
+            currentLocalAcclereration_ = ( currentConstantAcceleration_ + currentSineAcceleration_ * std::sin( currentTrueAnomaly_ ) +
                                            currentCosineAcceleration_ * std::cos( currentTrueAnomaly_ ) );
 
             // Perform sanity check.
@@ -150,7 +138,7 @@ public:
             }
 
             this->currentTime_ = currentTime;
-            this->currentAcceleration_ = currentRotationFromRswToInertialFrame_ * currentLocalAcclereration_ ;
+            this->currentAcceleration_ = currentRotationFromRswToInertialFrame_ * currentLocalAcclereration_;
         }
     }
 
@@ -167,7 +155,8 @@ public:
         if( areAccelerationComponentsTimeDependent_ && !( currentTime == currentTime ) )
         {
             throw std::runtime_error(
-                        "Error when getting time-invariant empirical acceleration components; original componets are time-varying and input time is NaN" );
+                    "Error when getting time-invariant empirical acceleration components; original componets are time-varying and input "
+                    "time is NaN" );
         }
         return accelerationComponentsFunction_( 0.0 );
     }
@@ -184,15 +173,15 @@ public:
 
         switch( functionalShape )
         {
-        case constant_empirical:
-            accelerationComponent = currentConstantAcceleration_;
-            break;
-        case sine_empirical:
-            accelerationComponent = currentSineAcceleration_;
-            break;
-        case cosine_empirical:
-            accelerationComponent = currentCosineAcceleration_;
-            break;
+            case constant_empirical:
+                accelerationComponent = currentConstantAcceleration_;
+                break;
+            case sine_empirical:
+                accelerationComponent = currentSineAcceleration_;
+                break;
+            case cosine_empirical:
+                accelerationComponent = currentCosineAcceleration_;
+                break;
         }
 
         return accelerationComponent;
@@ -208,12 +197,12 @@ public:
     {
         if( areAccelerationComponentsTimeDependent_ )
         {
-            std::cerr << "Warning when resetting time-invariant empirical acceleration components; original componets are time-varying" << std::endl;
+            std::cerr << "Warning when resetting time-invariant empirical acceleration components; original componets are time-varying"
+                      << std::endl;
         }
 
         areAccelerationComponentsTimeDependent_ = 0;
-        accelerationComponentsFunction_ = [ = ]( const double ){ return newAccelerationComponents; };
-
+        accelerationComponentsFunction_ = [ = ]( const double ) { return newAccelerationComponents; };
     }
 
     //! Function to reset time-dependent empirical acceleration components
@@ -222,12 +211,10 @@ public:
      *  \param accelerationComponentsFunction Function returning empirical acceleration components as a function of time.
      *  Constant, sine and cosine terms are given in first, second and third column of return matrix, respectively.
      */
-    void resetAccelerationComponentsFunction(
-            const std::function< Eigen::Matrix3d( const double ) > & accelerationComponentsFunction )
+    void resetAccelerationComponentsFunction( const std::function< Eigen::Matrix3d( const double ) >& accelerationComponentsFunction )
     {
         areAccelerationComponentsTimeDependent_ = 1;
         accelerationComponentsFunction_ = accelerationComponentsFunction;
-
     }
 
     //! Function to retrieve current state of the body that is undergoing the empirical acceleration, relative to central body
@@ -282,7 +269,6 @@ public:
     }
 
 private:
-
     //! Function to update components of empirical accelerations to current time
     /*!
      * Function to update components of empirical accelerations to current time
@@ -307,7 +293,6 @@ private:
     //! Boolean denoting whether empirical accelerations are time-dependent.
     bool areAccelerationComponentsTimeDependent_;
 
-
     //! Value of constant empirical acceleration, in RSW frame, as computed by last call to updateMembers function.
     Eigen::Vector3d currentConstantAcceleration_;
 
@@ -316,7 +301,6 @@ private:
 
     //! Value of cosine empirical acceleration, in RSW frame, as computed by last call to updateMembers function.
     Eigen::Vector3d currentCosineAcceleration_;
-
 
     //! State function of the body that is undergoing the empirical acceleration.
     std::function< Eigen::Vector6d( ) > bodyStateFunction_;
@@ -340,8 +324,8 @@ private:
     std::function< double( ) > centralBodyGravitationalParameterFunction_;
 };
 
-}
+}  // namespace basic_astrodynamics
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_EMPIRICALACCELERATION_H
+#endif  // TUDAT_EMPIRICALACCELERATION_H

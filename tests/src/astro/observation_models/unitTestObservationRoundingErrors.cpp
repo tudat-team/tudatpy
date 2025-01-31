@@ -41,7 +41,6 @@ using namespace tudat::numerical_integrators;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat;
 
-
 namespace tudat
 {
 
@@ -51,35 +50,35 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_observation_model_rounding_error )
 
-
-//template< typename StateScalarType, TimeType >
-SystemOfBodies createEnvironment(
-    const double initialTimeEnvironment,
-    const double finalTimeEnvironment,
-    const std::string globalFrameOrigin,
-    const std::string moonEphemerisOrigin,
-    const bool useInterpolatedEphemerides,
-    const double planetEphemerisInterpolationStep,
-    const double spacecraftEphemerisInterpolationStep )
+// template< typename StateScalarType, TimeType >
+SystemOfBodies createEnvironment( const double initialTimeEnvironment,
+                                  const double finalTimeEnvironment,
+                                  const std::string globalFrameOrigin,
+                                  const std::string moonEphemerisOrigin,
+                                  const bool useInterpolatedEphemerides,
+                                  const double planetEphemerisInterpolationStep,
+                                  const double spacecraftEphemerisInterpolationStep )
 {
     // Create settings for default bodies
-    std::vector<std::string> bodiesToCreate = { "Earth", "Sun", "Moon" };
+    std::vector< std::string > bodiesToCreate = { "Earth", "Sun", "Moon" };
     std::string globalFrameOrientation = "J2000";
     BodyListSettings bodySettings;
-    if ( useInterpolatedEphemerides )
+    if( useInterpolatedEphemerides )
     {
-        bodySettings = getDefaultBodySettings(
-            bodiesToCreate, initialTimeEnvironment, finalTimeEnvironment, globalFrameOrigin, globalFrameOrientation,
-            planetEphemerisInterpolationStep );
+        bodySettings = getDefaultBodySettings( bodiesToCreate,
+                                               initialTimeEnvironment,
+                                               finalTimeEnvironment,
+                                               globalFrameOrigin,
+                                               globalFrameOrientation,
+                                               planetEphemerisInterpolationStep );
     }
     else
     {
-        bodySettings = getDefaultBodySettings(
-            bodiesToCreate, globalFrameOrigin, globalFrameOrientation );
+        bodySettings = getDefaultBodySettings( bodiesToCreate, globalFrameOrigin, globalFrameOrientation );
     }
 
-    bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings(
-        basic_astrodynamics::iau_2006, globalFrameOrientation );
+    bodySettings.at( "Earth" )->rotationModelSettings =
+            gcrsToItrsRotationModelSettings( basic_astrodynamics::iau_2006, globalFrameOrientation );
 
     bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( moonEphemerisOrigin );
 
@@ -87,85 +86,89 @@ SystemOfBodies createEnvironment(
     std::string spacecraftName = "GRAIL-A";
     std::string spacecraftCentralBody = "Moon";
     bodySettings.addSettings( spacecraftName );
-    if ( useInterpolatedEphemerides )
+    if( useInterpolatedEphemerides )
     {
         bodySettings.at( spacecraftName )->ephemerisSettings =
-            std::make_shared<InterpolatedSpiceEphemerisSettings>(
-                initialTimeEnvironment, finalTimeEnvironment, spacecraftEphemerisInterpolationStep,
-                spacecraftCentralBody, globalFrameOrientation );
+                std::make_shared< InterpolatedSpiceEphemerisSettings >( initialTimeEnvironment,
+                                                                        finalTimeEnvironment,
+                                                                        spacecraftEphemerisInterpolationStep,
+                                                                        spacecraftCentralBody,
+                                                                        globalFrameOrientation );
     }
     else
     {
         bodySettings.at( spacecraftName )->ephemerisSettings =
-            std::make_shared<DirectSpiceEphemerisSettings>(
-                spacecraftCentralBody, globalFrameOrientation, false, false, false );
+                std::make_shared< DirectSpiceEphemerisSettings >( spacecraftCentralBody, globalFrameOrientation, false, false, false );
     }
 
     // Create bodies
-    SystemOfBodies bodies = createSystemOfBodies<long double, Time>( bodySettings );
+    SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
 
-    createGroundStation( bodies.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ),
+    createGroundStation( bodies.at( "Earth" ),
+                         "Station1",
+                         ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ),
                          coordinate_conversions::geodetic_position );
     return bodies;
-
 }
 
-std::shared_ptr<LightTimeCalculator<long double, Time> > getOneWayLightTimeCalculator(
-    const SystemOfBodies &bodies,
-    const std::vector<std::shared_ptr<ObservationModelSettings> > oneWayObservationSettingsList )
+std::shared_ptr< LightTimeCalculator< long double, Time > > getOneWayLightTimeCalculator(
+        const SystemOfBodies &bodies,
+        const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayObservationSettingsList )
 {
     // Create observation simulators
-    std::shared_ptr<ObservationSimulator<1, long double, Time> > observationSimulator =
-        std::dynamic_pointer_cast<ObservationSimulator<1, long double, Time> >(
-            createObservationSimulators<long double, Time>( oneWayObservationSettingsList, bodies ).at( 0 ));
-    std::shared_ptr<OneWayRangeObservationModel<long double, Time> > oneWayRangeObservationModel =
-        std::dynamic_pointer_cast<OneWayRangeObservationModel<long double, Time> >(
-            observationSimulator->getObservationModels( ).begin( )->second );
+    std::shared_ptr< ObservationSimulator< 1, long double, Time > > observationSimulator =
+            std::dynamic_pointer_cast< ObservationSimulator< 1, long double, Time > >(
+                    createObservationSimulators< long double, Time >( oneWayObservationSettingsList, bodies ).at( 0 ) );
+    std::shared_ptr< OneWayRangeObservationModel< long double, Time > > oneWayRangeObservationModel =
+            std::dynamic_pointer_cast< OneWayRangeObservationModel< long double, Time > >(
+                    observationSimulator->getObservationModels( ).begin( )->second );
     return oneWayRangeObservationModel->getLightTimeCalculator( );
 }
 
 template< typename StateScalarType, typename TimeType >
-void checkStateFunctionNumericalErrors(
-    const std::shared_ptr< ephemerides::Ephemeris > ephemeris,
-    const TimeType testTime,
-    const std::vector< int > timeExponents = { 0, -6, -7, -8, -9, -10, -11, -12} )
+void checkStateFunctionNumericalErrors( const std::shared_ptr< ephemerides::Ephemeris > ephemeris,
+                                        const TimeType testTime,
+                                        const std::vector< int > timeExponents = { 0, -6, -7, -8, -9, -10, -11, -12 } )
 {
     // Compute nominal state at test time
-    Eigen::Vector6ld nominalState = ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime ).template cast< long double >( );
+    Eigen::Vector6ld nominalState =
+            ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime ).template cast< long double >( );
 
     // Time steps at which the relative numerical error will be around 1
-    Eigen::Vector3ld stateRatio = ( nominalState.segment< 3 >( 0 ).cwiseQuotient( nominalState.segment< 3 >( 3 ) ) ).template cast< long double >( );
+    Eigen::Vector3ld stateRatio =
+            ( nominalState.segment< 3 >( 0 ).cwiseQuotient( nominalState.segment< 3 >( 3 ) ) ).template cast< long double >( );
     Eigen::Vector3ld limitTimes = std::numeric_limits< StateScalarType >::epsilon( ) * stateRatio;
-
 
     // Compute numerical position partial, and compute error w.r.t. computation for Delta t = 1 s
     Eigen::Vector3ld nominalPartial = Eigen::Vector3ld::Zero( );
-    for ( unsigned int i = 0; i < timeExponents.size( ); i++ )
+    for( unsigned int i = 0; i < timeExponents.size( ); i++ )
     {
         // Define time step
         long double perturbationStep = std::pow( 10, timeExponents.at( i ) );
 
         // Calculate numerical partial
-        Eigen::Vector3ld upperturbedState = ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >(
-                testTime + perturbationStep ).segment( 0, 3 );
-        Eigen::Vector3ld downperturbedState = ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >(
-                testTime - perturbationStep ).segment( 0, 3 );
+        Eigen::Vector3ld upperturbedState =
+                ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime + perturbationStep ).segment( 0, 3 );
+        Eigen::Vector3ld downperturbedState =
+                ephemeris->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( testTime - perturbationStep ).segment( 0, 3 );
         Eigen::Vector3ld currentPartial = ( upperturbedState - downperturbedState ) / ( 2.0 * perturbationStep );
 
-        if ( i == 0 )
+        if( i == 0 )
         {
             // Set nominal partial
             nominalPartial = currentPartial;
         }
         else
         {
-            // Test real (w.r.t. Delta t = 1 s) errors against theoretical limit (with safety factor of 2 to account for randomness in rounding error)
+            // Test real (w.r.t. Delta t = 1 s) errors against theoretical limit (with safety factor of 2 to account for randomness in
+            // rounding error)
             Eigen::Vector3ld expectedRelativeErrorLevel = limitTimes / perturbationStep;
-            Eigen::Vector3ld realRelativeErrorLevels = ( ( currentPartial - nominalPartial ).cwiseQuotient( nominalPartial ) ).segment( 0, 3 );
-            std::cout<<timeExponents.at( i )<<" "<<expectedRelativeErrorLevel.transpose( )<<std::endl;
-            std::cout<<timeExponents.at( i )<<" "<<realRelativeErrorLevels.transpose( )<<std::endl<<std::endl;
+            Eigen::Vector3ld realRelativeErrorLevels =
+                    ( ( currentPartial - nominalPartial ).cwiseQuotient( nominalPartial ) ).segment( 0, 3 );
+            std::cout << timeExponents.at( i ) << " " << expectedRelativeErrorLevel.transpose( ) << std::endl;
+            std::cout << timeExponents.at( i ) << " " << realRelativeErrorLevels.transpose( ) << std::endl << std::endl;
 
-            for ( unsigned int j = 0; j < 3; j++ )
+            for( unsigned int j = 0; j < 3; j++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( realRelativeErrorLevels( j ) ), 3.0 * std::fabs( expectedRelativeErrorLevel( j ) ) );
             }
@@ -180,71 +183,59 @@ BOOST_AUTO_TEST_CASE( test_ObservationModelContinuity )
 
     DateTime dateTime = getCalendarDateFromTime< double >( initialTimeEnvironment );
 
-    std::cout<<dateTime.isoString( )<<std::endl;
+    std::cout << dateTime.isoString( ) << std::endl;
     // Load spice kernels
     spice_interface::loadStandardSpiceKernels( );
-    spice_interface::loadSpiceKernelInTudat(
-        tudat::paths::getTudatTestDataPath( )  + "/grail_shortened.bsp" );
+    spice_interface::loadSpiceKernelInTudat( tudat::paths::getTudatTestDataPath( ) + "/grail_shortened.bsp" );
 
-    SystemOfBodies earthCenteredBodies = createEnvironment(
-        initialTimeEnvironment, finalTimeEnvironment,
-        "Earth", "Earth", false, TUDAT_NAN, TUDAT_NAN );
-    SystemOfBodies earthCenteredInterpolatedBodies = createEnvironment(
-        initialTimeEnvironment, finalTimeEnvironment,
-        "Earth", "Earth", true, 120.0, 10.0 );
-    SystemOfBodies barycentricBodies = createEnvironment(
-        initialTimeEnvironment, finalTimeEnvironment,
-        "SSB", "Earth", false, TUDAT_NAN, TUDAT_NAN );
-    SystemOfBodies barycentricInterpolatedBodies = createEnvironment(
-        initialTimeEnvironment, finalTimeEnvironment,
-        "SSB", "Earth", true, 120.0, 10.0 );
-    SystemOfBodies barycentricMoonInterpolatedBodies = createEnvironment(
-        initialTimeEnvironment, finalTimeEnvironment,
-        "SSB", "SSB", true, 120.0, 10.0 );
+    SystemOfBodies earthCenteredBodies =
+            createEnvironment( initialTimeEnvironment, finalTimeEnvironment, "Earth", "Earth", false, TUDAT_NAN, TUDAT_NAN );
+    SystemOfBodies earthCenteredInterpolatedBodies =
+            createEnvironment( initialTimeEnvironment, finalTimeEnvironment, "Earth", "Earth", true, 120.0, 10.0 );
+    SystemOfBodies barycentricBodies =
+            createEnvironment( initialTimeEnvironment, finalTimeEnvironment, "SSB", "Earth", false, TUDAT_NAN, TUDAT_NAN );
+    SystemOfBodies barycentricInterpolatedBodies =
+            createEnvironment( initialTimeEnvironment, finalTimeEnvironment, "SSB", "Earth", true, 120.0, 10.0 );
+    SystemOfBodies barycentricMoonInterpolatedBodies =
+            createEnvironment( initialTimeEnvironment, finalTimeEnvironment, "SSB", "SSB", true, 120.0, 10.0 );
 
     // Define link ends.
     LinkEnds centerOfMassLinkEnds;
-    centerOfMassLinkEnds[ receiver ] = std::pair<std::string, std::string>( std::make_pair( "Earth", "" ));
-    centerOfMassLinkEnds[ transmitter ] = std::make_pair<std::string, std::string>( "GRAIL-A", "" );
+    centerOfMassLinkEnds[ receiver ] = std::pair< std::string, std::string >( std::make_pair( "Earth", "" ) );
+    centerOfMassLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "GRAIL-A", "" );
 
     // Define link ends.
     LinkEnds stationLinkEnds;
-    stationLinkEnds[ receiver ] = std::pair<std::string, std::string>( std::make_pair( "Earth", "Station1" ));
-    stationLinkEnds[ transmitter ] = std::make_pair<std::string, std::string>( "GRAIL-A", "" );
+    stationLinkEnds[ receiver ] = std::pair< std::string, std::string >( std::make_pair( "Earth", "Station1" ) );
+    stationLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "GRAIL-A", "" );
 
     // Create observation settings
-    std::vector<std::shared_ptr<ObservationModelSettings> > centerOfMassObservationSettingsList;
-    centerOfMassObservationSettingsList.push_back( std::make_shared<ObservationModelSettings>( one_way_range, centerOfMassLinkEnds ));
+    std::vector< std::shared_ptr< ObservationModelSettings > > centerOfMassObservationSettingsList;
+    centerOfMassObservationSettingsList.push_back( std::make_shared< ObservationModelSettings >( one_way_range, centerOfMassLinkEnds ) );
 
-    std::vector<std::shared_ptr<ObservationModelSettings> > stationObservationSettingsList;
-    stationObservationSettingsList.push_back( std::make_shared<ObservationModelSettings>( one_way_range, stationLinkEnds ));
+    std::vector< std::shared_ptr< ObservationModelSettings > > stationObservationSettingsList;
+    stationObservationSettingsList.push_back( std::make_shared< ObservationModelSettings >( one_way_range, stationLinkEnds ) );
 
     Time testTime = initialTimeEnvironment + 86400.1;
-    std::cout<<static_cast< double >( testTime )<<std::endl;
+    std::cout << static_cast< double >( testTime ) << std::endl;
 
     // Check state function numerical consistency for observations between centers of mass
     {
-        std::shared_ptr<LightTimeCalculator<long double, Time>  > lightTimeCalculator =
-            getOneWayLightTimeCalculator( barycentricInterpolatedBodies, centerOfMassObservationSettingsList );
+        std::shared_ptr< LightTimeCalculator< long double, Time > > lightTimeCalculator =
+                getOneWayLightTimeCalculator( barycentricInterpolatedBodies, centerOfMassObservationSettingsList );
 
-        checkStateFunctionNumericalErrors< long double, Time >(
-            lightTimeCalculator->getEphemerisOfTransmittingBody( ), testTime );
-        checkStateFunctionNumericalErrors< long double, Time >(
-            lightTimeCalculator->getEphemerisOfReceivingBody( ), testTime );
+        checkStateFunctionNumericalErrors< long double, Time >( lightTimeCalculator->getEphemerisOfTransmittingBody( ), testTime );
+        checkStateFunctionNumericalErrors< long double, Time >( lightTimeCalculator->getEphemerisOfReceivingBody( ), testTime );
     }
 
     // Check state function numerical consistency for observations from ground station
     {
-        std::shared_ptr<LightTimeCalculator<long double, Time>  > lightTimeCalculator =
-            getOneWayLightTimeCalculator( barycentricInterpolatedBodies, stationObservationSettingsList );
-        checkStateFunctionNumericalErrors< long double, Time >(
-            lightTimeCalculator->getEphemerisOfTransmittingBody( ), testTime );
-        checkStateFunctionNumericalErrors< long double, Time >(
-            lightTimeCalculator->getEphemerisOfReceivingBody( ), testTime );
+        std::shared_ptr< LightTimeCalculator< long double, Time > > lightTimeCalculator =
+                getOneWayLightTimeCalculator( barycentricInterpolatedBodies, stationObservationSettingsList );
+        checkStateFunctionNumericalErrors< long double, Time >( lightTimeCalculator->getEphemerisOfTransmittingBody( ), testTime );
+        checkStateFunctionNumericalErrors< long double, Time >( lightTimeCalculator->getEphemerisOfReceivingBody( ), testTime );
     }
-
 }
 
 }
-
 }

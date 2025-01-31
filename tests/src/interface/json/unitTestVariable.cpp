@@ -20,25 +20,21 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_variable )
 
 // Test 1: variable types
 BOOST_AUTO_TEST_CASE( test_json_variable_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
-                            propagators::variableTypes,
-                            propagators::unsupportedVariableTypes );
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ), propagators::variableTypes, propagators::unsupportedVariableTypes );
 }
 
 // Test 2: dependent variable types
 BOOST_AUTO_TEST_CASE( test_json_variable_dependentTypes )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "dependentTypes" ),
-                            propagators::dependentVariableTypes,
-                            propagators::unsupportedDependentVariableTypes );
+    BOOST_CHECK_EQUAL_ENUM(
+            INPUT( "dependentTypes" ), propagators::dependentVariableTypes, propagators::unsupportedDependentVariableTypes );
 }
 
 // Test 3: dependent variable
@@ -72,8 +68,7 @@ BOOST_AUTO_TEST_CASE( test_json_variable_acceleration )
 
     // Create SingleDependentVariableSaveSettings manually
     const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
-            std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                thrust_acceleration, "body", "body", true );
+            std::make_shared< SingleAccelerationDependentVariableSaveSettings >( thrust_acceleration, "body", "body", true );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -92,8 +87,7 @@ BOOST_AUTO_TEST_CASE( test_json_variable_torque )
 
     // Create SingleDependentVariableSaveSettings manually
     const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
-            std::make_shared< SingleTorqueDependentVariableSaveSettings >(
-                second_order_gravitational_torque, "Moon", "Earth", false, 2 );
+            std::make_shared< SingleTorqueDependentVariableSaveSettings >( second_order_gravitational_torque, "Moon", "Earth", false, 2 );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -109,13 +103,11 @@ BOOST_AUTO_TEST_CASE( test_json_variable_intermediateAerodynamicRotationMatrix )
 
     // Create SingleDependentVariableSaveSettings from JSON file
     const std::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
-            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >(
-                INPUT( "intermediateAerodynamicRotationMatrix" ) );
+            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >( INPUT( "intermediateAerodynamicRotationMatrix" ) );
 
     // Create SingleDependentVariableSaveSettings manually
     const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
-            std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
-                "vehicle", body_frame, inertial_frame, 8 );
+            std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >( "vehicle", body_frame, inertial_frame, 8 );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -131,8 +123,7 @@ BOOST_AUTO_TEST_CASE( test_json_variable_relativeBodyAerodynamicOrientationAngle
 
     // Create SingleDependentVariableSaveSettings from JSON file
     const std::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
-            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >(
-                INPUT( "relativeBodyAerodynamicOrientationAngle" ) );
+            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >( INPUT( "relativeBodyAerodynamicOrientationAngle" ) );
 
     // Create SingleDependentVariableSaveSettings manually
     const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
@@ -151,13 +142,11 @@ BOOST_AUTO_TEST_CASE( test_json_variable_sphericalHarmonicAccelerationTermsDepen
 
     // Create SingleDependentVariableSaveSettings from JSON file
     const std::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
-            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >(
-                INPUT( "sphericalHarmonicAccelerationTerms" ) );
+            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >( INPUT( "sphericalHarmonicAccelerationTerms" ) );
 
     // Create SingleDependentVariableSaveSettings manually
     const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
-            std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
-                "vehicle", "body", 1, 1 );
+            std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >( "vehicle", "body", 1, 1 );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -172,13 +161,11 @@ BOOST_AUTO_TEST_CASE( test_json_variable_singleGravityFieldVariationAcceleration
 
     // Create SingleDependentVariableSaveSettings from JSON file
     const std::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
-            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >(
-                INPUT( "singleGravityFieldVariationAcceleration" ) );
+            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >( INPUT( "singleGravityFieldVariationAcceleration" ) );
 
     // Create SingleVariationSphericalHarmonicAccelerationSaveSettings manually
     const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
-            std::make_shared< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
-                "vehicle", "body", basic_solid_body );
+            std::make_shared< SingleVariationSphericalHarmonicAccelerationSaveSettings >( "vehicle", "body", basic_solid_body );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -194,12 +181,12 @@ BOOST_AUTO_TEST_CASE( test_json_variable_singleGravityFieldVariationAcceleration
     // Create SingleDependentVariableSaveSettings from JSON file
     const std::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
             parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >(
-                INPUT( "singleGravityFieldVariationAccelerationTerms" ) );
+                    INPUT( "singleGravityFieldVariationAccelerationTerms" ) );
 
     // Create SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings manually
     const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
             std::make_shared< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
-                "vehicle", "body", 1, 1, basic_solid_body );
+                    "vehicle", "body", 1, 1, basic_solid_body );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -215,12 +202,11 @@ BOOST_AUTO_TEST_CASE( test_json_variable_accelerationPartialWrtBodyTranslational
     // Create SingleDependentVariableSaveSettings from JSON file
     const std::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
             parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >(
-                INPUT( "accelerationPartialWrtBodyTranslationalState" ) );
+                    INPUT( "accelerationPartialWrtBodyTranslationalState" ) );
 
     // Create AccelerationPartialWrtStateSaveSettings manually
     const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
-            std::make_shared< AccelerationPartialWrtStateSaveSettings >(
-                "vehicle", "body", thrust_acceleration, "otherBody" );
+            std::make_shared< AccelerationPartialWrtStateSaveSettings >( "vehicle", "body", thrust_acceleration, "otherBody" );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -228,6 +214,6 @@ BOOST_AUTO_TEST_CASE( test_json_variable_accelerationPartialWrtBodyTranslational
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

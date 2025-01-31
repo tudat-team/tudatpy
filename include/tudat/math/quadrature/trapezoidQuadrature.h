@@ -39,16 +39,15 @@ namespace numerical_quadrature
  *  \return Numerical quadrature (integral) of the data provided as input.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
-DependentVariableType performTrapezoidalQuadrature(
-        const std::vector< IndependentVariableType >& independentVariables,
-        const std::vector< DependentVariableType >& dependentVariables )
+DependentVariableType performTrapezoidalQuadrature( const std::vector< IndependentVariableType >& independentVariables,
+                                                    const std::vector< DependentVariableType >& dependentVariables )
 {
     DependentVariableType integral = dependentVariables.at( 0 ) - dependentVariables.at( 0 );
     IndependentVariableType timeStep;
-    for( unsigned int i = 0 ; i < independentVariables.size( ) - 1 ; i++ )
+    for( unsigned int i = 0; i < independentVariables.size( ) - 1; i++ )
     {
         timeStep = independentVariables[ i + 1 ] - independentVariables[ i ];
-        integral += timeStep * ( dependentVariables[ i + 1 ] + dependentVariables[ i ] ) / 2.0 ;
+        integral += timeStep * ( dependentVariables[ i + 1 ] + dependentVariables[ i ] ) / 2.0;
     }
     return integral;
 }
@@ -63,20 +62,19 @@ DependentVariableType performTrapezoidalQuadrature(
  *  \return Numerical quadrature (integral) of the data provided as input.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
-DependentVariableType performExtendedSimpsonsQuadrature(
-        const IndependentVariableType constantIndependentVariableStep,
-        const std::vector< DependentVariableType >& dependentVariables )
+DependentVariableType performExtendedSimpsonsQuadrature( const IndependentVariableType constantIndependentVariableStep,
+                                                         const std::vector< DependentVariableType >& dependentVariables )
 {
     // Get initial variables
     DependentVariableType integral = dependentVariables.at( 0 ) - dependentVariables.at( 0 );
     unsigned int numberOfVariables = dependentVariables.size( );
 
     // Check that there are enough elements in the vector
-    if ( numberOfVariables > 6 )
+    if( numberOfVariables > 6 )
     {
         // Create vector of weights
-        std::vector< IndependentVariableType > vectorOfWeights = std::vector< IndependentVariableType >( numberOfVariables,
-                                                                                                         constantIndependentVariableStep );
+        std::vector< IndependentVariableType > vectorOfWeights =
+                std::vector< IndependentVariableType >( numberOfVariables, constantIndependentVariableStep );
 
         // Add weights
         vectorOfWeights.at( 0 ) *= 3.0 / 8.0;
@@ -89,18 +87,17 @@ DependentVariableType performExtendedSimpsonsQuadrature(
         vectorOfWeights.at( numberOfVariables - 3 ) *= 23.0 / 24.0;
 
         // Loop over each time step and return result
-        for( unsigned int i = 0 ; i < numberOfVariables; i++ )
+        for( unsigned int i = 0; i < numberOfVariables; i++ )
         {
             integral += vectorOfWeights[ i ] * dependentVariables[ i ];
         }
     }
-    else if ( numberOfVariables != 1 )
+    else if( numberOfVariables != 1 )
     {
         // Perform trapezoidal integration instead
-        for( unsigned int i = 0 ; i < ( numberOfVariables - 1 ); i++ )
+        for( unsigned int i = 0; i < ( numberOfVariables - 1 ); i++ )
         {
-            integral += constantIndependentVariableStep * (
-                        dependentVariables[ i + 1 ] + dependentVariables[ i ] ) / 2.0 ;
+            integral += constantIndependentVariableStep * ( dependentVariables[ i + 1 ] + dependentVariables[ i ] ) / 2.0;
         }
     }
     else
@@ -115,10 +112,9 @@ DependentVariableType performExtendedSimpsonsQuadrature(
  *  Numerical method that uses the trapezoid method to compute definite integrals of a dataset.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
-class TrapezoidNumericalQuadrature : public NumericalQuadrature< IndependentVariableType , DependentVariableType >
+class TrapezoidNumericalQuadrature : public NumericalQuadrature< IndependentVariableType, DependentVariableType >
 {
 public:
-
     //! Constructor.
     /*!
      *  Constructor
@@ -142,7 +138,7 @@ public:
      *      independentVariables.
      */
     void resetData( const std::vector< IndependentVariableType >& independentVariables,
-                    const std::vector< DependentVariableType >& dependentVariables)
+                    const std::vector< DependentVariableType >& dependentVariables )
     {
         independentVariables_ = independentVariables;
         dependentVariables_ = dependentVariables;
@@ -160,7 +156,6 @@ public:
     }
 
 protected:
-
     //! Function that is called to perform the numerical quadrature
     /*!
      *  Function that is called to perform the numerical quadrature. Sets the result in the quadratureResult_ local
@@ -168,11 +163,10 @@ protected:
      */
     void performQuadrature( )
     {
-        quadratureResult_ = performTrapezoidalQuadrature( independentVariables_ , dependentVariables_ );
+        quadratureResult_ = performTrapezoidalQuadrature( independentVariables_, dependentVariables_ );
     }
 
 private:
-
     //! Independent variables.
     std::vector< IndependentVariableType > independentVariables_;
 
@@ -181,14 +175,13 @@ private:
 
     //! Computed value of the quadrature, as computed by last call to performQuadrature.
     DependentVariableType quadratureResult_;
-
 };
 
 //! Typede for trapezoidal quadrature with double (in)dependent variables.
 typedef std::shared_ptr< TrapezoidNumericalQuadrature< double, double > > TrapezoidNumericalIntegratorPointerd;
 
-} // namespace numerical_quadrature
+}  // namespace numerical_quadrature
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_TRAPEZOIDAL_INTEGRATOR_H
+#endif  // TUDAT_TRAPEZOIDAL_INTEGRATOR_H

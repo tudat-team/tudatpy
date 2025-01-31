@@ -20,7 +20,7 @@
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
 #include "tudat/simulation/environment_setup/body.h"
-//#include "tudat/simulation/environment_setup/createSystemModel.h"
+// #include "tudat/simulation/environment_setup/createSystemModel.h"
 
 namespace tudat
 {
@@ -30,18 +30,12 @@ namespace simulation_setup
 /*!
  * Types of radiation pressure target models.
  */
-enum RadiationPressureTargetModelType
-{
-    cannonball_target,
-    paneled_target,
-    multi_type_target,
-    undefined_target
-};
+enum RadiationPressureTargetModelType { cannonball_target, paneled_target, multi_type_target, undefined_target };
 
-std::shared_ptr<electromagnetism::RadiationPressureTargetModel> getRadiationPressureTargetModelOfType(
-    const std::shared_ptr< Body > target,
-    const RadiationPressureTargetModelType targetModelType = undefined_target,
-    const std::string errorOutput = "" );
+std::shared_ptr< electromagnetism::RadiationPressureTargetModel > getRadiationPressureTargetModelOfType(
+        const std::shared_ptr< Body > target,
+        const RadiationPressureTargetModelType targetModelType = undefined_target,
+        const std::string errorOutput = "" );
 
 /*!
  * Settings for a radiation pressure target model.
@@ -53,18 +47,19 @@ class RadiationPressureTargetModelSettings
 public:
     explicit RadiationPressureTargetModelSettings(
             RadiationPressureTargetModelType radiationPressureTargetModelType,
-            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
-            radiationPressureTargetModelType_(radiationPressureTargetModelType),
-            sourceToTargetOccultingBodies_(sourceToTargetOccultingBodies) {}
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+        radiationPressureTargetModelType_( radiationPressureTargetModelType ),
+        sourceToTargetOccultingBodies_( sourceToTargetOccultingBodies )
+    { }
 
-    virtual ~RadiationPressureTargetModelSettings() = default;
+    virtual ~RadiationPressureTargetModelSettings( ) = default;
 
-    RadiationPressureTargetModelType getRadiationPressureTargetModelType() const
+    RadiationPressureTargetModelType getRadiationPressureTargetModelType( ) const
     {
         return radiationPressureTargetModelType_;
     }
 
-    std::map<std::string, std::vector<std::string>> getSourceToTargetOccultingBodies() const
+    std::map< std::string, std::vector< std::string > > getSourceToTargetOccultingBodies( ) const
     {
         return sourceToTargetOccultingBodies_;
     }
@@ -74,16 +69,17 @@ private:
     // Map (source name -> list of occulting body names) of bodies to occult sources as seen from this target
     // If the same occulting bodies are to be used for all sources, there will be a single entry
     // with an emptry string as key
-    std::map<std::string, std::vector<std::string>> sourceToTargetOccultingBodies_;
+    std::map< std::string, std::vector< std::string > > sourceToTargetOccultingBodies_;
 };
 
-class MultiRadiationPressureTargetModelSettings: public RadiationPressureTargetModelSettings
+class MultiRadiationPressureTargetModelSettings : public RadiationPressureTargetModelSettings
 {
 public:
     explicit MultiRadiationPressureTargetModelSettings(
-        std::vector< std::shared_ptr< RadiationPressureTargetModelSettings > > radiationPressureTargetModelSettings ) :
+            std::vector< std::shared_ptr< RadiationPressureTargetModelSettings > > radiationPressureTargetModelSettings ):
         RadiationPressureTargetModelSettings( multi_type_target ),
-        radiationPressureTargetModelSettings_( radiationPressureTargetModelSettings ){ }
+        radiationPressureTargetModelSettings_( radiationPressureTargetModelSettings )
+    { }
 
     std::vector< std::shared_ptr< RadiationPressureTargetModelSettings > > radiationPressureTargetModelSettings_;
 };
@@ -104,19 +100,19 @@ public:
      *      to occult sources as seen from this target
      */
     explicit CannonballRadiationPressureTargetModelSettings(
-            double area, double coefficient,
-            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies = {}) :
-            RadiationPressureTargetModelSettings(
-                    RadiationPressureTargetModelType::cannonball_target, sourceToTargetOccultingBodies),
-            area_(area),
-            coefficient_(coefficient) {}
+            double area,
+            double coefficient,
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+        RadiationPressureTargetModelSettings( RadiationPressureTargetModelType::cannonball_target, sourceToTargetOccultingBodies ),
+        area_( area ), coefficient_( coefficient )
+    { }
 
-    double getArea() const
+    double getArea( ) const
     {
         return area_;
     }
 
-    double getCoefficient() const
+    double getCoefficient( ) const
     {
         return coefficient_;
     }
@@ -132,9 +128,9 @@ private:
 // *
 // * @see PaneledRadiationPressureTargetModel
 // */
-//class PaneledRadiationPressureTargetModelSettings : public RadiationPressureTargetModelSettings
+// class PaneledRadiationPressureTargetModelSettings : public RadiationPressureTargetModelSettings
 //{
-//public:
+// public:
 ////    class Panel;
 //
 //    /*!
@@ -156,44 +152,37 @@ private:
 //        return panels_;
 //    }
 //
-//private:
+// private:
 //    std::vector<Panel> panels_;
 //};
 
-enum BodyPanelReflectionLawType
-{
-    specular_diffuse_reflection_law
-};
+enum BodyPanelReflectionLawType { specular_diffuse_reflection_law };
 
 class BodyPanelReflectionLawSettings
 {
 public:
-    BodyPanelReflectionLawSettings(
-        const BodyPanelReflectionLawType bodyPanelReflectionLawType ):
-        bodyPanelReflectionLawType_( bodyPanelReflectionLawType ){ }
+    BodyPanelReflectionLawSettings( const BodyPanelReflectionLawType bodyPanelReflectionLawType ):
+        bodyPanelReflectionLawType_( bodyPanelReflectionLawType )
+    { }
 
-    virtual ~BodyPanelReflectionLawSettings( ){ }
+    virtual ~BodyPanelReflectionLawSettings( ) { }
 
     BodyPanelReflectionLawType bodyPanelReflectionLawType_;
 };
 
-class SpecularDiffuseBodyPanelReflectionLawSettings: public BodyPanelReflectionLawSettings
+class SpecularDiffuseBodyPanelReflectionLawSettings : public BodyPanelReflectionLawSettings
 {
 public:
-
-    SpecularDiffuseBodyPanelReflectionLawSettings(
-        const double specularReflectivity,
-        const double diffuseReflectivity,
-        const bool withInstantaneousReradiation ):
-            BodyPanelReflectionLawSettings( specular_diffuse_reflection_law ),
-            specularReflectivity_(specularReflectivity),
-            diffuseReflectivity_(diffuseReflectivity),
-            withInstantaneousReradiation_(withInstantaneousReradiation)
+    SpecularDiffuseBodyPanelReflectionLawSettings( const double specularReflectivity,
+                                                   const double diffuseReflectivity,
+                                                   const bool withInstantaneousReradiation ):
+        BodyPanelReflectionLawSettings( specular_diffuse_reflection_law ), specularReflectivity_( specularReflectivity ),
+        diffuseReflectivity_( diffuseReflectivity ), withInstantaneousReradiation_( withInstantaneousReradiation )
     {
         absorptivity_ = 1.0 - ( specularReflectivity_ + diffuseReflectivity_ );
     }
 
-    ~SpecularDiffuseBodyPanelReflectionLawSettings( ){ }
+    ~SpecularDiffuseBodyPanelReflectionLawSettings( ) { }
 
     double specularReflectivity_;
 
@@ -205,23 +194,21 @@ public:
 };
 
 inline std::shared_ptr< BodyPanelReflectionLawSettings > specularDiffuseBodyPanelReflectionLawSettings(
-    const double specularReflectivity,
-    const double diffuseReflectivity,
-    const bool withInstantaneousReradiation = true )
+        const double specularReflectivity,
+        const double diffuseReflectivity,
+        const bool withInstantaneousReradiation = true )
 {
-    return std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings>(
-        specularReflectivity, diffuseReflectivity, withInstantaneousReradiation );
+    return std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
+            specularReflectivity, diffuseReflectivity, withInstantaneousReradiation );
 }
 
-inline std::shared_ptr< BodyPanelReflectionLawSettings > lambertainBodyPanelReflectionLawSettings(
-    const double reflectivity )
+inline std::shared_ptr< BodyPanelReflectionLawSettings > lambertainBodyPanelReflectionLawSettings( const double reflectivity )
 {
-    return std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings>(
-        0.0, reflectivity, false );
+    return std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.0, reflectivity, false );
 }
 
 std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
-    const std::shared_ptr<BodyPanelReflectionLawSettings> modelSettings );
+        const std::shared_ptr< BodyPanelReflectionLawSettings > modelSettings );
 
 //
 ///*!
@@ -229,9 +216,9 @@ std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
 // *
 // * @see PaneledRadiationPressureTargetModel::Panel
 // */
-//class PaneledRadiationPressureTargetModelSettings::Panel
+// class PaneledRadiationPressureTargetModelSettings::Panel
 //{
-//public:
+// public:
 //    /*!
 //     * Constructor for a panel with a given surface normal vector.
 //     *
@@ -330,7 +317,7 @@ std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
 //        return towardsTrackedBody_;
 //    }
 //
-//private:
+// private:
 //    double area_;
 //    double specularReflectivity_;
 //    double diffuseReflectivity_;
@@ -340,7 +327,7 @@ std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
 //    bool towardsTrackedBody_{true};
 //};
 
-//typedef PaneledRadiationPressureTargetModelSettings::Panel TargetPanelSettings;
+// typedef PaneledRadiationPressureTargetModelSettings::Panel TargetPanelSettings;
 
 /*!
  * Create settings for a cannonball radiation pressure target model. Each source can have its own set
@@ -352,13 +339,12 @@ std::shared_ptr< electromagnetism::ReflectionLaw > createReflectionLaw(
  *      to occult sources as seen from this target
  * @return Shared pointer to settings for a cannonball radiation pressure target model
  */
-inline std::shared_ptr<RadiationPressureTargetModelSettings>
-        cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
-            double area, double coefficient,
-            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies)
+inline std::shared_ptr< RadiationPressureTargetModelSettings > cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
+        double area,
+        double coefficient,
+        const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies )
 {
-    return std::make_shared<CannonballRadiationPressureTargetModelSettings>(
-        area, coefficient, sourceToTargetOccultingBodies);
+    return std::make_shared< CannonballRadiationPressureTargetModelSettings >( area, coefficient, sourceToTargetOccultingBodies );
 }
 
 /*!
@@ -370,14 +356,13 @@ inline std::shared_ptr<RadiationPressureTargetModelSettings>
  * @param sourceToTargetOccultingBodies Names of bodies to occult the source as seen from this target
  * @return Shared pointer to settings for a cannonball radiation pressure target model
  */
-inline std::shared_ptr<RadiationPressureTargetModelSettings>
-        cannonballRadiationPressureTargetModelSettings(
-            double area, double coefficient,
-            const std::vector<std::string>& sourceToTargetOccultingBodies = {})
+inline std::shared_ptr< RadiationPressureTargetModelSettings > cannonballRadiationPressureTargetModelSettings(
+        double area,
+        double coefficient,
+        const std::vector< std::string >& sourceToTargetOccultingBodies = { } )
 {
-    const std::map<std::string, std::vector<std::string>> occultingBodiesMap {{"", sourceToTargetOccultingBodies}};
-    return cannonballRadiationPressureTargetModelSettingsWithOccultationMap(
-        area, coefficient, occultingBodiesMap);
+    const std::map< std::string, std::vector< std::string > > occultingBodiesMap{ { "", sourceToTargetOccultingBodies } };
+    return cannonballRadiationPressureTargetModelSettingsWithOccultationMap( area, coefficient, occultingBodiesMap );
 }
 
 /*!
@@ -389,14 +374,11 @@ inline std::shared_ptr<RadiationPressureTargetModelSettings>
  *      to occult sources as seen from this target
  * @return Shared pointer to settings for a paneled radiation pressure target model
  */
-inline std::shared_ptr< RadiationPressureTargetModelSettings >
-        paneledRadiationPressureTargetModelSettingsWithOccultationMap(
-//            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
-            const std::map<std::string, std::vector<std::string>>& sourceToTargetOccultingBodies)
+inline std::shared_ptr< RadiationPressureTargetModelSettings > paneledRadiationPressureTargetModelSettingsWithOccultationMap(
+        //            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
+        const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies )
 {
-    return std::make_shared<RadiationPressureTargetModelSettings>(
-            paneled_target,
-            sourceToTargetOccultingBodies);
+    return std::make_shared< RadiationPressureTargetModelSettings >( paneled_target, sourceToTargetOccultingBodies );
 }
 
 /*!
@@ -408,18 +390,15 @@ inline std::shared_ptr< RadiationPressureTargetModelSettings >
  * @param originalSourceToSourceOccultingBodies Names of bodies to occult the source as seen from this target
  * @return Shared pointer to settings for a paneled radiation pressure target model
  */
-inline std::shared_ptr<RadiationPressureTargetModelSettings>
-        paneledRadiationPressureTargetModelSettings(
-//            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
-            const std::vector<std::string>& sourceToTargetOccultingBodies = {})
+inline std::shared_ptr< RadiationPressureTargetModelSettings > paneledRadiationPressureTargetModelSettings(
+        //            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
+        const std::vector< std::string >& sourceToTargetOccultingBodies = { } )
 {
-    const std::map<std::string, std::vector<std::string>> occultingBodiesMap {{"", sourceToTargetOccultingBodies}};
-    return std::make_shared<RadiationPressureTargetModelSettings>(
-        paneled_target,
-        occultingBodiesMap);
+    const std::map< std::string, std::vector< std::string > > occultingBodiesMap{ { "", sourceToTargetOccultingBodies } };
+    return std::make_shared< RadiationPressureTargetModelSettings >( paneled_target, occultingBodiesMap );
 }
 
-RadiationPressureTargetModelType getTargetModelType( const std::shared_ptr<electromagnetism::RadiationPressureTargetModel> targetModel );
+RadiationPressureTargetModelType getTargetModelType( const std::shared_ptr< electromagnetism::RadiationPressureTargetModel > targetModel );
 
 /*!
  * Create radiation pressure target model from its settings.
@@ -429,12 +408,12 @@ RadiationPressureTargetModelType getTargetModelType( const std::shared_ptr<elect
  * @param bodies System of bodies
  * @return Shared pointer to radiation pressure target model
  */
-std::vector< std::shared_ptr<electromagnetism::RadiationPressureTargetModel> > createRadiationPressureTargetModel(
+std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > createRadiationPressureTargetModel(
         const std::shared_ptr< RadiationPressureTargetModelSettings >& modelSettings,
         const std::string& body,
-        const SystemOfBodies& bodies);
+        const SystemOfBodies& bodies );
 
-} // tudat
-} // simulation_setup
+}  // namespace simulation_setup
+}  // namespace tudat
 
-#endif //TUDAT_CREATERADIATIONPRESSURETARGETMODEL_H
+#endif  // TUDAT_CREATERADIATIONPRESSURETARGETMODEL_H

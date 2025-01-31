@@ -36,10 +36,9 @@ namespace gravitation
  * relativePositionOfBodySubjectToTorque
  * \return Gravitational torque of point mass on second-degree body.
  */
-Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
-        const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
-        const double premultipler,
-        const Eigen::Vector3d& inertiaTensorTimesRelativePositionOfBody );
+Eigen::Vector3d calculateSecondDegreeGravitationalTorque( const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
+                                                          const double premultipler,
+                                                          const Eigen::Vector3d& inertiaTensorTimesRelativePositionOfBody );
 
 //! Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field
 /*!
@@ -52,20 +51,18 @@ Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
  * relativePositionOfBodySubjectToTorque (typically frame fixed to body undergoing torque)
  * \return Gravitational torque of point mass on second-degree body.
  */
-Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
-        const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
-        const double gravitationalParameterOfAttractingBody,
-        const Eigen::Matrix3d& inertiaTensorOfRotatingBody );
+Eigen::Vector3d calculateSecondDegreeGravitationalTorque( const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
+                                                          const double gravitationalParameterOfAttractingBody,
+                                                          const Eigen::Matrix3d& inertiaTensorOfRotatingBody );
 
 //! Class to compute the second degree gravitational torque
 /*!
  *  Class to compute the second degree gravitational torque: the gravitational torque exerted by a point mass on a body with
  *  degree two gravity field (parameterized by inertia tensor).
  */
-class SecondDegreeGravitationalTorqueModel: public basic_astrodynamics::TorqueModel
+class SecondDegreeGravitationalTorqueModel : public basic_astrodynamics::TorqueModel
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -84,15 +81,15 @@ public:
             const std::function< Eigen::Vector3d( ) > positionOfBodySubjectToTorqueFunction,
             const std::function< double( ) > gravitationalParameterOfAttractingBodyFunction,
             const std::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction,
-            const std::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction =
-            [ ]( ){ return Eigen::Vector3d::Zero( ); },
+            const std::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction = []( ) { return Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction =
-            [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); } ):
+                    []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); } ):
         positionOfBodySubjectToTorqueFunction_( positionOfBodySubjectToTorqueFunction ),
         gravitationalParameterOfAttractingBodyFunction_( gravitationalParameterOfAttractingBodyFunction ),
         inertiaTensorOfRotatingBodyFunction_( inertiaTensorOfRotatingBodyFunction ),
         positionOfBodyExertingTorqueFunction_( positionOfBodyExertingTorqueFunction ),
-        rotationToBodyFixedFrameFunction_( rotationToBodyFixedFrameFunction ){  }
+        rotationToBodyFixedFrameFunction_( rotationToBodyFixedFrameFunction )
+    { }
 
     //! Get gravitational torque.
     /*!
@@ -118,7 +115,8 @@ public:
     void updateMembers( const double currentTime )
     {
         currentRotationToBodyFixedFrame_ = rotationToBodyFixedFrameFunction_( );
-        currentRelativePositionOfBodySubjectToTorque_ = positionOfBodyExertingTorqueFunction_( ) - positionOfBodySubjectToTorqueFunction_( );
+        currentRelativePositionOfBodySubjectToTorque_ =
+                positionOfBodyExertingTorqueFunction_( ) - positionOfBodySubjectToTorqueFunction_( );
         currentRotationToBodyFixedFrameFunction_ = currentRotationToBodyFixedFrame_;
         currentRelativeBodyFixedPositionOfBodySubjectToTorque_ =
                 currentRotationToBodyFixedFrameFunction_ * currentRelativePositionOfBodySubjectToTorque_;
@@ -126,17 +124,14 @@ public:
         currentGravitationalParameterOfAttractingBody_ = gravitationalParameterOfAttractingBodyFunction_( );
         currentInertiaTensorOfRotatingBody_ = inertiaTensorOfRotatingBodyFunction_( );
 
-        currentInertiaTensorTimesRelativePositionOfBody_ = currentInertiaTensorOfRotatingBody_ *
-                currentRelativeBodyFixedPositionOfBodySubjectToTorque_;
-        currentTorqueMagnitudePremultiplier_ =
-                3.0 * currentGravitationalParameterOfAttractingBody_ /
-                std::pow(
-                    currentRelativePositionOfBodySubjectToTorque_.norm( ), 5.0 );
+        currentInertiaTensorTimesRelativePositionOfBody_ =
+                currentInertiaTensorOfRotatingBody_ * currentRelativeBodyFixedPositionOfBodySubjectToTorque_;
+        currentTorqueMagnitudePremultiplier_ = 3.0 * currentGravitationalParameterOfAttractingBody_ /
+                std::pow( currentRelativePositionOfBodySubjectToTorque_.norm( ), 5.0 );
 
-        currentTorque_ = calculateSecondDegreeGravitationalTorque(
-                    currentRelativeBodyFixedPositionOfBodySubjectToTorque_,
-                    currentTorqueMagnitudePremultiplier_,
-                    currentInertiaTensorTimesRelativePositionOfBody_ );
+        currentTorque_ = calculateSecondDegreeGravitationalTorque( currentRelativeBodyFixedPositionOfBodySubjectToTorque_,
+                                                                   currentTorqueMagnitudePremultiplier_,
+                                                                   currentInertiaTensorTimesRelativePositionOfBody_ );
     }
 
     //! Function to retrieve current rotation from inertial to body-fixed frame
@@ -213,9 +208,7 @@ public:
     }
 
 protected:
-
 private:
-
     //! Function returning the position of the body that is subject to the torque, in inertial frame.
     std::function< Eigen::Vector3d( ) > positionOfBodySubjectToTorqueFunction_;
 
@@ -263,9 +256,8 @@ private:
     Eigen::Vector3d currentTorque_;
 };
 
-}
+}  // namespace gravitation
 
-}
+}  // namespace tudat
 
-
-#endif // TUDAT_SECONDDEGREEGRAVITATIONALTORQUE_H
+#endif  // TUDAT_SECONDDEGREEGRAVITATIONALTORQUE_H

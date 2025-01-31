@@ -70,6 +70,6 @@ void AerodynamicAccelerationPartial::update( const double currentTime )
     currentTime_ = currentTime;
 }
 
-} // namespace acceleration_partials
+}  // namespace acceleration_partials
 
-} // namespace tudat
+}  // namespace tudat

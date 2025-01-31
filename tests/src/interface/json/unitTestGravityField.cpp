@@ -20,17 +20,14 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_gravityField )
 
 // Test 1: gravity field types
 BOOST_AUTO_TEST_CASE( test_json_gravityField_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
-                            simulation_setup::gravityFieldTypes,
-                            simulation_setup::unsupportedGravityFieldTypes );
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ), simulation_setup::gravityFieldTypes, simulation_setup::unsupportedGravityFieldTypes );
 }
 
 // Test 2: spherical harmonic models
@@ -71,8 +68,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_pointMassSpice )
             parseJSONFile< std::shared_ptr< GravityFieldSettings > >( INPUT( "pointMassSpice" ) );
 
     // Create GravityFieldSettings manually
-    const std::shared_ptr< GravityFieldSettings > manualSettings =
-            std::make_shared< GravityFieldSettings >( central_spice );
+    const std::shared_ptr< GravityFieldSettings > manualSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -113,13 +109,8 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_file )
     const unsigned int maximumOrder = 1;
     const int gravitationalParameterIndex = 0;
     const int referenceRadiusIndex = 1;
-    const std::shared_ptr< GravityFieldSettings > manualSettings =
-            std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( file,
-                                                                               associatedReferenceFrame,
-                                                                               maximumDegree,
-                                                                               maximumOrder,
-                                                                               gravitationalParameterIndex,
-                                                                               referenceRadiusIndex );
+    const std::shared_ptr< GravityFieldSettings > manualSettings = std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
+            file, associatedReferenceFrame, maximumDegree, maximumOrder, gravitationalParameterIndex, referenceRadiusIndex );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -146,13 +137,13 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_file_manualparam 
     const double referenceRadius = 6.4e6;
     const std::shared_ptr< GravityFieldSettings > manualSettings =
             std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( file,
-                                                                               associatedReferenceFrame,
-                                                                               maximumDegree,
-                                                                               maximumOrder,
-                                                                               gravitationalParameterIndex,
-                                                                               referenceRadiusIndex,
-                                                                               gravitationalParameter,
-                                                                               referenceRadius );
+                                                                                associatedReferenceFrame,
+                                                                                maximumDegree,
+                                                                                maximumOrder,
+                                                                                gravitationalParameterIndex,
+                                                                                referenceRadiusIndex,
+                                                                                gravitationalParameter,
+                                                                                referenceRadius );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -175,12 +166,8 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_direct )
     cosineCoefficients( 0, 0 ) = 1.0;
     const Eigen::MatrixXd sisineCoefficients = Eigen::MatrixXd::Zero( 2, 2 );
     const std::string associatedReferenceFrame = "IAU_Earth";
-    const std::shared_ptr< GravityFieldSettings > manualSettings =
-            std::make_shared< SphericalHarmonicsGravityFieldSettings >( gravitationalParameter,
-                                                                          referenceRadius,
-                                                                          cosineCoefficients,
-                                                                          sisineCoefficients,
-                                                                          associatedReferenceFrame );
+    const std::shared_ptr< GravityFieldSettings > manualSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            gravitationalParameter, referenceRadius, cosineCoefficients, sisineCoefficients, associatedReferenceFrame );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -188,6 +175,6 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_direct )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

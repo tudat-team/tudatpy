@@ -41,8 +41,7 @@ namespace aerodynamics
 /*!
  *  Returns default values of mach number for use in HypersonicLocalInclinationAnalysis.
  */
-std::vector< double > getDefaultHypersonicLocalInclinationMachPoints(
-        const std::string& machRegime );
+std::vector< double > getDefaultHypersonicLocalInclinationMachPoints( const std::string& machRegime );
 
 //! Returns default values of angle of attack for use in HypersonicLocalInclinationAnalysis.
 /*!
@@ -68,10 +67,9 @@ std::vector< double > getDefaultHypersonicLocalInclinationAngleOfSideslipPoints(
  * The resulting coefficients are expressed in the same reference frame as that of the input
  * geometry.
  */
-class HypersonicLocalInclinationAnalysis: public AerodynamicCoefficientGenerator< 3, 6 >
+class HypersonicLocalInclinationAnalysis : public AerodynamicCoefficientGenerator< 3, 6 >
 {
 public:
-
     //! Default constructor.
     /*!
      *  Default constructor of class, specified vehicle geometry, discretization properties,
@@ -101,17 +99,16 @@ public:
      *  \param momentReferencePoint Reference point wrt which aerodynamic moments are calculated.
      *  \param savePressureCoefficients Boolean denoting whether to save the pressure coefficients that are computed to files
      */
-    HypersonicLocalInclinationAnalysis(
-            const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
-            const std::shared_ptr< SurfaceGeometry > inputVehicleSurface,
-            const std::vector< int >& numberOfLines,
-            const std::vector< int >& numberOfPoints,
-            const std::vector< bool >& invertOrders,
-            const std::vector< std::vector< int > >& selectedMethods,
-            const double referenceArea,
-            const double referenceLength,
-            const Eigen::Vector3d& momentReferencePoint,
-            const bool savePressureCoefficients = false );
+    HypersonicLocalInclinationAnalysis( const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
+                                        const std::shared_ptr< SurfaceGeometry > inputVehicleSurface,
+                                        const std::vector< int >& numberOfLines,
+                                        const std::vector< int >& numberOfPoints,
+                                        const std::vector< bool >& invertOrders,
+                                        const std::vector< std::vector< int > >& selectedMethods,
+                                        const double referenceArea,
+                                        const double referenceLength,
+                                        const Eigen::Vector3d& momentReferencePoint,
+                                        const bool savePressureCoefficients = false );
 
     //! Default destructor.
     /*!
@@ -128,8 +125,7 @@ public:
      *          indices in dataPointsOfIndependentVariables_.
      * \return vector of coefficients at specified independent variable indices.
      */
-    Eigen::Vector6d getAerodynamicCoefficientsDataPoint(
-            const boost::array< int, 3 > independentVariables );
+    Eigen::Vector6d getAerodynamicCoefficientsDataPoint( const boost::array< int, 3 > independentVariables );
 
     //! Determine inclination angles of panels on a given part.
     /*!
@@ -138,8 +134,7 @@ public:
      * \param angleOfAttack Angle of attack at which to determine inclination angles.
      * \param angleOfSideslip Angle of sideslip at which to determine inclination angles.
      */
-    void determineInclinations( const double angleOfAttack,
-                                const double angleOfSideslip );
+    void determineInclinations( const double angleOfAttack, const double angleOfSideslip );
 
     //! Get the number of vehicle parts.
     /*!
@@ -157,12 +152,10 @@ public:
      * \param vehicleIndex Index in vehicleParts_ to be retrieved.
      * \return Requested vehicle part.
      */
-    std::shared_ptr< geometric_shapes::LawgsPartGeometry > getVehiclePart(
-            const int vehicleIndex ) const
+    std::shared_ptr< geometric_shapes::LawgsPartGeometry > getVehiclePart( const int vehicleIndex ) const
     {
         return vehicleParts_[ vehicleIndex ];
     }
-
 
     //! Overload ostream to print class information.
     /*!
@@ -172,9 +165,7 @@ public:
      * \param hypersonicLocalInclinationAnalysis Hypersonic local inclination analysis.
      * \return Stream object.
      */
-    friend std::ostream& operator << ( std::ostream& stream,
-                                       HypersonicLocalInclinationAnalysis&
-                                       hypersonicLocalInclinationAnalysis );
+    friend std::ostream& operator<<( std::ostream& stream, HypersonicLocalInclinationAnalysis& hypersonicLocalInclinationAnalysis );
 
     //! Function to retrieve a list of mesh panel centroids for the full vehicle geometry
     /*!
@@ -206,8 +197,7 @@ public:
         return paneSurfaceNormalList;
     }
 
-    std::vector< std::vector< std::vector< double > > > getPressureCoefficientList(
-            const boost::array< int, 3 > independentVariables )
+    std::vector< std::vector< std::vector< double > > > getPressureCoefficientList( const boost::array< int, 3 > independentVariables )
     {
         return pressureCoefficientList_.at( independentVariables );
     }
@@ -248,12 +238,9 @@ public:
 
         previouslyComputedInclinations_.clear( );
         clearBaseData( );
-
     }
 
-
 private:
-
     //! Generate aerodynamic database.
     /*!
      * Generates aerodynamic database. Settings of geometry,
@@ -279,8 +266,7 @@ private:
      * \param independentVariableIndices Array of indices of independent variables.
      * \return Force and moment coefficients for requested vehicle part.
      */
-    Eigen::Vector6d determinePartCoefficients(
-            const int partNumber, const boost::array< int, 3 > independentVariableIndices );
+    Eigen::Vector6d determinePartCoefficients( const int partNumber, const boost::array< int, 3 > independentVariableIndices );
 
     //! Determine pressure coefficients on a given part.
     /*!
@@ -289,8 +275,7 @@ private:
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param independentVariableIndices Array of indices of independent variables.
      */
-    void determinePressureCoefficients( const int partNumber,
-                                        const boost::array< int, 3 > independentVariableIndices );
+    void determinePressureCoefficients( const int partNumber, const boost::array< int, 3 > independentVariableIndices );
 
     //! Determine force coefficients of a part.
     /*!
@@ -353,8 +338,7 @@ private:
     /*!
      * Map of angle of attack and -sideslip pair and associated panel inclinations.
      */
-    std::map< std::pair< double, double >, std::vector< std::vector< std::vector< double > > > >
-    previouslyComputedInclinations_;
+    std::map< std::pair< double, double >, std::vector< std::vector< std::vector< double > > > > previouslyComputedInclinations_;
 
     //! Three-dimensional array of panel pressure coefficients.
     /*!
@@ -363,7 +347,7 @@ private:
      */
     std::vector< std::vector< std::vector< double > > > pressureCoefficient_;
 
-    std::map< boost::array< int, 3 >,  std::vector< std::vector< std::vector< double > > > > pressureCoefficientList_;
+    std::map< boost::array< int, 3 >, std::vector< std::vector< std::vector< double > > > > pressureCoefficientList_;
 
     //! Stagnation pressure coefficient.
     /*!
@@ -377,7 +361,7 @@ private:
      * Ratio of specific heat at constant pressure to specific heat at constant pressure.
      */
     double ratioOfSpecificHeats;
-    \
+
     //! Array of selected methods.
     /*!
      * Array of selected methods, first index represents compression/expansion,
@@ -387,7 +371,6 @@ private:
 
     bool savePressureCoefficients_;
 };
-
 
 //! Function that saves the vehicle mesh data used for a HypersonicLocalInclinationAnalysis to a file
 /*!
@@ -402,17 +385,14 @@ private:
  * \param directory Directory to which the files are to be saved
  * \param filePrefix File name prefix that is to be used
  */
-void saveVehicleMeshToFile(
-        const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis,
-        const std::string directory,
-        const std::string filePrefix );
-
+void saveVehicleMeshToFile( const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis,
+                            const std::string directory,
+                            const std::string filePrefix );
 
 //! Typedef for shared-pointer to HypersonicLocalInclinationAnalysis object.
-typedef std::shared_ptr< HypersonicLocalInclinationAnalysis >
-HypersonicLocalInclinationAnalysisPointer;
+typedef std::shared_ptr< HypersonicLocalInclinationAnalysis > HypersonicLocalInclinationAnalysisPointer;
 
-} // namespace aerodynamics
-} // namespace tudat
+}  // namespace aerodynamics
+}  // namespace tudat
 
-#endif // TUDAT_HYPERSONIC_LOCAL_INCLINATION_ANALYSIS_H
+#endif  // TUDAT_HYPERSONIC_LOCAL_INCLINATION_ANALYSIS_H

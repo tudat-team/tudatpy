@@ -6,10 +6,8 @@ namespace tudat
 namespace propagators
 {
 
-//template class EnvironmentUpdater< double, double >;
+// template class EnvironmentUpdater< double, double >;
 
+}  // namespace propagators
 
-} // namespace propagators
-
-} // namespace tudat
-
+}  // namespace tudat

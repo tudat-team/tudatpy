@@ -39,8 +39,7 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
     // Check input consistency
     for( unsigned int i = 0; i < NumberOfDimensions; i++ )
     {
-        if( !( xComponents.shape( )[ i ] == yComponents.shape( )[ i ] ) ||
-                !( xComponents.shape( )[ i ] == zComponents.shape( )[ i ] ) )
+        if( !( xComponents.shape( )[ i ] == yComponents.shape( )[ i ] ) || !( xComponents.shape( )[ i ] == zComponents.shape( )[ i ] ) )
         {
             throw std::runtime_error( "Error when creating N-D merged multi-array, input sizes are inconsistent" );
         }
@@ -56,7 +55,7 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
 
     // Iterate over all elements and combine x,y and z-components into vector3d of associated entry in vectorVector
     int numberOfEntries = xComponents.num_elements( );
-    Eigen::Vector3d* vectorVector = new Eigen::Vector3d[ numberOfEntries ] ;
+    Eigen::Vector3d* vectorVector = new Eigen::Vector3d[ numberOfEntries ];
 
     typedef typename boost::multi_array< double, NumberOfDimensions >::index tIndex;
     typedef boost::array< tIndex, NumberOfDimensions > tIndexArray;
@@ -74,7 +73,7 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
     // Assign array of entries to output multi-array
     vectorArray.assign( vectorVector, vectorVector + numberOfEntries );
 
-    delete[ ] vectorVector;
+    delete[] vectorVector;
 
     return vectorArray;
 }
@@ -86,8 +85,7 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
  * \param list2 Second list that is to be compared.
  * \return True of the two lists are completely equal in size and contents, false otherwise.
  */
-bool compareIndependentVariables( const std::vector< std::vector< double > >& list1,
-                                  const std::vector< std::vector< double > >& list2 );
+bool compareIndependentVariables( const std::vector< std::vector< double > >& list1, const std::vector< std::vector< double > >& list2 );
 
 //! Function to read a list of aerodynamic coefficients and associated independent variables from a set of files
 /*!
@@ -99,8 +97,7 @@ bool compareIndependentVariables( const std::vector< std::vector< double > >& li
  *  variables at which coefficients are defined.
  */
 template< unsigned int NumberOfDimensions >
-std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
-std::vector< std::vector< double > > >
+std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >, std::vector< std::vector< double > > >
 readAerodynamicCoefficients( const std::vector< std::string >& fileNames )
 {
     if( fileNames.size( ) != 3 )
@@ -129,8 +126,7 @@ readAerodynamicCoefficients( const std::vector< std::string >& fileNames )
  *  variables at which coefficients are defined.
  */
 template< unsigned int NumberOfDimensions >
-std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
-std::vector< std::vector< double > > >
+std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >, std::vector< std::vector< double > > >
 readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
 {
     std::map< int, boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > > rawCoefficientArrays;
@@ -139,13 +135,12 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
     std::vector< std::vector< double > > independentVariables;
 
     // Iterate over files and read the contents into rawCoefficientArrays/independentVariables.
-    for( std::map< int, std::string >::const_iterator fileIterator = fileNames.begin( ); fileIterator != fileNames.end( );
-         fileIterator++ )
+    for( std::map< int, std::string >::const_iterator fileIterator = fileNames.begin( ); fileIterator != fileNames.end( ); fileIterator++ )
     {
         // Read current coefficients/independent variables
-        std::pair< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) >,
-                std::vector< std::vector< double > > > currentCoefficients =
-                MultiArrayFileReader< NumberOfDimensions >::readMultiArrayAndIndependentVariables( fileIterator->second );
+        std::pair< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) >, std::vector< std::vector< double > > >
+                currentCoefficients =
+                        MultiArrayFileReader< NumberOfDimensions >::readMultiArrayAndIndependentVariables( fileIterator->second );
 
         // Save/check consistency of independent variables
         if( rawCoefficientArrays.size( ) == 0 )
@@ -154,8 +149,7 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
         }
         else
         {
-            bool areIndependentVariablesEqual = compareIndependentVariables(
-                        independentVariables, currentCoefficients.second );
+            bool areIndependentVariablesEqual = compareIndependentVariables( independentVariables, currentCoefficients.second );
 
             if( !areIndependentVariablesEqual )
             {
@@ -164,9 +158,7 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
         }
 
         // Save file contents into rawCoefficientArrays
-        utilities::copyMultiArray< double, NumberOfDimensions >(
-                    currentCoefficients.first, rawCoefficientArrays[ fileIterator->first ] );
-
+        utilities::copyMultiArray< double, NumberOfDimensions >( currentCoefficients.first, rawCoefficientArrays[ fileIterator->first ] );
     }
 
     // Check if anything has been read from files.
@@ -177,8 +169,7 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
     else
     {
         coefficientArrays.resize( 3 );
-        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > firstMultiArray =
-                rawCoefficientArrays.begin( )->second;
+        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > firstMultiArray = rawCoefficientArrays.begin( )->second;
 
         // Iterate over all 3 coefficient entries
         for( unsigned int i = 0; i < 3; i++ )
@@ -186,30 +177,28 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
             // Copy contents for current index into coefficientArrays read from file.
             if( rawCoefficientArrays.count( i ) != 0 )
             {
-                utilities::copyMultiArray< double, NumberOfDimensions >(
-                            rawCoefficientArrays.at( i ), coefficientArrays[ i ] );
+                utilities::copyMultiArray< double, NumberOfDimensions >( rawCoefficientArrays.at( i ), coefficientArrays[ i ] );
             }
             // Set zero multi-array for current index.
             else
             {
                 std::vector< size_t > sizeVector;
                 const size_t* arrayShape = firstMultiArray.shape( );
-                sizeVector.assign( arrayShape, arrayShape+ firstMultiArray.num_dimensions( ) );
+                sizeVector.assign( arrayShape, arrayShape + firstMultiArray.num_dimensions( ) );
 
                 coefficientArrays[ i ].resize( sizeVector );
 
-                std::fill( coefficientArrays[ i ].data( ),
-                           coefficientArrays[ i ].data() + coefficientArrays[ i ].num_elements( ), 0.0 );
+                std::fill( coefficientArrays[ i ].data( ), coefficientArrays[ i ].data( ) + coefficientArrays[ i ].num_elements( ), 0.0 );
             }
         }
     }
 
     // Merge coefficient entries
-    return std::make_pair(
-                mergeNDimensionalCoefficients< NumberOfDimensions >(
-                    coefficientArrays.at( 0 ), coefficientArrays.at( 1 ), coefficientArrays.at( 2 ) ), independentVariables );
+    return std::make_pair( mergeNDimensionalCoefficients< NumberOfDimensions >(
+                                   coefficientArrays.at( 0 ), coefficientArrays.at( 1 ), coefficientArrays.at( 2 ) ),
+                           independentVariables );
 }
 
-} // namespace input_output
+}  // namespace input_output
 
-} // namespace tudat
+}  // namespace tudat

@@ -91,20 +91,19 @@ int main( )
                     for( int j = 1; j <= numberOfGenerations; j++ )
                     {
                         isl.evolve( );
-                        while( isl.status( ) != pagmo::evolve_status::idle &&
-                               isl.status( ) != pagmo::evolve_status::idle_error )
+                        while( isl.status( ) != pagmo::evolve_status::idle && isl.status( ) != pagmo::evolve_status::idle_error )
                         {
                             isl.wait( );
                         }
-                        isl.wait_check( ); // Raises errors
+                        isl.wait_check( );  // Raises errors
                     }
 
                     // Save optimal results for current optimization.
-                    optima[ k ][ l ]( j, i ) = isl.get_population().champion_f()[0];
-                    std::cout << "Minimum: " << i<<" "<<" "<<j<<" "<<isl.get_population().champion_f()[0] << std::endl;
+                    optima[ k ][ l ]( j, i ) = isl.get_population( ).champion_f( )[ 0 ];
+                    std::cout << "Minimum: " << i << " " << " " << j << " " << isl.get_population( ).champion_f( )[ 0 ] << std::endl;
                 }
             }
-            std::cout<<std::endl;
+            std::cout << std::endl;
         }
     }
 
@@ -113,8 +112,9 @@ int main( )
     {
         for( unsigned int j = 0; j < numberOfPopulationCases; j++ )
         {
-            tudat::input_output::writeMatrixToFile( optima[ i ][ j ], "cec2013Optima_" + std::to_string( i ) + "_" +
-                                                    std::to_string( j ) + ".dat", 16,
+            tudat::input_output::writeMatrixToFile( optima[ i ][ j ],
+                                                    "cec2013Optima_" + std::to_string( i ) + "_" + std::to_string( j ) + ".dat",
+                                                    16,
                                                     tudat_pagmo_applications::getOutputPath( ) );
         }
     }

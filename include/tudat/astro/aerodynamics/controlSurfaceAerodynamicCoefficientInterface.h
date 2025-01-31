@@ -15,13 +15,10 @@
 
 #include <functional>
 
-
 #include <Eigen/Core>
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/aerodynamics/aerodynamics.h"
-
-
 
 namespace tudat
 {
@@ -42,7 +39,6 @@ namespace aerodynamics
 class ControlSurfaceIncrementAerodynamicInterface
 {
 public:
-
     //! Constructor
     /*!
      *  Constructor
@@ -66,8 +62,8 @@ public:
         // Provide warning if number of control surface deflections is not equal to 1.
         if( numberOfControlSurfaceDeflections != 1 )
         {
-            std::string errorMessage = "Warnining when making control surface deflection interface, " + std::to_string(
-                        numberOfControlSurfaceDeflections ) + " deflection independent variables found, must be 1 per object ";
+            std::string errorMessage = "Warnining when making control surface deflection interface, " +
+                    std::to_string( numberOfControlSurfaceDeflections ) + " deflection independent variables found, must be 1 per object ";
             throw std::runtime_error( errorMessage );
         }
 
@@ -75,7 +71,7 @@ public:
     }
 
     //! Destructor
-    virtual ~ControlSurfaceIncrementAerodynamicInterface( ){ }
+    virtual ~ControlSurfaceIncrementAerodynamicInterface( ) { }
 
     //! Compute the aerodynamic coefficient increments of the control surface.
     /*!
@@ -85,8 +81,7 @@ public:
      *  \param independentVariables Independent variables of force and moment coefficient
      *  determination implemented by derived class
      */
-    virtual void updateCurrentCoefficients(
-            std::vector< double >& independentVariables ) = 0;
+    virtual void updateCurrentCoefficients( std::vector< double >& independentVariables ) = 0;
 
     //! Function for returning current aerodynamic force coefficients
     /*!
@@ -113,7 +108,7 @@ public:
      *  Function for returning current aerodynamic force and moment coefficients
      *  \return Force and moment coefficients at given independent variables
      */
-    Eigen::Matrix< double, 6, 1 > getCurrentAerodynamicCoefficients(  )
+    Eigen::Matrix< double, 6, 1 > getCurrentAerodynamicCoefficients( )
     {
         Eigen::Matrix< double, 6, 1 > coefficients;
         coefficients.segment( 0, 3 ) = getCurrentForceCoefficients( );
@@ -141,17 +136,13 @@ public:
      *  \return The identifiers of the physical meaning of the independent variable at the position
      *  of the input variable.
      */
-    AerodynamicCoefficientsIndependentVariables getIndependentVariableName(
-            const unsigned int index )
+    AerodynamicCoefficientsIndependentVariables getIndependentVariableName( const unsigned int index )
     {
         if( index >= numberOfIndependentVariables_ )
         {
-            throw std::runtime_error(
-                        std::string( "Error when retrieving aerodynamic coefficient interface " ) +
-                        ( " variable name, requested variable index " ) +
-                        std::to_string( index ) +
-                        ", but only " + std::to_string(
-                            numberOfIndependentVariables_ ) + " variables available." );
+            throw std::runtime_error( std::string( "Error when retrieving aerodynamic coefficient interface " ) +
+                                      ( " variable name, requested variable index " ) + std::to_string( index ) + ", but only " +
+                                      std::to_string( numberOfIndependentVariables_ ) + " variables available." );
         }
 
         return independentVariableNames_.at( index );
@@ -168,9 +159,8 @@ public:
     {
         return numberOfIndependentVariables_;
     }
+
 protected:
-
-
     //! Vector with identifiers for the physical meaning of each independent variable of the aerodynamic coefficients.
     std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames_;
 
@@ -194,7 +184,6 @@ protected:
     Eigen::Vector3d currentMomentCoefficients_;
 };
 
-
 //! Control surface aerodynamic coefficient interface taking function pointers providing aerodynamics
 //! coefficient increments as a function of independent variables (doubles).
 /*!
@@ -203,10 +192,9 @@ protected:
  *  or the nature of the independent variables is irrelevant for this class. A typical use of this class is to
  *  interface interpolated tabulated control surface increments.
  */
-class CustomControlSurfaceIncrementAerodynamicInterface: public ControlSurfaceIncrementAerodynamicInterface
+class CustomControlSurfaceIncrementAerodynamicInterface : public ControlSurfaceIncrementAerodynamicInterface
 {
 public:
-
     //! Constructor.
     /*!
      *  Constructor.
@@ -218,8 +206,8 @@ public:
     CustomControlSurfaceIncrementAerodynamicInterface(
             const std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction,
             const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
-        ControlSurfaceIncrementAerodynamicInterface( independentVariableNames ),
-        coefficientFunction_( coefficientFunction ){ }
+        ControlSurfaceIncrementAerodynamicInterface( independentVariableNames ), coefficientFunction_( coefficientFunction )
+    { }
 
     CustomControlSurfaceIncrementAerodynamicInterface(
             const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
@@ -228,13 +216,11 @@ public:
         ControlSurfaceIncrementAerodynamicInterface( independentVariableNames )
     {
         coefficientFunction_ = std::bind(
-                    &concatenateForceAndMomentCoefficients, forceCoefficientFunction, momentCoefficientFunction,
-                    std::placeholders::_1 );
+                &concatenateForceAndMomentCoefficients, forceCoefficientFunction, momentCoefficientFunction, std::placeholders::_1 );
     }
 
-
     //! Destructor
-    ~CustomControlSurfaceIncrementAerodynamicInterface( ){ }
+    ~CustomControlSurfaceIncrementAerodynamicInterface( ) { }
 
     //! Compute the aerodynamic coefficient increments of the control surface.
     /*!
@@ -250,26 +236,24 @@ public:
         if( independentVariables.size( ) != numberOfIndependentVariables_ )
         {
             throw std::runtime_error(
-                        "Error in CustomControlSurfaceIncrementAerodynamicInterface, number of "
-                        "input variables is inconsistent " );
+                    "Error in CustomControlSurfaceIncrementAerodynamicInterface, number of "
+                    "input variables is inconsistent " );
         }
 
         // Update current coefficients.
-        Eigen::Vector6d currentCoefficients = coefficientFunction_(
-                    independentVariables );
+        Eigen::Vector6d currentCoefficients = coefficientFunction_( independentVariables );
         currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
         currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
     }
 
 protected:
-
     //! Function returning the concatenated aerodynamic force and moment coefficient increments as function of the set of
     //! independent variables.
     std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction_;
 };
 
-}
+}  // namespace aerodynamics
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_CONTROLSURFACEAERODYNAMICCOEFFICIENTINTERFACE_H
+#endif  // TUDAT_CONTROLSURFACEAERODYNAMICCOEFFICIENTINTERFACE_H

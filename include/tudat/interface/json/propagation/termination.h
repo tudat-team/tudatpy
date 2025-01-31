@@ -24,26 +24,21 @@ namespace propagators
 // PropagationHybridTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationHybridTerminationSettings` object.
-void to_json( nlohmann::json& jsonObject,
-              const std::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
 
 //! Create a shared pointer to a `PropagationHybridTerminationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject,
-                std::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
-
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
 
 // PropagationTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationTerminationSettings` object.
-void to_json( nlohmann::json& jsonObject,
-              const std::shared_ptr< PropagationTerminationSettings >& terminationSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< PropagationTerminationSettings >& terminationSettings );
 
 //! Create a shared pointer to a `PropagationTerminationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject,
-                std::shared_ptr< PropagationTerminationSettings >& terminationSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< PropagationTerminationSettings >& terminationSettings );
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_TERMINATION_H
+#endif  // TUDAT_JSONINTERFACE_TERMINATION_H

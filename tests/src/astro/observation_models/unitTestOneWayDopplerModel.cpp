@@ -16,7 +16,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
@@ -42,9 +41,7 @@ using namespace tudat::orbital_element_conversions;
 using namespace tudat::coordinate_conversions;
 using namespace tudat::unit_conversions;
 
-
 BOOST_AUTO_TEST_SUITE( test_one_way_doppler_model )
-
 
 BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 {
@@ -65,8 +62,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
     // Create bodies settings needed in simulation
     std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
-            getDefaultBodySettings(
-                bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+            getDefaultBodySettings( bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
     SystemOfBodies bodies = createBodies( defaultBodySettings );
@@ -80,41 +76,36 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     spacecraftOrbitalElements( semiMajorAxisIndex ) = 10000.0E3;
     spacecraftOrbitalElements( eccentricityIndex ) = 0.33;
     spacecraftOrbitalElements( inclinationIndex ) = convertDegreesToRadians( 65.3 );
-    spacecraftOrbitalElements( argumentOfPeriapsisIndex )
-            = convertDegreesToRadians( 235.7 );
-    spacecraftOrbitalElements( longitudeOfAscendingNodeIndex )
-            = convertDegreesToRadians( 23.4 );
+    spacecraftOrbitalElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 235.7 );
+    spacecraftOrbitalElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 23.4 );
     spacecraftOrbitalElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     bodies[ "Spacecraft" ] = std::make_shared< Body >( );
-    bodies[ "Spacecraft" ]->setEphemeris(
-                createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
-                                         spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
+    bodies[ "Spacecraft" ]->setEphemeris( createBodyEphemeris(
+            std::make_shared< KeplerEphemerisSettings >( spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ),
+            "Spacecraft" ) );
 
     setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ transmitter ] = std::make_pair( "Earth" , ""  );
-    linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
+    linkEnds[ transmitter ] = std::make_pair( "Earth", "" );
+    linkEnds[ receiver ] = std::make_pair( "Mars", "" );
 
     // Create observation settings
-    std::shared_ptr< ObservationSettings > observableSettings = std::make_shared< ObservationSettings >
-            ( one_way_doppler );
+    std::shared_ptr< ObservationSettings > observableSettings = std::make_shared< ObservationSettings >( one_way_doppler );
 
     // Create observation model.
-    std::shared_ptr< ObservationModel< 1, double, double> > observationModel =
-           ObservationModelCreator< 1, double, double>::createObservationModel(
-                linkEnds, observableSettings, bodies );
+    std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( linkEnds, observableSettings, bodies );
 
-    std::shared_ptr< OneWayDopplerObservationModel< double, double> > dopplerObservationModel =
-            std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >( observationModel );
+    std::shared_ptr< OneWayDopplerObservationModel< double, double > > dopplerObservationModel =
+            std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double > >( observationModel );
 
     // Test observable for both fixed link ends
     for( unsigned testCase = 0; testCase < 2; testCase++ )
     {
-
         double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Vector6d > linkEndStates;
@@ -131,16 +122,16 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         }
 
         // Compute observable
-        double dopplerObservable = observationModel->computeObservationsWithLinkEndData(
-                    observationTime, referenceLinkEnd, linkEndTimes, linkEndStates )( 0 );
+        double dopplerObservable =
+                observationModel->computeObservationsWithLinkEndData( observationTime, referenceLinkEnd, linkEndTimes, linkEndStates )( 0 );
 
         // Creare independent light time calculator object
         std::shared_ptr< LightTimeCalculator< double, double > > lightTimeCalculator =
                 createLightTimeCalculator( linkEnds, transmitter, receiver, bodies );
-        Eigen::Vector6d transmitterState, receiverState;        
+        Eigen::Vector6d transmitterState, receiverState;
         // Compute light time
         double lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
-                    receiverState, transmitterState, observationTime, testCase, ancilliarySetings );
+                receiverState, transmitterState, observationTime, testCase, ancilliarySetings );
 
         // Compare light time calculator link end conditions with observation model
         {
@@ -149,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
             if( testCase == 0 )
             {
-                BOOST_CHECK_SMALL( std::fabs( observationTime  - linkEndTimes.at( 0 ) ), 1.0E-15 );
+                BOOST_CHECK_SMALL( std::fabs( observationTime - linkEndTimes.at( 0 ) ), 1.0E-15 );
                 BOOST_CHECK_SMALL( std::fabs( observationTime + lightTime - linkEndTimes.at( 1 ) ), 1.0E-10 );
             }
             else
@@ -176,86 +167,74 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
         biasSettingsList.push_back( std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d( 1.0E-6 ) ) );
         biasSettingsList.push_back( std::make_shared< ConstantRelativeObservationBiasSettings >( Eigen::Vector1d( 2.5E-4 ) ) );
-        std::shared_ptr< ObservationBiasSettings > biasSettings = std::make_shared< MultipleObservationBiasSettings >(
-                    biasSettingsList );
+        std::shared_ptr< ObservationBiasSettings > biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
 
-        std::shared_ptr< ObservationSettings > biasedObservableSettings = std::make_shared< ObservationSettings >
-                ( one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings );
+        std::shared_ptr< ObservationSettings > biasedObservableSettings =
+                std::make_shared< ObservationSettings >( one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings );
 
         // Create observation model
-        std::shared_ptr< ObservationModel< 1, double, double> > biasedObservationModel =
-                ObservationModelCreator< 1, double, double>::createObservationModel(
-                    linkEnds, biasedObservableSettings, bodies );
+        std::shared_ptr< ObservationModel< 1, double, double > > biasedObservationModel =
+                ObservationModelCreator< 1, double, double >::createObservationModel( linkEnds, biasedObservableSettings, bodies );
 
         double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
 
-        double unbiasedObservation = biasedObservationModel->computeIdealObservations(
-                    observationTime, receiver )( 0 );
-        double biasedObservation = biasedObservationModel->computeObservations(
-                    observationTime, receiver )( 0 );
+        double unbiasedObservation = biasedObservationModel->computeIdealObservations( observationTime, receiver )( 0 );
+        double biasedObservation = biasedObservationModel->computeObservations( observationTime, receiver )( 0 );
         BOOST_CHECK_CLOSE_FRACTION( biasedObservation, 1.0E-6 + ( 1.0 + 2.5E-4 ) * unbiasedObservation, 1.0E-15 );
-
     }
 
     // Test proper time rates
     {
         // Define link ends for observations.
         LinkEnds linkEndsStationSpacecraft;
-        linkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth" , "Station1"  );
-        linkEndsStationSpacecraft[ receiver ] = std::make_pair( "Spacecraft" , ""  );
+        linkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth", "Station1" );
+        linkEndsStationSpacecraft[ receiver ] = std::make_pair( "Spacecraft", "" );
 
         // Create observation settings
-        std::shared_ptr< ObservationSettings > observableSettingsWithoutCorrections = std::make_shared< ObservationSettings >
-                ( one_way_doppler );
+        std::shared_ptr< ObservationSettings > observableSettingsWithoutCorrections =
+                std::make_shared< ObservationSettings >( one_way_doppler );
 
         // Create observation model.
-        std::shared_ptr< ObservationModel< 1, double, double> > observationModelWithoutCorrections =
-               ObservationModelCreator< 1, double, double>::createObservationModel(
-                    linkEndsStationSpacecraft, observableSettingsWithoutCorrections, bodies );
+        std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithoutCorrections =
+                ObservationModelCreator< 1, double, double >::createObservationModel(
+                        linkEndsStationSpacecraft, observableSettingsWithoutCorrections, bodies );
 
         // Create observation settings
-        std::shared_ptr< ObservationSettings > observableSettingsWithCorrections =
-                std::make_shared< OneWayDopperObservationSettings >
-                (  std::shared_ptr< LightTimeCorrectionSettings >( ),
-                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
+        std::shared_ptr< ObservationSettings > observableSettingsWithCorrections = std::make_shared< OneWayDopperObservationSettings >(
+                std::shared_ptr< LightTimeCorrectionSettings >( ),
+                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
+                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
 
         // Create observation model.
-        std::shared_ptr< ObservationModel< 1, double, double> > observationModelWithCorrections =
-               ObservationModelCreator< 1, double, double>::createObservationModel(
-                    linkEndsStationSpacecraft, observableSettingsWithCorrections, bodies );
+        std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithCorrections =
+                ObservationModelCreator< 1, double, double >::createObservationModel(
+                        linkEndsStationSpacecraft, observableSettingsWithCorrections, bodies );
 
         double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
 
-        double observationWithoutCorrections = observationModelWithoutCorrections->computeIdealObservations(
-                    observationTime, receiver ).x( );
-        double observationWithCorrections = observationModelWithCorrections->computeIdealObservations(
-                    observationTime, receiver ).x( );
+        double observationWithoutCorrections =
+                observationModelWithoutCorrections->computeIdealObservations( observationTime, receiver ).x( );
+        double observationWithCorrections = observationModelWithCorrections->computeIdealObservations( observationTime, receiver ).x( );
 
-        std::shared_ptr< RotationalEphemeris > earthRotationModel =
-                bodies.at( "Earth" )->getRotationalEphemeris( );
-        Eigen::Vector3d groundStationVelocityVector =
-                earthRotationModel->getDerivativeOfRotationToTargetFrame( observationTime ) *
+        std::shared_ptr< RotationalEphemeris > earthRotationModel = bodies.at( "Earth" )->getRotationalEphemeris( );
+        Eigen::Vector3d groundStationVelocityVector = earthRotationModel->getDerivativeOfRotationToTargetFrame( observationTime ) *
                 ( earthRotationModel->getRotationToBaseFrame( observationTime ) * stationCartesianPosition );
 
-        std::shared_ptr< Ephemeris > spacecraftEphemeris =
-                bodies.at( "Spacecraft" )->getEphemeris( );
-        Eigen::Vector6d spacecraftState =
-                spacecraftEphemeris->getCartesianState( observationTime );
+        std::shared_ptr< Ephemeris > spacecraftEphemeris = bodies.at( "Spacecraft" )->getEphemeris( );
+        Eigen::Vector6d spacecraftState = spacecraftEphemeris->getCartesianState( observationTime );
 
-        long double groundStationProperTimeRate = 1.0L - static_cast< long double >(
-                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                    ( 0.5 * std::pow( groundStationVelocityVector.norm( ), 2 ) +
-                      earthGravitationalParameter / stationCartesianPosition.norm( ) ) );
-        long double spacecraftProperTimeRate = 1.0L - static_cast< long double >(
-                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                    ( 0.5 * std::pow( spacecraftState.segment( 3, 3 ).norm( ), 2 ) +
-                      earthGravitationalParameter / spacecraftState.segment( 0, 3 ).norm( ) ) );
+        long double groundStationProperTimeRate = 1.0L -
+                static_cast< long double >( physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                                            ( 0.5 * std::pow( groundStationVelocityVector.norm( ), 2 ) +
+                                              earthGravitationalParameter / stationCartesianPosition.norm( ) ) );
+        long double spacecraftProperTimeRate = 1.0L -
+                static_cast< long double >( physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                                            ( 0.5 * std::pow( spacecraftState.segment( 3, 3 ).norm( ), 2 ) +
+                                              earthGravitationalParameter / spacecraftState.segment( 0, 3 ).norm( ) ) );
 
-        long double manualDopplerValue =
-                groundStationProperTimeRate *
-                ( 1.0L + static_cast< long double >( observationWithoutCorrections ) ) /
-                spacecraftProperTimeRate - 1.0L;
+        long double manualDopplerValue = groundStationProperTimeRate *
+                        ( 1.0L + static_cast< long double >( observationWithoutCorrections ) ) / spacecraftProperTimeRate -
+                1.0L;
 
         BOOST_CHECK_SMALL( std::fabs( static_cast< double >( manualDopplerValue ) - observationWithCorrections ),
                            static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
@@ -264,8 +243,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
-
+}  // namespace tudat

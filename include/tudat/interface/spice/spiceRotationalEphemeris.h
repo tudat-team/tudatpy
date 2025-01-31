@@ -51,7 +51,7 @@ public:
     /*!
      *  Destructor.
      */
-    ~SpiceRotationalEphemeris( ){ }
+    ~SpiceRotationalEphemeris( ) { }
 
     //! Function to calculate the rotation quaternion from target frame to original frame.
     /*!
@@ -62,8 +62,7 @@ public:
      *  \return Rotation from target (typically local) to original (typically global) frame at
      *  specified time.
      */
-    Eigen::Quaterniond getRotationToBaseFrame(
-            const double secondsSinceEpoch );
+    Eigen::Quaterniond getRotationToBaseFrame( const double secondsSinceEpoch );
 
     //! Function to calculate the rotation quaternion from original frame to target frame.
     /*!
@@ -74,8 +73,7 @@ public:
      *  \return Rotation from original (typically global) to target (typically local)
      *  frame at specified time.
      */
-    Eigen::Quaterniond getRotationToTargetFrame(
-            const double secondsSinceEpoch )
+    Eigen::Quaterniond getRotationToTargetFrame( const double secondsSinceEpoch )
     {
         return getRotationToBaseFrame( secondsSinceEpoch ).inverse( );
     }
@@ -89,9 +87,7 @@ public:
      *  \return Derivative of rotation from target (typically local) to original (typically global)
      *          frame at specified time.
      */
-    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
-            const double secondsSinceEpoch );
-
+    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double secondsSinceEpoch );
 
     //! Function to calculate the derivative of the rotation matrix from original frame to target
     //! frame.
@@ -102,10 +98,9 @@ public:
      *  \return Derivative of rotation from original (typically global) to target (typically local)
      *          frame at specified time.
      */
-    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
-            const double secondsSinceEpoch )
+    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double secondsSinceEpoch )
     {
-        return getDerivativeOfRotationToBaseFrame( secondsSinceEpoch ). transpose( );
+        return getDerivativeOfRotationToBaseFrame( secondsSinceEpoch ).transpose( );
     }
 
     //! Function to calculate the full rotational state at given time
@@ -119,19 +114,16 @@ public:
      * in global frame (returned by reference)
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated...
      */
-    void getFullRotationalQuantitiesToTargetFrame(
-            Eigen::Quaterniond& currentRotationToLocalFrame,
-            Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
-            Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
-            const double secondsSinceEpoch );
+    void getFullRotationalQuantitiesToTargetFrame( Eigen::Quaterniond& currentRotationToLocalFrame,
+                                                   Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
+                                                   Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
+                                                   const double secondsSinceEpoch );
 
 private:
-
     std::string spiceFrameName_;
-
 };
 
-} // namespace ephemerides
+}  // namespace ephemerides
 
-} // namespace tudat
-#endif // TUDAT_SPICEROTATIONALEPHEMERIS_H
+}  // namespace tudat
+#endif  // TUDAT_SPICEROTATIONALEPHEMERIS_H

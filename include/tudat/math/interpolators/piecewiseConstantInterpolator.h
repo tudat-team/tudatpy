@@ -30,7 +30,6 @@ template< typename IndependentVariableType, typename DependentVariableType >
 class PiecewiseConstantInterpolator : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
 public:
-
     // Using statements to prevent having to put 'this' everywhere in the code.
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
@@ -58,10 +57,9 @@ public:
                                    const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                                    const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                                    const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue )
+                                           std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                           IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         independentValues_ = independentVariables;
         dependentValues_ = dependentVariables;
@@ -69,7 +67,7 @@ public:
         if( dependentValues_.size( ) != independentValues_.size( ) )
         {
             throw std::runtime_error(
-                        "Warning: independent and dependent variables not of same size in piecewise constant interpolator constrcutor" );
+                    "Warning: independent and dependent variables not of same size in piecewise constant interpolator constrcutor" );
         }
 
         this->makeLookupScheme( selectedLookupScheme );
@@ -94,16 +92,14 @@ public:
                                    const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                                    const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                                    const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue )
+                                           std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                           IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
-        if ( dataMap.size( ) == 0 )
+        if( dataMap.size( ) == 0 )
         {
-            throw std::runtime_error(
-                        "The vectors used in the piecewise constant interpolator initialization are empty." );
+            throw std::runtime_error( "The vectors used in the piecewise constant interpolator initialization are empty." );
         }
 
         // Resize data vectors of independent/dependent values.
@@ -113,7 +109,8 @@ public:
         // Fill data vectors with data from map.
         int counter = 0;
         for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator mapIterator = dataMap.begin( );
-             mapIterator != dataMap.end( ); mapIterator++ )
+             mapIterator != dataMap.end( );
+             mapIterator++ )
         {
             independentValues_[ counter ] = mapIterator->first;
             dependentValues_[ counter ] = mapIterator->second;
@@ -123,7 +120,7 @@ public:
     }
 
     //! Destructor
-    ~PiecewiseConstantInterpolator( ){ }
+    ~PiecewiseConstantInterpolator( ) { }
 
     //! Function interpolates dependent variable value at given independent variable value.
     /*!
@@ -166,28 +163,28 @@ public:
      *  Function to reset the values of dependent variables used by interpolator
      *  \param dependentValues New list of values of dependent variables. List must be of same size as original list
      */
-    void resetDependentValues( const std::vector< DependentVariableType >&  dependentValues )
+    void resetDependentValues( const std::vector< DependentVariableType >& dependentValues )
     {
         if( dependentValues.size( ) != dependentValues_.size( ) )
         {
             throw std::runtime_error(
-                        "Error when resetting dependent values for piecewise constant interpolator, sizes are inconsistent " );
+                    "Error when resetting dependent values for piecewise constant interpolator, sizes are inconsistent " );
         }
 
         dependentValues_ = dependentValues;
     }
 
-    InterpolatorTypes getInterpolatorType( ){ return piecewise_constant_interpolator; }
-
+    InterpolatorTypes getInterpolatorType( )
+    {
+        return piecewise_constant_interpolator;
+    }
 
 protected:
-
 private:
-
 };
 
-} // namespace interpolators
+}  // namespace interpolators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_PIECEWISECONSTANTINTERPOLATOR_H
+#endif  // TUDAT_PIECEWISECONSTANTINTERPOLATOR_H

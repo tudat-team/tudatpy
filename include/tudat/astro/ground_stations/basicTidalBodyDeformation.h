@@ -30,8 +30,6 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-
-
 //! Calculate displacement due to degree 2 tide, band-independet love and shida numbers.
 Eigen::Vector3d calculateDegreeTwoBasicTidalDisplacement( const double gravitationalParameterRatio,
                                                           const Eigen::Vector3d& stationPositionUnitVector,
@@ -39,7 +37,6 @@ Eigen::Vector3d calculateDegreeTwoBasicTidalDisplacement( const double gravitati
                                                           const double bodyEquatorialRadius,
                                                           const double degreeTwoLoveNumber,
                                                           const double degreeTwoShidaNumber );
-
 
 //! Calculate displacement due to degree 3 tide, band-independet love and shida numbers.
 Eigen::Vector3d calculateDegreeThreeBasicTidalDisplacement( const double gravitationalParameterRatio,
@@ -49,8 +46,7 @@ Eigen::Vector3d calculateDegreeThreeBasicTidalDisplacement( const double gravita
                                                             const double degreeThreeLoveNumber,
                                                             const double degreeThreeShidaNumber );
 
-
-class BasicTidalBodyDeformation: public BodyDeformationModel
+class BasicTidalBodyDeformation : public BodyDeformationModel
 {
 public:
     BasicTidalBodyDeformation( const std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction,
@@ -61,25 +57,19 @@ public:
                                const double deformedBodyEquatorialRadius,
                                const std::map< int, std::pair< double, double > >& displacementLoveNumbers );
 
-    virtual Eigen::Vector3d calculateDisplacement(
-            const double time,
-            const Eigen::Vector3d& bodyFixedPosition );
+    virtual Eigen::Vector3d calculateDisplacement( const double time, const Eigen::Vector3d& bodyFixedPosition );
 
-    virtual Eigen::Vector3d calculateDisplacement(
-            const double time,
-            const std::shared_ptr< ground_stations::GroundStationState > stationState )
+    virtual Eigen::Vector3d calculateDisplacement( const double time,
+                                                   const std::shared_ptr< ground_stations::GroundStationState > stationState )
     {
         return calculateDisplacement( time, stationState->getNominalCartesianPosition( ) );
     }
 
 protected:
-
     void updateBodyProperties( const double time );
 
-
-    Eigen::Vector3d calculateBasicTicalDisplacement(
-            const Eigen::Vector3d& bodyFixedPosition,
-            const std::map< int, std::pair< double, double > >& loveNumbers );
+    Eigen::Vector3d calculateBasicTicalDisplacement( const Eigen::Vector3d& bodyFixedPosition,
+                                                     const std::map< int, std::pair< double, double > >& loveNumbers );
 
     std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction_;
 
@@ -95,8 +85,6 @@ protected:
 
     std::map< int, std::pair< double, double > > displacementLoveNumbers_;
 
-
-
     int numberOfBodies_;
 
     double currentTime_;
@@ -106,8 +94,8 @@ protected:
     std::vector< double > gravitationalParameterRatios_;
 };
 
-} // namespace basic_astrodynamics
+}  // namespace basic_astrodynamics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_BASICTIDALBODYDEFORMATION_H
+#endif  // TUDAT_BASICTIDALBODYDEFORMATION_H

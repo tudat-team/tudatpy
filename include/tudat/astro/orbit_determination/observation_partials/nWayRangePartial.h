@@ -30,26 +30,23 @@ namespace tudat
 namespace observation_partials
 {
 
-
 //! Derived class for scaling three-dimensional position partial to n-way range observable partial
 /*!
  *  Derived class for scaling three-dimensional position partial to n-way range observable partial. Implementation is taken
  *  from Moyer(2000) for constituent one-way ranges, whicha re scaled (at O(v/c)) to n-way range implementation
  */
-class NWayRangeScaling: public PositionPartialScaling
+class NWayRangeScaling : public PositionPartialScaling
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param constituentRangeScalings Map of consitutent one-way range scaling objects, with link end index as map key
      * \param numberOfLinkEnds Number of link ends in observable
      */
-    NWayRangeScaling( const std::map< int, std::shared_ptr< OneWayRangeScaling > >& constituentRangeScalings,
-                      const int numberOfLinkEnds ):
-        constituentRangeScalings_( constituentRangeScalings ),
-        numberOfLinkEnds_( numberOfLinkEnds ){ }
+    NWayRangeScaling( const std::map< int, std::shared_ptr< OneWayRangeScaling > >& constituentRangeScalings, const int numberOfLinkEnds ):
+        constituentRangeScalings_( constituentRangeScalings ), numberOfLinkEnds_( numberOfLinkEnds )
+    { }
 
     //! Update the scaling object to the current times and states
     /*!
@@ -84,7 +81,6 @@ public:
     }
 
 private:
-
     //! Map of consitutent one-way range scaling objects, with link index as map key
     std::map< int, std::shared_ptr< OneWayRangeScaling > > constituentRangeScalings_;
 
@@ -96,13 +92,11 @@ private:
 
     //! Number of link ends in observation
     int numberOfLinkEnds_;
-
 };
 
 //! Class to compute the partial derivatives of an n-way range observation partial.
-class NWayRangePartial: public ObservationPartial< 1 >
+class NWayRangePartial : public ObservationPartial< 1 >
 {
-
 public:
     typedef std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > NWayRangePartialReturnType;
 
@@ -119,7 +113,8 @@ public:
                       const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
                       const int numberOfLinkEnds ):
         ObservationPartial< 1 >( parameterIdentifier ), nWayRangeScaler_( nWayRangeScaler ), rangePartialList_( rangePartialList ),
-        numberOfLinkEnds_( numberOfLinkEnds ){ }
+        numberOfLinkEnds_( numberOfLinkEnds )
+    { }
 
     //! Destructor
     ~NWayRangePartial( ) { }
@@ -143,7 +138,6 @@ public:
             const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Constant( TUDAT_NAN ) );
 
 protected:
-
     //! Scaling object used for mapping partials of one-way ranges to partials of observable
     std::shared_ptr< NWayRangeScaling > nWayRangeScaler_;
 
@@ -157,9 +151,8 @@ protected:
     int numberOfLinkEnds_;
 };
 
-}
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-
-#endif // TUDAT_NWAYRANGEPARTIAL_H
+#endif  // TUDAT_NWAYRANGEPARTIAL_H

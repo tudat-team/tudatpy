@@ -22,9 +22,11 @@ namespace gravitation
 
 //! Function to calculate (non-normalized) cosine spherical harmonic coefficient for a homogeneous
 //! triaxial ellipsoid
-double calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity(
-        const double aSquaredMinusCSquared, const double bSquaredMinusCSquared,
-        const double referenceRadius, const int degree, const int order )
+double calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity( const double aSquaredMinusCSquared,
+                                                                        const double bSquaredMinusCSquared,
+                                                                        const double referenceRadius,
+                                                                        const int degree,
+                                                                        const int order )
 {
     // Initialize coefficient to zero
     double powerSeries = 0.0;
@@ -42,18 +44,14 @@ double calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity(
         // Evaluate single term in power series of final equation of Boyce (1997)
         for( int i = 0; i <= maximumIndex; i++ )
         {
-            powerSeries +=
-                    ( std::pow( ( aSquaredMinusCSquared - bSquaredMinusCSquared ) /
-                                2.0, m + 2 * i ) *
-                      std::pow( -( aSquaredMinusCSquared + bSquaredMinusCSquared ) /
-                                2.0, l - m - 2 * i ) ) /
-                    ( std::pow( 2.0, m + 2 * i ) * factorial< double >( l - m - 2 * i ) *
-                      factorial< double >( m + i ) * factorial< double >( i ) );
+            powerSeries += ( std::pow( ( aSquaredMinusCSquared - bSquaredMinusCSquared ) / 2.0, m + 2 * i ) *
+                             std::pow( -( aSquaredMinusCSquared + bSquaredMinusCSquared ) / 2.0, l - m - 2 * i ) ) /
+                    ( std::pow( 2.0, m + 2 * i ) * factorial< double >( l - m - 2 * i ) * factorial< double >( m + i ) *
+                      factorial< double >( i ) );
         }
 
         // Calculate multiplier of power series in final equation of Boyce (1997)
-        double multiplier = 3.0 / std::pow( referenceRadius, 2 * l ) *
-                ( factorial< double >( l ) * factorial< double >( 2 * l - 2 * m ) ) /
+        double multiplier = 3.0 / std::pow( referenceRadius, 2 * l ) * ( factorial< double >( l ) * factorial< double >( 2 * l - 2 * m ) ) /
                 ( ( 2.0 * static_cast< double >( l ) + 3.0 ) * factorial< double >( 2 * l + 1 ) );
         if( order != 0 )
         {
@@ -67,34 +65,32 @@ double calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity(
 }
 
 //! Function to calculate triaxial ellipsoid reference radius
-double calculateTriAxialEllipsoidReferenceRadius(
-        const double axisA, const double axisB, const double axisC )
+double calculateTriAxialEllipsoidReferenceRadius( const double axisA, const double axisB, const double axisC )
 {
-    return std::sqrt( 3.0 / ( 1.0 / ( axisA * axisA ) + 1.0 / ( axisB * axisB ) +
-                              1.0 / ( axisC * axisC ) ) );
+    return std::sqrt( 3.0 / ( 1.0 / ( axisA * axisA ) + 1.0 / ( axisB * axisB ) + 1.0 / ( axisC * axisC ) ) );
 }
 
 //! Function to calculate triaxial ellipsoid volume
-double calculateTriAxialEllipsoidVolume(
-        const double axisA, const double axisB, const double axisC )
+double calculateTriAxialEllipsoidVolume( const double axisA, const double axisB, const double axisC )
 {
     return 4.0 / 3.0 * mathematical_constants::PI * axisA * axisB * axisC;
 }
 
 //! Function to calculate (non-normalized) cosine spherical harmonic coefficients for a
 //! homogeneous triaxial ellipsoid
-Eigen::MatrixXd createTriAxialEllipsoidSphericalHarmonicCosineCoefficients(
-        const double axisA, const double axisB, const double axisC,
-        const int maximumDegree, const int maximumOrder )
+Eigen::MatrixXd createTriAxialEllipsoidSphericalHarmonicCosineCoefficients( const double axisA,
+                                                                            const double axisB,
+                                                                            const double axisC,
+                                                                            const int maximumDegree,
+                                                                            const int maximumOrder )
 {
     // Initialize vector to zeros
-    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero(
-                maximumDegree + 1, maximumOrder + 1 );
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
 
     // Pre-calculate for single coefficient calculations.
     double aSquaredMinusCSquared = axisA * axisA - axisC * axisC;
     double bSquaredMinusCSquared = axisB * axisB - axisC * axisC;
-    double referenceRadius =  calculateTriAxialEllipsoidReferenceRadius( axisA, axisB, axisC );
+    double referenceRadius = calculateTriAxialEllipsoidReferenceRadius( axisA, axisB, axisC );
 
     // Iterate over all requested degrees.
     for( int i = 0; i <= maximumDegree; i++ )
@@ -106,9 +102,8 @@ Eigen::MatrixXd createTriAxialEllipsoidSphericalHarmonicCosineCoefficients(
             if( ( i % 2 == 0 ) && ( j % 2 == 0 ) )
             {
                 // Calculate coefficient at single degree and order.
-                cosineCoefficients( i, j ) =
-                        calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity(
-                            aSquaredMinusCSquared, bSquaredMinusCSquared, referenceRadius, i, j );
+                cosineCoefficients( i, j ) = calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity(
+                        aSquaredMinusCSquared, bSquaredMinusCSquared, referenceRadius, i, j );
             }
         }
     }
@@ -118,27 +113,28 @@ Eigen::MatrixXd createTriAxialEllipsoidSphericalHarmonicCosineCoefficients(
 
 //! Function to calculate (non-normalized) cosine and sine spherical harmonic coefficients for a
 //! homogeneous triaxial ellipsoid
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidSphericalHarmonicCoefficients(
-        const double axisA, const double axisB, const double axisC,
-        const int maximumDegree, const int maximumOrder )
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidSphericalHarmonicCoefficients( const double axisA,
+                                                                                                    const double axisB,
+                                                                                                    const double axisC,
+                                                                                                    const int maximumDegree,
+                                                                                                    const int maximumOrder )
 {
     // Calculate cosine coefficients and add sine matrix (all zeroes)
-    return std::make_pair( createTriAxialEllipsoidSphericalHarmonicCosineCoefficients(
-                               axisA, axisB, axisC, maximumDegree, maximumOrder ),
+    return std::make_pair( createTriAxialEllipsoidSphericalHarmonicCosineCoefficients( axisA, axisB, axisC, maximumDegree, maximumOrder ),
                            Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 ) );
 }
 
 //! Function to calculate (normalized) cosine and sine spherical harmonic coefficients for a
 //! homogeneous triaxial ellipsoid
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd >
-createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
-        const double axisA, const double axisB, const double axisC,
-        const int maximumDegree, const int maximumOrder )
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients( const double axisA,
+                                                                                                              const double axisB,
+                                                                                                              const double axisC,
+                                                                                                              const int maximumDegree,
+                                                                                                              const int maximumOrder )
 {
     // Calculate non-normalized coefficients
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > unNormalizedCoefficients =
-            createTriAxialEllipsoidSphericalHarmonicCoefficients(
-                axisA, axisB, axisC, maximumDegree, maximumOrder );
+            createTriAxialEllipsoidSphericalHarmonicCoefficients( axisA, axisB, axisC, maximumDegree, maximumOrder );
 
     // Retrieve cosine coefficients
     Eigen::MatrixXd normalizedCosineCoefficients = unNormalizedCoefficients.first;
@@ -146,11 +142,10 @@ createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
     // Iterate over all degrees and orders and normalized coefficients
     for( int i = 2; i < normalizedCosineCoefficients.rows( ); i++ )
     {
-        for( int j = 0; ( ( j < normalizedCosineCoefficients.cols( ) ) &&
-                                   ( j <= i ) ); j++ )
+        for( int j = 0; ( ( j < normalizedCosineCoefficients.cols( ) ) && ( j <= i ) ); j++ )
         {
-            normalizedCosineCoefficients( i, j ) = normalizedCosineCoefficients( i, j ) /
-                    basic_mathematics::calculateLegendreGeodesyNormalizationFactor( i, j );
+            normalizedCosineCoefficients( i, j ) =
+                    normalizedCosineCoefficients( i, j ) / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( i, j );
         }
     }
 
@@ -158,6 +153,6 @@ createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
     return std::make_pair( normalizedCosineCoefficients, unNormalizedCoefficients.second );
 }
 
-}
+}  // namespace gravitation
 
-}
+}  // namespace tudat

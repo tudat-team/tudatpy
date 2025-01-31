@@ -18,23 +18,17 @@ namespace ephemerides
  * The transformation to inertial frame is handled through the AerodynamicAngleCalculator
  * class, which requires the current state of the vehicle.
  */
-class AerodynamicAngleRotationalEphemeris: public ephemerides::RotationalEphemeris
+class AerodynamicAngleRotationalEphemeris : public ephemerides::RotationalEphemeris
 {
 public:
-
-    AerodynamicAngleRotationalEphemeris(
-            const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
-            const std::string& baseFrameOrientation,
-            const std::string& targetFrameOrientation,
-            const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr )
-        : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
-          aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
-          aerodynamicAngleFunction_( aerodynamicAngleFunction ),
-          currentTime_( TUDAT_NAN ),
-          isBodyInPropagation_( false )
+    AerodynamicAngleRotationalEphemeris( const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
+                                         const std::string& baseFrameOrientation,
+                                         const std::string& targetFrameOrientation,
+                                         const std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = nullptr ):
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
+        aerodynamicAngleFunction_( aerodynamicAngleFunction ), currentTime_( TUDAT_NAN ), isBodyInPropagation_( false )
     {
         aerodynamicAngleCalculator->setAerodynamicAngleClosureIsIncomplete( );
-
     }
 
     //! Virtual destructor.
@@ -43,28 +37,24 @@ public:
      */
     virtual ~AerodynamicAngleRotationalEphemeris( ) { }
 
-    virtual Eigen::Quaterniond getRotationToBaseFrame(
-            const double currentTime )
+    virtual Eigen::Quaterniond getRotationToBaseFrame( const double currentTime )
     {
         update( currentTime );
-        return Eigen::Quaterniond( aerodynamicAngleCalculator_->getRotationMatrixBetweenFrames(
-                                       reference_frames::body_frame, reference_frames::inertial_frame ) );
+        return Eigen::Quaterniond( aerodynamicAngleCalculator_->getRotationMatrixBetweenFrames( reference_frames::body_frame,
+                                                                                                reference_frames::inertial_frame ) );
     }
 
-    virtual Eigen::Quaterniond getRotationToTargetFrame(
-            const double currentTime )
+    virtual Eigen::Quaterniond getRotationToTargetFrame( const double currentTime )
     {
         return getRotationToBaseFrame( currentTime ).inverse( );
     }
 
-    virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
-            const double currentTime )
+    virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double currentTime )
     {
         return Eigen::Matrix3d::Constant( TUDAT_NAN );
     }
 
-    virtual Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
-            const double currentTime )
+    virtual Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double currentTime )
 
     {
         return Eigen::Matrix3d::Constant( TUDAT_NAN );
@@ -72,7 +62,7 @@ public:
 
     void update( const double currentTime );
 
-    void resetCurrentTime(  );
+    void resetCurrentTime( );
 
     Eigen::Vector3d getBodyAngles( const double currentTime )
     {
@@ -94,18 +84,17 @@ public:
     {
         if( aerodynamicAngleFunction_ == nullptr )
         {
-            aerodynamicAngleFunction_ = [=](const double time)
-            {
-                return ( Eigen::Vector3d( ) <<0.0, sideslipAndBankAngleFunction( time ) ).finished( );
+            aerodynamicAngleFunction_ = [ = ]( const double time ) {
+                return ( Eigen::Vector3d( ) << 0.0, sideslipAndBankAngleFunction( time ) ).finished( );
             };
         }
         else
         {
             std::function< Eigen::Vector3d( const double ) > oldAerodynamicAngleFunction_ = aerodynamicAngleFunction_;
 
-            aerodynamicAngleFunction_ = [=](const double time)
-            {
-                return ( Eigen::Vector3d( ) <<oldAerodynamicAngleFunction_( time )( 0 ), sideslipAndBankAngleFunction( time ) ).finished( );
+            aerodynamicAngleFunction_ = [ = ]( const double time ) {
+                return ( Eigen::Vector3d( ) << oldAerodynamicAngleFunction_( time )( 0 ), sideslipAndBankAngleFunction( time ) )
+                        .finished( );
             };
         }
     }
@@ -116,7 +105,6 @@ public:
     }
 
 protected:
-
     void updateBodyAngles( );
 
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
@@ -128,72 +116,60 @@ protected:
     double currentTime_;
 
     bool isBodyInPropagation_;
-
 };
 
-
-} // namespace ephemerides
-
+}  // namespace ephemerides
 
 namespace reference_frames
 {
 
-
-Eigen::Vector3d computeBodyFixedAeroAngles(
-        const Eigen::Matrix3d& inertialToBodyFixedFrame,
-        const Eigen::Matrix3d& trajectoryToInertialFrame );
+Eigen::Vector3d computeBodyFixedAeroAngles( const Eigen::Matrix3d& inertialToBodyFixedFrame,
+                                            const Eigen::Matrix3d& trajectoryToInertialFrame );
 
 /*!
  * Class to communicate aerodynamic angles (attack, sidelip, bank) to the AerodynamicAngleCalculator
  * class from an arbitrary ephemeris object
  */
-class FromGenericEphemerisAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
+class FromGenericEphemerisAerodynamicAngleInterface : public BodyFixedAerodynamicAngleInterface
 {
 public:
-    FromGenericEphemerisAerodynamicAngleInterface(
-            const std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris ):
-        BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_generic_ephemeris ),
-        ephemeris_( ephemeris ){ }
+    FromGenericEphemerisAerodynamicAngleInterface( const std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris ):
+        BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_generic_ephemeris ), ephemeris_( ephemeris )
+    { }
 
-    virtual ~FromGenericEphemerisAerodynamicAngleInterface( ){ }
+    virtual ~FromGenericEphemerisAerodynamicAngleInterface( ) { }
 
-    Eigen::Vector3d getAngles( const double time,
-                               const Eigen::Matrix3d& trajectoryToInertialFrame );
+    Eigen::Vector3d getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame );
 
     void resetCurrentTime( );
+
 private:
-
     std::shared_ptr< ephemerides::RotationalEphemeris > ephemeris_;
-
 };
 
 /*!
  * Class to communicate aerodynamic angles (attack, sidelip, bank) to the AerodynamicAngleCalculator
  * class from an AerodynamicAngleRotationalEphemeris object
  */
-class FromAeroEphemerisAerodynamicAngleInterface: public BodyFixedAerodynamicAngleInterface
+class FromAeroEphemerisAerodynamicAngleInterface : public BodyFixedAerodynamicAngleInterface
 {
 public:
-    FromAeroEphemerisAerodynamicAngleInterface(
-            const std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > ephemeris ):
-        BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_aero_based_ephemeris ),
-        ephemeris_( ephemeris ){ }
+    FromAeroEphemerisAerodynamicAngleInterface( const std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > ephemeris ):
+        BodyFixedAerodynamicAngleInterface( body_fixed_angles_from_aero_based_ephemeris ), ephemeris_( ephemeris )
+    { }
 
-    virtual ~FromAeroEphemerisAerodynamicAngleInterface( ){ }
+    virtual ~FromAeroEphemerisAerodynamicAngleInterface( ) { }
 
-    Eigen::Vector3d getAngles( const double time,
-                               const Eigen::Matrix3d& trajectoryToInertialFrame );
+    Eigen::Vector3d getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame );
 
     void resetCurrentTime( );
 
 private:
-
     std::shared_ptr< ephemerides::AerodynamicAngleRotationalEphemeris > ephemeris_;
-
 };
 
-}
+}  // namespace reference_frames
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_AERODYNAMIC_ANGLE_ROTATIONAL_EPHEMERIS_H
+#endif  // TUDAT_AERODYNAMIC_ANGLE_ROTATIONAL_EPHEMERIS_H

@@ -37,10 +37,9 @@ namespace propulsion
  * \param updateFunction2 Second update function.
  * \param time Time to which both functions are to be updated
  */
-inline void mergeUpdateFunctions(
-        const std::function< void( const double ) > updateFunction1,
-        const std::function< void( const double ) > updateFunction2,
-        const double time )
+inline void mergeUpdateFunctions( const std::function< void( const double ) > updateFunction1,
+                                  const std::function< void( const double ) > updateFunction2,
+                                  const double time )
 {
     updateFunction1( time );
     updateFunction2( time );
@@ -54,7 +53,6 @@ inline void mergeUpdateFunctions(
 class ThrustAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 public:
-
     /*!
      * Constructor.
      * \param thrustMagnitudeFunction Function returning the current magnitude of the thrust. Any dependencies of the
@@ -70,21 +68,17 @@ public:
      * \param requiredModelUpdates List of environment models that are to be updated before computing the acceleration,
      * list is included here to account for versatility of dependencies of thrust model (guidance) algorithms. Default empty.
      */
-    ThrustAcceleration(
-            const std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources,
-            const std::shared_ptr< ThrustDirectionCalculator > thrustDirectionWrapper,
-            const std::function< double( ) > bodyMassFunction,
-            const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& requiredModelUpdates =
-            std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) ):
-        AccelerationModel< Eigen::Vector3d >( ),
-        thrustSources_( thrustSources ),
-        thrustDirectionCalculator_( thrustDirectionWrapper ),
-        bodyMassFunction_( bodyMassFunction ),
-        requiredModelUpdates_( requiredModelUpdates ),
-        saveThrustContributions_( false ){ }
+    ThrustAcceleration( const std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources,
+                        const std::shared_ptr< ThrustDirectionCalculator > thrustDirectionWrapper,
+                        const std::function< double( ) > bodyMassFunction,
+                        const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& requiredModelUpdates =
+                                std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) ):
+        AccelerationModel< Eigen::Vector3d >( ), thrustSources_( thrustSources ), thrustDirectionCalculator_( thrustDirectionWrapper ),
+        bodyMassFunction_( bodyMassFunction ), requiredModelUpdates_( requiredModelUpdates ), saveThrustContributions_( false )
+    { }
 
     //! Destructor
-    ~ThrustAcceleration( ){ }
+    ~ThrustAcceleration( ) { }
 
     //! Function to reset the current time
     /*!
@@ -125,25 +119,24 @@ public:
                 if( !saveThrustContributions_ )
                 {
                     currentMassRate_ -= thrustSources_.at( i )->getCurrentMassRate( currentMass_ );
-                    currentAcceleration_ += ( thrustSources_.at( i )->getCurrentThrustAcceleration( currentMass_ ) )*
-                                            thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) ) ;
+                    currentAcceleration_ += ( thrustSources_.at( i )->getCurrentThrustAcceleration( currentMass_ ) ) *
+                            thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) );
                 }
                 else
                 {
                     currentMassRateContributions_[ i ] = thrustSources_.at( i )->getCurrentMassRate( currentMass_ );
                     currentMassRate_ -= currentMassRateContributions_[ i ];
-                    currentThrustAccelerationContributions_[ i ] = ( thrustSources_.at( i )->getCurrentThrustAcceleration( currentMass_ )  )*
-                                                                   thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) );
+                    currentThrustAccelerationContributions_[ i ] =
+                            ( thrustSources_.at( i )->getCurrentThrustAcceleration( currentMass_ ) ) *
+                            thrustDirectionCalculator_->getInertialThrustDirection( thrustSources_.at( i ) );
                     currentAcceleration_ += currentThrustAccelerationContributions_[ i ];
                 }
             }
 
             // Reset current time.
             currentTime_ = currentTime;
-
         }
     }
-
 
     //! Function to retreieve the current propellant mass rate, as computed by last call to updateMembers function.
     /*!
@@ -155,8 +148,7 @@ public:
         return currentMassRate_;
     }
 
-    Eigen::Vector3d getCurrentThrustAccelerationContribution(
-            const unsigned int index )
+    Eigen::Vector3d getCurrentThrustAccelerationContribution( const unsigned int index )
     {
         if( !saveThrustContributions_ )
         {
@@ -218,9 +210,7 @@ public:
         return thrustDirectionCalculator_;
     }
 
-
 protected:
-
     std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources_;
 
     std::shared_ptr< ThrustDirectionCalculator > thrustDirectionCalculator_;
@@ -248,9 +238,7 @@ protected:
     std::vector< Eigen::Vector3d > currentThrustAccelerationContributions_;
 
     std::vector< double > currentMassRateContributions_;
-
 };
-
 
 //! Class used for computing an acceleration due to a momentum wheel desaturation.
 /*!
@@ -260,7 +248,6 @@ protected:
 class MomentumWheelDesaturationThrustAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 public:
-
     /*!
      * Constructor.
      * \param thrustMidTimes Vector containing the midtime of each desaturation maneuver.
@@ -268,15 +255,12 @@ public:
      * \param totalManeuverTime Total duration of the desaturation maneuvers.
      * \param maneuverRiseTime Rise time of the desaturation maneuvers.
      */
-    MomentumWheelDesaturationThrustAcceleration(
-            const std::vector< double > thrustMidTimes,
-            const std::vector< Eigen::Vector3d > deltaVValues,
-            const double totalManeuverTime,
-            const double maneuverRiseTime ):
-        basic_astrodynamics::AccelerationModel< Eigen::Vector3d >( ),
-        totalManeuverTime_( totalManeuverTime ),
-        maneuverRiseTime_( maneuverRiseTime ),
-        deltaVValues_( deltaVValues )
+    MomentumWheelDesaturationThrustAcceleration( const std::vector< double > thrustMidTimes,
+                                                 const std::vector< Eigen::Vector3d > deltaVValues,
+                                                 const double totalManeuverTime,
+                                                 const double maneuverRiseTime ):
+        basic_astrodynamics::AccelerationModel< Eigen::Vector3d >( ), totalManeuverTime_( totalManeuverTime ),
+        maneuverRiseTime_( maneuverRiseTime ), deltaVValues_( deltaVValues )
     {
         if( thrustMidTimes.size( ) != deltaVValues.size( ) )
         {
@@ -293,10 +277,8 @@ public:
         }
         thrustStartTimes_.push_back( std::numeric_limits< double >::max( ) );
 
-        timeLookUpScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
-                    thrustStartTimes_ );
+        timeLookUpScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( thrustStartTimes_ );
     }
-
 
     //! Update member variables used by the momentum wheel desaturation acceleration model.
     /*!
@@ -319,10 +301,8 @@ public:
             if( std::fabs( currentTime - currentThrustStartTime ) < totalManeuverTime_ && ( currentTime > currentThrustStartTime ) )
             {
                 // Retrieve desaturation thrust multiplier and compute acceleration.
-                currentThrustMultiplier_ = getDesaturationThrustMultiplier(
-                            currentTime - currentThrustStartTime );
+                currentThrustMultiplier_ = getDesaturationThrustMultiplier( currentTime - currentThrustStartTime );
                 currentAcceleration_ = currentThrustMultiplier_ * accelerationValues_.at( nearestTimeIndex_ );
-
             }
             else
             {
@@ -333,9 +313,7 @@ public:
 
             // Reset current time.
             currentTime_ = currentTime;
-
         }
-
     }
 
     //! Function to get the desaturation thrust multiplier, from time elapsed since maneuver initiation.
@@ -358,7 +336,7 @@ public:
             return 1.0;
         }
         // Check if the acceleration decreases after having reached its maximum.
-        else if( timeSinceThrustStart < totalManeuverTime_  )
+        else if( timeSinceThrustStart < totalManeuverTime_ )
         {
             return getDesaturationThrustMultiplier( totalManeuverTime_ - timeSinceThrustStart );
         }
@@ -419,7 +397,7 @@ public:
         deltaVValues_ = deltaVValues;
         for( unsigned int i = 0; i < deltaVValues.size( ); i++ )
         {
-            accelerationValues_[i] = ( deltaVValues.at( i ) / ( totalManeuverTime_ - maneuverRiseTime_ ) );
+            accelerationValues_[ i ] = ( deltaVValues.at( i ) / ( totalManeuverTime_ - maneuverRiseTime_ ) );
         }
     }
 
@@ -433,9 +411,7 @@ public:
         return currentThrustMultiplier_;
     }
 
-
 private:
-
     //! Total desaturation maneuver time.
     double totalManeuverTime_;
 
@@ -461,8 +437,8 @@ private:
     double currentThrustMultiplier_;
 };
 
-} // namespace propulsion
+}  // namespace propulsion
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_THRUSTACCELERATIONMODEL_H
+#endif  // TUDAT_THRUSTACCELERATIONMODEL_H

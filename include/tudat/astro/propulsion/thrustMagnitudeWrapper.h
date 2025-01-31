@@ -31,13 +31,11 @@ namespace propulsion
 class ThrustMagnitudeWrapper
 {
 public:
-
     //! Constructor
-    ThrustMagnitudeWrapper( ):
-        currentTime_( TUDAT_NAN ){ }
+    ThrustMagnitudeWrapper( ): currentTime_( TUDAT_NAN ) { }
 
     //! Destructor.
-    virtual ~ThrustMagnitudeWrapper( ){ }
+    virtual ~ThrustMagnitudeWrapper( ) { }
 
     //! Pure virtual function to update the thrust magnitude to the current time.
     /*!
@@ -55,7 +53,6 @@ public:
     virtual double getCurrentThrustForceMagnitude( const double currentMass = TUDAT_NAN ) = 0;
 
     virtual double getCurrentThrustAccelerationMagnitude( const double currentMass = TUDAT_NAN ) = 0;
-
 
     //! Pure virtual function to get the current mass rate.
     /*!
@@ -87,34 +84,24 @@ public:
      *  derived class
      *  \param currentTime New current time to be set in model.
      */
-    virtual void resetDerivedClassCurrentTime( )
-    {
-
-    }
-
+    virtual void resetDerivedClassCurrentTime( ) { }
 
 protected:
-
     //! Current time for model.
     double currentTime_;
 };
 
-class ConstantThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
+class ConstantThrustMagnitudeWrapper : public ThrustMagnitudeWrapper
 {
 public:
-
-    ConstantThrustMagnitudeWrapper(
-            const double thrustMagnitude,
-            const double specificImpulse ):
-        thrustMagnitude_( thrustMagnitude ),
-        specificImpulse_( specificImpulse )
+    ConstantThrustMagnitudeWrapper( const double thrustMagnitude, const double specificImpulse ):
+        thrustMagnitude_( thrustMagnitude ), specificImpulse_( specificImpulse )
     {
-        massRate_ = computePropellantMassRateFromSpecificImpulse(
-                    thrustMagnitude_, specificImpulse_ );
+        massRate_ = computePropellantMassRateFromSpecificImpulse( thrustMagnitude_, specificImpulse_ );
     }
 
     //! Destructor.
-    ~ConstantThrustMagnitudeWrapper( ){ }
+    ~ConstantThrustMagnitudeWrapper( ) { }
 
     //! Function to update the thrust magnitude to the current time.
     /*!
@@ -139,19 +126,16 @@ public:
         return thrustMagnitude_ / currentMass;
     }
 
-
     void resetConstantThrustForceMagnitude( const double thrustMagnitude )
     {
         thrustMagnitude_ = thrustMagnitude;
-        massRate_ = computePropellantMassRateFromSpecificImpulse(
-                    thrustMagnitude_, specificImpulse_ );
+        massRate_ = computePropellantMassRateFromSpecificImpulse( thrustMagnitude_, specificImpulse_ );
     }
 
     double getConstantThrustForceMagnitude( )
     {
         return thrustMagnitude_;
     }
-
 
     double getCurrentMassRate( const double currentMass = TUDAT_NAN )
     {
@@ -166,10 +150,8 @@ public:
     void resetConstantSpecificImpulse( const double specificImpulse )
     {
         specificImpulse_ = specificImpulse;
-        massRate_ = computePropellantMassRateFromSpecificImpulse(
-                    thrustMagnitude_, specificImpulse_ );
+        massRate_ = computePropellantMassRateFromSpecificImpulse( thrustMagnitude_, specificImpulse_ );
     }
-
 
     //! Function to reset the current time of the thrust model derived class.
     /*!
@@ -182,20 +164,17 @@ public:
         currentTime_ = TUDAT_NAN;
     }
 
-
     bool modelIsForceBased( )
     {
         return true;
     }
 
 private:
-
     double thrustMagnitude_;
 
     double specificImpulse_;
 
     double massRate_;
-
 };
 
 //! Class for custom computations of thrust magnitude and mass rate.
@@ -204,10 +183,9 @@ private:
  *  are parameterized as a function of time and provided as input, providing a flexible interface for user-defined
  *  thrust magnitude profiles.
  */
-class CustomThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
+class CustomThrustMagnitudeWrapper : public ThrustMagnitudeWrapper
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -217,26 +195,19 @@ public:
      * \param customThrustResetFunction Custom function that is to be called when signalling that a new time step is
      * being started (empty by default)
      */
-    CustomThrustMagnitudeWrapper(
-            const std::function< double( const double ) > thrustMagnitudeFunction,
-            const std::function< double( const double ) > specificImpulseFunction ):
-        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-        specificImpulseFunction_( specificImpulseFunction ),
-        currentThrustMagnitude_( TUDAT_NAN ),
-        currentSpecificImpulse_( TUDAT_NAN ),
-        isSpecificImpulseConstant_( false ){ }
+    CustomThrustMagnitudeWrapper( const std::function< double( const double ) > thrustMagnitudeFunction,
+                                  const std::function< double( const double ) > specificImpulseFunction ):
+        thrustMagnitudeFunction_( thrustMagnitudeFunction ), specificImpulseFunction_( specificImpulseFunction ),
+        currentThrustMagnitude_( TUDAT_NAN ), currentSpecificImpulse_( TUDAT_NAN ), isSpecificImpulseConstant_( false )
+    { }
 
-    CustomThrustMagnitudeWrapper(
-            const std::function< double( const double ) > thrustMagnitudeFunction,
-            const double specificImpulse ):
-        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-        specificImpulseFunction_( [=](const double){return specificImpulse;} ),
-        currentThrustMagnitude_( TUDAT_NAN ),
-        currentSpecificImpulse_( TUDAT_NAN ),
-        isSpecificImpulseConstant_( true ){ }
+    CustomThrustMagnitudeWrapper( const std::function< double( const double ) > thrustMagnitudeFunction, const double specificImpulse ):
+        thrustMagnitudeFunction_( thrustMagnitudeFunction ), specificImpulseFunction_( [ = ]( const double ) { return specificImpulse; } ),
+        currentThrustMagnitude_( TUDAT_NAN ), currentSpecificImpulse_( TUDAT_NAN ), isSpecificImpulseConstant_( true )
+    { }
 
     //! Destructor.
-    ~CustomThrustMagnitudeWrapper( ){ }
+    ~CustomThrustMagnitudeWrapper( ) { }
 
     //! Function to update the thrust magnitude to the current time.
     /*!
@@ -274,8 +245,7 @@ public:
     {
         if( currentThrustMagnitude_ != 0.0 )
         {
-            return propulsion::computePropellantMassRateFromSpecificImpulse(
-                        currentThrustMagnitude_, currentSpecificImpulse_ );
+            return propulsion::computePropellantMassRateFromSpecificImpulse( currentThrustMagnitude_, currentSpecificImpulse_ );
         }
         else
         {
@@ -292,7 +262,6 @@ public:
     {
         thrustMagnitudeFunction_ = thrustMagnitudeFunction;
     }
-
 
     //! Function to reset the current time of the thrust model derived class.
     /*!
@@ -315,7 +284,6 @@ public:
     }
 
 private:
-
     //! Function returning thrust as a function of time..
     std::function< double( const double ) > thrustMagnitudeFunction_;
 
@@ -329,33 +297,25 @@ private:
     double currentSpecificImpulse_;
 
     bool isSpecificImpulseConstant_;
-
 };
 
-
-class CustomThrustAccelerationMagnitudeWrapper: public ThrustMagnitudeWrapper
+class CustomThrustAccelerationMagnitudeWrapper : public ThrustMagnitudeWrapper
 {
 public:
+    CustomThrustAccelerationMagnitudeWrapper( const std::function< double( const double ) > thrustAccelerationMagnitudeFunction,
+                                              const std::function< double( const double ) > specificImpulseFunction ):
+        thrustAccelerationMagnitudeFunction_( thrustAccelerationMagnitudeFunction ), specificImpulseFunction_( specificImpulseFunction ),
+        currentThrustAccelerationMagnitude_( TUDAT_NAN ), currentSpecificImpulse_( TUDAT_NAN ), isSpecificImpulseConstant_( false )
+    { }
 
-    CustomThrustAccelerationMagnitudeWrapper(
-            const std::function< double( const double ) > thrustAccelerationMagnitudeFunction,
-            const std::function< double( const double ) > specificImpulseFunction ):
+    CustomThrustAccelerationMagnitudeWrapper( const std::function< double( const double ) > thrustAccelerationMagnitudeFunction,
+                                              const double specificImpulse ):
         thrustAccelerationMagnitudeFunction_( thrustAccelerationMagnitudeFunction ),
-        specificImpulseFunction_( specificImpulseFunction ),
-        currentThrustAccelerationMagnitude_( TUDAT_NAN ),
-        currentSpecificImpulse_( TUDAT_NAN ),
-        isSpecificImpulseConstant_( false ){ }
+        specificImpulseFunction_( [ = ]( const double ) { return specificImpulse; } ), currentThrustAccelerationMagnitude_( TUDAT_NAN ),
+        currentSpecificImpulse_( TUDAT_NAN ), isSpecificImpulseConstant_( true )
+    { }
 
-    CustomThrustAccelerationMagnitudeWrapper(
-            const std::function< double( const double ) > thrustAccelerationMagnitudeFunction,
-            const double specificImpulse ):
-        thrustAccelerationMagnitudeFunction_( thrustAccelerationMagnitudeFunction ),
-        specificImpulseFunction_( [=](const double){return specificImpulse;} ),
-        currentThrustAccelerationMagnitude_( TUDAT_NAN ),
-        currentSpecificImpulse_( TUDAT_NAN ),
-        isSpecificImpulseConstant_( true ){ }
-
-    ~CustomThrustAccelerationMagnitudeWrapper( ){ }
+    ~CustomThrustAccelerationMagnitudeWrapper( ) { }
 
     void update( const double time );
 
@@ -378,8 +338,8 @@ public:
     {
         if( currentThrustAccelerationMagnitude_ != 0.0 )
         {
-            return propulsion::computePropellantMassRateFromSpecificImpulse(
-                        getCurrentThrustForceMagnitude( currentMass ), currentSpecificImpulse_ );
+            return propulsion::computePropellantMassRateFromSpecificImpulse( getCurrentThrustForceMagnitude( currentMass ),
+                                                                             currentSpecificImpulse_ );
         }
         else
         {
@@ -407,7 +367,6 @@ public:
     }
 
 private:
-
     std::function< double( const double ) > thrustAccelerationMagnitudeFunction_;
 
     //! Function returning specific impulse as a function of time.
@@ -419,18 +378,15 @@ private:
     double currentSpecificImpulse_;
 
     bool isSpecificImpulseConstant_;
-
 };
-
 
 //! Class for bang-bang thrust magnitude from MEE co-states (optimal control theory).
 /*!
  *  Class for bang-bang thrust magnitude from MEE co-states (optimal control theory).
  */
-class MeeCostatesBangBangThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
+class MeeCostatesBangBangThrustMagnitudeWrapper : public ThrustMagnitudeWrapper
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -449,19 +405,15 @@ public:
             const std::function< double( const double ) > specificImpulseFunction,
             const std::function< double( ) > thrustingBodyMassFunction,
             const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):
-        thrustingBodyStateFunction_( thrustingBodyStateFunction ),
-        centralBodyStateFunction_( centralBodyStateFunction ),
-        centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction ),
-        costateFunction_( costateFunction ),
-        maximumThrustMagnitude_( thrustMagnitude ),
-        specificImpulseFunction_( specificImpulseFunction ),
-        thrustingBodyMassFunction_( thrustingBodyMassFunction ),
-        currentThrustMagnitude_( TUDAT_NAN ),
-        currentSpecificImpulse_( TUDAT_NAN ),
-        customThrustResetFunction_( customThrustResetFunction ){ }
+        thrustingBodyStateFunction_( thrustingBodyStateFunction ), centralBodyStateFunction_( centralBodyStateFunction ),
+        centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction ), costateFunction_( costateFunction ),
+        maximumThrustMagnitude_( thrustMagnitude ), specificImpulseFunction_( specificImpulseFunction ),
+        thrustingBodyMassFunction_( thrustingBodyMassFunction ), currentThrustMagnitude_( TUDAT_NAN ), currentSpecificImpulse_( TUDAT_NAN ),
+        customThrustResetFunction_( customThrustResetFunction )
+    { }
 
     //! Destructor.
-    ~MeeCostatesBangBangThrustMagnitudeWrapper( ){ }
+    ~MeeCostatesBangBangThrustMagnitudeWrapper( ) { }
 
     //! Function to update the thrust magnitude to the current time.
     /*!
@@ -475,7 +427,7 @@ public:
      * Function to return the current thrust magnitude, as computed by last call to update member function.
      * \return Current thrust magnitude
      */
-    double getCurrentThrustForceMagnitude( const double currentMass = TUDAT_NAN  )
+    double getCurrentThrustForceMagnitude( const double currentMass = TUDAT_NAN )
     {
         return currentThrustMagnitude_;
     }
@@ -499,8 +451,7 @@ public:
     {
         if( currentThrustMagnitude_ != 0.0 )
         {
-            return propulsion::computePropellantMassRateFromSpecificImpulse(
-                        currentThrustMagnitude_, currentSpecificImpulse_ );
+            return propulsion::computePropellantMassRateFromSpecificImpulse( currentThrustMagnitude_, currentSpecificImpulse_ );
         }
         else
         {
@@ -528,7 +479,6 @@ public:
     }
 
 private:
-
     //!  Function returning the state of the body under thrust as a function of time.
     std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction_;
 
@@ -557,12 +507,10 @@ private:
     double currentSpecificImpulse_;
 
     std::function< void( const double ) > customThrustResetFunction_;
-
 };
 
 //! Variables on which parameterized thrust can depend.
-enum ThrustIndependentVariables
-{
+enum ThrustIndependentVariables {
     mach_number_dependent_thrust,
     altitude_dependent_thrust,
     density_dependent_thrust,
@@ -584,10 +532,9 @@ enum ThrustIndependentVariables
  *  of the thrust magnitude for this class. This setting is parsed through the ParameterizedThrustMagnitudeSettings
  *  class, which is the class that is typically used to create this class.
  */
-class ParameterizedThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
+class ParameterizedThrustMagnitudeWrapper : public ThrustMagnitudeWrapper
 {
 public:
-
     //! Constructor for parameterized thrust and specific impulse.
     /*!
      * Constructor, defines the functions for thrust and specific impulse, as well as the physical meaning of each of the
@@ -615,17 +562,12 @@ public:
             const std::vector< std::function< double( ) > > specificImpulseInputVariableFunctions,
             const std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables,
             const std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables,
-            const std::function< void( const double) > inputUpdateFunction =
-            std::function< void( const double) >( ) ):
-        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-        specificImpulseFunction_( specificImpulseFunction ),
+            const std::function< void( const double ) > inputUpdateFunction = std::function< void( const double ) >( ) ):
+        thrustMagnitudeFunction_( thrustMagnitudeFunction ), specificImpulseFunction_( specificImpulseFunction ),
         thrustInputVariableFunctions_( thrustInputVariableFunctions ),
         specificImpulseInputVariableFunctions_( specificImpulseInputVariableFunctions ),
-        thrustIndependentVariables_( thrustIndependentVariables ),
-        specificImpulseDependentVariables_( specificImpulseDependentVariables ),
-        inputUpdateFunction_( inputUpdateFunction ),
-        currentThrustMagnitude_( TUDAT_NAN ),
-        currentSpecificImpulse_( TUDAT_NAN )
+        thrustIndependentVariables_( thrustIndependentVariables ), specificImpulseDependentVariables_( specificImpulseDependentVariables ),
+        inputUpdateFunction_( inputUpdateFunction ), currentThrustMagnitude_( TUDAT_NAN ), currentSpecificImpulse_( TUDAT_NAN )
     {
         if( thrustInputVariableFunctions_.size( ) != thrustIndependentVariables_.size( ) )
         {
@@ -642,7 +584,7 @@ public:
     }
 
     //! Destructor.
-    ~ParameterizedThrustMagnitudeWrapper( ){ }
+    ~ParameterizedThrustMagnitudeWrapper( ) { }
 
     //! Function to update the thrust magnitude to the current time.
     /*!
@@ -657,7 +599,7 @@ public:
      *  to NaN, signalling the need for a recomputation of all required quantities.
      *  \param currentTime New current time to be set in model.
      */
-    virtual void resetDerivedClassCurrentTime(  )
+    virtual void resetDerivedClassCurrentTime( )
     {
         if( !( inputUpdateFunction_ == nullptr ) )
         {
@@ -690,10 +632,9 @@ public:
      * Function to return the current mass rate, computed from quantities set by last call to update member function.
      * \return Current mass rate.
      */
-    double getCurrentMassRate( const double currentMass = TUDAT_NAN  )
+    double getCurrentMassRate( const double currentMass = TUDAT_NAN )
     {
-        return propulsion::computePropellantMassRateFromSpecificImpulse(
-                    currentThrustMagnitude_, currentSpecificImpulse_ );
+        return propulsion::computePropellantMassRateFromSpecificImpulse( currentThrustMagnitude_, currentSpecificImpulse_ );
     }
 
     double getCurrentSpecificImpulse( )
@@ -702,7 +643,6 @@ public:
     }
 
 private:
-
     //! Function returning the current thrust as a function of its independent variables
     std::function< double( const std::vector< double >& ) > thrustMagnitudeFunction_;
 
@@ -729,29 +669,24 @@ private:
     //! List of current input data to specific impulse function.
     std::vector< double > currentSpecificImpulseInputVariables_;
 
-
     //! Function that is called to update the user-defined guidance to the current time
-    const std::function< void( const double) > inputUpdateFunction_;
+    const std::function< void( const double ) > inputUpdateFunction_;
 
     //! Current thrust magnitude, as computed by last call to update member function.
     double currentThrustMagnitude_;
 
     //! Current specific impulse, as computed by last call to update member function.
     double currentSpecificImpulse_;
-
 };
 
-class CustomThrustVectorWrapper: public ThrustMagnitudeWrapper, public ephemerides::InertialBodyFixedDirectionCalculator
+class CustomThrustVectorWrapper : public ThrustMagnitudeWrapper, public ephemerides::InertialBodyFixedDirectionCalculator
 {
-    CustomThrustVectorWrapper(
-            const std::function< Eigen::Vector3d( const double ) > thrustVectorFunction,
-            const std::function< double( const double ) > specificImpulseFunction ):
-        ThrustMagnitudeWrapper( ), ephemerides::InertialBodyFixedDirectionCalculator( ),
-        thrustVectorFunction_( thrustVectorFunction ),
-        specificImpulseFunction_( specificImpulseFunction ),
-        currentThrustMagnitude_( TUDAT_NAN ),
-        currentSpecificImpulse_( TUDAT_NAN ),
-        isSpecificImpulseConstant_( false ){ }
+    CustomThrustVectorWrapper( const std::function< Eigen::Vector3d( const double ) > thrustVectorFunction,
+                               const std::function< double( const double ) > specificImpulseFunction ):
+        ThrustMagnitudeWrapper( ), ephemerides::InertialBodyFixedDirectionCalculator( ), thrustVectorFunction_( thrustVectorFunction ),
+        specificImpulseFunction_( specificImpulseFunction ), currentThrustMagnitude_( TUDAT_NAN ), currentSpecificImpulse_( TUDAT_NAN ),
+        isSpecificImpulseConstant_( false )
+    { }
 
     void update( const double time );
 
@@ -765,7 +700,6 @@ class CustomThrustVectorWrapper: public ThrustMagnitudeWrapper, public ephemerid
         return currentThrustMagnitude_ / currentMass;
     }
 
-
     Eigen::Vector3d getDirection( const double time )
     {
         if( time != currentTime_ )
@@ -774,7 +708,6 @@ class CustomThrustVectorWrapper: public ThrustMagnitudeWrapper, public ephemerid
         }
         return currentThrustVector_.normalized( );
     }
-
 
     bool modelIsForceBased( )
     {
@@ -785,8 +718,7 @@ class CustomThrustVectorWrapper: public ThrustMagnitudeWrapper, public ephemerid
     {
         if( currentThrustMagnitude_ != 0.0 )
         {
-            return propulsion::computePropellantMassRateFromSpecificImpulse(
-                        currentThrustMagnitude_, currentSpecificImpulse_ );
+            return propulsion::computePropellantMassRateFromSpecificImpulse( currentThrustMagnitude_, currentSpecificImpulse_ );
         }
         else
         {
@@ -814,7 +746,6 @@ class CustomThrustVectorWrapper: public ThrustMagnitudeWrapper, public ephemerid
     }
 
 private:
-
     //! Function returning thrust as a function of time..
     std::function< Eigen::Vector3d( const double ) > thrustVectorFunction_;
 
@@ -831,8 +762,8 @@ private:
     bool isSpecificImpulseConstant_;
 };
 
-} // namespace propulsion
+}  // namespace propulsion
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_THRUSTMAGNITUDEWRAPPER_H
+#endif  // TUDAT_THRUSTMAGNITUDEWRAPPER_H

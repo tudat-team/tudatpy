@@ -17,9 +17,8 @@ namespace observation_partials
 {
 
 //! Function to compute the derivative of (direct geometric) right ascension w.r.t. position of observer or observed object.
-Eigen::Matrix< double, 1, 3 > calculatePartialOfRightAscensionWrtLinkEndPosition(
-        const Eigen::Vector3d& relativeRangeVector,
-        const bool isLinkEndReceiver )
+Eigen::Matrix< double, 1, 3 > calculatePartialOfRightAscensionWrtLinkEndPosition( const Eigen::Vector3d& relativeRangeVector,
+                                                                                  const bool isLinkEndReceiver )
 {
     // Define multiplier of patial vector
     double partialMultiplier = ( ( isLinkEndReceiver ) ? 1.0 : -1.0 );
@@ -28,15 +27,14 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfRightAscensionWrtLinkEndPosition
     Eigen::Matrix< double, 1, 3 > partial = Eigen::Matrix< double, 1, 3 >::Zero( );
     partial( 0 ) = -relativeRangeVector( 1 );
     partial( 1 ) = relativeRangeVector( 0 );
-    partial /= ( partialMultiplier * ( relativeRangeVector( 0 ) * relativeRangeVector( 0 ) +
-                                       relativeRangeVector( 1 ) * relativeRangeVector( 1 ) ) );
+    partial /= ( partialMultiplier *
+                 ( relativeRangeVector( 0 ) * relativeRangeVector( 0 ) + relativeRangeVector( 1 ) * relativeRangeVector( 1 ) ) );
     return partial;
 }
 
 //! Function to compute the derivative of (direct geometric) declination w.r.t. position of observer or observed object.
-Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition(
-        Eigen::Vector3d relativeRangeVector,
-        const bool isLinkEndReceiver )
+Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition( Eigen::Vector3d relativeRangeVector,
+                                                                               const bool isLinkEndReceiver )
 {
     // Define multiplier of partial vector
     double partialMultiplier = ( ( isLinkEndReceiver ) ? 1.0 : -1.0 );
@@ -54,15 +52,13 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition(
 
 //! Function to compute the derivative of (direct geometric) right ascension and declination w.r.t. position of observer or
 //! observed object.
-Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPosition(
-        Eigen::Vector3d relativeRangeVector,
-        const bool isLinkEndReceiver )
+Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPosition( Eigen::Vector3d relativeRangeVector,
+                                                                                   const bool isLinkEndReceiver )
 {
     Eigen::Matrix< double, 2, 3 > angularPositionPartial;
-    angularPositionPartial.block( 0, 0, 1, 3 ) = calculatePartialOfRightAscensionWrtLinkEndPosition(
-                relativeRangeVector, isLinkEndReceiver );
-    angularPositionPartial.block( 1, 0, 1, 3 ) = calculatePartialOfDeclinationWrtLinkEndPosition(
-                relativeRangeVector, isLinkEndReceiver );
+    angularPositionPartial.block( 0, 0, 1, 3 ) =
+            calculatePartialOfRightAscensionWrtLinkEndPosition( relativeRangeVector, isLinkEndReceiver );
+    angularPositionPartial.block( 1, 0, 1, 3 ) = calculatePartialOfDeclinationWrtLinkEndPosition( relativeRangeVector, isLinkEndReceiver );
     return angularPositionPartial;
 }
 
@@ -83,27 +79,27 @@ void AngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkE
     {
         referenceLightTimeCorrectionScaling_ = scalingFactor_ * linkEndStates[ 0 ].segment( 3, 3 ) /
                 ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 0 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) );
-        referenceScalingFactor_ =
-                scalingFactor_ *
-                ( Eigen::Matrix3d::Identity( ) + linkEndStates[ 0 ].segment( 3, 3 ) * normalizedRelativeRangeVector.transpose( ) /
-                ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 0 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) ) );
+        referenceScalingFactor_ = scalingFactor_ *
+                ( Eigen::Matrix3d::Identity( ) +
+                  linkEndStates[ 0 ].segment( 3, 3 ) * normalizedRelativeRangeVector.transpose( ) /
+                          ( physical_constants::SPEED_OF_LIGHT -
+                            linkEndStates[ 0 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) ) );
     }
     // Compute scaling for transmitter reference
     else if( fixedLinkEnd == observation_models::transmitter )
     {
         referenceLightTimeCorrectionScaling_ = scalingFactor_ * linkEndStates[ 1 ].segment( 3, 3 ) /
                 ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 1 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) );
-        referenceScalingFactor_ =
-                scalingFactor_ *
-                ( Eigen::Matrix3d::Identity( ) + linkEndStates[ 1 ].segment( 3, 3 ) * normalizedRelativeRangeVector.transpose( ) /
-                ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 1 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) ) );
+        referenceScalingFactor_ = scalingFactor_ *
+                ( Eigen::Matrix3d::Identity( ) +
+                  linkEndStates[ 1 ].segment( 3, 3 ) * normalizedRelativeRangeVector.transpose( ) /
+                          ( physical_constants::SPEED_OF_LIGHT -
+                            linkEndStates[ 1 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) ) );
     }
 
     currentLinkEndType_ = fixedLinkEnd;
-
 }
 
+}  // namespace observation_partials
 
-}
-
-}
+}  // namespace tudat

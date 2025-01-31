@@ -20,8 +20,7 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_termination )
 
@@ -61,13 +60,10 @@ BOOST_AUTO_TEST_CASE( test_json_termination_anyOf )
     const std::shared_ptr< PropagationTerminationSettings > condition1 =
             std::make_shared< PropagationDependentVariableTerminationSettings >( variable1, 105.0E+3, true );
 
-    const std::shared_ptr< PropagationTerminationSettings > condition2 =
-            std::make_shared< PropagationCPUTimeTerminationSettings >( 60.0 );
+    const std::shared_ptr< PropagationTerminationSettings > condition2 = std::make_shared< PropagationCPUTimeTerminationSettings >( 60.0 );
 
-    const std::shared_ptr< PropagationTerminationSettings > manualSettings =
-            std::make_shared< PropagationHybridTerminationSettings >(
-                std::vector< std::shared_ptr< PropagationTerminationSettings > >( { condition1, condition2 } ),
-                true );
+    const std::shared_ptr< PropagationTerminationSettings > manualSettings = std::make_shared< PropagationHybridTerminationSettings >(
+            std::vector< std::shared_ptr< PropagationTerminationSettings > >( { condition1, condition2 } ), true );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -94,10 +90,8 @@ BOOST_AUTO_TEST_CASE( test_json_termination_allOf )
     const std::shared_ptr< PropagationTerminationSettings > condition3 =
             std::make_shared< PropagationDependentVariableTerminationSettings >( variable3, 1.0, false );
 
-    const std::shared_ptr< PropagationTerminationSettings > manualSettings =
-            std::make_shared< PropagationHybridTerminationSettings >(
-                std::vector< std::shared_ptr< PropagationTerminationSettings > >( { condition1, condition3 } ),
-                false );
+    const std::shared_ptr< PropagationTerminationSettings > manualSettings = std::make_shared< PropagationHybridTerminationSettings >(
+            std::vector< std::shared_ptr< PropagationTerminationSettings > >( { condition1, condition3 } ), false );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -120,42 +114,33 @@ BOOST_AUTO_TEST_CASE( test_json_termination_combined )
     const std::shared_ptr< PropagationTerminationSettings > condition1 =
             std::make_shared< PropagationDependentVariableTerminationSettings >( variable1, 105.0E+3, true );
 
-    const std::shared_ptr< PropagationTerminationSettings > condition2 =
-            std::make_shared< PropagationCPUTimeTerminationSettings >( 60.0 );
+    const std::shared_ptr< PropagationTerminationSettings > condition2 = std::make_shared< PropagationCPUTimeTerminationSettings >( 60.0 );
 
     const std::shared_ptr< SingleDependentVariableSaveSettings > variable3 =
             std::make_shared< SingleDependentVariableSaveSettings >( mach_number_dependent_variable, "body" );
     const std::shared_ptr< PropagationTerminationSettings > condition3 =
             std::make_shared< PropagationDependentVariableTerminationSettings >( variable3, 1.0, false );
 
-    const std::shared_ptr< PropagationTerminationSettings > condition4 =
-            std::make_shared< PropagationTimeTerminationSettings >( 86400.0 );
+    const std::shared_ptr< PropagationTerminationSettings > condition4 = std::make_shared< PropagationTimeTerminationSettings >( 86400.0 );
 
     const std::shared_ptr< SingleAccelerationDependentVariableSaveSettings > variable5 =
-            std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                aerodynamic, "body", "Earth", false, 0 );
+            std::make_shared< SingleAccelerationDependentVariableSaveSettings >( aerodynamic, "body", "Earth", false, 0 );
     const std::shared_ptr< PropagationTerminationSettings > condition5 =
             std::make_shared< PropagationDependentVariableTerminationSettings >( variable5, 0.0, true );
 
     const std::shared_ptr< SingleAccelerationDependentVariableSaveSettings > variable6 =
-            std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                aerodynamic, "body", "Earth", false, 1 );
+            std::make_shared< SingleAccelerationDependentVariableSaveSettings >( aerodynamic, "body", "Earth", false, 1 );
     const std::shared_ptr< PropagationTerminationSettings > condition6 =
             std::make_shared< PropagationDependentVariableTerminationSettings >( variable6, 0.0, true );
 
-    const std::shared_ptr< PropagationTerminationSettings > c1or5or6 =
-            std::make_shared< PropagationHybridTerminationSettings >(
-                std::vector< std::shared_ptr< PropagationTerminationSettings > >(
-    { condition1, condition5, condition6 } ), true );
+    const std::shared_ptr< PropagationTerminationSettings > c1or5or6 = std::make_shared< PropagationHybridTerminationSettings >(
+            std::vector< std::shared_ptr< PropagationTerminationSettings > >( { condition1, condition5, condition6 } ), true );
 
-    const std::shared_ptr< PropagationTerminationSettings > c1or5or6and3 =
-            std::make_shared< PropagationHybridTerminationSettings >(
-                std::vector< std::shared_ptr< PropagationTerminationSettings > >( { c1or5or6, condition3 } ), false );
+    const std::shared_ptr< PropagationTerminationSettings > c1or5or6and3 = std::make_shared< PropagationHybridTerminationSettings >(
+            std::vector< std::shared_ptr< PropagationTerminationSettings > >( { c1or5or6, condition3 } ), false );
 
-    const std::shared_ptr< PropagationTerminationSettings > manualSettings =
-            std::make_shared< PropagationHybridTerminationSettings >(
-                std::vector< std::shared_ptr< PropagationTerminationSettings > >(
-    { condition4, condition2, c1or5or6and3 } ), true );
+    const std::shared_ptr< PropagationTerminationSettings > manualSettings = std::make_shared< PropagationHybridTerminationSettings >(
+            std::vector< std::shared_ptr< PropagationTerminationSettings > >( { condition4, condition2, c1or5or6and3 } ), true );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -163,6 +148,6 @@ BOOST_AUTO_TEST_CASE( test_json_termination_combined )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

@@ -12,8 +12,6 @@
 #include <map>
 #include <vector>
 
-
-
 #include "tudat/io/parsedDataVectorUtilities.h"
 
 namespace tudat
@@ -24,20 +22,20 @@ namespace parsed_data_vector_utilities
 {
 
 //! Filter the data vector for entries containing a given FieldType.
-ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, ...)
+ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, ... )
 {
     // Create a fancy vector (list) of all the fields:
     // Define argument list variable.
     va_list argumentList;
     // Initialize list; point to last defined argument.
-    va_start( argumentList, nrFields );   
+    va_start( argumentList, nrFields );
 
     // Create a new datavector for the filtered data.
     ParsedDataVectorPtr newDataVector = std::make_shared< ParsedDataVector >( );
 
     // Make a simple list to iterate over from all the FieldType arguments.
     std::vector< FieldType > checkForFieldTypes;
-    for ( int i = 0; i < nrFields; i++ )
+    for( int i = 0; i < nrFields; i++ )
     {
         checkForFieldTypes.push_back( va_arg( argumentList, FieldType ) );
     }
@@ -46,23 +44,19 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
     va_end( argumentList );
 
     // Go over every dataline in the current datavector.
-    for ( ParsedDataVector::iterator currentDataLine = datavector->begin( );
-          currentDataLine != datavector->end( );
-          currentDataLine++ )
+    for( ParsedDataVector::iterator currentDataLine = datavector->begin( ); currentDataLine != datavector->end( ); currentDataLine++ )
     {
         // Flag to indicate that all the FieldTypes from checkForFieldTypes are present in this
         // line.
         bool found = true;
 
         // Loop over each FieldType to check if it exists.
-        for ( std::vector< FieldType >::iterator currentFieldCheck
-              = checkForFieldTypes.begin( );
-              currentFieldCheck != checkForFieldTypes.end( );
-              currentFieldCheck++ )
+        for( std::vector< FieldType >::iterator currentFieldCheck = checkForFieldTypes.begin( );
+             currentFieldCheck != checkForFieldTypes.end( );
+             currentFieldCheck++ )
         {
             // Check if the FieldType is in the current data line.
-            if ( ( *currentDataLine )->find( *currentFieldCheck )
-                 == ( *currentDataLine )->end( ) )
+            if( ( *currentDataLine )->find( *currentFieldCheck ) == ( *currentDataLine )->end( ) )
             {
                 // If not, mark that not all entries are present, and stop searching for others.
                 found = false;
@@ -71,7 +65,7 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
         }
 
         // If all the fields are present, add the current line to the new (filtered) vector.
-        if ( found )
+        if( found )
         {
             newDataVector->push_back( *currentDataLine );
         }
@@ -92,12 +86,12 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
     va_start( argumentList, nrFields );
 
     // Create a new data vector for the filtered data.
-    ParsedDataVectorPtr newDataVector = std::make_shared< ParsedDataVector>( );
+    ParsedDataVectorPtr newDataVector = std::make_shared< ParsedDataVector >( );
 
     // Make a simple list to iterate over with the FieldType arguments and respective regex
     // expressions.
     std::map< FieldType, boost::regex > checkForFieldTypes;
-    for ( int i = 0; i < nrFields; i++ )
+    for( int i = 0; i < nrFields; i++ )
     {
         FieldType type = va_arg( argumentList, FieldType );
         boost::regex regex = boost::regex( va_arg( argumentList, char* ) );
@@ -105,27 +99,23 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
     }
 
     // Clean up the system stack.
-    va_end ( argumentList );
+    va_end( argumentList );
 
     // Go over every dataline in the current data vector.
-    for ( ParsedDataVector::iterator currentDataLine = datavector->begin( );
-          currentDataLine != datavector->end( );
-          currentDataLine++ )
+    for( ParsedDataVector::iterator currentDataLine = datavector->begin( ); currentDataLine != datavector->end( ); currentDataLine++ )
     {
         // Flag to indicate that all the FieldTypes from checkForFieldTypes are present in this
         // line.
         bool found = true;
 
         // Loop over each FieldType to check if it exists.
-        for( std::map< FieldType, boost::regex >::iterator currentFieldCheck
-             = checkForFieldTypes.begin( );
+        for( std::map< FieldType, boost::regex >::iterator currentFieldCheck = checkForFieldTypes.begin( );
              currentFieldCheck != checkForFieldTypes.end( );
-             currentFieldCheck++)
+             currentFieldCheck++ )
         {
             // Check if the FieldType is in the current dataline
-            ParsedDataLineMap::iterator entry =
-                    ( *currentDataLine )->find( currentFieldCheck->first );
-            if ( entry == ( *currentDataLine )->end( ) )
+            ParsedDataLineMap::iterator entry = ( *currentDataLine )->find( currentFieldCheck->first );
+            if( entry == ( *currentDataLine )->end( ) )
             {
                 // If not, mark that not all entry pairs are present, and stop searching for
                 // others.
@@ -137,7 +127,7 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
             const std::string str = entry->second->getTransformed( );
 
             // Check if the field value regex matches.
-            if ( !boost::regex_search( str.begin( ), str.end( ), currentFieldCheck->second ) )
+            if( !boost::regex_search( str.begin( ), str.end( ), currentFieldCheck->second ) )
             {
                 // If not, mark this, and stop searching for others.
                 found = false;
@@ -146,7 +136,7 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
         }
 
         // If all the fields are present, add the current line to the new (filtered) vector.
-        if ( found )
+        if( found )
         {
             newDataVector->push_back( *currentDataLine );
         }
@@ -163,11 +153,10 @@ std::ostream& dump( std::ostream& stream, ParsedDataLineMapPtr data, bool showTr
     stream << "|";
 
     // Loop over data map.
-    for ( ParsedDataLineMap::iterator element = data->begin( );
-          element != data->end( ); element++ )
+    for( ParsedDataLineMap::iterator element = data->begin( ); element != data->end( ); element++ )
     {
         // If transformed flag is true, dump transformed values.
-        if ( showTransformed )
+        if( showTransformed )
         {
             stream << element->second->getTransformed( );
         }
@@ -190,18 +179,18 @@ std::ostream& dump( std::ostream& stream, ParsedDataLineMapPtr data, bool showTr
 std::ostream& dump( std::ostream& stream, ParsedDataVectorPtr data, bool showTransformed )
 {
     // Loop over vector.
-    for ( std::size_t i=0; i < data->size( ); i++ )
+    for( std::size_t i = 0; i < data->size( ); i++ )
     {
         // Get data line.
         ParsedDataLineMapPtr line = data->at( i );
 
         // Call dump function for single line (datamap).
-        dump ( stream, line, showTransformed );
+        dump( stream, line, showTransformed );
     }
 
     return stream;
 }
 
-} // namespace parsed_data_vector_utilities
-} // namespace input_output
-} // namespace tudat
+}  // namespace parsed_data_vector_utilities
+}  // namespace input_output
+}  // namespace tudat

@@ -16,13 +16,11 @@
 
 #include <limits>
 
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/periodicSpinVariation.h"
-
 
 namespace tudat
 {
@@ -32,7 +30,7 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_full_planetary_rotational_parameters_estimation )
 
-//Using declarations.
+// Using declarations.
 using namespace tudat::observation_models;
 using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
@@ -49,17 +47,16 @@ using namespace tudat::ground_stations;
 using namespace tudat::observation_models;
 using namespace tudat;
 
-
 //! Unit test to check if periodic spin variation, polar motion, and free-core factor/ampliture
 //! (for a full planetary rotational model) are estimated correctly. Translatuonal state estimation is included for interface
 //! consistency only
 BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 {
-    //Load spice kernels.
+    // Load spice kernels.
     std::string kernelsPath = paths::getSpiceKernelPath( );
     spice_interface::loadStandardSpiceKernels( );
 
-    //Define environment settings
+    // Define environment settings
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
     bodyNames.push_back( "Mars" );
@@ -72,19 +69,19 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     double maximumTimeStep = 86400.0;
     double buffer = 10.0 * maximumTimeStep;
     // Set-up different cases with various parameters to estimate.
-    for ( int testCase = 0 ; testCase < 3 ; testCase++ )
+    for( int testCase = 0; testCase < 3; testCase++ )
     {
         // Create body objects; Mars with high-accuracy rotation model
-        BodyListSettings bodySettings =
-                getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+        BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
         bodySettings.at( "Mars" )->rotationModelSettings = getHighAccuracyMarsRotationModel( );
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-
 
         // Create ground stations
         std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
         std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );
-        createGroundStation( bodies.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
+        createGroundStation( bodies.at( "Mars" ),
+                             "MarsStation",
+                             ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                              coordinate_conversions::geodetic_position );
 
         // Set accelerations between bodies that are to be taken into account.
@@ -101,21 +98,22 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         bodiesToIntegrate.push_back( "Earth" );
 
         // Define propagator settings.
-        std::vector< std::string > centralBodies; centralBodies.push_back( "SSB" );
+        std::vector< std::string > centralBodies;
+        centralBodies.push_back( "SSB" );
         AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
-        Eigen::VectorXd initialState = getInitialStateOfBody< double, double>(
-                    bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, initialEphemerisTime );
+        Eigen::VectorXd initialState =
+                getInitialStateOfBody< double, double >( bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodies, initialEphemerisTime );
         std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialState,
-                  finalEphemerisTime );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies, accelerationModelMap, bodiesToIntegrate, initialState, finalEphemerisTime );
 
         // Define integrator settings.
-        std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< IntegratorSettings< double > >
-                ( rungeKutta4, initialEphemerisTime, maximumTimeStep );
+        std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+                std::make_shared< IntegratorSettings< double > >( rungeKutta4, initialEphemerisTime, maximumTimeStep );
 
         // Define links in simulation.
-        std::vector< LinkDefinition > linkEnds; linkEnds.resize( 1 );
+        std::vector< LinkDefinition > linkEnds;
+        linkEnds.resize( 1 );
         linkEnds[ 0 ][ transmitter ] = grazStation;
         linkEnds[ 0 ][ receiver ] = mslStation;
 
@@ -138,31 +136,29 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         // Create observation simulation settings
         std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
         measurementSimulationInput.push_back(
-                    std::make_shared< TabulatedObservationSimulationSettings< > >(
-                        one_way_range, linkEnds[ 0 ], observationTimes, receiver ) );
+                std::make_shared< TabulatedObservationSimulationSettings<> >( one_way_range, linkEnds[ 0 ], observationTimes, receiver ) );
 
         // Set parameters that are to be estimated.
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
                 getInitialStateParameterSettings< double >( propagatorSettings, bodies );
 
         // Estimate core factor and free core nutation rate
-        if ( testCase == 0 )
+        if( testCase == 0 )
         {
             parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", core_factor ) );
             parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", free_core_nutation_rate ) );
         }
 
         // Estimate periodic spin variation
-        else if ( testCase == 1 )
+        else if( testCase == 1 )
         {
-            parameterNames.push_back(  std::make_shared< EstimatableParameterSettings >( "Mars", periodic_spin_variation ) );
+            parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", periodic_spin_variation ) );
         }
 
         // Estimate polar motion amplitude
-        else if ( testCase == 2 )
+        else if( testCase == 2 )
         {
-
-            parameterNames.push_back(  std::make_shared< EstimatableParameterSettings >( "Mars", polar_motion_amplitude ) );
+            parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", polar_motion_amplitude ) );
         }
 
         // Create parameters
@@ -172,34 +168,32 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                    bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
+                bodies, parametersToEstimate, observationSettingsList, integratorSettings, propagatorSettings );
 
         // Define initial parameter estimate.
-        Eigen::VectorXd initialParameterEstimate =
-                parametersToEstimate->template getFullParameterValues< double >( );
+        Eigen::VectorXd initialParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );
 
         // Simulate observations
-        std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
-                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
-
+        std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         // Define perturbation of parameter estimate
         Eigen::VectorXd truthParameters = initialParameterEstimate;
-        if ( testCase == 0 )
+        if( testCase == 0 )
         {
             initialParameterEstimate[ 6 ] += 1.0E-4;
             initialParameterEstimate[ 7 ] += 1.0E-10;
         }
-        else if ( testCase == 1 )
+        else if( testCase == 1 )
         {
-            for( int i = 6 + 0 ; i < static_cast< int >( initialParameterEstimate.rows( ) ) ; i++ )
+            for( int i = 6 + 0; i < static_cast< int >( initialParameterEstimate.rows( ) ); i++ )
             {
                 initialParameterEstimate[ i ] += 1.0E-6;
             }
         }
-        else if ( testCase == 2 )
+        else if( testCase == 2 )
         {
-            for( int i = 6 ; i < static_cast< int >( initialParameterEstimate.rows( ) ) ; i++ )
+            for( int i = 6; i < static_cast< int >( initialParameterEstimate.rows( ) ); i++ )
             {
                 initialParameterEstimate[ i ] += 1.0E-6;
             }
@@ -213,20 +207,18 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
         {
             inverseAprioriCovariance( i, i ) = 1.0 / ( 1.0E-3 * 1.0E-3 );
             inverseAprioriCovariance( i + 3, i + 3 ) = 1.0 / ( 1.0E-6 * 1.0E-6 );
-
         }
 
         // Create estimation input
-        std::shared_ptr< EstimationInput< double, double > > estimationInput = std::make_shared< EstimationInput< double, double > >(
-                    observationsAndTimes, inverseAprioriCovariance );
+        std::shared_ptr< EstimationInput< double, double > > estimationInput =
+                std::make_shared< EstimationInput< double, double > >( observationsAndTimes, inverseAprioriCovariance );
         estimationInput->applyFinalParameterCorrection_ = true;
         estimationInput->defineEstimationSettings( false, false );
-        estimationInput->setConvergenceChecker(
-                    std::make_shared< EstimationConvergenceChecker >( 4 ) );
+        estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
         // Perform state estimation
-        std::shared_ptr< EstimationOutput< double, double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                    estimationInput );
+        std::shared_ptr< EstimationOutput< double, double > > estimationOutput =
+                orbitDeterminationManager.estimateParameters( estimationInput );
 
         int numberOfSavedParameterVectors = estimationOutput->parameterHistory_.size( );
         int numberOfSavedResidualVectors = estimationOutput->residualHistory_.size( );
@@ -235,21 +227,20 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 
         // Retrieve estimated parameter, and compare against true values
         Eigen::VectorXd parameterError = estimationOutput->parameterEstimate_ - truthParameters;
-        if ( testCase == 0 ) {
-
+        if( testCase == 0 )
+        {
             BOOST_CHECK_SMALL( std::fabs( parameterError( 6 ) ), 1.0E-7 );
             BOOST_CHECK_SMALL( std::fabs( parameterError( 6 + 1 ) ), 1.0E-12 );
-
         }
         else
         {
-            for( int i = 6 ; i < static_cast< int >( initialParameterEstimate.rows( ) ); i++ )
+            for( int i = 6; i < static_cast< int >( initialParameterEstimate.rows( ) ); i++ )
             {
-                if ( testCase == 1 )
+                if( testCase == 1 )
                 {
                     BOOST_CHECK_SMALL( std::fabs( parameterError( i ) ), 1.0E-12 );
                 }
-                else if ( testCase == 2 )
+                else if( testCase == 2 )
                 {
                     BOOST_CHECK_SMALL( std::fabs( parameterError( i ) ), 1.0E-12 );
                 }
@@ -260,6 +251,6 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

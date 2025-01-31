@@ -20,10 +20,6 @@
 #ifndef TUDAT_HALLEY_ROOT_FINDER_H
 #define TUDAT_HALLEY_ROOT_FINDER_H
 
-
-
-
-
 #include <memory>
 
 #include "tudat/math/root_finders/rootFinder.h"
@@ -61,7 +57,6 @@ template< typename DataType = double >
 class HalleyRootFinder : public RootFinder< DataType >
 {
 public:
-
     //! Usefull type definition for the function pointer (from base class).
     typedef typename RootFinder< DataType >::FunctionPointer FunctionPointer;
 
@@ -76,9 +71,7 @@ public:
      * \param terminationFunction The function specifying the termination conditions of the
      *          root-finding process. \sa RootFinderCore::terminationFunction
      */
-    HalleyRootFinder( TerminationFunction terminationFunction )
-        : RootFinder< DataType >( terminationFunction )
-    { }
+    HalleyRootFinder( TerminationFunction terminationFunction ): RootFinder< DataType >( terminationFunction ) { }
 
     //! Constructor taking typical convergence criteria.
     /*!
@@ -91,20 +84,23 @@ public:
      *  \param maxIterations Maximum number of iterations after which the root finder is
      *          terminated, i.e. convergence is assumed.
      */
-    HalleyRootFinder( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations )
-        : RootFinder< DataType >(
-              std::bind(
-                  &RootRelativeToleranceTerminationCondition< DataType >::
-                  checkTerminationCondition, std::make_shared<
-                  RootRelativeToleranceTerminationCondition< DataType > >(
-                      relativeIndependentVariableTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) )
+    HalleyRootFinder( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations ):
+        RootFinder< DataType >(
+                std::bind( &RootRelativeToleranceTerminationCondition< DataType >::checkTerminationCondition,
+                           std::make_shared< RootRelativeToleranceTerminationCondition< DataType > >( relativeIndependentVariableTolerance,
+                                                                                                      maxIterations ),
+                           std::placeholders::_1,
+                           std::placeholders::_2,
+                           std::placeholders::_3,
+                           std::placeholders::_4,
+                           std::placeholders::_5 ) )
     { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~HalleyRootFinder( ){ }
+    ~HalleyRootFinder( ) { }
 
     //! Find a root of the function provided as input.
     /*!
@@ -123,16 +119,14 @@ public:
         this->rootFunction = rootFunction;
 
         // Start at initial guess, and compute the function value, its first and second derivative.
-        DataType currentRootValue             = TUDAT_NAN;
-        DataType nextRootValue                = initialGuess;
-        DataType currentFunctionValue         = TUDAT_NAN;
-        DataType nextFunctionValue            = this->rootFunction->evaluate( nextRootValue );
-        DataType currentFirstDerivativeValue  = TUDAT_NAN;
-        DataType nextFirstDerivativeValue     = this->rootFunction->
-                computeDerivative( 1, nextRootValue );
+        DataType currentRootValue = TUDAT_NAN;
+        DataType nextRootValue = initialGuess;
+        DataType currentFunctionValue = TUDAT_NAN;
+        DataType nextFunctionValue = this->rootFunction->evaluate( nextRootValue );
+        DataType currentFirstDerivativeValue = TUDAT_NAN;
+        DataType nextFirstDerivativeValue = this->rootFunction->computeDerivative( 1, nextRootValue );
         DataType currentSecondDerivativeValue = TUDAT_NAN;
-        DataType nextSecondDerivativeValue    = this->rootFunction->
-                computeDerivative( 2, nextRootValue );
+        DataType nextSecondDerivativeValue = this->rootFunction->computeDerivative( 2, nextRootValue );
 
         // Loop counter.
         unsigned int counter = 1;
@@ -141,38 +135,33 @@ public:
         do
         {
             // Save the old values.
-            currentRootValue             = nextRootValue;
-            currentFunctionValue         = nextFunctionValue;
-            currentFirstDerivativeValue  = nextFirstDerivativeValue;
+            currentRootValue = nextRootValue;
+            currentFunctionValue = nextFunctionValue;
+            currentFirstDerivativeValue = nextFirstDerivativeValue;
             currentSecondDerivativeValue = nextSecondDerivativeValue;
 
             // Compute next value of root using the following algorithm (see class documentation):
-            nextRootValue               = currentRootValue
-                    - ( ( 2.0 * currentFunctionValue * currentFirstDerivativeValue )
-                        / ( 2.0 * currentFirstDerivativeValue * currentFirstDerivativeValue
-                            - currentFunctionValue * currentSecondDerivativeValue ) );
-            nextFunctionValue           = this->rootFunction->evaluate( nextRootValue );
-            nextFirstDerivativeValue    = this->rootFunction->computeDerivative( 1, nextRootValue );
-            nextSecondDerivativeValue   = this->rootFunction->computeDerivative( 2, nextRootValue );
+            nextRootValue = currentRootValue -
+                    ( ( 2.0 * currentFunctionValue * currentFirstDerivativeValue ) /
+                      ( 2.0 * currentFirstDerivativeValue * currentFirstDerivativeValue -
+                        currentFunctionValue * currentSecondDerivativeValue ) );
+            nextFunctionValue = this->rootFunction->evaluate( nextRootValue );
+            nextFirstDerivativeValue = this->rootFunction->computeDerivative( 1, nextRootValue );
+            nextSecondDerivativeValue = this->rootFunction->computeDerivative( 2, nextRootValue );
 
             // Update the counter.
             counter++;
-        }
-        while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
-               !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
-                                           currentFunctionValue, counter ) );
+        } while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
+                 !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue, currentFunctionValue, counter ) );
 
         return nextRootValue;
     }
 
 protected:
-
 private:
-
 };
 
+}  // namespace root_finders
+}  // namespace tudat
 
-} // namespace root_finders
-} // namespace tudat
-
-#endif // TUDAT_HALLEY_ROOT_FINDER_H
+#endif  // TUDAT_HALLEY_ROOT_FINDER_H

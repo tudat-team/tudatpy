@@ -20,17 +20,14 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_shapeModel )
 
 // Test 1: radiation pressure types
 BOOST_AUTO_TEST_CASE( test_json_shapeModel_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
-                            simulation_setup::bodyShapeTypes,
-                            simulation_setup::unsupportedBodyShapeTypes );
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ), simulation_setup::bodyShapeTypes, simulation_setup::unsupportedBodyShapeTypes );
 }
 
 // Test 2: spherical shape model
@@ -45,8 +42,7 @@ BOOST_AUTO_TEST_CASE( test_json_shapeModel_spherical )
 
     // Create BodyShapeSettings manually
     const double radius = 6.4e6;
-    const std::shared_ptr< BodyShapeSettings > manualSettings =
-            std::make_shared< SphericalBodyShapeSettings >( radius );
+    const std::shared_ptr< BodyShapeSettings > manualSettings = std::make_shared< SphericalBodyShapeSettings >( radius );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -63,8 +59,7 @@ BOOST_AUTO_TEST_CASE( test_json_shapeModel_sphericalSpice )
             parseJSONFile< std::shared_ptr< BodyShapeSettings > >( INPUT( "sphericalSpice" ) );
 
     // Create BodyShapeSettings manually
-    const std::shared_ptr< BodyShapeSettings > manualSettings =
-            std::make_shared< BodyShapeSettings >( spherical_spice );
+    const std::shared_ptr< BodyShapeSettings > manualSettings = std::make_shared< BodyShapeSettings >( spherical_spice );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -84,8 +79,7 @@ BOOST_AUTO_TEST_CASE( test_json_shapeModel_oblateSpherical )
     const double equatorialRadius = 6.378e6;
     const double flattening = 0.0034;
     const std::shared_ptr< BodyShapeSettings > manualSettings =
-            std::make_shared< OblateSphericalBodyShapeSettings >( equatorialRadius,
-                                                                    flattening );
+            std::make_shared< OblateSphericalBodyShapeSettings >( equatorialRadius, flattening );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -93,6 +87,6 @@ BOOST_AUTO_TEST_CASE( test_json_shapeModel_oblateSpherical )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

@@ -28,10 +28,9 @@ namespace basic_astrodynamics
 {
 
 // Body shape model defined by a polyhedron, usually used for approximating small bodies (e.g. small moons and asteroids)
-class PolyhedronBodyShapeModel: public BodyShapeModel
+class PolyhedronBodyShapeModel : public BodyShapeModel
 {
 public:
-
     /*! Constructor.
      *
      * Constructor.
@@ -44,29 +43,26 @@ public:
      * @param justComputeDistanceToVertices Flag indicating whether the distance should be computed wrt to all the
      * polyhedron features or wrt to just the vertices.
      */
-    PolyhedronBodyShapeModel(
-            const Eigen::MatrixXd& verticesCoordinates,
-            const Eigen::MatrixXi& verticesDefiningEachFacet,
-            const bool computeAltitudeWithSign,
-            const bool justComputeDistanceToVertices ):
-        verticesCoordinates_( verticesCoordinates ),
-        verticesDefiningEachFacet_( verticesDefiningEachFacet ),
-        computeAltitudeWithSign_( computeAltitudeWithSign ),
-        justComputeDistanceToVertices_( justComputeDistanceToVertices ),
+    PolyhedronBodyShapeModel( const Eigen::MatrixXd& verticesCoordinates,
+                              const Eigen::MatrixXi& verticesDefiningEachFacet,
+                              const bool computeAltitudeWithSign,
+                              const bool justComputeDistanceToVertices ):
+        verticesCoordinates_( verticesCoordinates ), verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+        computeAltitudeWithSign_( computeAltitudeWithSign ), justComputeDistanceToVertices_( justComputeDistanceToVertices ),
         averageRadius_( TUDAT_NAN )
     {
         // Check if provided settings are valid
         basic_mathematics::checkValidityOfPolyhedronSettings( verticesCoordinates, verticesDefiningEachFacet );
 
         // If necessary, get list with vertices defining each edge
-        if ( !justComputeDistanceToVertices_ )
+        if( !justComputeDistanceToVertices_ )
         {
-            computeVerticesDefiningEachEdge();
+            computeVerticesDefiningEachEdge( );
         }
     }
 
     //! Destructor
-    ~PolyhedronBodyShapeModel( ){ }
+    ~PolyhedronBodyShapeModel( ) { }
 
     //! Calculates the altitude above the polyhedron
     /*!
@@ -86,7 +82,7 @@ public:
      */
     double getAverageRadius( )
     {
-        if ( std::isnan( averageRadius_ ) )
+        if( std::isnan( averageRadius_ ) )
         {
             averageRadius_ = computePolyhedronMeanRadius( verticesCoordinates_, verticesDefiningEachFacet_ );
         }
@@ -119,7 +115,6 @@ public:
     }
 
 private:
-
     /*! Computes the distance to the vertex closest to the field point.
      *
      * Computes the distance to the vertex closest to the field point.
@@ -127,8 +122,7 @@ private:
      *  is to be determined.
      * @return Distance to the vertex closest to the field point.
      */
-    double computeDistanceToClosestVertex( const Eigen::Vector3d& bodyFixedPosition,
-                                           unsigned int& closestVertexId);
+    double computeDistanceToClosestVertex( const Eigen::Vector3d& bodyFixedPosition, unsigned int& closestVertexId );
 
     /*! Computes the distance to the facet closest to the field point.
      *
@@ -140,8 +134,8 @@ private:
      * @param verticesDefiningEachFacetToEvaluate Facets wrt which the distance is to be computed.
      * @return Distance to closest facet.
      */
-    double computeDistanceToClosestFacet ( const Eigen::Vector3d& bodyFixedPosition,
-                                           const Eigen::MatrixXi& verticesDefiningEachFacetToEvaluate );
+    double computeDistanceToClosestFacet( const Eigen::Vector3d& bodyFixedPosition,
+                                          const Eigen::MatrixXi& verticesDefiningEachFacetToEvaluate );
 
     /*! Computes the distance to the edge closest to the field point.
      *
@@ -153,15 +147,14 @@ private:
      * @param verticesDefiningEachEdgeToEvaluate Edges wrt which the distance is to be computed.
      * @return Distance to closest edge.
      */
-    double computeDistanceToClosestEdge ( const Eigen::Vector3d& bodyFixedPosition,
-                                          const Eigen::MatrixXi& verticesDefiningEachEdgeToEvaluate );
+    double computeDistanceToClosestEdge( const Eigen::Vector3d& bodyFixedPosition,
+                                         const Eigen::MatrixXi& verticesDefiningEachEdgeToEvaluate );
 
     /*! Computes the matrix with the indices of the vertices defining each edge.
      *
      * Computes the matrix with the indices of the vertices defining each edge; saves the list to verticesDefiningEachEdge_.
      */
     void computeVerticesDefiningEachEdge( );
-
 
     // Matrix with coordinates of the polyhedron vertices.
     Eigen::MatrixXd verticesCoordinates_;
@@ -182,10 +175,9 @@ private:
 
     // Average radius of the polyhedron
     double averageRadius_;
-
 };
 
-} // namespace basic_astrodynamics
-} // namespace tudat
+}  // namespace basic_astrodynamics
+}  // namespace tudat
 
-#endif //TUDAT_POLYHEDRONBODYSHAPEMODEL_H
+#endif  // TUDAT_POLYHEDRONBODYSHAPEMODEL_H

@@ -17,8 +17,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
-#include <boost/test/tools/floating_point_comparison.hpp> 
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -40,7 +39,6 @@ using namespace orbital_element_conversions;
 //! Test if state derivative for circular restricted three-body problem is computed correctly.
 BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
 {
-
     // Test 1: test state derivative at L1.
     {
         // Set mass parameter for Earth-moon system. Value from Table 3.1 (Wakker, 2007).
@@ -54,12 +52,11 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
         StateDerivativeCircularRestrictedThreeBodyProblem stateDerivative( massParameter );
 
         // Compute state derivative at L1.
-        Eigen::VectorXd stateDerivativeAtL1 = stateDerivative.computeStateDerivative(
-                    0.0, stateAtL1 );
+        Eigen::VectorXd stateDerivativeAtL1 = stateDerivative.computeStateDerivative( 0.0, stateAtL1 );
 
         // Check if expected state derivative (all zeros) matches computed.
         TUDAT_CHECK_MATRIX_BASE( Eigen::VectorXd::Zero( 6 ), stateDerivativeAtL1 )
-            BOOST_CHECK_SMALL( stateDerivativeAtL1.coeff( row, col ), 1.0e-4 );
+        BOOST_CHECK_SMALL( stateDerivativeAtL1.coeff( row, col ), 1.0e-4 );
     }
 
     // Test 2: test Halo orbit around L1. Note that this is actually a system test, since it
@@ -79,27 +76,26 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
 
         // Declare Runge-Kutta 4 integrator.
         numerical_integrators::RungeKutta4IntegratorXd rungeKutta4Integrator(
-                    std::bind(
-                        &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative,
-                        &stateDerivative, std::placeholders::_1, std::placeholders::_2 ),
-                    0.0, initialStateOnHaloOrbit, 0.1 );
+                std::bind( &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative,
+                           &stateDerivative,
+                           std::placeholders::_1,
+                           std::placeholders::_2 ),
+                0.0,
+                initialStateOnHaloOrbit,
+                0.1 );
 
         // Integrate Halo orbit over one period.
-        Eigen::VectorXd finalStateOnHaloOrbit = rungeKutta4Integrator.integrateTo(
-                    2.0 * 1.300177, 0.1 );
+        Eigen::VectorXd finalStateOnHaloOrbit = rungeKutta4Integrator.integrateTo( 2.0 * 1.300177, 0.1 );
 
         // Check if expected final state (same as initial) matches computed.
-        BOOST_CHECK_CLOSE_FRACTION( initialStateOnHaloOrbit( 0 ),
-                                    finalStateOnHaloOrbit( 0 ), 1.0e-3 );
+        BOOST_CHECK_CLOSE_FRACTION( initialStateOnHaloOrbit( 0 ), finalStateOnHaloOrbit( 0 ), 1.0e-3 );
         BOOST_CHECK_SMALL( finalStateOnHaloOrbit( 1 ), 1.0e-3 );
-        BOOST_CHECK_CLOSE_FRACTION( initialStateOnHaloOrbit( 2 ),
-                                    finalStateOnHaloOrbit( 2 ), 1.0e-3 );
+        BOOST_CHECK_CLOSE_FRACTION( initialStateOnHaloOrbit( 2 ), finalStateOnHaloOrbit( 2 ), 1.0e-3 );
         BOOST_CHECK_SMALL( finalStateOnHaloOrbit( 3 ), 1.0e-2 );
-        BOOST_CHECK_CLOSE_FRACTION( initialStateOnHaloOrbit( 4 ),
-                                    finalStateOnHaloOrbit( 4 ), 1.0e-2 );
+        BOOST_CHECK_CLOSE_FRACTION( initialStateOnHaloOrbit( 4 ), finalStateOnHaloOrbit( 4 ), 1.0e-2 );
         BOOST_CHECK_SMALL( finalStateOnHaloOrbit( 5 ), 1.0e-3 );
     }
 }
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

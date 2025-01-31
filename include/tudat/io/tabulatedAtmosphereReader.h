@@ -30,8 +30,7 @@ namespace input_output
  * \param list2 Second list that is to be compared.
  * \return True of the two lists are completely equal in size and contents, false otherwise.
  */
-bool compareIndependentVariables( const std::vector< std::vector< double > >& list1,
-                                  const std::vector< std::vector< double > >& list2 );
+bool compareIndependentVariables( const std::vector< std::vector< double > >& list1, const std::vector< std::vector< double > >& list2 );
 
 //! Function to read a list of atmosphere parameters and associated independent variables from a set of files
 /*!
@@ -45,8 +44,7 @@ bool compareIndependentVariables( const std::vector< std::vector< double > >& li
  *  variables at which coefficients are defined.
  */
 template< unsigned int NumberOfDimensions >
-std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > >,
-std::vector< std::vector< double > > >
+std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > >, std::vector< std::vector< double > > >
 readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
 {
     // Assing number of dependent variables
@@ -58,13 +56,12 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
     std::vector< std::vector< double > > independentVariables;
 
     // Iterate over files and read the contents into rawAtmosphereArrays/independentVariables.
-    for( std::map< int, std::string >::const_iterator fileIterator = fileNames.begin( ); fileIterator != fileNames.end( );
-         fileIterator++ )
+    for( std::map< int, std::string >::const_iterator fileIterator = fileNames.begin( ); fileIterator != fileNames.end( ); fileIterator++ )
     {
         // Read current coefficients/independent variables
-        std::pair< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) >,
-                std::vector< std::vector< double > > > currentCoefficients =
-                MultiArrayFileReader< NumberOfDimensions >::readMultiArrayAndIndependentVariables( fileIterator->second );
+        std::pair< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) >, std::vector< std::vector< double > > >
+                currentCoefficients =
+                        MultiArrayFileReader< NumberOfDimensions >::readMultiArrayAndIndependentVariables( fileIterator->second );
 
         // Save/check consistency of independent variables
         if( rawAtmosphereArrays.size( ) == 0 )
@@ -73,8 +70,7 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
         }
         else
         {
-            bool areIndependentVariablesEqual = compareIndependentVariables(
-                        independentVariables, currentCoefficients.second );
+            bool areIndependentVariablesEqual = compareIndependentVariables( independentVariables, currentCoefficients.second );
 
             if( !areIndependentVariablesEqual )
             {
@@ -83,8 +79,7 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
         }
 
         // Save file contents into rawAtmosphereArrays
-        utilities::copyMultiArray< double, NumberOfDimensions >(
-                    currentCoefficients.first, rawAtmosphereArrays[ fileIterator->first ] );
+        utilities::copyMultiArray< double, NumberOfDimensions >( currentCoefficients.first, rawAtmosphereArrays[ fileIterator->first ] );
     }
 
     // Check if anything has been read from files.
@@ -95,8 +90,7 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
     else
     {
         atmosphereArrays.resize( numberOfFiles );
-        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > firstMultiArray =
-                rawAtmosphereArrays.begin( )->second;
+        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > firstMultiArray = rawAtmosphereArrays.begin( )->second;
 
         // Iterate over all entries
         for( unsigned int i = 0; i < numberOfFiles; i++ )
@@ -104,8 +98,7 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
             // Copy contents for current index into atmosphereArrays read from file.
             if( rawAtmosphereArrays.count( i ) != 0 )
             {
-                utilities::copyMultiArray< double, NumberOfDimensions >(
-                            rawAtmosphereArrays.at( i ), atmosphereArrays[ i ] );
+                utilities::copyMultiArray< double, NumberOfDimensions >( rawAtmosphereArrays.at( i ), atmosphereArrays[ i ] );
             }
             // Set zero multi-array for current index.
             else
@@ -116,8 +109,7 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
 
                 atmosphereArrays[ i ].resize( sizeVector );
 
-                std::fill( atmosphereArrays[ i ].data( ),
-                           atmosphereArrays[ i ].data() + atmosphereArrays[ i ].num_elements( ), 0.0 );
+                std::fill( atmosphereArrays[ i ].data( ), atmosphereArrays[ i ].data( ) + atmosphereArrays[ i ].num_elements( ), 0.0 );
             }
         }
     }
@@ -126,8 +118,8 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
     return std::make_pair( atmosphereArrays, independentVariables );
 }
 
-} // namespace input_output
+}  // namespace input_output
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_TABULATED_ATMOSPHERE_READER_H
+#endif  // TUDAT_TABULATED_ATMOSPHERE_READER_H

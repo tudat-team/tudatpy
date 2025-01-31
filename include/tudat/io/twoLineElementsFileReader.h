@@ -36,7 +36,6 @@ namespace input_output
 class TwoLineElementsFileReader
 {
 public:
-
     //! Constructor.
     /*!
      * Constructor from file name and absolute directory path.
@@ -45,26 +44,22 @@ public:
      * @param numberOfHeaderLines Number of header lines in the file (default: 0).
      * @param lineCommentChar Character that indicates that a line is a comment and should be skipped.
      */
-    TwoLineElementsFileReader( std::string& fileName, std::string& absoluteDirectoryPath,
-    		unsigned int numberOfHeaderLines = 0, std::string lineCommentChar = "#" )
-        : numberOfHeaderLines_( numberOfHeaderLines ),
-          dataFile_( ),
-          fileName_( fileName ),
-          stringOfData_( "" ),
-          absoluteFilePath_( "" ),
-          absoluteDirectoryPath_( absoluteDirectoryPath ),
-          relativeDirectoryPath_( "" ),
-          lineCommentChar_( lineCommentChar ),
-          numberOfObjects_( 0 )
+    TwoLineElementsFileReader( std::string& fileName,
+                               std::string& absoluteDirectoryPath,
+                               unsigned int numberOfHeaderLines = 0,
+                               std::string lineCommentChar = "#" ):
+        numberOfHeaderLines_( numberOfHeaderLines ), dataFile_( ), fileName_( fileName ), stringOfData_( "" ), absoluteFilePath_( "" ),
+        absoluteDirectoryPath_( absoluteDirectoryPath ), relativeDirectoryPath_( "" ), lineCommentChar_( lineCommentChar ),
+        numberOfObjects_( 0 )
     { }
 
     //! Default destructor
     virtual ~TwoLineElementsFileReader( )
     {
-    	if ( dataFile_.is_open( ) )
-		{
-    		dataFile_.close( );
-		}
+        if( dataFile_.is_open( ) )
+        {
+            dataFile_.close( );
+        }
     }
 
     //! Set absolute directory path.
@@ -98,7 +93,7 @@ public:
      */
     void setFileName( std::string fileName )
     {
-    	fileName_ = fileName;
+        fileName_ = fileName;
     }
 
     //! Open data file.
@@ -127,13 +122,17 @@ public:
     /*!
      * \return Number of objects in TLE data file.
      */
-    unsigned int getNumberOfObjects( ) { return numberOfObjects_; }
+    unsigned int getNumberOfObjects( )
+    {
+        return numberOfObjects_;
+    }
 
-    std::map< std::string, std::string > getTleMap( ) { return tlePairs_; };
+    std::map< std::string, std::string > getTleMap( )
+    {
+        return tlePairs_;
+    };
 
 protected:
-
-
     //! Number of header lines.
     unsigned int numberOfHeaderLines_;
 
@@ -169,13 +168,11 @@ protected:
     std::vector< std::string > headerLines_;
 
 private:
-
     //! Number of object in input file, linecounter divided by 3.
     unsigned int numberOfObjects_;
-
 };
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_TWO_LINE_ELEMENTS_FILE_READER_H
+#endif  // TUDAT_TWO_LINE_ELEMENTS_FILE_READER_H

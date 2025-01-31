@@ -32,8 +32,6 @@ namespace tudat
 namespace unit_tests
 {
 
-
-
 //! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
 //! using default ephemerides for the central body only, while the positions of departure and arrival bodies are provided as inputs.
 /*!
@@ -49,7 +47,7 @@ namespace unit_tests
 simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
-        const std::pair< std::string, std::string >&  departureAndArrivalBodies,
+        const std::pair< std::string, std::string >& departureAndArrivalBodies,
         const Eigen::Vector3d& cartesianPositionAtDeparture,
         const Eigen::Vector3d& cartesianPositionAtArrival )
 {
@@ -59,21 +57,17 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTarget
     std::string frameOrientation = "ECLIPJ2000";
 
     // Create ephemeris vector for departure and arrival bodies.
-    std::vector< ephemerides::EphemerisPointer > ephemerisVectorDepartureAndArrivalBodies(2);
-    ephemerisVectorDepartureAndArrivalBodies[ 0 ] = std::make_shared< ephemerides::ConstantEphemeris > (
-                ( Eigen::Vector6d( ) << cartesianPositionAtDeparture,
-                  0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+    std::vector< ephemerides::EphemerisPointer > ephemerisVectorDepartureAndArrivalBodies( 2 );
+    ephemerisVectorDepartureAndArrivalBodies[ 0 ] = std::make_shared< ephemerides::ConstantEphemeris >(
+            ( Eigen::Vector6d( ) << cartesianPositionAtDeparture, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
     ephemerisVectorDepartureAndArrivalBodies[ 1 ] = std::make_shared< ephemerides::ConstantEphemeris >(
-                ( Eigen::Vector6d( ) << cartesianPositionAtArrival,
-                  0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+            ( Eigen::Vector6d( ) << cartesianPositionAtArrival, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
     // Create body map.
-    simulation_setup::NamedBodyMap bodyMap =
-            propagators::setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(
-                nameCentralBody, nameBodyToPropagate, departureAndArrivalBodies, ephemerisVectorDepartureAndArrivalBodies );
+    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(
+            nameCentralBody, nameBodyToPropagate, departureAndArrivalBodies, ephemerisVectorDepartureAndArrivalBodies );
 
     return bodyMap;
-
 }
 
 BOOST_AUTO_TEST_SUITE( testFullPropagationLambertTargeter )
@@ -81,74 +75,86 @@ BOOST_AUTO_TEST_SUITE( testFullPropagationLambertTargeter )
 //! Test if the difference between the Lambert targeter solution and the full dynamics problem is computed correctly.
 BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeterBasic )
 {
-
-    std::cout.precision(20);
+    std::cout.precision( 20 );
 
     double initialTime = 0.0;
 
-    Eigen::Vector3d cartesianPositionAtDeparture ( 2.0 * 6.378136e6, 0.0, 0.0 );
-    Eigen::Vector3d cartesianPositionAtArrival ( 2.0 * 6.378136e6, 2.0 * std::sqrt( 3.0 ) * 6.378136e6, 0.0 );
+    Eigen::Vector3d cartesianPositionAtDeparture( 2.0 * 6.378136e6, 0.0, 0.0 );
+    Eigen::Vector3d cartesianPositionAtArrival( 2.0 * 6.378136e6, 2.0 * std::sqrt( 3.0 ) * 6.378136e6, 0.0 );
 
     double timeOfFlight = 806.78 * 5.0;
     double fixedStepSize = timeOfFlight / 10000.0;
 
-    std::string bodyToPropagate = "spacecraft" ;
+    std::string bodyToPropagate = "spacecraft";
     std::string centralBody = "Earth";
 
     // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared < numerical_integrators::IntegratorSettings < > >
-            ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
+            std::make_shared< numerical_integrators::IntegratorSettings<> >(
+                    numerical_integrators::rungeKutta4, initialTime, fixedStepSize );
 
-
-    std::pair< std::string, std::string > departureAndArrivalBodies =
-            std::make_pair( "departure", "arrival" );
+    std::pair< std::string, std::string > departureAndArrivalBodies = std::make_pair( "departure", "arrival" );
 
 <<<<<<< HEAD
     // Define the system of bodies.
-    simulation_setup::SystemOfBodies bodies = propagators::setupBodyMapFromUserDefinedStatesForLambertTargeter("Earth", "spacecraft", departureAndArrivalBodies,
-                                                                                      cartesianPositionAtDeparture, cartesianPositionAtArrival);
+    simulation_setup::SystemOfBodies bodies = propagators::setupBodyMapFromUserDefinedStatesForLambertTargeter(
+            "Earth", "spacecraft", departureAndArrivalBodies, cartesianPositionAtDeparture, cartesianPositionAtArrival );
 
-    basic_astrodynamics::AccelerationMap accelerationModelMap = propagators::setupAccelerationMapLambertTargeter(
-                "Earth", "spacecraft", bodies);
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            propagators::setupAccelerationMapLambertTargeter( "Earth", "spacecraft", bodies );
 
-
-   // Compute the difference in state between the full problem and the Lambert targeter solution at departure and at arrival
-   std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceState =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(cartesianPositionAtDeparture,
-             cartesianPositionAtArrival, timeOfFlight, initialTime, bodies, accelerationModelMap, bodyToPropagate,
-             centralBody, integratorSettings, departureAndArrivalBodies, false);
+    // Compute the difference in state between the full problem and the Lambert targeter solution at departure and at arrival
+    std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceState =
+            propagators::getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival( cartesianPositionAtDeparture,
+                                                                                              cartesianPositionAtArrival,
+                                                                                              timeOfFlight,
+                                                                                              initialTime,
+                                                                                              bodies,
+                                                                                              accelerationModelMap,
+                                                                                              bodyToPropagate,
+                                                                                              centralBody,
+                                                                                              integratorSettings,
+                                                                                              departureAndArrivalBodies,
+                                                                                              false );
 =======
     // Define the body map.
     simulation_setup::NamedBodyMap bodyMap = setupBodyMapFromUserDefinedStatesForLambertTargeter(
-                "Earth", "spacecraft", departureAndArrivalBodies, cartesianPositionAtDeparture, cartesianPositionAtArrival );
+            "Earth", "spacecraft", departureAndArrivalBodies, cartesianPositionAtDeparture, cartesianPositionAtArrival );
 
-    basic_astrodynamics::AccelerationMap accelerationModelMap = propagators::setupAccelerationMapLambertTargeter(
-                "Earth", "spacecraft", bodyMap );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            propagators::setupAccelerationMapLambertTargeter( "Earth", "spacecraft", bodyMap );
 >>>>>>> dominic-origin/features/mission_segments_refactor
 
     std::map< double, Eigen::Vector6d > lambertTargeterResult;
     std::map< double, Eigen::Vector6d > fullProblemResult;
     std::map< double, Eigen::VectorXd > dependentVariableResult;
-    propagateLambertTargeterAndFullProblem(
-                timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate,
-                centralBody, departureAndArrivalBodies, integratorSettings, lambertTargeterResult, fullProblemResult,
-                dependentVariableResult, false );
+    propagateLambertTargeterAndFullProblem( timeOfFlight,
+                                            initialTime,
+                                            bodyMap,
+                                            accelerationModelMap,
+                                            bodyToPropagate,
+                                            centralBody,
+                                            departureAndArrivalBodies,
+                                            integratorSettings,
+                                            lambertTargeterResult,
+                                            fullProblemResult,
+                                            dependentVariableResult,
+                                            false );
 
-    for( auto stateIterator : lambertTargeterResult )
+    for( auto stateIterator: lambertTargeterResult )
     {
         for( int i = 0; i < 3; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( lambertTargeterResult.at( stateIterator.first )( i ) -
-                                          fullProblemResult.at( stateIterator.first )( i ) ), 1.0E-5 );
+            BOOST_CHECK_SMALL(
+                    std::fabs( lambertTargeterResult.at( stateIterator.first )( i ) - fullProblemResult.at( stateIterator.first )( i ) ),
+                    1.0E-5 );
             BOOST_CHECK_SMALL( std::fabs( lambertTargeterResult.at( stateIterator.first )( i + 3 ) -
-                                          fullProblemResult.at( stateIterator.first )( i + 3 ) ), 1.0E-9 );
+                                          fullProblemResult.at( stateIterator.first )( i + 3 ) ),
+                               1.0E-9 );
         }
     }
 }
 
-}
+}  // namespace unit_tests
 
-}
-
-
+}  // namespace tudat

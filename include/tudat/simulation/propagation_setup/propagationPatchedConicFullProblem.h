@@ -43,7 +43,6 @@ simulation_setup::SystemOfBodies setupBodyMapFromEphemeridesForPatchedConicsTraj
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& nameTransferBodies );
 
-
 //! Function to setup a system of bodies corresponding to the assumptions of the patched conics trajectory,
 //! the ephemerides of the transfer bodies being provided as inputs.
 /*!
@@ -61,10 +60,9 @@ simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForPatche
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& nameTransferBodies,
-        const std::vector<ephemerides::EphemerisPointer> &ephemerisVectorTransferBodies,
-        const std::vector<double>& gravitationalParametersTransferBodies,
+        const std::vector< ephemerides::EphemerisPointer >& ephemerisVectorTransferBodies,
+        const std::vector< double >& gravitationalParametersTransferBodies,
         const std::string& frameOrientation = "J2000" );
-
 
 //! Function to directly setup a vector of acceleration maps for a patched conics trajectory.
 /*!
@@ -76,12 +74,11 @@ simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForPatche
  * \param bodies Body map for the patched conics trajectory.
  * \return Acceleration map for the patched conics trajectory.
  */
-std::vector < basic_astrodynamics::AccelerationMap > setupAccelerationMapPatchedConicsTrajectory(
+std::vector< basic_astrodynamics::AccelerationMap > setupAccelerationMapPatchedConicsTrajectory(
         const double numberOfLegs,
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const simulation_setup::SystemOfBodies& bodies );
-
 
 //! Function to create the trajectory from the system of bodies.
 /*!
@@ -138,7 +135,7 @@ void propagateMgaWithoutDsmAndFullProblem(
         const double initialTime,
         const double timeOfFlight,
         const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
+                         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< double, Eigen::Vector6d >& patchedConicsResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
@@ -193,9 +190,9 @@ void propagateMga1DsmVelocityAndFullProblem(
         Eigen::Vector3d& velocityAfterDeparture,
         Eigen::Vector3d& velocityBeforeArrival,
         const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsBeforeDsm,
+                         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsBeforeDsm,
         const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsAfterDsm,
+                         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsAfterDsm,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
@@ -203,8 +200,6 @@ void propagateMga1DsmVelocityAndFullProblem(
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival,
         std::map< double, Eigen::VectorXd >& dependentVariablesFromDsmToArrival );
-
-
 
 //! Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem.
 /*!
@@ -257,9 +252,9 @@ void propagateMga1DsmPositionAndFullProblem(
         Eigen::Vector3d& velocityAfterDeparture,
         Eigen::Vector3d& velocityBeforeArrival,
         const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsBeforeDsm,
+                         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsBeforeDsm,
         const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsAfterDsm,
+                         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsAfterDsm,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
@@ -279,35 +274,33 @@ std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartS
         const bool useBackwardLegToDepartureBody,
         const double terminationDistanceScaler = 1.0 );
 
-std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-std::shared_ptr< propagators::PropagationTerminationSettings > > getSingleLegSphereOfInfluenceTerminationSettings(
-        simulation_setup::SystemOfBodies& bodies,
-        const std::string& bodyToPropagate,
-        const std::string& centralBody,
-        const std::string& departureBody,
-        const std::string& arrivalBody,
-        const double initialTimeCurrentLeg,
-        const double finalTimeCurrentLeg,
-        const double terminationDistanceScaler = 1.0 );
+std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >, std::shared_ptr< propagators::PropagationTerminationSettings > >
+getSingleLegSphereOfInfluenceTerminationSettings( simulation_setup::SystemOfBodies& bodies,
+                                                  const std::string& bodyToPropagate,
+                                                  const std::string& centralBody,
+                                                  const std::string& departureBody,
+                                                  const std::string& arrivalBody,
+                                                  const double initialTimeCurrentLeg,
+                                                  const double finalTimeCurrentLeg,
+                                                  const double terminationDistanceScaler = 1.0 );
 
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
 std::vector< std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > > getPatchedConicPropagatorSettings(
-        simulation_setup::SystemOfBodies& bodies,
-        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
-        const std::vector< std::string >& transferBodyOrder,
-        const std::string& centralBody,
-        const std::string& bodyToPropagate,
-        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
-        const std::vector< double >& trajectoryVariableVector,
-        const std::vector< double >& minimumPericenterRadiiVector,
-        const std::vector< double >& semiMajorAxesVector,
-        const std::vector< double >& eccentricitiesVector,
-        const std::vector< std::shared_ptr< DependentVariableSaveSettings > > dependentVariablesToSave,
-        const TranslationalPropagatorType propagator,
-        const bool terminationSphereOfInfluence,
-        const double terminationDistanceScaler = 1.0 );
-
+                        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > >
+getPatchedConicPropagatorSettings( simulation_setup::SystemOfBodies& bodies,
+                                   const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
+                                   const std::vector< std::string >& transferBodyOrder,
+                                   const std::string& centralBody,
+                                   const std::string& bodyToPropagate,
+                                   const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
+                                   const std::vector< double >& trajectoryVariableVector,
+                                   const std::vector< double >& minimumPericenterRadiiVector,
+                                   const std::vector< double >& semiMajorAxesVector,
+                                   const std::vector< double >& eccentricitiesVector,
+                                   const std::vector< std::shared_ptr< DependentVariableSaveSettings > > dependentVariablesToSave,
+                                   const TranslationalPropagatorType propagator,
+                                   const bool terminationSphereOfInfluence,
+                                   const double terminationDistanceScaler = 1.0 );
 
 //! Function to propagate the motion of a body over a trajectory leg, both along a keplerian orbit and in a full dynamics problem.
 /*!
@@ -323,26 +316,26 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
  * \param integratorSettings Integrator settings for the propagation of the full dynamics problem.
  * \param keplerianOrbitResult Keplerian orbit solution.
  * \param fullProblemResult propagation results of the full problem.
- * \param centralBodyGravitationalParameter Gravitational parameter of the central body [m^3 s^-2]. If not provided as input, it is retrieved
- * from the system of bodies.
- * \param cartesianPositionAtDeparture Cartesian position of the body to the propagated at the leg departure [m]. If not provided as input, it
- * is retrieved from the ephemerides.
+ * \param centralBodyGravitationalParameter Gravitational parameter of the central body [m^3 s^-2]. If not provided as input, it is
+ * retrieved from the system of bodies.
+ * \param cartesianPositionAtDeparture Cartesian position of the body to the propagated at the leg departure [m]. If not provided as input,
+ * it is retrieved from the ephemerides.
  */
 void propagateKeplerianOrbitLegAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
         const simulation_setup::SystemOfBodies& bodies,
         const std::string& centralBody,
-        const std::vector<std::string>& departureAndArrivalBodies,
+        const std::vector< std::string >& departureAndArrivalBodies,
         const Eigen::Vector3d& velocityAfterDeparture,
         const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
+                         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& keplerianOrbitResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
         std::map< double, Eigen::VectorXd >& dependentVariables,
         const double centralBodyGravitationalParameter,
-        const Eigen::Vector3d& cartesianPositionAtDeparture);
+        const Eigen::Vector3d& cartesianPositionAtDeparture );
 
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
 /*!
@@ -366,19 +359,17 @@ void fullPropagationPatchedConicsTrajectory(
         simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& patchedConicCentralBody,
-        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
+        const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
         const std::vector< double >& trajectoryVariableVector,
         const std::vector< double >& minimumPericenterRadiiVector,
         const std::vector< double >& semiMajorAxesVector,
         const std::vector< double >& eccentricitiesVector,
         const std::vector< std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > > propagatorSettings,
+                                      std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > > propagatorSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< int, std::map< double, Eigen::Vector6d > >& patchedConicsResultForEachLeg,
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg,
-        std::map< int, std::map< double, Eigen::VectorXd > >& dependentVariableResultForEachLeg);
-
-
+        std::map< int, std::map< double, Eigen::VectorXd > >& dependentVariableResultForEachLeg );
 
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
 /*!
@@ -409,7 +400,7 @@ void fullPropagationPatchedConicsTrajectory(
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
         const std::string& bodyToPropagate,
-        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
+        const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
         const std::vector< double >& trajectoryVariableVector,
         const std::vector< double >& minimumPericenterRadiiVector,
         const std::vector< double >& semiMajorAxesVector,
@@ -420,10 +411,8 @@ void fullPropagationPatchedConicsTrajectory(
         std::map< int, std::map< double, Eigen::VectorXd > >& dependentVariableResultForEachLeg,
         const bool terminationSphereOfInfluence = false,
         const std::vector< std::shared_ptr< DependentVariableSaveSettings > > dependentVariablesToSave =
-        std::vector < std::shared_ptr< DependentVariableSaveSettings > >( ),
-        const TranslationalPropagatorType propagator = cowell);
-
-
+                std::vector< std::shared_ptr< DependentVariableSaveSettings > >( ),
+        const TranslationalPropagatorType propagator = cowell );
 
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem
 //! with the same acceleration map for every leg.
@@ -455,7 +444,7 @@ void fullPropagationPatchedConicsTrajectory(
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
         const std::string& bodyToPropagate,
-        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
+        const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
         const std::vector< double >& trajectoryVariableVector,
         const std::vector< double >& minimumPericenterRadiiVector,
         const std::vector< double >& semiMajorAxesVector,
@@ -465,9 +454,9 @@ void fullPropagationPatchedConicsTrajectory(
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg,
         std::map< int, std::map< double, Eigen::VectorXd > >& dependentVariableResultForEachLeg,
         const bool terminationSphereOfInfluence = false,
-        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings > ( ),
+        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+                std::shared_ptr< DependentVariableSaveSettings >( ),
         const TranslationalPropagatorType propagator = cowell );
-
 
 //! Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem,
 //! at both departure and arrival positions for each leg.
@@ -486,24 +475,21 @@ void fullPropagationPatchedConicsTrajectory(
  * \param propagatorSettings Vector containing a pair of propagator settings for each leg (one for the backward and the other for the
  * forward propagation)
  * \param integratorSettings Integrator settings for the propagation of the full problem.
- * \return Map of vector pairs. Each vector pair contains the difference in cartesian state between patched conics trajectory and full problem for a given leg,
- * at departure and arrival respectively.
+ * \return Map of vector pairs. Each vector pair contains the difference in cartesian state between patched conics trajectory and full
+ * problem for a given leg, at departure and arrival respectively.
  */
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
         simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
         const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
-        const std::vector<double>& trajectoryVariableVector,
-        const std::vector<double>& minimumPericenterRadiiVector,
-        const std::vector<double>& semiMajorAxesVector,
-        const std::vector<double>& eccentricitiesVector,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::vector< double >& minimumPericenterRadiiVector,
+        const std::vector< double >& semiMajorAxesVector,
+        const std::vector< double >& eccentricitiesVector,
         const std::vector< std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > > propagatorSettings,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings);
-
-
-
+                                      std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > > propagatorSettings,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings );
 
 //! Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem,
 //! at both departure and arrival positions for each leg.
@@ -526,8 +512,8 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
  * influence (true) of the departure and arrival body of each leg of the trajectory. The default value is false.
  * \param dependentVariablesToSave Vector containing the dependent variables to be saved during the full problem propagation for each leg.
  * \param propagator Type of propagator to be used for the full problem propagation.
- * \return Map of vector pairs. Each vector pair contains the difference in cartesian state between patched conics trajectory and full problem for a given leg,
- * at departure and arrival respectively.
+ * \return Map of vector pairs. Each vector pair contains the difference in cartesian state between patched conics trajectory and full
+ * problem for a given leg, at departure and arrival respectively.
  */
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
         simulation_setup::SystemOfBodies& bodies,
@@ -536,17 +522,15 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
         const std::string& centralBody,
         const std::string& bodyToPropagate,
         const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
-        const std::vector<double>& trajectoryVariableVector,
-        const std::vector<double>& minimumPericenterRadiiVector,
-        const std::vector<double>& semiMajorAxesVector,
-        const std::vector<double>& eccentricitiesVector,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::vector< double >& minimumPericenterRadiiVector,
+        const std::vector< double >& semiMajorAxesVector,
+        const std::vector< double >& eccentricitiesVector,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         const bool terminationSphereOfInfluence = false,
         const std::vector< std::shared_ptr< DependentVariableSaveSettings > > dependentVariablesToSave =
-        std::vector < std::shared_ptr< DependentVariableSaveSettings > >( ),
-        const TranslationalPropagatorType propagator = cowell);
-
-
+                std::vector< std::shared_ptr< DependentVariableSaveSettings > >( ),
+        const TranslationalPropagatorType propagator = cowell );
 
 //! Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem,
 //! at both departure and arrival positions for each leg, using the same accelerations for each leg.
@@ -569,8 +553,8 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
  * influence (true) of the departure and arrival body of each leg of the trajectory. The default value is false.
  * \param dependentVariablesToSave Vector containing the dependent variables to be saved during the full problem propagation for each leg.
  * \param propagator Type of propagator to be used for the full problem propagation.
- * \return Map of vector pairs. Each vector pair contains the difference in cartesian state between patched conics trajectory and full problem for a given leg,
- * at departure and arrival respectively.
+ * \return Map of vector pairs. Each vector pair contains the difference in cartesian state between patched conics trajectory and full
+ * problem for a given leg, at departure and arrival respectively.
  */
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
         simulation_setup::SystemOfBodies& bodies,
@@ -579,18 +563,18 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
         const std::string& centralBody,
         const std::string& bodyToPropagate,
         const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
-        const std::vector<double>& trajectoryVariableVector,
-        const std::vector<double>& minimumPericenterRadiiVector,
-        const std::vector<double>& semiMajorAxesVector,
-        const std::vector<double>& eccentricitiesVector,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::vector< double >& minimumPericenterRadiiVector,
+        const std::vector< double >& semiMajorAxesVector,
+        const std::vector< double >& eccentricitiesVector,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         const bool terminationSphereOfInfluence,
-        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings > ( ) ,
-        const TranslationalPropagatorType propagator = cowell);
+        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+                std::shared_ptr< DependentVariableSaveSettings >( ),
+        const TranslationalPropagatorType propagator = cowell );
 
-}
+}  // namespace propagators
 
-}
+}  // namespace tudat
 
-
-#endif // TUDAT_PROPAGATION_PATCHED_CONIC_FULL
+#endif  // TUDAT_PROPAGATION_PATCHED_CONIC_FULL

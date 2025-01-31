@@ -15,7 +15,6 @@
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
-
 namespace tudat
 {
 namespace electromagnetism
@@ -26,14 +25,14 @@ double computeLuminosityFromIrradiance( const double irradiance, const double di
     return 4.0 * mathematical_constants::PI * distance * distance * irradiance;
 }
 
-void LuminosityModel::updateMembers(double currentTime)
+void LuminosityModel::updateMembers( double currentTime )
 {
-    if(currentTime_ != currentTime)
+    if( currentTime_ != currentTime )
     {
         currentTime_ = currentTime;
-        updateMembers_(currentTime);
+        updateMembers_( currentTime );
     }
 }
 
-} // tudat
-} // electromagnetism
+}  // namespace electromagnetism
+}  // namespace tudat

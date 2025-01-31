@@ -27,55 +27,43 @@ namespace tudat
 namespace unit_tests
 {
 
-Eigen::Matrix3d getTestRotationMatrix(
-        const double psiPerturbation,
-        const double thetaPerturbation,
-        const double phiPerturbation )
+Eigen::Matrix3d getTestRotationMatrix( const double psiPerturbation, const double thetaPerturbation, const double phiPerturbation )
 {
     return ( Eigen::AngleAxisd( 1.2 + psiPerturbation, Eigen::Vector3d::UnitZ( ) ) *
              Eigen::AngleAxisd( 0.3 + thetaPerturbation, Eigen::Vector3d::UnitX( ) ) *
-             Eigen::AngleAxisd( -0.4 + phiPerturbation, Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( );
+             Eigen::AngleAxisd( -0.4 + phiPerturbation, Eigen::Vector3d::UnitZ( ) ) )
+            .toRotationMatrix( );
 }
 
-Eigen::Quaterniond perturbQuaternionEntry(
-        const Eigen::Quaterniond originalQuaternion,
-        const int index,
-        const double perturbation )
+Eigen::Quaterniond perturbQuaternionEntry( const Eigen::Quaterniond originalQuaternion, const int index, const double perturbation )
 {
     double perturbedValue, newq0;
     Eigen::Quaterniond newQuaternion;
     if( index == 1 )
     {
         perturbedValue = originalQuaternion.x( ) + perturbation;
-        newq0 = std::sqrt( 1.0 - perturbedValue * perturbedValue -
-                           originalQuaternion.y( ) * originalQuaternion.y( ) -
+        newq0 = std::sqrt( 1.0 - perturbedValue * perturbedValue - originalQuaternion.y( ) * originalQuaternion.y( ) -
                            originalQuaternion.z( ) * originalQuaternion.z( ) );
         newQuaternion = Eigen::Quaterniond( newq0, perturbedValue, originalQuaternion.y( ), originalQuaternion.z( ) );
-
     }
     else if( index == 2 )
     {
         perturbedValue = originalQuaternion.y( ) + perturbation;
-        newq0 = std::sqrt( 1.0 - perturbedValue * perturbedValue -
-                           originalQuaternion.x( ) * originalQuaternion.x( ) -
+        newq0 = std::sqrt( 1.0 - perturbedValue * perturbedValue - originalQuaternion.x( ) * originalQuaternion.x( ) -
                            originalQuaternion.z( ) * originalQuaternion.z( ) );
         newQuaternion = Eigen::Quaterniond( newq0, originalQuaternion.x( ), perturbedValue, originalQuaternion.z( ) );
     }
     else if( index == 3 )
     {
         perturbedValue = originalQuaternion.z( ) + perturbation;
-        newq0 = std::sqrt( 1.0 - perturbedValue * perturbedValue -
-                           originalQuaternion.y( ) * originalQuaternion.y( ) -
+        newq0 = std::sqrt( 1.0 - perturbedValue * perturbedValue - originalQuaternion.y( ) * originalQuaternion.y( ) -
                            originalQuaternion.x( ) * originalQuaternion.x( ) );
         newQuaternion = Eigen::Quaterniond( newq0, originalQuaternion.x( ), originalQuaternion.y( ), perturbedValue );
-
     }
     return newQuaternion;
 }
 
-Eigen::Matrix3d getTestRotationMatrix(
-        const double perturbation,
-        const int angleIndex )
+Eigen::Matrix3d getTestRotationMatrix( const double perturbation, const int angleIndex )
 {
     if( angleIndex == 0 )
     {
@@ -114,18 +102,16 @@ BOOST_AUTO_TEST_CASE( testQuaternionMultiplication )
         secondQuaternion << 0.062246819542533, -0.210426307554654, -0.276748204905855, 0.935551459636048;
 
         // Multiply quaternions
-        Eigen::Vector4d computedResultantQuaternion = linear_algebra::quaternionProduct( firstQuaternion,
-                                                                                         secondQuaternion );
+        Eigen::Vector4d computedResultantQuaternion = linear_algebra::quaternionProduct( firstQuaternion, secondQuaternion );
 
         // Expected result
         Eigen::Vector4d expectedResultantQuaternion;
         expectedResultantQuaternion << 0.062246819542533, -0.210426307554654, -0.276748204905855, 0.935551459636048;
 
         // Check if result is correct
-        for ( unsigned int i = 0; i < 4; i++ )
+        for( unsigned int i = 0; i < 4; i++ )
         {
-            BOOST_CHECK_CLOSE_FRACTION( computedResultantQuaternion[ i ], expectedResultantQuaternion[ i ],
-                                        tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( computedResultantQuaternion[ i ], expectedResultantQuaternion[ i ], tolerance );
         }
     }
 
@@ -138,18 +124,16 @@ BOOST_AUTO_TEST_CASE( testQuaternionMultiplication )
         secondQuaternion << 0.062246819542533, -0.276748204905855, 0.935551459636048, -0.210426307554654;
 
         // Multiply quaternions
-        Eigen::Vector4d computedResultantQuaternion = linear_algebra::quaternionProduct( firstQuaternion,
-                                                                                         secondQuaternion );
+        Eigen::Vector4d computedResultantQuaternion = linear_algebra::quaternionProduct( firstQuaternion, secondQuaternion );
 
         // Expected result
         Eigen::Vector4d expectedResultantQuaternion;
         expectedResultantQuaternion << 0.312036681781879, -0.670033212581165, 0.561681701127148, -0.371755658840092;
 
         // Check if result is correct
-        for ( unsigned int i = 0; i < 4; i++ )
+        for( unsigned int i = 0; i < 4; i++ )
         {
-            BOOST_CHECK_CLOSE_FRACTION( computedResultantQuaternion[ i ], expectedResultantQuaternion[ i ],
-                                        tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( computedResultantQuaternion[ i ], expectedResultantQuaternion[ i ], tolerance );
         }
     }
 
@@ -162,18 +146,16 @@ BOOST_AUTO_TEST_CASE( testQuaternionMultiplication )
         secondQuaternion << 0.242385025550030, 0.655897240236433, 0.670554074388965, -0.247801418397274;
 
         // Multiply quaternions
-        Eigen::Vector4d computedResultantQuaternion = linear_algebra::quaternionProduct( firstQuaternion,
-                                                                                         secondQuaternion );
+        Eigen::Vector4d computedResultantQuaternion = linear_algebra::quaternionProduct( firstQuaternion, secondQuaternion );
 
         // Expected result
         Eigen::Vector4d expectedResultantQuaternion;
         expectedResultantQuaternion << -0.438251193562246, -0.386293632078142, -0.483953161080297, -0.651538532273827;
 
         // Check if result is correct
-        for ( unsigned int i = 0; i < 4; i++ )
+        for( unsigned int i = 0; i < 4; i++ )
         {
-            BOOST_CHECK_CLOSE_FRACTION( computedResultantQuaternion[ i ], expectedResultantQuaternion[ i ],
-                                        tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( computedResultantQuaternion[ i ], expectedResultantQuaternion[ i ], tolerance );
         }
     }
 }
@@ -182,10 +164,10 @@ BOOST_AUTO_TEST_CASE( testQuaternionMultiplication )
 BOOST_AUTO_TEST_CASE( testAngleBetweenVectorFunctions )
 {
     // Using declarations.
-    using std::cos;
-    using std::sqrt;
     using linear_algebra::computeAngleBetweenVectors;
     using linear_algebra::computeCosineOfAngleBetweenVectors;
+    using std::cos;
+    using std::sqrt;
 
     // Four tests are executed. First, the equality of the caluclated cosineOfAngle and the cosine
     // of the calculated angle is checked. Subsequently, the values of the angle and cosineOfAngle
@@ -202,8 +184,7 @@ BOOST_AUTO_TEST_CASE( testAngleBetweenVectorFunctions )
         double cosineOfAngle = computeCosineOfAngleBetweenVectors( testVector1_, testVector2_ );
 
         // Check if computed angle and cosine-of-angle are correct.
-        BOOST_CHECK_SMALL( cos( angle ) - cosineOfAngle,
-                           std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( cos( angle ) - cosineOfAngle, std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_GE( cosineOfAngle, std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_SMALL( cosineOfAngle - 1.0, std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_LE( angle, std::sqrt( std::numeric_limits< double >::epsilon( ) ) );
@@ -218,12 +199,10 @@ BOOST_AUTO_TEST_CASE( testAngleBetweenVectorFunctions )
         double cosineOfAngle = computeCosineOfAngleBetweenVectors( testVector1_, testVector2_ );
 
         // Check if computed angle and cosine-of-angle are correct.
-        BOOST_CHECK_SMALL( cos( angle ) - cosineOfAngle,
-                           std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( cos( angle ) - cosineOfAngle, std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK( cosineOfAngle < std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_SMALL( cosineOfAngle + 1.0, std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_CLOSE_FRACTION( angle, mathematical_constants::PI,
-                                    std::sqrt( std::numeric_limits< double >::epsilon( ) ) );
+        BOOST_CHECK_CLOSE_FRACTION( angle, mathematical_constants::PI, std::sqrt( std::numeric_limits< double >::epsilon( ) ) );
     }
 
     // Test 3: Test values for two vectors of length 3, benchmark values computed using Matlab.
@@ -235,13 +214,10 @@ BOOST_AUTO_TEST_CASE( testAngleBetweenVectorFunctions )
         double cosineOfAngle = computeCosineOfAngleBetweenVectors( testVector1_, testVector2_ );
 
         // Check if computed angle and cosine-of-angle are correct.
-        BOOST_CHECK_SMALL( cos( angle ) - cosineOfAngle,
-                           std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( cos( angle ) - cosineOfAngle, std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK( cosineOfAngle < std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_CLOSE_FRACTION( cosineOfAngle, -0.387790156029810,
-                                    std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_CLOSE_FRACTION( angle, 1.969029256915446,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( cosineOfAngle, -0.387790156029810, std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( angle, 1.969029256915446, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Test 4: Test values for two vectors of length 5, benchmark values computed using Matlab.
@@ -255,11 +231,9 @@ BOOST_AUTO_TEST_CASE( testAngleBetweenVectorFunctions )
         double cosineOfAngle = computeCosineOfAngleBetweenVectors( testVector1_, testVector2_ );
 
         // Check if computed angle and cosine-of-angle are correct.
-        BOOST_CHECK_SMALL( cos( angle ) - cosineOfAngle,
-                           std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( cos( angle ) - cosineOfAngle, std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK( cosineOfAngle > std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_CLOSE_FRACTION( cosineOfAngle, 0.603178944723925,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( cosineOfAngle, 0.603178944723925, std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_CLOSE_FRACTION( angle, 0.923315587553074, 1.0e-15 );
     }
 }
@@ -270,22 +244,18 @@ BOOST_AUTO_TEST_CASE( testRotationMatrixDerivatives )
     using namespace tudat::linear_algebra;
     Eigen::Matrix3d nominalMatrix = getTestRotationMatrix( 0.3, 0.2, 0.6 );
     Eigen::Quaterniond nominalQuaternion = Eigen::Quaterniond( nominalMatrix );
-    Eigen::Vector4d nominalQuaternionVector = convertQuaternionToVectorFormat(
-                nominalQuaternion );
+    Eigen::Vector4d nominalQuaternionVector = convertQuaternionToVectorFormat( nominalQuaternion );
 
     std::vector< Eigen::Matrix3d > partialDerivatives;
     partialDerivatives.resize( 4 );
-    computePartialDerivativeOfRotationMatrixWrtQuaternion(
-                nominalQuaternionVector, partialDerivatives );
+    computePartialDerivativeOfRotationMatrixWrtQuaternion( nominalQuaternionVector, partialDerivatives );
 
     double quaternionPerturbation = 1.0E-7;
 
     for( unsigned int i = 1; i < 4; i++ )
     {
-        Eigen::Quaterniond perturbedQuaternion = perturbQuaternionEntry(
-                    nominalQuaternion, i, quaternionPerturbation );
-        Eigen::Vector4d perturbedQuaternionVector = convertQuaternionToVectorFormat(
-                    perturbedQuaternion );
+        Eigen::Quaterniond perturbedQuaternion = perturbQuaternionEntry( nominalQuaternion, i, quaternionPerturbation );
+        Eigen::Vector4d perturbedQuaternionVector = convertQuaternionToVectorFormat( perturbedQuaternion );
         Eigen::Matrix3d perturbedRotationMatrix = perturbedQuaternion.toRotationMatrix( );
 
         Eigen::Matrix3d rotationMatrixChange = perturbedRotationMatrix - nominalMatrix;
@@ -308,6 +278,6 @@ BOOST_AUTO_TEST_CASE( testRotationMatrixDerivatives )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

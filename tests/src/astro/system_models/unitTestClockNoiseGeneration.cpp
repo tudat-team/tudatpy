@@ -31,9 +31,8 @@ BOOST_AUTO_TEST_CASE( testInterpolatedPowerLawClockNoise )
     std::map< double, double >::iterator startIterator;
     std::map< double, double >::iterator endIterator;
 
-    for( int i = -2; i <=1; i++ )
+    for( int i = -2; i <= 1; i++ )
     {
-
         std::map< int, double > allanVariances;
         allanVariances[ i ] = 2.0;
 
@@ -44,13 +43,13 @@ BOOST_AUTO_TEST_CASE( testInterpolatedPowerLawClockNoise )
         double currentExponentValue = 0.0;
         double summedExponentValue = 0.0;
 
-        std::cout<<i<<std::endl;
+        std::cout << i << std::endl;
         for( int k = 0; k < numberOfRuns; k++ )
         {
-            std::pair< std::vector< double >, double > timeDomainNoiseOutput = generateClockNoise(
-                        allanVariances, 0.0, 1024.0, std::pow( 2, 18 ) );
-            std::map< double, double > allanVariance = statistics::calculateAllanVarianceOfTimeDataSet(
-                        timeDomainNoiseOutput.first, timeDomainNoiseOutput.second );
+            std::pair< std::vector< double >, double > timeDomainNoiseOutput =
+                    generateClockNoise( allanVariances, 0.0, 1024.0, std::pow( 2, 18 ) );
+            std::map< double, double > allanVariance =
+                    statistics::calculateAllanVarianceOfTimeDataSet( timeDomainNoiseOutput.first, timeDomainNoiseOutput.second );
 
             startIterator = allanVariance.begin( );
             endIterator = allanVariance.end( );
@@ -70,8 +69,8 @@ BOOST_AUTO_TEST_CASE( testInterpolatedPowerLawClockNoise )
             currentValue = allanVarianceInterpolator.interpolate( 1.0 );
             summedValue += currentValue;
 
-            //output::writeDoubleMapToFile( allanVariance, "allanVariance" + boost::lexical_cast< std::string >( counter ) + ".dat" );
-            //counter++;
+            // output::writeDoubleMapToFile( allanVariance, "allanVariance" + boost::lexical_cast< std::string >( counter ) + ".dat" );
+            // counter++;
         }
 
         double expectedAmplitde = 2.0;
@@ -95,10 +94,10 @@ BOOST_AUTO_TEST_CASE( testCombinedPowerClockNoise )
     int numberOfRuns = 500;
     for( int i = 0; i < numberOfRuns; i++ )
     {
-        std::pair< std::vector< double >, double > timeDomainNoiseOutput = generateClockNoise(
-                    allanVariances, 0.0, 8192.0, std::pow( 2, 16 ), 0, static_cast< double >( i ) * time( 0 ) );
-        std::map< double, double > allanVariance = statistics::calculateAllanVarianceOfTimeDataSet(
-                    timeDomainNoiseOutput.first, timeDomainNoiseOutput.second );
+        std::pair< std::vector< double >, double > timeDomainNoiseOutput =
+                generateClockNoise( allanVariances, 0.0, 8192.0, std::pow( 2, 16 ), 0, static_cast< double >( i ) * time( 0 ) );
+        std::map< double, double > allanVariance =
+                statistics::calculateAllanVarianceOfTimeDataSet( timeDomainNoiseOutput.first, timeDomainNoiseOutput.second );
 
         interpolators::LinearInterpolator< double, double > allanVarianceInterpolator =
                 interpolators::LinearInterpolator< double, double >( allanVariance );
@@ -118,8 +117,6 @@ BOOST_AUTO_TEST_CASE( testCombinedPowerClockNoise )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
-
+}  // namespace tudat

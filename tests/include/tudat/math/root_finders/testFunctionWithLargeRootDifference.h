@@ -30,9 +30,7 @@ namespace unit_tests
  * This struct contains a function which potentially has a big difference in the root. Based on the
  * eccentricity finding function in the gravity assist method.
  */
-struct TestFunctionWithLargeRootDifference : public TestFunction,
-        public basic_mathematics::BasicFunction< double, double >
-{
+struct TestFunctionWithLargeRootDifference : public TestFunction, public basic_mathematics::BasicFunction< double, double > {
     //! Maximum order of the derivative before throwing an exception.
     unsigned int maximumDerivativeOrder;
 
@@ -40,38 +38,35 @@ struct TestFunctionWithLargeRootDifference : public TestFunction,
     TestFunctionWithLargeRootDifference( const unsigned int aMaximumDerivativeOrder,
                                          const double anIncomingSemiMajorAxis,
                                          const double anOutgoingSemiMajorAxis,
-                                         const double aBendingAngle )
-        : maximumDerivativeOrder( aMaximumDerivativeOrder ),
-          incomingSemiMajorAxis( anIncomingSemiMajorAxis ),
-          outgoingSemiMajorAxis( anOutgoingSemiMajorAxis ),
-          bendingAngle( aBendingAngle )
+                                         const double aBendingAngle ):
+        maximumDerivativeOrder( aMaximumDerivativeOrder ), incomingSemiMajorAxis( anIncomingSemiMajorAxis ),
+        outgoingSemiMajorAxis( anOutgoingSemiMajorAxis ), bendingAngle( aBendingAngle )
     { }
 
     //! Mathematical test function.
     double evaluate( const double inputValue )
     {
-        return std::asin( 1.0 / inputValue )
-                + std::asin( 1.0 / ( 1.0 - incomingSemiMajorAxis / outgoingSemiMajorAxis *
-                                     ( 1.0 - inputValue ) ) ) - bendingAngle;
+        return std::asin( 1.0 / inputValue ) +
+                std::asin( 1.0 / ( 1.0 - incomingSemiMajorAxis / outgoingSemiMajorAxis * ( 1.0 - inputValue ) ) ) - bendingAngle;
     }
 
     //! Derivatives of mathematical test function.
     double computeDerivative( const unsigned int order, const double inputValue )
     {
         // Sanity check.
-        if ( order > maximumDerivativeOrder )
+        if( order > maximumDerivativeOrder )
         {
             throw std::runtime_error( "The rootfinder should not evaluate higher derivatives!" );
         }
 
         // Return the analytical expression for the derivatives.
-        if ( order == 0 )
+        if( order == 0 )
         {
             // Return the function value.
             return evaluate( inputValue );
         }
 
-        else if ( order == 1 )
+        else if( order == 1 )
         {
             // Return the first derivative function value.
             const double eccentricitySquareMinusOne = inputValue * inputValue - 1.0;
@@ -79,13 +74,12 @@ struct TestFunctionWithLargeRootDifference : public TestFunction,
             const double bParameter = 1.0 - semiMajorAxisRatio * ( 1.0 - inputValue );
 
             return -1.0 / ( inputValue * std::sqrt( eccentricitySquareMinusOne ) ) -
-                semiMajorAxisRatio / ( bParameter * std::sqrt( bParameter * bParameter - 1.0 ) );
+                    semiMajorAxisRatio / ( bParameter * std::sqrt( bParameter * bParameter - 1.0 ) );
         }
 
         else
         {
-            throw std::runtime_error(
-                        "An error occured when evaluating the order of the derivative." );
+            throw std::runtime_error( "An error occured when evaluating the order of the derivative." );
         }
     }
 
@@ -99,31 +93,46 @@ struct TestFunctionWithLargeRootDifference : public TestFunction,
     /*!
      * Not implemented.
      */
-    double getTrueRootLocation( ) { return TUDAT_NAN; }
-    
+    double getTrueRootLocation( )
+    {
+        return TUDAT_NAN;
+    }
+
     //! Get the accuracy of the true location of the root.
     /*!
      * Not implemented.
      */
-    double getTrueRootAccuracy( ) { return TUDAT_NAN; }
+    double getTrueRootAccuracy( )
+    {
+        return TUDAT_NAN;
+    }
 
     //! Get a reasonable initial guess of the root location.
     /*!
      * Not implemented.
      */
-    double getInitialGuess( ) { return TUDAT_NAN; }
+    double getInitialGuess( )
+    {
+        return TUDAT_NAN;
+    }
 
     //! Get a reasonable lower boundary for the root location.
     /*!
      * Not implemented.
      */
-    double getLowerBound( ) { return TUDAT_NAN; }
+    double getLowerBound( )
+    {
+        return TUDAT_NAN;
+    }
 
     //! Get a reasonable upper boundary for the root location.
     /*!
      * Not implemented.
      */
-    double getUpperBound( ) { return TUDAT_NAN; }
+    double getUpperBound( )
+    {
+        return TUDAT_NAN;
+    }
 
     //! Semi-major axis of the incoming hyperbolic leg
     const double incomingSemiMajorAxis;
@@ -135,11 +144,10 @@ struct TestFunctionWithLargeRootDifference : public TestFunction,
     const double bendingAngle;
 
 protected:
-
 private:
 };
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat
 
-#endif // TUDAT_TEST_FUNCTION_WITH_LARGE_ROOT_DIFFERENCES_H
+#endif  // TUDAT_TEST_FUNCTION_WITH_LARGE_ROOT_DIFFERENCES_H

@@ -16,4 +16,4 @@
 #include "quadrature/numericalQuadrature.h"
 #include "quadrature/trapezoidQuadrature.h"
 
-#endif // TUDAT_QUADRATURE_H
+#endif  // TUDAT_QUADRATURE_H

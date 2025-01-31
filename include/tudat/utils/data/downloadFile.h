@@ -8,16 +8,19 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-namespace tudat {
-namespace utils {
-namespace data {
+namespace tudat
+{
+namespace utils
+{
+namespace data
+{
 
-std::string download_file(const char *remote_url,
-                          const char *cache = "true",
-                          int verbosity = 1,
-                          bool try_unzip = true,
-                          const char *prefix = nullptr);
+std::string download_file( const char *remote_url,
+                           const char *cache = "true",
+                           int verbosity = 1,
+                           bool try_unzip = true,
+                           const char *prefix = nullptr );
 
-} // namespace data
-} // namespace utils
-} // namespace tudat
+}  // namespace data
+}  // namespace utils
+}  // namespace tudat

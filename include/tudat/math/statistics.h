@@ -21,4 +21,4 @@
 #include "statistics/simpleLinearRegression.h"
 #include "statistics/allanVariance.h"
 
-#endif // TUDAT_STATISTICS_H
+#endif  // TUDAT_STATISTICS_H

@@ -46,8 +46,8 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModelSinglePoints )
     double tolerance = 1e-14;
 
     // Define ring gravity parameters
-//    const double gravitationalParameter = 2.39e21 * physical_constants::GRAVITATIONAL_CONSTANT;
-//    const double ringRadius = 2.7 * physical_constants::ASTRONOMICAL_UNIT;
+    //    const double gravitationalParameter = 2.39e21 * physical_constants::GRAVITATIONAL_CONSTANT;
+    //    const double ringRadius = 2.7 * physical_constants::ASTRONOMICAL_UNIT;
     const double gravitationalParameter = 2.0;
     const double ringRadius = 1.5;
 
@@ -56,33 +56,33 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModelSinglePoints )
 
     Eigen::Vector3d testPosition;
 
-    for ( unsigned int i = 0; i < 7; ++i )
+    for( unsigned int i = 0; i < 7; ++i )
     {
-        if ( i == 0 )
+        if( i == 0 )
         {
             testPosition = ( Eigen::Vector3d( ) << 3.6, 0.0, 0.0 ).finished( );
         }
-        else if ( i == 1 )
+        else if( i == 1 )
         {
             testPosition = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
         }
-        else if ( i == 2 )
+        else if( i == 2 )
         {
             testPosition = ( Eigen::Vector3d( ) << 0.0, 0.0, 1.0 ).finished( );
         }
-        else if ( i == 3 )
+        else if( i == 3 )
         {
             testPosition = ( Eigen::Vector3d( ) << 0.2, 1.0, 0.0 ).finished( );
         }
-        else if ( i == 4 )
+        else if( i == 4 )
         {
             testPosition = ( Eigen::Vector3d( ) << -4.0, 2.6, 0.0 ).finished( );
         }
-        else if ( i == 5 )
+        else if( i == 5 )
         {
             testPosition = ( Eigen::Vector3d( ) << 0.6, 1.0, 0.4 ).finished( );
         }
-        else if ( i == 6 )
+        else if( i == 6 )
         {
             testPosition = ( Eigen::Vector3d( ) << 0.7, -0.4, -0.2 ).finished( );
         }
@@ -90,15 +90,16 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModelSinglePoints )
         Eigen::Vector3d ringAcceleration = Eigen::Vector3d::Zero( ), pointMassAcceleration = Eigen::Vector3d::Zero( );
         double ringPotential = 0.0, pointMassPotential = 0.0;
 
-        for ( unsigned int gravityModelId : { 0, 1 } )
+        for( unsigned int gravityModelId: { 0, 1 } )
         {
-            std::function< void ( Eigen::Vector3d& ) > positionFunction = [ = ] ( Eigen::Vector3d& positionInput ) {
-                positionInput = testPosition; };
+            std::function< void( Eigen::Vector3d& ) > positionFunction = [ = ]( Eigen::Vector3d& positionInput ) {
+                positionInput = testPosition;
+            };
 
-            if ( gravityModelId == 0 )
+            if( gravityModelId == 0 )
             {
-                RingGravitationalAccelerationModel ringGravityModel = RingGravitationalAccelerationModel(
-                        positionFunction, gravitationalParameter, ringRadius, false );
+                RingGravitationalAccelerationModel ringGravityModel =
+                        RingGravitationalAccelerationModel( positionFunction, gravitationalParameter, ringRadius, false );
                 ringGravityModel.resetUpdatePotential( true );
                 ringGravityModel.updateMembers( TUDAT_NAN );
 
@@ -107,14 +108,15 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModelSinglePoints )
             }
             else
             {
-                for ( int j = 0; j < numPointMasses; ++j )
+                for( int j = 0; j < numPointMasses; ++j )
                 {
                     Eigen::Vector3d pointMassPosition = Eigen::Vector3d::Zero( );
                     pointMassPosition( 0 ) = ringRadius * std::cos( j * 2.0 * mathematical_constants::PI / numPointMasses );
                     pointMassPosition( 1 ) = ringRadius * std::sin( j * 2.0 * mathematical_constants::PI / numPointMasses );
 
-                    std::function< void ( Eigen::Vector3d& ) > pointMassPositionFunction = [ = ] (
-                            Eigen::Vector3d& positionInput ) { positionInput = pointMassPosition; };
+                    std::function< void( Eigen::Vector3d& ) > pointMassPositionFunction = [ = ]( Eigen::Vector3d& positionInput ) {
+                        positionInput = pointMassPosition;
+                    };
 
                     CentralGravitationalAccelerationModel3d pointMassGravityModel = CentralGravitationalAccelerationModel3d(
                             positionFunction, gravitationalParameter / numPointMasses, pointMassPositionFunction );
@@ -128,9 +130,9 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModelSinglePoints )
         }
 
         // For cases in which acceleration is 0, add 1 (otherwise relative error test will fail)
-        for ( unsigned int i = 0; i < ringAcceleration.size( ); ++i )
+        for( unsigned int i = 0; i < ringAcceleration.size( ); ++i )
         {
-            if ( std::abs( ringAcceleration( i ) ) < 1e-16 )
+            if( std::abs( ringAcceleration( i ) ) < 1e-16 )
             {
                 ringAcceleration( i ) += 1;
                 pointMassAcceleration( i ) += 1;
@@ -140,7 +142,6 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModelSinglePoints )
         BOOST_CHECK_CLOSE_FRACTION( pointMassPotential, ringPotential, tolerance );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( pointMassAcceleration, ringAcceleration, tolerance );
     }
-
 }
 
 // Test propagation of periodic orbit from Broucke and Elipe (2005).
@@ -148,13 +149,12 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModelSinglePoints )
 //              Regular and Chaotic Dynamics, vol 10, num 2, pp 129 - 143
 BOOST_AUTO_TEST_CASE( testRingPeriodicOrbit )
 {
-
     // Define ring gravity parameters
     const double gravitationalParameter = 1.0;
     const double ringRadius = 1.0;
 
     // Define orbit, Broucke and Elipe (2005), section 7
-    const Eigen::Vector6d initialState = ( Eigen::Vector6d( ) << 1.8, 0.0, 0.0, 0.0, 0.85873199, 0.0 ).finished();
+    const Eigen::Vector6d initialState = ( Eigen::Vector6d( ) << 1.8, 0.0, 0.0, 0.0, 0.85873199, 0.0 ).finished( );
     const double initialTime = 0.0;
     const double finalTime = 6.58513 * 2.0;
 
@@ -162,11 +162,10 @@ BOOST_AUTO_TEST_CASE( testRingPeriodicOrbit )
 
     std::string bodyName = "Ring";
     bodySettings.addSettings( bodyName );
-    bodySettings.at( bodyName )->gravityFieldSettings = ringGravitySettings(
-                gravitationalParameter, ringRadius, "RingBodyFixed" );
+    bodySettings.at( bodyName )->gravityFieldSettings = ringGravitySettings( gravitationalParameter, ringRadius, "RingBodyFixed" );
     bodySettings.at( bodyName )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ) );
-    bodySettings.at( bodyName )->rotationModelSettings = constantRotationModelSettings(
-            "ECLIPJ2000", "RingBodyFixed", Eigen::Matrix3d::Identity() );
+    bodySettings.at( bodyName )->rotationModelSettings =
+            constantRotationModelSettings( "ECLIPJ2000", "RingBodyFixed", Eigen::Matrix3d::Identity( ) );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
@@ -185,23 +184,24 @@ BOOST_AUTO_TEST_CASE( testRingPeriodicOrbit )
     accelerationsOfVehicle[ "Ring" ].push_back( ringAcceleration( ) );
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Define integrator settings.
     const double fixedStepSize = 0.0001;
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >( rungeKutta4, initialTime, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialTime, fixedStepSize );
 
     // Define propagator settings (Cowell)
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, initialState,
-              propagationTimeTerminationSettings( finalTime, true ) );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                accelerationModelMap,
+                                                                                bodiesToPropagate,
+                                                                                initialState,
+                                                                                propagationTimeTerminationSettings( finalTime, true ) );
 
     // Propagate orbit with Cowell method
-    SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings,
-                                                            true, false, true );
+    SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
 
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     double computedFinalTime = integrationResult.rbegin( )->first;
@@ -223,44 +223,42 @@ BOOST_AUTO_TEST_CASE( testRingPeriodicOrbit )
 // a 3-dimensional orbit is used. Additionally, it tests the ring acceleration both for the central and 3rd bodu case.
 BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
 {
-
     // Define ring gravity parameters
     const double gravitationalParameter = 1.1;
     const double ringRadius = 0.95;
 
     const double initialTime = 0.0;
-    const Eigen::Vector6d initialState = ( Eigen::Vector6d( ) << 1.8, 0.0, 0.1, 0.0, 0.85873199, 0.0 ).finished();
+    const Eigen::Vector6d initialState = ( Eigen::Vector6d( ) << 1.8, 0.0, 0.1, 0.0, 0.85873199, 0.0 ).finished( );
     const double finalTime = 6.58513 * 0.5;
 
     // Number of point masses in discrete ring model
     int numPointMasses = 1000;
 
-    for ( std::string ringCentralBody : { "Ring", "COM" } )
+    for( std::string ringCentralBody: { "Ring", "COM" } )
     {
         Eigen::Vector6d finalStateRing, finalStatePointMasses;
 
-        for ( unsigned int gravityModelId: { 0, 1 } )
+        for( unsigned int gravityModelId: { 0, 1 } )
         {
             BodyListSettings bodySettings = BodyListSettings( );
 
-            if ( gravityModelId == 0 )
+            if( gravityModelId == 0 )
             {
                 std::string bodyName = "Ring";
                 bodySettings.addSettings( bodyName );
-                bodySettings.at( bodyName )->gravityFieldSettings = ringGravitySettings(
-                        gravitationalParameter, ringRadius, "RingBodyFixed", false );
+                bodySettings.at( bodyName )->gravityFieldSettings =
+                        ringGravitySettings( gravitationalParameter, ringRadius, "RingBodyFixed", false );
                 bodySettings.at( bodyName )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ) );
-                bodySettings.at( bodyName )->rotationModelSettings = constantRotationModelSettings(
-                        "ECLIPJ2000", "RingBodyFixed", Eigen::Matrix3d::Identity( ) );
+                bodySettings.at( bodyName )->rotationModelSettings =
+                        constantRotationModelSettings( "ECLIPJ2000", "RingBodyFixed", Eigen::Matrix3d::Identity( ) );
             }
             else
             {
-                for ( int i = 0; i < numPointMasses; ++i )
+                for( int i = 0; i < numPointMasses; ++i )
                 {
                     std::string bodyName = "PointMassBody" + std::to_string( i );
                     bodySettings.addSettings( bodyName );
-                    bodySettings.at( bodyName )->gravityFieldSettings = centralGravitySettings(
-                            gravitationalParameter / numPointMasses );
+                    bodySettings.at( bodyName )->gravityFieldSettings = centralGravitySettings( gravitationalParameter / numPointMasses );
 
                     Eigen::Vector6d state = Eigen::Vector6d::Zero( );
                     state( 0 ) = ringRadius * std::cos( i * 2.0 * mathematical_constants::PI / numPointMasses );
@@ -268,7 +266,6 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
 
                     bodySettings.at( bodyName )->ephemerisSettings = constantEphemerisSettings( state );
                 }
-
             }
 
             bodySettings.addSettings( "COM" );
@@ -288,14 +285,14 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
             // Define propagation settings.
             std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
 
-            if ( gravityModelId == 0 )
+            if( gravityModelId == 0 )
             {
                 accelerationsOfVehicle[ "Ring" ].push_back( ringAcceleration( ) );
                 centralBodies.push_back( ringCentralBody );
             }
             else
             {
-                for ( int i = 0; i < numPointMasses; ++i )
+                for( int i = 0; i < numPointMasses; ++i )
                 {
                     std::string bodyName = "PointMassBody" + std::to_string( i );
                     accelerationsOfVehicle[ bodyName ].push_back( pointMassGravityAcceleration( ) );
@@ -303,29 +300,31 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
                 centralBodies.push_back( "COM" );
             }
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
-            basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+            basic_astrodynamics::AccelerationMap accelerationModelMap =
+                    createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
             // Define integrator settings.
             const double fixedStepSize = 0.0001;
-            std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                    std::make_shared< IntegratorSettings< > >( rungeKutta4, initialTime, fixedStepSize );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                    std::make_shared< IntegratorSettings<> >( rungeKutta4, initialTime, fixedStepSize );
 
             // Define propagator settings (Cowell)
             std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                     std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                            centralBodies, accelerationModelMap, bodiesToPropagate, initialState,
+                            centralBodies,
+                            accelerationModelMap,
+                            bodiesToPropagate,
+                            initialState,
                             propagationTimeTerminationSettings( finalTime, true ) );
 
             // Propagate orbit with Cowell method
-            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings,
-                                                                    true, false, true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
 
             std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
             double computedFinalTime = integrationResult.rbegin( )->first;
             Eigen::Vector6d computedFinalState = integrationResult.rbegin( )->second;
 
-            if ( gravityModelId == 0 )
+            if( gravityModelId == 0 )
             {
                 finalStateRing = computedFinalState;
             }
@@ -333,15 +332,13 @@ BOOST_AUTO_TEST_CASE( testRingVersusPointMassesGravityModel )
             {
                 finalStatePointMasses = computedFinalState;
             }
-
         }
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( finalStateRing, finalStatePointMasses, 1e-14 );
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace tudat
-} // namespace unit_tests
+}  // namespace unit_tests
+}  // namespace tudat

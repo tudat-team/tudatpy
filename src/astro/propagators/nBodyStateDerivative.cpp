@@ -43,7 +43,8 @@ std::string getTranslationalPropagatorName( const TranslationalPropagatorType pr
             propagatorName = "USM/exponential map";
             break;
         default:
-            throw std::runtime_error( "Error when getting translational propagator name, " + std::to_string( static_cast< int >( propagatorType ) ) + " not found" );
+            throw std::runtime_error( "Error when getting translational propagator name, " +
+                                      std::to_string( static_cast< int >( propagatorType ) ) + " not found" );
             break;
     }
     return propagatorName;
@@ -76,16 +77,17 @@ int getTranslationalStateSize( const TranslationalPropagatorType propagatorType 
             stateSize = 7;
             break;
         default:
-            throw std::runtime_error( "Error when getting translational propagator size, " + std::to_string( static_cast< int >( propagatorType ) ) + " not found" );
+            throw std::runtime_error( "Error when getting translational propagator size, " +
+                                      std::to_string( static_cast< int >( propagatorType ) ) + " not found" );
             break;
     }
     return stateSize;
 }
 
-
 //! Function to remove the central gravity acceleration from an AccelerationMap
 std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
-        const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
+        const std::vector< std::string >& centralBodies,
+        const std::vector< std::string >& bodiesToIntegrate,
         basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
         std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > >& removedAcceleration )
 {
@@ -103,8 +105,7 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
         // Check if current central body is exerting any accelerations on current body.
         if( accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ].count( centralBodies.at( i ) ) == 0 )
         {
-            std::string errorMessage =
-                    "Error, cannot remove central point gravity of body " + bodiesToIntegrate.at( i ) +
+            std::string errorMessage = "Error, cannot remove central point gravity of body " + bodiesToIntegrate.at( i ) +
                     " with central body " + centralBodies.at( i ) + " no accelerations due to requested central body found.";
             throw std::runtime_error( errorMessage );
         }
@@ -116,8 +117,7 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
             int numberOfCandidates = 0;
             bool isLastCandidateSphericalHarmonic = 0;
             bool isLastCandidatePolyhedron = 0;
-            listOfAccelerations =
-                    accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ];
+            listOfAccelerations = accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ];
 
             for( unsigned int j = 0; j < listOfAccelerations.size( ); j++ )
             {
@@ -135,7 +135,7 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                     numberOfCandidates++;
                     lastCandidate = j;
                 }
-                else if ( currentAccelerationType == polyhedron_gravity )
+                else if( currentAccelerationType == polyhedron_gravity )
                 {
                     isLastCandidatePolyhedron = 1;
                     numberOfCandidates++;
@@ -143,12 +143,11 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                 }
                 else if( ( currentAccelerationType == third_body_point_mass_gravity ) ||
                          ( currentAccelerationType == third_body_spherical_harmonic_gravity ) ||
-                        ( currentAccelerationType == third_body_polyhedron_gravity ) )
+                         ( currentAccelerationType == third_body_polyhedron_gravity ) )
                 {
                     std::string errorMessage =
                             "Error when removing central body point gravity term, removal of 3rd body accelerations (of " +
-                            centralBodies.at( i ) +
-                            " on " + bodiesToIntegrate.at( i ) + "), not yet supported";
+                            centralBodies.at( i ) + " on " + bodiesToIntegrate.at( i ) + "), not yet supported";
                     throw std::runtime_error( errorMessage );
                 }
             }
@@ -156,18 +155,13 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
             // If no or multiple central acceleration candidates were found, give error.
             if( numberOfCandidates == 0 )
             {
-                std::string errorMessage =
-                        "Error when removing central body point gravity term on body " +
-                        bodiesToIntegrate.at( i ) +
+                std::string errorMessage = "Error when removing central body point gravity term on body " + bodiesToIntegrate.at( i ) +
                         " with central body " + centralBodies.at( i ) + ", no central gravity found.";
                 throw std::runtime_error( errorMessage );
-
             }
             else if( numberOfCandidates != 1 )
             {
-                std::string errorMessage =
-                        "Error when removing central body point gravity term on body " +
-                        bodiesToIntegrate.at( i ) +
+                std::string errorMessage = "Error when removing central body point gravity term on body " + bodiesToIntegrate.at( i ) +
                         " with central body " + centralBodies.at( i ) + ", multiple central gravities found.";
                 throw std::runtime_error( errorMessage );
             }
@@ -176,44 +170,43 @@ std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
                 if( !isLastCandidateSphericalHarmonic && !isLastCandidatePolyhedron )
                 {
                     // Set central body gravitational parameter (used for Kepler orbit propagation)
-                    removedAcceleration[ bodiesToIntegrate.at( i ) ] = std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
-                                listOfAccelerations.at( lastCandidate ) );
+                    removedAcceleration[ bodiesToIntegrate.at( i ) ] =
+                            std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >( listOfAccelerations.at( lastCandidate ) );
                     centralBodyGravitationalParameters.at( i ) =
                             removedAcceleration[ bodiesToIntegrate.at( i ) ]->getGravitationalParameterFunction( );
 
                     // Remove central acceleration from list of accelerations that are evaluated at each time step.
                     listOfAccelerations.erase( listOfAccelerations.begin( ) + lastCandidate,
                                                listOfAccelerations.begin( ) + lastCandidate + 1 );
-                    accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ] =
-                            listOfAccelerations;
+                    accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ] = listOfAccelerations;
                 }
-                else if ( isLastCandidateSphericalHarmonic )
+                else if( isLastCandidateSphericalHarmonic )
                 {
                     std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > originalAcceleration =
                             std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
-                                listOfAccelerations.at( lastCandidate ) );
+                                    listOfAccelerations.at( lastCandidate ) );
                     centralBodyGravitationalParameters.at( i ) = originalAcceleration->getGravitationalParameterFunction( );
 
                     // Create 'additional' acceleration model which subtracts central gravity term.
                     accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ].push_back(
-                                std::make_shared< CentralGravitationalAccelerationModel3d >
-                                ( originalAcceleration->getStateFunctionOfBodyExertingAcceleration( ),
-                                  originalAcceleration->getGravitationalParameterFunction( ),
-                                  originalAcceleration->getStateFunctionOfBodyUndergoingAcceleration( ) ) );
+                            std::make_shared< CentralGravitationalAccelerationModel3d >(
+                                    originalAcceleration->getStateFunctionOfBodyExertingAcceleration( ),
+                                    originalAcceleration->getGravitationalParameterFunction( ),
+                                    originalAcceleration->getStateFunctionOfBodyUndergoingAcceleration( ) ) );
                 }
                 else
                 {
                     std::shared_ptr< PolyhedronGravitationalAccelerationModel > originalAcceleration =
                             std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >(
-                                listOfAccelerations.at( lastCandidate ) );
+                                    listOfAccelerations.at( lastCandidate ) );
                     centralBodyGravitationalParameters.at( i ) = originalAcceleration->getGravitationalParameterFunction( );
 
                     // Create 'additional' acceleration model which subtracts central gravity term.
                     accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ].push_back(
-                                std::make_shared< CentralGravitationalAccelerationModel3d >
-                                ( originalAcceleration->getStateFunctionOfBodyExertingAcceleration( ),
-                                  originalAcceleration->getGravitationalParameterFunction( ),
-                                  originalAcceleration->getStateFunctionOfBodyUndergoingAcceleration( ) ) );
+                            std::make_shared< CentralGravitationalAccelerationModel3d >(
+                                    originalAcceleration->getStateFunctionOfBodyExertingAcceleration( ),
+                                    originalAcceleration->getGravitationalParameterFunction( ),
+                                    originalAcceleration->getStateFunctionOfBodyUndergoingAcceleration( ) ) );
                 }
             }
         }
@@ -226,7 +219,6 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
                                                           std::vector< std::string > centralBodies,
                                                           std::vector< std::string > ephemerisOrigins )
 {
-
     std::vector< std::string > updateOrder;
 
     // Declare variables
@@ -240,17 +232,12 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
     while( !isFinished )
     {
         // Check if current central body or ephemeris origin is integratedBodies
-        centralBodyIterator = std::find(
-                    integratedBodies.begin( ), integratedBodies.end( ),
-                    centralBodies.at( currentIndex ) );
-        ephemerisOriginIterator = std::find(
-                    integratedBodies.begin( ), integratedBodies.end( ),
-                    ephemerisOrigins.at( currentIndex ) );
+        centralBodyIterator = std::find( integratedBodies.begin( ), integratedBodies.end( ), centralBodies.at( currentIndex ) );
+        ephemerisOriginIterator = std::find( integratedBodies.begin( ), integratedBodies.end( ), ephemerisOrigins.at( currentIndex ) );
 
         // If neither is in list, there is no dependency, and current body can be added to update
         // list.
-        if( centralBodyIterator == integratedBodies.end( )
-            && ephemerisOriginIterator == integratedBodies.end( ) )
+        if( centralBodyIterator == integratedBodies.end( ) && ephemerisOriginIterator == integratedBodies.end( ) )
         {
             // Add to list.
             updateOrder.push_back( integratedBodies.at( currentIndex ) );
@@ -272,36 +259,28 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
         else
         {
             // If both are found in list, start next iteration at whichever is first in list.
-            if( centralBodyIterator != integratedBodies.end( )
-                && ephemerisOriginIterator != integratedBodies.end( ) )
+            if( centralBodyIterator != integratedBodies.end( ) && ephemerisOriginIterator != integratedBodies.end( ) )
             {
-
                 currentIndex = std::min(
-                            std::distance(
+                        std::distance( integratedBodies.begin( ),
+                                       std::find( integratedBodies.begin( ), integratedBodies.end( ), centralBodies.at( currentIndex ) ) ),
+                        std::distance(
                                 integratedBodies.begin( ),
-                                std::find( integratedBodies.begin( ), integratedBodies.end( ),
-                                           centralBodies.at( currentIndex ) ) ),
-                            std::distance(
-                                integratedBodies.begin( ),
-                                std::find( integratedBodies.begin( ), integratedBodies.end( ),
-                                           ephemerisOrigins.at( currentIndex ) ) ));
-
+                                std::find( integratedBodies.begin( ), integratedBodies.end( ), ephemerisOrigins.at( currentIndex ) ) ) );
             }
             // If only central body is found, start with this central body in next iteration
             else if( centralBodyIterator != integratedBodies.end( ) )
             {
-                currentIndex = std::distance(
-                            integratedBodies.begin( ),
-                            std::find( integratedBodies.begin( ), integratedBodies.end( ),
-                                       centralBodies.at( currentIndex ) ) );
+                currentIndex =
+                        std::distance( integratedBodies.begin( ),
+                                       std::find( integratedBodies.begin( ), integratedBodies.end( ), centralBodies.at( currentIndex ) ) );
             }
             // If only ephemeris origin is found, start with this ephemeris origin in next iteration
             else if( ephemerisOriginIterator != integratedBodies.end( ) )
             {
                 currentIndex = std::distance(
-                            integratedBodies.begin( ),
-                            std::find( integratedBodies.begin( ), integratedBodies.end( ),
-                                       ephemerisOrigins.at( currentIndex ) ) );
+                        integratedBodies.begin( ),
+                        std::find( integratedBodies.begin( ), integratedBodies.end( ), ephemerisOrigins.at( currentIndex ) ) );
             }
         }
 
@@ -309,16 +288,15 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
         counter++;
         if( counter > 10000 )
         {
-            throw std::runtime_error( "Warning, ephemeris update order determination now at iteration " +
-                                      std::to_string( counter ) );
+            throw std::runtime_error( "Warning, ephemeris update order determination now at iteration " + std::to_string( counter ) );
         }
     }
 
     return updateOrder;
 }
 
-//template class NBodyStateDerivative< double, double >;
+// template class NBodyStateDerivative< double, double >;
 
-}
+}  // namespace propagators
 
-}
+}  // namespace tudat

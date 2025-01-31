@@ -27,10 +27,10 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmo
     {
         // Check of acceleration depends on gravitational parameter of given body
         if( parameter->getParameterName( ).second.first == acceleratingBody_ ||
-                ( parameter->getParameterName( ).second.first == acceleratedBody_ && accelerationUsesMutualAttraction_ ) )
+            ( parameter->getParameterName( ).second.first == acceleratedBody_ && accelerationUsesMutualAttraction_ ) )
         {
             parameterPartial = std::make_pair(
-                        std::bind( &MutualSphericalHarmonicsGravityPartial::wrtGravitationalParameter, this, std::placeholders::_1 ), 1 );
+                    std::bind( &MutualSphericalHarmonicsGravityPartial::wrtGravitationalParameter, this, std::placeholders::_1 ), 1 );
         }
         else
         {
@@ -46,8 +46,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmo
                 accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
 
         // Combine partial functions
-        parameterPartial = orbit_determination::createMergedParameterPartialFunction(
-                    partialFunctionFromBodyExertingAcceleration, partialFunctionFromBodyUndergoingAcceleration );
+        parameterPartial = orbit_determination::createMergedParameterPartialFunction( partialFunctionFromBodyExertingAcceleration,
+                                                                                      partialFunctionFromBodyUndergoingAcceleration );
     }
     return parameterPartial;
 }
@@ -61,8 +61,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmo
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyUndergoingAcceleration =
             accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
 
-    return  orbit_determination::createMergedParameterPartialFunction(
-                partialFunctionFromBodyExertingAcceleration, partialFunctionFromBodyUndergoingAcceleration );
+    return orbit_determination::createMergedParameterPartialFunction( partialFunctionFromBodyExertingAcceleration,
+                                                                      partialFunctionFromBodyUndergoingAcceleration );
 }
 
 //! Function to set a dependency of this partial object w.r.t. a given double parameter.
@@ -74,8 +74,7 @@ int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
     // Check if parameter is gravitational parameter of either
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
     {
-        std::pair< std::function< void( Eigen::MatrixXd& ) >, int >  partialFunction  =
-                getParameterPartialFunction( parameter );
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction = getParameterPartialFunction( parameter );
         partialSize = partialFunction.second;
 
         if( partialFunction.second > 0 )
@@ -107,10 +106,12 @@ int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
         if( partialFunctionFromUndergoingGravity.second > 0 || partialFunctionFromExertingExpansion.second > 0 )
         {
             parameterDoublePartialFunctions_[ parameter ] =
-                    getCombinedCurrentDoubleParameterFunction(
-                        accelerationPartialOfShExpansionOfBodyExertingAcceleration_,
-                        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_,
-                        parameter, partialFunctionFromExertingExpansion.second, partialFunctionFromUndergoingGravity.second, 1 );
+                    getCombinedCurrentDoubleParameterFunction( accelerationPartialOfShExpansionOfBodyExertingAcceleration_,
+                                                               accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_,
+                                                               parameter,
+                                                               partialFunctionFromExertingExpansion.second,
+                                                               partialFunctionFromUndergoingGravity.second,
+                                                               1 );
             isCurrentDoubleParameterPartialSet_[ parameter ] = 0;
             currentDoubleParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, 1 );
         }
@@ -143,17 +144,18 @@ int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
     if( partialFunctionFromUndergoingGravity.second > 0 || partialFunctionFromExertingExpansion.second > 0 )
     {
         parameterVectorPartialFunctions_[ parameter ] =
-                getCombinedCurrentVectorParameterFunction(
-                    accelerationPartialOfShExpansionOfBodyExertingAcceleration_,
-                    accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_,
-                    parameter, partialFunctionFromExertingExpansion.second, partialFunctionFromUndergoingGravity.second, 1 );
+                getCombinedCurrentVectorParameterFunction( accelerationPartialOfShExpansionOfBodyExertingAcceleration_,
+                                                           accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_,
+                                                           parameter,
+                                                           partialFunctionFromExertingExpansion.second,
+                                                           partialFunctionFromUndergoingGravity.second,
+                                                           1 );
         isCurrentVectorParameterPartialSet_[ parameter ] = 0;
         currentVectorParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, parameter->getParameterSize( ) );
-
     }
     return std::max( partialFunctionFromExertingExpansion.second, partialFunctionFromUndergoingGravity.second );
 }
 
-}
+}  // namespace acceleration_partials
 
-}
+}  // namespace tudat

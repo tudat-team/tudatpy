@@ -18,9 +18,7 @@ namespace tudat
 namespace observation_partials
 {
 
-
-void emptyVoidFunction( ){ }
-
+void emptyVoidFunction( ) { }
 
 //! Function to compute numerical partial derivative of double observable w.r.t. double parameter.
 Eigen::Matrix< double, 1, 1 > calculateNumericalObservationParameterPartial(
@@ -30,7 +28,6 @@ Eigen::Matrix< double, 1, 1 > calculateNumericalObservationParameterPartial(
         const double evaluationTime,
         std::function< void( ) > updateFunction )
 {
-
     double unperturbedParameterValue = parameter->getParameterValue( );
 
     parameter->setParameterValue( unperturbedParameterValue + parameterPerturbation );
@@ -57,16 +54,15 @@ Eigen::Matrix< double, Eigen::Dynamic, 1 > calculateNumericalObservationParamete
         const double evaluationTime,
         std::function< void( ) > updateFunction )
 {
-
     double unperturbedParameterValue = parameter->getParameterValue( );
 
     parameter->setParameterValue( unperturbedParameterValue + parameterPerturbation );
     updateFunction( );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 >  upPerturbedValue = observationFunction( evaluationTime );
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > upPerturbedValue = observationFunction( evaluationTime );
 
     parameter->setParameterValue( unperturbedParameterValue - parameterPerturbation );
     updateFunction( );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 >  downPerturbedValue = observationFunction( evaluationTime );
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > downPerturbedValue = observationFunction( evaluationTime );
 
     parameter->setParameterValue( unperturbedParameterValue );
     updateFunction( );
@@ -82,8 +78,8 @@ Eigen::MatrixXd calculateNumericalObservationParameterPartial(
         const double evaluationTime,
         std::function< void( ) > updateFunction )
 {
-    Eigen::MatrixXd parameterPartial = Eigen::MatrixXd::Zero( observationFunction( evaluationTime ).rows( ),
-                                                              parameter->getParameterSize( ) );
+    Eigen::MatrixXd parameterPartial =
+            Eigen::MatrixXd::Zero( observationFunction( evaluationTime ).rows( ), parameter->getParameterSize( ) );
 
     Eigen::VectorXd unperturbedParameterValue = parameter->getParameterValue( );
     Eigen::VectorXd perturbedParameterValue;
@@ -102,8 +98,8 @@ Eigen::MatrixXd calculateNumericalObservationParameterPartial(
         updateFunction( );
         Eigen::VectorXd downPerturbedValue = observationFunction( evaluationTime );
 
-        parameterPartial.block( 0, i, downPerturbedValue.rows( ), 1 ) = ( upPerturbedValue - downPerturbedValue ) /
-                ( 2.0 * parameterPerturbation( i ) );
+        parameterPartial.block( 0, i, downPerturbedValue.rows( ), 1 ) =
+                ( upPerturbedValue - downPerturbedValue ) / ( 2.0 * parameterPerturbation( i ) );
     }
 
     parameter->setParameterValue( unperturbedParameterValue );
@@ -112,7 +108,6 @@ Eigen::MatrixXd calculateNumericalObservationParameterPartial(
     return parameterPartial;
 }
 
+}  // namespace observation_partials
 
-}
-
-}
+}  // namespace tudat

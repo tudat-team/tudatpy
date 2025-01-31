@@ -21,42 +21,42 @@ namespace basic_astrodynamics
 {
 
 //! Function to get the Julian day on J2000, in double precision.
-template< >
+template<>
 double getJulianDayOnJ2000< double >( )
 {
     return JULIAN_DAY_ON_J2000;
 }
 
 //! Function to get the Julian day on J2000, in long double precision.
-template< >
+template<>
 long double getJulianDayOnJ2000< long double >( )
 {
     return JULIAN_DAY_ON_J2000_LONG;
 }
 
 //! Function to get the Julian day on zero modified Julian day, in double precision.
-template< >
+template<>
 double getJulianDayOnMjd0< double >( )
 {
     return JULIAN_DAY_AT_0_MJD;
 }
 
 //! Function to get the Julian day on zero modified Julian day, in long double precision.
-template< >
+template<>
 long double getJulianDayOnMjd0< long double >( )
 {
     return JULIAN_DAY_AT_0_MJD_LONG;
 }
 
 //! Function to get the synchronization Julian day of TT, TCG, and TCB, in double precision.
-template< >
+template<>
 double getTimeOfTaiSynchronizationJulianDay< double >( )
 {
     return TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION;
 }
 
 //! Function to get the synchronization Julian day of TT, TCG, and TCB, in long double precision.
-template< >
+template<>
 long double getTimeOfTaiSynchronizationJulianDay< long double >( )
 {
     return TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG;
@@ -64,7 +64,7 @@ long double getTimeOfTaiSynchronizationJulianDay< long double >( )
 
 //! Function to get the difference between TDB and (TT, TCB and TCB) at TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION,
 //! in double precision.
-template< >
+template<>
 double getTdbSecondsOffsetAtSynchronization< double >( )
 {
     return TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION;
@@ -72,33 +72,32 @@ double getTdbSecondsOffsetAtSynchronization< double >( )
 
 //! Function to get the difference between TDB and (TT, TCB and TCB) at TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION,
 //! in long double precision.
-template< >
+template<>
 long double getTdbSecondsOffsetAtSynchronization< long double >( )
 {
     return TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION_LONG;
 }
 
 //! Function to get the offset of TT from TAI (constant by definition), in double precision.
-template< >
+template<>
 double getTTMinusTai< double >( )
 {
     return TT_MINUS_TAI;
 }
 
 //! Function to get the offset of TT from TAI (constant by definition), in long double precision.
-template< >
+template<>
 long double getTTMinusTai< long double >( )
 {
     return TT_MINUS_TAI_LONG;
 }
 
 //! Function to get the offset of TT from TAI (constant by definition), in Time format.
-template< >
-Time getTTMinusTai< Time>( )
+template<>
+Time getTTMinusTai< Time >( )
 {
     return Time( TT_MINUS_TAI_LONG );
 }
-
 
 //! Function to determine whether the given year is a leap year (i.e. has 366 days)
 bool isLeapYear( const int year )
@@ -112,12 +111,10 @@ bool isLeapYear( const int year )
 }
 
 //! Function that returns number of days in given month number
-int getDaysInMonth( const int month,
-                    const int year )
+int getDaysInMonth( const int month, const int year )
 {
     // Declare number of days per month
-    static const int daysPerMonth[ 12 ] =
-    { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    static const int daysPerMonth[ 12 ] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
     int numberOfDays = 0;
 
     // Check input consistency
@@ -140,9 +137,7 @@ int getDaysInMonth( const int month,
 }
 
 //! Determine number of full days that have passed in current year
-int convertDayMonthYearToDayOfYear( const int day,
-                                    const int month,
-                                    const int year )
+int convertDayMonthYearToDayOfYear( const int day, const int month, const int year )
 {
     return convertDayMonthYearToDayOfYear( boost::gregorian::date( year, month, day ) );
 }
@@ -184,8 +179,7 @@ boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int
             currentMonth++;
             if( currentMonth > 12 )
             {
-                throw std::runtime_error(
-                            "Error when converting year and days in year to date, month number has exceeded 12" );
+                throw std::runtime_error( "Error when converting year and days in year to date, month number has exceeded 12" );
             }
         }
         else
@@ -199,8 +193,7 @@ boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int
 
     if( date.day_of_year( ) != daysInYear + 1 )
     {
-        throw std::runtime_error(
-                    "Error when converting year and days in year to date, inconsistent output" );
+        throw std::runtime_error( "Error when converting year and days in year to date, inconsistent output" );
     }
 
     return date;
@@ -210,9 +203,8 @@ boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int
 double approximateConvertTTtoTDB( const double ttSecondsSinceJ2000 )
 {
     double ttCenturiesSinceJ2000 = ttSecondsSinceJ2000 / ( 100.0 * physical_constants::JULIAN_YEAR );
-    return ttSecondsSinceJ2000 + 0.001657  * std::sin( 628.3076 * ttCenturiesSinceJ2000 + 6.2401 );
+    return ttSecondsSinceJ2000 + 0.001657 * std::sin( 628.3076 * ttCenturiesSinceJ2000 + 6.2401 );
 }
 
-
-} // namespace basic_astrodynamics
-} // namespace tudat
+}  // namespace basic_astrodynamics
+}  // namespace tudat

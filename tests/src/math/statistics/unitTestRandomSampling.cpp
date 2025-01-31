@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
@@ -43,12 +42,11 @@ BOOST_AUTO_TEST_CASE( test_randomVectorUniform )
     upper << 1.0, 3.0, 4.0;
 
     Eigen::VectorXd width = upper - lower;
-    Eigen::VectorXd average = (upper + lower) / 2.0;
+    Eigen::VectorXd average = ( upper + lower ) / 2.0;
 
     Eigen::VectorXd standardDeviation = std::sqrt( 1.0 / 12.0 ) * width;
     {
-        std::vector< Eigen::VectorXd > samples =
-                tudat::statistics::generateUniformRandomSample( seed, numberOfSamples, lower, upper );
+        std::vector< Eigen::VectorXd > samples = tudat::statistics::generateUniformRandomSample( seed, numberOfSamples, lower, upper );
 
         // Compute sample mean and standard deviation
         Eigen::VectorXd sampleMean = statistics::computeSampleMean( samples );
@@ -109,8 +107,7 @@ BOOST_AUTO_TEST_CASE( test_randomVectorGaussian )
     }
 
     {
-        std::vector< Eigen::VectorXd > samples =
-                tudat::statistics::generateGaussianRandomSample( seed, numberOfSamples, 3 );
+        std::vector< Eigen::VectorXd > samples = tudat::statistics::generateGaussianRandomSample( seed, numberOfSamples, 3 );
 
         // Compute sample mean and standard deviation
         Eigen::VectorXd sampleMean = statistics::computeSampleMean( samples );
@@ -125,7 +122,6 @@ BOOST_AUTO_TEST_CASE( test_randomVectorGaussian )
         BOOST_CHECK_SMALL( std::fabs( 1.0 - sampleStandardDeviations( 2 ) ), 5.0E-3 );
     }
 }
-
 
 #if USE_GSL
 
@@ -143,10 +139,9 @@ BOOST_AUTO_TEST_CASE( test_Sobol_Sampler )
     upper << 1.0, 3.0, 4.0;
 
     Eigen::VectorXd width = upper - lower;
-    Eigen::VectorXd average = (upper + lower) / 2.0;
+    Eigen::VectorXd average = ( upper + lower ) / 2.0;
 
-    std::vector< Eigen::VectorXd > sobolSamples = tudat::statistics::generateVectorSobolSample(
-                numberOfSamples, lower, upper );
+    std::vector< Eigen::VectorXd > sobolSamples = tudat::statistics::generateVectorSobolSample( numberOfSamples, lower, upper );
 
     // Compute sample average
     Eigen::VectorXd sampleMean = statistics::computeSampleMean( sobolSamples );
@@ -168,5 +163,5 @@ BOOST_AUTO_TEST_CASE( test_Sobol_Sampler )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

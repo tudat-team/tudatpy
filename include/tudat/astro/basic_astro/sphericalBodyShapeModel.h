@@ -17,7 +17,6 @@
 
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 
-
 namespace tudat
 {
 namespace basic_astrodynamics
@@ -27,20 +26,18 @@ namespace basic_astrodynamics
 /*!
  *  Body shape model defined as a sphere, defined by only its radius.
  */
-class SphericalBodyShapeModel: public BodyShapeModel
+class SphericalBodyShapeModel : public BodyShapeModel
 {
 public:
-
     //! Constructor.
     /*!
      *  Constructor, defines body shape.
      *  \param radius Radius of sphere
      */
-    SphericalBodyShapeModel ( const double radius ):
-        radius_( radius ){ }
+    SphericalBodyShapeModel( const double radius ): radius_( radius ) { }
 
     //! Destructor
-    ~SphericalBodyShapeModel( ){ }
+    ~SphericalBodyShapeModel( ) { }
 
     //! Calculates the altitude above the sphere
     /*!
@@ -65,12 +62,11 @@ public:
     }
 
 private:
-
     //! Radius of sphere
     double radius_;
 };
 
-} // namespace basic_astrodynamics
-} // namespace tudat
+}  // namespace basic_astrodynamics
+}  // namespace tudat
 
-#endif // TUDAT_SPHERICALBODYSHAPEMODEL_H
+#endif  // TUDAT_SPHERICALBODYSHAPEMODEL_H

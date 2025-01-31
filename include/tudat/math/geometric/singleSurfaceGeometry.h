@@ -41,36 +41,25 @@ namespace geometric_shapes
  * postion and orientation that is desired, as well as functions to set and
  * get these quantities, are included.
  */
-class SingleSurfaceGeometry: public SurfaceGeometry
+class SingleSurfaceGeometry : public SurfaceGeometry
 {
 public:
-
     //! Independent variables.
     /*!
      * Independent variables.
      */
-    enum IndependentVariables
-    {
-        firstIndependentVariable = 1,
-        secondIndependentVariable = 2
-    };
+    enum IndependentVariables { firstIndependentVariable = 1, secondIndependentVariable = 2 };
 
     //! Default constructor.
     /*!
      * Default constructor; sets the initial offset equal to zero and sets the
      * rotation matrix and scaling matrix equal to the identity matrix.
      */
-    SingleSurfaceGeometry( )
-        : minimumIndependentVariable1_( TUDAT_NAN ),
-          maximumIndependentVariable1_( TUDAT_NAN ),
-          minimumIndependentVariable2_( TUDAT_NAN ),
-          maximumIndependentVariable2_( TUDAT_NAN ),
-          parameter_( TUDAT_NAN ),
-          independentVariable_( firstIndependentVariable ),
-          cartesianPositionVector_( Eigen::VectorXd::Zero( 3 ) ),
-          offset_( Eigen::VectorXd::Zero( 3 ) ),
-          rotationMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) ),
-          scalingMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) )
+    SingleSurfaceGeometry( ):
+        minimumIndependentVariable1_( TUDAT_NAN ), maximumIndependentVariable1_( TUDAT_NAN ), minimumIndependentVariable2_( TUDAT_NAN ),
+        maximumIndependentVariable2_( TUDAT_NAN ), parameter_( TUDAT_NAN ), independentVariable_( firstIndependentVariable ),
+        cartesianPositionVector_( Eigen::VectorXd::Zero( 3 ) ), offset_( Eigen::VectorXd::Zero( 3 ) ),
+        rotationMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) ), scalingMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) )
     { }
 
     //! Default destructor.
@@ -84,7 +73,10 @@ public:
      * Sets the offset of the shape.
      * \param offset Offset.
      */
-    void setOffset( const Eigen::VectorXd& offset ) { offset_ = offset; }
+    void setOffset( const Eigen::VectorXd& offset )
+    {
+        offset_ = offset;
+    }
 
     //! Set rotation matrix of the shape.
     /*!
@@ -120,21 +112,30 @@ public:
      * Returns the offset from the shape.
      * \return Offset of the surface.
      */
-    Eigen::VectorXd getOffset( ) { return offset_; }
+    Eigen::VectorXd getOffset( )
+    {
+        return offset_;
+    }
 
     //! Get rotation matrix from the shape.
     /*!
      * Returns the rotation matrix from the shape.
      * \return Rotation matrix of the surface.
      */
-    Eigen::MatrixXd getRotationMatrix( ) { return rotationMatrix_; }
+    Eigen::MatrixXd getRotationMatrix( )
+    {
+        return rotationMatrix_;
+    }
 
     //! Get scaling matrix from the shape.
     /*!
      * Returns the scaling matrix from the shape.
      * \return Scaling matrix of the surface.
      */
-    Eigen::MatrixXd getScalingMatrix( ) { return scalingMatrix_; }
+    Eigen::MatrixXd getScalingMatrix( )
+    {
+        return scalingMatrix_;
+    }
 
     //! Get minimum value of independent variable.
     /*!
@@ -162,8 +163,7 @@ public:
      * \param independentVariable2 Independent variable 2.
      * \return Surface point.
      */
-    virtual Eigen::VectorXd getSurfacePoint( const double independentVariable1,
-                                             const double independentVariable2 ) = 0;
+    virtual Eigen::VectorXd getSurfacePoint( const double independentVariable1, const double independentVariable2 ) = 0;
 
     //! Get surface derivative.
     /*!
@@ -190,7 +190,6 @@ public:
     void transformPoint( Eigen::VectorXd& point );
 
 protected:
-
     //! Set minimum value of independent variable.
     /*!
      * Sets the minimum value of a given independent variable.
@@ -279,7 +278,7 @@ private:
 //! Typedef for shared-pointer to SingleSurfaceGeometry object.
 typedef std::shared_ptr< SingleSurfaceGeometry > SingleSurfaceGeometryPointer;
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat
 
-#endif // TUDAT_SINGLE_SURFACE_GEOMETRY_H
+#endif  // TUDAT_SINGLE_SURFACE_GEOMETRY_H

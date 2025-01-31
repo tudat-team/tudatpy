@@ -23,8 +23,6 @@
 #ifndef TUDAT_TRANSFER_TRAJECTORY_H
 #define TUDAT_TRANSFER_TRAJECTORY_H
 
-
-
 #include <Eigen/Core>
 
 #include "tudat/astro/mission_segments/transferLeg.h"
@@ -41,21 +39,17 @@ namespace mission_segments
 class TransferTrajectory
 {
 public:
-
     //! Class constructor
-    TransferTrajectory(
-            const std::vector< std::shared_ptr< TransferLeg > > legs,
-            const std::vector< std::shared_ptr< TransferNode > > nodes ):
-        legs_( legs ), nodes_( nodes ), isComputed_( false )
+    TransferTrajectory( const std::vector< std::shared_ptr< TransferLeg > > legs,
+                        const std::vector< std::shared_ptr< TransferNode > > nodes ): legs_( legs ), nodes_( nodes ), isComputed_( false )
     {
         totalDeltaV_ = 0.0;
     }
 
     //! Update trajectory with new independent variables
-    void evaluateTrajectory(
-            const std::vector< double >& nodeTimes,
-            const std::vector< Eigen::VectorXd >& legFreeParameters,
-            const std::vector< Eigen::VectorXd >& nodeFreeParameters );
+    void evaluateTrajectory( const std::vector< double >& nodeTimes,
+                             const std::vector< Eigen::VectorXd >& legFreeParameters,
+                             const std::vector< Eigen::VectorXd >& nodeFreeParameters );
 
     //! Retrieve total trajectory Delta V
     double getTotalDeltaV( );
@@ -68,7 +62,7 @@ public:
 
     std::vector< double > getDeltaVPerLeg( );
 
-    double getTotalTimeOfFlight ( );
+    double getTotalTimeOfFlight( );
 
     int getNumberOfNodes( )
     {
@@ -92,7 +86,7 @@ public:
 
     //! Get inertial cartesian position and velocity along full trajectory.
     void getStatesAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
-                                        const int numberOfDataPointsPerLeg );
+                                         const int numberOfDataPointsPerLeg );
 
     std::vector< std::map< double, Eigen::Vector6d > > getStatesAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg );
 
@@ -105,12 +99,13 @@ public:
             std::vector< std::map< double, Eigen::Vector3d > >& thrustAccelerationsAlongTrajectoryPerLeg,
             const int numberOfDataPointsPerLeg );
 
-    std::vector< std::map< double, Eigen::Vector3d > > getInertialThrustAccelerationAlongTrajectoryPerLeg(const int numberOfDataPointsPerLeg );
+    std::vector< std::map< double, Eigen::Vector3d > > getInertialThrustAccelerationAlongTrajectoryPerLeg(
+            const int numberOfDataPointsPerLeg );
 
-    void getInertialThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
-                                                       const int numberOfDataPointsPerLeg );
+    void getInertialThrustAccelerationsAlongTrajectory( std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
+                                                        const int numberOfDataPointsPerLeg );
 
-    std::map< double, Eigen::Vector3d > getInertialThrustAccelerationsAlongTrajectory(const int numberOfDataPointsPerLeg );
+    std::map< double, Eigen::Vector3d > getInertialThrustAccelerationsAlongTrajectory( const int numberOfDataPointsPerLeg );
 
     //! Get RSW thrust acceleration along full trajectory
     std::map< double, Eigen::Vector3d > getRswThrustAccelerationsAlongTrajectory( const int numberOfDataPointsPerLeg );
@@ -118,22 +113,18 @@ public:
     //! Get TNW thrust acceleration along full trajectory
     std::map< double, Eigen::Vector3d > getTnwThrustAccelerationsAlongTrajectory( const int numberOfDataPointsPerLeg );
 
-
 private:
-
     //! Retrieve full set of parameters for single leg
-    void getLegTotalParameters(
-            const std::vector< double >& nodeTimes,
-            const Eigen::VectorXd& legFreeParameters,
-            const int legIndex,
-            Eigen::VectorXd& legTotalParameters );
+    void getLegTotalParameters( const std::vector< double >& nodeTimes,
+                                const Eigen::VectorXd& legFreeParameters,
+                                const int legIndex,
+                                Eigen::VectorXd& legTotalParameters );
 
     //! Retrieve full set of parameters for single node
-    void getNodeTotalParameters(
-            const std::vector< double >& nodeTimes,
-            const Eigen::VectorXd& nodeFreeParameters,
-            const int nodeIndex,
-            Eigen::VectorXd& nodeTotalParameters );
+    void getNodeTotalParameters( const std::vector< double >& nodeTimes,
+                                 const Eigen::VectorXd& nodeFreeParameters,
+                                 const int nodeIndex,
+                                 Eigen::VectorXd& nodeTotalParameters );
 
     //! List of legs
     const std::vector< std::shared_ptr< TransferLeg > > legs_;
@@ -151,9 +142,8 @@ private:
     bool isComputed_;
 };
 
+}  // namespace mission_segments
 
-} // namespace mission_segments
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_TRANSFER_TRAJECTORY_H
+#endif  // TUDAT_TRANSFER_TRAJECTORY_H
