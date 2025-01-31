@@ -20,17 +20,18 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
-    namespace numerical_simulation {
+namespace numerical_simulation
+{
 
-        void expose_numerical_simulation(py::module &m);
-        void expose_numerical_simulation_simulator(py::module &m);
-        void expose_numerical_simulation_estimator(py::module &m);
-        void expose_numerical_simulation_variational(py::module &m);
+void expose_numerical_simulation( py::module &m );
+void expose_numerical_simulation_simulator( py::module &m );
+void expose_numerical_simulation_estimator( py::module &m );
+void expose_numerical_simulation_variational( py::module &m );
 
-
-    }  // namespace numerical_simulation
+}  // namespace numerical_simulation
 
 }  // namespace tudatpy
 #endif  // TUDATPY_EXPOSE_NUMERICAL_SIMULATION_H

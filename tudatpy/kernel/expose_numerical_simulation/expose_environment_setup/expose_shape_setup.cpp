@@ -13,10 +13,10 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
-//#include <pybind11/chrono.h>
+// #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
-//#include <pybind11/numpy.h>
+// #include <pybind11/numpy.h>
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -24,16 +24,20 @@
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace shape {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace shape
+{
 
-                void expose_shape_setup(py::module &m) {
-                    py::class_<tss::BodyShapeSettings,
-                               std::shared_ptr<tss::BodyShapeSettings>>(
-                        m, "BodyShapeSettings",
-                        R"doc(
+void expose_shape_setup( py::module &m )
+{
+    py::class_< tss::BodyShapeSettings, std::shared_ptr< tss::BodyShapeSettings > >( m,
+                                                                                     "BodyShapeSettings",
+                                                                                     R"doc(
 
         Base class for providing settings for body shape model.
 
@@ -44,13 +48,12 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-                    py::class_<tss::SphericalBodyShapeSettings,
-                               std::shared_ptr<tss::SphericalBodyShapeSettings>,
-                               tss::BodyShapeSettings>(
-                        m, "SphericalBodyShapeSettings",
-                        R"doc(
+    py::class_< tss::SphericalBodyShapeSettings, std::shared_ptr< tss::SphericalBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "SphericalBodyShapeSettings",
+            R"doc(
 
         Class for defining model settings of a strictly spherical body shape.
 
@@ -59,27 +62,23 @@ namespace tudatpy {
 
 
 
-     )doc")
-                        .def_property(
-                            "radius",
-                            &tss::SphericalBodyShapeSettings::getRadius,
-                            &tss::SphericalBodyShapeSettings::resetRadius,
-                            R"doc(
+     )doc" )
+            .def_property( "radius",
+                           &tss::SphericalBodyShapeSettings::getRadius,
+                           &tss::SphericalBodyShapeSettings::resetRadius,
+                           R"doc(
 
         **read-only**
 
         Radius specifying spherical body shape.
 
         :type: float
-     )doc");
+     )doc" );
 
-
-                    py::class_<
-                        tss::OblateSphericalBodyShapeSettings,
-                        std::shared_ptr<tss::OblateSphericalBodyShapeSettings>,
-                        tss::BodyShapeSettings>(
-                        m, "OblateSphericalBodyShapeSettings",
-                        R"doc(
+    py::class_< tss::OblateSphericalBodyShapeSettings, std::shared_ptr< tss::OblateSphericalBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "OblateSphericalBodyShapeSettings",
+            R"doc(
 
         Class for defining model settings of a oblate spherical body shape.
 
@@ -88,40 +87,34 @@ namespace tudatpy {
 
 
 
-     )doc")
-                        .def_property("equatorial_radius",
-                                      &tss::OblateSphericalBodyShapeSettings::
-                                          getEquatorialRadius,
-                                      &tss::OblateSphericalBodyShapeSettings::
-                                          resetEquatorialRadius,
-                                      R"doc(
+     )doc" )
+            .def_property( "equatorial_radius",
+                           &tss::OblateSphericalBodyShapeSettings::getEquatorialRadius,
+                           &tss::OblateSphericalBodyShapeSettings::resetEquatorialRadius,
+                           R"doc(
 
         **read-only**
 
         Equatorial radius of the oblate spherical body shape.
 
         :type: float
-     )doc")
-                        .def_property("flattening",
-                                      &tss::OblateSphericalBodyShapeSettings::
-                                          getFlattening,
-                                      &tss::OblateSphericalBodyShapeSettings::
-                                          resetFlattening,
-                                      R"doc(
+     )doc" )
+            .def_property( "flattening",
+                           &tss::OblateSphericalBodyShapeSettings::getFlattening,
+                           &tss::OblateSphericalBodyShapeSettings::resetFlattening,
+                           R"doc(
 
         **read-only**
 
         Flattening of spheroid shape model.
 
         :type: float
-     )doc");
+     )doc" );
 
-                    py::class_<
-                        tss::PolyhedronBodyShapeSettings,
-                        std::shared_ptr<tss::PolyhedronBodyShapeSettings>,
-                        tss::BodyShapeSettings>(m,
-                                                "PolyhedronBodyShapeSettings",
-                                                R"doc(
+    py::class_< tss::PolyhedronBodyShapeSettings, std::shared_ptr< tss::PolyhedronBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "PolyhedronBodyShapeSettings",
+            R"doc(
 
         Class for defining model settings of a polyhedron body shape.
 
@@ -130,26 +123,22 @@ namespace tudatpy {
 
 
 
-     )doc")
-                        .def_property("vertices_coordinates",
-                                      &tss::PolyhedronBodyShapeSettings::
-                                          getVerticesCoordinates,
-                                      &tss::PolyhedronBodyShapeSettings::
-                                          resetVerticesCoordinates,
-                                      R"doc(
+     )doc" )
+            .def_property( "vertices_coordinates",
+                           &tss::PolyhedronBodyShapeSettings::getVerticesCoordinates,
+                           &tss::PolyhedronBodyShapeSettings::resetVerticesCoordinates,
+                           R"doc(
 
         Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
         row per vertex, 3 columns).
 
 
         :type: numpy.ndarray
-     )doc")
-                        .def_property("vertices_defining_each_facet",
-                                      &tss::PolyhedronBodyShapeSettings::
-                                          getVerticesDefiningEachFacet,
-                                      &tss::PolyhedronBodyShapeSettings::
-                                          resetVerticesDefiningEachFacet,
-                                      R"doc(
+     )doc" )
+            .def_property( "vertices_defining_each_facet",
+                           &tss::PolyhedronBodyShapeSettings::getVerticesDefiningEachFacet,
+                           &tss::PolyhedronBodyShapeSettings::resetVerticesDefiningEachFacet,
+                           R"doc(
 
         Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
         the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
@@ -157,13 +146,11 @@ namespace tudatpy {
 
 
         :type: numpy.ndarray
-     )doc")
-                        .def_property("compute_altitude_with_sign",
-                                      &tss::PolyhedronBodyShapeSettings::
-                                          getComputeAltitudeWithSign,
-                                      &tss::PolyhedronBodyShapeSettings::
-                                          resetComputeAltitudeWithSign,
-                                      R"doc(
+     )doc" )
+            .def_property( "compute_altitude_with_sign",
+                           &tss::PolyhedronBodyShapeSettings::getComputeAltitudeWithSign,
+                           &tss::PolyhedronBodyShapeSettings::resetComputeAltitudeWithSign,
+                           R"doc(
 
         Flag indicating whether the altitude should be computed with sign (i.e. >0 if above surface, <0 otherwise) or
         having always a positive value. If the the sign of the altitude is not relevant, then setting it to *false* is
@@ -171,13 +158,11 @@ namespace tudatpy {
 
 
         :type: bool, default=True
-     )doc")
-                        .def_property("just_compute_distance_to_vertices",
-                                      &tss::PolyhedronBodyShapeSettings::
-                                          getJustComputeDistanceToVertices,
-                                      &tss::PolyhedronBodyShapeSettings::
-                                          resetJustComputeDistanceToVertices,
-                                      R"doc(
+     )doc" )
+            .def_property( "just_compute_distance_to_vertices",
+                           &tss::PolyhedronBodyShapeSettings::getJustComputeDistanceToVertices,
+                           &tss::PolyhedronBodyShapeSettings::resetJustComputeDistanceToVertices,
+                           R"doc(
 
         Flag indicating whether the altitude should be computed just with respect to the polyhedron vertices (if flag
         is set to *true*) or to all polyhedron features (vertices, facets and edges; happens if flag is set to
@@ -187,13 +172,12 @@ namespace tudatpy {
 
 
         :type: bool, default=False
-     )doc");
+     )doc" );
 
-                    py::class_<tss::HybridBodyShapeSettings,
-                               std::shared_ptr<tss::HybridBodyShapeSettings>,
-                               tss::BodyShapeSettings>(
-                        m, "HybridBodyShapeSettings",
-                        R"doc(
+    py::class_< tss::HybridBodyShapeSettings, std::shared_ptr< tss::HybridBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "HybridBodyShapeSettings",
+            R"doc(
 
         Class for defining model settings of a hybrid body shape.
 
@@ -202,30 +186,24 @@ namespace tudatpy {
 
 
 
-     )doc")
-                        .def_property("low_resolution_body_shape_settings",
-                                      &tss::HybridBodyShapeSettings::
-                                          getLowResolutionBodyShapeSettings,
-                                      &tss::HybridBodyShapeSettings::
-                                          resetLowResolutionBodyShapeSettings,
-                                      R"doc(No documentation found.)doc")
-                        .def_property("high_resolution_body_shape_settings",
-                                      &tss::HybridBodyShapeSettings::
-                                          getHighResolutionBodyShapeSettings,
-                                      &tss::HybridBodyShapeSettings::
-                                          resetHighResolutionBodyShapeSettings,
-                                      R"doc(No documentation found.)doc")
-                        .def_property("switchover_altitude",
-                                      &tss::HybridBodyShapeSettings::
-                                          getSwitchoverAltitude,
-                                      &tss::HybridBodyShapeSettings::
-                                          resetSwitchoverAltitude,
-                                      R"doc(No documentation found.)doc");
+     )doc" )
+            .def_property( "low_resolution_body_shape_settings",
+                           &tss::HybridBodyShapeSettings::getLowResolutionBodyShapeSettings,
+                           &tss::HybridBodyShapeSettings::resetLowResolutionBodyShapeSettings,
+                           R"doc(No documentation found.)doc" )
+            .def_property( "high_resolution_body_shape_settings",
+                           &tss::HybridBodyShapeSettings::getHighResolutionBodyShapeSettings,
+                           &tss::HybridBodyShapeSettings::resetHighResolutionBodyShapeSettings,
+                           R"doc(No documentation found.)doc" )
+            .def_property( "switchover_altitude",
+                           &tss::HybridBodyShapeSettings::getSwitchoverAltitude,
+                           &tss::HybridBodyShapeSettings::resetSwitchoverAltitude,
+                           R"doc(No documentation found.)doc" );
 
-
-                    m.def("spherical", &tss::sphericalBodyShapeSettings,
-                          py::arg("radius"),
-                          R"doc(
+    m.def( "spherical",
+           &tss::sphericalBodyShapeSettings,
+           py::arg( "radius" ),
+           R"doc(
 
 Function for creating spherical body shape model settings.
 
@@ -257,11 +235,11 @@ In this example, we create a :class:`~tudatpy.numerical_simulation.environment_s
    body_settings.get( "Earth" ).shape_settings = environment_setup.shape.spherical( body_radius )
 
 
-    )doc");
+    )doc" );
 
-                    m.def("spherical_spice",
-                          &tss::fromSpiceSphericalBodyShapeSettings,
-                          R"doc(
+    m.def( "spherical_spice",
+           &tss::fromSpiceSphericalBodyShapeSettings,
+           R"doc(
 
 Function for creating spherical body shape model settings entirely from spice.
 
@@ -286,12 +264,13 @@ In this example, we create a :class:`~tudatpy.numerical_simulation.environment_s
    body_settings.get( "Earth" ).shape_settings = environment_setup.shape.spherical_spice( )
 
 
-    )doc");
+    )doc" );
 
-                    m.def("oblate_spherical",
-                          &tss::oblateSphericalBodyShapeSettings,
-                          py::arg("equatorial_radius"), py::arg("flattening"),
-                          R"doc(
+    m.def( "oblate_spherical",
+           &tss::oblateSphericalBodyShapeSettings,
+           py::arg( "equatorial_radius" ),
+           py::arg( "flattening" ),
+           R"doc(
 
 Function for creating oblate spherical body shape model settings.
 
@@ -326,18 +305,17 @@ In this example, we create a :class:`~tudatpy.numerical_simulation.environment_s
    body_settings.get( "Earth" ).shape_settings = environment_setup.shape.oblate_spherical( body_radius, body_flattening )
 
 
-    )doc");
+    )doc" );
 
-                    m.def("oblate_spherical_spice",
-                          &tss::fromSpiceOblateSphericalBodyShapeSettings,
-                          R"doc(No documentation found.)doc");
+    m.def( "oblate_spherical_spice", &tss::fromSpiceOblateSphericalBodyShapeSettings, R"doc(No documentation found.)doc" );
 
-                    m.def("polyhedron", &tss::polyhedronBodyShapeSettings,
-                          py::arg("vertices_coordinates"),
-                          py::arg("vertices_defining_each_facet"),
-                          py::arg("compute_altitude_with_sign") = true,
-                          py::arg("just_compute_distance_to_vertices") = false,
-                          R"doc(
+    m.def( "polyhedron",
+           &tss::polyhedronBodyShapeSettings,
+           py::arg( "vertices_coordinates" ),
+           py::arg( "vertices_defining_each_facet" ),
+           py::arg( "compute_altitude_with_sign" ) = true,
+           py::arg( "just_compute_distance_to_vertices" ) = false,
+           R"doc(
 
 Function for creating a polyhedron body shape model settings.
 
@@ -391,13 +369,14 @@ PolyhedronBodyShapeSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("hybrid", &tss::hybridBodyShapeSettings,
-                          py::arg("low_resolution_body_shape_settings"),
-                          py::arg("high_resolution_body_shape_settings"),
-                          py::arg("switchover_altitude"),
-                          R"doc(
+    m.def( "hybrid",
+           &tss::hybridBodyShapeSettings,
+           py::arg( "low_resolution_body_shape_settings" ),
+           py::arg( "high_resolution_body_shape_settings" ),
+           py::arg( "switchover_altitude" ),
+           R"doc(
 
 Function for creating hybrid body shape model settings.
 
@@ -439,10 +418,10 @@ HybridBodyShapeSettings
 
 
 
-    )doc");
-                }
+    )doc" );
+}
 
-            }  // namespace shape
-        }      // namespace environment_setup
-    }          // namespace numerical_simulation
+}  // namespace shape
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy

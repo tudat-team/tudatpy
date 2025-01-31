@@ -29,16 +29,20 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace propagation_setup {
-            namespace torque {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace propagation_setup
+{
+namespace torque
+{
 
-                void expose_torque_setup(py::module &m);
+void expose_torque_setup( py::module &m );
 
-            }  // namespace torque
-        }      // namespace propagation_setup
-    }          // namespace numerical_simulation
+}  // namespace torque
+}  // namespace propagation_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
 
 #endif  // TUDATPY_EXPOSE_TORQUE_SETUP_H

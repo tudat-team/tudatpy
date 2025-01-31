@@ -27,18 +27,21 @@ namespace tp = tudat::propagators;
 namespace tom = tudat::observation_models;
 namespace tep = tudat::estimatable_parameters;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace estimation_setup {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace estimation_setup
+{
 
+void expose_estimation_setup( py::module& m )
+{
+    // *************** PARAMETER ***************
 
-            void expose_estimation_setup(py::module& m) {
-                // *************** PARAMETER ***************
-
-                m.def("print_parameter_names",
-                      &tep::printEstimatableParameterEntries<double>,
-                      py::arg("parameter_set"),
-                      R"doc(
+    m.def( "print_parameter_names",
+           &tep::printEstimatableParameterEntries< double >,
+           py::arg( "parameter_set" ),
+           R"doc(
 
 Function for printing a list of estimatable parameter names.
 
@@ -116,19 +119,16 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-
-                // # EstimatableParameterSettings --> EstimatableParameterSet #
-                m.def(
-                    "create_parameter_set",
-                    &tss::createParametersToEstimate<STATE_SCALAR_TYPE,
-                                                     TIME_TYPE>,
-                    py::arg("parameter_settings"), py::arg("bodies"),
-                    py::arg("propagator_settings") = nullptr,
-                    py::arg("consider_parameters_names") = std::vector<
-                        std::shared_ptr<tep::EstimatableParameterSettings> >(),
-                    R"doc(
+    // # EstimatableParameterSettings --> EstimatableParameterSet #
+    m.def( "create_parameter_set",
+           &tss::createParametersToEstimate< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "parameter_settings" ),
+           py::arg( "bodies" ),
+           py::arg( "propagator_settings" ) = nullptr,
+           py::arg( "consider_parameters_names" ) = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
+           R"doc(
 
 Function for creating a consolidated parameter from the given estimatable parameter settings.
 
@@ -168,21 +168,17 @@ This code snippet closely follows what is done in: `Full Estimation Example <htt
 
 
 
-    )doc");
+    )doc" );
 
+    // ************** OBSERVATION ***************
 
-                // ************** OBSERVATION ***************
-
-
-                // #   Observation Model Settings --> Observation Simulator #
-                m.def("create_observation_simulators",
-                      py::overload_cast<const std::vector<std::shared_ptr<
-                                            tom::ObservationModelSettings> >&,
-                                        const tss::SystemOfBodies&>(
-                          &tom::createObservationSimulators<STATE_SCALAR_TYPE,
-                                                            TIME_TYPE>),
-                      py::arg("observation_settings"), py::arg("bodies"),
-                      R"doc(
+    // #   Observation Model Settings --> Observation Simulator #
+    m.def( "create_observation_simulators",
+           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
+                   &tom::createObservationSimulators< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "observation_settings" ),
+           py::arg( "bodies" ),
+           R"doc(
 
 Function for creating observation simulator objects.
 
@@ -218,35 +214,33 @@ This code snippet closely follows what is done in: The following snippet closely
 
 
 
-    )doc");
+    )doc" );
 
+    m.def( "single_type_observation_collection",
+           py::overload_cast< const tom::ObservableType,
+                              const tom::LinkDefinition&,
+                              const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
+                              const std::vector< TIME_TYPE >,
+                              const tom::LinkEndType,
+                              const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
+                   &tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           py::arg( "observations_list" ),
+           py::arg( "times_list" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancilliary_settings" ) = nullptr,
+           R"doc(No documentation found.)doc" );
 
-                m.def("single_type_observation_collection",
-                      py::overload_cast<
-                          const tom::ObservableType, const tom::LinkDefinition&,
-                          const std::vector<Eigen::Matrix<STATE_SCALAR_TYPE,
-                                                          Eigen::Dynamic, 1> >&,
-                          const std::vector<TIME_TYPE>, const tom::LinkEndType,
-                          const std::shared_ptr<
-                              tom::ObservationAncilliarySimulationSettings> >(
-                          &tom::createManualObservationCollection<
-                              STATE_SCALAR_TYPE, TIME_TYPE>),
-                      py::arg("observable_type"), py::arg("link_ends"),
-                      py::arg("observations_list"), py::arg("times_list"),
-                      py::arg("reference_link_end"),
-                      py::arg("ancilliary_settings") = nullptr,
-                      R"doc(No documentation found.)doc");
+    // ************** Modules ***************
 
+    auto parameter_setup = m.def_submodule( "parameter" );
+    parameter::expose_estimated_parameter_setup( parameter_setup );
 
-                // ************** Modules ***************
+    auto observation_setup = m.def_submodule( "observation" );
+    observation::expose_observation_setup( observation_setup );
+}
 
-                auto parameter_setup = m.def_submodule("parameter");
-                parameter::expose_estimated_parameter_setup(parameter_setup);
-
-                auto observation_setup = m.def_submodule("observation");
-                observation::expose_observation_setup(observation_setup);
-            }
-
-        }  // namespace estimation_setup
-    }      // namespace numerical_simulation
+}  // namespace estimation_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy

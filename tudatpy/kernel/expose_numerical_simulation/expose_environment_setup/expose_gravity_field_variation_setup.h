@@ -15,16 +15,20 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace gravity_field_variation {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace gravity_field_variation
+{
 
-                void expose_gravity_field_variation_setup(py::module &m);
+void expose_gravity_field_variation_setup( py::module &m );
 
-            }  // namespace gravity_field_variation
-        }      // namespace environment_setup
-    }          // namespace numerical_simulation
+}  // namespace gravity_field_variation
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
 
 #endif  // TUDATPY_EXPOSE_GRAVITY_FIELD_VARIATION_SETUP_H

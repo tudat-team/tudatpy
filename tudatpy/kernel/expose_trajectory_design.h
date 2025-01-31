@@ -15,10 +15,12 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace trajectory_design {
-        void expose_trajectory_design(py::module &m);
-    }
+namespace tudatpy
+{
+namespace trajectory_design
+{
+void expose_trajectory_design( py::module &m );
+}
 }  // namespace tudatpy
 
 #endif  // TUDATPY_EXPOSE_TRAJECTORY_DESIGN_H

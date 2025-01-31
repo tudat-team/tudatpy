@@ -22,54 +22,65 @@ namespace py = pybind11;
 namespace ts = tudat::statistics;
 namespace tsm = tudat::system_models;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
-    void expose_statistics(py::module &m) {
-        m.def("calculate_allan_variance_of_dataset",
-              &ts::calculateAllanVarianceOfTimeDataSet,
-              py::arg("timing_errors"), py::arg("time_step_size"),
-              R"doc(No documentation found.)doc");
+void expose_statistics( py::module &m )
+{
+    m.def( "calculate_allan_variance_of_dataset",
+           &ts::calculateAllanVarianceOfTimeDataSet,
+           py::arg( "timing_errors" ),
+           py::arg( "time_step_size" ),
+           R"doc(No documentation found.)doc" );
 
-        m.def("convert_allan_variance_amplitudes_to_phase_noise_amplitudes",
-              &tsm::convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes,
-              py::arg("allan_variance_amplitudes"),
-              py::arg("frequency_domain_cutoff_frequency"),
-              py::arg("is_inverse_square_term_flicker_phase_noise") = 0,
-              R"doc(No documentation found.)doc");
+    m.def( "convert_allan_variance_amplitudes_to_phase_noise_amplitudes",
+           &tsm::convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes,
+           py::arg( "allan_variance_amplitudes" ),
+           py::arg( "frequency_domain_cutoff_frequency" ),
+           py::arg( "is_inverse_square_term_flicker_phase_noise" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-#if(TUDAT_BUILD_WITH_FFTW3)
-        m.def("generate_noise_from_allan_deviation", &tsm::generateClockNoise,
-              py::arg("allan_variance_amplitudes"), py::arg("start_time"),
-              py::arg("end_time"), py::arg("number_of_time_steps"),
-              py::arg("is_inverse_square_term_flicker_phase_noise") = 0,
-              py::arg("seed") =
-                  ts::defaultRandomSeedGenerator->getRandomVariableValue(),
-              R"doc(No documentation found.)doc");
+#if ( TUDAT_BUILD_WITH_FFTW3 )
+    m.def( "generate_noise_from_allan_deviation",
+           &tsm::generateClockNoise,
+           py::arg( "allan_variance_amplitudes" ),
+           py::arg( "start_time" ),
+           py::arg( "end_time" ),
+           py::arg( "number_of_time_steps" ),
+           py::arg( "is_inverse_square_term_flicker_phase_noise" ) = 0,
+           py::arg( "seed" ) = ts::defaultRandomSeedGenerator->getRandomVariableValue( ),
+           R"doc(No documentation found.)doc" );
 
-        m.def("generate_colored_clock_noise", &tsm::generateColoredClockNoise,
-              py::arg("allan_variance_amplitudes"), py::arg("variance_type"),
-              py::arg("start_time"), py::arg("end_time"),
-              py::arg("number_of_time_steps"),
-              py::arg("seed") =
-                  ts::defaultRandomSeedGenerator->getRandomVariableValue(),
-              R"doc(No documentation found.)doc");
+    m.def( "generate_colored_clock_noise",
+           &tsm::generateColoredClockNoise,
+           py::arg( "allan_variance_amplitudes" ),
+           py::arg( "variance_type" ),
+           py::arg( "start_time" ),
+           py::arg( "end_time" ),
+           py::arg( "number_of_time_steps" ),
+           py::arg( "seed" ) = ts::defaultRandomSeedGenerator->getRandomVariableValue( ),
+           R"doc(No documentation found.)doc" );
 
-        m.def("get_clock_noise_interpolator", &tsm::getClockNoiseInterpolator,
-              py::arg("allan_variance_amplitudes"), py::arg("start_time"),
-              py::arg("end_time"), py::arg("time_step"),
-              py::arg("is_inverse_square_term_flicker_phase_noise") = 0,
-              py::arg("seed") =
-                  ts::defaultRandomSeedGenerator->getRandomVariableValue(),
-              R"doc(No documentation found.)doc");
+    m.def( "get_clock_noise_interpolator",
+           &tsm::getClockNoiseInterpolator,
+           py::arg( "allan_variance_amplitudes" ),
+           py::arg( "start_time" ),
+           py::arg( "end_time" ),
+           py::arg( "time_step" ),
+           py::arg( "is_inverse_square_term_flicker_phase_noise" ) = 0,
+           py::arg( "seed" ) = ts::defaultRandomSeedGenerator->getRandomVariableValue( ),
+           R"doc(No documentation found.)doc" );
 
-        m.def("get_colored_clock_noise_interpolator",
-              &tsm::getColoredClockNoiseInterpolator,
-              py::arg("allan_variance_nodes"), py::arg("variance_type"),
-              py::arg("start_time"), py::arg("end_time"), py::arg("time_step"),
-              py::arg("seed") =
-                  ts::defaultRandomSeedGenerator->getRandomVariableValue(),
-              R"doc(No documentation found.)doc");
+    m.def( "get_colored_clock_noise_interpolator",
+           &tsm::getColoredClockNoiseInterpolator,
+           py::arg( "allan_variance_nodes" ),
+           py::arg( "variance_type" ),
+           py::arg( "start_time" ),
+           py::arg( "end_time" ),
+           py::arg( "time_step" ),
+           py::arg( "seed" ) = ts::defaultRandomSeedGenerator->getRandomVariableValue( ),
+           R"doc(No documentation found.)doc" );
 #endif
-    };
+};
 
 }  // namespace tudatpy

@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include "expose_polyhedron_utilities.h"
 
 #include <pybind11/eigen.h>
@@ -21,16 +20,21 @@ namespace tba = tudat::basic_astrodynamics;
 
 namespace py = pybind11;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
-    namespace astro {
-        namespace polyhedron_utilities {
+namespace astro
+{
+namespace polyhedron_utilities
+{
 
-            void expose_polyhedron_utilities(py::module &m) {
-                m.def("surface_area", &tba::computePolyhedronSurfaceArea,
-                      py::arg("vertices_coordinates"),
-                      py::arg("vertices_defining_each_facet"),
-                      R"doc(
+void expose_polyhedron_utilities( py::module &m )
+{
+    m.def( "surface_area",
+           &tba::computePolyhedronSurfaceArea,
+           py::arg( "vertices_coordinates" ),
+           py::arg( "vertices_defining_each_facet" ),
+           R"doc(
 
 Computes the surface area of a polyhedron [1]_.
 
@@ -56,12 +60,13 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("volume", &tba::computePolyhedronVolume,
-                      py::arg("vertices_coordinates"),
-                      py::arg("vertices_defining_each_facet"),
-                      R"doc(
+    m.def( "volume",
+           &tba::computePolyhedronVolume,
+           py::arg( "vertices_coordinates" ),
+           py::arg( "vertices_defining_each_facet" ),
+           R"doc(
 
 Computes the volume of a polyhedron [1]_.
 
@@ -87,12 +92,13 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("centroid", &tba::computePolyhedronCentroidPosition,
-                      py::arg("vertices_coordinates"),
-                      py::arg("vertices_defining_each_facet"),
-                      R"doc(
+    m.def( "centroid",
+           &tba::computePolyhedronCentroidPosition,
+           py::arg( "vertices_coordinates" ),
+           py::arg( "vertices_defining_each_facet" ),
+           R"doc(
 
 Computes the position of the centroid of a polyhedron [1]_.
 
@@ -118,13 +124,14 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("modify_centroid", &tba::modifyPolyhedronCentroidPosition,
-                      py::arg("vertices_coordinates"),
-                      py::arg("vertices_defining_each_facet"),
-                      py::arg("desired_centroid"),
-                      R"doc(
+    m.def( "modify_centroid",
+           &tba::modifyPolyhedronCentroidPosition,
+           py::arg( "vertices_coordinates" ),
+           py::arg( "vertices_defining_each_facet" ),
+           py::arg( "desired_centroid" ),
+           R"doc(
 
 Modifies vertex coordinates of the polyhedron based on the desired position of the centroid.
 
@@ -156,16 +163,14 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("inertia_tensor_from_density",
-                      py::overload_cast<const Eigen::MatrixXd &,
-                                        const Eigen::MatrixXi &, const double>(
-                          &tba::computePolyhedronInertiaTensor),
-                      py::arg("vertices_coordinates"),
-                      py::arg("vertices_defining_each_facet"),
-                      py::arg("density"),
-                      R"doc(
+    m.def( "inertia_tensor_from_density",
+           py::overload_cast< const Eigen::MatrixXd &, const Eigen::MatrixXi &, const double >( &tba::computePolyhedronInertiaTensor ),
+           py::arg( "vertices_coordinates" ),
+           py::arg( "vertices_defining_each_facet" ),
+           py::arg( "density" ),
+           R"doc(
 
 Compute the inertia tensor of a polyhedron, from the density.
 
@@ -199,18 +204,16 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("inertia_tensor_from_gravitational_parameter",
-                      py::overload_cast<const Eigen::MatrixXd &,
-                                        const Eigen::MatrixXi &, const double,
-                                        const double>(
-                          &tba::computePolyhedronInertiaTensor),
-                      py::arg("vertices_coordinates"),
-                      py::arg("vertices_defining_each_facet"),
-                      py::arg("gravitational_parameter"),
-                      py::arg("gravitational_constant"),
-                      R"doc(
+    m.def( "inertia_tensor_from_gravitational_parameter",
+           py::overload_cast< const Eigen::MatrixXd &, const Eigen::MatrixXi &, const double, const double >(
+                   &tba::computePolyhedronInertiaTensor ),
+           py::arg( "vertices_coordinates" ),
+           py::arg( "vertices_defining_each_facet" ),
+           py::arg( "gravitational_parameter" ),
+           py::arg( "gravitational_constant" ),
+           R"doc(
 
 Compute the inertia tensor of a polyhedron, from the gravitational parameter.
 
@@ -243,9 +246,9 @@ numpy.ndarray
 
 
 
-    )doc");
-            }
+    )doc" );
+}
 
-        }  // namespace polyhedron_utilities
-    }      // namespace astro
+}  // namespace polyhedron_utilities
+}  // namespace astro
 }  // namespace tudatpy

@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDATPY_EXPOSE_FUNDAMENTALS_H
 #define TUDATPY_EXPOSE_FUNDAMENTALS_H
 
@@ -16,12 +15,14 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace utils {
+namespace tudatpy
+{
+namespace utils
+{
 
-        void expose_utils(py::module &m);
+void expose_utils( py::module &m );
 
-    }  // namespace utils
+}  // namespace utils
 }  // namespace tudatpy
 
 #endif  // TUDATPY_EXPOSE_FUNDAMENTALS_H

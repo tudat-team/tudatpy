@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include "expose_estimated_parameter_setup.h"
 
 #include "scalarTypes.h"
@@ -19,15 +18,18 @@ namespace tss = tudat::simulation_setup;
 namespace tp = tudat::propagators;
 namespace tba = tudat::basic_astrodynamics;
 
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace estimation_setup
+{
+namespace parameter
+{
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace estimation_setup {
-            namespace parameter {
-
-                void expose_estimated_parameter_setup(py::module& m) {
-                    py::enum_<tep::EstimatebleParametersEnum>(
-                        m, "EstimatableParameterTypes", R"doc(
+void expose_estimated_parameter_setup( py::module& m )
+{
+    py::enum_< tep::EstimatebleParametersEnum >( m, "EstimatableParameterTypes", R"doc(
 
         Enumeration of model parameters that are available for estimation.
         In order to establish a parameter estimation settings for a parameter of a certain type, use the function dedicated to this parameter type.
@@ -38,185 +40,96 @@ namespace tudatpy {
 
 
 
-     )doc")
-                        .value("arc_wise_initial_body_state_type",
-                               tep::EstimatebleParametersEnum::
-                                   arc_wise_initial_body_state)
-                        .value(
-                            "initial_body_state_type",
-                            tep::EstimatebleParametersEnum::initial_body_state)
-                        .value("initial_rotational_body_state_type",
-                               tep::EstimatebleParametersEnum::
-                                   initial_rotational_body_state)
-                        .value("gravitational_parameter_type",
-                               tep::EstimatebleParametersEnum::
-                                   gravitational_parameter)
-                        .value("constant_drag_coefficient_type",
-                               tep::EstimatebleParametersEnum::
-                                   constant_drag_coefficient)
-                        .value("radiation_pressure_coefficient_type",
-                               tep::EstimatebleParametersEnum::
-                                   radiation_pressure_coefficient)
-                        .value("arc_wise_radiation_pressure_coefficient_type",
-                               tep::EstimatebleParametersEnum::
-                                   arc_wise_radiation_pressure_coefficient)
-                        .value(
-                            "spherical_harmonics_cosine_coefficient_block_type",
-                            tep::EstimatebleParametersEnum::
-                                spherical_harmonics_cosine_coefficient_block)
-                        .value(
-                            "spherical_harmonics_sine_coefficient_block_type",
-                            tep::EstimatebleParametersEnum::
-                                spherical_harmonics_sine_coefficient_block)
-                        .value("constant_rotation_rate_type",
-                               tep::EstimatebleParametersEnum::
-                                   constant_rotation_rate)
-                        .value("rotation_pole_position_type",
-                               tep::EstimatebleParametersEnum::
-                                   rotation_pole_position)
-                        .value("constant_additive_observation_bias_type",
-                               tep::EstimatebleParametersEnum::
-                                   constant_additive_observation_bias)
-                        .value(
-                            "arcwise_constant_additive_observation_bias_type",
-                            tep::EstimatebleParametersEnum::
-                                arcwise_constant_additive_observation_bias)
-                        .value("constant_relative_observation_bias_type",
-                               tep::EstimatebleParametersEnum::
-                                   constant_relative_observation_bias)
-                        .value(
-                            "arcwise_constant_relative_observation_bias_type",
-                            tep::EstimatebleParametersEnum::
-                                arcwise_constant_relative_observation_bias)
-                        .value(
-                            "ppn_parameter_gamma_type",
-                            tep::EstimatebleParametersEnum::ppn_parameter_gamma)
-                        .value(
-                            "ppn_parameter_beta_type",
-                            tep::EstimatebleParametersEnum::ppn_parameter_beta)
-                        .value("ground_station_position_type",
-                               tep::EstimatebleParametersEnum::
-                                   ground_station_position)
-                        .value(
-                            "equivalence_principle_lpi_violation_parameter_"
-                            "type",
-                            tep::EstimatebleParametersEnum::
-                                equivalence_principle_lpi_violation_parameter)
-                        .value(
-                            "empirical_acceleration_coefficients_type",
-                            tep::EstimatebleParametersEnum::
-                                empirical_acceleration_coefficients)  // TO
-                                                                      // EXPOSE
-                        .value(
-                            "arc_wise_empirical_acceleration_coefficients_type",
-                            tep::EstimatebleParametersEnum::
-                                arc_wise_empirical_acceleration_coefficients)  // TO EXPOSE
-                        .value("full_degree_tidal_love_number_type",
-                               tep::EstimatebleParametersEnum::
-                                   full_degree_tidal_love_number)  // TO EXPOSE
-                        .value("single_degree_variable_tidal_love_number_type",
-                               tep::EstimatebleParametersEnum::
-                                   single_degree_variable_tidal_love_number)
-                        .value("direct_dissipation_tidal_time_lag_type",
-                               tep::EstimatebleParametersEnum::
-                                   direct_dissipation_tidal_time_lag)
-                        .value("mean_moment_of_inertia_type",
-                               tep::EstimatebleParametersEnum::
-                                   mean_moment_of_inertia)
-                        .value("arc_wise_constant_drag_coefficient_type",
-                               tep::EstimatebleParametersEnum::
-                                   arc_wise_constant_drag_coefficient)
-                        .value("periodic_spin_variation_type",
-                               tep::EstimatebleParametersEnum::
-                                   periodic_spin_variation)
-                        .value("polar_motion_amplitude_type",
-                               tep::EstimatebleParametersEnum::
-                                   polar_motion_amplitude)
-                        .value("core_factor_type",
-                               tep::EstimatebleParametersEnum::core_factor)
-                        .value("free_core_nutation_rate_type",
-                               tep::EstimatebleParametersEnum::
-                                   free_core_nutation_rate)
-                        .value("desaturation_delta_v_values_type",
-                               tep::EstimatebleParametersEnum::
-                                   desaturation_delta_v_values)
-                        .value("constant_time_drift_observation_bias_type",
-                               tep::EstimatebleParametersEnum::
-                                   constant_time_drift_observation_bias)
-                        .value("arc_wise_time_drift_observation_bias_type",
-                               tep::EstimatebleParametersEnum::
-                                   arc_wise_time_drift_observation_bias)
-                        .value("global_polynomial_clock_corrections_type",
-                               tep::EstimatebleParametersEnum::
-                                   global_polynomial_clock_corrections)
-                        .value("arc_wise_polynomial_clock_corrections_type",
-                               tep::EstimatebleParametersEnum::
-                                   arc_wise_polynomial_clock_corrections)
-                        .value("inverse_tidal_quality_factor_type",
-                               tep::EstimatebleParametersEnum::
-                                   inverse_tidal_quality_factor)
-                        .export_values();
+     )doc" )
+            .value( "arc_wise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state )
+            .value( "initial_body_state_type", tep::EstimatebleParametersEnum::initial_body_state )
+            .value( "initial_rotational_body_state_type", tep::EstimatebleParametersEnum::initial_rotational_body_state )
+            .value( "gravitational_parameter_type", tep::EstimatebleParametersEnum::gravitational_parameter )
+            .value( "constant_drag_coefficient_type", tep::EstimatebleParametersEnum::constant_drag_coefficient )
+            .value( "radiation_pressure_coefficient_type", tep::EstimatebleParametersEnum::radiation_pressure_coefficient )
+            .value( "arc_wise_radiation_pressure_coefficient_type",
+                    tep::EstimatebleParametersEnum::arc_wise_radiation_pressure_coefficient )
+            .value( "spherical_harmonics_cosine_coefficient_block_type",
+                    tep::EstimatebleParametersEnum::spherical_harmonics_cosine_coefficient_block )
+            .value( "spherical_harmonics_sine_coefficient_block_type",
+                    tep::EstimatebleParametersEnum::spherical_harmonics_sine_coefficient_block )
+            .value( "constant_rotation_rate_type", tep::EstimatebleParametersEnum::constant_rotation_rate )
+            .value( "rotation_pole_position_type", tep::EstimatebleParametersEnum::rotation_pole_position )
+            .value( "constant_additive_observation_bias_type", tep::EstimatebleParametersEnum::constant_additive_observation_bias )
+            .value( "arcwise_constant_additive_observation_bias_type",
+                    tep::EstimatebleParametersEnum::arcwise_constant_additive_observation_bias )
+            .value( "constant_relative_observation_bias_type", tep::EstimatebleParametersEnum::constant_relative_observation_bias )
+            .value( "arcwise_constant_relative_observation_bias_type",
+                    tep::EstimatebleParametersEnum::arcwise_constant_relative_observation_bias )
+            .value( "ppn_parameter_gamma_type", tep::EstimatebleParametersEnum::ppn_parameter_gamma )
+            .value( "ppn_parameter_beta_type", tep::EstimatebleParametersEnum::ppn_parameter_beta )
+            .value( "ground_station_position_type", tep::EstimatebleParametersEnum::ground_station_position )
+            .value( "equivalence_principle_lpi_violation_parameter_"
+                    "type",
+                    tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter )
+            .value( "empirical_acceleration_coefficients_type",
+                    tep::EstimatebleParametersEnum::empirical_acceleration_coefficients )  // TO
+                                                                                           // EXPOSE
+            .value( "arc_wise_empirical_acceleration_coefficients_type",
+                    tep::EstimatebleParametersEnum::arc_wise_empirical_acceleration_coefficients )  // TO EXPOSE
+            .value( "full_degree_tidal_love_number_type",
+                    tep::EstimatebleParametersEnum::full_degree_tidal_love_number )  // TO EXPOSE
+            .value( "single_degree_variable_tidal_love_number_type",
+                    tep::EstimatebleParametersEnum::single_degree_variable_tidal_love_number )
+            .value( "direct_dissipation_tidal_time_lag_type", tep::EstimatebleParametersEnum::direct_dissipation_tidal_time_lag )
+            .value( "mean_moment_of_inertia_type", tep::EstimatebleParametersEnum::mean_moment_of_inertia )
+            .value( "arc_wise_constant_drag_coefficient_type", tep::EstimatebleParametersEnum::arc_wise_constant_drag_coefficient )
+            .value( "periodic_spin_variation_type", tep::EstimatebleParametersEnum::periodic_spin_variation )
+            .value( "polar_motion_amplitude_type", tep::EstimatebleParametersEnum::polar_motion_amplitude )
+            .value( "core_factor_type", tep::EstimatebleParametersEnum::core_factor )
+            .value( "free_core_nutation_rate_type", tep::EstimatebleParametersEnum::free_core_nutation_rate )
+            .value( "desaturation_delta_v_values_type", tep::EstimatebleParametersEnum::desaturation_delta_v_values )
+            .value( "constant_time_drift_observation_bias_type", tep::EstimatebleParametersEnum::constant_time_drift_observation_bias )
+            .value( "arc_wise_time_drift_observation_bias_type", tep::EstimatebleParametersEnum::arc_wise_time_drift_observation_bias )
+            .value( "global_polynomial_clock_corrections_type", tep::EstimatebleParametersEnum::global_polynomial_clock_corrections )
+            .value( "arc_wise_polynomial_clock_corrections_type", tep::EstimatebleParametersEnum::arc_wise_polynomial_clock_corrections )
+            .value( "inverse_tidal_quality_factor_type", tep::EstimatebleParametersEnum::inverse_tidal_quality_factor )
+            .export_values( );
 
-                    py::enum_<tba::EmpiricalAccelerationComponents>(
-                        m, "EmpiricalAccelerationComponents",
-                        R"doc(No documentation found.)doc")
-                        .value("radial_empirical_acceleration_component",
-                               tba::EmpiricalAccelerationComponents::
-                                   radial_empirical_acceleration_component)
-                        .value("along_track_empirical_acceleration_component",
-                               tba::EmpiricalAccelerationComponents::
-                                   along_track_empirical_acceleration_component)
-                        .value(
-                            "across_track_empirical_acceleration_component",
-                            tba::EmpiricalAccelerationComponents::
-                                across_track_empirical_acceleration_component)
-                        .export_values();
+    py::enum_< tba::EmpiricalAccelerationComponents >( m, "EmpiricalAccelerationComponents", R"doc(No documentation found.)doc" )
+            .value( "radial_empirical_acceleration_component",
+                    tba::EmpiricalAccelerationComponents::radial_empirical_acceleration_component )
+            .value( "along_track_empirical_acceleration_component",
+                    tba::EmpiricalAccelerationComponents::along_track_empirical_acceleration_component )
+            .value( "across_track_empirical_acceleration_component",
+                    tba::EmpiricalAccelerationComponents::across_track_empirical_acceleration_component )
+            .export_values( );
 
-                    py::enum_<tba::EmpiricalAccelerationFunctionalShapes>(
-                        m, "EmpiricalAccelerationFunctionalShapes",
-                        R"doc(No documentation found.)doc")
-                        .value("constant_empirical",
-                               tba::EmpiricalAccelerationFunctionalShapes::
-                                   constant_empirical)
-                        .value("sine_empirical",
-                               tba::EmpiricalAccelerationFunctionalShapes::
-                                   sine_empirical)
-                        .value("cosine_empirical",
-                               tba::EmpiricalAccelerationFunctionalShapes::
-                                   cosine_empirical)
-                        .export_values();
+    py::enum_< tba::EmpiricalAccelerationFunctionalShapes >(
+            m, "EmpiricalAccelerationFunctionalShapes", R"doc(No documentation found.)doc" )
+            .value( "constant_empirical", tba::EmpiricalAccelerationFunctionalShapes::constant_empirical )
+            .value( "sine_empirical", tba::EmpiricalAccelerationFunctionalShapes::sine_empirical )
+            .value( "cosine_empirical", tba::EmpiricalAccelerationFunctionalShapes::cosine_empirical )
+            .export_values( );
 
-                    py::class_<tep::CustomAccelerationPartialSettings,
-                               std::shared_ptr<
-                                   tep::CustomAccelerationPartialSettings>>(
-                        m, "CustomAccelerationPartialSettings",
-                        R"doc(No documentation found.)doc");
+    py::class_< tep::CustomAccelerationPartialSettings, std::shared_ptr< tep::CustomAccelerationPartialSettings > >(
+            m, "CustomAccelerationPartialSettings", R"doc(No documentation found.)doc" );
 
+    m.def( "custom_analytical_partial",
+           &tep::analyticalAccelerationPartialSettings,
+           py::arg( "analytical_partial_function" ),
+           py::arg( "body_undergoing_acceleration" ),
+           py::arg( "body_exerting_acceleration" ),
+           py::arg( "acceleration_type" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("custom_analytical_partial",
-                          &tep::analyticalAccelerationPartialSettings,
-                          py::arg("analytical_partial_function"),
-                          py::arg("body_undergoing_acceleration"),
-                          py::arg("body_exerting_acceleration"),
-                          py::arg("acceleration_type"),
-                          R"doc(No documentation found.)doc");
+    m.def( "custom_numerical_partial",
+           &tep::numericalAccelerationPartialSettings,
+           py::arg( "parameter_perturbation" ),
+           py::arg( "body_undergoing_acceleration" ),
+           py::arg( "body_exerting_acceleration" ),
+           py::arg( "acceleration_type" ),
+           py::arg( "environment_updates" ) = std::map< tp::EnvironmentModelsToUpdate, std::vector< std::string > >( ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("custom_numerical_partial",
-                          &tep::numericalAccelerationPartialSettings,
-                          py::arg("parameter_perturbation"),
-                          py::arg("body_undergoing_acceleration"),
-                          py::arg("body_exerting_acceleration"),
-                          py::arg("acceleration_type"),
-                          py::arg("environment_updates") =
-                              std::map<tp::EnvironmentModelsToUpdate,
-                                       std::vector<std::string>>(),
-                          R"doc(No documentation found.)doc");
-
-                    py::class_<
-                        tep::EstimatableParameterSettings,
-                        std::shared_ptr<tep::EstimatableParameterSettings>>(
-                        m, "EstimatableParameterSettings",
-                        R"doc(
+    py::class_< tep::EstimatableParameterSettings, std::shared_ptr< tep::EstimatableParameterSettings > >( m,
+                                                                                                           "EstimatableParameterSettings",
+                                                                                                           R"doc(
 
         Base class to defining settings of parameter to be estimated.
 
@@ -228,21 +141,18 @@ namespace tudatpy {
 
 
 
-     )doc")
-                        .def_readwrite("custom_partial_settings",
-                                       &tep::EstimatableParameterSettings::
-                                           customPartialSettings_);
+     )doc" )
+            .def_readwrite( "custom_partial_settings", &tep::EstimatableParameterSettings::customPartialSettings_ );
 
+    // ###############    Initial States
+    // ################################
 
-                    // ###############    Initial States
-                    // ################################
-
-                    m.def("initial_states",
-                          &tss::getInitialStateParameterSettings<
-                              STATE_SCALAR_TYPE, TIME_TYPE>,
-                          py::arg("propagator_settings"), py::arg("bodies"),
-                          py::arg("arc_initial_times") = std::vector<double>(),
-                          R"doc(
+    m.def( "initial_states",
+           &tss::getInitialStateParameterSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "propagator_settings" ),
+           py::arg( "bodies" ),
+           py::arg( "arc_initial_times" ) = std::vector< double >( ),
+           R"doc(
 
 Function for defining parameter settings for initial state parameters.
 
@@ -290,15 +200,15 @@ List[ :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.Estimatab
 
 
 
-    )doc");
+    )doc" );
 
+    // ###############    Vehicle Model Parameters
+    // ################################
 
-                    // ###############    Vehicle Model Parameters
-                    // ################################
-
-                    m.def("constant_drag_coefficient",
-                          &tep::constantDragCoefficient, py::arg("body"),
-                          R"doc(
+    m.def( "constant_drag_coefficient",
+           &tep::constantDragCoefficient,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for constant drag coefficients.
 
@@ -325,12 +235,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("arcwise_constant_drag_coefficient",
-                          &tep::arcwiseDragCoefficient, py::arg("body"),
-                          py::arg("arc_initial_times"),
-                          R"doc(
+    m.def( "arcwise_constant_drag_coefficient",
+           &tep::arcwiseDragCoefficient,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
 
 Function for defining parameter settings for arc-wise constant drag coefficients.
 
@@ -363,11 +274,12 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("radiation_pressure_coefficient",
-                          &tep::radiationPressureCoefficient, py::arg("body"),
-                          R"doc(
+    m.def( "radiation_pressure_coefficient",
+           &tep::radiationPressureCoefficient,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for radiation pressure coefficients.
 
@@ -394,12 +306,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("arcwise_radiation_pressure_coefficient",
-                          &tep::arcwiseRadiationPressureCoefficient,
-                          py::arg("body"), py::arg("arc_initial_times"),
-                          R"doc(
+    m.def( "arcwise_radiation_pressure_coefficient",
+           &tep::arcwiseRadiationPressureCoefficient,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
 
 Function for defining parameter settings for arc-wise radiation pressure coefficients.
 
@@ -433,26 +346,26 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
+    m.def( "radiation_pressure_target_direction_scaling",
+           &tep::radiationPressureTargetDirectionScaling,
+           py::arg( "target_body" ),
+           py::arg( "source_body" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("radiation_pressure_target_direction_scaling",
-                          &tep::radiationPressureTargetDirectionScaling,
-                          py::arg("target_body"), py::arg("source_body"),
-                          R"doc(No documentation found.)doc");
+    m.def( "radiation_pressure_target_perpendicular_direction_"
+           "scaling",
+           &tep::radiationPressureTargetPerpendicularDirectionScaling,
+           py::arg( "target_body" ),
+           py::arg( "source_body" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "radiation_pressure_target_perpendicular_direction_"
-                        "scaling",
-                        &tep::
-                            radiationPressureTargetPerpendicularDirectionScaling,
-                        py::arg("target_body"), py::arg("source_body"),
-                        R"doc(No documentation found.)doc");
-
-                    m.def("constant_empirical_acceleration_terms",
-                          &tep::constantEmpiricalAccelerationMagnitudes,
-                          py::arg("body"), py::arg("centralBody"),
-                          R"doc(
+    m.def( "constant_empirical_acceleration_terms",
+           &tep::constantEmpiricalAccelerationMagnitudes,
+           py::arg( "body" ),
+           py::arg( "centralBody" ),
+           R"doc(
 
 Function for defining parameter settings for constant empirical acceleration terms.
 
@@ -479,51 +392,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("full_empirical_acceleration_terms",
-                          &tep::empiricalAccelerationMagnitudesFull,
-                          py::arg("body"), py::arg("centralBody"),
-                          R"doc(
-
-Function for defining parameter settings for empirical acceleration magnitudes.
-
-Function for creating a (linear sensitivity) parameter settings object for empirical acceleration magnitudes.
-Using the empirical acceleration terms as estimatable parameters requires:
-
-* The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.empirical` acceleration, which include constant (in RSW frame) terms
-
-
-Parameters
-----------
-body : str
-    Name of the body, with whose empirical acceleration model the estimatable parameter is associated.
-
-centralBody : str
-    Name of the central body of the empirical acceleration model (of which the gravitational parameter is extracted to compute the true anomaly, and w.r.t. which the RSW directions are determined). This body is the same as the body considered to be 'exerting' the empirical acceleration
-
-acceleration_components : dict[ EmpiricalAccelerationComponents, list[ EmpiricalAccelerationFunctionalShapes] ]
-    Dictionary of components of the empirical acceleration which are to be estimated. There are two 'degrees of freedom' in these components: the direction of the acceleration (e.g. R, S or W direction) and the temporal signature (constant, sine of true anomaly or cosine of true anomaly). With this input, any subset may be selected. This parameter is a dictionary, with the key denoting the direction of the acceleration, and the value a list of the temporal signatures to estimate for this empirical acceleration direction.
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-    Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EmpiricalAccelerationEstimatableParameterSettings` class
-    for the specified body's empirical acceleration terms.
-
-
-
-
-
-
-
-    )doc");
-
-                    m.def("empirical_accelerations",
-                          &tep::empiricalAccelerationMagnitudes,
-                          py::arg("body"), py::arg("centralBody"),
-                          py::arg("acceleration_components"),
-                          R"doc(
+    m.def( "full_empirical_acceleration_terms",
+           &tep::empiricalAccelerationMagnitudesFull,
+           py::arg( "body" ),
+           py::arg( "centralBody" ),
+           R"doc(
 
 Function for defining parameter settings for empirical acceleration magnitudes.
 
@@ -556,14 +431,55 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("arcwise_empirical_accelerations",
-                          &tep::arcWiseEmpiricalAccelerationMagnitudes,
-                          py::arg("body"), py::arg("centralBody"),
-                          py::arg("acceleration_components"),
-                          py::arg("arc_start_times"),
-                          R"doc(
+    m.def( "empirical_accelerations",
+           &tep::empiricalAccelerationMagnitudes,
+           py::arg( "body" ),
+           py::arg( "centralBody" ),
+           py::arg( "acceleration_components" ),
+           R"doc(
+
+Function for defining parameter settings for empirical acceleration magnitudes.
+
+Function for creating a (linear sensitivity) parameter settings object for empirical acceleration magnitudes.
+Using the empirical acceleration terms as estimatable parameters requires:
+
+* The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.empirical` acceleration, which include constant (in RSW frame) terms
+
+
+Parameters
+----------
+body : str
+    Name of the body, with whose empirical acceleration model the estimatable parameter is associated.
+
+centralBody : str
+    Name of the central body of the empirical acceleration model (of which the gravitational parameter is extracted to compute the true anomaly, and w.r.t. which the RSW directions are determined). This body is the same as the body considered to be 'exerting' the empirical acceleration
+
+acceleration_components : dict[ EmpiricalAccelerationComponents, list[ EmpiricalAccelerationFunctionalShapes] ]
+    Dictionary of components of the empirical acceleration which are to be estimated. There are two 'degrees of freedom' in these components: the direction of the acceleration (e.g. R, S or W direction) and the temporal signature (constant, sine of true anomaly or cosine of true anomaly). With this input, any subset may be selected. This parameter is a dictionary, with the key denoting the direction of the acceleration, and the value a list of the temporal signatures to estimate for this empirical acceleration direction.
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EmpiricalAccelerationEstimatableParameterSettings` class
+    for the specified body's empirical acceleration terms.
+
+
+
+
+
+
+
+    )doc" );
+
+    m.def( "arcwise_empirical_accelerations",
+           &tep::arcWiseEmpiricalAccelerationMagnitudes,
+           py::arg( "body" ),
+           py::arg( "centralBody" ),
+           py::arg( "acceleration_components" ),
+           py::arg( "arc_start_times" ),
+           R"doc(
 
 Function for defining parameter settings for arc-wise empirical acceleration magnitudes.
 
@@ -601,13 +517,14 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("arcwise_constant_empirical_acceleration_terms",
-                          &tep::constantArcWiseEmpiricalAccelerationMagnitudes,
-                          py::arg("body"), py::arg("centralBody"),
-                          py::arg("arc_start_times"),
-                          R"doc(
+    m.def( "arcwise_constant_empirical_acceleration_terms",
+           &tep::constantArcWiseEmpiricalAccelerationMagnitudes,
+           py::arg( "body" ),
+           py::arg( "centralBody" ),
+           py::arg( "arc_start_times" ),
+           R"doc(
 
 Function for defining parameter settings for arc-wise constant empirical acceleration terms.
 
@@ -637,11 +554,12 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("quasi_impulsive_shots", &tep::quasiImpulsiveShots,
-                          py::arg("body"),
-                          R"doc(
+    m.def( "quasi_impulsive_shots",
+           &tep::quasiImpulsiveShots,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for quasi-impulsive shots.
 
@@ -669,15 +587,15 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
+    // ###############    Gravity Model Parameters
+    // ################################
 
-                    // ###############    Gravity Model Parameters
-                    // ################################
-
-                    m.def("gravitational_parameter",
-                          &tep::gravitationalParameter, py::arg("body"),
-                          R"doc(
+    m.def( "gravitational_parameter",
+           &tep::gravitationalParameter,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for a massive body's gravitational parameter.
 
@@ -704,16 +622,16 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("spherical_harmonics_c_coefficients",
-                          py::overload_cast<const std::string, const int,
-                                            const int, const int, const int>(
-                              &tep::sphericalHarmonicsCosineBlock),
-                          py::arg("body"), py::arg("minimum_degree"),
-                          py::arg("minimum_order"), py::arg("maximum_degree"),
-                          py::arg("maximum_order"),
-                          R"doc(
+    m.def( "spherical_harmonics_c_coefficients",
+           py::overload_cast< const std::string, const int, const int, const int, const int >( &tep::sphericalHarmonicsCosineBlock ),
+           py::arg( "body" ),
+           py::arg( "minimum_degree" ),
+           py::arg( "minimum_order" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           R"doc(
 
 Function for defining parameter settings for the cosine coefficients of body's spherical harmonics gravitational model.
 
@@ -749,14 +667,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("spherical_harmonics_c_coefficients_block",
-                          py::overload_cast<const std::string,
-                                            std::vector<std::pair<int, int>>>(
-                              &tep::sphericalHarmonicsCosineBlock),
-                          py::arg("body"), py::arg("block_indices"),
-                          R"doc(
+    m.def( "spherical_harmonics_c_coefficients_block",
+           py::overload_cast< const std::string, std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsCosineBlock ),
+           py::arg( "body" ),
+           py::arg( "block_indices" ),
+           R"doc(
 
 Function for defining parameter settings for the cosine coefficients of body's spherical harmonics gravitational model.
 
@@ -784,16 +701,16 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("spherical_harmonics_s_coefficients",
-                          py::overload_cast<const std::string, const int,
-                                            const int, const int, const int>(
-                              &tep::sphericalHarmonicsSineBlock),
-                          py::arg("body"), py::arg("minimum_degree"),
-                          py::arg("minimum_order"), py::arg("maximum_degree"),
-                          py::arg("maximum_order"),
-                          R"doc(
+    m.def( "spherical_harmonics_s_coefficients",
+           py::overload_cast< const std::string, const int, const int, const int, const int >( &tep::sphericalHarmonicsSineBlock ),
+           py::arg( "body" ),
+           py::arg( "minimum_degree" ),
+           py::arg( "minimum_order" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           R"doc(
 
 Function for defining parameter settings for the sine coefficients of body's spherical harmonics gravitational model.
 
@@ -829,14 +746,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("spherical_harmonics_s_coefficients_block",
-                          py::overload_cast<const std::string,
-                                            std::vector<std::pair<int, int>>>(
-                              &tep::sphericalHarmonicsSineBlock),
-                          py::arg("body"), py::arg("block_indices"),
-                          R"doc(
+    m.def( "spherical_harmonics_s_coefficients_block",
+           py::overload_cast< const std::string, std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsSineBlock ),
+           py::arg( "body" ),
+           py::arg( "block_indices" ),
+           R"doc(
 
 Function for defining parameter settings for the sine coefficients of body's spherical harmonics gravitational model.
 
@@ -864,15 +780,15 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
+    // ###############    Rotation Model Parameters
+    // ################################
 
-                    // ###############    Rotation Model Parameters
-                    // ################################
-
-                    m.def("mean_moment_of_inertia", &tep::meanMomentOfInertia,
-                          py::arg("body"),
-                          R"doc(
+    m.def( "mean_moment_of_inertia",
+           &tep::meanMomentOfInertia,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for a body's mean moment of inertia.
 
@@ -899,11 +815,12 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("constant_rotation_rate", &tep::constantRotationRate,
-                          py::arg("body"),
-                          R"doc(
+    m.def( "constant_rotation_rate",
+           &tep::constantRotationRate,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for a body's constant rotation rate.
 
@@ -930,11 +847,12 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("rotation_pole_position", &tep::rotationPolePosition,
-                          py::arg("body"),
-                          R"doc(
+    m.def( "rotation_pole_position",
+           &tep::rotationPolePosition,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for a body's rotation pole position.
 
@@ -961,10 +879,12 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("core_factor", &tep::coreFactor, py::arg("body"),
-                          R"doc(
+    m.def( "core_factor",
+           &tep::coreFactor,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for a body's core factor.
 
@@ -991,11 +911,12 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("free_core_nutation_rate", &tep::freeCoreNutationRate,
-                          py::arg("body"),
-                          R"doc(
+    m.def( "free_core_nutation_rate",
+           &tep::freeCoreNutationRate,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for a body's free core nutation rate.
 
@@ -1022,11 +943,12 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("periodic_spin_variations",
-                          &tep::periodicSpinVariations, py::arg("body"),
-                          R"doc(
+    m.def( "periodic_spin_variations",
+           &tep::periodicSpinVariations,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for a body's periodic spin variations.
 
@@ -1053,11 +975,12 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("polar_motion_amplitudes",
-                          &tep::polarMotionAmplitudes, py::arg("body"),
-                          R"doc(
+    m.def( "polar_motion_amplitudes",
+           &tep::polarMotionAmplitudes,
+           py::arg( "body" ),
+           R"doc(
 
 Function for defining parameter settings for a body's polar motion amplitudes.
 
@@ -1084,15 +1007,16 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
+    // ###############   Observation Model Parameters
+    // ################################
 
-                    // ###############   Observation Model Parameters
-                    // ################################
-
-                    m.def("absolute_observation_bias", &tep::observationBias,
-                          py::arg("link_ends"), py::arg("observable_type"),
-                          R"doc(
+    m.def( "absolute_observation_bias",
+           &tep::observationBias,
+           py::arg( "link_ends" ),
+           py::arg( "observable_type" ),
+           R"doc(
 
 Function for defining parameter settings for an absolute observation bias.
 
@@ -1121,13 +1045,15 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("arcwise_absolute_observation_bias",
-                          &tep::arcwiseObservationBias, py::arg("link_ends"),
-                          py::arg("observable_type"),
-                          py::arg("arc_start_times"), py::arg("time_link_end"),
-                          R"doc(
+    m.def( "arcwise_absolute_observation_bias",
+           &tep::arcwiseObservationBias,
+           py::arg( "link_ends" ),
+           py::arg( "observable_type" ),
+           py::arg( "arc_start_times" ),
+           py::arg( "time_link_end" ),
+           R"doc(
 
 Function for defining parameter settings for arc-wise absolute observation bias.
 
@@ -1160,24 +1086,26 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("global_polynomial_clock_corrections",
-                          &tep::globalPolynomialClockCorrections,
-                          py::arg("associated_body"),
-                          py::arg("associated_station"),
-                          py::arg("correction_powers"));
+    m.def( "global_polynomial_clock_corrections",
+           &tep::globalPolynomialClockCorrections,
+           py::arg( "associated_body" ),
+           py::arg( "associated_station" ),
+           py::arg( "correction_powers" ) );
 
-                    m.def("arc_wise_polynomial_clock_corrections",
-                          &tep::multiArcPolynomialClockCorrections,
-                          py::arg("associated_body"),
-                          py::arg("associated_station"),
-                          py::arg("correction_powers"), py::arg("arc_indices"));
+    m.def( "arc_wise_polynomial_clock_corrections",
+           &tep::multiArcPolynomialClockCorrections,
+           py::arg( "associated_body" ),
+           py::arg( "associated_station" ),
+           py::arg( "correction_powers" ),
+           py::arg( "arc_indices" ) );
 
-                    m.def("relative_observation_bias",
-                          &tep::relativeObservationBias, py::arg("link_ends"),
-                          py::arg("observable_type"),
-                          R"doc(
+    m.def( "relative_observation_bias",
+           &tep::relativeObservationBias,
+           py::arg( "link_ends" ),
+           py::arg( "observable_type" ),
+           R"doc(
 
 Function for defining parameter settings for an relative observation bias.
 
@@ -1205,13 +1133,15 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("arcwise_relative_observation_bias",
-                          &tep::arcwiseRelativeObservationBias,
-                          py::arg("link_ends"), py::arg("observable_type"),
-                          py::arg("arc_start_times"), py::arg("time_link_end"),
-                          R"doc(
+    m.def( "arcwise_relative_observation_bias",
+           &tep::arcwiseRelativeObservationBias,
+           py::arg( "link_ends" ),
+           py::arg( "observable_type" ),
+           py::arg( "arc_start_times" ),
+           py::arg( "time_link_end" ),
+           R"doc(
 
 Function for defining parameter settings for arc-wise absolute observation bias.
 
@@ -1246,32 +1176,41 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("time_drift_observation_bias",
-                          &tep::timeDriftObservationBias, py::arg("link_ends"),
-                          py::arg("observable_type"), py::arg("ref_epoch"),
-                          py::arg("time_link_end"));
+    m.def( "time_drift_observation_bias",
+           &tep::timeDriftObservationBias,
+           py::arg( "link_ends" ),
+           py::arg( "observable_type" ),
+           py::arg( "ref_epoch" ),
+           py::arg( "time_link_end" ) );
 
-                    m.def("arcwise_time_drift_observation_bias",
-                          &tep::arcwiseTimeDriftObservationBias,
-                          py::arg("link_ends"), py::arg("observable_type"),
-                          py::arg("arc_start_times"), py::arg("ref_epochs"),
-                          py::arg("time_link_end"));
+    m.def( "arcwise_time_drift_observation_bias",
+           &tep::arcwiseTimeDriftObservationBias,
+           py::arg( "link_ends" ),
+           py::arg( "observable_type" ),
+           py::arg( "arc_start_times" ),
+           py::arg( "ref_epochs" ),
+           py::arg( "time_link_end" ) );
 
-                    m.def("constant_time_bias", &tep::timeObservationBias,
-                          py::arg("link_ends"), py::arg("observable_type"),
-                          py::arg("reference_link_end"));
+    m.def( "constant_time_bias",
+           &tep::timeObservationBias,
+           py::arg( "link_ends" ),
+           py::arg( "observable_type" ),
+           py::arg( "reference_link_end" ) );
 
-                    m.def("arcwise_time_bias", &tep::arcwiseTimeObservationBias,
-                          py::arg("link_ends"), py::arg("observable_type"),
-                          py::arg("arc_start_times"),
-                          py::arg("reference_link_end"));
+    m.def( "arcwise_time_bias",
+           &tep::arcwiseTimeObservationBias,
+           py::arg( "link_ends" ),
+           py::arg( "observable_type" ),
+           py::arg( "arc_start_times" ),
+           py::arg( "reference_link_end" ) );
 
-                    m.def("ground_station_position",
-                          &tep::groundStationPosition, py::arg("body"),
-                          py::arg("ground_station_name"),
-                          R"doc(
+    m.def( "ground_station_position",
+           &tep::groundStationPosition,
+           py::arg( "body" ),
+           py::arg( "ground_station_name" ),
+           R"doc(
 
 Function for defining parameter settings for ground station position bias.
 
@@ -1298,159 +1237,151 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("reference_point_position",
-                          &tep::referencePointPosition, py::arg("body"),
-                          py::arg("reference_point_name"),
-                          R"doc(No documentation found.)doc");
+    m.def( "reference_point_position",
+           &tep::referencePointPosition,
+           py::arg( "body" ),
+           py::arg( "reference_point_name" ),
+           R"doc(No documentation found.)doc" );
 
+    // ###############  Tidal Model Parameters
+    // ################################
 
-                    // ###############  Tidal Model Parameters
-                    // ################################
+    m.def( "direct_tidal_dissipation_time_lag",
+           py::overload_cast< const std::string&, const std::string& >( &tep::directTidalDissipationLagTime ),
+           py::arg( "body" ),
+           py::arg( "deforming_body" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("direct_tidal_dissipation_time_lag",
-                          py::overload_cast<const std::string&,
-                                            const std::string&>(
-                              &tep::directTidalDissipationLagTime),
-                          py::arg("body"), py::arg("deforming_body"),
-                          R"doc(No documentation found.)doc");
+    m.def( "direct_tidal_dissipation_time_lag",
+           py::overload_cast< const std::string&, const std::vector< std::string >& >( &tep::directTidalDissipationLagTime ),
+           py::arg( "body" ),
+           py::arg( "deforming_body" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("direct_tidal_dissipation_time_lag",
-                          py::overload_cast<const std::string&,
-                                            const std::vector<std::string>&>(
-                              &tep::directTidalDissipationLagTime),
-                          py::arg("body"), py::arg("deforming_body"),
-                          R"doc(No documentation found.)doc");
+    m.def( "inverse_tidal_quality_factor",
+           py::overload_cast< const std::string&, const std::string& >( &tep::inverseTidalQualityFactor ),
+           py::arg( "body" ),
+           py::arg( "deforming_body" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("inverse_tidal_quality_factor",
-                          py::overload_cast<const std::string&,
-                                            const std::string&>(
-                              &tep::inverseTidalQualityFactor),
-                          py::arg("body"), py::arg("deforming_body"),
-                          R"doc(No documentation found.)doc");
+    m.def( "inverse_tidal_quality_factor",
+           py::overload_cast< const std::string&, const std::vector< std::string >& >( &tep::inverseTidalQualityFactor ),
+           py::arg( "body" ),
+           py::arg( "deforming_body" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("inverse_tidal_quality_factor",
-                          py::overload_cast<const std::string&,
-                                            const std::vector<std::string>&>(
-                              &tep::inverseTidalQualityFactor),
-                          py::arg("body"), py::arg("deforming_body"),
-                          R"doc(No documentation found.)doc");
+    m.def( "order_invariant_k_love_number",
+           py::overload_cast< const std::string&, const int, const std::string, const bool >( &tep::orderInvariantKLoveNumber ),
+           py::arg( "deformed_body" ),
+           py::arg( "degree" ),
+           py::arg( "deforming_body" ),
+           py::arg( "use_complex_love_number" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("order_invariant_k_love_number",
-                          py::overload_cast<const std::string&, const int,
-                                            const std::string, const bool>(
-                              &tep::orderInvariantKLoveNumber),
-                          py::arg("deformed_body"), py::arg("degree"),
-                          py::arg("deforming_body"),
-                          py::arg("use_complex_love_number") = 0,
-                          R"doc(No documentation found.)doc");
+    m.def( "order_invariant_k_love_number",
+           py::overload_cast< const std::string&, const int, const std::vector< std::string >&, const bool >(
+                   &tep::orderInvariantKLoveNumber ),
+           py::arg( "deformed_body" ),
+           py::arg( "degree" ),
+           py::arg( "deforming_bodies" ),
+           py::arg( "use_complex_love_number" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("order_invariant_k_love_number",
-                          py::overload_cast<const std::string&, const int,
-                                            const std::vector<std::string>&,
-                                            const bool>(
-                              &tep::orderInvariantKLoveNumber),
-                          py::arg("deformed_body"), py::arg("degree"),
-                          py::arg("deforming_bodies"),
-                          py::arg("use_complex_love_number") = 0,
-                          R"doc(No documentation found.)doc");
+    m.def( "order_invariant_k_love_number",
+           py::overload_cast< const std::string&, const int, const bool >( &tep::orderInvariantKLoveNumber ),
+           py::arg( "deformed_body" ),
+           py::arg( "degree" ),
+           py::arg( "use_complex_love_number" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("order_invariant_k_love_number",
-                          py::overload_cast<const std::string&, const int,
-                                            const bool>(
-                              &tep::orderInvariantKLoveNumber),
-                          py::arg("deformed_body"), py::arg("degree"),
-                          py::arg("use_complex_love_number") = 0,
-                          R"doc(No documentation found.)doc");
+    m.def( "order_varying_k_love_number",
+           py::overload_cast< const std::string&, const int, const std::vector< int >&, const std::string, const bool >(
+                   &tep::orderVaryingKLoveNumber ),
+           py::arg( "deformed_body" ),
+           py::arg( "degree" ),
+           py::arg( "orders" ),
+           py::arg( "deforming_body" ),
+           py::arg( "use_complex_love_number" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("order_varying_k_love_number",
-                          py::overload_cast<const std::string&, const int,
-                                            const std::vector<int>&,
-                                            const std::string, const bool>(
-                              &tep::orderVaryingKLoveNumber),
-                          py::arg("deformed_body"), py::arg("degree"),
-                          py::arg("orders"), py::arg("deforming_body"),
-                          py::arg("use_complex_love_number") = 0,
-                          R"doc(No documentation found.)doc");
+    m.def( "order_varying_k_love_number",
+           py::overload_cast< const std::string&, const int, const std::vector< int >&, const std::vector< std::string >&, const bool >(
+                   &tep::orderVaryingKLoveNumber ),
+           py::arg( "deformed_body" ),
+           py::arg( "degree" ),
+           py::arg( "orders" ),
+           py::arg( "deforming_bodies" ),
+           py::arg( "use_complex_love_number" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("order_varying_k_love_number",
-                          py::overload_cast<const std::string&, const int,
-                                            const std::vector<int>&,
-                                            const std::vector<std::string>&,
-                                            const bool>(
-                              &tep::orderVaryingKLoveNumber),
-                          py::arg("deformed_body"), py::arg("degree"),
-                          py::arg("orders"), py::arg("deforming_bodies"),
-                          py::arg("use_complex_love_number") = 0,
-                          R"doc(No documentation found.)doc");
+    m.def( "order_varying_k_love_number",
+           py::overload_cast< const std::string&, const int, const std::vector< int >&, const bool >( &tep::orderVaryingKLoveNumber ),
+           py::arg( "deformed_body" ),
+           py::arg( "degree" ),
+           py::arg( "orders" ),
+           py::arg( "use_complex_love_number" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "order_varying_k_love_number",
-                        py::overload_cast<const std::string&, const int,
-                                          const std::vector<int>&, const bool>(
-                            &tep::orderVaryingKLoveNumber),
-                        py::arg("deformed_body"), py::arg("degree"),
-                        py::arg("orders"),
-                        py::arg("use_complex_love_number") = 0,
-                        R"doc(No documentation found.)doc");
+    m.def( "mode_coupled_k_love_numbers",
+           &tep::modeCoupledTidalLoveNumberEstimatableParameterSettings,
+           py::arg( "deformed_body" ),
+           py::arg( "love_number_indices" ),
+           py::arg( "deforming_bodies" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "mode_coupled_k_love_numbers",
-                        &tep::
-                            modeCoupledTidalLoveNumberEstimatableParameterSettings,
-                        py::arg("deformed_body"),
-                        py::arg("love_number_indices"),
-                        py::arg("deforming_bodies"),
-                        R"doc(No documentation found.)doc");
+    m.def( "polynomial_gravity_field_variation_amplitudes",
+           &tep::polynomialGravityFieldVariationParameter,
+           py::arg( "body_name" ),
+           py::arg( "cosine_indices_per_power" ),
+           py::arg( "sine_indices_per_power" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("polynomial_gravity_field_variation_amplitudes",
-                          &tep::polynomialGravityFieldVariationParameter,
-                          py::arg("body_name"),
-                          py::arg("cosine_indices_per_power"),
-                          py::arg("sine_indices_per_power"),
-                          R"doc(No documentation found.)doc");
+    m.def( "monomial_gravity_field_variation_amplitudes",
+           &tep::polynomialSinglePowerGravityFieldVariationParameter,
+           py::arg( "body_name" ),
+           py::arg( "power" ),
+           py::arg( "cosine_indices" ),
+           py::arg( "sine_indices" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "monomial_gravity_field_variation_amplitudes",
-                        &tep::
-                            polynomialSinglePowerGravityFieldVariationParameter,
-                        py::arg("body_name"), py::arg("power"),
-                        py::arg("cosine_indices"), py::arg("sine_indices"),
-                        R"doc(No documentation found.)doc");
+    m.def( "monomial_full_block_gravity_field_variation_"
+           "amplitudes",
+           &tep::polynomialSinglePowerFullBlockGravityFieldVariationParameter,
+           py::arg( "body_name" ),
+           py::arg( "power" ),
+           py::arg( "minimum_degree" ),
+           py::arg( "minimum_order" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "monomial_full_block_gravity_field_variation_"
-                        "amplitudes",
-                        &tep::
-                            polynomialSinglePowerFullBlockGravityFieldVariationParameter,
-                        py::arg("body_name"), py::arg("power"),
-                        py::arg("minimum_degree"), py::arg("minimum_order"),
-                        py::arg("maximum_degree"), py::arg("maximum_order"),
-                        R"doc(No documentation found.)doc");
+    m.def( "scaled_longitude_libration_amplitude",
+           &tep::scaledLongitudeLibrationAmplitude,
+           py::arg( "body_name" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("scaled_longitude_libration_amplitude",
-                          &tep::scaledLongitudeLibrationAmplitude,
-                          py::arg("body_name"),
-                          R"doc(No documentation found.)doc");
+    m.def( "yarkovsky_parameter",
+           &tep::yarkovskyParameter,
+           py::arg( "body_name" ),
+           py::arg( "central_body_name" ) = "Sun",
+           R"doc(No documentation found.)doc" );
 
-                    m.def("yarkovsky_parameter", &tep::yarkovskyParameter,
-                          py::arg("body_name"),
-                          py::arg("central_body_name") = "Sun",
-                          R"doc(No documentation found.)doc");
+    m.def( "custom_parameter",
+           &tep::customParameterSettings,
+           py::arg( "custom_id" ),
+           py::arg( "parameter_size" ),
+           py::arg( "get_parameter_function" ),
+           py::arg( "set_parameter_function" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("custom_parameter", &tep::customParameterSettings,
-                          py::arg("custom_id"), py::arg("parameter_size"),
-                          py::arg("get_parameter_function"),
-                          py::arg("set_parameter_function"),
-                          R"doc(No documentation found.)doc");
+    // ###############  Global (GR) Model Parameters
+    // ################################
 
-
-                    // ###############  Global (GR) Model Parameters
-                    // ################################
-
-                    m.def("ppn_parameter_gamma", &tep::ppnParameterGamma,
-                          R"doc(
+    m.def( "ppn_parameter_gamma",
+           &tep::ppnParameterGamma,
+           R"doc(
 
 Function for defining parameter settings for post-newtonian gamma parameter.
 
@@ -1471,10 +1402,11 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("ppn_parameter_beta", &tep::ppnParameterBeta,
-                          R"doc(
+    m.def( "ppn_parameter_beta",
+           &tep::ppnParameterBeta,
+           R"doc(
 
 Function for defining parameter settings for post-newtonian beta parameter.
 
@@ -1495,10 +1427,10 @@ Returns
 
 
 
-    )doc");
-                }
+    )doc" );
+}
 
-            }  // namespace parameter
-        }      // namespace estimation_setup
-    }          // namespace numerical_simulation
+}  // namespace parameter
+}  // namespace estimation_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy

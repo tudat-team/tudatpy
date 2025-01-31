@@ -23,212 +23,160 @@ namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
 namespace tuc = tudat::unit_conversions;
 
-namespace tudat {
+namespace tudat
+{
 
-    namespace simulation_setup {
+namespace simulation_setup
+{
 
-        void addNoiseFunctionToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::function<Eigen::VectorXd(const double)>
-                observationNoiseFunction) {
-            tss::addNoiseFunctionToObservationSimulationSettings<
-                TIME_TYPE, Eigen::VectorXd>(observationSimulationSettings,
-                                            observationNoiseFunction);
-        }
+void addNoiseFunctionToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction )
+{
+    tss::addNoiseFunctionToObservationSimulationSettings< TIME_TYPE, Eigen::VectorXd >( observationSimulationSettings,
+                                                                                        observationNoiseFunction );
+}
 
-        void addNoiseFunctionToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::function<Eigen::VectorXd(const double)>
-                observationNoiseFunction,
-            const tom::ObservableType observableType) {
-            tss::addNoiseFunctionToObservationSimulationSettings<
-                TIME_TYPE, Eigen::VectorXd, const tom::ObservableType>(
-                observationSimulationSettings, observationNoiseFunction,
-                observableType);
-        }
+void addNoiseFunctionToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction,
+        const tom::ObservableType observableType )
+{
+    tss::addNoiseFunctionToObservationSimulationSettings< TIME_TYPE, Eigen::VectorXd, const tom::ObservableType >(
+            observationSimulationSettings, observationNoiseFunction, observableType );
+}
 
-        void addNoiseFunctionToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::function<Eigen::VectorXd(const double)>
-                observationNoiseFunction,
-            const tom::ObservableType observableType,
-            const tom::LinkDefinition& linkEnds) {
-            tss::addNoiseFunctionToObservationSimulationSettings<
-                TIME_TYPE, Eigen::VectorXd, const tom::ObservableType,
-                const tom::LinkDefinition&>(observationSimulationSettings,
-                                            observationNoiseFunction,
-                                            observableType, linkEnds);
-        }
+void addNoiseFunctionToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::function< Eigen::VectorXd( const double ) > observationNoiseFunction,
+        const tom::ObservableType observableType,
+        const tom::LinkDefinition& linkEnds )
+{
+    tss::addNoiseFunctionToObservationSimulationSettings< TIME_TYPE,
+                                                          Eigen::VectorXd,
+                                                          const tom::ObservableType,
+                                                          const tom::LinkDefinition& >(
+            observationSimulationSettings, observationNoiseFunction, observableType, linkEnds );
+}
 
-        void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const double observationNoiseAmplitude) {
-            tss::addGaussianNoiseFunctionToObservationSimulationSettings<
-                TIME_TYPE>(observationSimulationSettings,
-                           observationNoiseAmplitude);
-        }
+void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const double observationNoiseAmplitude )
+{
+    tss::addGaussianNoiseFunctionToObservationSimulationSettings< TIME_TYPE >( observationSimulationSettings, observationNoiseAmplitude );
+}
 
-        void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const double observationNoiseAmplitude,
-            const tom::ObservableType observableType) {
-            tss::addGaussianNoiseFunctionToObservationSimulationSettings<
-                TIME_TYPE, const tom::ObservableType>(
-                observationSimulationSettings, observationNoiseAmplitude,
-                observableType);
-        }
+void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const double observationNoiseAmplitude,
+        const tom::ObservableType observableType )
+{
+    tss::addGaussianNoiseFunctionToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType >(
+            observationSimulationSettings, observationNoiseAmplitude, observableType );
+}
 
-        void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const double observationNoiseAmplitude,
-            const tom::ObservableType observableType,
-            const tom::LinkDefinition& linkEnds) {
-            tss::addGaussianNoiseFunctionToObservationSimulationSettings<
-                TIME_TYPE, const tom::ObservableType,
-                const tom::LinkDefinition&>(observationSimulationSettings,
-                                            observationNoiseAmplitude,
-                                            observableType, linkEnds);
-        }
+void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const double observationNoiseAmplitude,
+        const tom::ObservableType observableType,
+        const tom::LinkDefinition& linkEnds )
+{
+    tss::addGaussianNoiseFunctionToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType, const tom::LinkDefinition& >(
+            observationSimulationSettings, observationNoiseAmplitude, observableType, linkEnds );
+}
 
-        void addViabilityToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::vector<std::shared_ptr<
-                observation_models::ObservationViabilitySettings> >&
-                viabilitySettingsList) {
-            tss::addViabilityToObservationSimulationSettings<TIME_TYPE>(
-                observationSimulationSettings, viabilitySettingsList);
-        }
+void addViabilityToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList )
+{
+    tss::addViabilityToObservationSimulationSettings< TIME_TYPE >( observationSimulationSettings, viabilitySettingsList );
+}
 
-        void addViabilityToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::vector<std::shared_ptr<
-                observation_models::ObservationViabilitySettings> >&
-                viabilitySettingsList,
-            const tom::ObservableType observableType) {
-            tss::addViabilityToObservationSimulationSettings<
-                TIME_TYPE, const tom::ObservableType>(
-                observationSimulationSettings, viabilitySettingsList,
-                observableType);
-        }
+void addViabilityToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList,
+        const tom::ObservableType observableType )
+{
+    tss::addViabilityToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType >(
+            observationSimulationSettings, viabilitySettingsList, observableType );
+}
 
-        void addViabilityToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::vector<std::shared_ptr<
-                observation_models::ObservationViabilitySettings> >&
-                viabilitySettingsList,
-            const tom::ObservableType observableType,
-            const tom::LinkDefinition& linkEnds) {
-            tss::addViabilityToObservationSimulationSettings<
-                TIME_TYPE, const tom::ObservableType,
-                const tom::LinkDefinition&>(observationSimulationSettings,
-                                            viabilitySettingsList,
-                                            observableType, linkEnds);
-        }
+void addViabilityToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList,
+        const tom::ObservableType observableType,
+        const tom::LinkDefinition& linkEnds )
+{
+    tss::addViabilityToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType, const tom::LinkDefinition& >(
+            observationSimulationSettings, viabilitySettingsList, observableType, linkEnds );
+}
 
-        void addDependentVariablesToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::vector<
-                std::shared_ptr<ObservationDependentVariableSettings> >&
-                dependentVariableList,
-            const SystemOfBodies& bodies) {
-            tss::addDependentVariablesToObservationSimulationSettings<
-                TIME_TYPE>(observationSimulationSettings, dependentVariableList,
-                           bodies);
-        }
+void addDependentVariablesToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
+        const SystemOfBodies& bodies )
+{
+    tss::addDependentVariablesToObservationSimulationSettings< TIME_TYPE >( observationSimulationSettings, dependentVariableList, bodies );
+}
 
-        void addDependentVariablesToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::vector<
-                std::shared_ptr<ObservationDependentVariableSettings> >&
-                dependentVariableList,
-            const SystemOfBodies& bodies,
-            const tom::ObservableType observableType) {
-            tss::addDependentVariablesToObservationSimulationSettings<
-                TIME_TYPE, const tom::ObservableType>(
-                observationSimulationSettings, dependentVariableList, bodies,
-                observableType);
-        }
+void addDependentVariablesToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
+        const SystemOfBodies& bodies,
+        const tom::ObservableType observableType )
+{
+    tss::addDependentVariablesToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType >(
+            observationSimulationSettings, dependentVariableList, bodies, observableType );
+}
 
-        void addDependentVariablesToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::vector<
-                std::shared_ptr<ObservationDependentVariableSettings> >&
-                dependentVariableList,
-            const SystemOfBodies& bodies,
-            const tom::ObservableType observableType,
-            const tom::LinkDefinition& linkEnds) {
-            tss::addDependentVariablesToObservationSimulationSettings<
-                TIME_TYPE, const tom::ObservableType,
-                const tom::LinkDefinition&>(observationSimulationSettings,
-                                            dependentVariableList, bodies,
-                                            observableType, linkEnds);
-        }
+void addDependentVariablesToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
+        const SystemOfBodies& bodies,
+        const tom::ObservableType observableType,
+        const tom::LinkDefinition& linkEnds )
+{
+    tss::addDependentVariablesToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType, const tom::LinkDefinition& >(
+            observationSimulationSettings, dependentVariableList, bodies, observableType, linkEnds );
+}
 
-        void addAncilliarySettingsToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::shared_ptr<tom::ObservationAncilliarySimulationSettings>&
-                ancilliarySettings,
-            const tom::ObservableType observableType) {
-            tss::addAncilliarySettingsToObservationSimulationSettings<
-                TIME_TYPE, const tom::ObservableType>(
-                observationSimulationSettings, ancilliarySettings,
-                observableType);
-        }
+void addAncilliarySettingsToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >& ancilliarySettings,
+        const tom::ObservableType observableType )
+{
+    tss::addAncilliarySettingsToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType >(
+            observationSimulationSettings, ancilliarySettings, observableType );
+}
 
-        void addAncilliarySettingsToObservationSimulationSettingsPy(
-            const std::vector<
-                std::shared_ptr<ObservationSimulationSettings<TIME_TYPE> > >&
-                observationSimulationSettings,
-            const std::shared_ptr<tom::ObservationAncilliarySimulationSettings>&
-                ancilliarySettings,
-            const tom::ObservableType observableType,
-            const tom::LinkDefinition& linkEnds) {
-            tss::addAncilliarySettingsToObservationSimulationSettings<
-                TIME_TYPE, const tom::ObservableType,
-                const tom::LinkDefinition&>(observationSimulationSettings,
-                                            ancilliarySettings, observableType,
-                                            linkEnds);
-        }
+void addAncilliarySettingsToObservationSimulationSettingsPy(
+        const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
+        const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >& ancilliarySettings,
+        const tom::ObservableType observableType,
+        const tom::LinkDefinition& linkEnds )
+{
+    tss::addAncilliarySettingsToObservationSimulationSettings< TIME_TYPE, const tom::ObservableType, const tom::LinkDefinition& >(
+            observationSimulationSettings, ancilliarySettings, observableType, linkEnds );
+}
 
-    }  // namespace simulation_setup
+}  // namespace simulation_setup
 
 }  // namespace tudat
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace estimation_setup {
-            namespace observation {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace estimation_setup
+{
+namespace observation
+{
 
-                void expose_observation_setup(py::module& m) {
-                    // ################      Link Definition ################
+void expose_observation_setup( py::module& m )
+{
+    // ################      Link Definition ################
 
-                    py::enum_<tom::LinkEndType>(m, "LinkEndType", R"doc(
+    py::enum_< tom::LinkEndType >( m, "LinkEndType", R"doc(
 
         Enumeration of available link end types.
 
@@ -250,26 +198,26 @@ Examples
 
 
 
-     )doc")
-                        .value("unidentified_link_end",
-                               tom::LinkEndType::unidentified_link_end)
-                        .value("transmitter", tom::LinkEndType::transmitter)
-                        .value("reflector1", tom::LinkEndType::reflector1)
-                        .value("retransmitter", tom::LinkEndType::retransmitter)
-                        .value("reflector2", tom::LinkEndType::reflector2)
-                        .value("reflector3", tom::LinkEndType::reflector3)
-                        .value("reflector4", tom::LinkEndType::reflector4)
-                        .value("receiver", tom::LinkEndType::receiver)
+     )doc" )
+            .value( "unidentified_link_end", tom::LinkEndType::unidentified_link_end )
+            .value( "transmitter", tom::LinkEndType::transmitter )
+            .value( "reflector1", tom::LinkEndType::reflector1 )
+            .value( "retransmitter", tom::LinkEndType::retransmitter )
+            .value( "reflector2", tom::LinkEndType::reflector2 )
+            .value( "reflector3", tom::LinkEndType::reflector3 )
+            .value( "reflector4", tom::LinkEndType::reflector4 )
+            .value( "receiver", tom::LinkEndType::receiver )
 
-                        .value("transmitter2", tom::LinkEndType::transmitter2)
+            .value( "transmitter2", tom::LinkEndType::transmitter2 )
 
-                        .value("observed_body", tom::LinkEndType::observed_body)
-                        .export_values();
+            .value( "observed_body", tom::LinkEndType::observed_body )
+            .export_values( );
 
-                    m.def("one_way_downlink_link_ends",
-                          &tom::getOneWayDownlinkLinkEndsList,
-                          py::arg("transmitter"), py::arg("receivers"),
-                          R"doc(
+    m.def( "one_way_downlink_link_ends",
+           &tom::getOneWayDownlinkLinkEndsList,
+           py::arg( "transmitter" ),
+           py::arg( "receivers" ),
+           R"doc(
 
 Function for defining one-way downlinks via LinkDefinition types.
 
@@ -323,12 +271,13 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("one_way_uplink_link_ends",
-                          &tom::getOneWayUplinkLinkEndsList,
-                          py::arg("transmitters"), py::arg("receiver"),
-                          R"doc(
+    m.def( "one_way_uplink_link_ends",
+           &tom::getOneWayUplinkLinkEndsList,
+           py::arg( "transmitters" ),
+           py::arg( "receiver" ),
+           R"doc(
 
 Function for defining single or multiple one-way uplinks via LinkDefinition types.
 
@@ -381,12 +330,12 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("get_default_reference_link_end",
-                          &tom::getDefaultReferenceLinkEndType,
-                          py::arg("observabl_type"),
-                          R"doc(
+    m.def( "get_default_reference_link_end",
+           &tom::getDefaultReferenceLinkEndType,
+           py::arg( "observabl_type" ),
+           R"doc(
 
 Function for automatically retrieving the reference link end associated with a given observable type.
 
@@ -405,14 +354,14 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    // ###########      Observation Model Settings
-                    // ################
+    // ###########      Observation Model Settings
+    // ################
 
-                    py::class_<tom::LinkEndId,
-                               std::shared_ptr<tom::LinkEndId> >(m, "LinkEndId",
-                                                                 R"doc(
+    py::class_< tom::LinkEndId, std::shared_ptr< tom::LinkEndId > >( m,
+                                                                     "LinkEndId",
+                                                                     R"doc(
 
         Base class serving as identifier of a specific link end.
 
@@ -444,10 +393,10 @@ Examples
         print(f'LinkEndType: {link_type.name}, LinkEndId: {link_name.body_name}')
 
 
-     )doc")
-                        .def_property_readonly("body_name",
-                                               &tom::LinkEndId::getBodyName,
-                                               R"doc(
+     )doc" )
+            .def_property_readonly( "body_name",
+                                    &tom::LinkEndId::getBodyName,
+                                    R"doc(
         Name of the body where the reference point is located, str
 
     Examples
@@ -473,10 +422,10 @@ Examples
 
 
 
-     )doc")
-                        .def_property_readonly("reference_point",
-                                               &tom::LinkEndId::getStationName,
-                                               R"doc(
+     )doc" )
+            .def_property_readonly( "reference_point",
+                                    &tom::LinkEndId::getStationName,
+                                    R"doc(
         Function for setting a name for the reference point on a body.
 
         Function for setting a name for the reference point on a body (tipically, the name of a ground station).
@@ -501,13 +450,12 @@ Examples
 
 
 
-     )doc");
+     )doc" );
 
-                    m.def(
-                        "body_origin_link_end_id",
-                        py::overload_cast<const std::string&>(&tom::linkEndId),
-                        py::arg("body_name"),
-                        R"doc(
+    m.def( "body_origin_link_end_id",
+           py::overload_cast< const std::string& >( &tom::linkEndId ),
+           py::arg( "body_name" ),
+           R"doc(
 
 Function to create a link end identifier for the origin (typically center of mass) of a body.
 
@@ -546,14 +494,13 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "body_reference_point_link_end_id",
-                        py::overload_cast<const std::string&,
-                                          const std::string&>(&tom::linkEndId),
-                        py::arg("body_name"), py::arg("reference_point_id"),
-                        R"doc(
+    m.def( "body_reference_point_link_end_id",
+           py::overload_cast< const std::string&, const std::string& >( &tom::linkEndId ),
+           py::arg( "body_name" ),
+           py::arg( "reference_point_id" ),
+           R"doc(
 
 Function to create a link end identifier for a reference point on a body.
 
@@ -591,11 +538,9 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    py::class_<tom::LinkDefinition,
-                               std::shared_ptr<tom::LinkDefinition> >(
-                        m, "LinkDefinition", R"doc(
+    py::class_< tom::LinkDefinition, std::shared_ptr< tom::LinkDefinition > >( m, "LinkDefinition", R"doc(
 
         Base class storing the link ends involved in a given observation.
         Instances of this class are typically created defining a *Link_Ends* dictionary via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.link_definition` function,
@@ -625,13 +570,12 @@ Examples
 
 
 
-     )doc")
-                        .def(py::init<const std::map<tom::LinkEndType,
-                                                     tom::LinkEndId>&>(),
-                             py::arg("link_ends"))
-                        .def("link_end_id", &tom::LinkDefinition::at,
-                             py::arg("link_end_type"),
-                             R"doc(
+     )doc" )
+            .def( py::init< const std::map< tom::LinkEndType, tom::LinkEndId >& >( ), py::arg( "link_ends" ) )
+            .def( "link_end_id",
+                  &tom::LinkDefinition::at,
+                  py::arg( "link_end_type" ),
+                  R"doc(
 
         Function to provide a dictionary of link ends.
 
@@ -669,15 +613,16 @@ Examples
 
 
 
-     )doc");
-                    //            .def_property( "link_ends",
-                    //            &tom::LinkDefinition::linkEnds_,
-                    //                           get_docstring("LinkDefinition.link_ends").c_str()
-                    //                           );
+     )doc" );
+    //            .def_property( "link_ends",
+    //            &tom::LinkDefinition::linkEnds_,
+    //                           get_docstring("LinkDefinition.link_ends").c_str()
+    //                           );
 
-                    m.def("link_definition", &tom::linkDefinition,
-                          py::arg("link_ends"),
-                          R"doc(
+    m.def( "link_definition",
+           &tom::linkDefinition,
+           py::arg( "link_ends" ),
+           R"doc(
 
 Function to create a link definition object.
 
@@ -710,9 +655,9 @@ Examples
     print(observation.link_definition(link_ends))
 
 
-    )doc");
+    )doc" );
 
-                    py::enum_<tom::ObservableType>(m, "ObservableType", R"doc(
+    py::enum_< tom::ObservableType >( m, "ObservableType", R"doc(
 
         Enumeration of available observable types.
 
@@ -733,45 +678,28 @@ Examples
 
 
 
-     )doc")
-                        .value("one_way_range_type",
-                               tom::ObservableType::one_way_range)
-                        .value("n_way_range_type",
-                               tom::ObservableType::n_way_range)
-                        .value("angular_position_type",
-                               tom::ObservableType::angular_position)
-                        .value("relative_angular_position_type",
-                               tom::ObservableType::angular_position)
-                        .value("position_observable_type",
-                               tom::ObservableType::position_observable)
-                        .value("velocity_observable_type",
-                               tom::ObservableType::velocity_observable)
-                        .value("one_way_instantaneous_doppler_type",
-                               tom::ObservableType::one_way_doppler)
-                        .value("one_way_averaged_doppler_type",
-                               tom::ObservableType::one_way_differenced_range)
-                        .value("two_way_instantaneous_doppler_type",
-                               tom::ObservableType::two_way_doppler)
-                        .value("n_way_averaged_doppler_type",
-                               tom::ObservableType::n_way_differenced_range)
-                        .value("euler_angle_313_observable_type",
-                               tom::ObservableType::euler_angle_313_observable)
-                        .value(
-                            "dsn_one_way_averaged_doppler",
-                            tom::ObservableType::dsn_one_way_averaged_doppler)
-                        .value("dsn_n_way_averaged_doppler",
-                               tom::ObservableType::dsn_n_way_averaged_doppler)
-                        .value("doppler_measured_frequency_type",
-                               tom::ObservableType::doppler_measured_frequency)
-                        .value("dsn_n_way_range",
-                               tom::ObservableType::dsn_n_way_range)
-                        .export_values();
+     )doc" )
+            .value( "one_way_range_type", tom::ObservableType::one_way_range )
+            .value( "n_way_range_type", tom::ObservableType::n_way_range )
+            .value( "angular_position_type", tom::ObservableType::angular_position )
+            .value( "relative_angular_position_type", tom::ObservableType::angular_position )
+            .value( "position_observable_type", tom::ObservableType::position_observable )
+            .value( "velocity_observable_type", tom::ObservableType::velocity_observable )
+            .value( "one_way_instantaneous_doppler_type", tom::ObservableType::one_way_doppler )
+            .value( "one_way_averaged_doppler_type", tom::ObservableType::one_way_differenced_range )
+            .value( "two_way_instantaneous_doppler_type", tom::ObservableType::two_way_doppler )
+            .value( "n_way_averaged_doppler_type", tom::ObservableType::n_way_differenced_range )
+            .value( "euler_angle_313_observable_type", tom::ObservableType::euler_angle_313_observable )
+            .value( "dsn_one_way_averaged_doppler", tom::ObservableType::dsn_one_way_averaged_doppler )
+            .value( "dsn_n_way_averaged_doppler", tom::ObservableType::dsn_n_way_averaged_doppler )
+            .value( "doppler_measured_frequency_type", tom::ObservableType::doppler_measured_frequency )
+            .value( "dsn_n_way_range", tom::ObservableType::dsn_n_way_range )
+            .export_values( );
 
-                    py::class_<
-                        tom::DopplerProperTimeRateSettings,
-                        std::shared_ptr<tom::DopplerProperTimeRateSettings> >(
-                        m, "DopplerProperTimeRateSettings",
-                        R"doc(
+    py::class_< tom::DopplerProperTimeRateSettings, std::shared_ptr< tom::DopplerProperTimeRateSettings > >(
+            m,
+            "DopplerProperTimeRateSettings",
+            R"doc(
 
         Base class to define proper time rate settings.
 
@@ -783,11 +711,9 @@ Examples
 
 
 
-     )doc");
+     )doc" );
 
-                    py::class_<tom::ObservationModelSettings,
-                               std::shared_ptr<tom::ObservationModelSettings> >(
-                        m, "ObservationSettings", R"doc(
+    py::class_< tom::ObservationModelSettings, std::shared_ptr< tom::ObservationModelSettings > >( m, "ObservationSettings", R"doc(
 
         Base class to define settings of observation models.
 
@@ -826,14 +752,13 @@ Examples
 
 
 
-     )doc");
+     )doc" );
 
-                    py::class_<
-                        tom::OneWayDopplerObservationSettings,
-                        std::shared_ptr<tom::OneWayDopplerObservationSettings>,
-                        tom::ObservationModelSettings>(
-                        m, "OneWayDopplerObservationSettings",
-                        R"doc(
+    py::class_< tom::OneWayDopplerObservationSettings,
+                std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+                tom::ObservationModelSettings >( m,
+                                                 "OneWayDopplerObservationSettings",
+                                                 R"doc(
 
         Derived Class for defining the settings of one-way instantaneous Doppler observation models.
 
@@ -867,20 +792,14 @@ Examples
 
 
 
-     )doc");
+     )doc" );
 
-                    py::class_<
-                        tom::NWayRangeObservationSettings,
-                        std::shared_ptr<tom::NWayRangeObservationSettings>,
-                        tom::ObservationModelSettings>(
-                        m, "NWayRangeObservationSettings",
-                        R"doc(No documentation found.)doc");
+    py::class_< tom::NWayRangeObservationSettings, std::shared_ptr< tom::NWayRangeObservationSettings >, tom::ObservationModelSettings >(
+            m, "NWayRangeObservationSettings", R"doc(No documentation found.)doc" );
 
-                    py::class_<
-                        tom::LightTimeConvergenceCriteria,
-                        std::shared_ptr<tom::LightTimeConvergenceCriteria> >(
-                        m, "LightTimeConvergenceCriteria",
-                        R"doc(
+    py::class_< tom::LightTimeConvergenceCriteria, std::shared_ptr< tom::LightTimeConvergenceCriteria > >( m,
+                                                                                                           "LightTimeConvergenceCriteria",
+                                                                                                           R"doc(
 
         Base class to define criteria of light time convergence.
 
@@ -905,10 +824,9 @@ Examples
 
 
 
-     )doc");
+     )doc" );
 
-                    py::enum_<tom::LightTimeFailureHandling>(
-                        m, "LightTimeFailureHandling", R"doc(
+    py::enum_< tom::LightTimeFailureHandling >( m, "LightTimeFailureHandling", R"doc(
 
         Enumeration of behaviour when failing to converge light-time with required settings.
 
@@ -928,25 +846,19 @@ Examples
 
 
 
-     )doc")
-                        .value("accept_without_warning",
-                               tom::LightTimeFailureHandling::
-                                   accept_without_warning)
-                        .value("print_warning_and_accept",
-                               tom::LightTimeFailureHandling::
-                                   print_warning_and_accept)
-                        .value("throw_exception",
-                               tom::LightTimeFailureHandling::throw_exception)
-                        .export_values();
+     )doc" )
+            .value( "accept_without_warning", tom::LightTimeFailureHandling::accept_without_warning )
+            .value( "print_warning_and_accept", tom::LightTimeFailureHandling::print_warning_and_accept )
+            .value( "throw_exception", tom::LightTimeFailureHandling::throw_exception )
+            .export_values( );
 
-                    m.def("light_time_convergence_settings",
-                          &tom::lightTimeConvergenceCriteria,
-                          py::arg("iterate_corrections") = false,
-                          py::arg("maximum_number_of_iterations") = 50,
-                          py::arg("absolute_tolerance") = TUDAT_NAN,
-                          py::arg("failure_handling") =
-                              tom::accept_without_warning,
-                          R"doc(
+    m.def( "light_time_convergence_settings",
+           &tom::lightTimeConvergenceCriteria,
+           py::arg( "iterate_corrections" ) = false,
+           py::arg( "maximum_number_of_iterations" ) = 50,
+           py::arg( "absolute_tolerance" ) = TUDAT_NAN,
+           py::arg( "failure_handling" ) = tom::accept_without_warning,
+           R"doc(
 
 Function for creating convergence settings for solving the light-time equation.
 
@@ -1008,18 +920,15 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("one_way_range", &tom::oneWayRangeSettings,
-                          py::arg("link_ends"),
-                          py::arg("light_time_correction_settings") =
-                              std::vector<std::shared_ptr<
-                                  tom::LightTimeCorrectionSettings> >(),
-                          py::arg("bias_settings") = nullptr,
-                          py::arg("light_time_convergence_settings") =
-                              std::make_shared<
-                                  tom::LightTimeConvergenceCriteria>(),
-                          R"doc(
+    m.def( "one_way_range",
+           &tom::oneWayRangeSettings,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
 
 Function for creating settings for a one-way range observable.
 
@@ -1086,18 +995,15 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("two_way_range", &tom::twoWayRangeSimple,
-                          py::arg("link_ends"),
-                          py::arg("light_time_correction_settings") =
-                              std::vector<std::shared_ptr<
-                                  tom::LightTimeCorrectionSettings> >(),
-                          py::arg("bias_settings") = nullptr,
-                          py::arg("light_time_convergence_settings") =
-                              std::make_shared<
-                                  tom::LightTimeConvergenceCriteria>(),
-                          R"doc(
+    m.def( "two_way_range",
+           &tom::twoWayRangeSimple,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
 
 Function for creating settings for a two-way range observable.
 
@@ -1153,12 +1059,13 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("two_way_range_from_one_way_links", &tom::twoWayRange,
-                          py::arg("one_way_range_settings"),
-                          py::arg("bias_settings") = nullptr,
-                          R"doc(
+    m.def( "two_way_range_from_one_way_links",
+           &tom::twoWayRange,
+           py::arg( "one_way_range_settings" ),
+           py::arg( "bias_settings" ) = nullptr,
+           R"doc(
 
 Function for creating settings for a two-way range observable.
 
@@ -1207,18 +1114,15 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("n_way_range", &tom::nWayRangeSimple,
-                          py::arg("link_ends"),
-                          py::arg("light_time_correction_settings") =
-                              std::vector<std::shared_ptr<
-                                  tom::LightTimeCorrectionSettings> >(),
-                          py::arg("bias_settings") = nullptr,
-                          py::arg("light_time_convergence_settings") =
-                              std::make_shared<
-                                  tom::LightTimeConvergenceCriteria>(),
-                          R"doc(
+    m.def( "n_way_range",
+           &tom::nWayRangeSimple,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
 
 Function for creating settings for a n-way range observable.
 
@@ -1282,12 +1186,13 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("n_way_range_from_one_way_links", &tom::nWayRange,
-                          py::arg("one_way_range_settings"),
-                          py::arg("bias_settings") = nullptr,
-                          R"doc(
+    m.def( "n_way_range_from_one_way_links",
+           &tom::nWayRange,
+           py::arg( "one_way_range_settings" ),
+           py::arg( "bias_settings" ) = nullptr,
+           R"doc(
 
 Function for creating settings for a n-way range observable.
 
@@ -1337,18 +1242,15 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("angular_position", &tom::angularPositionSettings,
-                          py::arg("link_ends"),
-                          py::arg("light_time_correction_settings") =
-                              std::vector<std::shared_ptr<
-                                  tom::LightTimeCorrectionSettings> >(),
-                          py::arg("bias_settings") = nullptr,
-                          py::arg("light_time_convergence_settings") =
-                              std::make_shared<
-                                  tom::LightTimeConvergenceCriteria>(),
-                          R"doc(
+    m.def( "angular_position",
+           &tom::angularPositionSettings,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
 
 Function for creating settings for an angular position observable.
 
@@ -1392,19 +1294,15 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("relative_angular_position",
-                          &tom::relativeAngularPositionSettings,
-                          py::arg("link_ends"),
-                          py::arg("light_time_correction_settings") =
-                              std::vector<std::shared_ptr<
-                                  tom::LightTimeCorrectionSettings> >(),
-                          py::arg("bias_settings") = nullptr,
-                          py::arg("light_time_convergence_settings") =
-                              std::make_shared<
-                                  tom::LightTimeConvergenceCriteria>(),
-                          R"doc(
+    m.def( "relative_angular_position",
+           &tom::relativeAngularPositionSettings,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
 
 Function for creating settings for an angular position observable.
 
@@ -1448,48 +1346,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("cartesian_position",
-                          &tom::positionObservableSettings,
-                          py::arg("link_ends"),
-                          py::arg("bias_settings") = nullptr,
-                          R"doc(
-
-Function for creating settings for a Cartesian position observable.
-
-Function for creating observation model settings of Cartesian position type observables.
-Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
-This observable provides the inertial (w.r.t. global frame origin) Cartesian position of the `observed_body` defined by the `link_ends` input.
-The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` position
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires that the
-    `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-Returns
--------
-:class:`ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian position observable.
-
-
-
-
-
-
-    )doc");
-
-                    m.def("relative_cartesian_position",
-                          &tom::relativePositionObservableSettings,
-                          py::arg("link_ends"),
-                          py::arg("bias_settings") = nullptr,
-                          R"doc(
+    m.def( "cartesian_position",
+           &tom::positionObservableSettings,
+           py::arg( "link_ends" ),
+           py::arg( "bias_settings" ) = nullptr,
+           R"doc(
 
 Function for creating settings for a Cartesian position observable.
 
@@ -1518,13 +1381,48 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("cartesian_velocity",
-                          &tom::velocityObservableSettings,
-                          py::arg("link_ends"),
-                          py::arg("bias_settings") = nullptr,
-                          R"doc(
+    m.def( "relative_cartesian_position",
+           &tom::relativePositionObservableSettings,
+           py::arg( "link_ends" ),
+           py::arg( "bias_settings" ) = nullptr,
+           R"doc(
+
+Function for creating settings for a Cartesian position observable.
+
+Function for creating observation model settings of Cartesian position type observables.
+Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
+This observable provides the inertial (w.r.t. global frame origin) Cartesian position of the `observed_body` defined by the `link_ends` input.
+The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` position
+
+
+Parameters
+----------
+link_ends : LinkDefinition
+    Set of link ends that define the geometry of the observation. This observable requires that the
+    `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+
+bias_settings : :class:`ObservationBiasSettings`, default = None
+    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+Returns
+-------
+:class:`ObservationSettings`
+    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian position observable.
+
+
+
+
+
+
+    )doc" );
+
+    m.def( "cartesian_velocity",
+           &tom::velocityObservableSettings,
+           py::arg( "link_ends" ),
+           py::arg( "bias_settings" ) = nullptr,
+           R"doc(
 
 Function for creating settings for a Cartesian velocity observable.
 
@@ -1553,29 +1451,24 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("euler_angles_313",
-                          &tom::eulerAngle313ObservableSettings,
-                          py::arg("link_ends"),
-                          py::arg("bias_settings") = nullptr,
-                          R"doc(No documentation found.)doc");
+    m.def( "euler_angles_313",
+           &tom::eulerAngle313ObservableSettings,
+           py::arg( "link_ends" ),
+           py::arg( "bias_settings" ) = nullptr,
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "one_way_doppler_instantaneous",
-                        &tom::oneWayOpenLoopDoppler, py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("transmitter_proper_time_rate_settings") =
-                            nullptr,
-                        py::arg("receiver_proper_time_rate_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        py::arg("normalized_with_speed_of_light") = false,
-                        R"doc(
+    m.def( "one_way_doppler_instantaneous",
+           &tom::oneWayOpenLoopDoppler,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "transmitter_proper_time_rate_settings" ) = nullptr,
+           py::arg( "receiver_proper_time_rate_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "normalized_with_speed_of_light" ) = false,
+           R"doc(
 
 Function for creating settings for a one-way instantaneous Doppler observable.
 
@@ -1636,21 +1529,16 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("two_way_doppler_instantaneous_from_one_way_links",
-                          py::overload_cast<
-                              const std::shared_ptr<
-                                  tom::OneWayDopplerObservationSettings>,
-                              const std::shared_ptr<
-                                  tom::OneWayDopplerObservationSettings>,
-                              const std::shared_ptr<
-                                  tom::ObservationBiasSettings> >(
-                              &tom::twoWayOpenLoopDoppler),
-                          py::arg("uplink_doppler_settings"),
-                          py::arg("downlink_doppler_settings"),
-                          py::arg("bias_settings") = nullptr,
-                          R"doc(
+    m.def( "two_way_doppler_instantaneous_from_one_way_links",
+           py::overload_cast< const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+                              const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+                              const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayOpenLoopDoppler ),
+           py::arg( "uplink_doppler_settings" ),
+           py::arg( "downlink_doppler_settings" ),
+           py::arg( "bias_settings" ) = nullptr,
+           R"doc(
 
 Function for creating settings for a two-way instantaneous Doppler observable.
 
@@ -1688,48 +1576,31 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "two_doppler_instantaneous",
-                        py::overload_cast<
-                            const tom::LinkDefinition&,
-                            const std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >&,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria>,
-                            const bool>(&tom::twoWayOpenLoopDoppler),
-                        py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        py::arg("normalized_with_speed_of_light") = false,
-                        R"doc(No documentation found.)doc");
+    m.def( "two_doppler_instantaneous",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
+                              const bool >( &tom::twoWayOpenLoopDoppler ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "normalized_with_speed_of_light" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "one_way_doppler_averaged",
-                        py::overload_cast<
-                            const tom::LinkDefinition&,
-                            const std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria> >(
-                            &tom::oneWayClosedLoopDoppler),
-                        py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        R"doc(
+    m.def( "one_way_doppler_averaged",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::oneWayClosedLoopDoppler ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
 
 Function for creating settings for a one-way averaged Doppler observable.
 
@@ -1773,27 +1644,19 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "two_way_doppler_averaged",
-                        py::overload_cast<
-                            const tom::LinkDefinition&,
-                            const std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria> >(
-                            &tom::twoWayDifferencedRangeObservationSettings),
-                        py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        R"doc(
+    m.def( "two_way_doppler_averaged",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >(
+                   &tom::twoWayDifferencedRangeObservationSettings ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
 
 Function for creating settings for an n-way averaged Doppler observable.
 
@@ -1831,18 +1694,14 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "two_way_doppler_averaged_from_one_way_links",
-                        py::overload_cast<const std::vector<std::shared_ptr<
-                                              tom::ObservationModelSettings> >,
-                                          const std::shared_ptr<
-                                              tom::ObservationBiasSettings> >(
-                            &tom::twoWayDifferencedRangeObservationSettings),
-                        py::arg("one_way_range_settings"),
-                        py::arg("bias_settings") = nullptr,
-                        R"doc(
+    m.def( "two_way_doppler_averaged_from_one_way_links",
+           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayDifferencedRangeObservationSettings ),
+           py::arg( "one_way_range_settings" ),
+           py::arg( "bias_settings" ) = nullptr,
+           R"doc(
 
 Function for creating settings for an n-way averaged Doppler observable.
 
@@ -1880,27 +1739,18 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "n_way_doppler_averaged",
-                        py::overload_cast<
-                            const tom::LinkDefinition&,
-                            const std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria> >(
-                            &tom::nWayDifferencedRangeObservationSettings),
-                        py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        R"doc(
+    m.def( "n_way_doppler_averaged",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::nWayDifferencedRangeObservationSettings ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
 
 Function for creating settings for an n-way averaged Doppler observable.
 
@@ -1938,23 +1788,16 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "n_way_doppler_averaged_from_one_way_links",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tom::ObservationModelSettings> >,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria> >(
-                            &tom::nWayDifferencedRangeObservationSettings),
-                        py::arg("one_way_range_settings"),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        R"doc(
+    m.def( "n_way_doppler_averaged_from_one_way_links",
+           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::nWayDifferencedRangeObservationSettings ),
+           py::arg( "one_way_range_settings" ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
 
 Function for creating settings for an n-way averaged Doppler observable.
 
@@ -1984,100 +1827,64 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "dsn_n_way_doppler_averaged",
-                        py::overload_cast<
-                            const tom::LinkDefinition&,
-                            const std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria>,
-                            const bool>(
-                            &tom::dsnNWayAveragedDopplerObservationSettings),
-                        py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        py::arg("subtract_doppler_signature") = true,
-                        R"doc(No documentation found.)doc");
+    m.def( "dsn_n_way_doppler_averaged",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
+                              const bool >( &tom::dsnNWayAveragedDopplerObservationSettings ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "subtract_doppler_signature" ) = true,
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "dsn_n_way_doppler_averaged_from_one_way_links",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tom::ObservationModelSettings> >,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria>,
-                            const bool>(
-                            &tom::dsnNWayAveragedDopplerObservationSettings),
-                        py::arg("one_way_range_settings"),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        py::arg("subtract_doppler_signature") = true,
-                        R"doc(No documentation found.)doc");
+    m.def( "dsn_n_way_doppler_averaged_from_one_way_links",
+           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
+                              const bool >( &tom::dsnNWayAveragedDopplerObservationSettings ),
+           py::arg( "one_way_range_settings" ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "subtract_doppler_signature" ) = true,
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "dsn_n_way_Range",
-                        py::overload_cast<
-                            const tom::LinkDefinition&,
-                            const std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria> >(
-                            &tom::dsnNWayRangeObservationSettings),
-                        py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        R"doc(No documentation found.)doc");
+    m.def( "dsn_n_way_Range",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::dsnNWayRangeObservationSettings ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "doppler_measured_frequency",
-                        py::overload_cast<
-                            const tom::LinkDefinition&,
-                            const std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >&,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria> >(
-                            &tom::dopplerMeasuredFrequencyObservationSettings),
-                        py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        R"doc(No documentation found.)doc");
+    m.def( "doppler_measured_frequency",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >(
+                   &tom::dopplerMeasuredFrequencyObservationSettings ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "observation_settings_from_collection",
-                        &tss::getObservationSimulationSettingsFromObservations<
-                            STATE_SCALAR_TYPE, TIME_TYPE>,
-                        py::arg("observation_collection"), py::arg("bodies"),
-                        R"doc(No documentation found.)doc");
+    m.def( "observation_settings_from_collection",
+           &tss::getObservationSimulationSettingsFromObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observation_collection" ),
+           py::arg( "bodies" ),
+           R"doc(No documentation found.)doc" );
 
-                    py::class_<
-                        tom::LightTimeCorrectionSettings,
-                        std::shared_ptr<tom::LightTimeCorrectionSettings> >(
-                        m, "LightTimeCorrectionSettings",
-                        R"doc(
+    py::class_< tom::LightTimeCorrectionSettings, std::shared_ptr< tom::LightTimeCorrectionSettings > >( m,
+                                                                                                         "LightTimeCorrectionSettings",
+                                                                                                         R"doc(
 
         Base class to define light time correction settings.
 
@@ -2125,13 +1932,12 @@ Returns
 
 
 
-     )doc");
+     )doc" );
 
-                    m.def(
-                        "first_order_relativistic_light_time_correction",
-                        &tom::firstOrderRelativisticLightTimeCorrectionSettings,
-                        py::arg("perturbing_bodies"),
-                        R"doc(
+    m.def( "first_order_relativistic_light_time_correction",
+           &tom::firstOrderRelativisticLightTimeCorrectionSettings,
+           py::arg( "perturbing_bodies" ),
+           R"doc(
 
 Function for creating settings for first-order relativistic light-time corrections.
 
@@ -2181,85 +1987,63 @@ Examples
     # Show that it returns a LightTimeCorrectionSettings object.
     print(doppler_observation_settings)
 
-    )doc");
+    )doc" );
 
-                    py::enum_<tom::TroposphericMappingModel>(
-                        m, "TroposphericMappingModel",
-                        R"doc(No documentation found.)doc")
-                        .value("simplified_chao",
-                               tom::TroposphericMappingModel::simplified_chao)
-                        .value("niell", tom::TroposphericMappingModel::niell)
-                        .export_values();
+    py::enum_< tom::TroposphericMappingModel >( m, "TroposphericMappingModel", R"doc(No documentation found.)doc" )
+            .value( "simplified_chao", tom::TroposphericMappingModel::simplified_chao )
+            .value( "niell", tom::TroposphericMappingModel::niell )
+            .export_values( );
 
-                    py::enum_<tom::WaterVaporPartialPressureModel>(
-                        m, "WaterVaporPartialPressureModel",
-                        R"doc(No documentation found.)doc")
-                        .value("tabulated",
-                               tom::WaterVaporPartialPressureModel::tabulated)
-                        .value("bean_and_dutton",
-                               tom::WaterVaporPartialPressureModel::
-                                   bean_and_dutton)
-                        .export_values();
+    py::enum_< tom::WaterVaporPartialPressureModel >( m, "WaterVaporPartialPressureModel", R"doc(No documentation found.)doc" )
+            .value( "tabulated", tom::WaterVaporPartialPressureModel::tabulated )
+            .value( "bean_and_dutton", tom::WaterVaporPartialPressureModel::bean_and_dutton )
+            .export_values( );
 
-                    m.def("dsn_tabulated_tropospheric_light_time_correction",
-                          &tom::tabulatedTroposphericCorrectionSettings,
-                          py::arg("file_names"),
-                          py::arg("body_with_atmosphere_name") = "Earth",
-                          py::arg("mapping_model") =
-                              tom::TroposphericMappingModel::niell,
-                          R"doc(No documentation found.)doc");
+    m.def( "dsn_tabulated_tropospheric_light_time_correction",
+           &tom::tabulatedTroposphericCorrectionSettings,
+           py::arg( "file_names" ),
+           py::arg( "body_with_atmosphere_name" ) = "Earth",
+           py::arg( "mapping_model" ) = tom::TroposphericMappingModel::niell,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("saastamoinen_tropospheric_light_time_correction",
-                          &tom::saastamoinenTroposphericCorrectionSettings,
-                          py::arg("body_with_atmosphere_name") = "Earth",
-                          py::arg("mapping_model") =
-                              tom::TroposphericMappingModel::niell,
-                          py::arg("water_vapor_partial_pressure_model") =
-                              tom::WaterVaporPartialPressureModel::tabulated,
-                          R"doc(No documentation found.)doc");
+    m.def( "saastamoinen_tropospheric_light_time_correction",
+           &tom::saastamoinenTroposphericCorrectionSettings,
+           py::arg( "body_with_atmosphere_name" ) = "Earth",
+           py::arg( "mapping_model" ) = tom::TroposphericMappingModel::niell,
+           py::arg( "water_vapor_partial_pressure_model" ) = tom::WaterVaporPartialPressureModel::tabulated,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("dsn_tabulated_ionospheric_light_time_correction",
-                          &tom::tabulatedIonosphericCorrectionSettings,
-                          py::arg("file_names"),
-                          py::arg("spacecraft_name_per_id") =
-                              std::map<int, std::string>(),
-                          py::arg("quasar_name_per_id") =
-                              std::map<int, std::string>(),
-                          py::arg("reference_frequency") = 2295e6,
-                          py::arg("body_with_atmosphere_name") = "Earth",
-                          R"doc(No documentation found.)doc");
+    m.def( "dsn_tabulated_ionospheric_light_time_correction",
+           &tom::tabulatedIonosphericCorrectionSettings,
+           py::arg( "file_names" ),
+           py::arg( "spacecraft_name_per_id" ) = std::map< int, std::string >( ),
+           py::arg( "quasar_name_per_id" ) = std::map< int, std::string >( ),
+           py::arg( "reference_frequency" ) = 2295e6,
+           py::arg( "body_with_atmosphere_name" ) = "Earth",
+           R"doc(No documentation found.)doc" );
 
-                    m.def("jakowski_ionospheric_light_time_correction",
-                          &tom::jakowskiIonosphericCorrectionSettings,
-                          py::arg("ionosphere_height") = 400.0e3,
-                          py::arg("first_order_delay_coefficient") = 40.3,
-                          py::arg("solar_activity_data") = tudat::input_output::
-                              solar_activity::readSolarActivityData(
-                                  tudat::paths::getSpaceWeatherDataPath() +
-                                  "/sw19571001.txt"),
-                          py::arg("geomagnetic_pole_latitude") =
-                              tuc::convertDegreesToRadians(80.9),
-                          py::arg("geomagnetic_pole_longitude") =
-                              tuc::convertDegreesToRadians(-72.6),
-                          py::arg("use_utc_for_local_time_computation") = false,
-                          py::arg("body_with_atmosphere_name") = "Earth",
-                          R"doc(No documentation found.)doc");
+    m.def( "jakowski_ionospheric_light_time_correction",
+           &tom::jakowskiIonosphericCorrectionSettings,
+           py::arg( "ionosphere_height" ) = 400.0e3,
+           py::arg( "first_order_delay_coefficient" ) = 40.3,
+           py::arg( "solar_activity_data" ) = tudat::input_output::solar_activity::readSolarActivityData(
+                   tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt" ),
+           py::arg( "geomagnetic_pole_latitude" ) = tuc::convertDegreesToRadians( 80.9 ),
+           py::arg( "geomagnetic_pole_longitude" ) = tuc::convertDegreesToRadians( -72.6 ),
+           py::arg( "use_utc_for_local_time_computation" ) = false,
+           py::arg( "body_with_atmosphere_name" ) = "Earth",
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "inverse_power_series_solar_corona_light_time_"
-                        "correction",
-                        &tom::inversePowerSeriesSolarCoronaCorrectionSettings,
-                        py::arg("coefficients") =
-                            std::vector<double>{1.3e14, 0.5e12},
-                        py::arg("positive_exponents") =
-                            std::vector<double>{6.0, 2.0},
-                        py::arg("delay_coefficient") = 40.3,
-                        py::arg("sun_body_name") = "Sun",
-                        R"doc(No documentation found.)doc");
+    m.def( "inverse_power_series_solar_corona_light_time_"
+           "correction",
+           &tom::inversePowerSeriesSolarCoronaCorrectionSettings,
+           py::arg( "coefficients" ) = std::vector< double >{ 1.3e14, 0.5e12 },
+           py::arg( "positive_exponents" ) = std::vector< double >{ 6.0, 2.0 },
+           py::arg( "delay_coefficient" ) = 40.3,
+           py::arg( "sun_body_name" ) = "Sun",
+           R"doc(No documentation found.)doc" );
 
-                    py::class_<tom::ObservationBiasSettings,
-                               std::shared_ptr<tom::ObservationBiasSettings> >(
-                        m, "ObservationBiasSettings", R"doc(
+    py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >( m, "ObservationBiasSettings", R"doc(
 
         Base class to defining observation bias settings.
 
@@ -2288,15 +2072,18 @@ Examples
             relative_bias_settings = observation.relative_bias(bias_array)
             # Show that it is an ObservationBiasSettings object.
             print(relative_bias_settings)
-     )doc");
+     )doc" );
 
-                    m.def("clock_induced_bias", &tom::clockInducedBias,
-                          py::arg("body_name"), py::arg("station_name"),
-                          R"doc(No documentation found.)doc");
+    m.def( "clock_induced_bias",
+           &tom::clockInducedBias,
+           py::arg( "body_name" ),
+           py::arg( "station_name" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("absolute_bias", &tom::constantAbsoluteBias,
-                          py::arg("bias_value"),
-                          R"doc(
+    m.def( "absolute_bias",
+           &tom::constantAbsoluteBias,
+           py::arg( "bias_value" ),
+           R"doc(
 
 Function for creating settings for an absolute observation bias.
 
@@ -2337,11 +2124,12 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("relative_bias", &tom::constantRelativeBias,
-                          py::arg("bias_value"),
-                          R"doc(
+    m.def( "relative_bias",
+           &tom::constantRelativeBias,
+           py::arg( "bias_value" ),
+           R"doc(
 
 Function for creating settings for a relative observation bias.
 
@@ -2384,16 +2172,15 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("arcwise_absolute_bias",
-                          py::overload_cast<const std::vector<double>&,
-                                            const std::vector<Eigen::VectorXd>&,
-                                            const tom::LinkEndType>(
-                              &tom::arcWiseAbsoluteBias),
-                          py::arg("arc_start_times"), py::arg("bias_values"),
-                          py::arg("reference_link_end_type"),
-                          R"doc(
+    m.def( "arcwise_absolute_bias",
+           py::overload_cast< const std::vector< double >&, const std::vector< Eigen::VectorXd >&, const tom::LinkEndType >(
+                   &tom::arcWiseAbsoluteBias ),
+           py::arg( "arc_start_times" ),
+           py::arg( "bias_values" ),
+           py::arg( "reference_link_end_type" ),
+           R"doc(
 
 Function for creating settings for arc-wise absolute observation biases.
 
@@ -2440,16 +2227,13 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "arcwise_absolute_bias_per_time",
-                        py::overload_cast<
-                            const std::map<double, Eigen::VectorXd>&,
-                            const tom::LinkEndType>(&tom::arcWiseAbsoluteBias),
-                        py::arg("bias_values_per_start_time"),
-                        py::arg("reference_link_end_type"),
-                        R"doc(
+    m.def( "arcwise_absolute_bias_per_time",
+           py::overload_cast< const std::map< double, Eigen::VectorXd >&, const tom::LinkEndType >( &tom::arcWiseAbsoluteBias ),
+           py::arg( "bias_values_per_start_time" ),
+           py::arg( "reference_link_end_type" ),
+           R"doc(
 
 Function for creating settings for arc-wise absolute observation biases.
 
@@ -2494,16 +2278,15 @@ import numpy as np
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("arcwise_relative_bias",
-                          py::overload_cast<const std::vector<double>&,
-                                            const std::vector<Eigen::VectorXd>&,
-                                            const tom::LinkEndType>(
-                              &tom::arcWiseRelativeBias),
-                          py::arg("arc_start_times"), py::arg("bias_values"),
-                          py::arg("reference_link_end_type"),
-                          R"doc(
+    m.def( "arcwise_relative_bias",
+           py::overload_cast< const std::vector< double >&, const std::vector< Eigen::VectorXd >&, const tom::LinkEndType >(
+                   &tom::arcWiseRelativeBias ),
+           py::arg( "arc_start_times" ),
+           py::arg( "bias_values" ),
+           py::arg( "reference_link_end_type" ),
+           R"doc(
 
 Function for creating settings for arc-wise relative observation biases.
 
@@ -2550,16 +2333,13 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "arcwise_relative_bias_per_time",
-                        py::overload_cast<
-                            const std::map<double, Eigen::VectorXd>&,
-                            const tom::LinkEndType>(&tom::arcWiseRelativeBias),
-                        py::arg("bias_values_per_start_time"),
-                        py::arg("reference_link_end_type"),
-                        R"doc(
+    m.def( "arcwise_relative_bias_per_time",
+           py::overload_cast< const std::map< double, Eigen::VectorXd >&, const tom::LinkEndType >( &tom::arcWiseRelativeBias ),
+           py::arg( "bias_values_per_start_time" ),
+           py::arg( "reference_link_end_type" ),
+           R"doc(
 
 Function for creating settings for arc-wise relative observation biases.
 
@@ -2606,12 +2386,14 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("time_drift_bias", &tom::constantTimeDriftBias,
-                          py::arg("bias_value"), py::arg("time_link_end"),
-                          py::arg("ref_epoch"),
-                          R"doc(
+    m.def( "time_drift_bias",
+           &tom::constantTimeDriftBias,
+           py::arg( "bias_value" ),
+           py::arg( "time_link_end" ),
+           py::arg( "ref_epoch" ),
+           R"doc(
 
 Function for creating settings for a time-drift bias.
 
@@ -2658,17 +2440,18 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("arc_wise_time_drift_bias",
-                          py::overload_cast<const std::vector<Eigen::VectorXd>&,
-                                            const std::vector<double>&,
-                                            const tom::LinkEndType,
-                                            const std::vector<double>&>(
-                              &tom::arcWiseTimeDriftBias),
-                          py::arg("bias_value"), py::arg("arc_start_times"),
-                          py::arg("time_link_end"), py::arg("ref_epochs"),
-                          R"doc(
+    m.def( "arc_wise_time_drift_bias",
+           py::overload_cast< const std::vector< Eigen::VectorXd >&,
+                              const std::vector< double >&,
+                              const tom::LinkEndType,
+                              const std::vector< double >& >( &tom::arcWiseTimeDriftBias ),
+           py::arg( "bias_value" ),
+           py::arg( "arc_start_times" ),
+           py::arg( "time_link_end" ),
+           py::arg( "ref_epochs" ),
+           R"doc(
 
 Function for creating settings for arc-wise time-drift biases.
 
@@ -2719,17 +2502,15 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "arc_wise_time_drift_bias_per_time",
-                        py::overload_cast<
-                            const std::map<double, Eigen::VectorXd>&,
-                            const tom::LinkEndType, const std::vector<double> >(
-                            &tom::arcWiseTimeDriftBias),
-                        py::arg("bias_value_per_start_time"),
-                        py::arg("time_link_end"), py::arg("ref_epochs"),
-                        R"doc(
+    m.def( "arc_wise_time_drift_bias_per_time",
+           py::overload_cast< const std::map< double, Eigen::VectorXd >&, const tom::LinkEndType, const std::vector< double > >(
+                   &tom::arcWiseTimeDriftBias ),
+           py::arg( "bias_value_per_start_time" ),
+           py::arg( "time_link_end" ),
+           py::arg( "ref_epochs" ),
+           R"doc(
 
 Function for creating settings for arc-wise time-drift biases.
 
@@ -2777,12 +2558,12 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("combined_bias",
-                          &tom::multipleObservationBiasSettings,
-                          py::arg("bias_list"),
-                          R"doc(
+    m.def( "combined_bias",
+           &tom::multipleObservationBiasSettings,
+           py::arg( "bias_list" ),
+           R"doc(
 
 Function for creating settings for a combined observation bias.
 
@@ -2841,17 +2622,14 @@ Examples
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("two_way_time_scale_range_bias",
-                          &tom::twoWayTimeScaleRangeBias,
-                          R"doc(No documentation found.)doc");
+    m.def( "two_way_time_scale_range_bias", &tom::twoWayTimeScaleRangeBias, R"doc(No documentation found.)doc" );
 
-                    // ###########    Observation Simulation Settings
-                    // #############
+    // ###########    Observation Simulation Settings
+    // #############
 
-                    py::enum_<tom::ObservationViabilityType>(
-                        m, "ObservationViabilityType", R"doc(
+    py::enum_< tom::ObservationViabilityType >( m, "ObservationViabilityType", R"doc(
 
         Enumeration of observation viability criterion types.
 
@@ -2872,20 +2650,15 @@ Examples
 
 
 
-     )doc")
-                        .value("minimum_elevation_angle",
-                               tom::ObservationViabilityType::
-                                   minimum_elevation_angle)
-                        .value(
-                            "body_avoidance_angle",
-                            tom::ObservationViabilityType::body_avoidance_angle)
-                        .value("body_occultation",
-                               tom::ObservationViabilityType::body_occultation)
-                        .export_values();
+     )doc" )
+            .value( "minimum_elevation_angle", tom::ObservationViabilityType::minimum_elevation_angle )
+            .value( "body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle )
+            .value( "body_occultation", tom::ObservationViabilityType::body_occultation )
+            .export_values( );
 
-                    py::enum_<tom::ObservationAncilliarySimulationVariable>(
-                        m, "ObservationAncilliarySimulationVariable",
-                        R"doc(
+    py::enum_< tom::ObservationAncilliarySimulationVariable >( m,
+                                                               "ObservationAncilliarySimulationVariable",
+                                                               R"doc(
 
         Enumeration of observation ancillary variable types.
 
@@ -2905,38 +2678,22 @@ Examples
 
 
 
-     )doc")
-                        .value("link_ends_delays",
-                               tom::ObservationAncilliarySimulationVariable::
-                                   link_ends_delays)
-                        .value("doppler_integration_time",
-                               tom::ObservationAncilliarySimulationVariable::
-                                   doppler_integration_time)
-                        .value("doppler_reference_frequency",
-                               tom::ObservationAncilliarySimulationVariable::
-                                   doppler_reference_frequency)
-                        .value("frequency_bands",
-                               tom::ObservationAncilliarySimulationVariable::
-                                   frequency_bands)
-                        .value("reception_reference_frequency_band",
-                               tom::ObservationAncilliarySimulationVariable::
-                                   reception_reference_frequency_band)
-                        .value("sequential_range_reference_frequency",
-                               tom::ObservationAncilliarySimulationVariable::
-                                   sequential_range_reference_frequency)
-                        .value("sequential_range_lowest_ranging_component",
-                               tom::ObservationAncilliarySimulationVariable::
-                                   sequential_range_lowest_ranging_component)
-                        .value("range_conversion_factor",
-                               tom::ObservationAncilliarySimulationVariable::
-                                   range_conversion_factor)
-                        .export_values();
+     )doc" )
+            .value( "link_ends_delays", tom::ObservationAncilliarySimulationVariable::link_ends_delays )
+            .value( "doppler_integration_time", tom::ObservationAncilliarySimulationVariable::doppler_integration_time )
+            .value( "doppler_reference_frequency", tom::ObservationAncilliarySimulationVariable::doppler_reference_frequency )
+            .value( "frequency_bands", tom::ObservationAncilliarySimulationVariable::frequency_bands )
+            .value( "reception_reference_frequency_band", tom::ObservationAncilliarySimulationVariable::reception_reference_frequency_band )
+            .value( "sequential_range_reference_frequency",
+                    tom::ObservationAncilliarySimulationVariable::sequential_range_reference_frequency )
+            .value( "sequential_range_lowest_ranging_component",
+                    tom::ObservationAncilliarySimulationVariable::sequential_range_lowest_ranging_component )
+            .value( "range_conversion_factor", tom::ObservationAncilliarySimulationVariable::range_conversion_factor )
+            .export_values( );
 
-                    py::class_<
-                        tom::ObservationViabilitySettings,
-                        std::shared_ptr<tom::ObservationViabilitySettings> >(
-                        m, "ObservationViabilitySettings",
-                        R"doc(
+    py::class_< tom::ObservationViabilitySettings, std::shared_ptr< tom::ObservationViabilitySettings > >( m,
+                                                                                                           "ObservationViabilitySettings",
+                                                                                                           R"doc(
 
         Class for defining observation viability calculator settings.
 
@@ -2963,15 +2720,13 @@ Examples
 
 
 
-     )doc");
+     )doc" );
 
-                    m.def("elevation_angle_viability",
-                          py::overload_cast<
-                              const std::pair<std::string, std::string>,
-                              const double>(
-                              &tom::elevationAngleViabilitySettings),
-                          py::arg("link_end_id"), py::arg("elevation_angle"),
-                          R"doc(
+    m.def( "elevation_angle_viability",
+           py::overload_cast< const std::pair< std::string, std::string >, const double >( &tom::elevationAngleViabilitySettings ),
+           py::arg( "link_end_id" ),
+           py::arg( "elevation_angle" ),
+           R"doc(
 
 Function for defining single elevation angle viability setting.
 
@@ -2999,16 +2754,15 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("body_avoidance_viability",
-                          py::overload_cast<
-                              const std::pair<std::string, std::string>,
-                              const std::string, const double>(
-                              &tom::bodyAvoidanceAngleViabilitySettings),
-                          py::arg("link_end_id"), py::arg("body_to_avoid"),
-                          py::arg("avoidance_angle"),
-                          R"doc(
+    m.def( "body_avoidance_viability",
+           py::overload_cast< const std::pair< std::string, std::string >, const std::string, const double >(
+                   &tom::bodyAvoidanceAngleViabilitySettings ),
+           py::arg( "link_end_id" ),
+           py::arg( "body_to_avoid" ),
+           py::arg( "avoidance_angle" ),
+           R"doc(
 
 Function for defining body avoidance observation viability settings.
 
@@ -3048,15 +2802,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("body_occultation_viability",
-                          py::overload_cast<
-                              const std::pair<std::string, std::string>,
-                              const std::string>(
-                              &tom::bodyOccultationViabilitySettings),
-                          py::arg("link_end_id"), py::arg("occulting_body"),
-                          R"doc(
+    m.def( "body_occultation_viability",
+           py::overload_cast< const std::pair< std::string, std::string >, const std::string >( &tom::bodyOccultationViabilitySettings ),
+           py::arg( "link_end_id" ),
+           py::arg( "occulting_body" ),
+           R"doc(
 
 Function for defining body occultation viability settings.
 
@@ -3084,15 +2836,14 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("elevation_angle_viability_list",
-                          py::overload_cast<const std::vector<std::pair<
-                                                std::string, std::string> >,
-                                            const double>(
-                              &tom::elevationAngleViabilitySettings),
-                          py::arg("link_end_ids"), py::arg("elevation_angle"),
-                          R"doc(
+    m.def( "elevation_angle_viability_list",
+           py::overload_cast< const std::vector< std::pair< std::string, std::string > >, const double >(
+                   &tom::elevationAngleViabilitySettings ),
+           py::arg( "link_end_ids" ),
+           py::arg( "elevation_angle" ),
+           R"doc(
 
 Function for defining list of elevation angle viability settings.
 
@@ -3123,16 +2874,15 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("body_avoidance_viability_list",
-                          py::overload_cast<const std::vector<std::pair<
-                                                std::string, std::string> >,
-                                            const std::string, const double>(
-                              &tom::bodyAvoidanceAngleViabilitySettings),
-                          py::arg("link_end_ids"), py::arg("body_to_avoid"),
-                          py::arg("avoidance_angle"),
-                          R"doc(
+    m.def( "body_avoidance_viability_list",
+           py::overload_cast< const std::vector< std::pair< std::string, std::string > >, const std::string, const double >(
+                   &tom::bodyAvoidanceAngleViabilitySettings ),
+           py::arg( "link_end_ids" ),
+           py::arg( "body_to_avoid" ),
+           py::arg( "avoidance_angle" ),
+           R"doc(
 
 Function for defining list of body avoidance viability settings.
 
@@ -3171,15 +2921,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("body_occultation_viability_list",
-                          py::overload_cast<
-                              const std::pair<std::string, std::string>,
-                              const std::string>(
-                              &tom::bodyOccultationViabilitySettings),
-                          py::arg("link_end_id"), py::arg("occulting_body"),
-                          R"doc(
+    m.def( "body_occultation_viability_list",
+           py::overload_cast< const std::pair< std::string, std::string >, const std::string >( &tom::bodyOccultationViabilitySettings ),
+           py::arg( "link_end_id" ),
+           py::arg( "occulting_body" ),
+           R"doc(
 
 Function for defining body occultation viability settings.
 
@@ -3210,55 +2958,44 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    py::class_<
-                        tss::ObservationSimulationSettings<TIME_TYPE>,
-                        std::shared_ptr<
-                            tss::ObservationSimulationSettings<TIME_TYPE> > >(
-                        m, "ObservationSimulationSettings",
-                        R"doc(
+    py::class_< tss::ObservationSimulationSettings< TIME_TYPE >, std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >(
+            m,
+            "ObservationSimulationSettings",
+            R"doc(
         Base class for defining settings for simulated observations.
-     )doc")
-                        .def_property("viability_settings_list",
-                                      &tss::ObservationSimulationSettings<
-                                          TIME_TYPE>::getViabilitySettingsList,
-                                      &tss::ObservationSimulationSettings<
-                                          TIME_TYPE>::setViabilitySettingsList,
-                                      R"doc(
+     )doc" )
+            .def_property( "viability_settings_list",
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::getViabilitySettingsList,
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::setViabilitySettingsList,
+                           R"doc(
         viability_settings_list : List[ ObservationViabilitySettings ], default = [ ]) -
         Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
-     )doc")
-                        .def_property(
-                            "noise_function",
-                            &tss::ObservationSimulationSettings<
-                                TIME_TYPE>::getObservationNoiseFunction,
-                            py::overload_cast<
-                                const std::function<double(const double)>&>(
-                                &tss::ObservationSimulationSettings<
-                                    TIME_TYPE>::setObservationNoiseFunction),
-                            R"doc(
+     )doc" )
+            .def_property( "noise_function",
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationNoiseFunction,
+                           py::overload_cast< const std::function< double( const double ) >& >(
+                                   &tss::ObservationSimulationSettings< TIME_TYPE >::setObservationNoiseFunction ),
+                           R"doc(
         noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None -
         Function providing the observation noise as a function of observation time (can be constant or time-dependent), default is None.
-     )doc");
-                    //            .def_property("observable_type",
-                    //                         &tss::ObservationSimulationSettings<double>::getObservableType,
-                    //                         &tss::ObservationSimulationSettings<double>::setObservableType,
-                    //                         get_docstring("ObservationSimulationSettings.observable_type").c_str()
-                    //                         )
-                    //            .def_property_readonly("link_ends",
-                    //                         &tss::ObservationSimulationSettings<double>::getLinkEnds,
-                    //                         get_docstring("ObservationSimulationSettings.link_ends").c_str()
-                    //                         );
+     )doc" );
+    //            .def_property("observable_type",
+    //                         &tss::ObservationSimulationSettings<double>::getObservableType,
+    //                         &tss::ObservationSimulationSettings<double>::setObservableType,
+    //                         get_docstring("ObservationSimulationSettings.observable_type").c_str()
+    //                         )
+    //            .def_property_readonly("link_ends",
+    //                         &tss::ObservationSimulationSettings<double>::getLinkEnds,
+    //                         get_docstring("ObservationSimulationSettings.link_ends").c_str()
+    //                         );
 
-                    py::class_<
-                        tss::TabulatedObservationSimulationSettings<TIME_TYPE>,
-                        std::shared_ptr<
-                            tss::TabulatedObservationSimulationSettings<
-                                TIME_TYPE> >,
-                        tss::ObservationSimulationSettings<TIME_TYPE> >(
-                        m, "TabulatedObservationSimulationSettings",
-                        R"doc(
+    py::class_< tss::TabulatedObservationSimulationSettings< TIME_TYPE >,
+                std::shared_ptr< tss::TabulatedObservationSimulationSettings< TIME_TYPE > >,
+                tss::ObservationSimulationSettings< TIME_TYPE > >( m,
+                                                                   "TabulatedObservationSimulationSettings",
+                                                                   R"doc(
 
         Class for defining settings for simulating observations at a predefined set of times.
 
@@ -3307,14 +3044,12 @@ Returns
 
 
 
-     )doc");
+     )doc" );
 
-                    py::class_<
-                        tom::ObservationAncilliarySimulationSettings,
-                        std::shared_ptr<
-                            tom::ObservationAncilliarySimulationSettings> >(
-                        m, "ObservationAncilliarySimulationSettings",
-                        R"doc(
+    py::class_< tom::ObservationAncilliarySimulationSettings, std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
+            m,
+            "ObservationAncilliarySimulationSettings",
+            R"doc(
 
         Base class for holding ancilliary settings for observation simulation.
 
@@ -3350,13 +3085,12 @@ Returns
 
 
 
-     )doc")
-                        .def("get_float_settings",
-                             &tom::ObservationAncilliarySimulationSettings::
-                                 getAncilliaryDoubleData,
-                             py::arg("setting_type"),
-                             py::arg("throw_exception") = true,
-                             R"doc(
+     )doc" )
+            .def( "get_float_settings",
+                  &tom::ObservationAncilliarySimulationSettings::getAncilliaryDoubleData,
+                  py::arg( "setting_type" ),
+                  py::arg( "throw_exception" ) = true,
+                  R"doc(
 
 
         Parameters
@@ -3372,13 +3106,12 @@ Returns
         float
             Value of the requested ancilliary variable (or NaN if it does not exist)
 
-    )doc")
-                        .def("get_float_list_settings",
-                             &tom::ObservationAncilliarySimulationSettings::
-                                 getAncilliaryDoubleVectorData,
-                             py::arg("setting_type"),
-                             py::arg("throw_exception") = true,
-                             R"doc(
+    )doc" )
+            .def( "get_float_list_settings",
+                  &tom::ObservationAncilliarySimulationSettings::getAncilliaryDoubleVectorData,
+                  py::arg( "setting_type" ),
+                  py::arg( "throw_exception" ) = true,
+                  R"doc(
 
 
         Parameters
@@ -3415,12 +3148,12 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("doppler_ancilliary_settings",
-                          &tom::getAveragedDopplerAncilliarySettings,
-                          py::arg("integration_time") = 60.0,
-                          R"doc(
+    m.def( "doppler_ancilliary_settings",
+           &tom::getAveragedDopplerAncilliarySettings,
+           py::arg( "integration_time" ) = 60.0,
+           R"doc(
 
 Function for creating ancilliary settings for averaged Doppler observable.
 
@@ -3444,14 +3177,14 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("two_way_range_ancilliary_settings",
-                          &tom::getTwoWayRangeAncilliarySettings,
-                          py::arg("retransmission_delay") = 0.0,
-                          // py::arg("frequency_band") =
-                          // tom::FrequencyBands::x_band,
-                          R"doc(
+    m.def( "two_way_range_ancilliary_settings",
+           &tom::getTwoWayRangeAncilliarySettings,
+           py::arg( "retransmission_delay" ) = 0.0,
+           // py::arg("frequency_band") =
+           // tom::FrequencyBands::x_band,
+           R"doc(
 
 Function for creating ancilliary settings for two-way range observable.
 
@@ -3475,13 +3208,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("two_way_doppler_ancilliary_settings",
-                          &tom::getTwoWayAveragedDopplerAncilliarySettings,
-                          py::arg("integration_time") = 60.0,
-                          py::arg("retransmission_delay") = 0.0,
-                          R"doc(
+    m.def( "two_way_doppler_ancilliary_settings",
+           &tom::getTwoWayAveragedDopplerAncilliarySettings,
+           py::arg( "integration_time" ) = 60.0,
+           py::arg( "retransmission_delay" ) = 0.0,
+           R"doc(
 
 Function for creating ancilliary settings for two-way averaged Doppler observable.
 
@@ -3507,14 +3240,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("n_way_range_ancilliary_settings",
-                          &tom::getNWayRangeAncilliarySettings,
-                          py::arg("link_end_delays") = std::vector<double>(),
-                          py::arg("frequency_bands") =
-                              std::vector<tom::FrequencyBands>(),
-                          R"doc(
+    m.def( "n_way_range_ancilliary_settings",
+           &tom::getNWayRangeAncilliarySettings,
+           py::arg( "link_end_delays" ) = std::vector< double >( ),
+           py::arg( "frequency_bands" ) = std::vector< tom::FrequencyBands >( ),
+           R"doc(
 
 Function for creating ancilliary settings for n-way range observable.
 
@@ -3536,15 +3268,14 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("n_way_doppler_ancilliary_settings",
-                          &tom::getNWayAveragedDopplerAncilliarySettings,
-                          py::arg("integration_time") = 60.0,
-                          py::arg("link_end_delays") = std::vector<double>(),
-                          py::arg("frequency_bands") =
-                              std::vector<tom::FrequencyBands>(),
-                          R"doc(
+    m.def( "n_way_doppler_ancilliary_settings",
+           &tom::getNWayAveragedDopplerAncilliarySettings,
+           py::arg( "integration_time" ) = 60.0,
+           py::arg( "link_end_delays" ) = std::vector< double >( ),
+           py::arg( "frequency_bands" ) = std::vector< tom::FrequencyBands >( ),
+           R"doc(
 
 Function for creating ancilliary settings for n-way averaged Doppler observable.
 
@@ -3568,42 +3299,40 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("dsn_n_way_doppler_ancilliary_settings",
-                          &tom::getDsnNWayAveragedDopplerAncillarySettings,
-                          py::arg("frequency_bands"),
-                          py::arg("reference_frequency_band"),
-                          py::arg("reference_frequency"),
-                          py::arg("integration_time") = 60.0,
-                          py::arg("link_end_delays") = std::vector<double>(),
-                          R"doc(No documentation found.)doc");
+    m.def( "dsn_n_way_doppler_ancilliary_settings",
+           &tom::getDsnNWayAveragedDopplerAncillarySettings,
+           py::arg( "frequency_bands" ),
+           py::arg( "reference_frequency_band" ),
+           py::arg( "reference_frequency" ),
+           py::arg( "integration_time" ) = 60.0,
+           py::arg( "link_end_delays" ) = std::vector< double >( ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("dsn_n_way_range_ancilliary_settings",
-                          &tom::getDsnNWayRangeAncillarySettings,
-                          py::arg("frequency_bands"),
-                          py::arg("reference_frequency"),
-                          py::arg("lowest_ranging_component"),
-                          py::arg("link_end_delays") = std::vector<double>(),
-                          R"doc(No documentation found.)doc");
+    m.def( "dsn_n_way_range_ancilliary_settings",
+           &tom::getDsnNWayRangeAncillarySettings,
+           py::arg( "frequency_bands" ),
+           py::arg( "reference_frequency" ),
+           py::arg( "lowest_ranging_component" ),
+           py::arg( "link_end_delays" ) = std::vector< double >( ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("doppler_measured_frequency_ancillary_settings",
-                          &tom::getDopplerMeasuredFrequencyAncilliarySettings,
-                          py::arg("frequency_bands"),
-                          R"doc(No documentation found.)doc");
+    m.def( "doppler_measured_frequency_ancillary_settings",
+           &tom::getDopplerMeasuredFrequencyAncilliarySettings,
+           py::arg( "frequency_bands" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "tabulated_simulation_settings",
-                        &tss::tabulatedObservationSimulationSettings<TIME_TYPE>,
-                        py::arg("observable_type"), py::arg("link_ends"),
-                        py::arg("simulation_times"),
-                        py::arg("reference_link_end_type") = tom::receiver,
-                        py::arg("viability_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::ObservationViabilitySettings> >(),
-                        py::arg("noise_function") = nullptr,
-                        py::arg("ancilliary_settings") = nullptr,
-                        R"doc(
+    m.def( "tabulated_simulation_settings",
+           &tss::tabulatedObservationSimulationSettings< TIME_TYPE >,
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           py::arg( "simulation_times" ),
+           py::arg( "reference_link_end_type" ) = tom::receiver,
+           py::arg( "viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
+           py::arg( "noise_function" ) = nullptr,
+           py::arg( "ancilliary_settings" ) = nullptr,
+           R"doc(
 
 Function for creating settings object for observation simulation, using a predefined list of observation times.
 
@@ -3638,19 +3367,15 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "tabulated_simulation_settings_list",
-                        &tss::createTabulatedObservationSimulationSettingsList<
-                            TIME_TYPE>,
-                        py::arg("link_ends_per_observable"),
-                        py::arg("simulation_times"),
-                        py::arg("reference_link_end_type") = tom::receiver,
-                        py::arg("viability_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::ObservationViabilitySettings> >(),
-                        R"doc(
+    m.def( "tabulated_simulation_settings_list",
+           &tss::createTabulatedObservationSimulationSettingsList< TIME_TYPE >,
+           py::arg( "link_ends_per_observable" ),
+           py::arg( "simulation_times" ),
+           py::arg( "reference_link_end_type" ) = tom::receiver,
+           py::arg( "viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
+           R"doc(
 
 Function for creating a list of settings object for observation simulation, using a predefined list of observation times.
 
@@ -3684,23 +3409,23 @@ List[ TabulatedObservationSimulationSettings ]
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("continuous_arc_simulation_settings",
-                          &tss::perArcObservationSimulationSettings<TIME_TYPE>,
-                          py::arg("observable_type"), py::arg("link_ends"),
-                          py::arg("start_time"), py::arg("end_time"),
-                          py::arg("interval_between_observations"),
-                          py::arg("arc_limiting_constraints"),
-                          py::arg("minimum_arc_duration"),
-                          py::arg("maximum_arc_duration"),
-                          py::arg("minimum_time_between_arcs"),
-                          py::arg("reference_link_end_type") = tom::receiver,
-                          py::arg("additional_viability_settings") =
-                              std::vector<std::shared_ptr<
-                                  tom::ObservationViabilitySettings> >(),
-                          py::arg("noise_function") = nullptr,
-                          R"doc(
+    m.def( "continuous_arc_simulation_settings",
+           &tss::perArcObservationSimulationSettings< TIME_TYPE >,
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           py::arg( "start_time" ),
+           py::arg( "end_time" ),
+           py::arg( "interval_between_observations" ),
+           py::arg( "arc_limiting_constraints" ),
+           py::arg( "minimum_arc_duration" ),
+           py::arg( "maximum_arc_duration" ),
+           py::arg( "minimum_time_between_arcs" ),
+           py::arg( "reference_link_end_type" ) = tom::receiver,
+           py::arg( "additional_viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
+           py::arg( "noise_function" ) = nullptr,
+           R"doc(
 
 Function for creating settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
 
@@ -3760,23 +3485,21 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("continuous_arc_simulation_settings_list",
-                          &tss::perArcObservationSimulationSettingsList<
-                              TIME_TYPE>,
-                          py::arg("link_ends_per_observable"),
-                          py::arg("start_time"), py::arg("end_time"),
-                          py::arg("interval_between_observations"),
-                          py::arg("arc_limiting_constraints"),
-                          py::arg("minimum_arc_duration"),
-                          py::arg("maximum_arc_duration"),
-                          py::arg("minimum_time_between_arcs"),
-                          py::arg("reference_link_end_type") = tom::receiver,
-                          py::arg("additional_viability_settings") =
-                              std::vector<std::shared_ptr<
-                                  tom::ObservationViabilitySettings> >(),
-                          R"doc(
+    m.def( "continuous_arc_simulation_settings_list",
+           &tss::perArcObservationSimulationSettingsList< TIME_TYPE >,
+           py::arg( "link_ends_per_observable" ),
+           py::arg( "start_time" ),
+           py::arg( "end_time" ),
+           py::arg( "interval_between_observations" ),
+           py::arg( "arc_limiting_constraints" ),
+           py::arg( "minimum_arc_duration" ),
+           py::arg( "maximum_arc_duration" ),
+           py::arg( "minimum_time_between_arcs" ),
+           py::arg( "reference_link_end_type" ) = tom::receiver,
+           py::arg( "additional_viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
+           R"doc(
 
 Function for creating a list of settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
 
@@ -3820,21 +3543,15 @@ List[ :class:`TabulatedObservationSimulationSettings` ]
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_noise_function_to_all",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::function<Eigen::VectorXd(
-                                const double)> >(
-                            &tss::
-                                addNoiseFunctionToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("noise_amplitude"),
-                        R"doc(
+    m.def( "add_noise_function_to_all",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::function< Eigen::VectorXd( const double ) > >(
+                   &tss::addNoiseFunctionToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "noise_amplitude" ),
+           R"doc(
 
 Function for adding a custom noise function to all existing observation simulation settings.
 
@@ -3865,21 +3582,16 @@ None
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_noise_function_to_observable",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::function<Eigen::VectorXd(const double)>,
-                            const tom::ObservableType>(
-                            &tss::
-                                addNoiseFunctionToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("noise_amplitude"), py::arg("observable_type"),
-                        R"doc(
+    m.def( "add_noise_function_to_observable",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::function< Eigen::VectorXd( const double ) >,
+                              const tom::ObservableType >( &tss::addNoiseFunctionToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "noise_amplitude" ),
+           py::arg( "observable_type" ),
+           R"doc(
 
 Function for adding a custom noise function to selected existing observation simulation settings of a given observable type.
 
@@ -3909,23 +3621,18 @@ None
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_noise_function_to_observable_for_link_ends",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::function<Eigen::VectorXd(const double)>,
-                            const tom::ObservableType,
-                            const tom::LinkDefinition&>(
-                            &tss::
-                                addNoiseFunctionToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("noise_amplitude"), py::arg("observable_type"),
-                        py::arg("link_ends"),
-                        R"doc(
+    m.def( "add_noise_function_to_observable_for_link_ends",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::function< Eigen::VectorXd( const double ) >,
+                              const tom::ObservableType,
+                              const tom::LinkDefinition& >( &tss::addNoiseFunctionToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "noise_amplitude" ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           R"doc(
 
 Function for adding a custom noise function to existing observation simulation settings of a given observable type and link definition.
 
@@ -3958,20 +3665,14 @@ None
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_gaussian_noise_to_all",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const double>(
-                            &tss::
-                                addGaussianNoiseFunctionToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("noise_amplitude"),
-                        R"doc(
+    m.def( "add_gaussian_noise_to_all",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&, const double >(
+                   &tss::addGaussianNoiseFunctionToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "noise_amplitude" ),
+           R"doc(
 
 Function for adding gaussian noise function to all existing observation simulation settings.
 
@@ -4000,20 +3701,16 @@ None
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_gaussian_noise_to_observable",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const double, const tom::ObservableType>(
-                            &tss::
-                                addGaussianNoiseFunctionToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("noise_amplitude"), py::arg("observable_type"),
-                        R"doc(
+    m.def( "add_gaussian_noise_to_observable",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const double,
+                              const tom::ObservableType >( &tss::addGaussianNoiseFunctionToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "noise_amplitude" ),
+           py::arg( "observable_type" ),
+           R"doc(
 
 Function for adding gaussian noise function to existing observation simulation settings of a given observable type.
 
@@ -4041,22 +3738,18 @@ None
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_gaussian_noise_to_observable_for_link_ends",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const double, const tom::ObservableType,
-                            const tom::LinkDefinition&>(
-                            &tss::
-                                addGaussianNoiseFunctionToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("noise_amplitude"), py::arg("observable_type"),
-                        py::arg("link_definition"),
-                        R"doc(
+    m.def( "add_gaussian_noise_to_observable_for_link_ends",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const double,
+                              const tom::ObservableType,
+                              const tom::LinkDefinition& >( &tss::addGaussianNoiseFunctionToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "noise_amplitude" ),
+           py::arg( "observable_type" ),
+           py::arg( "link_definition" ),
+           R"doc(
 
 Function for adding gaussian noise function to existing observation simulation settings of a given observable type and link definition.
 
@@ -4087,21 +3780,15 @@ None
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_viability_check_to_all",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::vector<std::shared_ptr<
-                                tom::ObservationViabilitySettings> >&>(
-                            &tss::
-                                addViabilityToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("viability_settings"),
-                        R"doc(
+    m.def( "add_viability_check_to_all",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >& >(
+                   &tss::addViabilityToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "viability_settings" ),
+           R"doc(
 
 Function for including viability checks into existing observation simulation settings.
 
@@ -4130,23 +3817,16 @@ None
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_viability_check_to_observable",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::vector<std::shared_ptr<
-                                tom::ObservationViabilitySettings> >&,
-                            const tom::ObservableType>(
-                            &tss::
-                                addViabilityToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("viability_settings"),
-                        py::arg("observable_type"),
-                        R"doc(
+    m.def( "add_viability_check_to_observable",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
+                              const tom::ObservableType >( &tss::addViabilityToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "viability_settings" ),
+           py::arg( "observable_type" ),
+           R"doc(
 
 Function for including viability checks into existing observation simulation settings.
 
@@ -4175,24 +3855,18 @@ None
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_viability_check_to_observable_for_link_ends",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::vector<std::shared_ptr<
-                                tom::ObservationViabilitySettings> >&,
-                            const tom::ObservableType,
-                            const tom::LinkDefinition&>(
-                            &tss::
-                                addViabilityToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("viability_settings"),
-                        py::arg("observable_type"), py::arg("link_ends"),
-                        R"doc(
+    m.def( "add_viability_check_to_observable_for_link_ends",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >&,
+                              const tom::ObservableType,
+                              const tom::LinkDefinition& >( &tss::addViabilityToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "viability_settings" ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           R"doc(
 
 Function for including viability checks into existing observation simulation settings.
 
@@ -4223,46 +3897,32 @@ None
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_ancilliary_settings_to_observable",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::shared_ptr<
-                                tom::ObservationAncilliarySimulationSettings>&,
-                            const tom::ObservableType>(
-                            &tss::
-                                addAncilliarySettingsToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("ancilliary_settings"),
-                        py::arg("observable_type"),
-                        R"doc(No documentation found.)doc");
+    m.def( "add_ancilliary_settings_to_observable",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >&,
+                              const tom::ObservableType >( &tss::addAncilliarySettingsToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "ancilliary_settings" ),
+           py::arg( "observable_type" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "add_ancilliary_settings_to_observable_for_link_ends",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::shared_ptr<
-                                tom::ObservationAncilliarySimulationSettings>&,
-                            const tom::ObservableType,
-                            const tom::LinkDefinition&>(
-                            &tss::
-                                addAncilliarySettingsToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings_list"),
-                        py::arg("ancilliary_settings"),
-                        py::arg("observable_type"), py::arg("link_ends"),
-                        R"doc(No documentation found.)doc");
+    m.def( "add_ancilliary_settings_to_observable_for_link_ends",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >&,
+                              const tom::ObservableType,
+                              const tom::LinkDefinition& >( &tss::addAncilliarySettingsToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "ancilliary_settings" ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           R"doc(No documentation found.)doc" );
 
-                    py::class_<tss::ObservationDependentVariableSettings,
-                               std::shared_ptr<
-                                   tss::ObservationDependentVariableSettings> >(
-                        m, "ObservationDependentVariableSettings",
-                        R"doc(
+    py::class_< tss::ObservationDependentVariableSettings, std::shared_ptr< tss::ObservationDependentVariableSettings > >(
+            m,
+            "ObservationDependentVariableSettings",
+            R"doc(
 
         Base class for setting observation dependent variables as part of the observation output.
 
@@ -4285,23 +3945,16 @@ None
 
 
 
-     )doc");
+     )doc" );
 
-                    m.def(
-                        "add_dependent_variables_to_all",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationDependentVariableSettings> >&,
-                            const tss::SystemOfBodies&>(
-                            &tss::
-                                addDependentVariablesToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings"),
-                        py::arg("dependent_variable_settings"),
-                        py::arg("bodies"),
-                        R"doc(
+    m.def( "add_dependent_variables_to_all",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,
+                              const tss::SystemOfBodies& >( &tss::addDependentVariablesToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings" ),
+           py::arg( "dependent_variable_settings" ),
+           py::arg( "bodies" ),
+           R"doc(
 
 Function for including dependent variables into all existing observation simulation settings.
 
@@ -4329,24 +3982,18 @@ bodies : :class:`~tudatpy.numerical_simulation.environment_setup.SystemOfBodies`
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_dependent_variables_to_observable",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationDependentVariableSettings> >&,
-                            const tss::SystemOfBodies&,
-                            const tom::ObservableType>(
-                            &tss::
-                                addDependentVariablesToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings"),
-                        py::arg("dependent_variable_settings"),
-                        py::arg("bodies"), py::arg("observable_type"),
-                        R"doc(
+    m.def( "add_dependent_variables_to_observable",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,
+                              const tss::SystemOfBodies&,
+                              const tom::ObservableType >( &tss::addDependentVariablesToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings" ),
+           py::arg( "dependent_variable_settings" ),
+           py::arg( "bodies" ),
+           py::arg( "observable_type" ),
+           R"doc(
 
 Function for including dependent variables into selected existing observation simulation settings.
 
@@ -4373,462 +4020,351 @@ observable_type : :class:`ObservableType`
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "add_dependent_variables_to_observable_for_link_ends",
-                        py::overload_cast<
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationSimulationSettings<
-                                    TIME_TYPE> > >&,
-                            const std::vector<std::shared_ptr<
-                                tss::ObservationDependentVariableSettings> >&,
-                            const tss::SystemOfBodies&,
-                            const tom::ObservableType,
-                            const tom::LinkDefinition&>(
-                            &tss::
-                                addDependentVariablesToObservationSimulationSettingsPy),
-                        py::arg("observation_simulation_settings"),
-                        py::arg("dependent_variable_settings"),
-                        py::arg("bodies"), py::arg("observable_type"),
-                        py::arg("link_ends"),
-                        R"doc(No documentation found.)doc");
+    m.def( "add_dependent_variables_to_observable_for_link_ends",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::vector< std::shared_ptr< tss::ObservationDependentVariableSettings > >&,
+                              const tss::SystemOfBodies&,
+                              const tom::ObservableType,
+                              const tom::LinkDefinition& >( &tss::addDependentVariablesToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings" ),
+           py::arg( "dependent_variable_settings" ),
+           py::arg( "bodies" ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           R"doc(No documentation found.)doc" );
 
-                    /////////////////////////////////////////////////////////////////////////////////////////////////
-                    // DEPENDENT VARIABLES
-                    /////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // DEPENDENT VARIABLES
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
-                    py::enum_<tss::IntegratedObservationPropertyHandling>(
-                        m, "IntegratedObservationPropertyHandling",
-                        R"doc(No documentation found.)doc")
-                        .value("interval_start",
-                               tss::IntegratedObservationPropertyHandling::
-                                   interval_start)
-                        .value("interval_end",
-                               tss::IntegratedObservationPropertyHandling::
-                                   interval_end)
-                        .value("interval_undefined",
-                               tss::IntegratedObservationPropertyHandling::
-                                   interval_undefined)
-                        .export_values();
+    py::enum_< tss::IntegratedObservationPropertyHandling >(
+            m, "IntegratedObservationPropertyHandling", R"doc(No documentation found.)doc" )
+            .value( "interval_start", tss::IntegratedObservationPropertyHandling::interval_start )
+            .value( "interval_end", tss::IntegratedObservationPropertyHandling::interval_end )
+            .value( "interval_undefined", tss::IntegratedObservationPropertyHandling::interval_undefined )
+            .export_values( );
 
-                    m.def("elevation_angle_dependent_variable",
-                          &tss::elevationAngleDependentVariable,
-                          py::arg("link_end_type") = tom::unidentified_link_end,
-                          py::arg("link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("originating_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("originating_link_end_id") =
-                              tom::LinkEndId("", ""),
-                          py::arg("integrated_observation_handling") =
-                              tss::interval_start,
-                          R"doc(No documentation found.)doc");
+    m.def( "elevation_angle_dependent_variable",
+           &tss::elevationAngleDependentVariable,
+           py::arg( "link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "originating_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "originating_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("azimuth_angle_dependent_variable",
-                          &tss::azimuthAngleDependentVariable,
-                          py::arg("link_end_type") = tom::unidentified_link_end,
-                          py::arg("link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("originating_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("originating_link_end_id") =
-                              tom::LinkEndId("", ""),
-                          py::arg("integrated_observation_handling") =
-                              tss::interval_start,
-                          R"doc(No documentation found.)doc");
+    m.def( "azimuth_angle_dependent_variable",
+           &tss::azimuthAngleDependentVariable,
+           py::arg( "link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "originating_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "originating_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("target_range_between_link_ends_dependent_variable",
-                          &tss::targetRangeBetweenLinkEndsDependentVariable,
-                          py::arg("start_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("end_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("start_link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("end_link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("integrated_observation_handling") =
-                              tss::interval_start,
-                          R"doc(No documentation found.)doc");
+    m.def( "target_range_between_link_ends_dependent_variable",
+           &tss::targetRangeBetweenLinkEndsDependentVariable,
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("avoidance_angle_dependent_variable",
-                          &tss::bodyAvoidanceAngleDependentVariable,
-                          py::arg("body_name"),
-                          py::arg("start_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("end_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("start_link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("end_link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("integrated_observation_handling") =
-                              tss::interval_start,
-                          R"doc(No documentation found.)doc");
+    m.def( "avoidance_angle_dependent_variable",
+           &tss::bodyAvoidanceAngleDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("body_center_distance_dependent_variable",
-                          &tss::linkBodyCenterDistanceDependentVariable,
-                          py::arg("body_name"),
-                          py::arg("start_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("end_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("start_link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("end_link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("integrated_observation_handling") =
-                              tss::interval_start,
-                          R"doc(No documentation found.)doc");
+    m.def( "body_center_distance_dependent_variable",
+           &tss::linkBodyCenterDistanceDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("body_limb_distance_dependent_variable",
-                          &tss::linkLimbDistanceDependentVariable,
-                          py::arg("body_name"),
-                          py::arg("start_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("end_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("start_link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("end_link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("integrated_observation_handling") =
-                              tss::interval_start,
-                          R"doc(No documentation found.)doc");
+    m.def( "body_limb_distance_dependent_variable",
+           &tss::linkLimbDistanceDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("angle_wrt_orbital_plane_dependent_variable",
-                          &tss::linkAngleWrtOrbitalPlaneDependentVariable,
-                          py::arg("body_name"),
-                          py::arg("start_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("end_link_end_type") =
-                              tom::unidentified_link_end,
-                          py::arg("start_link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("end_link_end_id") = tom::LinkEndId("", ""),
-                          py::arg("integrated_observation_handling") =
-                              tss::interval_start,
-                          R"doc(No documentation found.)doc");
+    m.def( "angle_wrt_orbital_plane_dependent_variable",
+           &tss::linkAngleWrtOrbitalPlaneDependentVariable,
+           py::arg( "body_name" ),
+           py::arg( "start_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "end_link_end_type" ) = tom::unidentified_link_end,
+           py::arg( "start_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "end_link_end_id" ) = tom::LinkEndId( "", "" ),
+           py::arg( "integrated_observation_handling" ) = tss::interval_start,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("integration_time_dependent_variable",
-                          &tss::integrationTimeDependentVariable,
-                          py::arg("observable_type") =
-                              tom::undefined_observation_model,
-                          R"doc(No documentation found.)doc");
+    m.def( "integration_time_dependent_variable",
+           &tss::integrationTimeDependentVariable,
+           py::arg( "observable_type" ) = tom::undefined_observation_model,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("retransmission_delays_dependent_variable",
-                          &tss::retransmissionDelaysDependentVariable,
-                          py::arg("observable_type") =
-                              tom::undefined_observation_model,
-                          R"doc(No documentation found.)doc");
+    m.def( "retransmission_delays_dependent_variable",
+           &tss::retransmissionDelaysDependentVariable,
+           py::arg( "observable_type" ) = tom::undefined_observation_model,
+           R"doc(No documentation found.)doc" );
 
-                    /////////////////////////////////////////////////////////////////////////////////////////////////
-                    // FREQUENCIES
-                    /////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // FREQUENCIES
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
-                    py::enum_<tom::FrequencyBands>(
-                        m, "FrequencyBands", R"doc(No documentation found.)doc")
-                        .value("s_band", tom::FrequencyBands::s_band)
-                        .value("x_band", tom::FrequencyBands::x_band)
-                        .value("ka_band", tom::FrequencyBands::ka_band)
-                        .value("ku_band", tom::FrequencyBands::ku_band);
+    py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(No documentation found.)doc" )
+            .value( "s_band", tom::FrequencyBands::s_band )
+            .value( "x_band", tom::FrequencyBands::x_band )
+            .value( "ka_band", tom::FrequencyBands::ka_band )
+            .value( "ku_band", tom::FrequencyBands::ku_band );
 
-                    m.def("dsn_default_turnaround_ratios",
-                          &tom::getDsnDefaultTurnaroundRatios,
-                          py::arg("uplink_band"), py::arg("downlink_band"),
-                          R"doc(No documentation found.)doc");
+    m.def( "dsn_default_turnaround_ratios",
+           &tom::getDsnDefaultTurnaroundRatios,
+           py::arg( "uplink_band" ),
+           py::arg( "downlink_band" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("cassini_turnaround_ratios",
-                          &tom::getCassiniTurnaroundRatio,
-                          py::arg("uplink_band"), py::arg("downlink_band"),
-                          R"doc(No documentation found.)doc");
+    m.def( "cassini_turnaround_ratios",
+           &tom::getCassiniTurnaroundRatio,
+           py::arg( "uplink_band" ),
+           py::arg( "downlink_band" ),
+           R"doc(No documentation found.)doc" );
 
-                    /////////////////////////////////////////////////////////////////////////////////////////////////
-                    // ODF OBSERVATIONS
-                    /////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // ODF OBSERVATIONS
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
-                    py::class_<tom::ProcessedOdfFileContents<TIME_TYPE>,
-                               std::shared_ptr<
-                                   tom::ProcessedOdfFileContents<TIME_TYPE> > >(
-                        m, "ProcessedOdfFileContents",
-                        R"doc(No documentation found.)doc")
-                        .def_property_readonly(
-                            "ground_station_names",
-                            &tom::ProcessedOdfFileContents<
-                                TIME_TYPE>::getGroundStationsNames,
-                            R"doc(No documentation found.)doc")
-                        .def_property_readonly(
-                            "processed_observable_types",
-                            &tom::ProcessedOdfFileContents<
-                                TIME_TYPE>::getProcessedObservableTypes,
-                            R"doc(No documentation found.)doc")
-                        .def_property_readonly(
-                            "start_and_end_time",
-                            &tom::ProcessedOdfFileContents<
-                                TIME_TYPE>::getStartAndEndTime,
-                            R"doc(No documentation found.)doc")
-                        .def_property_readonly(
-                            "ignored_odf_observable_types",
-                            &tom::ProcessedOdfFileContents<
-                                TIME_TYPE>::getIgnoredRawOdfObservableTypes,
-                            R"doc(No documentation found.)doc")
-                        .def_property_readonly(
-                            "ignored_ground_stations",
-                            &tom::ProcessedOdfFileContents<
-                                TIME_TYPE>::getIgnoredGroundStations,
-                            R"doc(No documentation found.)doc")
-                        .def_property_readonly(
-                            "raw_odf_data",
-                            &tom::ProcessedOdfFileContents<
-                                TIME_TYPE>::getRawOdfData,
-                            R"doc(No documentation found.)doc")
-                        .def("define_antenna_id",
-                             py::overload_cast<const std::string&,
-                                               const std::string&>(
-                                 &tom::ProcessedOdfFileContents<
-                                     TIME_TYPE>::defineSpacecraftAntennaId),
-                             py::arg("spacecraft_name"),
-                             py::arg("antenna_name"),
-                             R"doc(No documentation found.)doc");
+    py::class_< tom::ProcessedOdfFileContents< TIME_TYPE >, std::shared_ptr< tom::ProcessedOdfFileContents< TIME_TYPE > > >(
+            m, "ProcessedOdfFileContents", R"doc(No documentation found.)doc" )
+            .def_property_readonly( "ground_station_names",
+                                    &tom::ProcessedOdfFileContents< TIME_TYPE >::getGroundStationsNames,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "processed_observable_types",
+                                    &tom::ProcessedOdfFileContents< TIME_TYPE >::getProcessedObservableTypes,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "start_and_end_time",
+                                    &tom::ProcessedOdfFileContents< TIME_TYPE >::getStartAndEndTime,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "ignored_odf_observable_types",
+                                    &tom::ProcessedOdfFileContents< TIME_TYPE >::getIgnoredRawOdfObservableTypes,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "ignored_ground_stations",
+                                    &tom::ProcessedOdfFileContents< TIME_TYPE >::getIgnoredGroundStations,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "raw_odf_data", &tom::ProcessedOdfFileContents< TIME_TYPE >::getRawOdfData, R"doc(No documentation found.)doc" )
+            .def( "define_antenna_id",
+                  py::overload_cast< const std::string&, const std::string& >(
+                          &tom::ProcessedOdfFileContents< TIME_TYPE >::defineSpacecraftAntennaId ),
+                  py::arg( "spacecraft_name" ),
+                  py::arg( "antenna_name" ),
+                  R"doc(No documentation found.)doc" );
 
-                    m.def("process_odf_data_multiple_files",
-                          py::overload_cast<
-                              const std::vector<std::string>&,
-                              const std::string&, const bool,
-                              const std::map<std::string, Eigen::Vector3d>&>(
-                              &tom::processOdfData<TIME_TYPE>),
-                          py::arg("file_names"), py::arg("spacecraft_name"),
-                          py::arg("verbose") = true,
-                          py::arg("earth_fixed_ground_station_positions") =
-                              tss::getApproximateDsnGroundStationPositions(),
-                          R"doc(No documentation found.)doc");
+    m.def( "process_odf_data_multiple_files",
+           py::overload_cast< const std::vector< std::string >&,
+                              const std::string&,
+                              const bool,
+                              const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData< TIME_TYPE > ),
+           py::arg( "file_names" ),
+           py::arg( "spacecraft_name" ),
+           py::arg( "verbose" ) = true,
+           py::arg( "earth_fixed_ground_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "process_odf_data_single_file",
-                        py::overload_cast<
-                            const std::string&, const std::string&, const bool,
-                            const std::map<std::string, Eigen::Vector3d>&>(
-                            &tom::processOdfData<TIME_TYPE>),
-                        py::arg("file_name"), py::arg("spacecraft_name"),
-                        py::arg("verbose") = true,
-                        py::arg("earth_fixed_ground_station_positions") =
-                            tss::getApproximateDsnGroundStationPositions(),
-                        R"doc(No documentation found.)doc");
+    m.def( "process_odf_data_single_file",
+           py::overload_cast< const std::string&, const std::string&, const bool, const std::map< std::string, Eigen::Vector3d >& >(
+                   &tom::processOdfData< TIME_TYPE > ),
+           py::arg( "file_name" ),
+           py::arg( "spacecraft_name" ),
+           py::arg( "verbose" ) = true,
+           py::arg( "earth_fixed_ground_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+           R"doc(No documentation found.)doc" );
 
-                    // Create wrapper function
-                    py::cpp_function getDsnDefaultTurnaroundRatios_wrapper =
-                        [](tudat::observation_models::FrequencyBands band1,
-                           tudat::observation_models::FrequencyBands band2) {
-                            return tom::getDsnDefaultTurnaroundRatios(band1,
-                                                                      band2);
-                        };
+    // Create wrapper function
+    py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
+                                                                 tudat::observation_models::FrequencyBands band2 ) {
+        return tom::getDsnDefaultTurnaroundRatios( band1, band2 );
+    };
 
-                    m.def("set_odf_information_in_bodies",
-                          &tom::setOdfInformationInBodies<TIME_TYPE>,
-                          py::arg("processed_odf_file"), py::arg("bodies"),
-                          py::arg("body_with_ground_stations_name") = "Earth",
-                          py::arg("turnaround_ratio_function") =
-                              getDsnDefaultTurnaroundRatios_wrapper,
-                          R"doc(No documentation found.)doc");
+    m.def( "set_odf_information_in_bodies",
+           &tom::setOdfInformationInBodies< TIME_TYPE >,
+           py::arg( "processed_odf_file" ),
+           py::arg( "bodies" ),
+           py::arg( "body_with_ground_stations_name" ) = "Earth",
+           py::arg( "turnaround_ratio_function" ) = getDsnDefaultTurnaroundRatios_wrapper,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("create_odf_observed_observation_collection",
-                          &tom::createOdfObservedObservationCollection<
-                              STATE_SCALAR_TYPE, TIME_TYPE>,
-                          py::arg("processed_odf_file"),
-                          py::arg("observable_types_to_process"),
-                          py::arg("start_and_end_times_to_process"),
-                          R"doc(No documentation found.)doc");
+    m.def( "create_odf_observed_observation_collection",
+           &tom::createOdfObservedObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "processed_odf_file" ),
+           py::arg( "observable_types_to_process" ),
+           py::arg( "start_and_end_times_to_process" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("observations_from_odf_files",
-                          &tom::createOdfObservedObservationCollectionFromFile<
-                              STATE_SCALAR_TYPE, TIME_TYPE>,
-                          py::arg("bodies"), py::arg("odf_file_names"),
-                          py::arg("target_name"),
-                          py::arg("verbose_output") = true,
-                          py::arg("earth_fixed_station_positions") =
-                              tss::getApproximateDsnGroundStationPositions(),
-                          R"doc(No documentation found.)doc");
+    m.def( "observations_from_odf_files",
+           &tom::createOdfObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "bodies" ),
+           py::arg( "odf_file_names" ),
+           py::arg( "target_name" ),
+           py::arg( "verbose_output" ) = true,
+           py::arg( "earth_fixed_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "observations_from_ifms_files",
-                        &tom::createIfmsObservedObservationCollectionFromFiles<
-                            STATE_SCALAR_TYPE, TIME_TYPE>,
-                        py::arg("ifms_file_names"), py::arg("bodies"),
-                        py::arg("target_name"), py::arg("ground_station_name"),
-                        py::arg("reception_band"), py::arg("transmission_band"),
-                        py::arg("apply_troposphere_correction") = true,
-                        py::arg("earth_fixed_station_positions") =
-                            tss::getCombinedApproximateGroundStationPositions(),
-                        R"doc(No documentation found.)doc");
+    m.def( "observations_from_ifms_files",
+           &tom::createIfmsObservedObservationCollectionFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "ifms_file_names" ),
+           py::arg( "bodies" ),
+           py::arg( "target_name" ),
+           py::arg( "ground_station_name" ),
+           py::arg( "reception_band" ),
+           py::arg( "transmission_band" ),
+           py::arg( "apply_troposphere_correction" ) = true,
+           py::arg( "earth_fixed_station_positions" ) = tss::getCombinedApproximateGroundStationPositions( ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "observations_from_multi_station_ifms_files",
-                        &tom::
-                            createMultiStationIfmsObservedObservationCollectionFromFiles<
-                                STATE_SCALAR_TYPE, TIME_TYPE>,
-                        py::arg("ifms_file_names"), py::arg("bodies"),
-                        py::arg("target_name"), py::arg("ground_station_names"),
-                        py::arg("reception_band"), py::arg("transmission_band"),
-                        py::arg("apply_troposphere_correction") = true,
-                        py::arg("earth_fixed_station_positions") =
-                            tss::getCombinedApproximateGroundStationPositions(),
-                        R"doc(No documentation found.)doc");
+    m.def( "observations_from_multi_station_ifms_files",
+           &tom::createMultiStationIfmsObservedObservationCollectionFromFiles< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "ifms_file_names" ),
+           py::arg( "bodies" ),
+           py::arg( "target_name" ),
+           py::arg( "ground_station_names" ),
+           py::arg( "reception_band" ),
+           py::arg( "transmission_band" ),
+           py::arg( "apply_troposphere_correction" ) = true,
+           py::arg( "earth_fixed_station_positions" ) = tss::getCombinedApproximateGroundStationPositions( ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "observations_from_fdets_files",
-                        &tom::createFdetsObservedObservationCollectionFromFile<
-                            STATE_SCALAR_TYPE, TIME_TYPE>,
-                        py::arg("ifms_file_name"), py::arg("base_frequency"),
-                        py::arg("column_types"), py::arg("target_name"),
-                        py::arg("transmitting_station_name"),
-                        py::arg("receiving_station_name"),
-                        py::arg("reception_band"), py::arg("transmission_band"),
-                        py::arg("earth_fixed_station_positions") =
-                            tss::getCombinedApproximateGroundStationPositions(),
-                        R"doc(No documentation found.)doc");
+    m.def( "observations_from_fdets_files",
+           &tom::createFdetsObservedObservationCollectionFromFile< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "ifms_file_name" ),
+           py::arg( "base_frequency" ),
+           py::arg( "column_types" ),
+           py::arg( "target_name" ),
+           py::arg( "transmitting_station_name" ),
+           py::arg( "receiving_station_name" ),
+           py::arg( "reception_band" ),
+           py::arg( "transmission_band" ),
+           py::arg( "earth_fixed_station_positions" ) = tss::getCombinedApproximateGroundStationPositions( ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("create_compressed_doppler_collection",
-                          &tom::createCompressedDopplerCollection<
-                              STATE_SCALAR_TYPE, TIME_TYPE>,
-                          py::arg("original_observation_collection"),
-                          py::arg("compression_ratio"),
-                          py::arg("minimum_number_of_observations") = 10,
-                          R"doc(No documentation found.)doc");
+    m.def( "create_compressed_doppler_collection",
+           &tom::createCompressedDopplerCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "compression_ratio" ),
+           py::arg( "minimum_number_of_observations" ) = 10,
+           R"doc(No documentation found.)doc" );
 
-                    //    m.def("create_odf_observation_simulation_settings_list",
-                    //          &tom::createOdfObservationSimulationSettingsList<
-                    //          STATE_SCALAR_TYPE, TIME_TYPE >,
-                    //          py::arg("observed_observation_collection"),
-                    //          get_docstring("create_odf_observation_simulation_settings_list").c_str()
-                    //          );
+    //    m.def("create_odf_observation_simulation_settings_list",
+    //          &tom::createOdfObservationSimulationSettingsList<
+    //          STATE_SCALAR_TYPE, TIME_TYPE >,
+    //          py::arg("observed_observation_collection"),
+    //          get_docstring("create_odf_observation_simulation_settings_list").c_str()
+    //          );
 
-                    m.def(
-                        "change_simulation_settings_observable_types",
-                        &tom::
-                            changeObservableTypesOfObservationSimulationSettings<
-                                STATE_SCALAR_TYPE, TIME_TYPE>,
-                        py::arg("observation_simulation_settings"),
-                        py::arg("replacement_observable_types") =
-                            std::map<tom::ObservableType, tom::ObservableType>{
-                                {tom::dsn_n_way_averaged_doppler,
-                                 tom::n_way_differenced_range},
-                                {tom::dsn_one_way_averaged_doppler,
-                                 tom::one_way_differenced_range}},
-                        R"doc(No documentation found.)doc");
+    m.def( "change_simulation_settings_observable_types",
+           &tom::changeObservableTypesOfObservationSimulationSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observation_simulation_settings" ),
+           py::arg( "replacement_observable_types" ) =
+                   std::map< tom::ObservableType, tom::ObservableType >{
+                           { tom::dsn_n_way_averaged_doppler, tom::n_way_differenced_range },
+                           { tom::dsn_one_way_averaged_doppler, tom::one_way_differenced_range } },
+           R"doc(No documentation found.)doc" );
 
-                    /////////////////////////////////////////////////////////////////////////////////////////////////
-                    // Tracking Txt OBSERVATIONS
-                    /////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // Tracking Txt OBSERVATIONS
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
-                    m.def("create_tracking_txtfile_observation_collection",
-                          py::overload_cast<
-                              const std::shared_ptr<
-                                  tudat::input_output::TrackingTxtFileContents>,
+    m.def( "create_tracking_txtfile_observation_collection",
+           py::overload_cast< const std::shared_ptr< tudat::input_output::TrackingTxtFileContents >,
                               const std::string,
-                              const std::vector<tom::ObservableType>,
-                              const std::map<std::string, Eigen::Vector3d>,
-                              const tom::
-                                  ObservationAncilliarySimulationSettings&>(
-                              &tom::createTrackingTxtFileObservationCollection<
-                                  double, TIME_TYPE>),
-                          py::arg("raw_tracking_txtfile_contents"),
-                          py::arg("spacecraft_name"),
-                          py::arg("observable_types_to_process") =
-                              std::vector<tom::ObservableType>(),
-                          py::arg("earth_fixed_ground_station_positions") =
-                              tss::getApproximateDsnGroundStationPositions(),
-                          py::arg("ancillary_settings") =
-                              tom::ObservationAncilliarySimulationSettings(),
-                          R"doc(No documentation found.)doc");
+                              const std::vector< tom::ObservableType >,
+                              const std::map< std::string, Eigen::Vector3d >,
+                              const tom::ObservationAncilliarySimulationSettings& >(
+                   &tom::createTrackingTxtFileObservationCollection< double, TIME_TYPE > ),
+           py::arg( "raw_tracking_txtfile_contents" ),
+           py::arg( "spacecraft_name" ),
+           py::arg( "observable_types_to_process" ) = std::vector< tom::ObservableType >( ),
+           py::arg( "earth_fixed_ground_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+           py::arg( "ancillary_settings" ) = tom::ObservationAncilliarySimulationSettings( ),
+           R"doc(No documentation found.)doc" );
 
-                    //////////////////////////////////////////// DEPRECATED
-                    ///////////////////////////////////////////////
+    //////////////////////////////////////////// DEPRECATED
+    ///////////////////////////////////////////////
 
-                    m.def(
-                        "one_way_open_loop_doppler",
-                        &tom::oneWayOpenLoopDoppler, py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("transmitter_proper_time_rate_settings") =
-                            nullptr,
-                        py::arg("receiver_proper_time_rate_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        py::arg("normalized_with_speed_of_light") = false);
+    m.def( "one_way_open_loop_doppler",
+           &tom::oneWayOpenLoopDoppler,
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "transmitter_proper_time_rate_settings" ) = nullptr,
+           py::arg( "receiver_proper_time_rate_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "normalized_with_speed_of_light" ) = false );
 
-                    m.def("two_way_open_loop_doppler_from_one_way_links",
-                          py::overload_cast<
-                              const std::shared_ptr<
-                                  tom::OneWayDopplerObservationSettings>,
-                              const std::shared_ptr<
-                                  tom::OneWayDopplerObservationSettings>,
-                              const std::shared_ptr<
-                                  tom::ObservationBiasSettings> >(
-                              &tom::twoWayOpenLoopDoppler),
-                          py::arg("uplink_doppler_settings"),
-                          py::arg("downlink_doppler_settings"),
-                          py::arg("bias_settings") = nullptr);
+    m.def( "two_way_open_loop_doppler_from_one_way_links",
+           py::overload_cast< const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+                              const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
+                              const std::shared_ptr< tom::ObservationBiasSettings > >( &tom::twoWayOpenLoopDoppler ),
+           py::arg( "uplink_doppler_settings" ),
+           py::arg( "downlink_doppler_settings" ),
+           py::arg( "bias_settings" ) = nullptr );
 
-                    m.def(
-                        "two_way_open_loop_doppler",
-                        py::overload_cast<
-                            const tom::LinkDefinition&,
-                            const std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >&,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria>,
-                            const bool>(&tom::twoWayOpenLoopDoppler),
-                        py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>(),
-                        py::arg("normalized_with_speed_of_light") = false);
+    m.def( "two_way_open_loop_doppler",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
+                              const bool >( &tom::twoWayOpenLoopDoppler ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "normalized_with_speed_of_light" ) = false );
 
-                    m.def(
-                        "one_way_closed_loop_doppler",
-                        py::overload_cast<
-                            const tom::LinkDefinition&,
-                            const std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria> >(
-                            &tom::oneWayClosedLoopDoppler),
-                        py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>());
+    m.def( "one_way_closed_loop_doppler",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::oneWayClosedLoopDoppler ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ) );
 
-                    m.def(
-                        "one_way_closed_loop_doppler",
-                        py::overload_cast<
-                            const tom::LinkDefinition&,
-                            const std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >,
-                            const std::shared_ptr<tom::ObservationBiasSettings>,
-                            const std::shared_ptr<
-                                tom::LightTimeConvergenceCriteria> >(
-                            &tom::oneWayClosedLoopDoppler),
-                        py::arg("link_ends"),
-                        py::arg("light_time_correction_settings") =
-                            std::vector<std::shared_ptr<
-                                tom::LightTimeCorrectionSettings> >(),
-                        py::arg("bias_settings") = nullptr,
-                        py::arg("light_time_convergence_settings") =
-                            std::make_shared<
-                                tom::LightTimeConvergenceCriteria>());
+    m.def( "one_way_closed_loop_doppler",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >( &tom::oneWayClosedLoopDoppler ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ) );
 
-                    //    m.def("gaussian_noise_function",
-                    //              &ts::getGaussianDistributionNoiseFunction,
-                    //          py::arg("standard_deviation"),
-                    //          py::arg("mean") = 0.0,
-                    //          py::arg("seed") = time(NULL),
-                    //          py::arg("observable_size") = 1);
-                }
+    //    m.def("gaussian_noise_function",
+    //              &ts::getGaussianDistributionNoiseFunction,
+    //          py::arg("standard_deviation"),
+    //          py::arg("mean") = 0.0,
+    //          py::arg("seed") = time(NULL),
+    //          py::arg("observable_size") = 1);
+}
 
-            }  // namespace observation
-        }      // namespace estimation_setup
-    }          // namespace numerical_simulation
+}  // namespace observation
+}  // namespace estimation_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
