@@ -31,18 +31,18 @@ namespace tep = tudat::estimatable_parameters;
 namespace tom = tudat::observation_models;
 namespace tba = tudat::basic_astrodynamics;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
+namespace numerical_simulation
+{
 
-    namespace numerical_simulation {
-
-        void expose_numerical_simulation_estimator(py::module &m) {
-
-            py::class_<
-                tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>,
-                std::shared_ptr<tss::OrbitDeterminationManager<
-                    STATE_SCALAR_TYPE, TIME_TYPE>>>(m, "Estimator",
-                                                    R"doc(
+void expose_numerical_simulation_estimator( py::module &m )
+{
+    py::class_< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
+                                                                                                     "Estimator",
+                                                                                                     R"doc(
 
         Class for consolidating all estimation functionality.
 
@@ -52,21 +52,18 @@ namespace tudatpy {
 
 
 
-     )doc")
-                .def(py::init<
-                         const tss::SystemOfBodies &,
-                         const std::shared_ptr<
-                             tep::EstimatableParameterSet<STATE_SCALAR_TYPE>>,
-                         const std::vector<
-                             std::shared_ptr<tom::ObservationModelSettings>> &,
-                         const std::shared_ptr<
-                             tp::PropagatorSettings<STATE_SCALAR_TYPE>>,
-                         const bool>(),
-                     py::arg("bodies"), py::arg("estimated_parameters"),
-                     py::arg("observation_settings"),
-                     py::arg("propagator_settings"),
-                     py::arg("integrate_on_creation") = true,
-                     R"doc(
+     )doc" )
+            .def( py::init< const tss::SystemOfBodies &,
+                            const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
+                            const std::vector< std::shared_ptr< tom::ObservationModelSettings > > &,
+                            const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
+                            const bool >( ),
+                  py::arg( "bodies" ),
+                  py::arg( "estimated_parameters" ),
+                  py::arg( "observation_settings" ),
+                  py::arg( "propagator_settings" ),
+                  py::arg( "integrate_on_creation" ) = true,
+                  R"doc(
 
         Class constructor.
 
@@ -109,12 +106,10 @@ namespace tudatpy {
 
 
 
-    )doc")
-                .def_property_readonly(
-                    "observation_simulators",
-                    &tss::OrbitDeterminationManager<
-                        STATE_SCALAR_TYPE, TIME_TYPE>::getObservationSimulators,
-                    R"doc(
+    )doc" )
+            .def_property_readonly( "observation_simulators",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationSimulators,
+                                    R"doc(
 
         **read-only**
 
@@ -123,12 +118,10 @@ namespace tudatpy {
 
 
         :type: list[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
-     )doc")
-                .def_property_readonly(
-                    "observation_managers",
-                    &tss::OrbitDeterminationManager<
-                        STATE_SCALAR_TYPE, TIME_TYPE>::getObservationManagers,
-                    R"doc(
+     )doc" )
+            .def_property_readonly( "observation_managers",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationManagers,
+                                    R"doc(
 
         **read-only**
 
@@ -137,12 +130,10 @@ namespace tudatpy {
 
 
         :type: dict[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`, :class:`~tudatpy.numerical_simulation.estimation.ObservationManager` ]
-     )doc")
-                .def_property_readonly(
+     )doc" )
+            .def_property_readonly(
                     "state_transition_interface",
-                    &tss::OrbitDeterminationManager<STATE_SCALAR_TYPE,
-                                                    TIME_TYPE>::
-                        getStateTransitionAndSensitivityMatrixInterface,
+                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionAndSensitivityMatrixInterface,
                     R"doc(
 
         **read-only**
@@ -152,12 +143,11 @@ namespace tudatpy {
 
 
         :type: :class:`~tudatpy.numerical_simulation.estimation.CombinedStateTransitionAndSensitivityMatrixInterface`
-     )doc")
-                .def("perform_estimation",
-                     &tss::OrbitDeterminationManager<
-                         STATE_SCALAR_TYPE, TIME_TYPE>::estimateParameters,
-                     py::arg("estimation_input"),
-                     R"doc(
+     )doc" )
+            .def( "perform_estimation",
+                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::estimateParameters,
+                  py::arg( "estimation_input" ),
+                  R"doc(
 
         Function to trigger the parameter estimation.
 
@@ -182,12 +172,11 @@ namespace tudatpy {
 
 
 
-    )doc")
-                .def("compute_covariance",
-                     &tss::OrbitDeterminationManager<
-                         STATE_SCALAR_TYPE, TIME_TYPE>::computeCovariance,
-                     py::arg("covariance_analysis_input"),
-                     R"doc(
+    )doc" )
+            .def( "compute_covariance",
+                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::computeCovariance,
+                  py::arg( "covariance_analysis_input" ),
+                  R"doc(
 
         Function to perform a covariance analysis for the given observations and parameters
 
@@ -223,13 +212,10 @@ namespace tudatpy {
 
 
 
-    )doc")
-                .def_property_readonly(
-                    "variational_solver",
-                    &tss::OrbitDeterminationManager<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getVariationalEquationsSolver,
-                    R"doc(
+    )doc" )
+            .def_property_readonly( "variational_solver",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getVariationalEquationsSolver,
+                                    R"doc(
 
         **read-only**
 
@@ -238,8 +224,8 @@ namespace tudatpy {
 
 
         :type: :class:`~tudatpy.numerical_simulation.SingleArcVariationalSolver`
-     )doc");
-        };
+     )doc" );
+};
 
-    }  // namespace numerical_simulation
+}  // namespace numerical_simulation
 }  // namespace tudatpy

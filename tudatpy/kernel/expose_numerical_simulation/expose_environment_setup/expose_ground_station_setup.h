@@ -19,16 +19,20 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace ground_station {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace ground_station
+{
 
-                void expose_ground_station_setup(py::module &m);
+void expose_ground_station_setup( py::module &m );
 
-            }  // namespace ground_station
-        }      // namespace environment_setup
-    }          // namespace numerical_simulation
+}  // namespace ground_station
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
 
 #endif  // TUDATPY_EXPOSE_GROUND_STATION_SETUP_H
