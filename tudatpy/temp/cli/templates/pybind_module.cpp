@@ -13,32 +13,37 @@
 {% for submodule in kernel_submodules -%
 }
 #include "expose_{{ submodule }}.h"
-{ % endfor % }
+{
+    % endfor %
+}
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(kernel, m) {
+PYBIND11_MODULE( kernel, m )
+{
     // Disable automatic function signatures in the docs.
     // NOTE: the 'options' object needs to stay alive
     // throughout the whole definition of the module.
     py::options options;
-    options.disable_function_signatures();
-    options.enable_user_defined_docstrings();
+    options.disable_function_signatures( );
+    options.enable_user_defined_docstrings( );
 
     {% for submodule in kernel_submodules -%
     }
     // {{ submodule }} module
-    auto{{submodule}} = m.def_submodule("{{ submodule }}");
+    auto{ { submodule } } = m.def_submodule( "{{ submodule }}" );
     {
-        { project_name }
+        {
+            project_name
+        }
     }
-    ::expose_{{submodule}}({{submodule}});
+    ::expose_{ { submodule } }( { { submodule } } );
 
     { % endfor % }
 #ifdef VERSION_INFO
-    m.attr("__version__") = VERSION_INFO;
+    m.attr( "__version__" ) = VERSION_INFO;
 #else
-    m.attr("__version__") = "dev";
+    m.attr( "__version__" ) = "dev";
 #endif
 }
