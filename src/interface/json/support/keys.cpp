@@ -29,13 +29,9 @@ const std::string SpecialKeys::up = "<-";
 const std::string SpecialKeys::rootObject = "#root";
 const std::string SpecialKeys::keyPath = "#keypath";
 
-const std::vector< std::string > SpecialKeys::objectContaining = { SpecialKeys::rootObject,
-                                                                   SpecialKeys::keyPath };
+const std::vector< std::string > SpecialKeys::objectContaining = { SpecialKeys::rootObject, SpecialKeys::keyPath };
 
-const std::vector< std::string > SpecialKeys::all = { SpecialKeys::root,
-                                                      SpecialKeys::up,
-                                                      SpecialKeys::rootObject,
-                                                      SpecialKeys::keyPath };
+const std::vector< std::string > SpecialKeys::all = { SpecialKeys::root, SpecialKeys::up, SpecialKeys::rootObject, SpecialKeys::keyPath };
 
 // Keys recognised by json_interface.
 
@@ -74,8 +70,7 @@ const std::string Keys::Body::State::vx = "vx";
 const std::string Keys::Body::State::vy = "vy";
 const std::string Keys::Body::State::vz = "vz";
 // Keplerian
-const std::string Keys::Body::State::centralBodyGravitationalParameter =
-        "centralBodyGravitationalParameter";
+const std::string Keys::Body::State::centralBodyGravitationalParameter = "centralBodyGravitationalParameter";
 const std::string Keys::Body::State::centralBodyAverageRadius = "centralBodyAverageRadius";
 const std::string Keys::Body::State::semiMajorAxis = "semiMajorAxis";
 const std::string Keys::Body::State::eccentricity = "eccentricity";
@@ -110,10 +105,8 @@ const std::string Keys::Body::Aerodynamics::referenceArea = "referenceArea";
 const std::string Keys::Body::Aerodynamics::lateralReferenceLength = "lateralReferenceLength";
 const std::string Keys::Body::Aerodynamics::momentReferencePoint = "momentReferencePoint";
 const std::string Keys::Body::Aerodynamics::independentVariableNames = "independentVariableNames";
-const std::string Keys::Body::Aerodynamics::areCoefficientsInAerodynamicFrame =
-        "areCoefficientsInAerodynamicFrame";
-const std::string Keys::Body::Aerodynamics::areCoefficientsInNegativeAxisDirection =
-        "areCoefficientsInNegativeAxisDirection";
+const std::string Keys::Body::Aerodynamics::areCoefficientsInAerodynamicFrame = "areCoefficientsInAerodynamicFrame";
+const std::string Keys::Body::Aerodynamics::areCoefficientsInNegativeAxisDirection = "areCoefficientsInNegativeAxisDirection";
 const std::string Keys::Body::Aerodynamics::controlSurface = "controlSurface";
 // Constant
 const std::string Keys::Body::Aerodynamics::dragCoefficient = "dragCoefficient";
@@ -144,10 +137,8 @@ const std::string Keys::Body::Ephemeris::type = "type";
 const std::string Keys::Body::Ephemeris::frameOrigin = "frameOrigin";
 const std::string Keys::Body::Ephemeris::frameOrientation = "frameOrientation";
 // const std::string Keys::Body::Ephemeris::makeMultiArc = "makeMultiArc";
-const std::string Keys::Body::Ephemeris::correctForStellarAberration =
-        "correctForStellarAberration";
-const std::string Keys::Body::Ephemeris::correctForLightTimeAberration =
-        "correctForLightTimeAberration";
+const std::string Keys::Body::Ephemeris::correctForStellarAberration = "correctForStellarAberration";
+const std::string Keys::Body::Ephemeris::correctForLightTimeAberration = "correctForLightTimeAberration";
 const std::string Keys::Body::Ephemeris::convergeLighTimeAberration = "convergeLighTimeAberration";
 const std::string Keys::Body::Ephemeris::initialTime = "initialTime";
 const std::string Keys::Body::Ephemeris::finalTime = "finalTime";
@@ -155,19 +146,14 @@ const std::string Keys::Body::Ephemeris::timeStep = "timeStep";
 const std::string Keys::Body::Ephemeris::interpolator = "interpolator";
 const std::string Keys::Body::Ephemeris::useLongDoubleStates = "useLongDoubleStates";
 const std::string Keys::Body::Ephemeris::bodyIdentifier = "bodyIdentifier";
-const std::string Keys::Body::Ephemeris::useCircularCoplanarApproximation =
-        "useCircularCoplanarApproximation";
+const std::string Keys::Body::Ephemeris::useCircularCoplanarApproximation = "useCircularCoplanarApproximation";
 const std::string Keys::Body::Ephemeris::constantState = "constantState";
 // const std::string Keys::Body::Ephemeris::customStateFunction = "customStateFunction";
-const std::string Keys::Body::Ephemeris::initialStateInKeplerianElements =
-        "initialStateInKeplerianElements";
+const std::string Keys::Body::Ephemeris::initialStateInKeplerianElements = "initialStateInKeplerianElements";
 const std::string Keys::Body::Ephemeris::epochOfInitialState = "epochOfInitialState";
-const std::string Keys::Body::Ephemeris::centralBodyGravitationalParameter =
-        "centralBodyGravitationalParameter";
-const std::string Keys::Body::Ephemeris::rootFinderAbsoluteTolerance =
-        "rootFinderAbsoluteTolerance";
-const std::string Keys::Body::Ephemeris::rootFinderMaximumNumberOfIterations =
-        "rootFinderMaximumNumberOfIterations";
+const std::string Keys::Body::Ephemeris::centralBodyGravitationalParameter = "centralBodyGravitationalParameter";
+const std::string Keys::Body::Ephemeris::rootFinderAbsoluteTolerance = "rootFinderAbsoluteTolerance";
+const std::string Keys::Body::Ephemeris::rootFinderMaximumNumberOfIterations = "rootFinderMaximumNumberOfIterations";
 const std::string Keys::Body::Ephemeris::bodyStateHistory = "bodyStateHistory";
 
 // //  Body::GravityField
@@ -182,8 +168,7 @@ const std::string Keys::Body::GravityField::model = "model";
 const std::string Keys::Body::GravityField::file = "file";
 const std::string Keys::Body::GravityField::maximumDegree = "maximumDegree";
 const std::string Keys::Body::GravityField::maximumOrder = "maximumOrder";
-const std::string Keys::Body::GravityField::gravitationalParameterIndex =
-        "gravitationalParameterIndex";
+const std::string Keys::Body::GravityField::gravitationalParameterIndex = "gravitationalParameterIndex";
 const std::string Keys::Body::GravityField::referenceRadiusIndex = "referenceRadiusIndex";
 
 // //  Body::RadiationPressure
@@ -192,8 +177,7 @@ const std::string Keys::Body::RadiationPressure::type = "type";
 const std::string Keys::Body::RadiationPressure::sourceBody = "sourceBody";
 const std::string Keys::Body::RadiationPressure::occultingBodies = "occultingBodies";
 const std::string Keys::Body::RadiationPressure::referenceArea = "referenceArea";
-const std::string Keys::Body::RadiationPressure::radiationPressureCoefficient =
-        "radiationPressureCoefficient";
+const std::string Keys::Body::RadiationPressure::radiationPressureCoefficient = "radiationPressureCoefficient";
 
 // //  Body::RotationModel
 const std::string Keys::Body::rotationModel = "rotationModel";
@@ -219,10 +203,8 @@ const std::string Keys::Body::GravityFieldVariation::bodyDeformationType = "body
 const std::string Keys::Body::GravityFieldVariation::deformingBodies = "deformingBodies";
 const std::string Keys::Body::GravityFieldVariation::loveNumbers = "loveNumbers";
 const std::string Keys::Body::GravityFieldVariation::modelInterpolation = "modelInterpolation";
-const std::string Keys::Body::GravityFieldVariation::cosineCoefficientCorrections =
-        "cosineCoefficientCorrections";
-const std::string Keys::Body::GravityFieldVariation::sineCoefficientCorrections =
-        "sineCoefficientCorrections";
+const std::string Keys::Body::GravityFieldVariation::cosineCoefficientCorrections = "cosineCoefficientCorrections";
+const std::string Keys::Body::GravityFieldVariation::sineCoefficientCorrections = "sineCoefficientCorrections";
 const std::string Keys::Body::GravityFieldVariation::minimumDegree = "minimumDegree";
 const std::string Keys::Body::GravityFieldVariation::minimumOrder = "minimumOrder";
 const std::string Keys::Body::GravityFieldVariation::interpolator = "interpolator";
@@ -288,21 +270,17 @@ const std::string Keys::Parameter::useComplexValue = "useComplexValue";
 const std::string Keys::estimationSettings = "estimation";
 
 const std::string Keys::Estimation::inverseAprioriCovariance = "inverseAprioriCovariance";
-const std::string Keys::Estimation::reintegrateEquationsOnFirstIteration =
-        "reintegrateOnFirstIteration";
-const std::string Keys::Estimation::reintegrateVariationalEquations =
-        "reintegrateVariationalEquations";
+const std::string Keys::Estimation::reintegrateEquationsOnFirstIteration = "reintegrateOnFirstIteration";
+const std::string Keys::Estimation::reintegrateVariationalEquations = "reintegrateVariationalEquations";
 const std::string Keys::Estimation::saveInformationMatrix = "savePartials";
 const std::string Keys::Estimation::printOutput = "printOutput";
-const std::string Keys::Estimation::saveResidualsAndParametersFromEachIteration =
-        "saveEstimationHistory";
+const std::string Keys::Estimation::saveResidualsAndParametersFromEachIteration = "saveEstimationHistory";
 const std::string Keys::Estimation::saveStateHistoryForEachIteration = "saveStateHistory";
 
 const std::string Keys::Estimation::maximumNumberOfIterations = "maximumIteration";
 const std::string Keys::Estimation::minimumResidualChange = "minimumResidualChange";
 const std::string Keys::Estimation::minimumResidual = "minimumResidual";
-const std::string Keys::Estimation::numberOfIterationsWithoutImprovement =
-        "numberOfUnimprovedIterations";
+const std::string Keys::Estimation::numberOfIterationsWithoutImprovement = "numberOfUnimprovedIterations";
 
 const std::string Keys::Estimation::dataWeights = "dataWeights";
 
@@ -312,8 +290,7 @@ const std::string Keys::Observation::observableType = "observableType";
 const std::string Keys::Observation::lightTimeCorrectionSettingsList = "lightTimeCorrections";
 const std::string Keys::Observation::biasSettings = "bias";
 
-const std::string Keys::Observation::transmitterProperTimeRateSettings =
-        "transmitterProperTimeRate";
+const std::string Keys::Observation::transmitterProperTimeRateSettings = "transmitterProperTimeRate";
 const std::string Keys::Observation::receiverProperTimeRateSettings = "receiverProperTimeRate";
 
 const std::string Keys::Observation::constantIntegrationTime = "constantIntegrationTime";
@@ -330,10 +307,8 @@ const std::string Keys::Observation::centralBody = "centralBody";
 const std::string Keys::Observation::lightTimeCorrectionType = "lightTimeCorrectionType";
 const std::string Keys::Observation::perturbingBodies = "perturbingBodies";
 
-const std::string Keys::Observation::observationSimulationTimesType =
-        "observationSimulationTimesType";
-const std::string Keys::Observation::observationSimulationTimesList =
-        "observationSimulationTimesList";
+const std::string Keys::Observation::observationSimulationTimesType = "observationSimulationTimesType";
+const std::string Keys::Observation::observationSimulationTimesList = "observationSimulationTimesList";
 
 const std::string Keys::Observation::observableViabilityType = "viabilityType";
 const std::string Keys::Observation::associatedLinkEnd = "associatedLinkEnd";
@@ -365,27 +340,17 @@ const std::string Keys::Propagator::accelerations = "accelerations";
 const std::string Keys::Propagator::Acceleration::type = "type";
 const std::string Keys::Propagator::Acceleration::maximumDegree = "maximumDegree";
 const std::string Keys::Propagator::Acceleration::maximumOrder = "maximumOrder";
-const std::string Keys::Propagator::Acceleration::maximumDegreeOfBodyExertingAcceleration =
-        "maximumDegreeOfBodyExertingAcceleration";
-const std::string Keys::Propagator::Acceleration::maximumOrderOfBodyExertingAcceleration =
-        "maximumOrderOfBodyExertingAcceleration";
-const std::string Keys::Propagator::Acceleration::maximumDegreeOfBodyUndergoingAcceleration =
-        "maximumDegreeOfBodyUndergoingAcceleration";
-const std::string Keys::Propagator::Acceleration::maximumOrderOfBodyUndergoingAcceleration =
-        "maximumOrderOfBodyUndergoingAcceleration";
-const std::string Keys::Propagator::Acceleration::maximumDegreeOfCentralBody =
-        "maximumDegreeOfCentralBody";
-const std::string Keys::Propagator::Acceleration::maximumOrderOfCentralBody =
-        "maximumOrderOfCentralBody";
-const std::string Keys::Propagator::Acceleration::calculateSchwarzschildCorrection =
-        "calculateSchwarzschildCorrection";
-const std::string Keys::Propagator::Acceleration::calculateLenseThirringCorrection =
-        "calculateLenseThirringCorrection";
-const std::string Keys::Propagator::Acceleration::calculateDeSitterCorrection =
-        "calculateDeSitterCorrection";
+const std::string Keys::Propagator::Acceleration::maximumDegreeOfBodyExertingAcceleration = "maximumDegreeOfBodyExertingAcceleration";
+const std::string Keys::Propagator::Acceleration::maximumOrderOfBodyExertingAcceleration = "maximumOrderOfBodyExertingAcceleration";
+const std::string Keys::Propagator::Acceleration::maximumDegreeOfBodyUndergoingAcceleration = "maximumDegreeOfBodyUndergoingAcceleration";
+const std::string Keys::Propagator::Acceleration::maximumOrderOfBodyUndergoingAcceleration = "maximumOrderOfBodyUndergoingAcceleration";
+const std::string Keys::Propagator::Acceleration::maximumDegreeOfCentralBody = "maximumDegreeOfCentralBody";
+const std::string Keys::Propagator::Acceleration::maximumOrderOfCentralBody = "maximumOrderOfCentralBody";
+const std::string Keys::Propagator::Acceleration::calculateSchwarzschildCorrection = "calculateSchwarzschildCorrection";
+const std::string Keys::Propagator::Acceleration::calculateLenseThirringCorrection = "calculateLenseThirringCorrection";
+const std::string Keys::Propagator::Acceleration::calculateDeSitterCorrection = "calculateDeSitterCorrection";
 const std::string Keys::Propagator::Acceleration::primaryBody = "primaryBody";
-const std::string Keys::Propagator::Acceleration::centralBodyAngularMomentum =
-        "centralBodyAngularMomentum";
+const std::string Keys::Propagator::Acceleration::centralBodyAngularMomentum = "centralBodyAngularMomentum";
 const std::string Keys::Propagator::Acceleration::constantAcceleration = "constantAcceleration";
 const std::string Keys::Propagator::Acceleration::sineAcceleration = "sineAcceleration";
 const std::string Keys::Propagator::Acceleration::cosineAcceleration = "cosineAcceleration";
@@ -396,23 +361,17 @@ const std::string Keys::Propagator::Acceleration::cosineAcceleration = "cosineAc
 const std::string Keys::Propagator::Acceleration::Thrust::direction = "direction";
 const std::string Keys::Propagator::Acceleration::Thrust::Direction::type = "type";
 const std::string Keys::Propagator::Acceleration::Thrust::Direction::relativeBody = "relativeBody";
-const std::string Keys::Propagator::Acceleration::Thrust::Direction::colinearWithVelocity =
-        "colinearWithVelocity";
-const std::string Keys::Propagator::Acceleration::Thrust::Direction::towardsRelativeBody =
-        "towardsRelativeBody";
+const std::string Keys::Propagator::Acceleration::Thrust::Direction::colinearWithVelocity = "colinearWithVelocity";
+const std::string Keys::Propagator::Acceleration::Thrust::Direction::towardsRelativeBody = "towardsRelativeBody";
 
 // // // //  Acceleration::Thrust::Direction
 const std::string Keys::Propagator::Acceleration::Thrust::magnitude = "magnitude";
 const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::type = "type";
 const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::originID = "originID";
-const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::constantMagnitude =
-        "constantMagnitude";
-const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::specificImpulse =
-        "specificImpulse";
-const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::bodyFixedDirection =
-        "bodyFixedDirection";
-const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::useAllEngines =
-        "useAllEngines";
+const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::constantMagnitude = "constantMagnitude";
+const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::specificImpulse = "specificImpulse";
+const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::bodyFixedDirection = "bodyFixedDirection";
+const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::useAllEngines = "useAllEngines";
 
 const std::string Keys::Propagator::Acceleration::Thrust::dataInterpolation = "dataInterpolation";
 const std::string Keys::Propagator::Acceleration::Thrust::specificImpulse = "specificImpulse";
@@ -423,8 +382,7 @@ const std::string Keys::Propagator::Acceleration::Thrust::centralBody = "central
 const std::string Keys::Propagator::massRateModels = "massRateModels";
 const std::string Keys::Propagator::MassRateModel::type = "type";
 const std::string Keys::Propagator::MassRateModel::useAllThrustModels = "useAllThrustModels";
-const std::string Keys::Propagator::MassRateModel::associatedThrustSource =
-        "associatedThrustSource";
+const std::string Keys::Propagator::MassRateModel::associatedThrustSource = "associatedThrustSource";
 
 // //  Torque
 const std::string Keys::Propagator::torques = "torques";
@@ -453,10 +411,8 @@ const std::string Keys::Integrator::relativeErrorTolerance = "relativeErrorToler
 const std::string Keys::Integrator::absoluteErrorTolerance = "absoluteErrorTolerance";
 const std::string Keys::Integrator::areTolerancesDefinedAsScalar = "areTolerancesDefinedAsScalar";
 const std::string Keys::Integrator::safetyFactorForNextStepSize = "safetyFactorForNextStepSize";
-const std::string Keys::Integrator::maximumFactorIncreaseForNextStepSize =
-        "maximumFactorIncreaseForNextStepSize";
-const std::string Keys::Integrator::minimumFactorDecreaseForNextStepSize =
-        "minimumFactorDecreaseForNextStepSize";
+const std::string Keys::Integrator::maximumFactorIncreaseForNextStepSize = "maximumFactorIncreaseForNextStepSize";
+const std::string Keys::Integrator::minimumFactorDecreaseForNextStepSize = "minimumFactorDecreaseForNextStepSize";
 const std::string Keys::Integrator::bandwidth = "bandwidth";
 const std::string Keys::Integrator::extrapolationSequence = "extrapolationSequence";
 const std::string Keys::Integrator::maximumNumberOfSteps = "maximumNumberOfSteps";
@@ -468,21 +424,17 @@ const std::string Keys::Integrator::minimumOrder = "minimumOrder";
 // //  Interpolation::DataMap
 const std::string Keys::Interpolation::DataMap::map = "map";
 const std::string Keys::Interpolation::DataMap::file = "file";
-const std::string Keys::Interpolation::DataMap::independentVariableValues =
-        "independentVariableValues";
+const std::string Keys::Interpolation::DataMap::independentVariableValues = "independentVariableValues";
 const std::string Keys::Interpolation::DataMap::dependentVariableValues = "dependentVariableValues";
-const std::string Keys::Interpolation::DataMap::dependentVariableFirstDerivativeValues =
-        "dependentVariableFirstDerivativeValues";
+const std::string Keys::Interpolation::DataMap::dependentVariableFirstDerivativeValues = "dependentVariableFirstDerivativeValues";
 
 // //  Interpolation::Interpolator
 const std::string Keys::Interpolation::Interpolator::type = "type";
 const std::string Keys::Interpolation::Interpolator::lookupScheme = "lookupScheme";
-const std::string Keys::Interpolation::Interpolator::useLongDoubleTimeStep =
-        "useLongDoubleTimeStep";
+const std::string Keys::Interpolation::Interpolator::useLongDoubleTimeStep = "useLongDoubleTimeStep";
 const std::string Keys::Interpolation::Interpolator::order = "order";
 const std::string Keys::Interpolation::Interpolator::boundaryHandling = "boundaryHandling";
-const std::string Keys::Interpolation::Interpolator::lagrangeBoundaryHandling =
-        "lagrangeBoundaryHandling";
+const std::string Keys::Interpolation::Interpolator::lagrangeBoundaryHandling = "lagrangeBoundaryHandling";
 
 // //  Interpolation::DataInterpolation
 const std::string Keys::Interpolation::DataInterpolation::data = "data";
@@ -513,8 +465,7 @@ const std::string Keys::Options::printInterval = "printInterval";
 const std::string Keys::Options::defaultValueUsedForMissingKey = "defaultValueUsedForMissingKey";
 const std::string Keys::Options::unusedKey = "unusedKey";
 const std::string Keys::Options::fullSettingsFile = "fullSettingsFile";
-const std::string Keys::Options::tagOutputFilesIfPropagationFails =
-        "tagOutputFilesIfPropagationFails";
+const std::string Keys::Options::tagOutputFilesIfPropagationFails = "tagOutputFilesIfPropagationFails";
 
 // KEYPATH
 
@@ -536,7 +487,7 @@ int indexFromKey( const std::string& key )
 }
 
 //! Constructor with a single key path string representation.
-KeyPath::KeyPath( const std::string& keyPathStringRepresentation ) : std::vector< std::string >( )
+KeyPath::KeyPath( const std::string& keyPathStringRepresentation ): std::vector< std::string >( )
 {
     const std::vector< std::string > keys = split( keyPathStringRepresentation, SpecialKeys::dot );
     for( const std::string key: keys )

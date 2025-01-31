@@ -61,11 +61,10 @@ namespace gravitation
  *          perturbingAcceleration( 1 ) = y-acceleration                                    [m/s^2]
  *          perturbingAcceleration( 2 ) = z-acceleration                                    [m/s^2]
  */
-Eigen::Vector3d computeThirdBodyPerturbingAcceleration(
-        const double gravitationalParameterOfPerturbingBody,
-        const Eigen::Vector3d& positionOfPerturbingBody,
-        const Eigen::Vector3d& positionOfAffectedBody,
-        const Eigen::Vector3d& positionOfCentralBody = Eigen::Vector3d::Zero( ) );
+Eigen::Vector3d computeThirdBodyPerturbingAcceleration( const double gravitationalParameterOfPerturbingBody,
+                                                        const Eigen::Vector3d& positionOfPerturbingBody,
+                                                        const Eigen::Vector3d& positionOfAffectedBody,
+                                                        const Eigen::Vector3d& positionOfCentralBody = Eigen::Vector3d::Zero( ) );
 
 //! Class for calculating third-body (gravitational) accelerations.
 /*!
@@ -80,10 +79,9 @@ Eigen::Vector3d computeThirdBodyPerturbingAcceleration(
  */
 template< typename DirectAccelerationModelType,
           typename std::enable_if< is_direct_gravity_acceleration< DirectAccelerationModelType >::value, int >::type = 0 >
-class ThirdBodyAcceleration: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
+class ThirdBodyAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 public:
-
     //! Constructor for third body acceleration
     /*!
      *  Constructor, sets the two acceleration models (one direct, one on central body)
@@ -93,16 +91,11 @@ public:
      *  (i.e. the body in a frame centered on which the third body acceleration is expressed)
      *  \param centralBodyName Name of the central body w.r.t. which the acceleration is computed.
      */
-    ThirdBodyAcceleration(
-            const std::shared_ptr< DirectAccelerationModelType >
-            accelerationModelForBodyUndergoingAcceleration,
-            const std::shared_ptr< DirectAccelerationModelType >
-            accelerationModelForCentralBody,
-            const std::string centralBodyName ):
-        accelerationModelForBodyUndergoingAcceleration_(
-            accelerationModelForBodyUndergoingAcceleration ),
-        accelerationModelForCentralBody_( accelerationModelForCentralBody ),
-        centralBodyName_( centralBodyName )
+    ThirdBodyAcceleration( const std::shared_ptr< DirectAccelerationModelType > accelerationModelForBodyUndergoingAcceleration,
+                           const std::shared_ptr< DirectAccelerationModelType > accelerationModelForCentralBody,
+                           const std::string centralBodyName ):
+        accelerationModelForBodyUndergoingAcceleration_( accelerationModelForBodyUndergoingAcceleration ),
+        accelerationModelForCentralBody_( accelerationModelForCentralBody ), centralBodyName_( centralBodyName )
     { }
 
     //! Update member variables to current state.
@@ -138,8 +131,7 @@ public:
      *  Function to return the direct acceleration model on body undergoing acceleration.
      *  \return Direct acceleration model on body undergoing acceleration.
      */
-    std::shared_ptr< DirectAccelerationModelType >
-        getAccelerationModelForBodyUndergoingAcceleration( )
+    std::shared_ptr< DirectAccelerationModelType > getAccelerationModelForBodyUndergoingAcceleration( )
     {
         return accelerationModelForBodyUndergoingAcceleration_;
     }
@@ -149,8 +141,7 @@ public:
      *  Function to return the acceleration model on central body
      *  \return Acceleration model on central body
      */
-    std::shared_ptr< DirectAccelerationModelType >
-        getAccelerationModelForCentralBody( )
+    std::shared_ptr< DirectAccelerationModelType > getAccelerationModelForCentralBody( )
     {
         return accelerationModelForCentralBody_;
     }
@@ -160,20 +151,18 @@ public:
      *  Function to return the name of the central body w.r.t. which the acceleration is computed.
      *  \return Name of the central body w.r.t. which the acceleration is computed.
      */
-     std::string getCentralBodyName( )
-     {
-         return centralBodyName_;
-     }
+    std::string getCentralBodyName( )
+    {
+        return centralBodyName_;
+    }
 
 private:
-
     //! Direct acceleration model on body undergoing acceleration.
     /*!
      *  Direct acceleration model on body undergoing acceleration
      *  (i.e. as expressed in an inertial frame)
      */
-    std::shared_ptr< DirectAccelerationModelType >
-        accelerationModelForBodyUndergoingAcceleration_;
+    std::shared_ptr< DirectAccelerationModelType > accelerationModelForBodyUndergoingAcceleration_;
 
     //! Acceleration model on central body
     /*!
@@ -183,31 +172,27 @@ private:
     std::shared_ptr< DirectAccelerationModelType > accelerationModelForCentralBody_;
 
     //! Name of the central body w.r.t. which the acceleration is computed.
-     std::string centralBodyName_;
+    std::string centralBodyName_;
 };
 
 //! Typedef for third body central gravity acceleration.
-typedef ThirdBodyAcceleration< CentralGravitationalAccelerationModel3d >
-ThirdBodyCentralGravityAcceleration;
+typedef ThirdBodyAcceleration< CentralGravitationalAccelerationModel3d > ThirdBodyCentralGravityAcceleration;
 
 //! Typedef for third body spherical harmonic gravity acceleration.
-typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModel >
-ThirdBodySphericalHarmonicsGravitationalAccelerationModel;
+typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModel > ThirdBodySphericalHarmonicsGravitationalAccelerationModel;
 
 //! Typedef for third body mutual spherical harmonic gravity acceleration.
 typedef ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModel >
-ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel;
+        ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel;
 
 //! Typedef for third body polyhedron gravity acceleration.
-typedef ThirdBodyAcceleration< PolyhedronGravitationalAccelerationModel >
-ThirdBodyPolyhedronGravitationalAccelerationModel;
+typedef ThirdBodyAcceleration< PolyhedronGravitationalAccelerationModel > ThirdBodyPolyhedronGravitationalAccelerationModel;
 
 //! Typedef for third body ring gravity acceleration.
-typedef ThirdBodyAcceleration< RingGravitationalAccelerationModel >
-ThirdBodyRingGravitationalAccelerationModel;
+typedef ThirdBodyAcceleration< RingGravitationalAccelerationModel > ThirdBodyRingGravitationalAccelerationModel;
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_THIRD_BODY_PERTURBATION_H
+#endif  // TUDAT_THIRD_BODY_PERTURBATION_H

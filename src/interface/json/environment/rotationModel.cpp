@@ -20,7 +20,7 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `RotationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< RotationModelSettings >& rotationModelSettings )
 {
-    if ( ! rotationModelSettings )
+    if( !rotationModelSettings )
     {
         return;
     }
@@ -32,41 +32,40 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< RotationModelSe
     jsonObject[ K::originalFrame ] = rotationModelSettings->getOriginalFrame( );
     jsonObject[ K::targetFrame ] = rotationModelSettings->getTargetFrame( );
 
-    switch ( rotationModelType )
+    switch( rotationModelType )
     {
-    case simple_rotation_model:
-    {
-        std::shared_ptr< SimpleRotationModelSettings > simpleRotationModelSettings =
-                std::dynamic_pointer_cast< SimpleRotationModelSettings >( rotationModelSettings );
-        assertNonnullptrPointer( simpleRotationModelSettings );
-        jsonObject[ K::initialOrientation ] = simpleRotationModelSettings->getInitialOrientation( );
-        jsonObject[ K::initialTime ] = simpleRotationModelSettings->getInitialTime( );
-        jsonObject[ K::rotationRate ] = simpleRotationModelSettings->getRotationRate( );
-        return;
-    }
-    case  synchronous_rotation_model:
-    {
-        std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationModelSettings =
-                std::dynamic_pointer_cast< SynchronousRotationModelSettings >( rotationModelSettings );
-        assertNonnullptrPointer( synchronousRotationModelSettings );
+        case simple_rotation_model: {
+            std::shared_ptr< SimpleRotationModelSettings > simpleRotationModelSettings =
+                    std::dynamic_pointer_cast< SimpleRotationModelSettings >( rotationModelSettings );
+            assertNonnullptrPointer( simpleRotationModelSettings );
+            jsonObject[ K::initialOrientation ] = simpleRotationModelSettings->getInitialOrientation( );
+            jsonObject[ K::initialTime ] = simpleRotationModelSettings->getInitialTime( );
+            jsonObject[ K::rotationRate ] = simpleRotationModelSettings->getRotationRate( );
+            return;
+        }
+        case synchronous_rotation_model: {
+            std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationModelSettings =
+                    std::dynamic_pointer_cast< SynchronousRotationModelSettings >( rotationModelSettings );
+            assertNonnullptrPointer( synchronousRotationModelSettings );
 
-        jsonObject[ K::centralBodyName ] = synchronousRotationModelSettings->getCentralBodyName( );
-        return;
-    }
-    case spice_rotation_model:
-        return;
-    case gcrs_to_itrs_rotation_model:
-    {
-        std::cerr<<"Warning when writing GCRS to ITRS rotation model to JSON, only precession-nutation theory and base frame are saved, rest is kept at default values"<<std::endl;
+            jsonObject[ K::centralBodyName ] = synchronousRotationModelSettings->getCentralBodyName( );
+            return;
+        }
+        case spice_rotation_model:
+            return;
+        case gcrs_to_itrs_rotation_model: {
+            std::cerr << "Warning when writing GCRS to ITRS rotation model to JSON, only precession-nutation theory and base frame are "
+                         "saved, rest is kept at default values"
+                      << std::endl;
 
-        std::shared_ptr< GcrsToItrsRotationModelSettings > simpleRotationModelSettings =
-                std::dynamic_pointer_cast< GcrsToItrsRotationModelSettings >( rotationModelSettings );
-        assertNonnullptrPointer( simpleRotationModelSettings );
-        jsonObject[ K::precessionNutationTheory ] = simpleRotationModelSettings->getNutationTheory( );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( rotationModelType, rotationModelTypes, unsupportedRotationModelTypes );
+            std::shared_ptr< GcrsToItrsRotationModelSettings > simpleRotationModelSettings =
+                    std::dynamic_pointer_cast< GcrsToItrsRotationModelSettings >( rotationModelSettings );
+            assertNonnullptrPointer( simpleRotationModelSettings );
+            jsonObject[ K::precessionNutationTheory ] = simpleRotationModelSettings->getNutationTheory( );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( rotationModelType, rotationModelTypes, unsupportedRotationModelTypes );
     }
 }
 
@@ -87,62 +86,56 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< RotationModel
     }
     else
     {
-       targetFrame = "GCRS";
+        targetFrame = "GCRS";
     }
 
-    switch ( rotationModelType ) {
-    case simple_rotation_model:
+    switch( rotationModelType )
     {
-        const double initialTime = getValue< double >( jsonObject, K::initialTime );
+        case simple_rotation_model: {
+            const double initialTime = getValue< double >( jsonObject, K::initialTime );
 
-        // Get JSON object for initialOrientation (or create it if not defined)
-        nlohmann::json jsonInitialOrientation;
-        if ( isDefined( jsonObject, K::initialOrientation ) )
-        {
-            jsonInitialOrientation = getValue< nlohmann::json >( jsonObject, K::initialOrientation );
+            // Get JSON object for initialOrientation (or create it if not defined)
+            nlohmann::json jsonInitialOrientation;
+            if( isDefined( jsonObject, K::initialOrientation ) )
+            {
+                jsonInitialOrientation = getValue< nlohmann::json >( jsonObject, K::initialOrientation );
+            }
+            else
+            {
+                jsonInitialOrientation[ K::originalFrame ] = originalFrame;
+                jsonInitialOrientation[ K::targetFrame ] = targetFrame;
+                jsonInitialOrientation[ K::initialTime ] = initialTime;
+            }
+
+            rotationModelSettings = std::make_shared< SimpleRotationModelSettings >( originalFrame,
+                                                                                     targetFrame,
+                                                                                     getAs< Eigen::Quaterniond >( jsonInitialOrientation ),
+                                                                                     initialTime,
+                                                                                     getValue< double >( jsonObject, K::rotationRate ) );
+            return;
         }
-        else
-        {
-            jsonInitialOrientation[ K::originalFrame ] = originalFrame;
-            jsonInitialOrientation[ K::targetFrame ] = targetFrame;
-            jsonInitialOrientation[ K::initialTime ] = initialTime;
+        case synchronous_rotation_model: {
+            const std::string centralBody = getValue< std::string >( jsonObject, K::centralBodyName );
+            rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >( centralBody, originalFrame, targetFrame );
+            return;
         }
 
-        rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
-                    originalFrame,
-                    targetFrame,
-                    getAs< Eigen::Quaterniond >( jsonInitialOrientation ),
-                    initialTime,
-                    getValue< double >( jsonObject, K::rotationRate ) );
-        return;
-    }
-    case  synchronous_rotation_model:
-    {
-        const std::string centralBody = getValue< std::string >( jsonObject, K::centralBodyName );
-        rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >(
-                     centralBody, originalFrame, targetFrame );
-        return;
-    }
-
-    case spice_rotation_model:
-    {
-        rotationModelSettings = std::make_shared< RotationModelSettings >(
-                    rotationModelType, originalFrame, targetFrame );
-        return;
-    }
-    case gcrs_to_itrs_rotation_model:
-    {
-        rotationModelSettings = std::make_shared< GcrsToItrsRotationModelSettings >(
-                     getValue< basic_astrodynamics::IAUConventions >(
-                        jsonObject, K::precessionNutationTheory, basic_astrodynamics::iau_2006 ),
+        case spice_rotation_model: {
+            rotationModelSettings = std::make_shared< RotationModelSettings >( rotationModelType, originalFrame, targetFrame );
+            return;
+        }
+        case gcrs_to_itrs_rotation_model: {
+            rotationModelSettings = std::make_shared< GcrsToItrsRotationModelSettings >(
+                    getValue< basic_astrodynamics::IAUConventions >(
+                            jsonObject, K::precessionNutationTheory, basic_astrodynamics::iau_2006 ),
                     originalFrame );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( rotationModelType, rotationModelTypes, unsupportedRotationModelTypes );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( rotationModelType, rotationModelTypes, unsupportedRotationModelTypes );
     }
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

@@ -32,8 +32,7 @@ namespace propagators
 
 // Enum listing propagator types for translational dynamics that can be used.
 //! @get_docstring(TranslationalPropagatorType.__docstring__)
-enum TranslationalPropagatorType
-{
+enum TranslationalPropagatorType {
     undefined_translational_propagator = -1,
     cowell = 0,
     encke = 1,
@@ -65,9 +64,10 @@ int getTranslationalStateSize( const TranslationalPropagatorType propagatorType 
  * \return Functions returning the gravitational parameters of the central terms that were removed.
  */
 std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
-        const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
+        const std::vector< std::string >& centralBodies,
+        const std::vector< std::string >& bodiesToIntegrate,
         basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-        std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > >& removedAcceleration  );
+        std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > >& removedAcceleration );
 
 // Function to determine in which order the ephemerides are to be updated
 /*
@@ -89,10 +89,9 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
  * both from the set being integrated and otherwise.
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class NBodyStateDerivative: public propagators::SingleStateTypeDerivative< StateScalarType, TimeType >
+class NBodyStateDerivative : public propagators::SingleStateTypeDerivative< StateScalarType, TimeType >
 {
 public:
-
     using propagators::SingleStateTypeDerivative< StateScalarType, TimeType >::calculateSystemStateDerivative;
 
     // Constructor from data for translational Cartesian state derivative creation.
@@ -119,28 +118,24 @@ public:
                           const TranslationalPropagatorType propagatorType,
                           const std::vector< std::string >& bodiesToIntegrate,
                           const bool removeCentralTerm = false ):
-        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
-            propagators::translational_state ),
+        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >( propagators::translational_state ),
         accelerationModelsPerBody_( accelerationModelsPerBody ),
         removedCentralAccelerations_( std::map< std::string, std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > >( ) ),
-        updateRemovedAccelerations_( std::vector< std::string >( ) ),
-        centralBodyData_( centralBodyData ),
-        propagatorType_( propagatorType ),
-        bodiesToBeIntegratedNumerically_( bodiesToIntegrate ),
-        removeCentralTerm_( removeCentralTerm )
+        updateRemovedAccelerations_( std::vector< std::string >( ) ), centralBodyData_( centralBodyData ),
+        propagatorType_( propagatorType ), bodiesToBeIntegratedNumerically_( bodiesToIntegrate ), removeCentralTerm_( removeCentralTerm )
     {
-        originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
+        originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_;
 
         // Add empty acceleration map if body is to be propagated with no accelerations.
         for( unsigned int i = 0; i < bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             if( accelerationModelsPerBody_.count( bodiesToBeIntegratedNumerically_.at( i ) ) == 0 )
             {
-                std::cerr<<"Warning, propagating translational dynamics of body " + bodiesToBeIntegratedNumerically_.at( i )  +
-                           " without any acceleration models."<<std::endl;
+                std::cerr << "Warning, propagating translational dynamics of body " + bodiesToBeIntegratedNumerically_.at( i ) +
+                                " without any acceleration models."
+                          << std::endl;
 
-                accelerationModelsPerBody_[ bodiesToBeIntegratedNumerically_.at( i ) ] =
-                        basic_astrodynamics::SingleBodyAccelerationMap( );
+                accelerationModelsPerBody_[ bodiesToBeIntegratedNumerically_.at( i ) ] = basic_astrodynamics::SingleBodyAccelerationMap( );
             }
         }
 
@@ -149,9 +144,8 @@ public:
              outerAccelerationIterator != accelerationModelsPerBody_.end( );
              outerAccelerationIterator++ )
         {
-            std::vector< std::string >::iterator findIterator =
-                    std::find( bodiesToBeIntegratedNumerically_.begin( ), bodiesToBeIntegratedNumerically_.end( ),
-                               outerAccelerationIterator->first );
+            std::vector< std::string >::iterator findIterator = std::find(
+                    bodiesToBeIntegratedNumerically_.begin( ), bodiesToBeIntegratedNumerically_.end( ), outerAccelerationIterator->first );
             bodyOrder_.push_back( std::distance( bodiesToBeIntegratedNumerically_.begin( ), findIterator ) );
         }
 
@@ -160,14 +154,14 @@ public:
     }
 
     // Destructor
-    virtual ~NBodyStateDerivative( ){ }
+    virtual ~NBodyStateDerivative( ) { }
 
     // Function to clear any reference/cached values of state derivative model
     /*
      * Function to clear any reference/cached values of state derivative model, in addition to those performed in the
      * clearTranslationalStateDerivativeModel function. Default implementation is empty.
      */
-    virtual void clearDerivedTranslationalStateDerivativeModel( ){ }
+    virtual void clearDerivedTranslationalStateDerivativeModel( ) { }
 
     // Function to clear reference/cached values of acceleration models
     /*
@@ -178,11 +172,11 @@ public:
         for( unsigned int i = 0; i < accelerationModelList_.size( ); i++ )
         {
             accelerationModelList_.at( i )->resetCurrentTime( );
-        }        
+        }
 
         for( unsigned int i = 0; i < updateRemovedAccelerations_.size( ); i++ )
         {
-            if( removedCentralAccelerations_.count( updateRemovedAccelerations_.at( i  ) ) > 0 )
+            if( removedCentralAccelerations_.count( updateRemovedAccelerations_.at( i ) ) > 0 )
             {
                 removedCentralAccelerations_[ updateRemovedAccelerations_.at( i ) ]->resetCurrentTime( );
             }
@@ -196,7 +190,7 @@ public:
      * Every derived class requiring additional values to be cleared should implement the
      * clearDerivedTranslationalStateDerivativeModel function.
      */
-    void clearStateDerivativeModel(  )
+    void clearStateDerivativeModel( )
     {
         clearTranslationalStateDerivativeModel( );
         clearDerivedTranslationalStateDerivativeModel( );
@@ -218,7 +212,7 @@ public:
 
         for( unsigned int i = 0; i < updateRemovedAccelerations_.size( ); i++ )
         {
-            if( removedCentralAccelerations_.count( updateRemovedAccelerations_.at( i  ) ) > 0 )
+            if( removedCentralAccelerations_.count( updateRemovedAccelerations_.at( i ) ) > 0 )
             {
                 removedCentralAccelerations_[ updateRemovedAccelerations_.at( i ) ]->updateMembers( currentTime );
             }
@@ -238,13 +232,14 @@ public:
      * (returned by reference).
      */
     void convertCurrentStateToGlobalRepresentation(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution,
+            const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
         this->convertToOutputSolution( internalSolution, time, currentCartesianLocalSoluton );
 
         centralBodyData_->getReferenceFrameOriginInertialStates(
-                    currentCartesianLocalSoluton, time, centralBodyStatesWrtGlobalOrigin_, true );
+                currentCartesianLocalSoluton, time, centralBodyStatesWrtGlobalOrigin_, true );
 
         for( unsigned int i = 0; i < centralBodyStatesWrtGlobalOrigin_.size( ); i++ )
         {
@@ -302,42 +297,37 @@ public:
      * \param bodyName Name of body for which accelerations are to be retrieved.
      * \return
      */
-    Eigen::Vector3d getTotalAccelerationForBody(
-            const std::string& bodyName )
+    Eigen::Vector3d getTotalAccelerationForBody( const std::string& bodyName )
     {
         // Check if body is propagated.
         Eigen::Vector3d totalAcceleration = Eigen::Vector3d::Zero( );
-        if( std::find( bodiesToBeIntegratedNumerically_.begin( ),
-                       bodiesToBeIntegratedNumerically_.end( ),
-                       bodyName ) == bodiesToBeIntegratedNumerically_.end( ) )
+        if( std::find( bodiesToBeIntegratedNumerically_.begin( ), bodiesToBeIntegratedNumerically_.end( ), bodyName ) ==
+            bodiesToBeIntegratedNumerically_.end( ) )
         {
-            std::string errorMessage = "Error when getting total acceleration for body " + bodyName +
-                    ", no such acceleration is found";
+            std::string errorMessage = "Error when getting total acceleration for body " + bodyName + ", no such acceleration is found";
             throw std::runtime_error( errorMessage );
         }
         else
         {
-//            if( removedCentralAcceleration_ != nullptr && updateRemovedAcceleration_ == false )
-//            {
-//                std::string errorMessage = "Error when getting total acceleration for body " + bodyName +
-//                        ", central term is removed, but cannot be evaluated.";
-//                throw std::runtime_error( errorMessage );
-//            }
+            //            if( removedCentralAcceleration_ != nullptr && updateRemovedAcceleration_ == false )
+            //            {
+            //                std::string errorMessage = "Error when getting total acceleration for body " + bodyName +
+            //                        ", central term is removed, but cannot be evaluated.";
+            //                throw std::runtime_error( errorMessage );
+            //            }
 
             if( originalAccelerationModelsPerBody_.count( bodyName ) != 0 )
             {
-                basic_astrodynamics::SingleBodyAccelerationMap accelerationsOnBody =
-                        originalAccelerationModelsPerBody_.at( bodyName );
+                basic_astrodynamics::SingleBodyAccelerationMap accelerationsOnBody = originalAccelerationModelsPerBody_.at( bodyName );
 
                 // Iterate over all accelerations acting on body
-                for( innerAccelerationIterator  = accelerationsOnBody.begin( );
-                     innerAccelerationIterator != accelerationsOnBody.end( );
+                for( innerAccelerationIterator = accelerationsOnBody.begin( ); innerAccelerationIterator != accelerationsOnBody.end( );
                      innerAccelerationIterator++ )
                 {
                     for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                     {
                         // Calculate acceleration and add to state derivative.
-                         innerAccelerationIterator->second[ j ]->addCurrentAcceleration( totalAcceleration );
+                        innerAccelerationIterator->second[ j ]->addCurrentAcceleration( totalAcceleration );
                     }
                 }
             }
@@ -373,10 +363,7 @@ public:
         }
     }
 
-
-
 protected:
-
     void verifyInput( )
     {
         for( unsigned int i = 0; i < bodiesToBeIntegratedNumerically_.size( ); i++ )
@@ -384,24 +371,21 @@ protected:
             if( accelerationModelsPerBody_.count( bodiesToBeIntegratedNumerically_.at( i ) ) == 0 )
             {
                 throw std::runtime_error( "Error, requested propagation of translational dynamics of body " +
-                                          bodiesToBeIntegratedNumerically_.at( i ) +
-                                          ", but no acceleration models provided" );
+                                          bodiesToBeIntegratedNumerically_.at( i ) + ", but no acceleration models provided" );
             }
         }
 
-        for( auto it : accelerationModelsPerBody_ )
+        for( auto it: accelerationModelsPerBody_ )
         {
-            if( std::find( bodiesToBeIntegratedNumerically_.begin( ),
-                           bodiesToBeIntegratedNumerically_.end( ),
-                           it.first ) == bodiesToBeIntegratedNumerically_.end( ) )
+            if( std::find( bodiesToBeIntegratedNumerically_.begin( ), bodiesToBeIntegratedNumerically_.end( ), it.first ) ==
+                bodiesToBeIntegratedNumerically_.end( ) )
             {
-                throw std::runtime_error( "Error, provided acceleration models for body " +
-                                          it.first +
-                                          ", but this body is not included in list of bodies for which translational dynamics is to be propagated." );
+                throw std::runtime_error(
+                        "Error, provided acceleration models for body " + it.first +
+                        ", but this body is not included in list of bodies for which translational dynamics is to be propagated." );
             }
         }
     }
-
 
     // Function to set the vector of acceleration models (accelerationModelList_) form the map of map of
     // acceleration models (accelerationModelsPerBody_).
@@ -410,10 +394,11 @@ protected:
         // Iterate over all accelerations and update their internal state.
         accelerationModelList_.clear( );
         for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
-             outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
+             outerAccelerationIterator != accelerationModelsPerBody_.end( );
+             outerAccelerationIterator++ )
         {
             // Iterate over all accelerations acting on body
-            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
+            for( innerAccelerationIterator = outerAccelerationIterator->second.begin( );
                  innerAccelerationIterator != outerAccelerationIterator->second.end( );
                  innerAccelerationIterator++ )
             {
@@ -436,10 +421,9 @@ protected:
      * \param addPositionDerivatives Boolean denoting whether the derivatives of the position (e.g. velocity) are to be added
      * to the state derivative vector.
      */
-    void sumStateDerivativeContributions(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative,
-            const bool addPositionDerivatives = true )
+    void sumStateDerivativeContributions( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+                                          Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative,
+                                          const bool addPositionDerivatives = true )
     {
         using namespace basic_astrodynamics;
 
@@ -456,7 +440,7 @@ protected:
             currentBodyIndex = bodyOrder_[ currentAccelerationIndex ];
 
             // Iterate over all accelerations acting on body
-            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
+            for( innerAccelerationIterator = outerAccelerationIterator->second.begin( );
                  innerAccelerationIterator != outerAccelerationIterator->second.end( );
                  innerAccelerationIterator++ )
             {
@@ -464,9 +448,7 @@ protected:
                 {
                     // Calculate acceleration and add to state derivative.
                     stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) +=
-                                                ( innerAccelerationIterator->second[ j ]->getAccelerationReference( ) ).
-                                                template cast< StateScalarType >( );
-
+                            ( innerAccelerationIterator->second[ j ]->getAccelerationReference( ) ).template cast< StateScalarType >( );
                 }
             }
 
@@ -490,15 +472,13 @@ protected:
      * \param addPositionDerivatives Boolean denoting whether the derivatives of the position (e.g. velocity) are to be added
      * to the state derivative vector.
      */
-    void sumStateDerivativeContributions(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateDerivative,
-            const bool addPositionDerivatives = true )
+    void sumStateDerivativeContributions( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+                                          Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateDerivative,
+                                          const bool addPositionDerivatives = true )
     {
-        return sumStateDerivativeContributions(
-                    stateOfSystemToBeIntegrated,
-                    stateDerivative.block( 0, 0, stateDerivative.rows( ), stateDerivative.cols( ) ),
-                    addPositionDerivatives );
+        return sumStateDerivativeContributions( stateOfSystemToBeIntegrated,
+                                                stateDerivative.block( 0, 0, stateDerivative.rows( ), stateDerivative.cols( ) ),
+                                                addPositionDerivatives );
     }
 
     // A map containing the list of accelerations acting on each body,
@@ -532,26 +512,28 @@ protected:
     std::vector< int > bodyOrder_;
 
     // Predefined iterator to save (de-)allocation time.
-    std::unordered_map< std::string, std::vector<
-    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::iterator innerAccelerationIterator;
+    std::unordered_map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::iterator
+            innerAccelerationIterator;
 
     // Predefined iterator to save (de-)allocation time.
-    std::unordered_map< std::string, std::unordered_map< std::string, std::vector<
-    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::iterator outerAccelerationIterator;
+    std::unordered_map<
+            std::string,
+            std::unordered_map< std::string,
+                                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::iterator
+            outerAccelerationIterator;
 
     // List of states of the central bodies of the propagated bodies.
-    std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
+    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > centralBodyStatesWrtGlobalOrigin_;
 
     Eigen::Vector3d currentAccelerationComponent_;
 
     bool removeCentralTerm_;
-
 };
 
-//extern template class NBodyStateDerivative< double, double >;
+// extern template class NBodyStateDerivative< double, double >;
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_NBODYSTATEDERIVATIVE_H
+#endif  // TUDAT_NBODYSTATEDERIVATIVE_H

@@ -47,8 +47,9 @@ double getApproximateTioLocator( const double secondsSinceJ2000 );
  * \param cioLocator Celestial intermediate origin locator; parameter s in  IERS Conventions 2010, Section 5.4.4
  * \return Rotation from CIRS to GCRS
  */
-Eigen::Quaterniond calculateRotationFromCirsToGcrs(
-        const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator );
+Eigen::Quaterniond calculateRotationFromCirsToGcrs( const double celestialPoleXPosition,
+                                                    const double celestialPoleYPosition,
+                                                    const double cioLocator );
 
 //! Calculate rotation from TIRS to CIRS.
 /*!
@@ -67,8 +68,7 @@ Eigen::Quaterniond calculateRotationFromTirsToCirs( const double earthRotationAn
  * \param tioLocator TIO locator.
  * \return Rotation from ITRS to TIRS
  */
-Eigen::Quaterniond calculateRotationFromItrsToTirs(
-        const double xPolePosition, const double yPolePosition, const double tioLocator );
+Eigen::Quaterniond calculateRotationFromItrsToTirs( const double xPolePosition, const double yPolePosition, const double tioLocator );
 
 //! Calculate time-derivative of rotation matrix from ITRS to GCRS
 /*!
@@ -84,18 +84,21 @@ Eigen::Quaterniond calculateRotationFromItrsToTirs(
  * \return Time-derivative of rotation matrix from ITRS to GCRS
  */
 template< typename TimeType >
-Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
-        const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator,
-        const TimeType ut1, const double xPolePosition, const double yPolePosition, const double tioLocator )
+Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const double celestialPoleXPosition,
+                                                     const double celestialPoleYPosition,
+                                                     const double cioLocator,
+                                                     const TimeType ut1,
+                                                     const double xPolePosition,
+                                                     const double yPolePosition,
+                                                     const double tioLocator )
 {
     Eigen::Matrix3d auxiliaryMatrix = reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER *
             ( -2.0 * mathematical_constants::PI / 86400.0 * 1.00273781191135448 );
 
-    return  ( calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator )  *
-              calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 - 1.42E-3 ) )
-              ).toRotationMatrix( ) * auxiliaryMatrix *
-            calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator ).toRotationMatrix( );
-
+    return ( calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
+             calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 - 1.42E-3 ) ) )
+                   .toRotationMatrix( ) *
+            auxiliaryMatrix * calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator ).toRotationMatrix( );
 }
 
 //! Calculate time-derivative of rotation matrix from ITRS to GCRS
@@ -108,23 +111,30 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
  * \return Time-derivative of rotation matrix from ITRS to GCRS
  */
 template< typename TimeType >
-Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
-        const Eigen::Vector5d& rotationAngles, const TimeType ut1, const double secondsSinceJ2000 )
+Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const Eigen::Vector5d& rotationAngles,
+                                                     const TimeType ut1,
+                                                     const double secondsSinceJ2000 )
 {
-    return calculateRotationRateFromItrsToGcrs(
-                rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ],
-            ut1, rotationAngles[ 3 ], rotationAngles[ 4 ],
-            getApproximateTioLocator( secondsSinceJ2000 ) );
+    return calculateRotationRateFromItrsToGcrs( rotationAngles[ 0 ],
+                                                rotationAngles[ 1 ],
+                                                rotationAngles[ 2 ],
+                                                ut1,
+                                                rotationAngles[ 3 ],
+                                                rotationAngles[ 4 ],
+                                                getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 
 template< typename TimeType >
-Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
-        const std::pair< Eigen::Vector5d, TimeType > rotationAnglesAndUt1, const double secondsSinceJ2000 )
+Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( const std::pair< Eigen::Vector5d, TimeType > rotationAnglesAndUt1,
+                                                     const double secondsSinceJ2000 )
 {
-    return calculateRotationRateFromItrsToGcrs(
-                rotationAnglesAndUt1.first[ 0 ], rotationAnglesAndUt1.first[ 1 ], rotationAnglesAndUt1.first[ 2 ],
-            rotationAnglesAndUt1.second, rotationAnglesAndUt1.first[ 3 ], rotationAnglesAndUt1.first[ 4 ],
-            getApproximateTioLocator( secondsSinceJ2000 ) );
+    return calculateRotationRateFromItrsToGcrs( rotationAnglesAndUt1.first[ 0 ],
+                                                rotationAnglesAndUt1.first[ 1 ],
+                                                rotationAnglesAndUt1.first[ 2 ],
+                                                rotationAnglesAndUt1.second,
+                                                rotationAnglesAndUt1.first[ 3 ],
+                                                rotationAnglesAndUt1.first[ 4 ],
+                                                getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 
 //! Calculate rotation from ITRS to GCRS
@@ -140,16 +150,18 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
  * \return Rotation from ITRS to GCRS
  */
 template< typename TimeType >
-Eigen::Quaterniond calculateRotationFromItrsToGcrs(
-        const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator,
-        const TimeType ut1, const double xPolePosition, const double yPolePosition, const double tioLocator )
+Eigen::Quaterniond calculateRotationFromItrsToGcrs( const double celestialPoleXPosition,
+                                                    const double celestialPoleYPosition,
+                                                    const double cioLocator,
+                                                    const TimeType ut1,
+                                                    const double xPolePosition,
+                                                    const double yPolePosition,
+                                                    const double tioLocator )
 {
     double currentEra = sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 );
 
-    return  calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
-            calculateRotationFromTirsToCirs( currentEra ) *
-            calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator );
-
+    return calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
+            calculateRotationFromTirsToCirs( currentEra ) * calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator );
 }
 
 //! Calculate rotation from ITRS to GCRS
@@ -162,32 +174,36 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
  * \return Rotation from ITRS to GCRS
  */
 template< typename TimeType >
-Eigen::Quaterniond calculateRotationFromItrsToGcrs(
-        const Eigen::Vector5d& rotationAngles, const TimeType ut1, const double secondsSinceJ2000 )
+Eigen::Quaterniond calculateRotationFromItrsToGcrs( const Eigen::Vector5d& rotationAngles,
+                                                    const TimeType ut1,
+                                                    const double secondsSinceJ2000 )
 {
-    return calculateRotationFromItrsToGcrs(
-                rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ],
-            ut1, rotationAngles[ 3 ], rotationAngles[ 4 ],
-            getApproximateTioLocator( secondsSinceJ2000 ) );
+    return calculateRotationFromItrsToGcrs( rotationAngles[ 0 ],
+                                            rotationAngles[ 1 ],
+                                            rotationAngles[ 2 ],
+                                            ut1,
+                                            rotationAngles[ 3 ],
+                                            rotationAngles[ 4 ],
+                                            getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 
 template< typename TimeType >
-Eigen::Quaterniond calculateRotationFromItrsToGcrs(
-        const std::pair< Eigen::Vector5d, TimeType > rotationAnglesAndUt1, const double secondsSinceJ2000 )
+Eigen::Quaterniond calculateRotationFromItrsToGcrs( const std::pair< Eigen::Vector5d, TimeType > rotationAnglesAndUt1,
+                                                    const double secondsSinceJ2000 )
 {
-    return calculateRotationFromItrsToGcrs(
-                rotationAnglesAndUt1.first[ 0 ], rotationAnglesAndUt1.first[ 1 ], rotationAnglesAndUt1.first[ 2 ],
-            rotationAnglesAndUt1.second, rotationAnglesAndUt1.first[ 3 ], rotationAnglesAndUt1.first[ 4 ],
-            getApproximateTioLocator( secondsSinceJ2000 ) );
+    return calculateRotationFromItrsToGcrs( rotationAnglesAndUt1.first[ 0 ],
+                                            rotationAnglesAndUt1.first[ 1 ],
+                                            rotationAnglesAndUt1.first[ 2 ],
+                                            rotationAnglesAndUt1.second,
+                                            rotationAnglesAndUt1.first[ 3 ],
+                                            rotationAnglesAndUt1.first[ 4 ],
+                                            getApproximateTioLocator( secondsSinceJ2000 ) );
 }
-
-
 
 //! Class to calculate earth orientation angles, i.e. those used for transforming from ITRS to GCRS
 class EarthOrientationAnglesCalculator
 {
 public:
-
     //! Constructor from objects calculating three sub-parts of earth orientation.
     /*!
      *  Constructor from objects calculating sub-parts of earth orientation and time conversion,
@@ -196,13 +212,12 @@ public:
      *  \param precessionNutationCalculator Pointer to object for calculating position of pole in GCRS (precession/nutation).
      *  \param terrestrialTimeScaleConverter Pointer to object to convert between different time scales.
      */
-    EarthOrientationAnglesCalculator(
-            const std::shared_ptr< PolarMotionCalculator > polarMotionCalculator,
-            const std::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator,
-            const std::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter ):
-        polarMotionCalculator_( polarMotionCalculator ),
-        precessionNutationCalculator_( precessionNutationCalculator ),
-        terrestrialTimeScaleConverter_( terrestrialTimeScaleConverter ) { }
+    EarthOrientationAnglesCalculator( const std::shared_ptr< PolarMotionCalculator > polarMotionCalculator,
+                                      const std::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator,
+                                      const std::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter ):
+        polarMotionCalculator_( polarMotionCalculator ), precessionNutationCalculator_( precessionNutationCalculator ),
+        terrestrialTimeScaleConverter_( terrestrialTimeScaleConverter )
+    { }
 
     //! Calculate rotation angles from ITRS to GCRS at given time value.
     /*!
@@ -221,20 +236,17 @@ public:
     {
         // Compute required time values
         TimeType terrestrialTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                    timeScale, basic_astrodynamics::tt_scale, timeValue, Eigen::Vector3d::Zero( ) );
+                timeScale, basic_astrodynamics::tt_scale, timeValue, Eigen::Vector3d::Zero( ) );
         TimeType utc = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                    timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
+                timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
         TimeType ut1 = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                    timeScale, basic_astrodynamics::ut1_scale, timeValue, Eigen::Vector3d::Zero( ) );
+                timeScale, basic_astrodynamics::ut1_scale, timeValue, Eigen::Vector3d::Zero( ) );
 
         // Compute nutation/precession parameters
-        Eigen::Vector3d positionOfCipInGcrs =
-                precessionNutationCalculator_->getPositionOfCipInGcrs(
-                    terrestrialTime, utc );
+        Eigen::Vector3d positionOfCipInGcrs = precessionNutationCalculator_->getPositionOfCipInGcrs( terrestrialTime, utc );
 
         // Compute polar motion values
-        Eigen::Vector2d positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs(
-                    terrestrialTime, utc );
+        Eigen::Vector2d positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs( terrestrialTime, utc );
 
         // Return vector of angles.
         Eigen::Vector5d rotationAngles;
@@ -246,28 +258,32 @@ public:
         return std::make_pair( rotationAngles, ut1 );
     }
 
-
     //! Function to get object that calculates polar motion.
     /*!
      *  Function to get object that calculates polar motion.
      */
     std::shared_ptr< PolarMotionCalculator > getPolarMotionCalculator( )
-    { return polarMotionCalculator_; }
+    {
+        return polarMotionCalculator_;
+    }
 
     //! Function to get object that calculates precession/nutation.
     /*!
      *  Function to get object that calculates precession/nutation.
      */
     std::shared_ptr< PrecessionNutationCalculator > getPrecessionNutationCalculator( )
-    { return precessionNutationCalculator_; }
+    {
+        return precessionNutationCalculator_;
+    }
 
     //! Function to get object that converts between time scales.
     /*!
      *  Function to get object that converts between time scales.
      */
     std::shared_ptr< TerrestrialTimeScaleConverter > getTerrestrialTimeScaleConverter( )
-    { return terrestrialTimeScaleConverter_; }
-
+    {
+        return terrestrialTimeScaleConverter_;
+    }
 
 private:
     //! Pointer to object for calculating position of pole in ITRS (polarm motion).
@@ -314,14 +330,15 @@ std::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientati
  */
 template< typename UT1ScalarType >
 std::pair< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 5, 1 > > >,
-std::shared_ptr< interpolators::OneDimensionalInterpolator< double, UT1ScalarType > > >
+           std::shared_ptr< interpolators::OneDimensionalInterpolator< double, UT1ScalarType > > >
 createInterpolatorsForItrsToGcrsAngles(
-        const double intervalStart, const double intervalEnd, const double timeStep,
+        const double intervalStart,
+        const double intervalEnd,
+        const double timeStep,
         const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale,
-        const std::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator =
-        createStandardEarthOrientationCalculator( ),
+        const std::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator = createStandardEarthOrientationCalculator( ),
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) )
+                std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) )
 {
     // Define interpolators
     std::map< double, Eigen::Matrix< double, 5, 1 > > anglesMap;
@@ -332,8 +349,7 @@ createInterpolatorsForItrsToGcrsAngles(
     double currentTime = intervalStart;
     while( currentTime < intervalEnd )
     {
-        currentRotationValues = earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< UT1ScalarType >(
-                    currentTime, timeScale );
+        currentRotationValues = earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< UT1ScalarType >( currentTime, timeScale );
         anglesMap[ currentTime ] = currentRotationValues.first;
         ut1Map[ currentTime ] = currentRotationValues.second;
         currentTime += timeStep;
@@ -348,11 +364,10 @@ createInterpolatorsForItrsToGcrsAngles(
             interpolators::createOneDimensionalInterpolator( ut1Map, interpolatorSettings );
 
     return std::make_pair( anglesInterpolator, ut1Interpolator );
-
 }
 
-}
+}  // namespace earth_orientation
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_EARTHORIENTATIONCALCULATOR_H
+#endif  // TUDAT_EARTHORIENTATIONCALCULATOR_H

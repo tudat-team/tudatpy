@@ -22,10 +22,6 @@
 
 #include <vector>
 
-
-
-
-
 #include <memory>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -58,18 +54,15 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
     // Shortcuts.
     typedef TestBody< 3, double > TestBody3d;
     typedef std::shared_ptr< TestBody3d > TestBody3dPointer;
-    typedef DerivedAccelerationModel< > DerivedAccelerationModel3d;
+    typedef DerivedAccelerationModel<> DerivedAccelerationModel3d;
 
     // Create body with initial state and time.
-    TestBody3dPointer body = std::make_shared< TestBody3d >(
-                ( Eigen::Vector6d( ) << 1.1, 2.2, 3.3, -0.1, 0.2, 0.3 ).finished( ), 2.0 );
+    TestBody3dPointer body = std::make_shared< TestBody3d >( ( Eigen::Vector6d( ) << 1.1, 2.2, 3.3, -0.1, 0.2, 0.3 ).finished( ), 2.0 );
 
     // Create acceleration model using DerivedAccelerationModel class, and pass pointers to
     // functions in body.
-    AccelerationModel3dPointer accelerationModel3d
-            = std::make_shared< DerivedAccelerationModel3d >(
-                std::bind( &TestBody3d::getCurrentPosition, body ),
-                std::bind( &TestBody3d::getCurrentTime, body ) );
+    AccelerationModel3dPointer accelerationModel3d = std::make_shared< DerivedAccelerationModel3d >(
+            std::bind( &TestBody3d::getCurrentPosition, body ), std::bind( &TestBody3d::getCurrentTime, body ) );
 
     // Declare container of computed accelerations.
     std::vector< Eigen::Vector3d > computedAccelerations( 3 );
@@ -78,9 +71,7 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
     computedAccelerations.at( 0 ) = accelerationModel3d->getAcceleration( );
 
     // Update time and state.
-    body->setCurrentTimeAndState(
-                -1.1, ( Eigen::Vector6d( )
-                        << -0.45, 10.63, -9.81, 0.11, 0.22, 0.33 ).finished( ) );
+    body->setCurrentTimeAndState( -1.1, ( Eigen::Vector6d( ) << -0.45, 10.63, -9.81, 0.11, 0.22, 0.33 ).finished( ) );
 
     // Update acceleration model members.
     accelerationModel3d->updateMembers( );
@@ -89,40 +80,36 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
     computedAccelerations.at( 1 ) = accelerationModel3d->getAcceleration( );
 
     // Update time and state.
-    body->setCurrentTimeAndState(
-                4.6, ( Eigen::Vector6d( )
-                       << -87.685, 101.44, -1.38, -0.12, 0.23, -0.34 ).finished( ) );
+    body->setCurrentTimeAndState( 4.6, ( Eigen::Vector6d( ) << -87.685, 101.44, -1.38, -0.12, 0.23, -0.34 ).finished( ) );
 
     // Update and get acceleration with single function.
     computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModel3d );
 
     // Set expected accelerations.
     std::vector< Eigen::Vector3d > expectedAccelerations;
-    expectedAccelerations.push_back( Eigen::Vector3d(   1.1,     2.2,   3.3  ) / (  2.0 *  2.0 ) );
-    expectedAccelerations.push_back( Eigen::Vector3d(  -0.45,   10.63, -9.81 ) / ( -1.1 * -1.1 ) );
-    expectedAccelerations.push_back( Eigen::Vector3d( -87.685, 101.44, -1.38 ) / (  4.6 *  4.6 ) );
+    expectedAccelerations.push_back( Eigen::Vector3d( 1.1, 2.2, 3.3 ) / ( 2.0 * 2.0 ) );
+    expectedAccelerations.push_back( Eigen::Vector3d( -0.45, 10.63, -9.81 ) / ( -1.1 * -1.1 ) );
+    expectedAccelerations.push_back( Eigen::Vector3d( -87.685, 101.44, -1.38 ) / ( 4.6 * 4.6 ) );
 
     // Check that the acceleration vectors before and after the update match expected values.
-    for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )
+    for( unsigned int i = 0; i < computedAccelerations.size( ); i++ )
     {
         TUDAT_CHECK_MATRIX_BASE( computedAccelerations.at( i ), expectedAccelerations.at( i ) )
-                BOOST_CHECK_CLOSE_FRACTION( computedAccelerations.at( i ).coeff( row, col ),
-                                   expectedAccelerations.at( i ).coeff( row, col ), 5.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION(
+                computedAccelerations.at( i ).coeff( row, col ), expectedAccelerations.at( i ).coeff( row, col ), 5.0e-15 );
     }
 }
 
-
-
 ////! Test whether DerivedAccelerationModel (acceleration data type=Eigen::Vector1i) functions
 ////! correctly.
-//BOOST_AUTO_TEST_CASE( test_derived1iAccelerationModel )
+// BOOST_AUTO_TEST_CASE( test_derived1iAccelerationModel )
 //{
-//    // Shortcuts.
-//    typedef TestBody< 1, int > TestBody1i;
-//    typedef std::shared_ptr< TestBody1i > TestBody1iPointer;
-//    typedef AccelerationModel< int > AccelerationModel1i;
-//    typedef std::shared_ptr< AccelerationModel1i > AccelerationModel1iPointer;
-//    typedef DerivedAccelerationModel< int, int, int > DerivedAccelerationModel1i;
+//     // Shortcuts.
+//     typedef TestBody< 1, int > TestBody1i;
+//     typedef std::shared_ptr< TestBody1i > TestBody1iPointer;
+//     typedef AccelerationModel< int > AccelerationModel1i;
+//     typedef std::shared_ptr< AccelerationModel1i > AccelerationModel1iPointer;
+//     typedef DerivedAccelerationModel< int, int, int > DerivedAccelerationModel1i;
 
 //    // Create body with initial state and time.
 //    TestBody1iPointer body = std::make_shared< TestBody1i >( Eigen::Vector2i( 20, 1 ), 2 );
@@ -167,5 +154,5 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

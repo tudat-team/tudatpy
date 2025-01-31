@@ -22,7 +22,6 @@ namespace tudat
 namespace gravitation
 {
 
-
 //! Compute Jacobi energy.
 /*!
  * Returns the value of the Jacobi energy in normalized units of the CRTBP, given in the following
@@ -39,10 +38,9 @@ namespace gravitation
  * \param stateInNormalizedUnits State of third body in normalized units.
  * \return Jacobi energy in normalized units.
  */
-double computeJacobiEnergy( const double massParameter,
-                            const Eigen::VectorXd& stateInNormalizedUnits );
+double computeJacobiEnergy( const double massParameter, const Eigen::VectorXd& stateInNormalizedUnits );
 
-} // namespace gravitation
-} // namespace tudat
+}  // namespace gravitation
+}  // namespace tudat
 
-#endif // TUDAT_JACOBI_ENERGY_H
+#endif  // TUDAT_JACOBI_ENERGY_H

@@ -5,12 +5,10 @@ namespace tudat
 namespace interpolators
 {
 
-//template class Interpolator< double, Eigen::VectorXd >;
-//template class Interpolator< double, Eigen::Vector6d >;
-//template class Interpolator< double, Eigen::MatrixXd >;
+// template class Interpolator< double, Eigen::VectorXd >;
+// template class Interpolator< double, Eigen::Vector6d >;
+// template class Interpolator< double, Eigen::MatrixXd >;
 
+}  // namespace interpolators
 
-} // namespace interpolators
-
-} // namespace tudat
-
+}  // namespace tudat

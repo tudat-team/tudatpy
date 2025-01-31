@@ -30,11 +30,11 @@ namespace ephemerides
 class SpiceEphemeris : public Ephemeris
 {
 public:
-
     using Ephemeris::getCartesianState;
 
     //! @get_docstring(SpiceEphemeris.__init__)
-    SpiceEphemeris( const std::string& targetBodyName, const std::string& observerBodyName,
+    SpiceEphemeris( const std::string& targetBodyName,
+                    const std::string& observerBodyName,
                     const bool correctForStellarAberration = true,
                     const bool correctForLightTimeAberration = true,
                     const bool convergeLighTimeAberration = false,
@@ -42,10 +42,9 @@ public:
                     const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     //! @get_docstring(SpiceEphemeris.get_cartesian_state)
-    Eigen::Vector6d getCartesianState(const double secondsSinceEpoch );
+    Eigen::Vector6d getCartesianState( const double secondsSinceEpoch );
 
 private:
-
     //! Name of body of which ephemeris is to be determined
     /*!
      * Name of body of which ephemeris is to be determined. Name can be either normal name
@@ -83,7 +82,7 @@ private:
     double referenceDayOffSet_;
 };
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat
 
-#endif // TUDAT_SPICE_EPHEMERIS_H
+#endif  // TUDAT_SPICE_EPHEMERIS_H

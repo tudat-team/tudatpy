@@ -31,10 +31,8 @@ namespace dictionary
  * indicate if the parameter name is case-sensitive or not, a flag to indicate if the parameter has
  * been extracted, and a list of synonyms for the given parameter.
  */
-struct DictionaryEntry
-{
+struct DictionaryEntry {
 public:
-
     //! Typedef for set of strings.
     typedef std::set< std::string > StringSet;
 
@@ -44,13 +42,7 @@ public:
      * create a dictionary, which is an STL set of shared-pointers to DictionaryEntry objects.
      * \sa Dictionary.
      */
-    DictionaryEntry( )
-        : parameterName( "" ),
-          isRequired( true ),
-          isCaseSensitive( false ),
-          isExtracted( false ),
-          synonyms( )
-    { }
+    DictionaryEntry( ): parameterName( "" ), isRequired( true ), isCaseSensitive( false ), isExtracted( false ), synonyms( ) { }
 
     //! Default constructor.
     /*!
@@ -60,15 +52,9 @@ public:
      * \param caseSensitive Boolean indicating if parameter is caseSensitive. Default set to false.
      * \param someSynonyms Set of synonyms.
      */
-    DictionaryEntry( std::string aParameterName,
-                     bool required = true,
-                     bool caseSensitive = false,
-                     StringSet someSynonyms = StringSet( ) )
-        : parameterName( aParameterName ),
-          isRequired( required ),
-          isCaseSensitive( caseSensitive ),
-          isExtracted( false ),
-          synonyms( someSynonyms )
+    DictionaryEntry( std::string aParameterName, bool required = true, bool caseSensitive = false, StringSet someSynonyms = StringSet( ) ):
+        parameterName( aParameterName ), isRequired( required ), isCaseSensitive( caseSensitive ), isExtracted( false ),
+        synonyms( someSynonyms )
     { }
 
     //! Parameter name.
@@ -111,8 +97,8 @@ public:
 //! Typedef for shared-pointer to dictionary entry.
 typedef std::shared_ptr< DictionaryEntry > DictionaryEntryPointer;
 
-} // namespace dictionary
-} // namespace input_output
-} // namespace tudat
+}  // namespace dictionary
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_DICTIONARY_ENTRY_H
+#endif  // TUDAT_DICTIONARY_ENTRY_H

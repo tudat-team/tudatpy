@@ -26,7 +26,7 @@ namespace electromagnetism
  * Assumes the particle is point-like.The following equation is used to calculate the force:
  * \f[
  *                \bar{f} = q * \bar{v} x \bar{B}
- * \f] 
+ * \f]
  * where \f$f\f$ is the force on the particle, \f$q\f$ is the charge of the accelerating
  * particle, \f$\bar{v}\f$ is the velocity of the accelerating particle, and \f$\bar{B}\f$
  * is the local magnetic field. Note: This force does not take into account
@@ -37,12 +37,11 @@ namespace electromagnetism
  * \return Lorentz force due to static magnetic field                                                           [N]
  */
 
-Eigen::Vector3d computeLorentzForceDueToStaticMagneticField(
-        const Eigen::Vector3d& velocityOfBodySubjectToAcceleration,
-        const Eigen::Vector3d& localMagneticField,
-        const double chargeOfBodySubjectToAcceleration );
+Eigen::Vector3d computeLorentzForceDueToStaticMagneticField( const Eigen::Vector3d& velocityOfBodySubjectToAcceleration,
+                                                             const Eigen::Vector3d& localMagneticField,
+                                                             const double chargeOfBodySubjectToAcceleration );
 
-} // namespace electromagnetism
-} // namespace tudat
+}  // namespace electromagnetism
+}  // namespace tudat
 
-#endif // TUDAT_LORENTZ_STATIC_MAGNETIC_FORCE_H
+#endif  // TUDAT_LORENTZ_STATIC_MAGNETIC_FORCE_H

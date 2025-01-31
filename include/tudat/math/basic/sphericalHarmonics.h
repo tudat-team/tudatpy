@@ -14,8 +14,6 @@
 
 #include <Eigen/Core>
 
-
-
 #include "tudat/math/basic/legendrePolynomials.h"
 
 namespace tudat
@@ -33,7 +31,6 @@ namespace basic_mathematics
 class SphericalHarmonicsCache
 {
 public:
-
     //! Default constructor, initializes cache object with 0 maximum degree and order.
     /*!
      * Default constructor, initializes cache object with 0 mazimum degree and order.
@@ -75,7 +72,6 @@ public:
      */
     void resetMaximumDegreeAndOrder( const int maximumDegree, const int maximumOrder );
 
-
     //! Update cached variables to current state.
     /*!
      * Update cached variables to current state.
@@ -84,8 +80,7 @@ public:
      * \param longitude Current latitude
      * \param referenceRadius Reference (typically equatorial) radius of gravity field.
      */
-    void update( const double radius, const double polynomialParameter,
-                 const double longitude, const double referenceRadius )
+    void update( const double radius, const double polynomialParameter, const double longitude, const double referenceRadius )
     {
         legendreCache_->update( polynomialParameter );
         updateSines( longitude );
@@ -167,7 +162,6 @@ public:
     }
 
 private:
-
     //! Update cached values of sines and cosines of longitude/
     /*!
      * Update cached values of sines and cosines of longitude/
@@ -239,11 +233,10 @@ private:
 
     //! Object for caching and computing Legendre polynomials.
     std::shared_ptr< LegendreCache > legendreCache_;
-
 };
 
 //! Spherical coordinate indices.
-enum SphericalCoordinatesIndices{ radiusIndex, latitudeIndex, longitudeIndex };
+enum SphericalCoordinatesIndices { radiusIndex, latitudeIndex, longitudeIndex };
 
 //! Compute the gradient of a single term of a spherical harmonics potential field.
 /*!
@@ -273,21 +266,18 @@ enum SphericalCoordinatesIndices{ radiusIndex, latitudeIndex, longitudeIndex };
  *          gradient( 1 ) = derivative with respect to latitude angle,
  *          gradient( 2 ) = derivative with respect to longitude angle.
  */
-Eigen::Vector3d computePotentialGradient(
-        const double distance,
-        const double radiusPowerTerm,
-        const double cosineOfOrderLongitude,
-        const double sineOfOrderLongitude,
-        const double cosineOfLatitude,
-        const double preMultiplier,
-        const int degree,
-        const int order,
-        const double cosineHarmonicCoefficient,
-        const double sineHarmonicCoefficient,
-        const double legendrePolynomial,
-        const double legendrePolynomialDerivative );
-
-
+Eigen::Vector3d computePotentialGradient( const double distance,
+                                          const double radiusPowerTerm,
+                                          const double cosineOfOrderLongitude,
+                                          const double sineOfOrderLongitude,
+                                          const double cosineOfLatitude,
+                                          const double preMultiplier,
+                                          const int degree,
+                                          const int order,
+                                          const double cosineHarmonicCoefficient,
+                                          const double sineHarmonicCoefficient,
+                                          const double legendrePolynomial,
+                                          const double legendrePolynomialDerivative );
 
 //! Compute the gradient of a single term of a spherical harmonics potential field.
 /*!
@@ -394,7 +384,7 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
                                           const double legendrePolynomialDerivative,
                                           const std::shared_ptr< SphericalHarmonicsCache > sphericalHarmonicsCache );
 
-} // namespace basic_mathematics
-} // namespace tudat
+}  // namespace basic_mathematics
+}  // namespace tudat
 
-#endif // TUDAT_SPHERICAL_HARMONICS_H
+#endif  // TUDAT_SPHERICAL_HARMONICS_H

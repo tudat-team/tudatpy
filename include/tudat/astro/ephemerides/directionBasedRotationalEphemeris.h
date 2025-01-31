@@ -9,8 +9,7 @@ namespace tudat
 namespace ephemerides
 {
 
-enum SatelliteBasedFrames
-{
+enum SatelliteBasedFrames {
     unspecified_satellite_based_frame = -1,
     inertial_satellite_based_frame = 0,
     tnw_satellite_based_frame = 1,
@@ -25,11 +24,11 @@ enum SatelliteBasedFrames
 class InertialBodyFixedDirectionCalculator
 {
 public:
-    InertialBodyFixedDirectionCalculator(
-            const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr ):
-        rotationMatrixToPropagationFrame_( rotationMatrixToPropagationFrame ){ }
+    InertialBodyFixedDirectionCalculator( const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame =
+                                                  nullptr ): rotationMatrixToPropagationFrame_( rotationMatrixToPropagationFrame )
+    { }
 
-    virtual ~InertialBodyFixedDirectionCalculator( ){ }
+    virtual ~InertialBodyFixedDirectionCalculator( ) { }
 
     virtual Eigen::Vector3d getDirection( const double time ) = 0;
 
@@ -50,14 +49,8 @@ public:
     }
 
 protected:
-
     std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame_;
-
-
-
-
 };
-
 
 /*!
  *  Custom class for computation of inertial direction algorithm to be used in DirectionBasedRotationalEphemeris
@@ -65,18 +58,16 @@ protected:
  *  The rotationMatrixToPropagationFrame input allows the frame in which the direction is defined
  *  to be non-inertial (but RSW, TNW, etc.)
  */
-class CustomBodyFixedDirectionCalculator: public InertialBodyFixedDirectionCalculator
+class CustomBodyFixedDirectionCalculator : public InertialBodyFixedDirectionCalculator
 {
 public:
-    CustomBodyFixedDirectionCalculator(
-            const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction,
-            const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr ):
+    CustomBodyFixedDirectionCalculator( const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction,
+                                        const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToPropagationFrame = nullptr ):
         InertialBodyFixedDirectionCalculator( rotationMatrixToPropagationFrame ),
-        inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ),
-        currentTime_( TUDAT_NAN )
-        { }
+        inertialBodyAxisDirectionFunction_( inertialBodyAxisDirectionFunction ), currentTime_( TUDAT_NAN )
+    { }
 
-    ~CustomBodyFixedDirectionCalculator( ){ }
+    ~CustomBodyFixedDirectionCalculator( ) { }
 
     Eigen::Vector3d getDirection( const double time )
     {
@@ -88,8 +79,12 @@ public:
     {
         currentBodyAxisDirection_.setConstant( TUDAT_NAN );
         currentTime_ = TUDAT_NAN;
-        try { inertialBodyAxisDirectionFunction_( TUDAT_NAN ); }
-        catch( ... ) { }
+        try
+        {
+            inertialBodyAxisDirectionFunction_( TUDAT_NAN );
+        }
+        catch( ... )
+        { }
     }
 
     virtual void update( const double time );
@@ -105,13 +100,11 @@ public:
     }
 
 protected:
-
     std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction_;
 
     double currentTime_;
 
     Eigen::Vector3d currentBodyAxisDirection_;
-
 };
 
 /*!
@@ -119,22 +112,19 @@ protected:
  *  rotation model, with the direction based on current position/velocity.
  *  This class takes an arbitrary direction function as input.
  */
-class StateBasedBodyFixedDirectionCalculator: public InertialBodyFixedDirectionCalculator
+class StateBasedBodyFixedDirectionCalculator : public InertialBodyFixedDirectionCalculator
 {
 public:
-    StateBasedBodyFixedDirectionCalculator(
-            const std::string& centralBody,
-            const bool isColinearWithVelocity,
-            const bool directionIsOppositeToVector,
-            const std::function< void( Eigen::Vector6d& ) > relativeStateFunction ):
-        InertialBodyFixedDirectionCalculator( nullptr ),
-        centralBody_( centralBody ),
-        isColinearWithVelocity_( isColinearWithVelocity ),
-        directionIsOppositeToVector_( directionIsOppositeToVector ),
-        relativeStateFunction_( relativeStateFunction ),
-        currentTime_( TUDAT_NAN ){ }
+    StateBasedBodyFixedDirectionCalculator( const std::string& centralBody,
+                                            const bool isColinearWithVelocity,
+                                            const bool directionIsOppositeToVector,
+                                            const std::function< void( Eigen::Vector6d& ) > relativeStateFunction ):
+        InertialBodyFixedDirectionCalculator( nullptr ), centralBody_( centralBody ), isColinearWithVelocity_( isColinearWithVelocity ),
+        directionIsOppositeToVector_( directionIsOppositeToVector ), relativeStateFunction_( relativeStateFunction ),
+        currentTime_( TUDAT_NAN )
+    { }
 
-    ~StateBasedBodyFixedDirectionCalculator( ){ }
+    ~StateBasedBodyFixedDirectionCalculator( ) { }
 
     Eigen::Vector3d getDirection( const double time )
     {
@@ -166,7 +156,6 @@ public:
     }
 
 protected:
-
     std::string centralBody_;
 
     bool isColinearWithVelocity_;
@@ -180,8 +169,6 @@ protected:
     double currentTime_;
 
     Eigen::Vector3d currentDirection;
-
-
 };
 
 /*!
@@ -189,32 +176,28 @@ protected:
  *  (time-variable) inertial axis. This aligning of vectors, plus the definition of a
  *  free rotation angle, defines the body-fixed <-> inertial frame.
  */
-class DirectionBasedRotationalEphemeris: public ephemerides::RotationalEphemeris
+class DirectionBasedRotationalEphemeris : public ephemerides::RotationalEphemeris
 {
 public:
-
     //! Constructor.
     /*!
      * Constructor, sets frames between which rotation is determined.
      * \param baseFrameOrientation Base frame identifier.
      * \param targetFrameOrientation Target frame identifier.
      */
-    DirectionBasedRotationalEphemeris(
-            const std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator,
-            const Eigen::Vector3d& associatedBodyFixedDirection,
-            const std::string& baseFrameOrientation,
-            const std::string& targetFrameOrientation,
-            const std::function< double( const double ) > freeRotationAngleFunction = nullptr )
-        : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
-          directionCalculator_( directionCalculator ),
-          associatedBodyFixedDirection_( associatedBodyFixedDirection ),
-          freeRotationAngleFunction_( freeRotationAngleFunction ),
-          currentTime_( TUDAT_NAN ),
-          currentEulerAnglesTime_( TUDAT_NAN )
+    DirectionBasedRotationalEphemeris( const std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator,
+                                       const Eigen::Vector3d& associatedBodyFixedDirection,
+                                       const std::string& baseFrameOrientation,
+                                       const std::string& targetFrameOrientation,
+                                       const std::function< double( const double ) > freeRotationAngleFunction = nullptr ):
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), directionCalculator_( directionCalculator ),
+        associatedBodyFixedDirection_( associatedBodyFixedDirection ), freeRotationAngleFunction_( freeRotationAngleFunction ),
+        currentTime_( TUDAT_NAN ), currentEulerAnglesTime_( TUDAT_NAN )
     {
         if( associatedBodyFixedDirection != Eigen::Vector3d::UnitX( ) )
         {
-            throw std::runtime_error( "Error in DirectionBasedRotationalEphemeris, only x-axis body-fixed direction is currenly supported" );
+            throw std::runtime_error(
+                    "Error in DirectionBasedRotationalEphemeris, only x-axis body-fixed direction is currenly supported" );
         }
     }
 
@@ -224,23 +207,19 @@ public:
      */
     virtual ~DirectionBasedRotationalEphemeris( ) { }
 
-    virtual Eigen::Quaterniond getRotationToBaseFrame(
-            const double currentTime );
+    virtual Eigen::Quaterniond getRotationToBaseFrame( const double currentTime );
 
-    virtual Eigen::Quaterniond getRotationToTargetFrame(
-            const double currentTime )
+    virtual Eigen::Quaterniond getRotationToTargetFrame( const double currentTime )
     {
         return getRotationToBaseFrame( currentTime ).inverse( );
     }
 
-    virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
-            const double currentTime )
+    virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double currentTime )
     {
         return Eigen::Matrix3d::Constant( TUDAT_NAN );
     }
 
-    virtual Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
-            const double currentTime )
+    virtual Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double currentTime )
 
     {
         return Eigen::Matrix3d::Constant( TUDAT_NAN );
@@ -261,8 +240,7 @@ public:
         return currentInertialDirection_;
     }
 
-    void setInertialBodyAxisDirectionCalculator(
-            const std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator )
+    void setInertialBodyAxisDirectionCalculator( const std::shared_ptr< InertialBodyFixedDirectionCalculator > directionCalculator )
     {
         directionCalculator_ = directionCalculator;
     }
@@ -274,25 +252,25 @@ public:
 
     void setFreeRotationAngleFunction( const std::function< double( const double ) >& freeRotationAngleFunction )
     {
-        freeRotationAngleFunction_= freeRotationAngleFunction;
+        freeRotationAngleFunction_ = freeRotationAngleFunction;
     }
 
-    void resetDirectionFunction( const std::function< Eigen::Vector3d( const double) > inertialBodyAxisDirectionFunction )
+    void resetDirectionFunction( const std::function< Eigen::Vector3d( const double ) > inertialBodyAxisDirectionFunction )
     {
         if( std::dynamic_pointer_cast< CustomBodyFixedDirectionCalculator >( directionCalculator_ ) == nullptr )
         {
-            throw std::runtime_error( "Error in custom inertial direction based rotation model; cannot reset custom direction function, as no such function exists." );
+            throw std::runtime_error(
+                    "Error in custom inertial direction based rotation model; cannot reset custom direction function, as no such function "
+                    "exists." );
         }
         else
         {
-            std::dynamic_pointer_cast< CustomBodyFixedDirectionCalculator >( directionCalculator_ )->resetInertialBodyAxisDirectionFunction(
-                    inertialBodyAxisDirectionFunction );
+            std::dynamic_pointer_cast< CustomBodyFixedDirectionCalculator >( directionCalculator_ )
+                    ->resetInertialBodyAxisDirectionFunction( inertialBodyAxisDirectionFunction );
         }
     }
 
-
 protected:
-
     Eigen::Vector3d getEulerAngles( const double currentTime );
 
     void calculateEulerAngles( );
@@ -310,12 +288,10 @@ protected:
     double currentEulerAnglesTime_;
 
     Eigen::Vector3d eulerAngles_;
-
 };
 
+}  // namespace ephemerides
 
-} // namespace ephemerides
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_DIRECTION_BASED_ROTATIONAL_EPHEMERIS_H
+#endif  // TUDAT_DIRECTION_BASED_ROTATIONAL_EPHEMERIS_H

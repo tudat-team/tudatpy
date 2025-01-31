@@ -8,38 +8,32 @@ namespace numerical_quadrature
 
 //! Function to create Gauss quadrature node/weight container
 template< typename IndependentVariableType >
-std::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > >
-getGaussQuadratureNodesAndWeights( )
+std::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > > getGaussQuadratureNodesAndWeights( )
 {
     return std::make_shared< GaussQuadratureNodesAndWeights< IndependentVariableType > >( );
 }
 
 //! Function to create Gauss quadrature node/weight container with long double precision.
-template< >
-std::shared_ptr< GaussQuadratureNodesAndWeights< long double > >
-getGaussQuadratureNodesAndWeights( )
+template<>
+std::shared_ptr< GaussQuadratureNodesAndWeights< long double > > getGaussQuadratureNodesAndWeights( )
 {
     return longDoubleGaussQuadratureNodesAndWeights;
 }
 
 //! Function to create Gauss quadrature node/weight container with double precision.
-template< >
-std::shared_ptr< GaussQuadratureNodesAndWeights< double > >
-getGaussQuadratureNodesAndWeights( )
+template<>
+std::shared_ptr< GaussQuadratureNodesAndWeights< double > > getGaussQuadratureNodesAndWeights( )
 {
     return doubleGaussQuadratureNodesAndWeights;
 }
 
 //! Function to create Gauss quadrature node/weight container with float precision.
-template< >
-std::shared_ptr< GaussQuadratureNodesAndWeights< float > >
-getGaussQuadratureNodesAndWeights( )
+template<>
+std::shared_ptr< GaussQuadratureNodesAndWeights< float > > getGaussQuadratureNodesAndWeights( )
 {
     return floatGaussQuadratureNodesAndWeights;
 }
 
+}  // namespace numerical_quadrature
 
-} // namespace numerical_quadrature
-
-} // namespace tudat
-
+}  // namespace tudat

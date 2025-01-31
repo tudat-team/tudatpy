@@ -12,8 +12,8 @@
 #ifdef TUDAT_BUILD_GNU
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif // TUDAT_BUILD_GNU
-#endif // NDEBUG
+#endif  // TUDAT_BUILD_GNU
+#endif  // NDEBUG
 
 #ifndef TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
@@ -43,28 +43,27 @@ namespace numerical_integrators
  * \sa NumericalIntegrator.
  */
 template< typename IndependentVariableType = double,
-         typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd,
-         typename TimeStepType = IndependentVariableType >
+          typename StateType = Eigen::VectorXd,
+          typename StateDerivativeType = Eigen::VectorXd,
+          typename TimeStepType = IndependentVariableType >
 class RungeKutta4Integrator
-        : public numerical_integrators::RungeKuttaFixedStepSizeIntegrator<
-        IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
+    : public numerical_integrators::
+              RungeKuttaFixedStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 public:
-
     //! Typedef for the base class.
     /*!
      * Typedef of the base class with all template parameters filled in.
      */
-    typedef numerical_integrators::RungeKuttaFixedStepSizeIntegrator<
-    IndependentVariableType, StateType, StateDerivativeType, TimeStepType > RungeKuttaFixedStepSizeIntegratorBase;
+    typedef numerical_integrators::
+            RungeKuttaFixedStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
+                    RungeKuttaFixedStepSizeIntegratorBase;
 
     //! Typedef for the state derivative function.
     /*!
      * Typedef to the state derivative function inherited from the base class.
      */
-    typedef typename RungeKuttaFixedStepSizeIntegratorBase::
-    StateDerivativeFunction StateDerivativeFunction;
+    typedef typename RungeKuttaFixedStepSizeIntegratorBase::StateDerivativeFunction StateDerivativeFunction;
 
     //! Default constructor.
     /*!
@@ -76,26 +75,23 @@ public:
     RungeKutta4Integrator( const StateDerivativeFunction& stateDerivativeFunction,
                            const IndependentVariableType intervalStart,
                            const StateType& initialState,
-                           const TimeStepType& stepSize )
-        : RungeKuttaFixedStepSizeIntegratorBase( stateDerivativeFunction, intervalStart, initialState, stepSize, rungeKutta4Classic )
-    {
-    }
+                           const TimeStepType& stepSize ):
+        RungeKuttaFixedStepSizeIntegratorBase( stateDerivativeFunction, intervalStart, initialState, stepSize, rungeKutta4Classic )
+    { }
 
 protected:
-
 };
 
-//extern template class RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-//extern template class RungeKutta4Integrator < double, Eigen::Vector6d, Eigen::Vector6d >;
-//extern template class RungeKutta4Integrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
-
+// extern template class RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+// extern template class RungeKutta4Integrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+// extern template class RungeKutta4Integrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 //! Typedef of RK4 integrator (state/state derivative = VectorXd, independent variable = double).
 /*!
  * Typedef of a RK4 integrator with VectorXds as state and state derivative and double as
  * independent variable.
  */
-typedef RungeKutta4Integrator< > RungeKutta4IntegratorXd;
+typedef RungeKutta4Integrator<> RungeKutta4IntegratorXd;
 
 //! Typedef of a scalar RK4 integrator.
 /*!
@@ -118,15 +114,15 @@ typedef std::shared_ptr< RungeKutta4IntegratorXd > RungeKutta4IntegratorXdPointe
  */
 typedef std::shared_ptr< RungeKutta4Integratord > RungeKutta4IntegratordPointer;
 
-} // namespace numerical_integrators
+}  // namespace numerical_integrators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
+#endif  // TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
 
 #ifdef NDEBUG
 #ifdef TUDAT_BUILD_GNU
 // turn the warnings back on
 #pragma GCC diagnostic pop
-#endif // TUDAT_BUILD_GNU
-#endif // NDEBUG
+#endif  // TUDAT_BUILD_GNU
+#endif  // NDEBUG

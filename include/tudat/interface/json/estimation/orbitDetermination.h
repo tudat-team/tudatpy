@@ -21,58 +21,51 @@ namespace tudat
 namespace simulation_setup
 {
 
-void updateInverseAPrioriCovarianceFromJSON(
-        const nlohmann::json& jsonObject, const int numberOfParameters, Eigen::MatrixXd& inverseAprioriCovariance );
-
+void updateInverseAPrioriCovarianceFromJSON( const nlohmann::json& jsonObject,
+                                             const int numberOfParameters,
+                                             Eigen::MatrixXd& inverseAprioriCovariance );
 
 //! Create a shared pointer to a `EstimatableParameterSettings` object from a `json` object.
 template< typename ObservationScalarType = double, typename TimeType = double >
-void updatePodSettingsFromJSON(
-        const nlohmann::json& jsonObject,
-        std::shared_ptr< simulation_setup::EstimationInput< ObservationScalarType, TimeType > > estimationInput,
-        std::shared_ptr< simulation_setup::EstimationConvergenceChecker > convergenceChecker,
-        const int numberOfEstimatedParameters )
+void updatePodSettingsFromJSON( const nlohmann::json& jsonObject,
+                                std::shared_ptr< simulation_setup::EstimationInput< ObservationScalarType, TimeType > > estimationInput,
+                                std::shared_ptr< simulation_setup::EstimationConvergenceChecker > convergenceChecker,
+                                const int numberOfEstimatedParameters )
 {
     using namespace json_interface;
     using K = Keys::Estimation;
 
-    const bool reintegrateEquationsOnFirstIteration =
-            getValue< bool >( jsonObject, K::reintegrateEquationsOnFirstIteration, true );
-    const bool reintegrateVariationalEquations =
-            getValue< bool >( jsonObject, K::reintegrateVariationalEquations, true );
-    const bool saveDesignMatrix =
-            getValue< bool >( jsonObject, K::saveDesignMatrix, true );
-    const bool printOutput =
-            getValue< bool >( jsonObject, K::printOutput, true );
+    const bool reintegrateEquationsOnFirstIteration = getValue< bool >( jsonObject, K::reintegrateEquationsOnFirstIteration, true );
+    const bool reintegrateVariationalEquations = getValue< bool >( jsonObject, K::reintegrateVariationalEquations, true );
+    const bool saveDesignMatrix = getValue< bool >( jsonObject, K::saveDesignMatrix, true );
+    const bool printOutput = getValue< bool >( jsonObject, K::printOutput, true );
     const bool saveResidualsAndParametersFromEachIteration =
             getValue< bool >( jsonObject, K::saveResidualsAndParametersFromEachIteration, true );
-    const bool saveStateHistoryForEachIteration =
-            getValue< bool >( jsonObject, K::saveStateHistoryForEachIteration, false );
+    const bool saveStateHistoryForEachIteration = getValue< bool >( jsonObject, K::saveStateHistoryForEachIteration, false );
 
-
-    const int maximumNumberOfIterations =
-            getValue< int >( jsonObject, K::maximumNumberOfIterations, 5 );
-    const double minimumResidualChange =
-            getValue< double >( jsonObject, K::reintegrateEquationsOnFirstIteration, 0.0 );
-    const double minimumResidual =
-            getValue< double >( jsonObject, K::reintegrateEquationsOnFirstIteration, 1.0E-20 );
-    const int numberOfIterationsWithoutImprovement =
-            getValue< int >( jsonObject, K::reintegrateEquationsOnFirstIteration, 2 );
+    const int maximumNumberOfIterations = getValue< int >( jsonObject, K::maximumNumberOfIterations, 5 );
+    const double minimumResidualChange = getValue< double >( jsonObject, K::reintegrateEquationsOnFirstIteration, 0.0 );
+    const double minimumResidual = getValue< double >( jsonObject, K::reintegrateEquationsOnFirstIteration, 1.0E-20 );
+    const int numberOfIterationsWithoutImprovement = getValue< int >( jsonObject, K::reintegrateEquationsOnFirstIteration, 2 );
 
     Eigen::MatrixXd inverseAprioriCovariance;
-    updateInverseAPrioriCovarianceFromJSON(
-                jsonObject, numberOfEstimatedParameters, inverseAprioriCovariance );
+    updateInverseAPrioriCovarianceFromJSON( jsonObject, numberOfEstimatedParameters, inverseAprioriCovariance );
 
     estimationInput = std::make_shared< EstimationInput< ObservationScalarType, TimeType > >(
-                typename EstimationInput< ObservationScalarType, TimeType >::EstimationInputDataType( ),
-                numberOfEstimatedParameters, inverseAprioriCovariance, Eigen::VectorXd::Zero( numberOfEstimatedParameters ) );
+            typename EstimationInput< ObservationScalarType, TimeType >::EstimationInputDataType( ),
+            numberOfEstimatedParameters,
+            inverseAprioriCovariance,
+            Eigen::VectorXd::Zero( numberOfEstimatedParameters ) );
 
-    estimationInput->defineEstimationSettings(
-                reintegrateEquationsOnFirstIteration, reintegrateVariationalEquations, saveDesignMatrix,
-                printOutput, saveResidualsAndParametersFromEachIteration, saveStateHistoryForEachIteration );
+    estimationInput->defineEstimationSettings( reintegrateEquationsOnFirstIteration,
+                                               reintegrateVariationalEquations,
+                                               saveDesignMatrix,
+                                               printOutput,
+                                               saveResidualsAndParametersFromEachIteration,
+                                               saveStateHistoryForEachIteration );
 
     convergenceChecker = std::make_shared< EstimationConvergenceChecker >(
-                maximumNumberOfIterations, minimumResidualChange, minimumResidual, numberOfIterationsWithoutImprovement );
+            maximumNumberOfIterations, minimumResidualChange, minimumResidual, numberOfIterationsWithoutImprovement );
 }
 
 void updateObservationWeightsFromJSON(
@@ -80,9 +73,8 @@ void updateObservationWeightsFromJSON(
         const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, int > > numberOfObservations,
         std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > >& observableWeights );
 
+}  // namespace simulation_setup
 
-} // namespace propagators
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_JSONINTERFACE_ORBITDETERMINATION_H
+#endif  // TUDAT_JSONINTERFACE_ORBITDETERMINATION_H

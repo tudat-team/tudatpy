@@ -13,7 +13,6 @@
 
 #include <string>
 
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
@@ -42,8 +41,7 @@ namespace tudat
 namespace unit_tests
 {
 
-
-//Using declarations.
+// Using declarations.
 using namespace tudat::ephemerides;
 using namespace tudat::interpolators;
 using namespace tudat::numerical_integrators;
@@ -58,7 +56,7 @@ BOOST_AUTO_TEST_SUITE( test_cowell_propagator )
 
 BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
 {
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
@@ -71,9 +69,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
     double finalEphemerisTime = initialEphemerisTime + 2.0 * 3600.0;
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings =
-        getDefaultBodySettings(
-            bodyNames, "Earth", "ECLIPJ2000" );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
 
     SystemOfBodies bodies = createSystemOfBodies< double, double >( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
@@ -87,9 +83,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
 
     // Create acceleration models and propagation settings.
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-        bodies, accelerationMap,
-        std::vector< std::string >( { "Vehicle" } ),
-        std::vector< std::string >( { "Earth" } ) );
+            bodies, accelerationMap, std::vector< std::string >( { "Vehicle" } ), std::vector< std::string >( { "Earth" } ) );
 
     // Set Keplerian elements for Vehicle.
     Eigen::Vector6d vehicleInitialStateInKeplerianElements;
@@ -103,70 +97,65 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
     // Convert Vehicle state from Keplerian elements to Cartesian elements.
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
-
     for( unsigned int integratorCase = 0; integratorCase < 8; integratorCase++ )
     {
-        for ( unsigned int orbitCase = 0; orbitCase < 3; orbitCase++ )
+        for( unsigned int orbitCase = 0; orbitCase < 3; orbitCase++ )
         {
             // Define settings for numerical integrator.
             std::shared_ptr< IntegratorSettings< double > > integratorSettings;
             if( integratorCase == 0 )
             {
-                integratorSettings = rungeKuttaFixedStepSettings(
-                    60.0, CoefficientSets::rungeKutta4Classic );
+                integratorSettings = rungeKuttaFixedStepSettings( 60.0, CoefficientSets::rungeKutta4Classic );
             }
             else if( integratorCase == 1 )
             {
-                integratorSettings = rungeKuttaVariableStepSettingsScalarTolerances(
-                        60.0, rungeKuttaFehlberg78, 1.0E-3, 3600.0, 1.0E-6, 1.0E-6 );
+                integratorSettings =
+                        rungeKuttaVariableStepSettingsScalarTolerances( 60.0, rungeKuttaFehlberg78, 1.0E-3, 3600.0, 1.0E-6, 1.0E-6 );
             }
             else if( integratorCase == 2 )
             {
-                integratorSettings = bulirschStoerFixedStepIntegratorSettings(
-                    600.0, bulirsch_stoer_sequence, 6 );
+                integratorSettings = bulirschStoerFixedStepIntegratorSettings( 600.0, bulirsch_stoer_sequence, 6 );
             }
             else if( integratorCase == 3 )
             {
-                integratorSettings = bulirschStoerIntegratorSettings< double >(
-                    600.0, bulirsch_stoer_sequence, 8, 1.0E-3, 7200.0, 1.0E-6, 1.0E-6 );
+                integratorSettings =
+                        bulirschStoerIntegratorSettings< double >( 600.0, bulirsch_stoer_sequence, 8, 1.0E-3, 7200.0, 1.0E-6, 1.0E-6 );
             }
             else if( integratorCase == 4 )
             {
-                integratorSettings = adamsBashforthMoultonSettingsFixedStep(
-                    15.0, 1.0E-6, 1.0E-6 );
+                integratorSettings = adamsBashforthMoultonSettingsFixedStep( 15.0, 1.0E-6, 1.0E-6 );
             }
             else if( integratorCase == 5 )
             {
-                 integratorSettings = adamsBashforthMoultonSettings(
-                    30.0, 1.0E-3, 1200.0, 1.0E-6, 1.0E-6 );
+                integratorSettings = adamsBashforthMoultonSettings( 30.0, 1.0E-3, 1200.0, 1.0E-6, 1.0E-6 );
             }
             else if( integratorCase == 6 )
             {
-                integratorSettings = adamsBashforthMoultonSettingsFixedStepFixedOrder(
-                    10.0, 6 );
+                integratorSettings = adamsBashforthMoultonSettingsFixedStepFixedOrder( 10.0, 6 );
             }
             else if( integratorCase == 7 )
             {
-                integratorSettings = adamsBashforthMoultonSettingsFixedOrder(
-                    30.0, 1.0E-3, 1200.0, 1.0E-6, 1.0E-6 );
+                integratorSettings = adamsBashforthMoultonSettingsFixedOrder( 30.0, 1.0E-3, 1200.0, 1.0E-6, 1.0E-6 );
             }
 
             vehicleInitialStateInKeplerianElements( 1 ) = static_cast< double >( orbitCase ) * 0.45;
-            Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
-                vehicleInitialStateInKeplerianElements,
-                earthGravitationalParameter );
+            Eigen::VectorXd systemInitialState =
+                    convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
-            std::shared_ptr<TranslationalStatePropagatorSettings<double, double> > propagatorSettings =
-                translationalStatePropagatorSettings(
-                    std::vector< std::string >( { "Earth" } ), accelerationModelMap, std::vector< std::string >( { "Vehicle" } ),
-                        systemInitialState, initialEphemerisTime, integratorSettings,
-                    propagationTimeTerminationSettings( finalEphemerisTime ) );
+            std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
+                    translationalStatePropagatorSettings( std::vector< std::string >( { "Earth" } ),
+                                                          accelerationModelMap,
+                                                          std::vector< std::string >( { "Vehicle" } ),
+                                                          systemInitialState,
+                                                          initialEphemerisTime,
+                                                          integratorSettings,
+                                                          propagationTimeTerminationSettings( finalEphemerisTime ) );
 
             // Create dynamics simulation object.
-            auto dynamicsSimulator = std::dynamic_pointer_cast< SingleArcDynamicsSimulator< > >(
-                createDynamicsSimulator<double, double>( bodies, propagatorSettings ) );
+            auto dynamicsSimulator = std::dynamic_pointer_cast< SingleArcDynamicsSimulator<> >(
+                    createDynamicsSimulator< double, double >( bodies, propagatorSettings ) );
             std::map< double, Eigen::VectorXd > stateHistory =
-                dynamicsSimulator->getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
+                    dynamicsSimulator->getSingleArcPropagationResults( )->getEquationsOfMotionNumericalSolution( );
 
             auto firstIterator = stateHistory.begin( );
             auto secondIterator = stateHistory.begin( );
@@ -210,13 +199,11 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
                 BOOST_CHECK_EQUAL( allStepSizesEqual, false );
             }
         }
-
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
+}  // namespace unit_tests
 
-}
-
-}
+}  // namespace tudat

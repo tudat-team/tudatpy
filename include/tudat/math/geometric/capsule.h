@@ -38,10 +38,9 @@ namespace geometric_shapes
  * parts. The setCapsule( ) function needs to be called after each of the
  * parameters has been set to initialize the capsule.
  */
-class Capsule: public CompositeSurfaceGeometry
+class Capsule : public CompositeSurfaceGeometry
 {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor, initializes single and composite surface lists.
@@ -51,60 +50,77 @@ public:
      * \param rearAngle Cone half angle of frustum part
      * \param sideRadius Radius of curvature of capsule shoulder.
      */
-    Capsule( const double noseRadius,
-             const double middleRadius,
-             const double rearLength,
-             const double rearAngle,
-             const double sideRadius );
+    Capsule( const double noseRadius, const double middleRadius, const double rearLength, const double rearAngle, const double sideRadius );
 
     //! Get nose radius.
     /*!
      * Returns the nose radius of the capsule.
      * \return Nose radius.
      */
-    double getNoseRadius( ) { return noseRadius_; }
+    double getNoseRadius( )
+    {
+        return noseRadius_;
+    }
 
     //! Get middle radius.
     /*!
      * Returns the middle radius of the capsule.
      * \return Middle radius.
      */
-    double getMiddleRadius( ) { return middleRadius_; }
+    double getMiddleRadius( )
+    {
+        return middleRadius_;
+    }
 
     //! Get rear length.
     /*!
      * Returns the rear length of the capsule.
      * \return Rear length.
      */
-    double getRearLength( ) { return rearLength_; }
+    double getRearLength( )
+    {
+        return rearLength_;
+    }
 
     //! Get rear angle.
     /*!
      * Returns the rear angle.
      * \return Rear angle.
      */
-    double getRearAngle( ) { return rearAngle_; }
+    double getRearAngle( )
+    {
+        return rearAngle_;
+    }
 
     //! Get side radius.
     /*!
      * Returns the side radius.
      * \return side radius.
      */
-    double getSideRadius( ) { return sideRadius_; }
+    double getSideRadius( )
+    {
+        return sideRadius_;
+    }
 
     //! Get capsule volume (from analytical expressions).
     /*!
      * Returns the capsule volume.
      * \return capsule volume.
      */
-    double getVolume( ) { return capsuleVolume_; }
+    double getVolume( )
+    {
+        return capsuleVolume_;
+    }
 
     //! Get capsule frontal area (reference area).
     /*!
      * Returns the capsule frontal area.
      * \return capsule volume.
      */
-    double getFrontalArea( ) { return frontalArea_; }
+    double getFrontalArea( )
+    {
+        return frontalArea_;
+    }
 
     //! Get capsule length (from tip of nose sphere to tip of rear sphere).
     /*!
@@ -112,7 +128,10 @@ public:
      * \return side radius.
      */
 
-    double getLength( ) { return totalLength_; }
+    double getLength( )
+    {
+        return totalLength_;
+    }
 
     //! Overload ostream to print class information.
     /*!
@@ -122,12 +141,10 @@ public:
      * \param capsule Capsule of which info is to be printed.
      * \return Stream with printed info.
      */
-    friend std::ostream &operator << ( std::ostream &stream, Capsule& capsule );
+    friend std::ostream &operator<<( std::ostream &stream, Capsule &capsule );
 
 protected:
-
 private:
-
     //! Middle radius.
     /*!
      * Middle radius.
@@ -180,7 +197,7 @@ private:
 //! Typedef for shared-pointer to Capsule object.
 typedef std::shared_ptr< Capsule > CapsulePointer;
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat
 
-#endif // TUDAT_CAPSULE_H
+#endif  // TUDAT_CAPSULE_H

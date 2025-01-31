@@ -29,14 +29,13 @@ namespace unit_tests
 {
 
 //! Simple definition of a test function, so that it can be used by all root-finder unit tests.
-struct TestFunction
-{
+struct TestFunction {
     //! Default destructor.
     virtual ~TestFunction( ) { }
 
     //! Expected true location of the root.
     virtual double getTrueRootLocation( ) = 0;
-    
+
     //! Accuracy of the true value of the root.
     virtual double getTrueRootAccuracy( ) = 0;
 
@@ -50,7 +49,7 @@ struct TestFunction
     virtual double getUpperBound( ) = 0;
 };
 
-} // namespace unit_tests
-} // tudat
+}  // namespace unit_tests
+}  // namespace tudat
 
-#endif // TUDAT_TEST_FUNCTION_H
+#endif  // TUDAT_TEST_FUNCTION_H

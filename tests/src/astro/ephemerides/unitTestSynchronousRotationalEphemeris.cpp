@@ -35,7 +35,6 @@ BOOST_AUTO_TEST_SUITE( test_synchronous_rotational_ephemeris )
 
 BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
 {
-
     // Load Spice kernels
     tudat::spice_interface::loadStandardSpiceKernels( );
 
@@ -53,16 +52,14 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
     bodiesToTest.push_back( "Ganymede" );
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames );
     for( unsigned int i = 0; i < bodiesToTest.size( ); i++ )
     {
-        bodySettings.at( bodiesToTest.at( i ) )->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >(
-                    "Jupiter", "ECLIPJ2000", "IAU_" + bodiesToTest.at( i ) );
+        bodySettings.at( bodiesToTest.at( i ) )->rotationModelSettings =
+                std::make_shared< SynchronousRotationModelSettings >( "Jupiter", "ECLIPJ2000", "IAU_" + bodiesToTest.at( i ) );
         bodySettings.at( bodiesToTest.at( i ) )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
     }
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
 
     // Test rotation model when body is in propagation, and outside of propagation
     for( unsigned int areBodiesInPropagation = 0; areBodiesInPropagation < 2; areBodiesInPropagation++ )
@@ -75,11 +72,11 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
             // Get synchronous rotation model and ephemeris
             std::shared_ptr< SynchronousRotationalEphemeris > currentRotationalEphemeris =
                     std::dynamic_pointer_cast< SynchronousRotationalEphemeris >(
-                        bodies.at( bodiesToTest.at( i ) )->getRotationalEphemeris( ) );
+                            bodies.at( bodiesToTest.at( i ) )->getRotationalEphemeris( ) );
             std::shared_ptr< Ephemeris > currentEphemeris = bodies.at( bodiesToTest.at( i ) )->getEphemeris( );
 
             // Test for various times (and anomalies)
-            for( int j = 0; j < 100; j ++ )
+            for( int j = 0; j < 100; j++ )
             {
                 // Determine current test time
                 double testTime = 86400.0 * static_cast< double >( j );
@@ -94,8 +91,7 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
                 {
                     bodies.at( bodiesToTest.at( i ) )->setStateFromEphemeris( testTime );
                     bodies.at( "Jupiter" )->setStateFromEphemeris( testTime );
-                    currentSatelliteState = bodies.at( bodiesToTest.at( i ) )->getState( ) -
-                             bodies.at( "Jupiter" )->getState(  );
+                    currentSatelliteState = bodies.at( bodiesToTest.at( i ) )->getState( ) - bodies.at( "Jupiter" )->getState( );
                 }
 
                 // Retrieve rotation matrix
@@ -107,10 +103,10 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
                         currentRotationToBodyFixedFrame * currentSatelliteState.segment( 0, 3 ).normalized( );
                 Eigen::Vector3d bodyFixedVelocityVector =
                         currentRotationToBodyFixedFrame * currentSatelliteState.segment( 3, 3 ).normalized( );
-                Eigen::Vector3d bodyFixedOrbitalAngularMomentumVelocityVector =
-                        currentRotationToBodyFixedFrame *
-                        ( Eigen::Vector3d( currentSatelliteState.segment( 0, 3 ) ).cross(
-                              Eigen::Vector3d( currentSatelliteState.segment( 3, 3 ) ) ) ).normalized( );
+                Eigen::Vector3d bodyFixedOrbitalAngularMomentumVelocityVector = currentRotationToBodyFixedFrame *
+                        ( Eigen::Vector3d( currentSatelliteState.segment( 0, 3 ) )
+                                  .cross( Eigen::Vector3d( currentSatelliteState.segment( 3, 3 ) ) ) )
+                                .normalized( );
 
                 // Test vector magnitudes
                 BOOST_CHECK_SMALL( std::fabs( bodyFixedRadialVector( 0 ) + 1.0 ), 10.0 * std::numeric_limits< double >::epsilon( ) );
@@ -121,9 +117,12 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
                 BOOST_CHECK_SMALL( std::fabs( bodyFixedVelocityVector( 1 ) + 1.0 ), 0.01 );
                 BOOST_CHECK_SMALL( std::fabs( bodyFixedVelocityVector( 2 ) ), 10.0 * std::numeric_limits< double >::epsilon( ) );
 
-                BOOST_CHECK_SMALL( std::fabs( bodyFixedOrbitalAngularMomentumVelocityVector( 0 ) ), 10.0 * std::numeric_limits< double >::epsilon( ) );
-                BOOST_CHECK_SMALL( std::fabs( bodyFixedOrbitalAngularMomentumVelocityVector( 1 ) ), 10.0 * std::numeric_limits< double >::epsilon( ) );
-                BOOST_CHECK_SMALL( std::fabs( bodyFixedOrbitalAngularMomentumVelocityVector( 2 ) - 1.0 ), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL( std::fabs( bodyFixedOrbitalAngularMomentumVelocityVector( 0 ) ),
+                                   10.0 * std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL( std::fabs( bodyFixedOrbitalAngularMomentumVelocityVector( 1 ) ),
+                                   10.0 * std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL( std::fabs( bodyFixedOrbitalAngularMomentumVelocityVector( 2 ) - 1.0 ),
+                                   10.0 * std::numeric_limits< double >::epsilon( ) );
             }
         }
     }
@@ -131,5 +130,5 @@ BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

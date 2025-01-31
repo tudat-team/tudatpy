@@ -20,12 +20,11 @@ namespace coordinate_conversions
 {
 
 //! Function to convert a position from one representation to another
-Eigen::Vector3d convertPositionElements(
-        const Eigen::Vector3d& originalElements,
-        const PositionElementTypes originalElementType,
-        const PositionElementTypes convertedElementType,
-        const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
-        const double tolerance )
+Eigen::Vector3d convertPositionElements( const Eigen::Vector3d& originalElements,
+                                         const PositionElementTypes originalElementType,
+                                         const PositionElementTypes convertedElementType,
+                                         const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                                         const double tolerance )
 {
     Eigen::Vector3d convertedElements = Eigen::Vector3d::Constant( TUDAT_NAN );
     if( originalElementType == convertedElementType )
@@ -45,8 +44,8 @@ Eigen::Vector3d convertPositionElements(
             else if( std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( shapeModel ) != nullptr )
             {
                 flattening = 0.0;
-                equatorialRadius = std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >(
-                            shapeModel )->getAverageRadius( );
+                equatorialRadius =
+                        std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( shapeModel )->getAverageRadius( );
             }
             else if( std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != nullptr )
             {
@@ -63,96 +62,79 @@ Eigen::Vector3d convertPositionElements(
         // Check original type
         switch( originalElementType )
         {
-        case cartesian_position:
-        {
-            // Convert Cartesian position to requested type.
-            switch( convertedElementType )
-            {
-            case spherical_position:
-            {
-                convertedElements = convertCartesianToSpherical(
-                            originalElements );
-                convertedElements( 1 ) = mathematical_constants::PI / 2.0 - convertedElements( 1 );
+            case cartesian_position: {
+                // Convert Cartesian position to requested type.
+                switch( convertedElementType )
+                {
+                    case spherical_position: {
+                        convertedElements = convertCartesianToSpherical( originalElements );
+                        convertedElements( 1 ) = mathematical_constants::PI / 2.0 - convertedElements( 1 );
+                        break;
+                    }
+                    case geodetic_position: {
+                        convertedElements =
+                                convertCartesianToGeodeticCoordinates( originalElements, equatorialRadius, flattening, tolerance );
+                        break;
+                    }
+                    default:
+                        throw std::runtime_error( "Error when converting from cartesian position, target element type not recognized" );
+                }
                 break;
             }
-            case geodetic_position:
-            {
-                convertedElements = convertCartesianToGeodeticCoordinates(
-                            originalElements, equatorialRadius, flattening, tolerance );
+            case spherical_position: {
+                // Convert spherical position to requested type.
+                switch( convertedElementType )
+                {
+                    case cartesian_position: {
+                        Eigen::Vector3d inputElements = originalElements;
+                        inputElements( 1 ) = mathematical_constants::PI / 2.0 - inputElements( 1 );
+
+                        convertedElements = convertSphericalToCartesian( inputElements );
+                        break;
+                    }
+                    case geodetic_position: {
+                        Eigen::Vector3d inputElements = originalElements;
+                        inputElements( 1 ) = mathematical_constants::PI / 2.0 - inputElements( 1 );
+
+                        Eigen::Vector3d intermediateElements = convertSphericalToCartesian( inputElements );
+                        convertedElements =
+                                convertCartesianToGeodeticCoordinates( intermediateElements, equatorialRadius, flattening, tolerance );
+
+                        break;
+                    }
+                    default:
+                        throw std::runtime_error( "Error when converting from spherical position, target element type not recognized" );
+                }
                 break;
             }
-            default:
-                throw std::runtime_error( "Error when converting from cartesian position, target element type not recognized" );
-            }
-            break;
-        }
-        case spherical_position:
-        {
-            // Convert spherical position to requested type.
-            switch( convertedElementType )
-            {
-            case cartesian_position:
-            {
-                Eigen::Vector3d inputElements = originalElements;
-                inputElements( 1 ) = mathematical_constants::PI / 2.0 - inputElements( 1 );
+            case geodetic_position: {
+                // Convert geodetic position to requested type.
+                switch( convertedElementType )
+                {
+                    case cartesian_position: {
+                        convertedElements = convertGeodeticToCartesianCoordinates( originalElements, equatorialRadius, flattening );
+                        break;
+                    }
+                    case spherical_position: {
+                        Eigen::Vector3d intermediateElements =
+                                convertGeodeticToCartesianCoordinates( originalElements, equatorialRadius, flattening );
+                        convertedElements = convertCartesianToSpherical( intermediateElements );
+                        convertedElements( 1 ) = mathematical_constants::PI / 2.0 - convertedElements( 1 );
 
-                convertedElements = convertSphericalToCartesian(
-                             inputElements );
-                break;
-            }
-            case geodetic_position:
-            {
-                Eigen::Vector3d inputElements = originalElements;
-                inputElements( 1 ) = mathematical_constants::PI / 2.0 - inputElements( 1 );
-
-                 Eigen::Vector3d intermediateElements = convertSphericalToCartesian(
-                             inputElements );
-                 convertedElements = convertCartesianToGeodeticCoordinates(
-                             intermediateElements, equatorialRadius, flattening, tolerance );
-
-                 break;
-            }
-            default:
-                throw std::runtime_error( "Error when converting from spherical position, target element type not recognized" );
-
-            }
-            break;
-        }
-        case geodetic_position:
-        {
-            // Convert geodetic position to requested type.
-            switch( convertedElementType )
-            {
-            case cartesian_position:
-            {
-                convertedElements = convertGeodeticToCartesianCoordinates(
-                            originalElements, equatorialRadius, flattening );
-                break;
-            }
-            case spherical_position:
-            {
-                Eigen::Vector3d intermediateElements = convertGeodeticToCartesianCoordinates(
-                            originalElements, equatorialRadius, flattening );
-                convertedElements = convertCartesianToSpherical(
-                            intermediateElements );
-                convertedElements( 1 ) = mathematical_constants::PI / 2.0 - convertedElements( 1 );
-
+                        break;
+                    }
+                    default:
+                        throw std::runtime_error( "Error when converting from geodetic position, target element type not recognized" );
+                }
                 break;
             }
             default:
-                throw std::runtime_error( "Error when converting from geodetic position, target element type not recognized" );
-            }
-            break;
-        }
-        default:
-            throw std::runtime_error( "Error when converting position elements, base element type not recognized" );
+                throw std::runtime_error( "Error when converting position elements, base element type not recognized" );
         }
     }
     return convertedElements;
-
 }
 
-}
+}  // namespace coordinate_conversions
 
-}
-
+}  // namespace tudat

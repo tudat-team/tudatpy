@@ -15,7 +15,6 @@
 #include <limits>
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/math/interpolators/cubicSplineInterpolator.h"
@@ -38,8 +37,7 @@ BOOST_AUTO_TEST_SUITE( test_eop_reader )
 BOOST_AUTO_TEST_CASE( testEopReaderData )
 {
     std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >(
-                tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt",
-                "C04", basic_astrodynamics::iau_2000_a );
+            tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt", "C04", basic_astrodynamics::iau_2000_a );
 
     // Define current time/
     int year = 2007;
@@ -49,8 +47,8 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
     int minute = 0;
     double seconds = 0.0;
     double utcSecondsSinceJ2000 = tudat::basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
-                year, month, day, hour, minute, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-            * physical_constants::JULIAN_DAY;
+                                          year, month, day, hour, minute, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+            physical_constants::JULIAN_DAY;
 
     // Set EOP corrections read manually from file for 5-4-2007
     double arcSecondToRadian = 4.848136811095359935899141E-6;
@@ -62,14 +60,16 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
 
     // Create interpolator for x_{p} and y_{p} (polar motion) and retrieve current value
     std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
-            tudat::earth_orientation::createStandardEarthOrientationCalculator( eopReader )->getPolarMotionCalculator( )->
-            getDailyIersValueInterpolator( );
+            tudat::earth_orientation::createStandardEarthOrientationCalculator( eopReader )
+                    ->getPolarMotionCalculator( )
+                    ->getDailyIersValueInterpolator( );
     Eigen::Vector2d cipInItrs = cipInItrsInterpolator->interpolate( utcSecondsSinceJ2000 );
 
     // Create interpolator for dX and dY (nutation correction) and retrieve current value
     std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
-            tudat::earth_orientation::createStandardEarthOrientationCalculator( eopReader )->getPrecessionNutationCalculator( )->
-            getDailyCorrectionInterpolator( );
+            tudat::earth_orientation::createStandardEarthOrientationCalculator( eopReader )
+                    ->getPrecessionNutationCalculator( )
+                    ->getDailyCorrectionInterpolator( );
     Eigen::Vector2d cipInGcrs = cipInGcrsCorrectionInterpolator->interpolate( utcSecondsSinceJ2000 );
 
     // Create interpolator for d(UT1-UTC) correction  and retrieve current value
@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
     // Reset time
     int day2 = 6;
     utcSecondsSinceJ2000 = tudat::basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
-                year, month, day2, hour, minute, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-            * physical_constants::JULIAN_DAY;
+                                   year, month, day2, hour, minute, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+            physical_constants::JULIAN_DAY;
 
     // Set EOP corrections read manually from file for 6-4-2007
     double expectedXp2 = 0.035736 * arcSecondToRadian;
@@ -112,16 +112,16 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
     // Reset time to halfway between previous times
     int hour2 = 12;
     utcSecondsSinceJ2000 = tudat::basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
-                year, month, day, hour2, minute, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-            * physical_constants::JULIAN_DAY;
+                                   year, month, day, hour2, minute, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+            physical_constants::JULIAN_DAY;
 
     // Read correction interpolators
     cipInItrs = cipInItrsInterpolator->interpolate( utcSecondsSinceJ2000 );
     cipInGcrs = cipInGcrsCorrectionInterpolator->interpolate( utcSecondsSinceJ2000 );
     utcMinusUt1 = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 );
 
-    BOOST_CHECK_CLOSE_FRACTION( utcMinusUt1, ( expectedUT1COffset + expectedUT1COffset2 ) / 2.0,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            utcMinusUt1, ( expectedUT1COffset + expectedUT1COffset2 ) / 2.0, std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( cipInItrs.x( ), ( expectedXp + expectedXp2 ) / 2.0, std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( cipInItrs.y( ), ( expectedYp + expectedYp2 ) / 2.0, std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( cipInGcrs.x( ), ( expecteddX + expecteddX2 ) / 2.0, std::numeric_limits< double >::epsilon( ) );
@@ -130,24 +130,25 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
     // Reset time to halfway between previous times
     int hour3 = 1;
     utcSecondsSinceJ2000 = tudat::basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
-                year, month, day, hour3, minute, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-            * physical_constants::JULIAN_DAY;
+                                   year, month, day, hour3, minute, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+            physical_constants::JULIAN_DAY;
 
     // Read correction interpolators
     cipInItrs = cipInItrsInterpolator->interpolate( utcSecondsSinceJ2000 );
     cipInGcrs = cipInGcrsCorrectionInterpolator->interpolate( utcSecondsSinceJ2000 );
     utcMinusUt1 = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 );
 
-    BOOST_CHECK_CLOSE_FRACTION( utcMinusUt1, expectedUT1COffset + ( expectedUT1COffset2 - expectedUT1COffset ) / 24.0,
+    BOOST_CHECK_CLOSE_FRACTION( utcMinusUt1,
+                                expectedUT1COffset + ( expectedUT1COffset2 - expectedUT1COffset ) / 24.0,
                                 std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( cipInItrs.x( ), expectedXp + ( expectedXp2 - expectedXp ) / 24.0,
-                                std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( cipInItrs.y( ), expectedYp + ( expectedYp2 - expectedYp ) / 24.0,
-                                std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( cipInGcrs.x( ), expecteddX + ( expecteddX2 - expecteddX ) / 24.0,
-                                std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( cipInGcrs.y( ), expecteddY + ( expecteddY2 - expecteddY ) / 24.0,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            cipInItrs.x( ), expectedXp + ( expectedXp2 - expectedXp ) / 24.0, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            cipInItrs.y( ), expectedYp + ( expectedYp2 - expectedYp ) / 24.0, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            cipInGcrs.x( ), expecteddX + ( expecteddX2 - expecteddX ) / 24.0, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            cipInGcrs.y( ), expecteddY + ( expecteddY2 - expecteddY ) / 24.0, std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Check whether UT1-UTC interpolator correctly handles leap secons
@@ -155,45 +156,19 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
 {
     // Read EOP file and get UT1-UTC interpolator
     std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >(
-                tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt",
-                "C04", basic_astrodynamics::iau_2000_a );
+            tudat::paths::getEarthOrientationDataFilesPath( ) + "/eopc04_14_IAU2000.62-now.txt", "C04", basic_astrodynamics::iau_2000_a );
     std::shared_ptr< OneDimensionalInterpolator< double, double > > ut1MinusUtcInterpolator =
             createDefaultTimeConverter( eopReader )->getDailyUtcUt1CorrectionInterpolator( );
 
     // Define list of leap seconds
     Eigen::Matrix< int, Eigen::Dynamic, 3 > leapSecondDays;
     leapSecondDays.resize( 27, 3 );
-    leapSecondDays << 1, 7, 1972,
-            1, 1, 1973,
-            1, 1, 1974,
-            1, 1, 1975,
-            1, 1, 1976,
-            1, 1, 1977,
-            1, 1, 1978,
-            1, 1, 1979,
-            1, 1, 1980,
-            1, 7, 1981,
-            1, 7, 1982,
-            1, 7, 1983,
-            1, 7, 1985,
-            1, 1, 1988,
-            1, 1, 1990,
-            1, 1, 1991,
-            1, 7, 1992,
-            1, 7, 1993,
-            1, 7, 1994,
-            1, 1, 1996,
-            1, 7, 1997,
-            1, 1, 1999,
-            1, 1, 2006,
-            1, 1, 2009,
-            1, 7, 2012,
-            1, 7, 2015,
-            1, 1, 2017;
+    leapSecondDays << 1, 7, 1972, 1, 1, 1973, 1, 1, 1974, 1, 1, 1975, 1, 1, 1976, 1, 1, 1977, 1, 1, 1978, 1, 1, 1979, 1, 1, 1980, 1, 7,
+            1981, 1, 7, 1982, 1, 7, 1983, 1, 7, 1985, 1, 1, 1988, 1, 1, 1990, 1, 1, 1991, 1, 7, 1992, 1, 7, 1993, 1, 7, 1994, 1, 1, 1996, 1,
+            7, 1997, 1, 1, 1999, 1, 1, 2006, 1, 1, 2009, 1, 7, 2012, 1, 7, 2015, 1, 1, 2017;
 
     // Declare test variables.
-    double differenceMinusOneDay, differenceMinusOneMilliSecond,
-            differenceAtEpochPlusOneMilliSecond, differencePlusOneDay;
+    double differenceMinusOneDay, differenceMinusOneMilliSecond, differenceAtEpochPlusOneMilliSecond, differencePlusOneDay;
 
     // Set check time: at midnight
     int hour = 0;
@@ -209,8 +184,8 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
         month = leapSecondDays( i, 1 );
         day = leapSecondDays( i, 0 );
         double utcSecondsSinceJ2000 = tudat::basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
-                    year, month, day, hour, minute, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-                * physical_constants::JULIAN_DAY;
+                                              year, month, day, hour, minute, seconds, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                physical_constants::JULIAN_DAY;
 
         // Define test times
         differenceMinusOneDay = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 - physical_constants::JULIAN_DAY );
@@ -224,18 +199,11 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
 
         BOOST_CHECK_SMALL( std::fabs( differenceMinusOneMilliSecond - differenceAtEpochPlusOneMilliSecond + 1.0 ), 1.0E-10 );
         BOOST_CHECK_SMALL( std::fabs( differenceMinusOneDay - differencePlusOneDay + 1.0 ), 0.01 );
-
     }
 }
 
-
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
-
-
-
-
+}  // namespace tudat

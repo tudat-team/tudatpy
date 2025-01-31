@@ -20,7 +20,7 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `TorqueSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< TorqueSettings >& torqueSettings )
 {
-    if ( ! torqueSettings )
+    if( !torqueSettings )
     {
         return;
     }
@@ -31,13 +31,14 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< TorqueSettings 
     const AvailableTorque torqueType = torqueSettings->torqueType_;
     jsonObject[ K::type ] = torqueType;
 
-    switch ( torqueType ) {
-    case underfined_torque:
-    case second_order_gravitational_torque:
-    case aerodynamic_torque:
-        return;
-    default:
-        handleUnimplementedEnumValue( torqueType, torqueTypes, unsupportedTorqueTypes );
+    switch( torqueType )
+    {
+        case underfined_torque:
+        case second_order_gravitational_torque:
+        case aerodynamic_torque:
+            return;
+        default:
+            handleUnimplementedEnumValue( torqueType, torqueTypes, unsupportedTorqueTypes );
     }
 }
 
@@ -51,19 +52,19 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< TorqueSetting
     // Get acceleration type
     const AvailableTorque torqueType = getValue< AvailableTorque >( jsonObject, K::type );
 
-    switch ( torqueType ) {
-    case underfined_torque:
-    case second_order_gravitational_torque:
-    case aerodynamic_torque:
+    switch( torqueType )
     {
-        torqueSettings = std::make_shared< TorqueSettings >( torqueType );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( torqueType, torqueTypes, unsupportedTorqueTypes );
+        case underfined_torque:
+        case second_order_gravitational_torque:
+        case aerodynamic_torque: {
+            torqueSettings = std::make_shared< TorqueSettings >( torqueType );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( torqueType, torqueTypes, unsupportedTorqueTypes );
     }
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

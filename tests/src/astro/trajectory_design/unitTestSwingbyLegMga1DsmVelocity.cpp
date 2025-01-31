@@ -46,23 +46,17 @@ BOOST_AUTO_TEST_CASE( testVelocitiesUnpoweredGravityAssist )
     // by GTOP software distributed and downloadable from the ESA website, or within the PaGMO
     // Astrotoolbox.
     const double expectedDeltaV = 1415.44020553569;
-    const Eigen::Vector3d expectedVelocity ( -5080.63624082843, 55179.1205883319,
-                                             3549.41832192081 );
+    const Eigen::Vector3d expectedVelocity( -5080.63624082843, 55179.1205883319, 3549.41832192081 );
 
     // Specify the required parameters.
     // Set the planetary positions and velocities.
-    const Eigen::Vector3d planet1Position ( -75133023393.8197, -77873986249.455,
-                                            3277461620.51787 );
-    const Eigen::Vector3d planet2Position ( 53627979831.9489, -5044669560.01206,
-                                            -5339232305.5444 );
-    const Eigen::Vector3d planet1Velocity ( 24956.3863503886, -24481.33754925,
-                                            -1774.16153112584 );
+    const Eigen::Vector3d planet1Position( -75133023393.8197, -77873986249.455, 3277461620.51787 );
+    const Eigen::Vector3d planet2Position( 53627979831.9489, -5044669560.01206, -5339232305.5444 );
+    const Eigen::Vector3d planet1Velocity( 24956.3863503886, -24481.33754925, -1774.16153112584 );
 
     // Set velocity before departure body.
-    const Eigen::Vector3d velocityBeforePlanet1 ( 28586.0252553367, -17610.9003149933,
-                                                  -1915.53135757897 );
-    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
-            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
+    const Eigen::Vector3d velocityBeforePlanet1( 28586.0252553367, -17610.9003149933, -1915.53135757897 );
+    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1 = std::make_shared< Eigen::Vector3d >( velocityBeforePlanet1 );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 180.510754824 * physical_constants::JULIAN_DAY;
@@ -71,7 +65,7 @@ BOOST_AUTO_TEST_CASE( testVelocitiesUnpoweredGravityAssist )
     const double sunGravitationalParameter = 1.32712428e20;
     const double planet1GravitationalParameter = 3.24860e14;
 
-    //set model specific variables.
+    // set model specific variables.
     const double dsmTimeOfFlightFraction = 0.317174785637;
     const double rotationAngle = 1.34317576594;
     const double pericenterRadius = 1.10000000891 * 6052000;
@@ -79,11 +73,17 @@ BOOST_AUTO_TEST_CASE( testVelocitiesUnpoweredGravityAssist )
 
     // Set up the test leg.
     using namespace tudat::transfer_trajectories;
-    SwingbyLegMga1DsmVelocity legTest ( planet1Position, planet2Position, timeOfFlight,
-                                        planet1Velocity, sunGravitationalParameter,
-                                        planet1GravitationalParameter,
-                                        pointerToVelocityBeforePlanet1, dsmTimeOfFlightFraction,
-                                        rotationAngle, pericenterRadius, swingbyDeltaV );
+    SwingbyLegMga1DsmVelocity legTest( planet1Position,
+                                       planet2Position,
+                                       timeOfFlight,
+                                       planet1Velocity,
+                                       sunGravitationalParameter,
+                                       planet1GravitationalParameter,
+                                       pointerToVelocityBeforePlanet1,
+                                       dsmTimeOfFlightFraction,
+                                       rotationAngle,
+                                       pericenterRadius,
+                                       swingbyDeltaV );
 
     // Prepare the variables for the results.
     Eigen::Vector3d resultingVelocity;
@@ -110,23 +110,17 @@ BOOST_AUTO_TEST_CASE( testVelocitiesPoweredGravityAssist )
     // by GTOP software distributed and downloadable from the ESA website, or within the PaGMO
     // Astrotoolbox.
     const double expectedDeltaV = 1090.64622926316;
-    const Eigen::Vector3d expectedVelocity ( 37952.8844553685, -14096.9656774702,
-                                             -5753.51245833761 );
+    const Eigen::Vector3d expectedVelocity( 37952.8844553685, -14096.9656774702, -5753.51245833761 );
 
     // Specify the required parameters.
     // Set the planetary positions and velocities.
-    const Eigen::Vector3d planet1Position ( -35554348960.8278, -102574987127.178,
-                                            648696819.780156 );
-    const Eigen::Vector3d planet2Position ( -35568329915.7073, -102569794949.529,
-                                            650816245.825226 );
-    const Eigen::Vector3d planet1Velocity ( 32851.224953746, -11618.7310059974,
-                                            -2055.04615890989 );
+    const Eigen::Vector3d planet1Position( -35554348960.8278, -102574987127.178, 648696819.780156 );
+    const Eigen::Vector3d planet2Position( -35568329915.7073, -102569794949.529, 650816245.825226 );
+    const Eigen::Vector3d planet1Velocity( 32851.224953746, -11618.7310059974, -2055.04615890989 );
 
     // Set velocity before departure body
-    const Eigen::Vector3d velocityBeforePlanet1 ( 34216.4827530912, -15170.1440677825,
-                                                  395.792122152361 );
-    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
-            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
+    const Eigen::Vector3d velocityBeforePlanet1( 34216.4827530912, -15170.1440677825, 395.792122152361 );
+    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1 = std::make_shared< Eigen::Vector3d >( velocityBeforePlanet1 );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 449.385873819743 * physical_constants::JULIAN_DAY;
@@ -135,19 +129,25 @@ BOOST_AUTO_TEST_CASE( testVelocitiesPoweredGravityAssist )
     const double sunGravitationalParameter = 1.32712428e20;
     const double planet1GravitationalParameter = 3.24860e14;
 
-    //set model specific variables.
-    const double dsmTimeOfFlightFraction = 0.2;// This should be irrelevant for a perfect model.
+    // set model specific variables.
+    const double dsmTimeOfFlightFraction = 0.2;  // This should be irrelevant for a perfect model.
     const double rotationAngle = -2.0291949514117;
     const double pericenterRadius = 6351801.04541467;
     const double swingbyDeltaV = 1090.64622870007;
 
     // Set up the test leg.
     using namespace tudat::transfer_trajectories;
-    SwingbyLegMga1DsmVelocity legTest ( planet1Position, planet2Position, timeOfFlight,
-                                        planet1Velocity, sunGravitationalParameter,
-                                        planet1GravitationalParameter,
-                                        pointerToVelocityBeforePlanet1, dsmTimeOfFlightFraction,
-                                        rotationAngle, pericenterRadius, swingbyDeltaV );
+    SwingbyLegMga1DsmVelocity legTest( planet1Position,
+                                       planet2Position,
+                                       timeOfFlight,
+                                       planet1Velocity,
+                                       sunGravitationalParameter,
+                                       planet1GravitationalParameter,
+                                       pointerToVelocityBeforePlanet1,
+                                       dsmTimeOfFlightFraction,
+                                       rotationAngle,
+                                       pericenterRadius,
+                                       swingbyDeltaV );
 
     // Prepare the variables for the results.
     Eigen::Vector3d resultingVelocity;
@@ -174,20 +174,17 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     // by GTOP software distributed and downloadable from the ESA website, or within the PaGMO
     // Astrotoolbox.
     const double expectedDeltaV = 1090.64622926316;
-    const Eigen::Vector3d expectedVelocity ( 37952.8844553685, -14096.9656774702,
-                                             -5753.51245833761 );
+    const Eigen::Vector3d expectedVelocity( 37952.8844553685, -14096.9656774702, -5753.51245833761 );
 
     // Specify the required parameters.
     // Set the dummy positions and velocities.
-    const Eigen::Vector3d dummyPosition1 ( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
-    const Eigen::Vector3d dummyPosition2 ( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
-    const Eigen::Vector3d dummyVelocity1 ( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
+    const Eigen::Vector3d dummyPosition1( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
+    const Eigen::Vector3d dummyPosition2( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
+    const Eigen::Vector3d dummyVelocity1( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
 
     // Set velocity before departure body
-    const Eigen::Vector3d velocityBeforePlanet1 ( 34216.4827530912, -15170.1440677825,
-                                                  395.792122152361 );
-    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
-            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
+    const Eigen::Vector3d velocityBeforePlanet1( 34216.4827530912, -15170.1440677825, 395.792122152361 );
+    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1 = std::make_shared< Eigen::Vector3d >( velocityBeforePlanet1 );
 
     // Set the dummy time of flight.
     const double dummyTimeOfFlight = TUDAT_NAN;
@@ -204,11 +201,17 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
 
     // Set up the test leg.
     using namespace tudat::transfer_trajectories;
-    SwingbyLegMga1DsmVelocity legTest ( dummyPosition1, dummyPosition2, dummyTimeOfFlight,
-                                        dummyVelocity1, sunGravitationalParameter,
-                                        planet1GravitationalParameter,
-                                        pointerToVelocityBeforePlanet1, dummyVariable1,
-                                        dummyVariable2, dummyVariable3, dummyVariable4 );
+    SwingbyLegMga1DsmVelocity legTest( dummyPosition1,
+                                       dummyPosition2,
+                                       dummyTimeOfFlight,
+                                       dummyVelocity1,
+                                       sunGravitationalParameter,
+                                       planet1GravitationalParameter,
+                                       pointerToVelocityBeforePlanet1,
+                                       dummyVariable1,
+                                       dummyVariable2,
+                                       dummyVariable3,
+                                       dummyVariable4 );
 
     // Prepare the variables for the results.
     Eigen::Vector3d resultingVelocity;
@@ -220,30 +223,26 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
         legTest.calculateLeg( resultingVelocity, resultingDeltaV );
     }
     catch( std::runtime_error const& )
- { }
+    { }
 
     // Specify the values for the parameters that are to be updated.
     // Set the planetary positions and velocities.
-    const Eigen::Vector3d planet1Position ( -35554348960.8278, -102574987127.178,
-                                            648696819.780156 );
-    const Eigen::Vector3d planet2Position ( -35568329915.7073, -102569794949.529,
-                                            650816245.825226 );
-    const Eigen::Vector3d planet1Velocity ( 32851.224953746, -11618.7310059974,
-                                            -2055.04615890989 );
+    const Eigen::Vector3d planet1Position( -35554348960.8278, -102574987127.178, 648696819.780156 );
+    const Eigen::Vector3d planet2Position( -35568329915.7073, -102569794949.529, 650816245.825226 );
+    const Eigen::Vector3d planet1Velocity( 32851.224953746, -11618.7310059974, -2055.04615890989 );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 449.385873819743 * physical_constants::JULIAN_DAY;
 
-    //set model specific variables.
-    const double dsmTimeOfFlightFraction = 0.2;// This should be irrelevant for a perfect model.
+    // set model specific variables.
+    const double dsmTimeOfFlightFraction = 0.2;  // This should be irrelevant for a perfect model.
     const double rotationAngle = -2.0291949514117;
     const double pericenterRadius = 6351801.04541467;
     const double swingbyDeltaV = 1090.64622870007;
 
     // Create a variable vector containing these parameters.
     Eigen::VectorXd variableVector( 5 );
-    variableVector << timeOfFlight, dsmTimeOfFlightFraction, rotationAngle, pericenterRadius,
-                      swingbyDeltaV;
+    variableVector << timeOfFlight, dsmTimeOfFlightFraction, rotationAngle, pericenterRadius, swingbyDeltaV;
 
     // Pass both the new ephemeris and trajectory defining variables to the leg.
     legTest.updateEphemeris( planet1Position, planet2Position, planet1Velocity );
@@ -267,18 +266,13 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
 
     // Specify the required parameters, for the fourth leg of Messenger within GTOP.
     // Set the planetary positions and velocities.
-    const Eigen::Vector3d planet1Position ( -75133023393.8197, -77873986249.455,
-                                            3277461620.51787 );
-    const Eigen::Vector3d planet2Position ( 53627979831.9489, -5044669560.01206,
-                                            -5339232305.5444 );
-    const Eigen::Vector3d planet1Velocity ( 24956.3863503886, -24481.33754925,
-                                            -1774.16153112584 );
+    const Eigen::Vector3d planet1Position( -75133023393.8197, -77873986249.455, 3277461620.51787 );
+    const Eigen::Vector3d planet2Position( 53627979831.9489, -5044669560.01206, -5339232305.5444 );
+    const Eigen::Vector3d planet1Velocity( 24956.3863503886, -24481.33754925, -1774.16153112584 );
 
     // Set velocity before departure body.
-    const Eigen::Vector3d velocityBeforePlanet1 ( 28586.0252553367, -17610.9003149933,
-                                                  -1915.53135757897 );
-    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
-            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
+    const Eigen::Vector3d velocityBeforePlanet1( 28586.0252553367, -17610.9003149933, -1915.53135757897 );
+    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1 = std::make_shared< Eigen::Vector3d >( velocityBeforePlanet1 );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 180.510754824 * physical_constants::JULIAN_DAY;
@@ -287,7 +281,7 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
     const double sunGravitationalParameter = 1.32712428e20;
     const double planet1GravitationalParameter = 3.24860e14;
 
-    //set model specific variables.
+    // set model specific variables.
     const double dsmTimeOfFlightFraction = 0.317174785637;
     const double rotationAngle = 1.34317576594;
     const double pericenterRadius = 1.10000000891 * 6052000;
@@ -295,19 +289,24 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
 
     // Set up the test leg.
     using namespace tudat::transfer_trajectories;
-    SwingbyLegMga1DsmVelocity legTest ( planet1Position, planet2Position, timeOfFlight,
-                                        planet1Velocity, sunGravitationalParameter,
-                                        planet1GravitationalParameter,
-                                        pointerToVelocityBeforePlanet1, dsmTimeOfFlightFraction,
-                                        rotationAngle, pericenterRadius, swingbyDeltaV );
+    SwingbyLegMga1DsmVelocity legTest( planet1Position,
+                                       planet2Position,
+                                       timeOfFlight,
+                                       planet1Velocity,
+                                       sunGravitationalParameter,
+                                       planet1GravitationalParameter,
+                                       pointerToVelocityBeforePlanet1,
+                                       dsmTimeOfFlightFraction,
+                                       rotationAngle,
+                                       pericenterRadius,
+                                       swingbyDeltaV );
 
     // Initiate vectors for storing the results.
-    std::vector < Eigen::Vector3d > positionVector1, positionVector2;
-    std::vector < double > timeVector1, timeVector2;
+    std::vector< Eigen::Vector3d > positionVector1, positionVector2;
+    std::vector< double > timeVector1, timeVector2;
 
     // Test the functionality in case the leg has not been calculated yet.
-    legTest.intermediatePoints( 30. * physical_constants::JULIAN_DAY,
-                                positionVector1, timeVector1 );
+    legTest.intermediatePoints( 30. * physical_constants::JULIAN_DAY, positionVector1, timeVector1 );
 
     // Prepare the variables for calculating the leg actively.
     Eigen::Vector3d resultingVelocity;
@@ -317,16 +316,15 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
     legTest.calculateLeg( resultingVelocity, resultingDeltaV );
 
     // Test the functionality in case the leg has been calculated already.
-    legTest.intermediatePoints( 15. * physical_constants::JULIAN_DAY,
-                                positionVector2, timeVector2 );
+    legTest.intermediatePoints( 15. * physical_constants::JULIAN_DAY, positionVector2, timeVector2 );
 
     // Test if the halfway points in the first part of the leg match between the intermediate
     // points functions.
-    BOOST_CHECK_CLOSE_FRACTION( timeVector1[1] , timeVector2[2], tolerance );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( positionVector1[1], positionVector2[2], tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( timeVector1[ 1 ], timeVector2[ 2 ], tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( positionVector1[ 1 ], positionVector2[ 2 ], tolerance );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

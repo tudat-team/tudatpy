@@ -24,41 +24,38 @@ namespace acceleration_partials
 {
 
 void computeRadiationPressureAccelerationWrtSourceDirectionScaling(
-    const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > accelerationModel,
-    Eigen::MatrixXd& partial );
+        const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > accelerationModel,
+        Eigen::MatrixXd& partial );
 
 void computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling(
-    const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > accelerationModel,
-    Eigen::MatrixXd& partial );
+        const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > accelerationModel,
+        Eigen::MatrixXd& partial );
 
 //! Class to calculate the partials of the cannnonball radiation pressure acceleration w.r.t. parameters and states.
-class CannonBallRadiationPressurePartial: public AccelerationPartial
+class CannonBallRadiationPressurePartial : public AccelerationPartial
 {
 public:
-
     CannonBallRadiationPressurePartial(
-        const std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > cannonballTargetModel,
-        const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > accelerationModel,
-        const std::string& acceleratedBody, const std::string& acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody,
-                             basic_astrodynamics::cannon_ball_radiation_pressure ),
-        sourceBodyState_( accelerationModel->getSourcePositionFunction() ),
+            const std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > cannonballTargetModel,
+            const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > accelerationModel,
+            const std::string& acceleratedBody,
+            const std::string& acceleratingBody ):
+        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::cannon_ball_radiation_pressure ),
+        sourceBodyState_( accelerationModel->getSourcePositionFunction( ) ),
         acceleratedBodyState_( accelerationModel->getTargetPositionFunction( ) ),
         areaFunction_( std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getArea, cannonballTargetModel ) ),
-        radiationPressureCoefficientFunction_(  std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getCoefficient,
-                                                           cannonballTargetModel ) ),
-        radiationPressureFunction_( std::bind( &electromagnetism::RadiationPressureAcceleration::getCurrentRadiationPressure,
-                                               accelerationModel ) ),
-        acceleratedBodyMassFunction_( accelerationModel->getTargetMassFunction() ),
-        accelerationUpdateFunction_( std::bind( &basic_astrodynamics::AccelerationModel3d::updateMembers, accelerationModel, std::placeholders::_1 ) ),
-        cannonballTargetModel_( cannonballTargetModel ),
-        accelerationModel_( accelerationModel )
-    {
-
-    }
+        radiationPressureCoefficientFunction_(
+                std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getCoefficient, cannonballTargetModel ) ),
+        radiationPressureFunction_(
+                std::bind( &electromagnetism::RadiationPressureAcceleration::getCurrentRadiationPressure, accelerationModel ) ),
+        acceleratedBodyMassFunction_( accelerationModel->getTargetMassFunction( ) ),
+        accelerationUpdateFunction_(
+                std::bind( &basic_astrodynamics::AccelerationModel3d::updateMembers, accelerationModel, std::placeholders::_1 ) ),
+        cannonballTargetModel_( cannonballTargetModel ), accelerationModel_( accelerationModel )
+    { }
 
     //! Destructor.
-    ~CannonBallRadiationPressurePartial( ){ }
+    ~CannonBallRadiationPressurePartial( ) { }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -72,7 +69,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                       const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -96,7 +95,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -117,18 +118,17 @@ public:
      *  \param integratedStateType Type of propagated state for which partial is to be computed.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      */
-    void wrtNonTranslationalStateOfAdditionalBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType,
-            const bool addContribution = true )
+    void wrtNonTranslationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                   const std::pair< std::string, std::string >& stateReferencePoint,
+                                                   const propagators::IntegratedStateType integratedStateType,
+                                                   const bool addContribution = true )
     {
         if( stateReferencePoint.first == acceleratedBody_ && integratedStateType == propagators::body_mass_state )
         {
-            partialMatrix.block( 0, 0, 3, 1 ) +=
-                   ( addContribution ? 1.0 : -1.0 ) * ( radiationPressureFunction_( ) * areaFunction_( ) * radiationPressureCoefficientFunction_( ) *
-                    ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) /
-                    ( acceleratedBodyMassFunction_( ) * acceleratedBodyMassFunction_( ) ) );
+            partialMatrix.block( 0, 0, 3, 1 ) += ( addContribution ? 1.0 : -1.0 ) *
+                    ( radiationPressureFunction_( ) * areaFunction_( ) * radiationPressureCoefficientFunction_( ) *
+                      ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) /
+                      ( acceleratedBodyMassFunction_( ) * acceleratedBodyMassFunction_( ) ) );
         }
     }
 
@@ -139,9 +139,8 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType )
     {
         bool isDependent = 0;
 
@@ -160,8 +159,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
@@ -196,8 +194,7 @@ public:
         this->wrtRadiationPressureCoefficient( partialWrtSingleParameter );
 
         // Retrieve current arc
-        std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp =
-                parameter->getArcTimeLookupScheme( );
+        std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp = parameter->getArcTimeLookupScheme( );
         partial.setZero( );
         if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
         {
@@ -211,7 +208,6 @@ public:
             // Set partial
             partial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
         }
-
     }
 
     //! Function for updating partial w.r.t. the bodies' positions
@@ -222,11 +218,11 @@ public:
      */
     void update( const double currentTime = 0.0 )
     {
-//        std::cout<<"Computing pre "<<currentTime<<" "<<currentTime_<<std::endl;
+        //        std::cout<<"Computing pre "<<currentTime<<" "<<currentTime_<<std::endl;
 
         if( !( currentTime_ == currentTime ) )
         {
-//            std::cout<<"Computing post "<<currentTime<<" "<<currentTime_<<std::endl;
+            //            std::cout<<"Computing post "<<currentTime<<" "<<currentTime_<<std::endl;
 
             accelerationUpdateFunction_( currentTime );
 
@@ -236,22 +232,20 @@ public:
             double rangeInverse = 1.0 / ( range );
 
             // Compute position partial.
-            currentPartialWrtPosition_ =
-                    ( radiationPressureCoefficientFunction_( ) * areaFunction_( ) * radiationPressureFunction_( ) /
-                      acceleratedBodyMassFunction_( ) ) * ( Eigen::Matrix3d::Identity( ) * rangeInverse - 3.0 *
-                                                            rangeVector * rangeVector.transpose( ) * rangeInverse / (
-                                                                range * range ) );
+            currentPartialWrtPosition_ = ( radiationPressureCoefficientFunction_( ) * areaFunction_( ) * radiationPressureFunction_( ) /
+                                           acceleratedBodyMassFunction_( ) ) *
+                    ( Eigen::Matrix3d::Identity( ) * rangeInverse -
+                      3.0 * rangeVector * rangeVector.transpose( ) * rangeInverse / ( range * range ) );
             currentTime_ = currentTime;
         }
     }
 
 private:
-
     //! Function returning position of radiation source.
     std::function< Eigen::Vector3d( ) > sourceBodyState_;
 
     //! Function returning position of body undergoing acceleration.
-    std::function< Eigen::Vector3d( )> acceleratedBodyState_;
+    std::function< Eigen::Vector3d( ) > acceleratedBodyState_;
 
     //! Function returning reflecting (or reference) area of radiation pressure on acceleratedBody_
     std::function< double( ) > areaFunction_;
@@ -275,8 +269,8 @@ private:
     std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > accelerationModel_;
 };
 
-} // namespace acceleration_partials
+}  // namespace acceleration_partials
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_RADIATIONPRESSUREACCELERATIONPARTIAL_H
+#endif  // TUDAT_RADIATIONPRESSUREACCELERATIONPARTIAL_H

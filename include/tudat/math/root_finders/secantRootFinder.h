@@ -22,10 +22,6 @@
 
 #include <cmath>
 
-
-
-
-
 #include <memory>
 
 #include "tudat/math/root_finders/rootFinder.h"
@@ -61,7 +57,6 @@ template< typename DataType = double >
 class SecantRootFinder : public RootFinder< DataType >
 {
 public:
-
     //! Usefull type definition for the function pointer (from base class).
     typedef typename RootFinder< DataType >::FunctionPointer FunctionPointer;
 
@@ -81,10 +76,8 @@ public:
      * \param initialGuessOfRootOne First point used to initiate the Secant root-finder algorithm.
      *          (Default is 0.5)
      */
-    SecantRootFinder( TerminationFunction terminationFunction,
-                          const DataType initialGuessOfRootOne = 0.5 )
-        : RootFinder< DataType >( terminationFunction ),
-          initialGuessOfRootOne_( initialGuessOfRootOne )
+    SecantRootFinder( TerminationFunction terminationFunction, const DataType initialGuessOfRootOne = 0.5 ):
+        RootFinder< DataType >( terminationFunction ), initialGuessOfRootOne_( initialGuessOfRootOne )
     { }
 
     //! Constructor taking typical convergence criteria and the least accurate initial guess.
@@ -103,15 +96,19 @@ public:
      * \param initialGuessOfRootOne First point used to initiate the Secant root-finder algorithm.
      *          (Default is 0.5)
      */
-    SecantRootFinder( const double relativeIndependentVariableTolerance, const unsigned int maxIterations,
-                          const DataType initialGuessOfRootOne = 0.5 )
-        : RootFinder< DataType >(
-              std::bind(
-                  &RootRelativeToleranceTerminationCondition< DataType >::
-                  checkTerminationCondition, std::make_shared<
-                  RootRelativeToleranceTerminationCondition< DataType > >(
-                      relativeIndependentVariableTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) ),
-          initialGuessOfRootOne_( initialGuessOfRootOne )
+    SecantRootFinder( const double relativeIndependentVariableTolerance,
+                      const unsigned int maxIterations,
+                      const DataType initialGuessOfRootOne = 0.5 ):
+        RootFinder< DataType >(
+                std::bind( &RootRelativeToleranceTerminationCondition< DataType >::checkTerminationCondition,
+                           std::make_shared< RootRelativeToleranceTerminationCondition< DataType > >( relativeIndependentVariableTolerance,
+                                                                                                      maxIterations ),
+                           std::placeholders::_1,
+                           std::placeholders::_2,
+                           std::placeholders::_3,
+                           std::placeholders::_4,
+                           std::placeholders::_5 ) ),
+        initialGuessOfRootOne_( initialGuessOfRootOne )
     { }
 
     //! Default destructor.
@@ -138,25 +135,25 @@ public:
 
         // Start at the two initial values that are used in the algorithm, and compute the function
         // values.
-        DataType lastRootValue          = TUDAT_NAN;
-        DataType currentRootValue       = initialGuessOfRootOne_;
-        DataType nextRootValue          = initialGuess;
-        DataType lastFunctionValue      = TUDAT_NAN;
-        DataType currentFunctionValue   = this->rootFunction->evaluate( currentRootValue );
-        DataType nextFunctionValue      = this->rootFunction->evaluate( nextRootValue );
+        DataType lastRootValue = TUDAT_NAN;
+        DataType currentRootValue = initialGuessOfRootOne_;
+        DataType nextRootValue = initialGuess;
+        DataType lastFunctionValue = TUDAT_NAN;
+        DataType currentFunctionValue = this->rootFunction->evaluate( currentRootValue );
+        DataType nextFunctionValue = this->rootFunction->evaluate( nextRootValue );
 
         // Check if the next root value is the most accurate guess. If not, switch the values.
         if( std::fabs( currentFunctionValue ) < std::fabs( nextFunctionValue ) )
         {
             // Switch the root value.
-            DataType temporaryRoot  = currentRootValue;
-            currentRootValue        = nextRootValue;
-            nextRootValue           = temporaryRoot;
+            DataType temporaryRoot = currentRootValue;
+            currentRootValue = nextRootValue;
+            nextRootValue = temporaryRoot;
 
             // Switch the function value
             DataType temporaryValue = currentFunctionValue;
-            currentFunctionValue    = nextFunctionValue;
-            nextFunctionValue       = temporaryValue;
+            currentFunctionValue = nextFunctionValue;
+            nextFunctionValue = temporaryValue;
         }
 
         // Loop counter.
@@ -166,26 +163,22 @@ public:
         do
         {
             // Save the old values.
-            lastRootValue           = currentRootValue;
-            lastFunctionValue       = currentFunctionValue;
-            currentRootValue        = nextRootValue;
-            currentFunctionValue    = nextFunctionValue;
+            lastRootValue = currentRootValue;
+            lastFunctionValue = currentFunctionValue;
+            currentRootValue = nextRootValue;
+            currentFunctionValue = nextFunctionValue;
 
             // Compute next value of root using the following algorithm (see class documentation):
-            nextRootValue           = currentRootValue - currentFunctionValue
-                    * ( currentRootValue - lastRootValue )
-                    / ( currentFunctionValue - lastFunctionValue );
-            nextFunctionValue       = this->rootFunction->evaluate( nextRootValue );
+            nextRootValue = currentRootValue -
+                    currentFunctionValue * ( currentRootValue - lastRootValue ) / ( currentFunctionValue - lastFunctionValue );
+            nextFunctionValue = this->rootFunction->evaluate( nextRootValue );
 
             // Update the counter.
             counter++;
-        }
-        while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
-               !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
-                                           currentFunctionValue, counter ) );
+        } while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
+                 !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue, currentFunctionValue, counter ) );
 
         return nextRootValue;
-
     }
 
     //! Set a new value for the first point used in the Secant algorithm.
@@ -204,15 +197,12 @@ public:
     }
 
 protected:
-
 private:
-
     //! Initial value of the first point (least accurate guess) in the Secant algorithm.
     double initialGuessOfRootOne_;
-
 };
 
-} // namespace root_finders
-} // namespace tudat
+}  // namespace root_finders
+}  // namespace tudat
 
-#endif // TUDAT_SECANT_ROOT_FINDER_H
+#endif  // TUDAT_SECANT_ROOT_FINDER_H

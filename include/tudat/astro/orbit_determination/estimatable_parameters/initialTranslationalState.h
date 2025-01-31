@@ -21,10 +21,9 @@ namespace estimatable_parameters
 
 //! Interface class for the estimation of an initial translational state.
 template< typename InitialStateParameterType = double >
-class InitialTranslationalStateParameter: public EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
+class InitialTranslationalStateParameter : public EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
 {
 public:
-
     //! Constructor, sets initial value of translational state.
     /*!
      * Constructor, sets initial value of translational state.
@@ -33,14 +32,12 @@ public:
      * \param centralBody Body w.r.t. which the initial state is to be estimated.
      * \param frameOrientation Orientation of the frame in which the state is defined.
      */
-    InitialTranslationalStateParameter(
-            const std::string& associatedBody,
-            const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialTranslationalState,
-            const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
-        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >(
-            initial_body_state, associatedBody ),
-        initialTranslationalState_( initialTranslationalState ), centralBody_( centralBody ),
-        frameOrientation_( frameOrientation )
+    InitialTranslationalStateParameter( const std::string& associatedBody,
+                                        const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialTranslationalState,
+                                        const std::string& centralBody = "SSB",
+                                        const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( initial_body_state, associatedBody ),
+        initialTranslationalState_( initialTranslationalState ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
     { }
 
     //! Function to get the current value of initial state w.r.t. centralBody.
@@ -58,7 +55,7 @@ public:
      * Function to reset the current value of initial state w.r.t. centralBody.
      * \param parameterValue The new value of initial state w.r.t. centralBody.
      */
-    void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  parameterValue )
+    void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
         initialTranslationalState_ = parameterValue;
     }
@@ -94,7 +91,6 @@ public:
     }
 
 private:
-
     //! Current value of initial state (w.r.t. centralBody)
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalState_;
 
@@ -103,16 +99,14 @@ private:
 
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
-
 };
 
 //! Interface class for the estimation of an arcwise initial translational state.
 template< typename InitialStateParameterType = double >
-class ArcWiseInitialTranslationalStateParameter: public EstimatableParameter< Eigen::Matrix<
-        InitialStateParameterType, Eigen::Dynamic, 1 > >
+class ArcWiseInitialTranslationalStateParameter
+    : public EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -126,20 +120,20 @@ public:
             const std::string& associatedBody,
             const std::vector< double >& arcStartTimes,
             const std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >& initialTranslationalState,
-            const std::vector< std::string >& centralBodies, const std::string& frameOrientation = "ECLIPJ2000" ):
-        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >(
-            arc_wise_initial_body_state, associatedBody ),
+            const std::vector< std::string >& centralBodies,
+            const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( arc_wise_initial_body_state,
+                                                                                               associatedBody ),
         arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation )
     {
         if( arcStartTimes_.size( ) != initialTranslationalState.size( ) )
         {
-            throw std::runtime_error(
-                        "Error when creating arc-wise initial translational state parameters, incompatible sizes are found" );
+            throw std::runtime_error( "Error when creating arc-wise initial translational state parameters, incompatible sizes are found" );
         }
         else if( arcStartTimes_.size( ) != centralBodies_.size( ) )
         {
             throw std::runtime_error(
-                        "Error when creating arc-wise initial translational state parameters, incompatible sizes are found or central bodies" );
+                    "Error when creating arc-wise initial translational state parameters, incompatible sizes are found or central bodies" );
         }
         else
         {
@@ -163,23 +157,22 @@ public:
             const std::string& associatedBody,
             const std::vector< double >& arcStartTimes,
             const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalStates,
-            const std::vector< std::string >& centralBodies, const std::string& frameOrientation = "ECLIPJ2000" ):
-        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >(
-            arc_wise_initial_body_state, associatedBody ),
-        initialTranslationalState_( initialTranslationalStates ),
-        arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation )
+            const std::vector< std::string >& centralBodies,
+            const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( arc_wise_initial_body_state,
+                                                                                               associatedBody ),
+        initialTranslationalState_( initialTranslationalStates ), arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ),
+        frameOrientation_( frameOrientation )
     {
-
         if( arcStartTimes_.size( ) != centralBodies_.size( ) )
         {
             throw std::runtime_error(
-                        "Error when creating arc-wise initial translational state parameters, incompatible sizes are found or central bodies" );
+                    "Error when creating arc-wise initial translational state parameters, incompatible sizes are found or central bodies" );
         }
 
         if( 6 * static_cast< int >( arcStartTimes_.size( ) ) != initialTranslationalStates.rows( ) )
         {
-            throw std::runtime_error(
-                        "Error when creatiung arc-wise initial translational state parameters, incompatible sizes " );
+            throw std::runtime_error( "Error when creatiung arc-wise initial translational state parameters, incompatible sizes " );
         }
     }
 
@@ -198,7 +191,7 @@ public:
      *Function to reset the current values of initial states w.r.t. centralBody for each arc, concatenated in arc order
      * \param parameterValue New values of initial states w.r.t. centralBody for each arc, concatenated in arc order
      */
-    void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  parameterValue )
+    void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
         initialTranslationalState_ = parameterValue;
     }
@@ -233,7 +226,6 @@ public:
         return centralBodies_;
     }
 
-
     //! Function to get the start times for separate arcs
     /*!
      * Function to get the start times for separate arcs
@@ -261,7 +253,6 @@ public:
     }
 
 private:
-
     //! The current values of initial states w.r.t. centralBody for each arc, concatenated in arc order
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalState_;
 
@@ -273,7 +264,6 @@ private:
 
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
-
 };
 
 ////! Function to retrieve the size of the estimatable parameter set.
@@ -282,8 +272,8 @@ private:
 // *  \param estimatableParameterSet Set of estimatable parameters.
 // *  \return Size of parameter set.
 // */
-//template< typename InitialStateParameterType = double >
-//int getSingleArcParameterSetSize(
+// template< typename InitialStateParameterType = double >
+// int getSingleArcParameterSetSize(
 //        std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
 //{
 //    int totalParameterSetSize = estimatableParameterSet->getEstimatedParameterSetSize( );
@@ -316,8 +306,8 @@ private:
 // *  \param estimatableParameterSet Set of estimatable parameters.
 // *  \return Size of the initial dynamical state.
 // */
-//template< typename InitialStateParameterType = double >
-//int getSingleArcInitialDynamicalStateParameterSetSize(
+// template< typename InitialStateParameterType = double >
+// int getSingleArcInitialDynamicalStateParameterSetSize(
 //        std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
 //{
 //    return getSingleArcParameterSetSize( estimatableParameterSet ) -
@@ -333,8 +323,8 @@ private:
 // *  \param throwErrorOnSingleArcDynamics Boolean denoting whether to throw an exception if single arc dynamics are used (default true)
 // *  \return Start times for estimation arcs
 // */
-//template< typename InitialStateParameterType >
-//std::vector< double > getMultiArcStateEstimationArcStartTimes(
+// template< typename InitialStateParameterType >
+// std::vector< double > getMultiArcStateEstimationArcStartTimes(
 //        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters,
 //        const bool throwErrorOnSingleArcDynamics = true )
 //
@@ -398,9 +388,8 @@ private:
 //    return arcStartTimes;
 //}
 
+}  // namespace estimatable_parameters
 
-} // namespace estimatable_parameters
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_INITIALTRANSLATIONALSTATE_H
+#endif  // TUDAT_INITIALTRANSLATIONALSTATE_H

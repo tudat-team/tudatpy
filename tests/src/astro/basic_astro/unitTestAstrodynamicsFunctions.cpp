@@ -45,15 +45,14 @@ BOOST_AUTO_TEST_CASE( testKeplerOrbitalPeriod )
     double satelliteMass = 1.0e3;
 
     // Declare and set gravitational parameter of Earth [m^3 s^-2].
-    double earthGravitationalParameter
-            = physical_constants::GRAVITATIONAL_CONSTANT * 5.9736e24;
+    double earthGravitationalParameter = physical_constants::GRAVITATIONAL_CONSTANT * 5.9736e24;
 
     // Declare and set distance between Earth center and satellite.
     double distanceBetweenSatelliteAndEarth = 4.2164e7;
 
     // Compute orbital period of satellite.
-    double orbitalPeriod = basic_astrodynamics::computeKeplerOrbitalPeriod(
-                distanceBetweenSatelliteAndEarth, earthGravitationalParameter, satelliteMass );
+    double orbitalPeriod =
+            basic_astrodynamics::computeKeplerOrbitalPeriod( distanceBetweenSatelliteAndEarth, earthGravitationalParameter, satelliteMass );
 
     // Declare and set expected orbital period [s].
     double expectedOrbitalPeriod = 86164.09054;
@@ -72,8 +71,8 @@ BOOST_AUTO_TEST_CASE( testKeplerRadialDistance )
     keplerianElements[ 5 ] = 0.757654217738482;
 
     // Compute radial distance of the satellite.
-    double radialDistance1 = basic_astrodynamics::computeKeplerRadialDistance(
-                keplerianElements[ 0 ], keplerianElements[ 1 ], keplerianElements[ 5 ] );
+    double radialDistance1 =
+            basic_astrodynamics::computeKeplerRadialDistance( keplerianElements[ 0 ], keplerianElements[ 1 ], keplerianElements[ 5 ] );
     double radialDistance2 = basic_astrodynamics::computeKeplerRadialDistance( keplerianElements );
 
     // Declare and set expected radial distance [m].
@@ -92,8 +91,7 @@ BOOST_AUTO_TEST_CASE( testKeplerAngularMomentum )
     double satelliteMass = 1.0e3;
 
     // Declare and set gravitational parameter of Earth [m^3 s^-2].
-    double earthGravitationalParameter
-            = physical_constants::GRAVITATIONAL_CONSTANT * 5.9736e24;
+    double earthGravitationalParameter = physical_constants::GRAVITATIONAL_CONSTANT * 5.9736e24;
 
     // Declare and set distance between Earth center and satellite.
     double distanceBetweenSatelliteAndEarth = 4.2164e7;
@@ -103,19 +101,17 @@ BOOST_AUTO_TEST_CASE( testKeplerAngularMomentum )
 
     // Compute Kepler angular momentum.
     double angularMomentum = basic_astrodynamics::computeKeplerAngularMomentum(
-                distanceBetweenSatelliteAndEarth, eccentricityOfSatelliteOrbit,
-                earthGravitationalParameter, satelliteMass );
+            distanceBetweenSatelliteAndEarth, eccentricityOfSatelliteOrbit, earthGravitationalParameter, satelliteMass );
 
     // Declare and set expected angular momentum.
     // The expected angular momentum is computed using the fact that for a circular orbit,
     // H = mRV. This is an independent check of the code, which computes angular
     // momentum differently.
-    double expectedAngularMomentum = satelliteMass * distanceBetweenSatelliteAndEarth
-            * std::sqrt( earthGravitationalParameter / distanceBetweenSatelliteAndEarth );
+    double expectedAngularMomentum =
+            satelliteMass * distanceBetweenSatelliteAndEarth * std::sqrt( earthGravitationalParameter / distanceBetweenSatelliteAndEarth );
 
     // Check if computed angular momentum matches expected angular momentum.
-    BOOST_CHECK_CLOSE_FRACTION( angularMomentum, expectedAngularMomentum,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( angularMomentum, expectedAngularMomentum, std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Test if the orbital velocity of a Kepler orbit is computed correctly.
@@ -132,9 +128,8 @@ BOOST_AUTO_TEST_CASE( testKeplerOrbitalVelocity )
 
     // Compute radial distance of the satellite.
     double orbitalVelocity1 = basic_astrodynamics::computeKeplerOrbitalVelocity(
-                keplerianElements[ 0 ], keplerianElements[ 1 ], keplerianElements[ 5 ], earthGravitationalParameter );
-    double orbitalVelocity2 = basic_astrodynamics::computeKeplerOrbitalVelocity(
-                keplerianElements, earthGravitationalParameter );
+            keplerianElements[ 0 ], keplerianElements[ 1 ], keplerianElements[ 5 ], earthGravitationalParameter );
+    double orbitalVelocity2 = basic_astrodynamics::computeKeplerOrbitalVelocity( keplerianElements, earthGravitationalParameter );
 
     // Declare and set expected orbital velocity [m/s].
     double expectedOrbitalVelocity = 13503.4992923871;
@@ -151,15 +146,14 @@ BOOST_AUTO_TEST_CASE( testMeanMotion )
     double satelliteMass = 1.0e3;
 
     // Declare and set gravitational parameter of Earth [m^3 s^-2].
-    double earthGravitationalParameter
-            = physical_constants::GRAVITATIONAL_CONSTANT * 5.9736e24;
+    double earthGravitationalParameter = physical_constants::GRAVITATIONAL_CONSTANT * 5.9736e24;
 
     // Declare and set distance between Earth center and satellite.
     double distanceBetweenSatelliteAndEarth = 4.2164e7;
 
     // Reference: http://en.wikipedia.org/wiki/Geostationary_orbit.
-    double meanMotion = basic_astrodynamics::computeKeplerMeanMotion(
-                distanceBetweenSatelliteAndEarth, earthGravitationalParameter, satelliteMass );
+    double meanMotion =
+            basic_astrodynamics::computeKeplerMeanMotion( distanceBetweenSatelliteAndEarth, earthGravitationalParameter, satelliteMass );
 
     // Declare and set expected mean motion [rad/s].
     double expectedMeanMotion = 7.2921e-5;
@@ -175,28 +169,25 @@ BOOST_AUTO_TEST_CASE( testKeplerEnergy )
     double satelliteMass = 1.0e3;
 
     // Declare and set gravitational parameter of Earth [m^3 s^-2].
-    double earthGravitationalParameter
-            = physical_constants::GRAVITATIONAL_CONSTANT * 5.9736e24;
+    double earthGravitationalParameter = physical_constants::GRAVITATIONAL_CONSTANT * 5.9736e24;
 
     // Declare and set distance between Earth center and satellite.
     double distanceBetweenSatelliteAndEarth = 4.2164e7;
 
     // Compute Kepler energy.
-    double orbitalEnergy = basic_astrodynamics::computeKeplerEnergy(
-                distanceBetweenSatelliteAndEarth, earthGravitationalParameter, satelliteMass );
+    double orbitalEnergy =
+            basic_astrodynamics::computeKeplerEnergy( distanceBetweenSatelliteAndEarth, earthGravitationalParameter, satelliteMass );
 
     // Declare and set expected orbital energy.
     // The expected orbital energy is computed using the fact that for a circular orbit,
     // E = m ( V^2/2 - mu/R ). This is an independent check of the code, which computes orbital
     // energy differently.
-    double expectedOrbitalEnergy = satelliteMass * (
-                0.5 * earthGravitationalParameter / distanceBetweenSatelliteAndEarth
-                -  earthGravitationalParameter / distanceBetweenSatelliteAndEarth );
+    double expectedOrbitalEnergy = satelliteMass *
+            ( 0.5 * earthGravitationalParameter / distanceBetweenSatelliteAndEarth -
+              earthGravitationalParameter / distanceBetweenSatelliteAndEarth );
 
     // Check if computed orbital energy matches expected orbital energy.
-    BOOST_CHECK_CLOSE_FRACTION( orbitalEnergy, expectedOrbitalEnergy,
-                                std::numeric_limits< double >::epsilon( ) );
-
+    BOOST_CHECK_CLOSE_FRACTION( orbitalEnergy, expectedOrbitalEnergy, std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Test if the synodic period between two orbits is computed correctly.
@@ -209,8 +200,7 @@ BOOST_AUTO_TEST_CASE( testSynodicPeriod )
     double expectedSynodicPeriod = 779.9746457736733;
 
     // Check if computed synodic period matches expected synodic period.
-    BOOST_CHECK_CLOSE_FRACTION( synodicPeriod, expectedSynodicPeriod,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( synodicPeriod, expectedSynodicPeriod, std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Test if the periapsis altitude is computed correctly.
@@ -234,23 +224,21 @@ BOOST_AUTO_TEST_CASE( testPeriapsisAltitude )
     const double expectedPeriapsisAltitude = 5000.0;
 
     // Compute periapsis altitude from Keplerian state.
-    const double periapsisAltitudeFromKeplerian = basic_astrodynamics::computePeriapsisAltitudeFromKeplerianState(
-                keplerianState, centralBodyRadius );
+    const double periapsisAltitudeFromKeplerian =
+            basic_astrodynamics::computePeriapsisAltitudeFromKeplerianState( keplerianState, centralBodyRadius );
 
     // Compute periapsis altitude from Cartesian state.
     const double periapsisAltitudeFromCartesian = basic_astrodynamics::computePeriapsisAltitudeFromCartesianState(
-                cartesianState, centralBodyGravitationalParameter, centralBodyRadius );
+            cartesianState, centralBodyGravitationalParameter, centralBodyRadius );
 
     // Check if computed periapsis altitude from Keplerian is right.
-    BOOST_CHECK_CLOSE_FRACTION( periapsisAltitudeFromKeplerian, expectedPeriapsisAltitude,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( periapsisAltitudeFromKeplerian, expectedPeriapsisAltitude, std::numeric_limits< double >::epsilon( ) );
 
     // Check if computed periapsis altitude from Cartesian is right.
-    BOOST_CHECK_CLOSE_FRACTION( periapsisAltitudeFromCartesian, expectedPeriapsisAltitude,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( periapsisAltitudeFromCartesian, expectedPeriapsisAltitude, std::numeric_limits< double >::epsilon( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

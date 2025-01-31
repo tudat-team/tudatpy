@@ -22,25 +22,24 @@ bool doesRootFinderRequireDerivatives( const std::shared_ptr< RootFinderSettings
     bool rootFinderRequireDerivatives = -1;
     switch( rootFinderSettings->rootFinderType_ )
     {
-    case bisection_root_finder:
-        rootFinderRequireDerivatives = false;
-        break;
-    case halley_root_finder:
-        rootFinderRequireDerivatives = true;
-        break;
-    case newton_raphson_root_finder:
-        rootFinderRequireDerivatives = true;
-        break;
-    case secant_root_finder:
-        rootFinderRequireDerivatives = false;
-        break;
-    default:
-        throw std::runtime_error( "Error when getting root finder derivative needs, root finder type not found" );
+        case bisection_root_finder:
+            rootFinderRequireDerivatives = false;
+            break;
+        case halley_root_finder:
+            rootFinderRequireDerivatives = true;
+            break;
+        case newton_raphson_root_finder:
+            rootFinderRequireDerivatives = true;
+            break;
+        case secant_root_finder:
+            rootFinderRequireDerivatives = false;
+            break;
+        default:
+            throw std::runtime_error( "Error when getting root finder derivative needs, root finder type not found" );
     }
     return rootFinderRequireDerivatives;
 }
 
+}  // namespace root_finders
 
-}
-
-}
+}  // namespace tudat

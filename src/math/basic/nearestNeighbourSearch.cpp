@@ -26,9 +26,7 @@ namespace basic_mathematics
 {
 
 //! Nearest left neighbor binary search.
-int computeNearestLeftNeighborUsingBinarySearch(
-        const Eigen::VectorXd& vectorOfSortedData,
-        const double targetValueInVectorOfSortedData )
+int computeNearestLeftNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSortedData, const double targetValueInVectorOfSortedData )
 {
     // Declare local variables.
     // Declare bounds of vector of sorted data and current position.
@@ -38,25 +36,19 @@ int computeNearestLeftNeighborUsingBinarySearch(
 
     // Check if data is sorted in ascending order.
     // ( true if ascending, else false ).
-    bool isVectorOfSortedDataAscending
-            = ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ]
-                >= vectorOfSortedData[ leftLimitOfVectorOfSortedData ] );
+    bool isVectorOfSortedDataAscending =
+            ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ] >= vectorOfSortedData[ leftLimitOfVectorOfSortedData ] );
 
     // Loop through vector of sorted data until left and right limits
     // are neighbours.
-    while ( rightLimitOfVectorOfSortedData
-            - leftLimitOfVectorOfSortedData > 1 )
+    while( rightLimitOfVectorOfSortedData - leftLimitOfVectorOfSortedData > 1 )
     {
         // Compute midpoint ( bitshift is same as division by 2.0 ).
-        currentPositionInVectorOfSortedData
-                = ( rightLimitOfVectorOfSortedData
-                    + leftLimitOfVectorOfSortedData ) >> 1;
+        currentPositionInVectorOfSortedData = ( rightLimitOfVectorOfSortedData + leftLimitOfVectorOfSortedData ) >> 1;
 
         // Check which limit to replace ( if ascending and target datum
         // is in right half, replace left limit ).
-        if ( targetValueInVectorOfSortedData
-             >= vectorOfSortedData[ currentPositionInVectorOfSortedData ]
-             && isVectorOfSortedDataAscending )
+        if( targetValueInVectorOfSortedData >= vectorOfSortedData[ currentPositionInVectorOfSortedData ] && isVectorOfSortedDataAscending )
         {
             // Set left limit to current position in vector of sorted data.
             leftLimitOfVectorOfSortedData = currentPositionInVectorOfSortedData;
@@ -77,9 +69,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
 }
 
 //! Nearest neighbor binary search.
-int computeNearestNeighborUsingBinarySearch(
-        const Eigen::VectorXd& vectorOfSortedData,
-        const double targetValueInVectorOfSortedData )
+int computeNearestNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSortedData, const double targetValueInVectorOfSortedData )
 {
     // Declare local variables.
     // Declare bounds of vector of sorted data and current position.
@@ -89,25 +79,19 @@ int computeNearestNeighborUsingBinarySearch(
 
     // Check if data is sorted in ascending order.
     // ( true if ascending, else false ).
-    bool isVectorOfSortedDataAscending
-            = ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ]
-                >= vectorOfSortedData[ leftLimitOfVectorOfSortedData ] );
+    bool isVectorOfSortedDataAscending =
+            ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ] >= vectorOfSortedData[ leftLimitOfVectorOfSortedData ] );
 
     // Loop through vector of sorted data until left and right limits
     // are neighbours.
-    while ( rightLimitOfVectorOfSortedData
-            - leftLimitOfVectorOfSortedData > 1 ) // No rounding off errors because limits are integers
+    while( rightLimitOfVectorOfSortedData - leftLimitOfVectorOfSortedData > 1 )  // No rounding off errors because limits are integers
     {
         // Compute midpoint ( bitshift is same as division by 2.0 ).
-        currentPositionInVectorOfSortedData
-                = ( rightLimitOfVectorOfSortedData
-                    + leftLimitOfVectorOfSortedData ) >> 1;
+        currentPositionInVectorOfSortedData = ( rightLimitOfVectorOfSortedData + leftLimitOfVectorOfSortedData ) >> 1;
 
         // Check which limit to replace ( if ascending and target datum
         // is in right half, replace left limit ).
-        if ( targetValueInVectorOfSortedData
-             >= vectorOfSortedData[ currentPositionInVectorOfSortedData ]
-             && isVectorOfSortedDataAscending )
+        if( targetValueInVectorOfSortedData >= vectorOfSortedData[ currentPositionInVectorOfSortedData ] && isVectorOfSortedDataAscending )
         {
             // Set left limit to current position in vector of sorted data.
             leftLimitOfVectorOfSortedData = currentPositionInVectorOfSortedData;
@@ -122,8 +106,8 @@ int computeNearestNeighborUsingBinarySearch(
 
     // Set current position to left or right limit, whichever is closer.
     currentPositionInVectorOfSortedData = leftLimitOfVectorOfSortedData;
-    if( ( ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ] +
-              vectorOfSortedData[ leftLimitOfVectorOfSortedData ] ) / 2.0 ) < targetValueInVectorOfSortedData )
+    if( ( ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ] + vectorOfSortedData[ leftLimitOfVectorOfSortedData ] ) / 2.0 ) <
+        targetValueInVectorOfSortedData )
     {
         currentPositionInVectorOfSortedData = rightLimitOfVectorOfSortedData;
     }
@@ -138,28 +122,24 @@ int computeNearestNeighborUsingBinarySearch(
 }
 
 //! Nearest left neighbor binary search.
-int computeNearestLeftNeighborUsingBinarySearch(
-        const std::map< double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
-        const double targetValueInMapOfData )
+int computeNearestLeftNeighborUsingBinarySearch( const std::map< double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
+                                                 const double targetValueInMapOfData )
 {
     // Declare local variables.
     // Declare bounds of key of map of data and current position.
     int leftLimitOfKeyOfMapOfData = 0;
-    int rightLimitOfKeyOfMapOfData = sortedIndepedentAndDependentVariables
-                                     .size( ) - 1;
+    int rightLimitOfKeyOfMapOfData = sortedIndepedentAndDependentVariables.size( ) - 1;
     int currentPositionInKeyOfMapOfData;
 
     // Declare map iterator
-    std::map < double, Eigen::VectorXd >::const_iterator mapIterator;
+    std::map< double, Eigen::VectorXd >::const_iterator mapIterator;
 
     // Loop through vector of sorted data until left and right limits
     // are neighbours
-    while ( rightLimitOfKeyOfMapOfData - leftLimitOfKeyOfMapOfData > 1 )
+    while( rightLimitOfKeyOfMapOfData - leftLimitOfKeyOfMapOfData > 1 )
     {
         // Compute midpoint ( bitshift is same as division by 2.0 ).
-        currentPositionInKeyOfMapOfData
-                = ( rightLimitOfKeyOfMapOfData
-                   + leftLimitOfKeyOfMapOfData ) >> 1;
+        currentPositionInKeyOfMapOfData = ( rightLimitOfKeyOfMapOfData + leftLimitOfKeyOfMapOfData ) >> 1;
 
         // Set map iterator to begin begin of map of sorted independent and
         // dependent variables.
@@ -170,8 +150,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
         advance( mapIterator, currentPositionInKeyOfMapOfData );
 
         // Check that target value lies to the right of lower bound.
-        if ( targetValueInMapOfData
-             >= mapIterator->first )
+        if( targetValueInMapOfData >= mapIterator->first )
         {
             // Set left limit to current position in map of data.
             leftLimitOfKeyOfMapOfData = currentPositionInKeyOfMapOfData;
@@ -191,5 +170,5 @@ int computeNearestLeftNeighborUsingBinarySearch(
     return currentPositionInKeyOfMapOfData;
 }
 
-} // namespace basic_mathematics
-} // namespace tudat
+}  // namespace basic_mathematics
+}  // namespace tudat

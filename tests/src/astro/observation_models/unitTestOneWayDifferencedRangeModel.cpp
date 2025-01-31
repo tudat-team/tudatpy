@@ -16,7 +16,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
@@ -36,7 +35,6 @@ using namespace tudat::observation_models;
 using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
-
 
 BOOST_AUTO_TEST_SUITE( test_one_way_doppler_model )
 
@@ -64,39 +62,33 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
     // Create bodies settings needed in simulation
     BodyListSettings defaultBodySettings =
-            getDefaultBodySettings(
-                bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+            getDefaultBodySettings( bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
-    
-
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
-    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
     // Create range rate observation settings and model
-    std::shared_ptr< ObservationModelSettings > rangeRateObservableSettings = std::make_shared<
-            ObservationModelSettings >( one_way_differenced_range, linkEnds );
-    std::shared_ptr< ObservationModel< 1, double, double> > rangeRateObservationModel =
-            ObservationModelCreator< 1, double, double>::createObservationModel(
-                rangeRateObservableSettings, bodies );
+    std::shared_ptr< ObservationModelSettings > rangeRateObservableSettings =
+            std::make_shared< ObservationModelSettings >( one_way_differenced_range, linkEnds );
+    std::shared_ptr< ObservationModel< 1, double, double > > rangeRateObservationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( rangeRateObservableSettings, bodies );
 
     // Create range rate observation settings and model
-    std::shared_ptr< ObservationModelSettings > rangeObservableSettings = std::make_shared< ObservationModelSettings >
-            ( one_way_range, linkEnds );
-    std::shared_ptr< ObservationModel< 1, double, double> > rangeObservationModel =
-            ObservationModelCreator< 1, double, double>::createObservationModel(
-                rangeObservableSettings, bodies );
+    std::shared_ptr< ObservationModelSettings > rangeObservableSettings =
+            std::make_shared< ObservationModelSettings >( one_way_range, linkEnds );
+    std::shared_ptr< ObservationModel< 1, double, double > > rangeObservationModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( rangeObservableSettings, bodies );
 
     // Test observable for both fixed link ends
     for( unsigned testCase = 0; testCase < 2; testCase++ )
     {
         for( double observationTime = 86400.0; observationTime <= 86400.0; observationTime += observationTime )
         {
-
             std::cout << "TEST: ************************************* " << testCase << " " << observationTime << std::endl;
             double dopplerCountInterval = integrationTimeFunction( observationTime );
             double arcStartObservationTime = observationTime - dopplerCountInterval / 2.0;
@@ -123,20 +115,25 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
             // Compute observable
             double rangeRateObservable = rangeRateObservationModel->computeObservationsWithLinkEndData(
-                        observationTime, referenceLinkEnd, rangeRateLinkEndTimes, rangeRateLinkEndStates,
-                        getAveragedDopplerAncilliarySettings( dopplerCountInterval ) )( 0 );
+                    observationTime,
+                    referenceLinkEnd,
+                    rangeRateLinkEndTimes,
+                    rangeRateLinkEndStates,
+                    getAveragedDopplerAncilliarySettings( dopplerCountInterval ) )( 0 );
 
             double arcEndRange = rangeObservationModel->computeObservationsWithLinkEndData(
-                        arcEndObservationTime, referenceLinkEnd, rangeEndLinkEndTimes, rangeEndLinkEndStates )( 0 );
+                    arcEndObservationTime, referenceLinkEnd, rangeEndLinkEndTimes, rangeEndLinkEndStates )( 0 );
             double arcStartRange = rangeObservationModel->computeObservationsWithLinkEndData(
-                        arcStartObservationTime, referenceLinkEnd, rangeStartLinkEndTimes, rangeStartLinkEndStates )( 0 );
+                    arcStartObservationTime, referenceLinkEnd, rangeStartLinkEndTimes, rangeStartLinkEndStates )( 0 );
 
             for( unsigned linkCompare = 0; linkCompare < 2; linkCompare++ )
             {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeStartLinkEndStates.at( linkCompare ), rangeRateLinkEndStates.at( linkCompare ), 1.0E-15 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        rangeStartLinkEndStates.at( linkCompare ), rangeRateLinkEndStates.at( linkCompare ), 1.0E-15 );
                 BOOST_CHECK_CLOSE_FRACTION( rangeStartLinkEndTimes.at( linkCompare ), rangeRateLinkEndTimes.at( linkCompare ), 1.0E-15 );
 
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeEndLinkEndStates.at( linkCompare ), rangeRateLinkEndStates.at( linkCompare + 2 ), 1.0E-15 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        rangeEndLinkEndStates.at( linkCompare ), rangeRateLinkEndStates.at( linkCompare + 2 ), 1.0E-15 );
                 BOOST_CHECK_CLOSE_FRACTION( rangeEndLinkEndTimes.at( linkCompare ), rangeRateLinkEndTimes.at( linkCompare + 2 ), 1.0E-15 );
             }
 
@@ -150,8 +147,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
-
+}  // namespace tudat

@@ -11,10 +11,8 @@
 #ifndef TUDATBUNDLE_CREATEOCCULTATIONMODEL_H
 #define TUDATBUNDLE_CREATEOCCULTATIONMODEL_H
 
-
 #include "tudat/astro/electromagnetism/occultationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
-
 
 namespace tudat
 {
@@ -29,11 +27,10 @@ namespace simulation_setup
  * \param bodies System of bodies
  * \return Shared pointer to radiation source model
  */
-std::shared_ptr<electromagnetism::OccultationModel> createOccultationModel(
-        const std::vector<std::string>& occultingBodies,
-        const SystemOfBodies& bodies);
+std::shared_ptr< electromagnetism::OccultationModel > createOccultationModel( const std::vector< std::string >& occultingBodies,
+                                                                              const SystemOfBodies& bodies );
 
-} // tudat
-} // electromagnetism
+}  // namespace simulation_setup
+}  // namespace tudat
 
-#endif //TUDATBUNDLE_CREATEOCCULTATIONMODEL_H
+#endif  // TUDATBUNDLE_CREATEOCCULTATIONMODEL_H

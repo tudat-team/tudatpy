@@ -16,4 +16,4 @@
 #include "relativity/relativisticLightTimeCorrection.h"
 #include "relativity/relativisticTimeConversion.h"
 
-#endif // TUDAT_RELATIVITY_H
+#endif  // TUDAT_RELATIVITY_H

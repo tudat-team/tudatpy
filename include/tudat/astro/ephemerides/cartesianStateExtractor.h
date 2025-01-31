@@ -32,7 +32,6 @@ namespace ephemerides
 class CartesianStateExtractor : public input_output::Extractor< Eigen::Vector6d >
 {
 public:
-
     //! Extract the Cartesian elements.
     /*!
      * Returns a CartesianElements object containing the cartesian elements found in the input data
@@ -44,14 +43,13 @@ public:
     std::shared_ptr< Eigen::Vector6d > extract( ParsedDataLineMapPtr dataLineMap );
 
 protected:
-
 private:
 };
 
 //! Typedef for shared-pointer to CartesianStateExtractor object.
 typedef std::shared_ptr< CartesianStateExtractor > CartesianStateExtractorPointer;
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat
 
-#endif // TUDAT_CARTESIAN_STATE_EXTRACTOR_H
+#endif  // TUDAT_CARTESIAN_STATE_EXTRACTOR_H

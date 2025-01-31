@@ -48,8 +48,7 @@ BOOST_AUTO_TEST_SUITE( test_tabulated_atmosphere )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAtSeaLevel )
 {
     // Create a tabulated atmosphere object.
-    std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) +
-            "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+    std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFile );
 
     // Declare tolerance used for Boost tests.
@@ -66,17 +65,16 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAtSeaLevel )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10km )
 {
     // Create a tabulated atmosphere object.
-    std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) +
-            "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+    std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFile );
     const double altitude = 10.0e3;
     const double longitude = 0.0;
     const double latitude = 0.0;
     const double time = 0.0;
 
-    BOOST_CHECK_SMALL( 0.41351 - tabulatedAtmosphere.getDensity( altitude,  longitude, latitude, time ), 1.0e-4 );
-    BOOST_CHECK_SMALL( 26500.0 - tabulatedAtmosphere.getPressure( altitude,  longitude, latitude, time ), 1.0 );
-    BOOST_CHECK_SMALL( 223.26 - tabulatedAtmosphere.getTemperature( altitude,  longitude, latitude, time ), 1.0e-2 );
+    BOOST_CHECK_SMALL( 0.41351 - tabulatedAtmosphere.getDensity( altitude, longitude, latitude, time ), 1.0e-4 );
+    BOOST_CHECK_SMALL( 26500.0 - tabulatedAtmosphere.getPressure( altitude, longitude, latitude, time ), 1.0 );
+    BOOST_CHECK_SMALL( 223.26 - tabulatedAtmosphere.getTemperature( altitude, longitude, latitude, time ), 1.0e-2 );
 }
 
 //! Test tabulated atmosphere at 10.05 km altitude when just passing the altitude.
@@ -85,8 +83,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10km )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10p5km )
 {
     // Create a tabulated atmosphere object.
-    std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) +
-            "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+    std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFile );
     const double altitude = 10.05e3;
 
@@ -100,8 +97,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10p5km )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt1000kmtab )
 {
     // Create a tabulated atmosphere object.
-    std::string tabulatedAtmosphereFiles = paths::getAtmosphereTablesPath( ) +
-            "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+    std::string tabulatedAtmosphereFiles = paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFiles );
     const double altitude = 1.0e6;
 
@@ -124,8 +120,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereDependentVariables )
     dependentVariables.push_back( aerodynamics::temperature_dependent_atmosphere );
 
     // Create a tabulated atmosphere object.
-    std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) +
-            "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+    std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFile, dependentVariables );
 
     // Declare tolerance used for Boost tests.
@@ -176,12 +171,12 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAllDependentVariables )
 BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphere )
 {
     // Create vector of dependent and independent variables
-    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables = {
-        aerodynamics::density_dependent_atmosphere, aerodynamics::pressure_dependent_atmosphere,
-        aerodynamics::temperature_dependent_atmosphere};
-    std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariables = {
-        aerodynamics::longitude_dependent_atmosphere, aerodynamics::latitude_dependent_atmosphere,
-        aerodynamics::altitude_dependent_atmosphere };
+    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables = { aerodynamics::density_dependent_atmosphere,
+                                                                                     aerodynamics::pressure_dependent_atmosphere,
+                                                                                     aerodynamics::temperature_dependent_atmosphere };
+    std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariables = { aerodynamics::longitude_dependent_atmosphere,
+                                                                                         aerodynamics::latitude_dependent_atmosphere,
+                                                                                         aerodynamics::altitude_dependent_atmosphere };
 
     // Create a tabulated atmosphere object.
     std::map< int, std::string > tabulatedAtmosphereFiles;
@@ -210,13 +205,14 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphere )
 BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereWithInterpolationAndShuffledVariables )
 {
     // Create vector of dependent and independent variables
-    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables = {
-        aerodynamics::specific_heat_ratio_dependent_atmosphere, aerodynamics::temperature_dependent_atmosphere,
-        aerodynamics::density_dependent_atmosphere, aerodynamics::pressure_dependent_atmosphere,
-        aerodynamics::gas_constant_dependent_atmosphere };
-    std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariables = {
-        aerodynamics::longitude_dependent_atmosphere, aerodynamics::latitude_dependent_atmosphere,
-        aerodynamics::altitude_dependent_atmosphere };
+    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables = { aerodynamics::specific_heat_ratio_dependent_atmosphere,
+                                                                                     aerodynamics::temperature_dependent_atmosphere,
+                                                                                     aerodynamics::density_dependent_atmosphere,
+                                                                                     aerodynamics::pressure_dependent_atmosphere,
+                                                                                     aerodynamics::gas_constant_dependent_atmosphere };
+    std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariables = { aerodynamics::longitude_dependent_atmosphere,
+                                                                                         aerodynamics::latitude_dependent_atmosphere,
+                                                                                         aerodynamics::altitude_dependent_atmosphere };
 
     // Create a tabulated atmosphere object.
     std::map< int, std::string > tabulatedAtmosphereFiles;
@@ -249,12 +245,13 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereWithInterpolationAn
 BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereDefaultExtrapolation )
 {
     // Create vector of dependent and independent variables
-    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables = {
-        aerodynamics::pressure_dependent_atmosphere, aerodynamics::temperature_dependent_atmosphere,
-        aerodynamics::specific_heat_ratio_dependent_atmosphere, aerodynamics::density_dependent_atmosphere };
-    std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariables = {
-        aerodynamics::longitude_dependent_atmosphere, aerodynamics::latitude_dependent_atmosphere,
-        aerodynamics::altitude_dependent_atmosphere };
+    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables = { aerodynamics::pressure_dependent_atmosphere,
+                                                                                     aerodynamics::temperature_dependent_atmosphere,
+                                                                                     aerodynamics::specific_heat_ratio_dependent_atmosphere,
+                                                                                     aerodynamics::density_dependent_atmosphere };
+    std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariables = { aerodynamics::longitude_dependent_atmosphere,
+                                                                                         aerodynamics::latitude_dependent_atmosphere,
+                                                                                         aerodynamics::altitude_dependent_atmosphere };
 
     // Create a tabulated atmosphere object.
     std::map< int, std::string > tabulatedAtmosphereFiles;
@@ -269,8 +266,8 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereDefaultExtrapolatio
                                                                                      interpolators::use_boundary_value_with_warning,
                                                                                      interpolators::use_default_value_with_warning };
         std::vector< double > defualtExtrapolationValues = { 100, 250, 1.3, 0 };
-        aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFiles, independentVariables, dependentVariables,
-                                                               boundaryHandling, defualtExtrapolationValues );
+        aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
+                tabulatedAtmosphereFiles, independentVariables, dependentVariables, boundaryHandling, defualtExtrapolationValues );
 
         // Declare tolerance used for Boost tests.
         const double tolerance = 1e-7;
@@ -291,7 +288,7 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereDefaultExtrapolatio
         bool exception;
 
         // Check that values matches with MATLAB interpolation (note that dependent variables are shuffled)
-        for ( unsigned int i = 0; i < 3; i++ )
+        for( unsigned int i = 0; i < 3; i++ )
         {
             exception = false;
             expectedResult = ( i == 0 ) ? defualtExtrapolationValues : boundaryValues;
@@ -303,9 +300,10 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereDefaultExtrapolatio
                 BOOST_CHECK_CLOSE_FRACTION( expectedResult.at( 1 ),
                                             tabulatedAtmosphere.getTemperature( altitude.at( i ), longitude.at( i ), latitude.at( i ) ),
                                             tolerance );
-                BOOST_CHECK_CLOSE_FRACTION( expectedResult.at( 2 ),
-                                            tabulatedAtmosphere.getRatioOfSpecificHeats( altitude.at( i ), longitude.at( i ), latitude.at( i ) ),
-                                            tolerance );
+                BOOST_CHECK_CLOSE_FRACTION(
+                        expectedResult.at( 2 ),
+                        tabulatedAtmosphere.getRatioOfSpecificHeats( altitude.at( i ), longitude.at( i ), latitude.at( i ) ),
+                        tolerance );
                 BOOST_CHECK_CLOSE_FRACTION( expectedResult.at( 3 ),
                                             tabulatedAtmosphere.getDensity( altitude.at( i ), longitude.at( i ), latitude.at( i ) ),
                                             tolerance );
@@ -322,42 +320,39 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereDefaultExtrapolatio
     // Test 2: check with full set of default values
     {
         std::vector< interpolators::BoundaryInterpolationType > boundaryHandling =
-        std::vector< interpolators::BoundaryInterpolationType >( independentVariables.size( ), interpolators::use_default_value );
-        std::vector< std::vector< std::pair< double, double > > > defualtExtrapolationValues =
-        {
+                std::vector< interpolators::BoundaryInterpolationType >( independentVariables.size( ), interpolators::use_default_value );
+        std::vector< std::vector< std::pair< double, double > > > defualtExtrapolationValues = {
             std::vector< std::pair< double, double > >( independentVariables.size( ), std::make_pair( -100.0, 100.0 ) ),
             std::vector< std::pair< double, double > >( independentVariables.size( ), std::make_pair( 250.0, 0.08652 ) ),
             std::vector< std::pair< double, double > >( independentVariables.size( ), std::make_pair( 1.4, 1.3 ) ),
             std::vector< std::pair< double, double > >( independentVariables.size( ), std::make_pair( 1e-3, 0.0 ) )
         };
-        aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFiles, independentVariables, dependentVariables,
-                                                               boundaryHandling, defualtExtrapolationValues );
+        aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
+                tabulatedAtmosphereFiles, independentVariables, dependentVariables, boundaryHandling, defualtExtrapolationValues );
 
         // Declare tolerance used for Boost tests.
         const double tolerance = 1e-7;
 
         // Define independent variable conditions
-        const std::vector< double > longitude = { unit_conversions::convertDegreesToRadians( 0.0 ) - 10.0,
-                                                  unit_conversions::convertDegreesToRadians( 0.0 ) + 10.0,
-                                                  unit_conversions::convertDegreesToRadians( 0.0 ),
-                                                  unit_conversions::convertDegreesToRadians( 0.0 ),
-                                                  unit_conversions::convertDegreesToRadians( 0.0 ),
-                                                  unit_conversions::convertDegreesToRadians( 0.0 ) };
-        const std::vector< double > latitude = { unit_conversions::convertDegreesToRadians( 0.0 ),
-                                                 unit_conversions::convertDegreesToRadians( 0.0 ),
-                                                 unit_conversions::convertDegreesToRadians( 0.0 ) - 10.0,
-                                                 unit_conversions::convertDegreesToRadians( 0.0 ) + 10.0,
-                                                 unit_conversions::convertDegreesToRadians( 0.0 ),
-                                                 unit_conversions::convertDegreesToRadians( 0.0 ) };
+        const std::vector< double > longitude = {
+            unit_conversions::convertDegreesToRadians( 0.0 ) - 10.0, unit_conversions::convertDegreesToRadians( 0.0 ) + 10.0,
+            unit_conversions::convertDegreesToRadians( 0.0 ),        unit_conversions::convertDegreesToRadians( 0.0 ),
+            unit_conversions::convertDegreesToRadians( 0.0 ),        unit_conversions::convertDegreesToRadians( 0.0 )
+        };
+        const std::vector< double > latitude = {
+            unit_conversions::convertDegreesToRadians( 0.0 ),        unit_conversions::convertDegreesToRadians( 0.0 ),
+            unit_conversions::convertDegreesToRadians( 0.0 ) - 10.0, unit_conversions::convertDegreesToRadians( 0.0 ) + 10.0,
+            unit_conversions::convertDegreesToRadians( 0.0 ),        unit_conversions::convertDegreesToRadians( 0.0 )
+        };
         const std::vector< double > altitude = { 5.0e5, 5.0e5, 5.0e5, 5.0e5, 0.0, 5.0e10 };
 
         // Check that values matches default values
-        for ( unsigned int i = 0; i < altitude.size( ); i++ )
+        for( unsigned int i = 0; i < altitude.size( ); i++ )
         {
             std::vector< double > expectedValue;
-            for ( unsigned int j = 0; j < dependentVariables.size( ); j++ )
+            for( unsigned int j = 0; j < dependentVariables.size( ); j++ )
             {
-                if ( ( i % 2 ) == 0.0 )
+                if( ( i % 2 ) == 0.0 )
                 {
                     expectedValue.push_back( defualtExtrapolationValues.at( j ).at( std::floor( i / 2.0 ) ).first );
                 }
@@ -373,9 +368,10 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereDefaultExtrapolatio
             BOOST_CHECK_CLOSE_FRACTION( expectedValue.at( 1 ),
                                         tabulatedAtmosphere.getTemperature( altitude.at( i ), longitude.at( i ), latitude.at( i ) ),
                                         tolerance );
-            BOOST_CHECK_CLOSE_FRACTION( expectedValue.at( 2 ),
-                                        tabulatedAtmosphere.getRatioOfSpecificHeats( altitude.at( i ), longitude.at( i ), latitude.at( i ) ),
-                                        tolerance );
+            BOOST_CHECK_CLOSE_FRACTION(
+                    expectedValue.at( 2 ),
+                    tabulatedAtmosphere.getRatioOfSpecificHeats( altitude.at( i ), longitude.at( i ), latitude.at( i ) ),
+                    tolerance );
             BOOST_CHECK_CLOSE_FRACTION( expectedValue.at( 3 ),
                                         tabulatedAtmosphere.getDensity( altitude.at( i ), longitude.at( i ), latitude.at( i ) ),
                                         tolerance );
@@ -397,8 +393,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereExtraVariables )
 
     // Create a tabulated atmosphere object.
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
-                paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m_wHR_GC.dat",
-                dependentVariables );
+            paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m_wHR_GC.dat", dependentVariables );
 
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );
@@ -410,5 +405,5 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereExtraVariables )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

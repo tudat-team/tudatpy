@@ -16,7 +16,6 @@ namespace tudat
 namespace propagators
 {
 
+}  // namespace propagators
 
-} // namespace propagators
-
-} // namespace tudat
+}  // namespace tudat

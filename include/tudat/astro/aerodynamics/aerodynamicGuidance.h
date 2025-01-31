@@ -25,33 +25,28 @@ namespace aerodynamics
 class AerodynamicGuidance
 {
 public:
-
     //! Constructor.
     AerodynamicGuidance( )
     {
-        utilities::printDeprecationError(
-                    "tudatpy.numerical_simulation.propagation.AerodynamicGuidance",
-                    "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
-
+        utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation.AerodynamicGuidance",
+                                          "https://docs.tudat.space/en/stable/_src_user_guide/state_propagation/environment_setup/"
+                                          "thrust_refactor/thrust_refactor.html#aerodynamic-guidance" );
     }
 
-    virtual ~AerodynamicGuidance( ){ }
+    virtual ~AerodynamicGuidance( ) { }
 
     virtual void updateGuidance( const double currentTime ) = 0;
 
-
 protected:
-
     double currentAngleOfAttack_;
 
     double currentAngleOfSideslip_;
 
     double currentBankAngle_;
-
 };
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_ENTRYGUIDANCE_H
+#endif  // TUDAT_ENTRYGUIDANCE_H

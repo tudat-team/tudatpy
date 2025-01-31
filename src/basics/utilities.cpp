@@ -17,13 +17,13 @@ namespace utilities
 {
 
 //! Get indices of pointer to single entry in multi-array (size 1) of doubles
-boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 1 >& multiArray, const double* requestedElement )
+boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray( const boost::multi_array< double, 1 >& multiArray,
+                                                                                   const double* requestedElement )
 {
     typedef boost::multi_array< double, 1 > NMultiArray;
-    boost::array< NMultiArray::index, 1 >  currentIndices;
+    boost::array< NMultiArray::index, 1 > currentIndices;
 
-    for ( unsigned int dir = 0; dir < 1; dir++ )
+    for( unsigned int dir = 0; dir < 1; dir++ )
     {
         currentIndices[ dir ] = getMultiArrayIndex< 1 >( multiArray, requestedElement, dir );
     }
@@ -32,13 +32,13 @@ boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArra
 }
 
 //! Get indices of pointer to single entry in multi-array (size 2) of doubles
-boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 2 >& multiArray, const double* requestedElement )
+boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray( const boost::multi_array< double, 2 >& multiArray,
+                                                                                   const double* requestedElement )
 {
     typedef boost::multi_array< double, 2 > NMultiArray;
-    boost::array< NMultiArray::index, 2 >  currentIndices;
+    boost::array< NMultiArray::index, 2 > currentIndices;
 
-    for ( unsigned int dir = 0; dir < 2; dir++ )
+    for( unsigned int dir = 0; dir < 2; dir++ )
     {
         currentIndices[ dir ] = getMultiArrayIndex< 2 >( multiArray, requestedElement, dir );
     }
@@ -47,13 +47,13 @@ boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArra
 }
 
 //! Get indices of pointer to single entry in multi-array (size 3) of doubles
-boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 3 >& multiArray, const double* requestedElement )
+boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray( const boost::multi_array< double, 3 >& multiArray,
+                                                                                   const double* requestedElement )
 {
     typedef boost::multi_array< double, 3 > NMultiArray;
-    boost::array< NMultiArray::index, 3 >  currentIndices;
+    boost::array< NMultiArray::index, 3 > currentIndices;
 
-    for ( unsigned int dir = 0; dir < 3; dir++ )
+    for( unsigned int dir = 0; dir < 3; dir++ )
     {
         currentIndices[ dir ] = getMultiArrayIndex< 3 >( multiArray, requestedElement, dir );
     }
@@ -68,41 +68,46 @@ boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArra
  * @param separators String of characters that mark a new column
  * @return map with string to 3d vector
  */
-template< >
-std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector3d>(std::string fileName,
-                                                                                    char commentSymbol,
-                                                                                    std::string separators,
-                                                                                    const int skipNumberOfEntries)
+template<>
+std::map< std::string, Eigen::Vector3d > getMapFromFile< std::string, Eigen::Vector3d >( std::string fileName,
+                                                                                         char commentSymbol,
+                                                                                         std::string separators,
+                                                                                         const int skipNumberOfEntries )
 {
-  std::ifstream file(fileName);
-  if (!file.good()) {
-    throw std::runtime_error("Error when opening file: " + fileName + " could not be opened.");
-  }
-  std::string currentLine;
-  std::vector<std::string> currentSplitLine;
-  std::map<std::string, Eigen::Vector3d> namesAndPositions;
-  while (std::getline(file, currentLine)) {
-    if (!currentLine.empty() && currentLine.at(0) != commentSymbol) {
-      boost::algorithm::trim(currentLine);
-      boost::algorithm::split(currentSplitLine,
-                              currentLine,
-                              boost::is_any_of(separators),
-                              boost::algorithm::token_compress_on);
-      try {
-        namesAndPositions[currentSplitLine.at(0)] = Eigen::Vector3d(std::stod(currentSplitLine.at(1 + skipNumberOfEntries)),
-                                                                    std::stod(currentSplitLine.at(2 + skipNumberOfEntries)),
-                                                                    std::stod(currentSplitLine.at(3 + skipNumberOfEntries)));
-      } catch (...) {
-        continue;
-      }// Ignore lines that cannot be read
-
-      if (namesAndPositions.empty()) {
-        throw std::runtime_error("Error when reading file: " + fileName + "has no lines in acceptable format.");
-      }
+    std::ifstream file( fileName );
+    if( !file.good( ) )
+    {
+        throw std::runtime_error( "Error when opening file: " + fileName + " could not be opened." );
     }
-  }
+    std::string currentLine;
+    std::vector< std::string > currentSplitLine;
+    std::map< std::string, Eigen::Vector3d > namesAndPositions;
+    while( std::getline( file, currentLine ) )
+    {
+        if( !currentLine.empty( ) && currentLine.at( 0 ) != commentSymbol )
+        {
+            boost::algorithm::trim( currentLine );
+            boost::algorithm::split( currentSplitLine, currentLine, boost::is_any_of( separators ), boost::algorithm::token_compress_on );
+            try
+            {
+                namesAndPositions[ currentSplitLine.at( 0 ) ] =
+                        Eigen::Vector3d( std::stod( currentSplitLine.at( 1 + skipNumberOfEntries ) ),
+                                         std::stod( currentSplitLine.at( 2 + skipNumberOfEntries ) ),
+                                         std::stod( currentSplitLine.at( 3 + skipNumberOfEntries ) ) );
+            }
+            catch( ... )
+            {
+                continue;
+            }  // Ignore lines that cannot be read
 
-  return namesAndPositions;
+            if( namesAndPositions.empty( ) )
+            {
+                throw std::runtime_error( "Error when reading file: " + fileName + "has no lines in acceptable format." );
+            }
+        }
+    }
+
+    return namesAndPositions;
 }
 
 /*!
@@ -112,38 +117,45 @@ std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector
  * @param separators String of characters that mark a new column
  * @return map with string to 3d vector
  */
-template< >
-std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators, const int skipNumberOfEntries)
+template<>
+std::map< std::string, std::string > getMapFromFile< std::string, std::string >( std::string fileName,
+                                                                                 char commentSymbol,
+                                                                                 std::string separators,
+                                                                                 const int skipNumberOfEntries )
 {
-  std::ifstream file(fileName);
-  if (!file.good()) {
-    throw std::runtime_error("Error when opening file: " + fileName + " could not be opened.");
-  }
-  std::string currentLine;
-  std::vector<std::string> currentSplitLine;
-  std::map<std::string, std::string> namesAndPositions;
-  while (std::getline(file, currentLine)) {
-    if (!currentLine.empty() && currentLine.at(0) != commentSymbol) {
-      boost::algorithm::trim(currentLine);
-      boost::algorithm::split(currentSplitLine,
-                              currentLine,
-                              boost::is_any_of(separators),
-                              boost::algorithm::token_compress_on);
-      try {
-        namesAndPositions[currentSplitLine.at(0)] = currentSplitLine.at(1 + skipNumberOfEntries );
-      } catch (...) {
-        continue;
-      }// Ignore lines that cannot be read
-
-      if (namesAndPositions.empty()) {
-        throw std::runtime_error("Error when reading file: " + fileName + "has no lines in acceptable format.");
-      }
+    std::ifstream file( fileName );
+    if( !file.good( ) )
+    {
+        throw std::runtime_error( "Error when opening file: " + fileName + " could not be opened." );
     }
-  }
+    std::string currentLine;
+    std::vector< std::string > currentSplitLine;
+    std::map< std::string, std::string > namesAndPositions;
+    while( std::getline( file, currentLine ) )
+    {
+        if( !currentLine.empty( ) && currentLine.at( 0 ) != commentSymbol )
+        {
+            boost::algorithm::trim( currentLine );
+            boost::algorithm::split( currentSplitLine, currentLine, boost::is_any_of( separators ), boost::algorithm::token_compress_on );
+            try
+            {
+                namesAndPositions[ currentSplitLine.at( 0 ) ] = currentSplitLine.at( 1 + skipNumberOfEntries );
+            }
+            catch( ... )
+            {
+                continue;
+            }  // Ignore lines that cannot be read
 
-  return namesAndPositions;
+            if( namesAndPositions.empty( ) )
+            {
+                throw std::runtime_error( "Error when reading file: " + fileName + "has no lines in acceptable format." );
+            }
+        }
+    }
+
+    return namesAndPositions;
 }
 
-}
+}  // namespace utilities
 
-}
+}  // namespace tudat

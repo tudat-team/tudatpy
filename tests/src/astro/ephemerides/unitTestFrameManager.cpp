@@ -13,7 +13,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/interface/spice/spiceInterface.h"
@@ -34,8 +33,7 @@ BOOST_AUTO_TEST_SUITE( test_frame_manager )
 
 BOOST_AUTO_TEST_CASE( test_FrameManager )
 {
-
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     std::map< std::string, std::shared_ptr< Ephemeris > > ephemerisList;
@@ -85,10 +83,9 @@ BOOST_AUTO_TEST_CASE( test_FrameManager )
     {
         if( frameManager->getFrameLevel( it->first ).first != it->second )
         {
-            throw std::runtime_error(
-                        "Error when identifying frame level of " + it->first + " found " +
-                        std::to_string( frameManager->getFrameLevel( it->first ).first ) + " expected" +
-                        std::to_string( it->second ) );
+            throw std::runtime_error( "Error when identifying frame level of " + it->first + " found " +
+                                      std::to_string( frameManager->getFrameLevel( it->first ).first ) + " expected" +
+                                      std::to_string( it->second ) );
         }
     }
 
@@ -117,7 +114,7 @@ BOOST_AUTO_TEST_CASE( test_FrameManager )
     BOOST_CHECK_EQUAL( commonFrame.first, "Earth" );
     BOOST_CHECK_EQUAL( commonFrame.second, 1 );
 
-    Eigen::Vector6d testState = frameManager->getEphemeris< >( "Moon", "LAGEOS" )->getCartesianState( 0.0 );
+    Eigen::Vector6d testState = frameManager->getEphemeris<>( "Moon", "LAGEOS" )->getCartesianState( 0.0 );
     Eigen::Vector6d expectedState = earthCentricLageosState - earthCentricMoonState;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, expectedState, std::numeric_limits< double >::epsilon( ) );
 
@@ -138,11 +135,10 @@ BOOST_AUTO_TEST_CASE( test_FrameManager )
 
     testState = frameManager->getEphemeris( "Earth", getBaseFrameName( ) )->getCartesianState( 0.0 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, ( -1.0 * expectedState ), std::numeric_limits< double >::epsilon( ) );
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

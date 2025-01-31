@@ -11,7 +11,6 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/simulation/estimation_setup/createCartesianStatePartials.h"
 
-
 namespace tudat
 {
 
@@ -31,8 +30,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     std::string currentBodyName;
 
     // Iterate over all like ends.
-    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-         linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
+         linkEndIterator++ )
     {
         // Check if current link end is on body that is requested.
         currentBodyName = linkEndIterator->second.bodyName_;
@@ -40,7 +39,6 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         {
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtCartesianState >( );
-
         }
     }
 
@@ -60,8 +58,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     std::string currentBodyName;
 
     // Iterate over all like ends.
-    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-         linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
+         linkEndIterator++ )
     {
         // Check if current link end is on body that is requested.
         currentBodyName = linkEndIterator->second.bodyName_;
@@ -71,22 +69,25 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 
             if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
             {
-                throw std::runtime_error(
-                            "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
-                            linkEndIterator->second.stationName_ + " not found on body " + linkEndIterator->second.bodyName_ );
+                throw std::runtime_error( "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
+                                          linkEndIterator->second.stationName_ + " not found on body " +
+                                          linkEndIterator->second.bodyName_ );
             }
 
             // Set ground station position function
             std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                     std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                                 currentBody->getGroundStation( linkEndIterator->second.stationName_ )->getNominalStationState( ),
-                                 std::placeholders::_1, bodies.getFrameOrigin( ) );
+                               currentBody->getGroundStation( linkEndIterator->second.stationName_ )->getNominalStationState( ),
+                               std::placeholders::_1,
+                               bodies.getFrameOrigin( ) );
 
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
-                        std::make_shared< RotationMatrixPartialWrtRotationalState >(
+                    std::make_shared< RotationMatrixPartialWrtRotationalState >(
                             std::bind( &ephemerides::RotationalEphemeris::getRotationToBaseFrame,
-                                         currentBody->getRotationalEphemeris( ), std::placeholders::_1 ) ), groundStationPositionFunction );
+                                       currentBody->getRotationalEphemeris( ),
+                                       std::placeholders::_1 ) ),
+                    groundStationPositionFunction );
         }
     }
 
@@ -109,12 +110,12 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     std::string currentBodyName;
 
     // Iterate over all like ends.
-    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-         linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
+         linkEndIterator++ )
     {
         // Check if current link end body corresponds to body with property to estimate.
         if( ( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first ) &&
-                ( linkEndIterator->second.stationName_ != "" ) )
+            ( linkEndIterator->second.stationName_ != "" ) )
         {
             // Set current body name and object.
             currentBodyName = linkEndIterator->second.bodyName_;
@@ -127,13 +128,13 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 // Set ground station position function
                 std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                                     ( currentBody )->getGroundStation( linkEndIterator->second.stationName_ )
-                                     ->getNominalStationState( ), std::placeholders::_1, bodies.getFrameOrigin( )  );
+                                   ( currentBody )->getGroundStation( linkEndIterator->second.stationName_ )->getNominalStationState( ),
+                                   std::placeholders::_1,
+                                   bodies.getFrameOrigin( ) );
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
-                            createRotationMatrixPartialsWrtParameter( bodies, parameterToEstimate ),
-                            groundStationPositionFunction );
+                        createRotationMatrixPartialsWrtParameter( bodies, parameterToEstimate ), groundStationPositionFunction );
             }
             else
             {
@@ -141,36 +142,34 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 // parameter exists.
                 switch( parameterToEstimate->getParameterName( ).first )
                 {
-                case estimatable_parameters::gravitational_parameter:
-                    break;
-                case estimatable_parameters::constant_drag_coefficient:
-                    break;
-                case estimatable_parameters::radiation_pressure_coefficient:
-                    break;
-                case estimatable_parameters::ppn_parameter_gamma:
-                    break;
-                case estimatable_parameters::ppn_parameter_beta:
-                    break;
-                case estimatable_parameters::equivalence_principle_lpi_violation_parameter:
-                    break;
-                case estimatable_parameters::mean_moment_of_inertia:
-                    break;
-                case estimatable_parameters::direct_dissipation_tidal_time_lag:
-                    break;
-                case estimatable_parameters::inverse_tidal_quality_factor:
-                    break;
-                case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
-                    break;
-                case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
-                    break;
-                default:
+                    case estimatable_parameters::gravitational_parameter:
+                        break;
+                    case estimatable_parameters::constant_drag_coefficient:
+                        break;
+                    case estimatable_parameters::radiation_pressure_coefficient:
+                        break;
+                    case estimatable_parameters::ppn_parameter_gamma:
+                        break;
+                    case estimatable_parameters::ppn_parameter_beta:
+                        break;
+                    case estimatable_parameters::equivalence_principle_lpi_violation_parameter:
+                        break;
+                    case estimatable_parameters::mean_moment_of_inertia:
+                        break;
+                    case estimatable_parameters::direct_dissipation_tidal_time_lag:
+                        break;
+                    case estimatable_parameters::inverse_tidal_quality_factor:
+                        break;
+                    case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
+                        break;
+                    case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
+                        break;
+                    default:
 
-                    std::string errorMessage =
-                            "Parameter " + std::to_string(
-                                parameterToEstimate->getParameterName( ).first ) +
-                            " not implemented when making position partial";
-                    throw std::runtime_error( errorMessage );
-                    break;
+                        std::string errorMessage = "Parameter " + std::to_string( parameterToEstimate->getParameterName( ).first ) +
+                                " not implemented when making position partial";
+                        throw std::runtime_error( errorMessage );
+                        break;
                 }
             }
         }
@@ -195,12 +194,12 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     std::string currentBodyName;
 
     // Iterate over all like ends.
-    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
-         linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
+         linkEndIterator++ )
     {
         // Check if current link end body corresponds to body with property to estimate.
         if( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first &&
-                linkEndIterator->second.stationName_ != "" )
+            linkEndIterator->second.stationName_ != "" )
         {
             // Set current body name and object.
             currentBodyName = linkEndIterator->second.bodyName_;
@@ -212,21 +211,21 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             {
                 if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
                 {
-                    throw std::runtime_error(
-                                "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
-                                linkEndIterator->second.stationName_ + " not found on body " + linkEndIterator->second.bodyName_ );
+                    throw std::runtime_error( "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
+                                              linkEndIterator->second.stationName_ + " not found on body " +
+                                              linkEndIterator->second.bodyName_ );
                 }
 
                 // Set ground station position function
                 std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                                     currentBody->getGroundStation( linkEndIterator->second.stationName_ )
-                                     ->getNominalStationState( ), std::placeholders::_1, bodies.getFrameOrigin( ) );
+                                   currentBody->getGroundStation( linkEndIterator->second.stationName_ )->getNominalStationState( ),
+                                   std::placeholders::_1,
+                                   bodies.getFrameOrigin( ) );
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
-                            createRotationMatrixPartialsWrtParameter( bodies, parameterToEstimate ),
-                            groundStationPositionFunction );
+                        createRotationMatrixPartialsWrtParameter( bodies, parameterToEstimate ), groundStationPositionFunction );
             }
             else
             {
@@ -234,109 +233,103 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 // parameter exists.
                 switch( parameterToEstimate->getParameterName( ).first )
                 {
-                case estimatable_parameters::spherical_harmonics_cosine_coefficient_block:
-                    break;
-                case estimatable_parameters::spherical_harmonics_sine_coefficient_block:
-                    break;
-                case estimatable_parameters::arc_wise_radiation_pressure_coefficient:
-                    break;
-                case estimatable_parameters::arc_wise_constant_drag_coefficient:
-                    break;
-                case estimatable_parameters::constant_additive_observation_bias:
-                    break;
-                case estimatable_parameters::arcwise_constant_additive_observation_bias:
-                    break;
-                case estimatable_parameters::constant_relative_observation_bias:
-                    break;
-                case estimatable_parameters::arcwise_constant_relative_observation_bias:
-                    break;
-                case estimatable_parameters::empirical_acceleration_coefficients:
-                    break;
-                case estimatable_parameters::arc_wise_empirical_acceleration_coefficients:
-                    break;
-                case estimatable_parameters::full_degree_tidal_love_number:
-                    break;
-                case estimatable_parameters::single_degree_variable_tidal_love_number:
-                    break;
-                case estimatable_parameters::desaturation_delta_v_values:
-                    break;
-                case estimatable_parameters::ground_station_position:
-                {
-                    // Check if current link end station is same station as that of which position is to be estimated.
-                    if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
-                    {
-                        if( currentBody->getRotationalEphemeris( ) == nullptr )
+                    case estimatable_parameters::spherical_harmonics_cosine_coefficient_block:
+                        break;
+                    case estimatable_parameters::spherical_harmonics_sine_coefficient_block:
+                        break;
+                    case estimatable_parameters::arc_wise_radiation_pressure_coefficient:
+                        break;
+                    case estimatable_parameters::arc_wise_constant_drag_coefficient:
+                        break;
+                    case estimatable_parameters::constant_additive_observation_bias:
+                        break;
+                    case estimatable_parameters::arcwise_constant_additive_observation_bias:
+                        break;
+                    case estimatable_parameters::constant_relative_observation_bias:
+                        break;
+                    case estimatable_parameters::arcwise_constant_relative_observation_bias:
+                        break;
+                    case estimatable_parameters::empirical_acceleration_coefficients:
+                        break;
+                    case estimatable_parameters::arc_wise_empirical_acceleration_coefficients:
+                        break;
+                    case estimatable_parameters::full_degree_tidal_love_number:
+                        break;
+                    case estimatable_parameters::single_degree_variable_tidal_love_number:
+                        break;
+                    case estimatable_parameters::desaturation_delta_v_values:
+                        break;
+                    case estimatable_parameters::ground_station_position: {
+                        // Check if current link end station is same station as that of which position is to be estimated.
+                        if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
                         {
-                            throw std::runtime_error(
-                                        "Warning, body's rotation model is not found when making position w.r.t. ground station position position partial" );
-                        }
-                        if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
-                        {
+                            if( currentBody->getRotationalEphemeris( ) == nullptr )
+                            {
+                                throw std::runtime_error(
+                                        "Warning, body's rotation model is not found when making position w.r.t. ground station position "
+                                        "position partial" );
+                            }
+                            if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.stationName_ ) == 0 )
+                            {
                                 std::runtime_error( "Warning, ground station " + linkEndIterator->second.stationName_ +
-                                           "not found when making ground station position position partial" );
-                        }
+                                                    "not found when making ground station position position partial" );
+                            }
 
-                        // Create partial object.
-                        partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtBodyFixedPosition >(
-                                    currentBody->getRotationalEphemeris( ) );
+                            // Create partial object.
+                            partialMap[ linkEndIterator->first ] =
+                                    std::make_shared< CartesianPartialWrtBodyFixedPosition >( currentBody->getRotationalEphemeris( ) );
+                        }
+                        break;
                     }
-                    break;
-                }
-                case estimatable_parameters::reference_point_position:
-                {
-                    // Check if current link end station is same station as that of which position is to be estimated.
-                    if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
-                    {
-                        if( currentBody->getRotationalEphemeris( ) == nullptr )
+                    case estimatable_parameters::reference_point_position: {
+                        // Check if current link end station is same station as that of which position is to be estimated.
+                        if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
                         {
-                            throw std::runtime_error(
-                                "Error, body's rotation model is not found in body " + currentBodyName +
-                                " when making position w.r.t. reference point position partial" );
-                        }
+                            if( currentBody->getRotationalEphemeris( ) == nullptr )
+                            {
+                                throw std::runtime_error( "Error, body's rotation model is not found in body " + currentBodyName +
+                                                          " when making position w.r.t. reference point position partial" );
+                            }
 
-                        if( currentBody->getVehicleSystems( ) == nullptr )
-                        {
-                            throw std::runtime_error(
-                                "Error, vehicle system model is not found in body " + currentBodyName +
-                                " when making position w.r.t. reference point position partial" );
-                        }
-                        else if( !currentBody->getVehicleSystems( )->doesReferencePointExist( parameterToEstimate->getParameterName( ).second.second ) )
-                        {
-                            throw std::runtime_error(
-                                "Error, reference point " + parameterToEstimate->getParameterName( ).second.second +
-                                " is not found when making position w.r.t. reference point position partial" );
-                        }
+                            if( currentBody->getVehicleSystems( ) == nullptr )
+                            {
+                                throw std::runtime_error( "Error, vehicle system model is not found in body " + currentBodyName +
+                                                          " when making position w.r.t. reference point position partial" );
+                            }
+                            else if( !currentBody->getVehicleSystems( )->doesReferencePointExist(
+                                             parameterToEstimate->getParameterName( ).second.second ) )
+                            {
+                                throw std::runtime_error( "Error, reference point " +
+                                                          parameterToEstimate->getParameterName( ).second.second +
+                                                          " is not found when making position w.r.t. reference point position partial" );
+                            }
 
-                        // Create partial object.
-                        partialMap[ linkEndIterator->first ] = std::make_shared< CartesianPartialWrtBodyFixedPosition >(
-                            currentBody->getRotationalEphemeris( ) );
+                            // Create partial object.
+                            partialMap[ linkEndIterator->first ] =
+                                    std::make_shared< CartesianPartialWrtBodyFixedPosition >( currentBody->getRotationalEphemeris( ) );
+                        }
+                        break;
                     }
-                    break;
-                }
-                case estimatable_parameters::constant_time_drift_observation_bias:
-                    break;
-                case estimatable_parameters::arc_wise_time_drift_observation_bias:
-                    break;
-                case estimatable_parameters::constant_time_observation_bias:
-                    break;
-                case estimatable_parameters::arc_wise_time_observation_bias:
-                    break;
-                case estimatable_parameters::yarkovsky_parameter:
-                    break;
-                case estimatable_parameters::custom_estimated_parameter:
-                    break;
-                default:
-                    std::string errorMessage =
-                            "Parameter " + std::to_string(
-                                parameterToEstimate->getParameterName( ).first ) +
-                            " not implemented when making position partial";
-                    throw std::runtime_error( errorMessage );
-                    break;
+                    case estimatable_parameters::constant_time_drift_observation_bias:
+                        break;
+                    case estimatable_parameters::arc_wise_time_drift_observation_bias:
+                        break;
+                    case estimatable_parameters::constant_time_observation_bias:
+                        break;
+                    case estimatable_parameters::arc_wise_time_observation_bias:
+                        break;
+                    case estimatable_parameters::yarkovsky_parameter:
+                        break;
+                    case estimatable_parameters::custom_estimated_parameter:
+                        break;
+                    default:
+                        std::string errorMessage = "Parameter " + std::to_string( parameterToEstimate->getParameterName( ).first ) +
+                                " not implemented when making position partial";
+                        throw std::runtime_error( errorMessage );
+                        break;
                 }
             }
-
         }
-
     }
     return partialMap;
 }
@@ -346,12 +339,10 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslat
         const std::shared_ptr< simulation_setup::Body > currentBody )
 {
     std::shared_ptr< RotationMatrixPartial > rotationMatrixPartial;
-    if( std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >(
-                currentBody->getRotationalEphemeris( ) ) != nullptr )
+    if( std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) != nullptr )
     {
         rotationMatrixPartial = std::make_shared< SynchronousRotationMatrixPartialWrtTranslationalState >(
-                    std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >(
-                        currentBody->getRotationalEphemeris( ) ) );
+                std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) );
     }
     return rotationMatrixPartial;
 }
@@ -365,7 +356,7 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
     using namespace ephemerides;
 
     // Declare return object.
-    std::shared_ptr< RotationMatrixPartial >  rotationMatrixPartial;
+    std::shared_ptr< RotationMatrixPartial > rotationMatrixPartial;
 
     // Get body for rotation of which partial is to be created.
     std::shared_ptr< Body > currentBody = bodies.at( parameterToEstimate->getParameterName( ).second.first );
@@ -373,74 +364,75 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
     // Check for which rotation model parameter the partial object is to be created.
     switch( parameterToEstimate->getParameterName( ).first )
     {
-    case estimatable_parameters::constant_rotation_rate:
+        case estimatable_parameters::constant_rotation_rate:
 
-        if( std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >(
-                    currentBody->getRotationalEphemeris( ) ) == nullptr )
-        {
-            throw std::runtime_error( "Warning, body's rotation model is not simple when making position w.r.t. constant rtoation rate partial" ) ;
-        }
+            if( std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                throw std::runtime_error(
+                        "Warning, body's rotation model is not simple when making position w.r.t. constant rtoation rate partial" );
+            }
 
-        // Create rotation matrix partial object
-        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtConstantRotationRate >(
-                    std::dynamic_pointer_cast< SimpleRotationalEphemeris>( currentBody->getRotationalEphemeris( ) ) );
-        break;
+            // Create rotation matrix partial object
+            rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtConstantRotationRate >(
+                    std::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) );
+            break;
 
-    case estimatable_parameters::core_factor:
+        case estimatable_parameters::core_factor:
 
-        if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >(
-                    currentBody->getRotationalEphemeris() ) == nullptr )
-        {
-            std::string errorMessage = "Warning, body's rotation model is not a full planetary rotational model when making"
-                                       "position w.r.t. core factor partial";
-            throw std::runtime_error( errorMessage );
-        }
+            if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage =
+                        "Warning, body's rotation model is not a full planetary rotational model when making"
+                        "position w.r.t. core factor partial";
+                throw std::runtime_error( errorMessage );
+            }
 
-        // Create rotation matrix partial object
-        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtCoreFactor >(
+            // Create rotation matrix partial object
+            rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtCoreFactor >(
                     std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) );
 
-        break;
+            break;
 
-    case estimatable_parameters::free_core_nutation_rate:
+        case estimatable_parameters::free_core_nutation_rate:
 
-        if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >(
-                    currentBody->getRotationalEphemeris() ) == nullptr ){
-            std::string errorMessage = "Warning, body's rotation model is not a full planetary rotational model when making"
-                                       "position w.r.t. polar motion amplitude partial";
-            throw std::runtime_error( errorMessage );
-        }
+            if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage =
+                        "Warning, body's rotation model is not a full planetary rotational model when making"
+                        "position w.r.t. polar motion amplitude partial";
+                throw std::runtime_error( errorMessage );
+            }
 
-        // Create rotation matrix partial object
-        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtFreeCoreNutationRate >(
-                    std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
+            // Create rotation matrix partial object
+            rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtFreeCoreNutationRate >(
+                    std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) );
 
-        break;
-    case estimatable_parameters::scaled_longitude_libration_amplitude:
+            break;
+        case estimatable_parameters::scaled_longitude_libration_amplitude:
 
-        if( std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >(
-                    currentBody->getRotationalEphemeris() ) == nullptr ){
-            std::string errorMessage = "Warning, body's rotation model is not a synchronous rotational model when making"
-                                       "position w.r.t. longitude libration amplitude partial";
-            throw std::runtime_error( errorMessage );
-        }
+            if( std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) ==
+                nullptr )
+            {
+                std::string errorMessage =
+                        "Warning, body's rotation model is not a synchronous rotational model when making"
+                        "position w.r.t. longitude libration amplitude partial";
+                throw std::runtime_error( errorMessage );
+            }
 
-        // Create rotation matrix partial object
-        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtScaledLongitudeLibrationAmplitude >(
+            // Create rotation matrix partial object
+            rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtScaledLongitudeLibrationAmplitude >(
                     std::dynamic_pointer_cast< SynchronousRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) );
 
-        break;
-    default:
-        std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
-                std::to_string( parameterToEstimate->getParameterName( ).first );
-        throw std::runtime_error( errorMessage );
+            break;
+        default:
+            std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
+                    std::to_string( parameterToEstimate->getParameterName( ).first );
+            throw std::runtime_error( errorMessage );
 
-        break;
+            break;
     }
 
     return rotationMatrixPartial;
-
-
 }
 
 //! Function to create partial object(s) of rotation matrix wrt a (vector) parameter.
@@ -453,7 +445,7 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
     using namespace ephemerides;
 
     // Declare return object.
-    std::shared_ptr< RotationMatrixPartial >  rotationMatrixPartial;
+    std::shared_ptr< RotationMatrixPartial > rotationMatrixPartial;
 
     // Get body for rotation of which partial is to be created.
     std::shared_ptr< Body > currentBody = bodies.at( parameterToEstimate->getParameterName( ).second.first );
@@ -461,73 +453,75 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
     // Check for which rotation model parameter the partial object is to be created.
     switch( parameterToEstimate->getParameterName( ).first )
     {
-    case estimatable_parameters::rotation_pole_position:
+        case estimatable_parameters::rotation_pole_position:
 
-
-        if( std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >(
-                    currentBody->getRotationalEphemeris( ) ) == nullptr )
-        {
-            std::string errorMessage = "Warning, body's rotation model is not simple when making position w.r.t. pole position partial";
-            throw std::runtime_error( errorMessage );
-        }
-
-        // Create rotation matrix partial object
-        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPoleOrientation >(
-                    std::dynamic_pointer_cast< SimpleRotationalEphemeris>( currentBody->getRotationalEphemeris( ) ) );
-        break;
-
-    case estimatable_parameters::periodic_spin_variation:
-
-        if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >(
-                    currentBody->getRotationalEphemeris() ) == nullptr ){
-            std::string errorMessage = "Warning, body's rotation model is not a full planetary rotational model when making"
-                                       "position w.r.t. periodic spin variation partial";
-            throw std::runtime_error( errorMessage );
-        }
-
-        // Create rotation matrix partial object
-        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPeriodicSpinVariations >(
-                    std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
-        break;
-
-    case estimatable_parameters::polar_motion_amplitude:
-
-        if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >(
-                    currentBody->getRotationalEphemeris() ) == nullptr ){
-            std::string errorMessage = "Warning, body's rotation model is not a full planetary rotational model when making"
-                                       "position w.r.t. polar motion amplitude partial";
-            throw std::runtime_error( errorMessage );
-        }
-        else{
-
-            if ( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >( currentBody->getRotationalEphemeris() )
-                 ->getPlanetaryOrientationAngleCalculator()->getXpolarMotionCoefficients().size()
-                 != std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >( currentBody->getRotationalEphemeris() )
-                 ->getPlanetaryOrientationAngleCalculator()->getYpolarMotionCoefficients().size() ){
-
-                throw std::runtime_error( "Error, unconsistent sizes when comparing x and y polar motion"
-                                          "amplitude coefficients." );
+            if( std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage = "Warning, body's rotation model is not simple when making position w.r.t. pole position partial";
+                throw std::runtime_error( errorMessage );
             }
 
             // Create rotation matrix partial object
-            rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPolarMotionAmplitude >(
-                        std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
+            rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPoleOrientation >(
+                    std::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) );
+            break;
 
-        }
+        case estimatable_parameters::periodic_spin_variation:
 
-        break;
-    default:
-        std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
-                std::to_string( parameterToEstimate->getParameterName( ).first );
-        throw std::runtime_error( errorMessage );
-        break;
+            if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage =
+                        "Warning, body's rotation model is not a full planetary rotational model when making"
+                        "position w.r.t. periodic spin variation partial";
+                throw std::runtime_error( errorMessage );
+            }
+
+            // Create rotation matrix partial object
+            rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPeriodicSpinVariations >(
+                    std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) );
+            break;
+
+        case estimatable_parameters::polar_motion_amplitude:
+
+            if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage =
+                        "Warning, body's rotation model is not a full planetary rotational model when making"
+                        "position w.r.t. polar motion amplitude partial";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) )
+                            ->getPlanetaryOrientationAngleCalculator( )
+                            ->getXpolarMotionCoefficients( )
+                            .size( ) !=
+                    std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) )
+                            ->getPlanetaryOrientationAngleCalculator( )
+                            ->getYpolarMotionCoefficients( )
+                            .size( ) )
+                {
+                    throw std::runtime_error(
+                            "Error, unconsistent sizes when comparing x and y polar motion"
+                            "amplitude coefficients." );
+                }
+
+                // Create rotation matrix partial object
+                rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPolarMotionAmplitude >(
+                        std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) );
+            }
+
+            break;
+        default:
+            std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
+                    std::to_string( parameterToEstimate->getParameterName( ).first );
+            throw std::runtime_error( errorMessage );
+            break;
     }
 
     return rotationMatrixPartial;
-
 }
 
+}  // namespace observation_partials
 
-}
-
-}
+}  // namespace tudat

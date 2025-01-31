@@ -20,7 +20,6 @@
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 #include "tudat/basics/timeType.h"
 
-
 namespace tudat
 {
 namespace unit_tests
@@ -67,24 +66,19 @@ BOOST_AUTO_TEST_CASE( testSofaPrecessionNutation )
             expectedCioLocator = -0.002200475 * arcSecondToRadian;
             dXTest = 0.0001750 * arcSecondToRadian;
             dYTest = -0.0002259 * arcSecondToRadian;
-
         }
 
         // Calculate X, Y pole position and CIO locator and compare against cookbook results.
-        Eigen::Vector3d cipInGcrs =
-                getPositionOfCipInGcrs( testJulianDay2, testJulianDay1, iauConventions );
+        Eigen::Vector3d cipInGcrs = getPositionOfCipInGcrs( testJulianDay2, testJulianDay1, iauConventions );
         BOOST_CHECK_SMALL( expectedPolePosition.x( ) - ( cipInGcrs( 0 ) + dXTest ), 5.0E-11 );
         BOOST_CHECK_SMALL( expectedPolePosition.y( ) - ( cipInGcrs( 1 ) + dYTest ), 5.0E-11 );
         BOOST_CHECK_SMALL( expectedCioLocator - cipInGcrs( 2 ), 2.0E-12 );
-
     }
-
 }
 
 //! Test GMST and ERA functions from Sofa.
 BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
 {
-
     double testJulianDay1 = 2400000.5 + 54195;
     double testJulianDay2 = 0.500754444444444;
 
@@ -95,8 +89,8 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
     {
         double deltaPsi, deltaEpsilon;
         double meanObliquity;
-        double rb[3][3], rp[3][3], rbp[3][3];
-        double rn[3][3], rbpn[3][3];
+        double rb[ 3 ][ 3 ], rp[ 3 ][ 3 ], rbp[ 3 ][ 3 ];
+        double rn[ 3 ][ 3 ], rbpn[ 3 ][ 3 ];
         iauNut00a( testJulianDay1, testJulianDay2, &deltaPsi, &deltaEpsilon );
         iauPn00( testJulianDay1, testJulianDay2, deltaPsi, deltaEpsilon, &meanObliquity, rb, rp, rbp, rn, rbpn );
         // Transform dX,dY corrections from GCRS to mean of date.
@@ -105,21 +99,20 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
 
         double dXTest = 0.17250 * arcSecondToRadian / 1000.0;
         double dYTest = -0.26500 * arcSecondToRadian / 1000.0;
-        double angleVector1[3], angleVector2[3];
-        angleVector1[0] = dXTest;
-        angleVector1[1] = dYTest;
-        angleVector1[2] = 0.0;
+        double angleVector1[ 3 ], angleVector2[ 3 ];
+        angleVector1[ 0 ] = dXTest;
+        angleVector1[ 1 ] = dYTest;
+        angleVector1[ 2 ] = 0.0;
         iauRxp( rbpn, angleVector1, angleVector2 );
-        double deltaPsiCorrection = angleVector2[0] / std::sin( meanObliquity );
+        double deltaPsiCorrection = angleVector2[ 0 ] / std::sin( meanObliquity );
 
         // Corrected nutation.;
         deltaPsi += deltaPsiCorrection;
 
-
         // Greenwich apparent sidereal time (IAU 1982/1994).
         double gst = ( iauGmst00( testUt1, testUt2, testJulianDay1, testJulianDay2 ) +
-                       iauEe00( testJulianDay1, testJulianDay2, meanObliquity, deltaPsi ) )
-                * 180.0 / mathematical_constants::PI;
+                       iauEe00( testJulianDay1, testJulianDay2, meanObliquity, deltaPsi ) ) *
+                180.0 / mathematical_constants::PI;
 
         // Check if test data is correctly reprodcued
         double expectedAngle = 13.412417084674;
@@ -128,46 +121,44 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
 
     // Compare direct against indirect GMST calculation.
     double expectedGmst = iauGmst00( testUt1, testUt2, testJulianDay1, testJulianDay2 );
-    double calculatedGmst = calculateGreenwichMeanSiderealTime(
-                testJulianDay2 * physical_constants::JULIAN_DAY, testUt2 * physical_constants::JULIAN_DAY,
-                testJulianDay1, basic_astrodynamics::iau_2000_a );
+    double calculatedGmst = calculateGreenwichMeanSiderealTime( testJulianDay2 * physical_constants::JULIAN_DAY,
+                                                                testUt2 * physical_constants::JULIAN_DAY,
+                                                                testJulianDay1,
+                                                                basic_astrodynamics::iau_2000_a );
 
     BOOST_CHECK_CLOSE_FRACTION( expectedGmst, calculatedGmst, std::numeric_limits< double >::epsilon( ) );
 
     // Calculate Earth rotation angle and comapre against result in cookbook.
-    double earthRotationAngle = calculateEarthRotationAngle(
-                testUt2 * physical_constants::JULIAN_DAY, testUt1 ) * 180.0 / mathematical_constants::PI;
+    double earthRotationAngle =
+            calculateEarthRotationAngle( testUt2 * physical_constants::JULIAN_DAY, testUt1 ) * 180.0 / mathematical_constants::PI;
     double expectedEarthRotationAngle = 13.318492966097;
 
     BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
 
-    earthRotationAngle = calculateEarthRotationAngleTemplated< double >(
-                    ( testUt2 + testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
-                physical_constants::JULIAN_DAY ) * 180.0 / mathematical_constants::PI;
+    earthRotationAngle = calculateEarthRotationAngleTemplated< double >( ( testUt2 + testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                                                                         physical_constants::JULIAN_DAY ) *
+            180.0 / mathematical_constants::PI;
     BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-7 );
 
-    earthRotationAngle = calculateEarthRotationAngleTemplated< Time >(
-                    tudat::Time( ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24 *
-                                 3600 / TIME_NORMALIZATION_INTEGER_TERM ,
+    earthRotationAngle = calculateEarthRotationAngleTemplated< Time >( tudat::Time(
+                                 ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24 * 3600 / TIME_NORMALIZATION_INTEGER_TERM,
                                  static_cast< long double >( testUt2 ) * physical_constants::JULIAN_DAY_LONG ) ) *
             180.0 / mathematical_constants::PI;
     BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
 
-
     // Test ERA for negative time since J2000
     testUt1 = basic_astrodynamics::JULIAN_DAY_ON_J2000 - 200.0;
     testUt2 = 0.499999165813831;
-    double directEarthRotationAngle = calculateEarthRotationAngle(
-                testUt2 * physical_constants::JULIAN_DAY, testUt1 ) * 180.0 / mathematical_constants::PI;
+    double directEarthRotationAngle =
+            calculateEarthRotationAngle( testUt2 * physical_constants::JULIAN_DAY, testUt1 ) * 180.0 / mathematical_constants::PI;
 
-    earthRotationAngle = calculateEarthRotationAngleTemplated< double >(
-                    ( testUt2 + testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
-                physical_constants::JULIAN_DAY ) * 180.0 / mathematical_constants::PI;
+    earthRotationAngle = calculateEarthRotationAngleTemplated< double >( ( testUt2 + testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                                                                         physical_constants::JULIAN_DAY ) *
+            180.0 / mathematical_constants::PI;
     BOOST_CHECK_SMALL( std::fabs( directEarthRotationAngle - earthRotationAngle ), 1.0E-7 );
 
-    earthRotationAngle = calculateEarthRotationAngleTemplated< Time >(
-                    tudat::Time( ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24 *
-                                 3600 / TIME_NORMALIZATION_INTEGER_TERM,
+    earthRotationAngle = calculateEarthRotationAngleTemplated< Time >( tudat::Time(
+                                 ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24 * 3600 / TIME_NORMALIZATION_INTEGER_TERM,
                                  static_cast< long double >( testUt2 ) * physical_constants::JULIAN_DAY_LONG ) ) *
             180.0 / mathematical_constants::PI;
     BOOST_CHECK_SMALL( std::fabs( directEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
@@ -175,8 +166,6 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
-
-
+}  // namespace tudat

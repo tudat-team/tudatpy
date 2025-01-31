@@ -30,15 +30,13 @@ namespace tudat
 namespace input_output
 {
 
-
 std::pair< std::vector< double >, std::vector< double > > grailAntennaFileReader( const std::string antennaFile );
 
 std::map< double, double > grailMassLevel0FileReader( const std::string massFile );
 std::map< double, double > grailMassLevel1FileReader( const std::string massFile, const std::string dataLevel = "1b" );
 
+}  // namespace input_output
 
-} // namespace input_output
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_READ_VARIOUS_PDS_FILES_H
+#endif  // TUDAT_READ_VARIOUS_PDS_FILES_H

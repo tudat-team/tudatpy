@@ -25,50 +25,45 @@ namespace tudat
 namespace shape_based_methods
 {
 
-
 class HodographicShapingLeg : public mission_segments::TransferLeg
 {
 public:
-
     //! Constructor which sets radial, normal and axial velocity functions and boundary conditions. Also sets quadrature
     //! settings.
-    HodographicShapingLeg(
-            const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
-            const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const double centralBodyGravitationalParameter,
-            const std::function< Eigen::Vector3d( ) > departureVelocityFunction,
-            const std::function< Eigen::Vector3d( ) > arrivalVelocityFunction,
-            const HodographicBasisFunctionList& radialVelocityFunctionComponents,
-            const HodographicBasisFunctionList& normalVelocityFunctionComponents,
-            const HodographicBasisFunctionList& axialVelocityFunctionComponents );
+    HodographicShapingLeg( const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
+                           const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
+                           const double centralBodyGravitationalParameter,
+                           const std::function< Eigen::Vector3d( ) > departureVelocityFunction,
+                           const std::function< Eigen::Vector3d( ) > arrivalVelocityFunction,
+                           const HodographicBasisFunctionList& radialVelocityFunctionComponents,
+                           const HodographicBasisFunctionList& normalVelocityFunctionComponents,
+                           const HodographicBasisFunctionList& axialVelocityFunctionComponents );
 
     //! Default destructor.
     ~HodographicShapingLeg( ) { }
 
     //! Compute current cartesian state.
-    Eigen::Vector6d computeCurrentCartesianState(const double timeSinceDeparture );
+    Eigen::Vector6d computeCurrentCartesianState( const double timeSinceDeparture );
 
     //! Get single value of state
-    virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
-                                          const double time )
+    virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory, const double time )
     {
-        stateAlongTrajectory = computeCurrentCartesianState(time - departureTime_);
+        stateAlongTrajectory = computeCurrentCartesianState( time - departureTime_ );
     }
 
     //! Compute magnitude thrust acceleration.
-    double computeThrustAccelerationMagnitude(const double timeSinceDeparture );
+    double computeThrustAccelerationMagnitude( const double timeSinceDeparture );
 
     //! Compute direction thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeThrustAccelerationDirection(const double timeSinceDeparture );
+    Eigen::Vector3d computeThrustAccelerationDirection( const double timeSinceDeparture );
 
     //! Compute the thrust acceleration in cartesian coordinates at the specified time.
     Eigen::Vector3d computeThrustAcceleration( const double timeSinceDeparture );
 
     //! Get single value of thrust acceleration.
-    virtual void getThrustAccelerationAlongTrajectory(Eigen::Vector3d& thrustAccelerationAlongTrajectory,
-                                                      const double time )
+    virtual void getThrustAccelerationAlongTrajectory( Eigen::Vector3d& thrustAccelerationAlongTrajectory, const double time )
     {
-        thrustAccelerationAlongTrajectory = computeThrustAcceleration(time - departureTime_);
+        thrustAccelerationAlongTrajectory = computeThrustAcceleration( time - departureTime_ );
     }
 
     // Return number of free radial coefficients
@@ -96,12 +91,10 @@ public:
     }
 
 protected:
-
     //! Evaluate the transfer trajectory (i.e. do all the operations necessary to compute the DeltaV and compute it)
     void computeTransfer( );
 
 private:
-
     //! Compute DeltaV.
     double computeDeltaV( );
 
@@ -136,16 +129,16 @@ private:
     void satisfyNormalBoundaryConditions( const Eigen::VectorXd& freeCoefficients );
 
     //! Define angular velocity due to the third component of the composite function only.
-    double computeDerivativePolarAngleDueToThirdComponent(
-            const double timeSinceDeparture, const Eigen::Vector2d& matrixK );
+    double computeDerivativePolarAngleDueToThirdComponent( const double timeSinceDeparture, const Eigen::Vector2d& matrixK );
 
     //! Define the angular velocity due to all the other components of the composite function, once combined.
-    double computeDerivativePolarAngleDueToOtherComponents(
-            const double timeSinceDeparture, const Eigen::Vector2d& matrixL, const Eigen::VectorXd& freeCoefficients );
+    double computeDerivativePolarAngleDueToOtherComponents( const double timeSinceDeparture,
+                                                            const Eigen::Vector2d& matrixL,
+                                                            const Eigen::VectorXd& freeCoefficients );
 
     //! Compute third fixed coefficient of the normal velocity composite function, so that the condition on the final polar angle
     //! is fulfilled.
-    double computeThirdFixedCoefficientAxialVelocity ( const Eigen::VectorXd& freeCoefficients );
+    double computeThirdFixedCoefficientAxialVelocity( const Eigen::VectorXd& freeCoefficients );
 
     //! Compute velocity vector in cylindrical coordinates.
     Eigen::Vector3d computeVelocityVectorInCylindricalCoordinates( const double timeSinceDeparture );
@@ -158,7 +151,6 @@ private:
 
     //! Compute thrust acceleration vector in cylindrical coordinates.
     Eigen::Vector3d computeThrustAccelerationInCylindricalCoordinates( const double timeSinceDeparture );
-
 
     //! Central body gravitational parameter.
     const double centralBodyGravitationalParameter_;
@@ -218,8 +210,7 @@ private:
     std::map< double, Eigen::Vector3d > thrustAccelerationVectorCache_;
 };
 
-
-} // namespace shape_based_methods
-} // namespace tudat
+}  // namespace shape_based_methods
+}  // namespace tudat
 
 #endif

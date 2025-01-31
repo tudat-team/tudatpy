@@ -19,10 +19,9 @@ namespace basic_astrodynamics
  *  Class to compute a phenomenological dissipative torque model, with the torque proportional to the angular velocity deviation
  *  w.r.t. the mean rotation (about body-fixed z-axis).
  */
-class DissipativeTorqueModel: public TorqueModel
+class DissipativeTorqueModel : public TorqueModel
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -30,13 +29,12 @@ public:
      * \param dampingMatrixFunction Function that returns the damping matrix that defines the dissipation strength
      * \param bodyMeanRotationRate Mean angular velocity vector about z-axis (w.r.t. which the deviation is computed)
      */
-    DissipativeTorqueModel(
-            const std::function< Eigen::Vector3d( ) >& bodyFixedRotationVectorFunction,
-            const std::function< Eigen::Matrix3d( ) >& dampingMatrixFunction,
-            const double bodyMeanRotationRate ):
-        bodyFixedRotationVectorFunction_( bodyFixedRotationVectorFunction ),
-        dampingMatrixFunction_( dampingMatrixFunction ),
-    bodyMeanRotationRate_( bodyMeanRotationRate ){ }
+    DissipativeTorqueModel( const std::function< Eigen::Vector3d( ) >& bodyFixedRotationVectorFunction,
+                            const std::function< Eigen::Matrix3d( ) >& dampingMatrixFunction,
+                            const double bodyMeanRotationRate ):
+        bodyFixedRotationVectorFunction_( bodyFixedRotationVectorFunction ), dampingMatrixFunction_( dampingMatrixFunction ),
+        bodyMeanRotationRate_( bodyMeanRotationRate )
+    { }
 
     //! Destructor
     ~DissipativeTorqueModel( ) { }
@@ -51,7 +49,6 @@ public:
         return currentTorque_;
     }
 
-
     //! Update member variables used by the torque model.
     /*!
      * Updates member variables used by the torque model.
@@ -64,7 +61,7 @@ public:
     {
         currentBodyRotationPerturbationVector_ = bodyFixedRotationVectorFunction_( );
         currentBodyRotationPerturbationVector_( 2 ) -= bodyMeanRotationRate_;
-        currentTorque_ =  -dampingMatrixFunction_( ) * currentBodyRotationPerturbationVector_;
+        currentTorque_ = -dampingMatrixFunction_( ) * currentBodyRotationPerturbationVector_;
     }
 
     //! Function to modify the damping matrix
@@ -74,13 +71,11 @@ public:
      */
     void setDampingMatrixFunction( const Eigen::Matrix3d& dampingMatrix )
     {
-        dampingMatrixFunction_ = [ = ]( ){ return dampingMatrix; };
+        dampingMatrixFunction_ = [ = ]( ) { return dampingMatrix; };
     }
 
 protected:
-
 private:
-
     //! tion that returns body-fixed angular velocity vector of body
     std::function< Eigen::Vector3d( ) > bodyFixedRotationVectorFunction_;
 
@@ -95,11 +90,10 @@ private:
 
     //! Current torque, as computed by last call to updateMembers function
     Eigen::Vector3d currentTorque_;
-
 };
 
-}
+}  // namespace basic_astrodynamics
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_DISSIPATIVETORQUEMODEL_H
+#endif  // TUDAT_DISSIPATIVETORQUEMODEL_H

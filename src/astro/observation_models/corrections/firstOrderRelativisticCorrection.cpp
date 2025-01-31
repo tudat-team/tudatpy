@@ -13,7 +13,6 @@
 #include "tudat/astro/relativity/relativisticLightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
 
-
 namespace tudat
 {
 
@@ -30,9 +29,13 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWith
     // Retrieve state and time of receiver and transmitter
     Eigen::Vector6d transmitterState, receiverState;
     double transmissionTime, receptionTime;
-    getTransmissionReceptionTimesAndStates(
-            linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, transmitterState, receiverState,
-            transmissionTime, receptionTime );
+    getTransmissionReceptionTimesAndStates( linkEndsStates,
+                                            linkEndsTimes,
+                                            currentMultiLegTransmitterIndex,
+                                            transmitterState,
+                                            receiverState,
+                                            transmissionTime,
+                                            receptionTime );
 
     // Retrieve ppn parameter gamma.
     double ppnParameterGamma = ppnParameterGammaFunction_( );
@@ -47,10 +50,11 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWith
         evaluationTime = transmissionTime + lightTimeEvaluationContribution_.at( i ) * ( receptionTime - transmissionTime );
         // Calculate correction due to current body and add to total.
         currentLighTimeCorrectionComponents_.at( i ) = relativity::calculateFirstOrderLightTimeCorrectionFromCentralBody(
-                    perturbingBodyGravitationalParameterFunctions_.at( i )( ),
-                    transmitterState.segment( 0, 3 ), receiverState.segment( 0, 3 ),
-                    perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
-                    ppnParameterGamma );
+                perturbingBodyGravitationalParameterFunctions_.at( i )( ),
+                transmitterState.segment( 0, 3 ),
+                receiverState.segment( 0, 3 ),
+                perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
+                ppnParameterGamma );
         currentTotalLightTimeCorrection_ += currentLighTimeCorrectionComponents_.at( i );
     }
 
@@ -58,8 +62,7 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWith
 }
 
 //! Function to compute the partial derivative of the light-time correction w.r.t. link end position
-Eigen::Matrix< double, 3, 1 > FirstOrderLightTimeCorrectionCalculator::
-calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+Eigen::Matrix< double, 3, 1 > FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
         const Eigen::Vector6d& transmitterState,
         const Eigen::Vector6d& receiverState,
         const double transmissionTime,
@@ -83,9 +86,10 @@ calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
 
         // Calculate correction due to current body and add to total.
         currentTotalLightTimeCorrectionPartial_ += relativity::calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
-                    perturbingBodyGravitationalParameterFunctions_.at( i )( ),
-                    transmitterState.segment( 0, 3 ), receiverState.segment( 0, 3 ),
-                    perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
+                perturbingBodyGravitationalParameterFunctions_.at( i )( ),
+                transmitterState.segment( 0, 3 ),
+                receiverState.segment( 0, 3 ),
+                perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
                 ( linkEndAtWhichPartialIsEvaluated == receiver ),
                 ppnParameterGamma );
     }
@@ -93,7 +97,6 @@ calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
     return currentTotalLightTimeCorrectionPartial_;
 }
 
-}
+}  // namespace observation_models
 
-}
-
+}  // namespace tudat

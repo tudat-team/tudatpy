@@ -61,8 +61,8 @@ Eigen::Vector4d convertQuaternionsToExponentialMapElements( const Eigen::Vector4
  */
 Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector4d& exponentialMapElements );
 
-} // namespace orbital_element_conversions
+}  // namespace orbital_element_conversions
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_ATTITUDE_ELEMENT_CONVERSIONS_H
+#endif  // TUDAT_ATTITUDE_ELEMENT_CONVERSIONS_H

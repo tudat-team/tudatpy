@@ -34,18 +34,15 @@ template< typename ObservationScalarType = double, typename TimeType = double >
 class ObservationSimulatorBase
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param observableType Type of observable for which this object computes observations.
      */
-    ObservationSimulatorBase(
-            const ObservableType observableType ):
-        observableType_( observableType ){ }
+    ObservationSimulatorBase( const ObservableType observableType ): observableType_( observableType ) { }
 
     //! Destructor
-    virtual ~ObservationSimulatorBase( ){ }
+    virtual ~ObservationSimulatorBase( ) { }
 
     //! Function to get the type of observable for which this object computes observations
     /*!
@@ -64,25 +61,23 @@ public:
      */
     virtual int getObservationSize( ) = 0;
 
-    virtual void computeObservations( const std::vector< TimeType >& times,
-                              const LinkEnds linkEnds,
-                              const LinkEndType linkEndAssociatedWithTime,
-                              const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
-                              Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) = 0;
+    virtual void computeObservations(
+            const std::vector< TimeType >& times,
+            const LinkEnds linkEnds,
+            const LinkEndType linkEndAssociatedWithTime,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) = 0;
 
 protected:
-
     //! Type of observable for which this object computes observations
     ObservableType observableType_;
-
 };
 
 //! Objects used to simulate a set of observations of a given kind
 template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
-class ObservationSimulator: public ObservationSimulatorBase< ObservationScalarType, TimeType >
+class ObservationSimulator : public ObservationSimulatorBase< ObservationScalarType, TimeType >
 {
 public:
-
     using ObservationSimulatorBase< ObservationScalarType, TimeType >::observableType_;
     //! Constructor
     /*!
@@ -92,12 +87,13 @@ public:
      */
     ObservationSimulator(
             const ObservableType observableType,
-            const std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize,
-            ObservationScalarType, TimeType > > >& observationModels ):
-        ObservationSimulatorBase< ObservationScalarType, TimeType >( observableType ), observationModels_( observationModels ){ }
+            const std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >&
+                    observationModels ):
+        ObservationSimulatorBase< ObservationScalarType, TimeType >( observableType ), observationModels_( observationModels )
+    { }
 
     //! Virtual destructor
-    virtual ~ObservationSimulator( ){ }
+    virtual ~ObservationSimulator( ) { }
 
     //! Function to get the size of the observable for a given set of link ends
     /*!
@@ -114,12 +110,13 @@ public:
      * Function to get the observation model for a given set of link ends
      * \return Observation model for a given set of link ends
      */
-    std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
-            const LinkEnds linkEnds )
+    std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel( const LinkEnds linkEnds )
     {
         if( observationModels_.count( linkEnds ) == 0 )
         {
-            throw std::runtime_error( "Error in observation manager when getting observation model, did not find model for given link ends: " + getLinkEndsString( linkEnds ) );
+            throw std::runtime_error(
+                    "Error in observation manager when getting observation model, did not find model for given link ends: " +
+                    getLinkEndsString( linkEnds ) );
         }
         else
         {
@@ -132,24 +129,23 @@ public:
      * Function to get the full list of observation models
      * \return Full list of observation models
      */
-    std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
-    getObservationModels( )
+    std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > getObservationModels( )
     {
         return observationModels_;
     }
 
     void computeObservations( const std::vector< TimeType >& times,
-                                          const LinkEnds linkEnds,
-                                          const LinkEndType linkEndAssociatedWithTime,
-                                          const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
-                                          Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector )
+                              const LinkEnds linkEnds,
+                              const LinkEndType linkEndAssociatedWithTime,
+                              const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+                              Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector )
     {
         // Initialize return vectors.
         std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
 
         // Get observation model.
         std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
-            this->getObservationModel( linkEnds );
+                this->getObservationModel( linkEnds );
 
         // Initialize vectors of states and times of link ends to be used in calculations.
         std::vector< Eigen::Vector6d > vectorOfStates;
@@ -158,7 +154,7 @@ public:
         Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation;
 
         // Iterate over all observation times
-//        int currentObservationSize;
+        //        int currentObservationSize;
         for( unsigned int i = 0; i < times.size( ); i++ )
         {
             vectorOfTimes.clear( );
@@ -166,7 +162,7 @@ public:
 
             // Compute observation
             currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
-                times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
+                    times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
             TimeType saveTime = times[ i ];
             while( observations.count( saveTime ) != 0 )
             {
@@ -174,23 +170,21 @@ public:
             }
 
             // Compute observation partial
-//            currentObservationSize = currentObservation.rows( );
+            //            currentObservationSize = currentObservation.rows( );
             observations[ saveTime ] = currentObservation;
         }
 
-        observationsVector = utilities::createConcatenatedEigenMatrixFromMapValues<TimeType, ObservationScalarType, ObservationSize, 1>( observations );
+        observationsVector = utilities::createConcatenatedEigenMatrixFromMapValues< TimeType, ObservationScalarType, ObservationSize, 1 >(
+                observations );
     }
 
 protected:
-
     //! List of observation models of type observableType
-    std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
-    observationModels_;
+    std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModels_;
 };
 
 template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >
-getObservationSimulatorOfType(
+std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > getObservationSimulatorOfType(
         const std::vector< std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators,
         const ObservableType observableType )
 {
@@ -204,12 +198,13 @@ getObservationSimulatorOfType(
                 throw std::runtime_error( "Error when getting observation simulator of single type; multiple simulators detected" );
             }
 
-            observationSimulator = std::dynamic_pointer_cast<  ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >(
-                        observationSimulators.at( i ) );
+            observationSimulator = std::dynamic_pointer_cast< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >(
+                    observationSimulators.at( i ) );
 
             if( ObservationSize != observationSimulators.at( i )->getObservationSize( ) )
             {
-                std::cout<<observableType<<" "<<ObservationSize<<" "<<observationSimulators.at( i )->getObservationSize( )<<std::endl;
+                std::cout << observableType << " " << ObservationSize << " " << observationSimulators.at( i )->getObservationSize( )
+                          << std::endl;
                 throw std::runtime_error( "Error when getting observation simulator of single type; sizes are incompatible" );
             }
 
@@ -221,14 +216,13 @@ getObservationSimulatorOfType(
     }
     if( observationSimulator == nullptr )
     {
-        throw std::runtime_error( "Error when retrieving observation simulator from list for type " +
-                                  std::to_string( observableType ) + ", no simualtor found" );
+        throw std::runtime_error( "Error when retrieving observation simulator from list for type " + std::to_string( observableType ) +
+                                  ", no simualtor found" );
     }
     return observationSimulator;
 }
 
+}  // namespace observation_models
 
-}
-
-}
-#endif // TUDAT_OBSERVATIONSIMULATOR_H
+}  // namespace tudat
+#endif  // TUDAT_OBSERVATIONSIMULATOR_H

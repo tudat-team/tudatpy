@@ -30,7 +30,6 @@ namespace gravitation
 class GravityFieldModel
 {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor.
@@ -38,7 +37,7 @@ public:
      * \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default none)
      */
     GravityFieldModel( const double gravitationalParameter,
-                       const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) ):
+                       const std::function< void( ) > updateInertiaTensor = std::function< void( ) >( ) ):
         gravitationalParameter_( gravitationalParameter ), updateInertiaTensor_( updateInertiaTensor )
     { }
 
@@ -72,7 +71,6 @@ public:
         return gravitationalParameter_;
     }
 
-
     //! Get the gravitational potential at given body-fixed position.
     /*!
      * Return the gravitational potential at given body-fixed position.
@@ -101,7 +99,7 @@ public:
      * \param bodyFixedPosition Position at which gradient of potential is to be determined.
      * \return Laplacian of potential.
      */
-    virtual double getLaplacianOfPotential ( const Eigen::Vector3d& bodyFixedPosition )
+    virtual double getLaplacianOfPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
         throw std::runtime_error( "Computation of Laplacian of gravity potential not implemented for selected gravity field model." );
     }
@@ -117,7 +115,6 @@ public:
     }
 
 protected:
-
     //! Gravitational parameter.
     /*!
      * The gravitational parameter in meter^3 per second^2.
@@ -132,14 +129,10 @@ private:
 
 //! List of bodies for which predefined central gravity fields may be created through the
 //! getPredefinedCentralGravityField function.
-enum BodiesWithPredefinedCentralGravityFields
-{
-    sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune
-};
+enum BodiesWithPredefinedCentralGravityFields { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune };
 
 //! Typedef for shared-pointer to GravityFieldModel object.
 typedef std::shared_ptr< GravityFieldModel > GravityFieldModelPointer;
-
 
 //! Function to create a central gravity field model of one of the planets, moon or sun.
 /*!
@@ -149,9 +142,9 @@ typedef std::shared_ptr< GravityFieldModel > GravityFieldModelPointer;
  *  \return Central gravity field model of requested body.
  */
 std::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
-    BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField );
+        BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField );
 
-} // namespace gravitation
-} // namespace tudat
+}  // namespace gravitation
+}  // namespace tudat
 
-#endif // TUDAT_GRAVITY_FIELD_MODEL_H
+#endif  // TUDAT_GRAVITY_FIELD_MODEL_H

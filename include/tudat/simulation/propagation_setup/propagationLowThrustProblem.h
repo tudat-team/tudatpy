@@ -28,11 +28,10 @@ void computeLowThrustLegSemiAnalyticalAndFullPropagation(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-        std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
+                         std::shared_ptr< propagators::PropagatorSettings< double > > >& propagatorSettings,
         std::map< double, Eigen::VectorXd >& fullPropagationResults,
         std::map< double, Eigen::Vector6d >& semiAnalyticalResults,
         std::map< double, Eigen::VectorXd >& dependentVariablesHistory );
-
 
 basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
         const std::shared_ptr< low_thrust_trajectories::LowThrustLeg > lowThrustLeg,
@@ -42,32 +41,30 @@ basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
         const std::function< double( const double ) > specificImpulseFunction,
         const double lowThrustLegInitialTime );
 
-
 //! Define appropriate translational state propagator settings for the full propagation.
 std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
+           std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
+createLowThrustTranslationalStatePropagatorSettings(
         const std::shared_ptr< low_thrust_trajectories::LowThrustLeg > lowThrustLeg,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave );
 
-
 //! Define appropriate propagator settings for the full propagation.
-std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >,
-std::shared_ptr< propagators::PropagatorSettings< double > > > createLowThrustPropagatorSettings(
-        const std::shared_ptr< low_thrust_trajectories::LowThrustLeg > lowThrustLeg,
-        const double bodyMassAtMidPoint,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::string& bodyToPropagate,
-        const std::string& centralBody,
-        const std::function< double( const double ) > specificImpulseFunction,
-        const basic_astrodynamics::AccelerationMap perturbingAccelerationsMap,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        const std::shared_ptr< propagators::DependentVariableSaveSettings >& dependentVariablesToSave );
+std::pair< std::shared_ptr< propagators::PropagatorSettings< double > >, std::shared_ptr< propagators::PropagatorSettings< double > > >
+createLowThrustPropagatorSettings( const std::shared_ptr< low_thrust_trajectories::LowThrustLeg > lowThrustLeg,
+                                   const double bodyMassAtMidPoint,
+                                   const simulation_setup::SystemOfBodies& bodies,
+                                   const std::string& bodyToPropagate,
+                                   const std::string& centralBody,
+                                   const std::function< double( const double ) > specificImpulseFunction,
+                                   const basic_astrodynamics::AccelerationMap perturbingAccelerationsMap,
+                                   const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+                                   const std::shared_ptr< propagators::DependentVariableSaveSettings >& dependentVariablesToSave );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_PROPAGATIONLOWTHRUSTPROBLEM_H
+#endif  // TUDAT_PROPAGATIONLOWTHRUSTPROBLEM_H

@@ -24,12 +24,11 @@ namespace observation_partials
 {
 
 //! Derived class for scaling three-dimensional position partial to relative angular position observable partial
-class RelativeAngularPositionScaling: public PositionPartialScaling
+class RelativeAngularPositionScaling : public PositionPartialScaling
 {
 public:
-
     //! Destructor
-    ~RelativeAngularPositionScaling( ){ }
+    ~RelativeAngularPositionScaling( ) { }
 
     //! Update the scaling object to the current times and states
     /*!
@@ -52,18 +51,17 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 2, 3 > getScalingFactor(
-            const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getScalingFactor( const observation_models::LinkEndType linkEndType )
     {
-        if ( linkEndType == observation_models::transmitter )
+        if( linkEndType == observation_models::transmitter )
         {
             return referenceScalingFactorFirstTransmitter_;
         }
-        else if ( linkEndType == observation_models::transmitter2 )
+        else if( linkEndType == observation_models::transmitter2 )
         {
-            return - referenceScalingFactorSecondTransmitter_;
+            return -referenceScalingFactorSecondTransmitter_;
         }
-        else if ( linkEndType == observation_models::receiver )
+        else if( linkEndType == observation_models::receiver )
         {
             return referenceScalingFactorSecondTransmitter_ - referenceScalingFactorFirstTransmitter_;
         }
@@ -99,9 +97,7 @@ public:
         return currentLinkEndType_;
     }
 
-
 private:
-
     //! Predeclared common scaling factor for first transmitter
     Eigen::Matrix< double, 2, 3 > scalingFactorFirstTransmitter_;
 
@@ -122,10 +118,9 @@ private:
 
     //! Fixed link end for last computation of update() function.
     observation_models::LinkEndType currentLinkEndType_;
-
 };
 
-}
+}  // namespace observation_partials
 
-}
-#endif // RELATIVEANGULARPOSITIONPARTIAL_H
+}  // namespace tudat
+#endif  // RELATIVEANGULARPOSITIONPARTIAL_H

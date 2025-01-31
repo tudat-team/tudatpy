@@ -16,7 +16,6 @@
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters//polynomialClockCorrections.h"
 
-
 namespace tudat
 {
 
@@ -34,10 +33,11 @@ std::map< int, std::shared_ptr< TimingPartial > > createTimingPartialWrtClockPro
 {
     std::map< int, std::shared_ptr< TimingPartial > > timingPartials;
 
-    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
+         linkEndIterator++ )
     {
         if( ( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first ) &&
-                ( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second ) )
+            ( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second ) )
         {
             for( unsigned int j = 0; j < clockInducedBiases.size( ); j++ )
             {
@@ -50,69 +50,67 @@ std::map< int, std::shared_ptr< TimingPartial > > createTimingPartialWrtClockPro
                 std::shared_ptr< system_models::TimingSystem > timingSystem = clockInducedBias->getTimingSystem( );
                 if( timingSystem != nullptr )
                 {
-                    switch ( parameterToEstimate->getParameterName( ).first )
+                    switch( parameterToEstimate->getParameterName( ).first )
                     {
-                        case estimatable_parameters::global_polynomial_clock_corrections:
-                        {
-                            std::shared_ptr<estimatable_parameters::GlobalPolynomialClockCorrections> globalPolynomialClockCorrections =
-                                    std::dynamic_pointer_cast<estimatable_parameters::GlobalPolynomialClockCorrections>(
+                        case estimatable_parameters::global_polynomial_clock_corrections: {
+                            std::shared_ptr< estimatable_parameters::GlobalPolynomialClockCorrections > globalPolynomialClockCorrections =
+                                    std::dynamic_pointer_cast< estimatable_parameters::GlobalPolynomialClockCorrections >(
                                             parameterToEstimate );
 
                             if( globalPolynomialClockCorrections->getLinkEndId( ) == clockInducedBias->getLinkEndId( ) )
                             {
-                                if ( timingSystem.get( ) != globalPolynomialClockCorrections->getTimingSystem( ).get( ))
+                                if( timingSystem.get( ) != globalPolynomialClockCorrections->getTimingSystem( ).get( ) )
                                 {
-                                    std::cout<<timingSystem.get( )<<" "<<globalPolynomialClockCorrections->getTimingSystem( ).get( )<<std::endl;
+                                    std::cout << timingSystem.get( ) << " " << globalPolynomialClockCorrections->getTimingSystem( ).get( )
+                                              << std::endl;
                                     throw std::runtime_error(
-                                             "Error when making range partial w.r.t. polynimial global clock variation parameter of " +
-                                            parameterToEstimate->getParameterName( ).second.first  + ", " +
-                                            parameterToEstimate->getParameterName( ).second.second +
-                                            ", pointers are inconsistent." );
+                                            "Error when making range partial w.r.t. polynimial global clock variation parameter of " +
+                                            parameterToEstimate->getParameterName( ).second.first + ", " +
+                                            parameterToEstimate->getParameterName( ).second.second + ", pointers are inconsistent." );
                                 }
 
-                                std::vector<int> linkEndIndices = getLinkEndIndicesForLinkEndTypeAtObservable(
-                                        observableType, linkEndIterator->first, linkEnds.size( ));
-                                for ( unsigned int i = 0; i < linkEndIndices.size( ); i++ ) {
+                                std::vector< int > linkEndIndices = getLinkEndIndicesForLinkEndTypeAtObservable(
+                                        observableType, linkEndIterator->first, linkEnds.size( ) );
+                                for( unsigned int i = 0; i < linkEndIndices.size( ); i++ )
+                                {
                                     timingPartials[ linkEndIndices.at( i ) ] =
-                                            std::make_shared<TimingPartialWrtGlobalPolynomialCorrectionCoefficients>(
-                                                    timingSystem, globalPolynomialClockCorrections->getCorrectionPowers( ));
+                                            std::make_shared< TimingPartialWrtGlobalPolynomialCorrectionCoefficients >(
+                                                    timingSystem, globalPolynomialClockCorrections->getCorrectionPowers( ) );
                                 }
                             }
                             break;
                         }
-                        case estimatable_parameters::arc_wise_polynomial_clock_corrections:
-                        {
-                            std::shared_ptr<estimatable_parameters::MultiArcClockCorrections> arcWisePolynomialClockCorrections =
-                                    std::dynamic_pointer_cast<estimatable_parameters::MultiArcClockCorrections>(
-                                            parameterToEstimate );
+                        case estimatable_parameters::arc_wise_polynomial_clock_corrections: {
+                            std::shared_ptr< estimatable_parameters::MultiArcClockCorrections > arcWisePolynomialClockCorrections =
+                                    std::dynamic_pointer_cast< estimatable_parameters::MultiArcClockCorrections >( parameterToEstimate );
 
                             if( arcWisePolynomialClockCorrections->getLinkEndId( ) == clockInducedBias->getLinkEndId( ) )
                             {
-                                if ( timingSystem.get( ) != arcWisePolynomialClockCorrections->getTimingSystem( ).get( ))
+                                if( timingSystem.get( ) != arcWisePolynomialClockCorrections->getTimingSystem( ).get( ) )
                                 {
-
                                     throw std::runtime_error(
                                             "Error when making range partial w.r.t. polynimial arcwise clock variation parameter of " +
-                                            parameterToEstimate->getParameterName( ).second.first  + ", " +
-                                            parameterToEstimate->getParameterName( ).second.second +
-                                            ", pointers are inconsistent" );
+                                            parameterToEstimate->getParameterName( ).second.first + ", " +
+                                            parameterToEstimate->getParameterName( ).second.second + ", pointers are inconsistent" );
                                 }
 
-                                std::vector<int> linkEndIndices = getLinkEndIndicesForLinkEndTypeAtObservable(
-                                        observableType, linkEndIterator->first, linkEnds.size( ));
-                                for ( unsigned int i = 0; i < linkEndIndices.size( ); i++ ) {
+                                std::vector< int > linkEndIndices = getLinkEndIndicesForLinkEndTypeAtObservable(
+                                        observableType, linkEndIterator->first, linkEnds.size( ) );
+                                for( unsigned int i = 0; i < linkEndIndices.size( ); i++ )
+                                {
                                     timingPartials[ linkEndIndices.at( i ) ] =
-                                            std::make_shared<TimingPartialWrtArcwisePolynomialCorrectionCoefficients>(
-                                                    timingSystem, arcWisePolynomialClockCorrections->getCorrectionPowers( ),
-                                                    arcWisePolynomialClockCorrections->getArcIndices( ));
+                                            std::make_shared< TimingPartialWrtArcwisePolynomialCorrectionCoefficients >(
+                                                    timingSystem,
+                                                    arcWisePolynomialClockCorrections->getCorrectionPowers( ),
+                                                    arcWisePolynomialClockCorrections->getArcIndices( ) );
                                 }
                             }
 
                             break;
                         }
                         default:
-                            std::cerr << "Error when making range partial w.r.t. clock parameter, parameter " <<
-                                      parameterToEstimate->getParameterName( ).first << " not found" << std::endl;
+                            std::cerr << "Error when making range partial w.r.t. clock parameter, parameter "
+                                      << parameterToEstimate->getParameterName( ).first << " not found" << std::endl;
                     }
                 }
                 else
@@ -129,7 +127,6 @@ template< typename ParameterType, int ObservationSize >
 class ObservationPartialWrtClockCreator
 {
 public:
-
     //! Function to create a list of observation partial objects, and associated scaling objects
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
@@ -158,7 +155,6 @@ template< typename ParameterType >
 class ObservationPartialWrtClockCreator< ParameterType, 1 >
 {
 public:
-
     //! Function to create a list of observation partial objects, and associated scaling objects
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
@@ -179,32 +175,27 @@ public:
             const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameterToEstimate,
             const std::vector< std::shared_ptr< observation_models::ObservationBias< 1 > > > clockInducedBiases )
     {
-
         std::shared_ptr< ObservationPartial< 1 > > observationPartial = nullptr;
         switch( observableType )
         {
-            case observation_models::one_way_range:
-            {
-                std::map< int, std::shared_ptr< TimingPartial > > timingPartialList = createTimingPartialWrtClockProperty(
-                        linkEnds, observableType, parameterToEstimate, clockInducedBiases );
+            case observation_models::one_way_range: {
+                std::map< int, std::shared_ptr< TimingPartial > > timingPartialList =
+                        createTimingPartialWrtClockProperty( linkEnds, observableType, parameterToEstimate, clockInducedBiases );
                 if( timingPartialList.size( ) > 0 )
                 {
                     observationPartial = std::make_shared< RangePartialWrtClockParameter >(
                             parameterToEstimate->getParameterName( ), timingPartialList, getTimingPartialMultipliers( observableType ) );
-
                 }
                 break;
             }
             case observation_models::dsn_n_way_range:
-            case observation_models::n_way_range:
-            {
-                std::map< int, std::shared_ptr< TimingPartial > > timingPartialList = createTimingPartialWrtClockProperty(
-                    linkEnds, observableType, parameterToEstimate, clockInducedBiases );
+            case observation_models::n_way_range: {
+                std::map< int, std::shared_ptr< TimingPartial > > timingPartialList =
+                        createTimingPartialWrtClockProperty( linkEnds, observableType, parameterToEstimate, clockInducedBiases );
                 if( timingPartialList.size( ) > 0 )
                 {
                     observationPartial = std::make_shared< RangePartialWrtClockParameter >(
-                        parameterToEstimate->getParameterName( ), timingPartialList, getTimingPartialMultipliers( observableType ) );
-
+                            parameterToEstimate->getParameterName( ), timingPartialList, getTimingPartialMultipliers( observableType ) );
                 }
                 break;
             }
@@ -216,13 +207,8 @@ public:
     }
 };
 
+}  // namespace observation_partials
 
+}  // namespace tudat
 
-
-
-
-}
-
-}
-
-#endif // CREATECLOCKPARTIALS_H
+#endif  // CREATECLOCKPARTIALS_H

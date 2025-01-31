@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_EXAMPLE_PAGMO_PROBLEM_PROPAGATION_TARGETING_HPP
 #define TUDAT_EXAMPLE_PAGMO_PROBLEM_PROPAGATION_TARGETING_HPP
 
@@ -20,20 +19,21 @@ using namespace tudat;
 
 // Define the problem PaGMO-style
 struct PropagationTargetingProblem {
-
     // Empty constructor
-    PropagationTargetingProblem( ){ }
+    PropagationTargetingProblem( ) { }
 
-    PropagationTargetingProblem( const double altitudeOfPerigee, const double altitudeOfApogee,
-                                 const double altitudeOfTarget, const double longitudeOfTarget,
+    PropagationTargetingProblem( const double altitudeOfPerigee,
+                                 const double altitudeOfApogee,
+                                 const double altitudeOfTarget,
+                                 const double longitudeOfTarget,
                                  const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave,
                                  const bool useExtendedDynamics = false );
 
     // Fitness: takes the value of the RAAN and returns the value of the closest distance from target
-    std::vector<double> fitness(const std::vector<double> &x) const;
+    std::vector< double > fitness( const std::vector< double > &x ) const;
 
     // Boundaries of the problem set between 0 and (360) degrees
-    std::pair<std::vector<double>, std::vector<double>> get_bounds() const;
+    std::pair< std::vector< double >, std::vector< double > > get_bounds( ) const;
 
     Eigen::VectorXd getPreviousFinalState( )
     {
@@ -45,20 +45,17 @@ struct PropagationTargetingProblem {
         return previousStateHistory_;
     }
 
-    std::map< double, Eigen::VectorXd > getPreviousDependentVariablesHistory()
+    std::map< double, Eigen::VectorXd > getPreviousDependentVariablesHistory( )
     {
         return previousDependentVariablesHistory_;
     }
 
-    Eigen::VectorXd getPreviousDependentVariablesFinalValues()
+    Eigen::VectorXd getPreviousDependentVariablesFinalValues( )
     {
         return previousDependentVariablesFinalValues_;
     }
 
-
-
 private:
-
     double altitudeOfPerigee_;
     double altitudeOfApogee_;
     double altitudeOfTarget_;
@@ -80,10 +77,6 @@ private:
     mutable tudat::simulation_setup::SystemOfBodies bodies_;
     mutable std::map< double, Eigen::VectorXd > previousDependentVariablesHistory_;
     mutable Eigen::VectorXd previousDependentVariablesFinalValues_;
-
-
-
-
 };
 
-#endif // TUDAT_EXAMPLE_PAGMO_PROBLEM_PROPAGATION_TARGETING_HPP
+#endif  // TUDAT_EXAMPLE_PAGMO_PROBLEM_PROPAGATION_TARGETING_HPP

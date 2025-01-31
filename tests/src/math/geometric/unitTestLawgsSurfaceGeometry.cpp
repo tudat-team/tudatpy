@@ -16,7 +16,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
 #include <memory>
 #include <boost/test/unit_test.hpp>
 
@@ -42,8 +41,7 @@ BOOST_AUTO_TEST_CASE( testLawgsSurfaceGeometry )
 
     // Create a full sphere as test geometry, with a radius of 2.0.
     const double sphereRadius = 2.0;
-    std::shared_ptr< SphereSegment > sphere = std::make_shared< SphereSegment >(
-                sphereRadius );
+    std::shared_ptr< SphereSegment > sphere = std::make_shared< SphereSegment >( sphereRadius );
 
     // Create a Lawgs mesh of the sphere.
     LawgsPartGeometry lawgsSurface;
@@ -55,8 +53,7 @@ BOOST_AUTO_TEST_CASE( testLawgsSurfaceGeometry )
     // to the expected value.
     using mathematical_constants::PI;
     const double totalArea = lawgsSurface.getTotalArea( );
-    BOOST_CHECK_SMALL( std::fabs( totalArea - 4.0 * PI
-                                  * ( std::pow( sphereRadius, 2.0 ) ) ), 0.6 );
+    BOOST_CHECK_SMALL( std::fabs( totalArea - 4.0 * PI * ( std::pow( sphereRadius, 2.0 ) ) ), 0.6 );
 
     // Test if number of lines on mesh is correct.
     BOOST_CHECK_EQUAL( lawgsSurface.getNumberOfLines( ), numberOfLines );
@@ -76,8 +73,7 @@ BOOST_AUTO_TEST_CASE( testLawgsSurfaceGeometry )
     Eigen::Vector3d testCentroid = lawgsSurface.getPanelCentroid( 0, 0 );
 
     // Test whether centroid and normal are collinear for panel 0, 0.
-    BOOST_CHECK_SMALL( std::fabs( testCentroid.normalized( ).dot(
-                                      testNormal.normalized( ) ) ) - 1.0, 1.0e-5 );
+    BOOST_CHECK_SMALL( std::fabs( testCentroid.normalized( ).dot( testNormal.normalized( ) ) ) - 1.0, 1.0e-5 );
 
     // Test if the position of the x- and y-coordinate of panel 0, 0 is correct.
     BOOST_CHECK_SMALL( std::fabs( std::atan( testCentroid.y( ) / testCentroid.x( ) ) - PI / 20.0 ),
@@ -86,5 +82,5 @@ BOOST_AUTO_TEST_CASE( testLawgsSurfaceGeometry )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

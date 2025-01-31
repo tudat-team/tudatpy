@@ -25,9 +25,9 @@ namespace json_interface
 nlohmann::json& valueAt( nlohmann::json& jsonObject, const std::string& key, const bool mutator )
 {
     const int intKey = indexFromKey( key );
-    if ( mutator )
+    if( mutator )
     {
-        if ( intKey >= 0 && jsonObject.is_array( ) )
+        if( intKey >= 0 && jsonObject.is_array( ) )
         {
             return jsonObject[ intKey ];
         }
@@ -38,7 +38,7 @@ nlohmann::json& valueAt( nlohmann::json& jsonObject, const std::string& key, con
     }
     else
     {
-        if ( intKey >= 0 && jsonObject.is_array( )  )
+        if( intKey >= 0 && jsonObject.is_array( ) )
         {
             return jsonObject.at( intKey );
         }
@@ -52,7 +52,7 @@ nlohmann::json& valueAt( nlohmann::json& jsonObject, const std::string& key, con
 //! Access a key path of a `json` object or array.
 nlohmann::json valueAt( nlohmann::json jsonObject, const KeyPath& keyPath )
 {
-    for ( const std::string key : keyPath )
+    for( const std::string key: keyPath )
     {
         jsonObject = valueAt( jsonObject, key );
     }
@@ -67,12 +67,11 @@ bool isDefined( const nlohmann::json& jsonObject, const KeyPath& keyPath )
         valueAt( jsonObject, keyPath );
         return true;
     }
-    catch ( ... )
+    catch( ... )
     {
         return false;
     }
 }
-
 
 // SPECIAL KEYS ACCESS
 
@@ -95,7 +94,7 @@ std::string getParentKey( const nlohmann::json& jsonObject, const std::string& e
     {
         return getKeyPath( jsonObject ).back( );
     }
-    catch ( ... )
+    catch( ... )
     {
         std::cerr << errorMessage << std::endl;
         throw;
@@ -103,7 +102,8 @@ std::string getParentKey( const nlohmann::json& jsonObject, const std::string& e
 }
 
 //! Get the response type to an event for a `json` object.
-ExceptionResponseType getResponseToEvent( const nlohmann::json& jsonObject, const std::string& eventName,
+ExceptionResponseType getResponseToEvent( const nlohmann::json& jsonObject,
+                                          const std::string& eventName,
                                           const ExceptionResponseType defaultResponse )
 {
     ExceptionResponseType response = defaultResponse;
@@ -114,13 +114,14 @@ ExceptionResponseType getResponseToEvent( const nlohmann::json& jsonObject, cons
         {
             rootObject = valueAt( jsonObject, SpecialKeys::rootObject );
         }
-        catch ( ... ) { }
+        catch( ... )
+        { }
         response = valueAt( rootObject, Keys::options / eventName );
     }
-    catch ( ... ) { }
+    catch( ... )
+    { }
     return response;
 }
-
 
 // ACCESS HISTORY
 
@@ -139,17 +140,17 @@ std::set< KeyPath > accessedKeyPaths = { };
 std::set< KeyPath > getKeyPaths( const nlohmann::json& jsonObject, const KeyPath& baseKeyPath = SpecialKeys::root )
 {
     std::set< KeyPath > keyPaths;
-    for ( nlohmann::json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+    for( nlohmann::json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
     {
         const std::string key = it.key( );
         nlohmann::json subObject = it.value( );
         KeyPath keyPath = baseKeyPath / key;
         keyPaths.insert( keyPath );
         convertToObjectIfContainsObjects( subObject );
-        if ( subObject.is_object( ) )
+        if( subObject.is_object( ) )
         {
             const std::set< KeyPath > subkeyPaths = getKeyPaths( subObject, keyPath );
-            for ( const KeyPath subkey : subkeyPaths )
+            for( const KeyPath subkey: subkeyPaths )
             {
                 keyPaths.insert( subkey );
             }
@@ -161,41 +162,40 @@ std::set< KeyPath > getKeyPaths( const nlohmann::json& jsonObject, const KeyPath
 //! Check for key paths that are defined in \p jsonObject but not contained by the global variable accessedKeyPaths.
 void checkUnusedKeys( const nlohmann::json& jsonObject, const ExceptionResponseType response )
 {
-    if ( response == printWarning || response == throwError )
+    if( response == printWarning || response == throwError )
     {
         bool unusedKeys = false;
         const std::set< KeyPath > definedKeyPaths = getKeyPaths( jsonObject );
-        for ( const KeyPath keyPath : definedKeyPaths )
+        for( const KeyPath keyPath: definedKeyPaths )
         {
-            if ( accessedKeyPaths.count( keyPath ) == 0 )
+            if( accessedKeyPaths.count( keyPath ) == 0 )
             {
                 unusedKeys = true;
                 std::cerr << "Unused key: " << keyPath << std::endl;
             }
         }
-        if ( unusedKeys && response == throwError )
+        if( unusedKeys && response == throwError )
         {
             throw std::runtime_error( "Validation failed because there are unsued keys." );
         }
     }
 }
 
-
 // JSON ARRAY
 
 //! Returns whether any of the elements in \p jsonArray (and their subelements) are of type object.
 bool arrayContainsObjects( nlohmann::json& jsonArray )
 {
-    for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
+    for( unsigned int i = 0; i < jsonArray.size( ); ++i )
     {
         nlohmann::json element = jsonArray.at( i );
-        if ( element.is_object( ) )
+        if( element.is_object( ) )
         {
             return true;
         }
-        else if ( element.is_array( ) )
+        else if( element.is_array( ) )
         {
-            if ( arrayContainsObjects( element ) )
+            if( arrayContainsObjects( element ) )
             {
                 return true;
             }
@@ -207,18 +207,18 @@ bool arrayContainsObjects( nlohmann::json& jsonArray )
 //! Convert \p j to object if \p j is an array containing objects.
 void convertToObjectIfContainsObjects( nlohmann::json& j )
 {
-    if ( ! j.is_array( ) || j.empty( ) )
+    if( !j.is_array( ) || j.empty( ) )
     {
         return;
     }
-    if ( ! arrayContainsObjects( j ) )
+    if( !arrayContainsObjects( j ) )
     {
         return;
     }
 
     nlohmann::json jsonArray = j;
     j = nlohmann::json( );
-    for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
+    for( unsigned int i = 0; i < jsonArray.size( ); ++i )
     {
         j[ "@" + std::to_string( i ) ] = jsonArray.at( i );
     }
@@ -232,15 +232,15 @@ nlohmann::json getAsArray( const nlohmann::json& jsonObject )
     bool isObjectWithIntConvertibleKeys = jsonObject.is_object( );
     std::vector< unsigned int > indices;
     std::vector< nlohmann::json > values;
-    if ( isObjectWithIntConvertibleKeys )
+    if( isObjectWithIntConvertibleKeys )
     {
-        for ( nlohmann::json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+        for( nlohmann::json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
         {
             const std::string key = it.key( );
-            if ( ! contains( SpecialKeys::all, key ) )
+            if( !contains( SpecialKeys::all, key ) )
             {
                 const int intKey = indexFromKey( key );
-                if ( intKey >= 0 )
+                if( intKey >= 0 )
                 {
                     indices.push_back( intKey );
                 }
@@ -254,16 +254,16 @@ nlohmann::json getAsArray( const nlohmann::json& jsonObject )
         }
     }
 
-    if ( isObjectWithIntConvertibleKeys )
+    if( isObjectWithIntConvertibleKeys )
     {
-        if ( values.empty( ) )
+        if( values.empty( ) )
         {
             jsonArray = nlohmann::json( );
         }
         else
         {
             std::vector< nlohmann::json > vector( *std::max_element( indices.begin( ), indices.end( ) ) + 1 );
-            for ( unsigned int i = 0; i < indices.size( ); ++i )
+            for( unsigned int i = 0; i < indices.size( ); ++i )
             {
                 vector[ indices.at( i ) ] = values.at( i );
             }

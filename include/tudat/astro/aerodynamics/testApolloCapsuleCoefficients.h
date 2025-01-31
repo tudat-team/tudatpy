@@ -26,11 +26,9 @@ using namespace aerodynamics;
 
 std::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterface( )
 {
-
     // Create test capsule.
-    std::shared_ptr< geometric_shapes::Capsule > capsule
-            = std::make_shared< geometric_shapes::Capsule >(
-                4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
+    std::shared_ptr< geometric_shapes::Capsule > capsule =
+            std::make_shared< geometric_shapes::Capsule >( 4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
 
     std::vector< int > numberOfLines;
     std::vector< int > numberOfPoints;
@@ -64,14 +62,13 @@ std::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterf
     std::vector< double > angleOfAttackPoints;
     angleOfAttackPoints.resize( 15 );
 
-    for ( int i = 0; i < 15; i++ )
+    for( int i = 0; i < 15; i++ )
     {
         angleOfAttackPoints[ i ] = static_cast< double >( i - 6 ) * 5.0 * PI / 180.0;
     }
 
     independentVariableDataPoints[ 1 ] = angleOfAttackPoints;
-    independentVariableDataPoints[ 2 ] =
-            getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
+    independentVariableDataPoints[ 2 ] = getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
     std::vector< std::vector< int > > selectedMethods;
     selectedMethods.resize( 2 );
     selectedMethods[ 0 ].resize( 4 );
@@ -87,13 +84,18 @@ std::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterf
     selectedMethods[ 1 ][ 3 ] = 3;
 
     // Create analysis object and capsule database.
-    return std::make_shared< HypersonicLocalInclinationAnalysis >(
-                independentVariableDataPoints, capsule, numberOfLines, numberOfPoints,
-                invertOrders, selectedMethods, PI * pow( capsule->getMiddleRadius( ), 2.0 ),
-                3.9116, momentReference );
+    return std::make_shared< HypersonicLocalInclinationAnalysis >( independentVariableDataPoints,
+                                                                   capsule,
+                                                                   numberOfLines,
+                                                                   numberOfPoints,
+                                                                   invertOrders,
+                                                                   selectedMethods,
+                                                                   PI * pow( capsule->getMiddleRadius( ), 2.0 ),
+                                                                   3.9116,
+                                                                   momentReference );
 }
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
-#endif // TUDAT_TESTAPOLLOCAPSULECOEFFICIENTS_H
+}  // namespace tudat
+#endif  // TUDAT_TESTAPOLLOCAPSULECOEFFICIENTS_H

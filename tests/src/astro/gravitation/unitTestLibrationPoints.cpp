@@ -27,7 +27,6 @@
 #include <cmath>
 #include <limits>
 
-
 #include <memory>
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -52,15 +51,14 @@ BOOST_AUTO_TEST_CASE( testComputationOfMassParameter )
     const double expectedMassParameter = 0.0121505811805237;
 
     // Set Earth gravitational parameter.
-    const double earthGravitationalParameter
-            = celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER;
+    const double earthGravitationalParameter = celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER;
 
     // Set Moon gravitational parameter (Earth/Moon mass ratio taken from (JPL, 2012).
     const double moonGravitationalParameter = earthGravitationalParameter / 81.30059;
 
     // Compute mass parameter.
-    const double computedMassParameter = circular_restricted_three_body_problem::computeMassParameter(
-                earthGravitationalParameter, moonGravitationalParameter );
+    const double computedMassParameter =
+            circular_restricted_three_body_problem::computeMassParameter( earthGravitationalParameter, moonGravitationalParameter );
 
     // Check if computed value corresponds to expected mass parameter.
     BOOST_CHECK_CLOSE_FRACTION( expectedMassParameter, computedMassParameter, 1.0e-14 );
@@ -78,19 +76,16 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL1LibrationPoint )
     // Declare L1 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     circular_restricted_three_body_problem::LibrationPoint librationPointL1( earthMoonMassParameter,
-                                            std::make_shared< NewtonRaphson< > >( 1.0e-14, 1000 ) );
+                                                                             std::make_shared< NewtonRaphson<> >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL1.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l1 );
 
     // Determine location of libration point in Earth-Moon system.
-    const Eigen::Vector3d positionOflibrationPointL1
-            = librationPointL1.getLocationOfLagrangeLibrationPoint( );
+    const Eigen::Vector3d positionOflibrationPointL1 = librationPointL1.getLocationOfLagrangeLibrationPoint( );
 
     // Check if computed location of L1 matches expected location.
-    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL1.x( ),
-                                positionOflibrationPointL1.x( ),
-                                1.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL1.x( ), positionOflibrationPointL1.x( ), 1.0e-14 );
     BOOST_CHECK_SMALL( positionOflibrationPointL1.y( ), std::numeric_limits< double >::min( ) );
     BOOST_CHECK_SMALL( positionOflibrationPointL1.z( ), std::numeric_limits< double >::min( ) );
 }
@@ -107,19 +102,16 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL2LibrationPoint )
     // Declare L2 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     circular_restricted_three_body_problem::LibrationPoint librationPointL2( earthMoonMassParameter,
-                                            std::make_shared< NewtonRaphson< > >( 1.0e-14, 1000 ) );
+                                                                             std::make_shared< NewtonRaphson<> >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL2.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l2 );
 
     // Determine location of libration point in Earth-Moon system.
-    const Eigen::Vector3d positionOflibrationPointL2
-            = librationPointL2.getLocationOfLagrangeLibrationPoint( );
+    const Eigen::Vector3d positionOflibrationPointL2 = librationPointL2.getLocationOfLagrangeLibrationPoint( );
 
     // Check if computed location of L2 matches expected location.
-    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL2.x( ),
-                                positionOflibrationPointL2.x( ),
-                                1.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL2.x( ), positionOflibrationPointL2.x( ), 1.0e-14 );
     BOOST_CHECK_SMALL( positionOflibrationPointL2.y( ), std::numeric_limits< double >::min( ) );
     BOOST_CHECK_SMALL( positionOflibrationPointL2.z( ), std::numeric_limits< double >::min( ) );
 }
@@ -137,19 +129,16 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL3LibrationPoint )
     // Declare L3 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     circular_restricted_three_body_problem::LibrationPoint librationPointL3( earthMoonMassParameter,
-                                            std::make_shared< NewtonRaphson< > >( 1.0e-14, 1000 ) );
+                                                                             std::make_shared< NewtonRaphson<> >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL3.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l3 );
 
     // Determine location of libration point in Earth-Moon system.
-    const Eigen::Vector3d positionOflibrationPointL3
-            = librationPointL3.getLocationOfLagrangeLibrationPoint( );
+    const Eigen::Vector3d positionOflibrationPointL3 = librationPointL3.getLocationOfLagrangeLibrationPoint( );
 
     // Check if computed location of L3 matches expected location.
-    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL3.x( ),
-                                positionOflibrationPointL3.x( ),
-                                1.0e-2 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL3.x( ), positionOflibrationPointL3.x( ), 1.0e-2 );
     BOOST_CHECK_SMALL( positionOflibrationPointL3.y( ), std::numeric_limits< double >::min( ) );
     BOOST_CHECK_SMALL( positionOflibrationPointL3.z( ), std::numeric_limits< double >::min( ) );
 }
@@ -166,22 +155,17 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL4LibrationPoint )
     // Declare L4 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     circular_restricted_three_body_problem::LibrationPoint librationPointL4( earthMoonMassParameter,
-                                            std::make_shared< NewtonRaphson< > >( 1.0e-14, 1000 ) );
+                                                                             std::make_shared< NewtonRaphson<> >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL4.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l4 );
 
     // Determine location of libration point in Earth-Moon system.
-    const Eigen::Vector3d positionOflibrationPointL4
-            = librationPointL4.getLocationOfLagrangeLibrationPoint( );
+    const Eigen::Vector3d positionOflibrationPointL4 = librationPointL4.getLocationOfLagrangeLibrationPoint( );
 
     // Check if computed location of L4 matches expected location.
-    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL4.x( ),
-                                positionOflibrationPointL4.x( ),
-                                1.0e-15 );
-    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL4.y( ),
-                                positionOflibrationPointL4.y( ),
-                                1.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL4.x( ), positionOflibrationPointL4.x( ), 1.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL4.y( ), positionOflibrationPointL4.y( ), 1.0e-14 );
     BOOST_CHECK_SMALL( positionOflibrationPointL4.z( ), std::numeric_limits< double >::min( ) );
 }
 
@@ -197,26 +181,21 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL5LibrationPoint )
     // Declare L5 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     circular_restricted_three_body_problem::LibrationPoint librationPointL5( earthMoonMassParameter,
-                                            std::make_shared< NewtonRaphson< > >( 1.0e-14, 1000 ) );
+                                                                             std::make_shared< NewtonRaphson<> >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL5.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l5 );
 
     // Determine location of libration point in Earth-Moon system.
-    const Eigen::Vector3d positionOflibrationPointL5
-            = librationPointL5.getLocationOfLagrangeLibrationPoint( );
+    const Eigen::Vector3d positionOflibrationPointL5 = librationPointL5.getLocationOfLagrangeLibrationPoint( );
 
     // Check if computed location of L5 matches expected location.
-    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL5.x( ),
-                                positionOflibrationPointL5.x( ),
-                                1.0e-15 );
-    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL5.y( ),
-                                positionOflibrationPointL5.y( ),
-                                1.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL5.x( ), positionOflibrationPointL5.x( ), 1.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL5.y( ), positionOflibrationPointL5.y( ), 1.0e-14 );
     BOOST_CHECK_SMALL( positionOflibrationPointL5.z( ), std::numeric_limits< double >::min( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

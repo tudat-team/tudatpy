@@ -23,82 +23,80 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     std::string accelerationName;
     switch( accelerationType )
     {
-    case point_mass_gravity:
-        accelerationName = "central gravity ";
-        break;
-    case aerodynamic:
-        accelerationName = "aerodynamic ";
-        break;
-    case spherical_harmonic_gravity:
-        accelerationName = "spherical harmonic gravity ";
-        break;
-    case mutual_spherical_harmonic_gravity:
-        accelerationName = "mutual spherical harmonic gravity ";
-        break;
-    case polyhedron_gravity:
-        accelerationName = "polyhedron gravity ";
-        break;
-    case ring_gravity:
-        accelerationName = "ring gravity ";
-        break;
-    case third_body_point_mass_gravity:
-        accelerationName = "third-body central gravity ";
-        break;
-    case third_body_spherical_harmonic_gravity:
-        accelerationName = "third-body spherical harmonic gravity ";
-        break;
-    case third_body_mutual_spherical_harmonic_gravity:
-        accelerationName = "third-body mutual spherical harmonic gravity ";
-        break;
-    case third_body_polyhedron_gravity:
-        accelerationName = "third-body polyhedron gravity ";
-        break;
-    case third_body_ring_gravity:
-        accelerationName = "third-body ring gravity ";
-        break;
-    case thrust_acceleration:
-        accelerationName = "thrust ";
-        break;
-    case relativistic_correction_acceleration:
-        accelerationName  = "relativistic correction ";
-        break;
-    case empirical_acceleration:
-        accelerationName  = "empirical correction ";
-        break;
-    case direct_tidal_dissipation_in_central_body_acceleration:
-        accelerationName  = "direct tidal dissipation in central body ";
-        break;
-    case direct_tidal_dissipation_in_orbiting_body_acceleration:
-        accelerationName  = "direct tidal dissipation in orbiting body ";
-        break;
-    case radiation_pressure:
-        accelerationName  = "radiation pressure acceleration";
-        break;
-    case cannon_ball_radiation_pressure:
-        accelerationName  = "cannonball radiation pressure acceleration (deprecated)";
-        break;
-    case momentum_wheel_desaturation_acceleration:
-        accelerationName  = "momentum wheen desaturation acceleration ";
-        break;
-    case yarkovsky_acceleration:
-        accelerationName = "yarkovsky acceleration";
-        break;
-    case custom_acceleration:
-        accelerationName = "custom acceleration";
-        break;
-    default:
-        std::string errorMessage = "Error, acceleration type " +
-                std::to_string( accelerationType ) +
-                "not found when retrieving acceleration name ";
-        throw std::runtime_error( errorMessage );
+        case point_mass_gravity:
+            accelerationName = "central gravity ";
+            break;
+        case aerodynamic:
+            accelerationName = "aerodynamic ";
+            break;
+        case spherical_harmonic_gravity:
+            accelerationName = "spherical harmonic gravity ";
+            break;
+        case mutual_spherical_harmonic_gravity:
+            accelerationName = "mutual spherical harmonic gravity ";
+            break;
+        case polyhedron_gravity:
+            accelerationName = "polyhedron gravity ";
+            break;
+        case ring_gravity:
+            accelerationName = "ring gravity ";
+            break;
+        case third_body_point_mass_gravity:
+            accelerationName = "third-body central gravity ";
+            break;
+        case third_body_spherical_harmonic_gravity:
+            accelerationName = "third-body spherical harmonic gravity ";
+            break;
+        case third_body_mutual_spherical_harmonic_gravity:
+            accelerationName = "third-body mutual spherical harmonic gravity ";
+            break;
+        case third_body_polyhedron_gravity:
+            accelerationName = "third-body polyhedron gravity ";
+            break;
+        case third_body_ring_gravity:
+            accelerationName = "third-body ring gravity ";
+            break;
+        case thrust_acceleration:
+            accelerationName = "thrust ";
+            break;
+        case relativistic_correction_acceleration:
+            accelerationName = "relativistic correction ";
+            break;
+        case empirical_acceleration:
+            accelerationName = "empirical correction ";
+            break;
+        case direct_tidal_dissipation_in_central_body_acceleration:
+            accelerationName = "direct tidal dissipation in central body ";
+            break;
+        case direct_tidal_dissipation_in_orbiting_body_acceleration:
+            accelerationName = "direct tidal dissipation in orbiting body ";
+            break;
+        case radiation_pressure:
+            accelerationName = "radiation pressure acceleration";
+            break;
+        case cannon_ball_radiation_pressure:
+            accelerationName = "cannonball radiation pressure acceleration (deprecated)";
+            break;
+        case momentum_wheel_desaturation_acceleration:
+            accelerationName = "momentum wheen desaturation acceleration ";
+            break;
+        case yarkovsky_acceleration:
+            accelerationName = "yarkovsky acceleration";
+            break;
+        case custom_acceleration:
+            accelerationName = "custom acceleration";
+            break;
+        default:
+            std::string errorMessage =
+                    "Error, acceleration type " + std::to_string( accelerationType ) + "not found when retrieving acceleration name ";
+            throw std::runtime_error( errorMessage );
     }
     return accelerationName;
 }
 
 //! Function to identify the derived class type of an acceleration model.
 AvailableAcceleration getAccelerationModelType(
-        const std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
-        accelerationModel )
+        const std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel )
 {
     using namespace tudat::aerodynamics;
     using namespace tudat::electromagnetism;
@@ -108,23 +106,19 @@ AvailableAcceleration getAccelerationModelType(
     AvailableAcceleration accelerationType = undefined_acceleration;
 
     // Check for each accelerarion mdoel type implemented as AvailableAcceleration.
-    if( std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
-                accelerationModel ) != nullptr )
+    if( std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >( accelerationModel ) != nullptr )
     {
         accelerationType = point_mass_gravity;
     }
-    else if( std::dynamic_pointer_cast< ThirdBodyCentralGravityAcceleration >(
-                 accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< ThirdBodyCentralGravityAcceleration >( accelerationModel ) != nullptr )
     {
         accelerationType = third_body_point_mass_gravity;
     }
-    else if( std::dynamic_pointer_cast< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
-                 accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) != nullptr )
     {
         accelerationType = third_body_spherical_harmonic_gravity;
     }
-    else if( std::dynamic_pointer_cast< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
-                 accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) != nullptr )
     {
         accelerationType = third_body_mutual_spherical_harmonic_gravity;
     }
@@ -136,8 +130,7 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = third_body_ring_gravity;
     }
-    else if( std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
-                 accelerationModel ) != nullptr  )
+    else if( std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) != nullptr )
     {
         accelerationType = spherical_harmonic_gravity;
     }
@@ -145,31 +138,27 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = mutual_spherical_harmonic_gravity;
     }
-    else if( std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >( accelerationModel ) != nullptr  )
+    else if( std::dynamic_pointer_cast< PolyhedronGravitationalAccelerationModel >( accelerationModel ) != nullptr )
     {
         accelerationType = polyhedron_gravity;
     }
-    else if( std::dynamic_pointer_cast< RingGravitationalAccelerationModel >( accelerationModel ) != nullptr  )
+    else if( std::dynamic_pointer_cast< RingGravitationalAccelerationModel >( accelerationModel ) != nullptr )
     {
         accelerationType = ring_gravity;
     }
-    else if( std::dynamic_pointer_cast< AerodynamicAcceleration >(
-                 accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< AerodynamicAcceleration >( accelerationModel ) != nullptr )
     {
         accelerationType = aerodynamic;
     }
-    else if( std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                 accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< propulsion::ThrustAcceleration >( accelerationModel ) != nullptr )
     {
         accelerationType = thrust_acceleration;
     }
-    else if( std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >(
-                 accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >( accelerationModel ) != nullptr )
     {
         accelerationType = momentum_wheel_desaturation_acceleration;
     }
-    else if( std::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >(
-                 accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >( accelerationModel ) != nullptr )
     {
         accelerationType = relativistic_correction_acceleration;
     }
@@ -177,10 +166,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = empirical_acceleration;
     }
-    else if( std::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) != nullptr )
+    else if( std::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) != nullptr )
     {
         std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > dissipationAcceleration =
-             std::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >( accelerationModel );
+                std::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel );
         if( dissipationAcceleration->getModelTideOnPlanet( ) )
         {
             accelerationType = direct_tidal_dissipation_in_central_body_acceleration;
@@ -194,7 +183,7 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = radiation_pressure;
     }
-    else if (std::dynamic_pointer_cast<YarkovskyAcceleration>(accelerationModel) != nullptr)
+    else if( std::dynamic_pointer_cast< YarkovskyAcceleration >( accelerationModel ) != nullptr )
     {
         accelerationType = yarkovsky_acceleration;
     }
@@ -209,25 +198,21 @@ AvailableAcceleration getAccelerationModelType(
 
     else
     {
-        throw std::runtime_error(
-                    "Error, acceleration model not identified when getting acceleration type." );
+        throw std::runtime_error( "Error, acceleration model not identified when getting acceleration type." );
     }
 
     // Return identified type.
     return accelerationType;
-
 }
 
 //! Function to identify the type of a mass rate model.
-AvailableMassRateModels getMassRateModelType(
-        const std::shared_ptr< MassRateModel > massRateModel )
+AvailableMassRateModels getMassRateModelType( const std::shared_ptr< MassRateModel > massRateModel )
 {
     // Nominal type is undefined
     AvailableMassRateModels massRateType = undefined_mass_rate_model;
 
     // Check for each mass rate mdoel type implemented as AvailableMassRateModels.
-    if( std::dynamic_pointer_cast< basic_astrodynamics::CustomMassRateModel >(
-                massRateModel ) != nullptr )
+    if( std::dynamic_pointer_cast< basic_astrodynamics::CustomMassRateModel >( massRateModel ) != nullptr )
     {
         massRateType = custom_mass_rate_model;
     }
@@ -237,8 +222,7 @@ AvailableMassRateModels getMassRateModelType(
     }
     else
     {
-        throw std::runtime_error(
-                    "Error, mass rate model not identified when getting mass rate model type." );
+        throw std::runtime_error( "Error, mass rate model not identified when getting mass rate model type." );
     }
     return massRateType;
 }
@@ -253,14 +237,16 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
     {
         if( getAccelerationModelType( fullList.at( i ) ) == modelType )
         {
-            accelerationList.push_back( fullList.at( i  ) );
+            accelerationList.push_back( fullList.at( i ) );
         }
-        else if( std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >( fullList.at( i ) ) != nullptr &&
-            modelType == cannon_ball_radiation_pressure )
+        else if( std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >( fullList.at( i ) ) !=
+                         nullptr &&
+                 modelType == cannon_ball_radiation_pressure )
         {
-            std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration  > radiationPressureAcceleration =
-                std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >( fullList.at( i ) );
-            if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( radiationPressureAcceleration->getTargetModel( ) ) != nullptr )
+            std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > radiationPressureAcceleration =
+                    std::dynamic_pointer_cast< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration >( fullList.at( i ) );
+            if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                        radiationPressureAcceleration->getTargetModel( ) ) != nullptr )
             {
                 accelerationList.push_back( fullList.at( i ) );
             }
@@ -268,7 +254,6 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
     }
     return accelerationList;
 }
-
 
 //! Function to check whether an acceleration type is a direct gravitational acceleration
 bool isAccelerationDirectGravitational( const AvailableAcceleration accelerationType )
@@ -289,8 +274,8 @@ bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
 {
     bool accelerationIsFromThirdBody = false;
     if( accelerationType == third_body_point_mass_gravity || accelerationType == third_body_spherical_harmonic_gravity ||
-        accelerationType == third_body_mutual_spherical_harmonic_gravity ||
-        accelerationType == third_body_polyhedron_gravity || accelerationType == third_body_ring_gravity )
+        accelerationType == third_body_mutual_spherical_harmonic_gravity || accelerationType == third_body_polyhedron_gravity ||
+        accelerationType == third_body_ring_gravity )
     {
         accelerationIsFromThirdBody = true;
     }
@@ -298,15 +283,14 @@ bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
     return accelerationIsFromThirdBody;
 }
 
-
 //! Function to get the third-body counterpart of a direct gravitational acceleration type
 AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceleration accelerationType )
 {
     AvailableAcceleration thirdBodyAccelerationType;
     if( !isAccelerationDirectGravitational( accelerationType ) )
     {
-        std::string errorMessage = "Error when getting third-body gravity type, requested type: " +
-                std::to_string( accelerationType ) + " is not a direct gravity acceleration";
+        std::string errorMessage = "Error when getting third-body gravity type, requested type: " + std::to_string( accelerationType ) +
+                " is not a direct gravity acceleration";
         throw std::runtime_error( errorMessage );
     }
     else if( accelerationType == point_mass_gravity )
@@ -330,14 +314,14 @@ AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceler
         thirdBodyAccelerationType = third_body_ring_gravity;
     }
     else
-    {        std::string errorMessage = "Error when getting thirdbody gravity type, requested type: " +
-                std::to_string( accelerationType ) + " is not recognized.";
+    {
+        std::string errorMessage =
+                "Error when getting thirdbody gravity type, requested type: " + std::to_string( accelerationType ) + " is not recognized.";
         throw std::runtime_error( errorMessage );
-
     }
     return thirdBodyAccelerationType;
 }
 
-} // namespace basic_astrodynamics
+}  // namespace basic_astrodynamics
 
-} // namespace tudat
+}  // namespace tudat

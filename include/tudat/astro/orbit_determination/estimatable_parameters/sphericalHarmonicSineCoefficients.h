@@ -30,11 +30,9 @@ namespace estimatable_parameters
  * member coefficients of an instance of the SphericalHarmonicsGravityField (or nominal coefficients of
  * TimeDependentSphericalHarmonicsGravityField).
  */
-class SphericalHarmonicsSineCoefficients: public EstimatableParameter< Eigen::VectorXd >
+class SphericalHarmonicsSineCoefficients : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -46,14 +44,12 @@ public:
      * are degree and order for each vector entry).
      * \param associatedBody Name of body for which sine coefficients are to be estimated.
      */
-    SphericalHarmonicsSineCoefficients(
-            const std::function< Eigen::MatrixXd( ) > getSineCoefficients,
-            const std::function< void( Eigen::MatrixXd ) > setSineCoefficients,
-            const std::vector< std::pair< int, int > >& blockIndices,
-            const std::string& associatedBody ):
+    SphericalHarmonicsSineCoefficients( const std::function< Eigen::MatrixXd( ) > getSineCoefficients,
+                                        const std::function< void( Eigen::MatrixXd ) > setSineCoefficients,
+                                        const std::vector< std::pair< int, int > >& blockIndices,
+                                        const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( spherical_harmonics_sine_coefficient_block, associatedBody ),
-        getSineCoefficients_( getSineCoefficients ), setSineCoefficients_( setSineCoefficients ),
-        blockIndices_( blockIndices )
+        getSineCoefficients_( getSineCoefficients ), setSineCoefficients_( setSineCoefficients ), blockIndices_( blockIndices )
     {
         parameterSize_ = blockIndices_.size( );
     }
@@ -83,7 +79,10 @@ public:
      *  number of coefficients that are to be estimated.
      *  \return Size of parameter value.
      */
-    int getParameterSize( ) { return parameterSize_; }
+    int getParameterSize( )
+    {
+        return parameterSize_;
+    }
 
     //! Function to retrieve the list of sine coefficient indices which are to be estimated.
     /*!
@@ -98,14 +97,11 @@ public:
 
     std::string getParameterDescription( )
     {
-        std::string parameterDescription =
-                getParameterTypeString( parameterName_.first ) + "of (" + parameterName_.second.first + ")";
-        parameterDescription += ", Minimum D/O: (" +
-                std::to_string( blockIndices_.at( 0 ).first ) + ", " +
+        std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "of (" + parameterName_.second.first + ")";
+        parameterDescription += ", Minimum D/O: (" + std::to_string( blockIndices_.at( 0 ).first ) + ", " +
                 std::to_string( blockIndices_.at( 0 ).second ) + "), ";
 
-        parameterDescription += "Maximum D/O: (" +
-                std::to_string( blockIndices_.at( blockIndices_.size( ) - 1 ).first ) + ", " +
+        parameterDescription += "Maximum D/O: (" + std::to_string( blockIndices_.at( blockIndices_.size( ) - 1 ).first ) + ", " +
                 std::to_string( blockIndices_.at( blockIndices_.size( ) - 1 ).second ) + "). ";
         return parameterDescription;
     }
@@ -116,31 +112,27 @@ public:
      * \param s21Index Index for degree=2, order=1 entry (-1 if none; returned by reference)
      * \param s22Index Index for degree=2, order=2 entry (-1 if none; returned by reference)
      */
-    void getDegreeTwoEntries(
-            int& s21Index, int& s22Index )
+    void getDegreeTwoEntries( int& s21Index, int& s22Index )
     {
         s21Index = -1;
         s22Index = -1;
 
         for( unsigned int i = 0; i < blockIndices_.size( ); i++ )
         {
-
             if( blockIndices_.at( i ).first == 2 && blockIndices_.at( i ).second == 1 )
             {
-               s21Index = i;
+                s21Index = i;
             }
 
             if( blockIndices_.at( i ).first == 2 && blockIndices_.at( i ).second == 2 )
             {
-               s22Index = i;
+                s22Index = i;
             }
         }
     }
 
 protected:
-
 private:
-
     //! Function to retrieve the full set of sine coefficients, of which a subset is to be estimated.
     std::function< Eigen::MatrixXd( ) > getSineCoefficients_;
 
@@ -149,9 +141,9 @@ private:
 
     //! List of sine coefficient indices which are to be estimated
     /*!
-      *  List of sine coefficient indices which are to be estimated (first and second are degree and order for
-      *  each vector entry).
-      */
+     *  List of sine coefficient indices which are to be estimated (first and second are degree and order for
+     *  each vector entry).
+     */
     std::vector< std::pair< int, int > > blockIndices_;
 
     //! Number of coefficients that are to be estimated (i.e. length of blockIndices_ vector).
@@ -165,12 +157,11 @@ private:
  * \param constraintMultiplier Multiplier A for Kaula constraint, obtained from A/l^{2}, which l the current coefficient's degree
  * \return Vector of Kaula constraint values on gravity field coefficients
  */
-Eigen::VectorXd getKaulaConstraintVector(
-        const std::shared_ptr< SphericalHarmonicsSineCoefficients > parameter,
-        const double constraintMultiplier );
+Eigen::VectorXd getKaulaConstraintVector( const std::shared_ptr< SphericalHarmonicsSineCoefficients > parameter,
+                                          const double constraintMultiplier );
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_SPHERICALHARMONICSINECOEFFICIENTS_H
+#endif  // TUDAT_SPHERICALHARMONICSINECOEFFICIENTS_H

@@ -8,11 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
-
-
-
-
 #include "tudat/math/statistics/randomVariableGenerator.h"
 #include "tudat/math/statistics/boostProbabilityDistributions.h"
 
@@ -22,34 +17,41 @@ namespace tudat
 namespace statistics
 {
 
-std::function< Eigen::VectorXd( const double ) > getIndependentGaussianNoiseFunction(
-        const double standardDeviation,
-        const double mean,
-        const double seed,
-        const int outputSize )
+std::function< Eigen::VectorXd( const double ) > getIndependentGaussianNoiseFunction( const double standardDeviation,
+                                                                                      const double mean,
+                                                                                      const double seed,
+                                                                                      const int outputSize )
 {
     std::function< double( ) > inputFreeNoiseFunction = statistics::createBoostContinuousRandomVariableGeneratorFunction(
-                statistics::normal_boost_distribution, { mean, standardDeviation }, seed );
+            statistics::normal_boost_distribution, { mean, standardDeviation }, seed );
     if( outputSize == 1 )
     {
-        return [=](const double){ return ( Eigen::VectorXd( outputSize )<<
-                                           inputFreeNoiseFunction( ) ).finished( ); };
+        return [ = ]( const double ) { return ( Eigen::VectorXd( outputSize ) << inputFreeNoiseFunction( ) ).finished( ); };
     }
     else if( outputSize == 2 )
     {
-        return [=](const double){ return ( Eigen::VectorXd( outputSize )<<
-                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+        return [ = ]( const double ) {
+            return ( Eigen::VectorXd( outputSize ) << inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( );
+        };
     }
     else if( outputSize == 3 )
     {
-        return [=](const double){ return ( Eigen::VectorXd( outputSize )<<
-                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+        return [ = ]( const double ) {
+            return ( Eigen::VectorXd( outputSize ) << inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) )
+                    .finished( );
+        };
     }
     else if( outputSize == 6 )
     {
-        return [=](const double){ return ( Eigen::VectorXd( outputSize )<<
-                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ),
-                                           inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( ); };
+        return [ = ]( const double ) {
+            return ( Eigen::VectorXd( outputSize ) << inputFreeNoiseFunction( ),
+                     inputFreeNoiseFunction( ),
+                     inputFreeNoiseFunction( ),
+                     inputFreeNoiseFunction( ),
+                     inputFreeNoiseFunction( ),
+                     inputFreeNoiseFunction( ) )
+                    .finished( );
+        };
     }
     else
     {
@@ -64,7 +66,7 @@ std::function< double( ) > createBoostContinuousRandomVariableGeneratorFunction(
         const double seed )
 {
     return std::bind( &RandomVariableGenerator< double >::getRandomVariableValue,
-                        createBoostContinuousRandomVariableGenerator( boostDistribution, parameters, seed ) );
+                      createBoostContinuousRandomVariableGenerator( boostDistribution, parameters, seed ) );
 }
 
 //! Function to create a random number generator from a continuous univariate distribution implemented in boost
@@ -73,11 +75,9 @@ std::shared_ptr< RandomVariableGenerator< double > > createBoostContinuousRandom
         const std::vector< double >& parameters,
         const double seed )
 {
-    return std::make_shared< ContinuousRandomVariableGenerator >(
-                createBoostRandomVariable( boostDistribution, parameters ), seed );
+    return std::make_shared< ContinuousRandomVariableGenerator >( createBoostRandomVariable( boostDistribution, parameters ), seed );
 }
 
-}
+}  // namespace statistics
 
-}
-
+}  // namespace tudat

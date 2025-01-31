@@ -23,18 +23,17 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_groundStation )
 
 //// Test 1: gravity field variation types
-//BOOST_AUTO_TEST_CASE( test_json_groundStation_elemenType )
+// BOOST_AUTO_TEST_CASE( test_json_groundStation_elemenType )
 //{
-//    BOOST_CHECK_EQUAL_ENUM( INPUT( "positionElementTypes" ),
-//                            ground_stations::positionElementTypes,
-//                            ground_stations::unsupportedPositionElementTypes );
-//}
+//     BOOST_CHECK_EQUAL_ENUM( INPUT( "positionElementTypes" ),
+//                             ground_stations::positionElementTypes,
+//                             ground_stations::unsupportedPositionElementTypes );
+// }
 
 // Test 2: basic solid body gravity field variation
 BOOST_AUTO_TEST_CASE( test_json_groundStation )
@@ -47,19 +46,14 @@ BOOST_AUTO_TEST_CASE( test_json_groundStation )
     const double flattening = 1.0 / 298.257223563;
     const double equatorialRadius = 6378137.0;
     std::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSpheroidModel =
-            std::make_shared< basic_astrodynamics::OblateSpheroidBodyShapeModel >(
-                equatorialRadius, flattening );
-
+            std::make_shared< basic_astrodynamics::OblateSpheroidBodyShapeModel >( equatorialRadius, flattening );
 
     // Expected Cartesian and geodetic state, Montenbruck & Gill (2000) Exercise 5.3.
     const Eigen::Vector3d testCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
-    const Eigen::Vector3d testGeodeticPosition( -63.667,
-                                                convertDegreesToRadians( -7.26654999 ),
-                                                convertDegreesToRadians( 72.36312094 ) );
+    const Eigen::Vector3d testGeodeticPosition( -63.667, convertDegreesToRadians( -7.26654999 ), convertDegreesToRadians( 72.36312094 ) );
 
     // Manually compute associated spherical position
-    Eigen::Vector3d testSphericalPosition = coordinate_conversions::convertCartesianToSpherical(
-                testCartesianPosition );
+    Eigen::Vector3d testSphericalPosition = coordinate_conversions::convertCartesianToSpherical( testCartesianPosition );
     testSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - testSphericalPosition( 1 );
 
     // Create GravityFieldVariationSettings from JSON file
@@ -67,18 +61,15 @@ BOOST_AUTO_TEST_CASE( test_json_groundStation )
         const std::shared_ptr< GroundStationSettings > fromFileSettings =
                 parseJSONFile< std::shared_ptr< GroundStationSettings > >( INPUT( "singleGroundStationCartesian" ) );
         const std::shared_ptr< GroundStationSettings > manualSettings =
-                std::make_shared< GroundStationSettings >(
-                    "station", testCartesianPosition, coordinate_conversions::cartesian_position );
+                std::make_shared< GroundStationSettings >( "station", testCartesianPosition, coordinate_conversions::cartesian_position );
         BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
-
     }
 
     {
         const std::shared_ptr< GroundStationSettings > fromFileSettings =
                 parseJSONFile< std::shared_ptr< GroundStationSettings > >( INPUT( "singleGroundStationSpherical" ) );
         const std::shared_ptr< GroundStationSettings > manualSettings =
-                std::make_shared< GroundStationSettings >(
-                    "station", testSphericalPosition, coordinate_conversions::spherical_position );
+                std::make_shared< GroundStationSettings >( "station", testSphericalPosition, coordinate_conversions::spherical_position );
         BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
     }
 
@@ -86,14 +77,13 @@ BOOST_AUTO_TEST_CASE( test_json_groundStation )
         const std::shared_ptr< GroundStationSettings > fromFileSettings =
                 parseJSONFile< std::shared_ptr< GroundStationSettings > >( INPUT( "singleGroundStationGeodetic" ) );
         const std::shared_ptr< GroundStationSettings > manualSettings =
-                std::make_shared< GroundStationSettings >(
-                    "station", testGeodeticPosition, coordinate_conversions::geodetic_position );
+                std::make_shared< GroundStationSettings >( "station", testGeodeticPosition, coordinate_conversions::geodetic_position );
         BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

@@ -25,32 +25,26 @@ namespace observation_models
 {
 
 //! Map of `ObservableType` string representations.
-static std::map< ObservableType, std::string > observationTypes =
-{
-    { one_way_range, "oneWayRange" },
-    { angular_position, "angularPosition" },
-    { position_observable, "positionObservable" },
-    { one_way_doppler, "oneWayDoppler" },
-    { one_way_differenced_range, "oneWayDifferencedRange" },
-    { n_way_range, "nWayRange" },
-    { two_way_doppler, "twoWayDoppler" },
-    { relative_angular_position, "relativeAngularPosition" },
-    { relative_position_observable, "relativePositionObservable" }
-};
+static std::map< ObservableType, std::string > observationTypes = { { one_way_range, "oneWayRange" },
+                                                                    { angular_position, "angularPosition" },
+                                                                    { position_observable, "positionObservable" },
+                                                                    { one_way_doppler, "oneWayDoppler" },
+                                                                    { one_way_differenced_range, "oneWayDifferencedRange" },
+                                                                    { n_way_range, "nWayRange" },
+                                                                    { two_way_doppler, "twoWayDoppler" },
+                                                                    { relative_angular_position, "relativeAngularPosition" },
+                                                                    { relative_position_observable, "relativePositionObservable" } };
 
 //! Map of `ObservableType` string representations.
-static std::map< std::string, ObservableType > observationTypesInverse =
-{
-    { "oneWayRange", one_way_range },
-    { "angularPosition", angular_position },
-    { "positionObservable", position_observable },
-    { "oneWayDoppler", one_way_doppler },
-    { "oneWayDifferencedRange", one_way_differenced_range },
-    { "nWayRange", n_way_range },
-    { "twoWayDoppler", two_way_doppler },
-    { "relativeAngularPosition", relative_angular_position },
-    { "relativePositionObservable", relative_position_observable }
-};
+static std::map< std::string, ObservableType > observationTypesInverse = { { "oneWayRange", one_way_range },
+                                                                           { "angularPosition", angular_position },
+                                                                           { "positionObservable", position_observable },
+                                                                           { "oneWayDoppler", one_way_doppler },
+                                                                           { "oneWayDifferencedRange", one_way_differenced_range },
+                                                                           { "nWayRange", n_way_range },
+                                                                           { "twoWayDoppler", two_way_doppler },
+                                                                           { "relativeAngularPosition", relative_angular_position },
+                                                                           { "relativePositionObservable", relative_position_observable } };
 
 //! Convert `ObservableType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const ObservableType& observableType )
@@ -65,8 +59,7 @@ inline void from_json( const nlohmann::json& jsonObject, ObservableType& observa
 }
 
 //! Map of `ObservableType` string representations.
-static std::map< ObservationBiasTypes, std::string > observationBiasTypes =
-{
+static std::map< ObservationBiasTypes, std::string > observationBiasTypes = {
 
     { multiple_observation_biases, "multipleObservationBiases" },
     { constant_absolute_bias, "constantAbsoluteBias" },
@@ -87,32 +80,24 @@ inline void from_json( const nlohmann::json& jsonObject, ObservationBiasTypes& o
     observableBiasType = json_interface::enumFromString( jsonObject, observationBiasTypes );
 }
 
+//! Map of `LinkEndType` string representations.
+static std::map< LinkEndType, std::string > linkEndTypes = { { transmitter, "transmitter" }, { reflector1, "reflector1" },
+                                                             { reflector, "reflector" },     { reflector2, "reflector2" },
+                                                             { reflector3, "reflector3" },   { reflector4, "reflector4" },
+                                                             { receiver, "receiver" },       { observed_body, "observedBody" } };
 
 //! Map of `LinkEndType` string representations.
-static std::map< LinkEndType, std::string > linkEndTypes =
-{
-    { transmitter, "transmitter" },
-    { reflector1, "reflector1" },
-    { reflector, "reflector" },
-    { reflector2, "reflector2" },
-    { reflector3, "reflector3" },
-    { reflector4, "reflector4" },
-    { receiver, "receiver" },
-    { observed_body, "observedBody" }
-};
-
-//! Map of `LinkEndType` string representations.
-static std::map< std::string, LinkEndType > linkEndTypesInverse =
-{
-    { "transmitter", transmitter,  },
-    { "reflector1", reflector1 },
-    { "reflector", reflector },
-    { "reflector2", reflector2 },
-    { "reflector3", reflector3 },
-    { "reflector4", reflector4 },
-    { "receiver", receiver },
-    { "observedBody", observed_body }
-};
+static std::map< std::string, LinkEndType > linkEndTypesInverse = { {
+                                                                            "transmitter",
+                                                                            transmitter,
+                                                                    },
+                                                                    { "reflector1", reflector1 },
+                                                                    { "reflector", reflector },
+                                                                    { "reflector2", reflector2 },
+                                                                    { "reflector3", reflector3 },
+                                                                    { "reflector4", reflector4 },
+                                                                    { "receiver", receiver },
+                                                                    { "observedBody", observed_body } };
 
 //! Convert `LinkEndType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const LinkEndType& observableType )
@@ -126,12 +111,9 @@ inline void from_json( const nlohmann::json& jsonObject, LinkEndType& observable
     observableType = json_interface::enumFromString( jsonObject, linkEndTypes );
 }
 
-
 //! Map of `LinkEndType` string representations.
-static std::map< DopplerProperTimeRateType, std::string > dopplerProperTimeRateTypes =
-{
-    { direct_first_order_doppler_proper_time_rate, "firsOrderProperTimeRate" }
-};
+static std::map< DopplerProperTimeRateType, std::string > dopplerProperTimeRateTypes = { { direct_first_order_doppler_proper_time_rate,
+                                                                                           "firsOrderProperTimeRate" } };
 
 //! Convert `LinkEndType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const DopplerProperTimeRateType& rateType )
@@ -146,11 +128,8 @@ inline void from_json( const nlohmann::json& jsonObject, DopplerProperTimeRateTy
 }
 
 //! Map of `LinkEndType` string representations.
-static std::map< LightTimeCorrectionType, std::string > lichtTimeCorrectionTypes =
-{
-    { first_order_relativistic, "firsOrderRelativistic" }
-};
-
+static std::map< LightTimeCorrectionType, std::string > lichtTimeCorrectionTypes = { { first_order_relativistic,
+                                                                                       "firsOrderRelativistic" } };
 
 //! Convert `LinkEndType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const LightTimeCorrectionType& correctionType )
@@ -164,15 +143,11 @@ inline void from_json( const nlohmann::json& jsonObject, LightTimeCorrectionType
     correctionType = json_interface::enumFromString( jsonObject, lichtTimeCorrectionTypes );
 }
 
-
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationModelSettings >& parameterSettings );
 
 //! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationModelSettings >& parameterSettings );
-
-
-
 
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationBiasSettings >& parameterSettings );
@@ -180,15 +155,11 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationBias
 //! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationBiasSettings >& parameterSettings );
 
-
-
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< DopplerProperTimeRateSettings >& properTimeRateSettings );
 
 //! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< DopplerProperTimeRateSettings >& properTimeRateSettings );
-
-
 
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< LightTimeCorrectionSettings >& lightTimeCorrectionSettings );
@@ -196,13 +167,12 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< LightTimeCorrec
 //! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< LightTimeCorrectionSettings >& lightTimeCorrectionSettings );
 
-
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSimulationSettings< double > >& ObservationSimulationSettings );
 
 //! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationSimulationSettings< double > >& ObservationSimulationSettings );
-
+void from_json( const nlohmann::json& jsonObject,
+                std::shared_ptr< ObservationSimulationSettings< double > >& ObservationSimulationSettings );
 
 //! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationViabilitySettings >& observationViabilitySettings );
@@ -210,40 +180,33 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationViab
 //! Create a shared pointer to a `ObservationModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationViabilitySettings >& observationViabilitySettings );
 
+}  // namespace observation_models
 
-
-} // namespace propagators
-
-} // namespace tudat
+}  // namespace tudat
 
 namespace boost
 {
 
 template<>
-tudat::observation_models::ObservableType lexical_cast( const std::string & s );
-
-
-template<>
-std::string lexical_cast(const tudat::observation_models::ObservableType & component );
-
+tudat::observation_models::ObservableType lexical_cast( const std::string& s );
 
 template<>
-tudat::observation_models::LinkEndType lexical_cast( const std::string & s );
-
-
-template<>
-std::string lexical_cast(const tudat::observation_models::LinkEndType & component );
-
+std::string lexical_cast( const tudat::observation_models::ObservableType& component );
 
 template<>
-tudat::observation_models::LinkEnds lexical_cast( const std::string & s );
+tudat::observation_models::LinkEndType lexical_cast( const std::string& s );
 
 template<>
-std::string lexical_cast(const tudat::observation_models::LinkEnds & component );
+std::string lexical_cast( const tudat::observation_models::LinkEndType& component );
+
+template<>
+tudat::observation_models::LinkEnds lexical_cast( const std::string& s );
+
+template<>
+std::string lexical_cast( const tudat::observation_models::LinkEnds& component );
 
 //}
 
-}
+}  // namespace boost
 
-
-#endif // TUDAT_JSONINTERFACE_OBSERVATION_H
+#endif  // TUDAT_JSONINTERFACE_OBSERVATION_H

@@ -20,25 +20,21 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_ephemeris )
 
 // Test 1: ephemeris types
 BOOST_AUTO_TEST_CASE( test_json_ephemeris_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
-                            simulation_setup::ephemerisTypes,
-                            simulation_setup::unsupportedEphemerisTypes );
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ), simulation_setup::ephemerisTypes, simulation_setup::unsupportedEphemerisTypes );
 }
 
 // Test 2: bodies with ephemeris data
 BOOST_AUTO_TEST_CASE( test_json_ephemeris_bodiesWithEphemerisData )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "bodiesWithEphemerisData" ),
-                            ephemerides::bodiesWithEphemerisData,
-                            ephemerides::unsupportedBodiesWithEphemerisData );
+    BOOST_CHECK_EQUAL_ENUM(
+            INPUT( "bodiesWithEphemerisData" ), ephemerides::bodiesWithEphemerisData, ephemerides::unsupportedBodiesWithEphemerisData );
 }
 
 // Test 3: approximate planet position ephemeris
@@ -53,12 +49,10 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_approximatePlanetPositions )
             parseJSONFile< std::shared_ptr< EphemerisSettings > >( INPUT( "approximatePlanetPositions" ) );
 
     // Create EphemerisSettings manually
-    const ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier =
-            ApproximatePlanetPositionsBase::earthMoonBarycenter;
+    const ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier = ApproximatePlanetPositionsBase::earthMoonBarycenter;
     const bool useCircularCoplanarApproximation = false;
     const std::shared_ptr< EphemerisSettings > manualSettings =
-            std::make_shared< ApproximatePlanetPositionSettings >( bodyIdentifier,
-                                                                     useCircularCoplanarApproximation );
+            std::make_shared< ApproximatePlanetPositionSettings >( bodyIdentifier, useCircularCoplanarApproximation );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -80,12 +74,8 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_directSpice )
     const bool correctForStellarAberration = true;
     const bool correctForLightTimeAberration = false;
     const bool convergeLighTimeAberration = true;
-    const std::shared_ptr< EphemerisSettings > manualSettings =
-            std::make_shared< DirectSpiceEphemerisSettings >( frameOrigin,
-                                                                frameOrientation,
-                                                                correctForStellarAberration,
-                                                                correctForLightTimeAberration,
-                                                                convergeLighTimeAberration );
+    const std::shared_ptr< EphemerisSettings > manualSettings = std::make_shared< DirectSpiceEphemerisSettings >(
+            frameOrigin, frameOrientation, correctForStellarAberration, correctForLightTimeAberration, convergeLighTimeAberration );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -107,9 +97,7 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_tabulated )
     bodyStateHistory[ 1.0 ] = ( Eigen::Vector6d( ) << 3.0, 0.0, 0.0, 0.0, -0.2, 0.0 ).finished( );
     bodyStateHistory[ 2.0 ] = ( Eigen::Vector6d( ) << 4.0, 0.0, 0.0, 0.0, -0.1, 0.0 ).finished( );
 
-
-    const std::shared_ptr< EphemerisSettings > manualSettings =
-            std::make_shared< TabulatedEphemerisSettings >( bodyStateHistory );
+    const std::shared_ptr< EphemerisSettings > manualSettings = std::make_shared< TabulatedEphemerisSettings >( bodyStateHistory );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -133,13 +121,8 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_interpolatedSpice )
     const std::string frameOrientation = "FOO";
     const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
             std::make_shared< interpolators::LagrangeInterpolatorSettings >( 4 );
-    std::shared_ptr< EphemerisSettings > manualSettings =
-            std::make_shared< InterpolatedSpiceEphemerisSettings >( initialTime,
-                                                                      finalTime,
-                                                                      timeStep,
-                                                                      frameOrigin,
-                                                                      frameOrientation,
-                                                                      interpolatorSettings );
+    std::shared_ptr< EphemerisSettings > manualSettings = std::make_shared< InterpolatedSpiceEphemerisSettings >(
+            initialTime, finalTime, timeStep, frameOrigin, frameOrientation, interpolatorSettings );
     manualSettings->resetMakeMultiArcEphemeris( true );
 
     // Compare
@@ -158,8 +141,7 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_constant )
 
     // Create EphemerisSettings manually
     const Eigen::Vector6d constantState = ( Eigen::Vector6d( ) << 0.0, 1.0, 0.0, -0.1, 0.0, 0.0 ).finished( );
-    const std::shared_ptr< EphemerisSettings > manualSettings =
-            std::make_shared< ConstantEphemerisSettings >( constantState );
+    const std::shared_ptr< EphemerisSettings > manualSettings = std::make_shared< ConstantEphemerisSettings >( constantState );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -176,9 +158,8 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_kepler )
             parseJSONFile< std::shared_ptr< EphemerisSettings > >( INPUT( "kepler" ) );
 
     // Create EphemerisSettings manually
-    const Eigen::Vector6d initialStateInKeplerianElements =
-            ( Eigen::Vector6d( ) << 7.0e6, 0.1, 0.0, 0.0, 0.0, 0.0 ).finished( );
-    const double epochOfInitialState= -4.0e4;
+    const Eigen::Vector6d initialStateInKeplerianElements = ( Eigen::Vector6d( ) << 7.0e6, 0.1, 0.0, 0.0, 0.0, 0.0 ).finished( );
+    const double epochOfInitialState = -4.0e4;
     const double centralBodyGravitationalParameter = 4.0e14;
     const std::string referenceFrameOrigin = "Foo";
     const std::string referenceFrameOrientation = "FOO";
@@ -186,20 +167,19 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_kepler )
     const double rootFinderMaximumNumberOfIterations = 100.0;
     const std::shared_ptr< EphemerisSettings > manualSettings =
             std::make_shared< KeplerEphemerisSettings >( initialStateInKeplerianElements,
-                                                           epochOfInitialState,
-                                                           centralBodyGravitationalParameter,
-                                                           referenceFrameOrigin,
-                                                           referenceFrameOrientation,
-                                                           rootFinderAbsoluteTolerance,
-                                                           rootFinderMaximumNumberOfIterations );
+                                                         epochOfInitialState,
+                                                         centralBodyGravitationalParameter,
+                                                         referenceFrameOrigin,
+                                                         referenceFrameOrientation,
+                                                         rootFinderAbsoluteTolerance,
+                                                         rootFinderMaximumNumberOfIterations );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

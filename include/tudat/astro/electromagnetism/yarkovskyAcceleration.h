@@ -13,7 +13,6 @@
  *          DOI: https://doi.org/10.1038/s43247-021-00337-x
  */
 
-
 #ifndef TUDAT_YARKOVSKYACCELERATION_H
 #define TUDAT_YARKOVSKYACCELERATION_H
 
@@ -22,7 +21,6 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/basics/basicTypedefs.h"
-
 
 namespace tudat
 {
@@ -45,10 +43,9 @@ Eigen::Vector3d computeYarkovskyAcceleration( double yarkovskyParameter, const E
  * a = A2 * (r0/rS)^2, where A2 is the Yarkovsky parameter, r0 = 1AU and rS is the heliocentric
  * distance in AU.
  */
-class YarkovskyAcceleration: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
+class YarkovskyAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -56,13 +53,13 @@ public:
      * \param bodyGravitationalParameterFunction Function that returns the state of the body.
      * \param centralBodyStateFunction Functon that returns the state of central body.
      */
-    YarkovskyAcceleration( const double yarkovskyParameter,
-                           const std::function< Eigen::Vector6d( ) >& bodyStateFunction,
-                           const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction = []( ) { return Eigen::Vector6d::Zero( ); } )
-            : yarkovskyParameter_( yarkovskyParameter ), bodyStateFunction_( bodyStateFunction ),
-              centralBodyStateFunction_( centralBodyStateFunction )
-    {
-    }
+    YarkovskyAcceleration(
+            const double yarkovskyParameter,
+            const std::function< Eigen::Vector6d( ) >& bodyStateFunction,
+            const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction = []( ) { return Eigen::Vector6d::Zero( ); } ):
+        yarkovskyParameter_( yarkovskyParameter ), bodyStateFunction_( bodyStateFunction ),
+        centralBodyStateFunction_( centralBodyStateFunction )
+    { }
 
     //! Destructor
     ~YarkovskyAcceleration( ) override = default;
@@ -74,7 +71,8 @@ public:
      */
     void updateMembers( const double currentTime ) override
     {
-        if ( this->currentTime_ != currentTime ) {
+        if( this->currentTime_ != currentTime )
+        {
             // Calculate current relative state of accelerated body
             currentState_ = bodyStateFunction_( ) - centralBodyStateFunction_( );
 
@@ -124,10 +122,9 @@ private:
     Eigen::Vector6d currentState_;
 };
 
-
 //! Typedef for shared-pointer to YarkovskyAcceleration.
 typedef std::shared_ptr< YarkovskyAcceleration > YarkovskyAccelerationPointer;
 
-}
-}
-#endif // TUDAT_YARKOVSKYACCELERATION_H
+}  // namespace electromagnetism
+}  // namespace tudat
+#endif  // TUDAT_YARKOVSKYACCELERATION_H

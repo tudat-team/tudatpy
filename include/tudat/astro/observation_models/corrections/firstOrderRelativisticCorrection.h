@@ -38,10 +38,9 @@ namespace observation_models
  *  respectively, are used to evaluate this perturbing body's state when computing the correction. For all other bodies,
  *  the mid-way point of the light time is used.
  */
-class FirstOrderLightTimeCorrectionCalculator: public LightTimeCorrection
+class FirstOrderLightTimeCorrectionCalculator : public LightTimeCorrection
 {
 public:
-
     //! Constructor, takes and sets gravitating body properties.
     /*!
      *  Constructor, takes and sets gravitating body properties.
@@ -61,12 +60,10 @@ public:
             const std::vector< std::string > perturbingBodyNames,
             const std::string transmittingBody,
             const std::string receivingBody,
-            const std::function< double( ) >& ppnParameterGammaFunction = [ ]( ){ return 1.0; } ):
-        LightTimeCorrection( first_order_relativistic ),
-        perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
+            const std::function< double( ) >& ppnParameterGammaFunction = []( ) { return 1.0; } ):
+        LightTimeCorrection( first_order_relativistic ), perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
         perturbingBodyGravitationalParameterFunctions_( perturbingBodyGravitationalParameterFunctions ),
-        perturbingBodyNames_( perturbingBodyNames ),
-        ppnParameterGammaFunction_( ppnParameterGammaFunction )
+        perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction )
     {
         currentTotalLightTimeCorrection_ = 0.0;
         currentLighTimeCorrectionComponents_.resize( perturbingBodyNames_.size( ) );
@@ -90,7 +87,7 @@ public:
     }
 
     //! Destructor
-    ~FirstOrderLightTimeCorrectionCalculator( ){ }
+    ~FirstOrderLightTimeCorrectionCalculator( ) { }
 
     //! Function to calculate first-order relativistic light time correction due to set of gravitating point masses.
     /*!
@@ -122,13 +119,12 @@ public:
      * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
      * \return Light-time correction w.r.t. observation time
      */
-    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-            const Eigen::Vector6d& transmitterState,
-            const Eigen::Vector6d& receiverState,
-            const double transmissionTime,
-            const double receptionTime,
-            const LinkEndType fixedLinkEnd,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
+    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
+                                                                        const Eigen::Vector6d& receiverState,
+                                                                        const double transmissionTime,
+                                                                        const double receptionTime,
+                                                                        const LinkEndType fixedLinkEnd,
+                                                                        const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
         return 0.0;
     }
@@ -205,7 +201,6 @@ public:
     }
 
 private:
-
     //! Set of function returning the state of the gravitating bodies as a function of time.
     std::vector< std::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions_;
 
@@ -233,7 +228,7 @@ private:
     double currentTotalLightTimeCorrection_;
 };
 
-} // namespace observation_models
+}  // namespace observation_models
 
-} // namespace tudat
-#endif // TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTION_H
+}  // namespace tudat
+#endif  // TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTION_H

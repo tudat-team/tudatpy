@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_CREATELIGHTTIMECORRECTIONPARTIALS_H
 #define TUDAT_CREATELIGHTTIMECORRECTIONPARTIALS_H
 
@@ -21,8 +20,6 @@ namespace tudat
 namespace observation_partials
 {
 
-
-
 //! Function to create a partial objects from list of light time corrections.
 /*!
  * Function to create a partial objects from list of light time corrections.
@@ -32,8 +29,8 @@ namespace observation_partials
 std::vector< std::shared_ptr< LightTimeCorrectionPartial > > createLightTimeCorrectionPartials(
         const std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrectionList );
 
-}
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_CREATELIGHTTIMECORRECTIONPARTIALS_H
+#endif  // TUDAT_CREATELIGHTTIMECORRECTIONPARTIALS_H

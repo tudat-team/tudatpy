@@ -21,14 +21,12 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_simulationGalileoConstellation )
 
 BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
 {
-
     using namespace simulation_setup;
     using namespace propagators;
     using namespace numerical_integrators;
@@ -45,13 +43,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    JsonSimulationManager< > jsonSimulation( INPUT( "main" ) );
+    JsonSimulationManager<> jsonSimulation( INPUT( "main" ) );
     jsonSimulation.updateSettings( );
     jsonSimulation.runPropagation( );
-    std::map< double, Eigen::VectorXd > jsonResults =
-            jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-
-
+    std::map< double, Eigen::VectorXd > jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,8 +81,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
 
     // Define environment settings
     BodyListSettings bodySettings = getDefaultBodySettings( { "Earth" } );
-    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-                Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+    bodySettings.at( "Earth" )->ephemerisSettings =
+            std::make_shared< simulation_setup::ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
     bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
     bodySettings.at( "Earth" )->atmosphereSettings = nullptr;
     bodySettings.at( "Earth" )->shapeModelSettings = nullptr;
@@ -97,11 +92,11 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
 
     // Set accelerations for each satellite.
     std::string currentSatelliteName;
-    for ( unsigned int i = 0; i < numberOfSatellites; i++ )
+    for( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
-        currentSatelliteName =  "Satellite" + std::to_string( i );
+        currentSatelliteName = "Satellite" + std::to_string( i );
         bodies.addNewBody( currentSatelliteName );
-     }
+    }
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
@@ -111,14 +106,12 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Set orbital parameters of Galileo constellation.
-    const double semiMajorAxis = 23222.0e3 + 6378.1e3;                                // [km]
-    const double eccentricity = 0.0;                                                  // [-]
-    const double inclination = convertDegreesToRadians( 56.0 );                       // [rad]
-    const double argumentOfPeriapsis = 0.0;                                           // [rad]
-    const double longitudeOfAscendingNodeSpacing
-            = 2.0 * mathematical_constants::PI / numberOfPlanes;                          // [rad]
-    const double trueAnomalySpacing
-            = 2.0 * mathematical_constants::PI / numberOfSatellitesPerPlane;              // [rad]
+    const double semiMajorAxis = 23222.0e3 + 6378.1e3;                                                 // [km]
+    const double eccentricity = 0.0;                                                                   // [-]
+    const double inclination = convertDegreesToRadians( 56.0 );                                        // [rad]
+    const double argumentOfPeriapsis = 0.0;                                                            // [rad]
+    const double longitudeOfAscendingNodeSpacing = 2.0 * mathematical_constants::PI / numberOfPlanes;  // [rad]
+    const double trueAnomalySpacing = 2.0 * mathematical_constants::PI / numberOfSatellitesPerPlane;   // [rad]
 
     // Set initial conditions for Galileo satellites that will be propagated in this simulation.
     // The initial conditions are given in Keplerian elements and later on converted to
@@ -131,61 +124,52 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     Eigen::MatrixXd initialConditionsInKeplerianElements( sizeOfState, numberOfSatellites );
 
     // Set semiMajorAxis.
-    initialConditionsInKeplerianElements.row( 0 )
-            = Eigen::MatrixXd::Constant( 1, numberOfSatellites, semiMajorAxis );
+    initialConditionsInKeplerianElements.row( 0 ) = Eigen::MatrixXd::Constant( 1, numberOfSatellites, semiMajorAxis );
 
     // Set eccentricity.
-    initialConditionsInKeplerianElements.row( 1 )
-            = Eigen::MatrixXd::Constant( 1, numberOfSatellites, eccentricity );
+    initialConditionsInKeplerianElements.row( 1 ) = Eigen::MatrixXd::Constant( 1, numberOfSatellites, eccentricity );
 
     // Set inclination.
-    initialConditionsInKeplerianElements.row( 2 )
-            = Eigen::MatrixXd::Constant( 1, numberOfSatellites, inclination );
+    initialConditionsInKeplerianElements.row( 2 ) = Eigen::MatrixXd::Constant( 1, numberOfSatellites, inclination );
 
     // Set argument of periapsis.
-    initialConditionsInKeplerianElements.row( 3 )
-            = Eigen::MatrixXd::Constant( 1, numberOfSatellites, argumentOfPeriapsis );
+    initialConditionsInKeplerianElements.row( 3 ) = Eigen::MatrixXd::Constant( 1, numberOfSatellites, argumentOfPeriapsis );
 
     // Set longitude of ascending node.
-    for ( unsigned int i = 0; i < numberOfPlanes; i++ )
+    for( unsigned int i = 0; i < numberOfPlanes; i++ )
 
     {
-        initialConditionsInKeplerianElements.block( 4, i * numberOfSatellitesPerPlane,
-                                                    1, numberOfSatellitesPerPlane )
-                = Eigen::MatrixXd::Constant( 1, numberOfSatellitesPerPlane,
-                                             i * longitudeOfAscendingNodeSpacing );
+        initialConditionsInKeplerianElements.block( 4, i * numberOfSatellitesPerPlane, 1, numberOfSatellitesPerPlane ) =
+                Eigen::MatrixXd::Constant( 1, numberOfSatellitesPerPlane, i * longitudeOfAscendingNodeSpacing );
     }
 
     // Set true anomaly.
     Eigen::RowVectorXd trueAnomalySpacingIntegers( numberOfSatellitesPerPlane );
 
-    for ( unsigned int i = 0; i < numberOfSatellitesPerPlane; i++ )
+    for( unsigned int i = 0; i < numberOfSatellitesPerPlane; i++ )
     {
-        trueAnomalySpacingIntegers( i ) =  i * 1.0;
+        trueAnomalySpacingIntegers( i ) = i * 1.0;
     }
 
-    for ( unsigned int i = 0; i < numberOfPlanes; i++ )
+    for( unsigned int i = 0; i < numberOfPlanes; i++ )
     {
-        initialConditionsInKeplerianElements.block( 5, i * numberOfSatellitesPerPlane,
-                                                    1, numberOfSatellitesPerPlane )
-                = Eigen::MatrixXd::Constant( 1, numberOfSatellitesPerPlane,
-                                             trueAnomalySpacing ).array( )
-                * trueAnomalySpacingIntegers.array( );
+        initialConditionsInKeplerianElements.block( 5, i * numberOfSatellitesPerPlane, 1, numberOfSatellitesPerPlane ) =
+                Eigen::MatrixXd::Constant( 1, numberOfSatellitesPerPlane, trueAnomalySpacing ).array( ) *
+                trueAnomalySpacingIntegers.array( );
     }
 
     // Convert initial conditions to Cartesian elements.
     Eigen::MatrixXd initialConditions( sizeOfState, numberOfSatellites );
 
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    for ( unsigned int i = 0; i < numberOfSatellites; i++ )
+    for( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
-        Eigen::Vector6d initKepl = initialConditionsInKeplerianElements.col( i ).cast< double >();
-        initialConditions.col( i ) = convertKeplerianToCartesianElements(
-                    initKepl, static_cast< double >(earthGravitationalParameter) );
+        Eigen::Vector6d initKepl = initialConditionsInKeplerianElements.col( i ).cast< double >( );
+        initialConditions.col( i ) = convertKeplerianToCartesianElements( initKepl, static_cast< double >( earthGravitationalParameter ) );
     }
 
     Eigen::VectorXd systemInitialState = Eigen::VectorXd( 6 * numberOfSatellites );
-    for ( unsigned int i = 0; i < numberOfSatellites; i++ )
+    for( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
         systemInitialState.segment( i * 6, 6 ) = initialConditions.col( i );
     }
@@ -200,45 +184,40 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     std::vector< std::string > centralBodies;
 
     // Set accelerations for each satellite.
-    for ( unsigned int i = 0; i < numberOfSatellites; i++ )
+    for( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
-        currentSatelliteName =  "Satellite" + std::to_string( i );
+        currentSatelliteName = "Satellite" + std::to_string( i );
 
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfCurrentSatellite;
-        accelerationsOfCurrentSatellite[ "Earth" ].push_back(
-                    std::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
+        accelerationsOfCurrentSatellite[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
         accelerationMap[ currentSatelliteName ] = accelerationsOfCurrentSatellite;
 
         bodiesToPropagate.push_back( currentSatelliteName );
         centralBodies.push_back( "Earth" );
     }
 
-
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            //////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch );
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
-
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            //////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodies, integratorSettings, propagatorSettings );
+    const std::shared_ptr< SingleArcDynamicsSimulator<> > dynamicsSimulator =
+            std::make_shared< SingleArcDynamicsSimulator<> >( bodies, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -248,7 +227,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
 
     std::vector< unsigned int > indices;
     std::vector< unsigned int > sizes;
-    for ( unsigned int i = 0; i < numberOfSatellites; ++i )
+    for( unsigned int i = 0; i < numberOfSatellites; ++i )
     {
         indices.push_back( 3 * i );
         sizes.push_back( 3 );
@@ -256,8 +235,6 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     const double tolerance = 1.0E-15;
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
-
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,12 +252,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
-
 }
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

@@ -20,7 +20,7 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `GroundStationSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GroundStationSettings >& groundStationSettings )
 {
-    if ( ! groundStationSettings )
+    if( !groundStationSettings )
     {
         return;
     }
@@ -42,16 +42,12 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GroundStation
 
     PositionElementTypes positionElementType =
             enumFromString( getValue< std::string >( jsonObject, K::positionElementType ), ground_stations::positionElementTypes );
-    Eigen::Vector3d stationPosition =
-            getValue< Eigen::Vector3d >( jsonObject, K::stationPosition );
-    std::string stationName =
-            getValue< std::string >( jsonObject, K::stationName );
+    Eigen::Vector3d stationPosition = getValue< Eigen::Vector3d >( jsonObject, K::stationPosition );
+    std::string stationName = getValue< std::string >( jsonObject, K::stationName );
 
-    groundStationSettings = std::make_shared< GroundStationSettings >(
-                stationName, stationPosition, positionElementType );
-
+    groundStationSettings = std::make_shared< GroundStationSettings >( stationName, stationPosition, positionElementType );
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

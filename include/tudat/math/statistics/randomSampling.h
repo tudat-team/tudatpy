@@ -49,10 +49,9 @@ std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
  *  \return Set of samples according to given distribution settings.
  */
 std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
-        const int numberOfSamples, const int numberOfDimensions,
+        const int numberOfSamples,
+        const int numberOfDimensions,
         const std::shared_ptr< RandomVariableGenerator< double > > randomVariableGenerator );
-
-
 
 //! Generate sample of random vectors, with entries of each vector independently, but not identically, uniformly distributed.
 /*!
@@ -67,9 +66,10 @@ std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
  *  this vector is upper bound for distribution of entry i of each sample).
  *  \return Set of samples according to given distribution settings.
  */
-std::vector< Eigen::VectorXd > generateUniformRandomSample(
-        const int seed, const int numberOfSamples,
-        const Eigen::VectorXd& lowerBound, const Eigen::VectorXd& upperBound);
+std::vector< Eigen::VectorXd > generateUniformRandomSample( const int seed,
+                                                            const int numberOfSamples,
+                                                            const Eigen::VectorXd& lowerBound,
+                                                            const Eigen::VectorXd& upperBound );
 
 //! Generate sample of random vectors, with entries of each vector independently and identically uniformly distributed.
 /*!
@@ -82,11 +82,11 @@ std::vector< Eigen::VectorXd > generateUniformRandomSample(
  *  \param upperBound Upper bound for the distributions for the entries of the random vectors
  *  \return Set of samples according to given distribution settings.
  */
-std::vector< Eigen::VectorXd > generateUniformRandomSample(
-        const int seed, const int numberOfSamples, const int numberOfDimensions,
-        const double lowerBound = 0.0, const double upperBound = 1.0 );
-
-
+std::vector< Eigen::VectorXd > generateUniformRandomSample( const int seed,
+                                                            const int numberOfSamples,
+                                                            const int numberOfDimensions,
+                                                            const double lowerBound = 0.0,
+                                                            const double upperBound = 1.0 );
 
 //! Generate sample of random vectors, with entries of each vector independently, but not identically, Gaussian distributed.
 /*!
@@ -101,26 +101,27 @@ std::vector< Eigen::VectorXd > generateUniformRandomSample(
  *  (i.e. entry i of this vector is standard deviation for distribution of entry i of each sample). *
  *  \return Set of samples according to given distribution settings.
  */
-std::vector< Eigen::VectorXd > generateGaussianRandomSample(
-        const int seed, const int numberOfSamples,
-        const Eigen::VectorXd& mean , const Eigen::VectorXd& standardDeviation );
+std::vector< Eigen::VectorXd > generateGaussianRandomSample( const int seed,
+                                                             const int numberOfSamples,
+                                                             const Eigen::VectorXd& mean,
+                                                             const Eigen::VectorXd& standardDeviation );
 
 //! Generate sample of random vectors, with entries of each vector independently and identically Gaussian distributed.
 /*!
-  *  Function to generate sample of random vectors, with entries of each vector independently and identically
-  *  Gaussian distributed.
-  *  \param seed Seed of random number generator.
-  *  \param numberOfSamples Number of samples that are to be generated.
-  *  \param numberOfDimensions Size of each samples
-  *  \param mean Mean value for the distributions for the entries of the random vectors
-  *  \param standardDeviation Standard deviation for the distributions for the entries of the random vectors
-  *  \return Set of samples according to given distribution settings.
-  */
-std::vector< Eigen::VectorXd > generateGaussianRandomSample(
-        const int seed, const int numberOfSamples, const int numberOfDimensions,
-        const double mean = 0.0, const double standardDeviation = 1.0 );
-
-
+ *  Function to generate sample of random vectors, with entries of each vector independently and identically
+ *  Gaussian distributed.
+ *  \param seed Seed of random number generator.
+ *  \param numberOfSamples Number of samples that are to be generated.
+ *  \param numberOfDimensions Size of each samples
+ *  \param mean Mean value for the distributions for the entries of the random vectors
+ *  \param standardDeviation Standard deviation for the distributions for the entries of the random vectors
+ *  \return Set of samples according to given distribution settings.
+ */
+std::vector< Eigen::VectorXd > generateGaussianRandomSample( const int seed,
+                                                             const int numberOfSamples,
+                                                             const int numberOfDimensions,
+                                                             const double mean = 0.0,
+                                                             const double standardDeviation = 1.0 );
 
 #if USE_GSL
 
@@ -135,9 +136,9 @@ std::vector< Eigen::VectorXd > generateGaussianRandomSample(
  *  this vector is upper bound for distribution of entry i of each sample).
  *  \return Set of samples generated with Sobol algorithm
  */
-std::vector< Eigen::VectorXd > generateVectorSobolSample(
-        int numberOfSamples,
-        const Eigen::VectorXd& lowerBound, const Eigen::VectorXd& upperBound );
+std::vector< Eigen::VectorXd > generateVectorSobolSample( int numberOfSamples,
+                                                          const Eigen::VectorXd& lowerBound,
+                                                          const Eigen::VectorXd& upperBound );
 
 //! Generate sample of random vectors, using a Sobol sampling algorithm.
 /*!
@@ -148,13 +149,14 @@ std::vector< Eigen::VectorXd > generateVectorSobolSample(
  *  \param upperBound Upper bound for the distributions for the entries of the random vectors
  *  \return Set of samples generated with Sobol algorithm
  */
-std::vector< Eigen::VectorXd > generateVectorSobolSample(
-        const int numberOfDimensions, int numberOfSamples,
-        const double lowerBound = 0.0, const double upperBound = 1.0 );
+std::vector< Eigen::VectorXd > generateVectorSobolSample( const int numberOfDimensions,
+                                                          int numberOfSamples,
+                                                          const double lowerBound = 0.0,
+                                                          const double upperBound = 1.0 );
 #endif
 
-} // Close Namespace statistics
+}  // namespace statistics
 
-} // Close Namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_RANDOM_SAMPLING_H
+#endif  // TUDAT_RANDOM_SAMPLING_H

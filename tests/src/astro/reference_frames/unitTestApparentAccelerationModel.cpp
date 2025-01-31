@@ -35,8 +35,8 @@ namespace tudat
 namespace unit_tests
 {
 
-using reference_frames::computeApparentAcceleration;
 using reference_frames::ApparentAccelerationModel;
+using reference_frames::computeApparentAcceleration;
 
 BOOST_AUTO_TEST_SUITE( test_reference_frame_transformations )
 
@@ -62,8 +62,8 @@ BOOST_AUTO_TEST_CASE( testCentrifugalAccelerationEarth )
     const Eigen::Vector3d velocity = Eigen::Vector3d::Zero( );
 
     // Compute apparent acceleration.
-    const Eigen::Vector3d apparentAcceleration = computeApparentAcceleration(
-            referenceFrameAcceleration, rotationRate, rotationAcceleration, position, velocity );
+    const Eigen::Vector3d apparentAcceleration =
+            computeApparentAcceleration( referenceFrameAcceleration, rotationRate, rotationAcceleration, position, velocity );
     const Eigen::Vector3d expectedAcceleration( 0.0339150567038567, 0.0, 0.0 );
 
     // Check that resulting acceleration matches expected one.
@@ -84,8 +84,8 @@ BOOST_AUTO_TEST_CASE( testCoriolisAccelerationAtEarthPoles )
     const Eigen::Vector3d velocity( 10.0, 0.0, 0.0 );
 
     // Compute apparent acceleration.
-    const Eigen::Vector3d apparentAcceleration = computeApparentAcceleration(
-            referenceFrameAcceleration, rotationRate, rotationAcceleration, position, velocity );
+    const Eigen::Vector3d apparentAcceleration =
+            computeApparentAcceleration( referenceFrameAcceleration, rotationRate, rotationAcceleration, position, velocity );
     const Eigen::Vector3d expectedAcceleration( 0.0, -0.0014584247033981, 0.0 );
 
     // Check that resulting acceleration matches expected one.
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE( testApparentAccelerationGeneral )
     const Eigen::Vector3d velocity( 10.0, 40.0, 25.0 );
 
     // Compute apparent acceleration.
-    const Eigen::Vector3d apparentAcceleration = computeApparentAcceleration(
-            referenceFrameAcceleration, rotationRate, rotationAcceleration, position, velocity );
+    const Eigen::Vector3d apparentAcceleration =
+            computeApparentAcceleration( referenceFrameAcceleration, rotationRate, rotationAcceleration, position, velocity );
     const Eigen::Vector3d expectedAcceleration( -2.0, 9.0, -10.0 );
 
     // Check that resulting acceleration matches expected one.
@@ -127,8 +127,8 @@ BOOST_AUTO_TEST_CASE( testApparentAccelerationStatic )
     const Eigen::Vector3d velocity( 10.0, 40.0, 25.0 );
 
     // Compute apparent acceleration.
-    const Eigen::Vector3d apparentAcceleration = computeApparentAcceleration(
-            referenceFrameAcceleration, rotationRate, rotationAcceleration, position, velocity );
+    const Eigen::Vector3d apparentAcceleration =
+            computeApparentAcceleration( referenceFrameAcceleration, rotationRate, rotationAcceleration, position, velocity );
     const Eigen::Vector3d expectedAcceleration( 0.0, 0.0, 0.0 );
 
     // Check that resulting acceleration matches expected one.
@@ -146,32 +146,25 @@ BOOST_AUTO_TEST_CASE( testApparentAccelerationClass )
     const Eigen::Vector3d velocity( 10.0, 40.0, 25.0 );
 
     // Create functions returning the parameters defined above.
-    std::function< Eigen::Vector3d( ) > accelerationFunction =
-            [ & ]( ){ return referenceFrameAcceleration; };
-    std::function< Eigen::Vector3d( ) > rotationRateFunction =
-            [ & ]( ){ return rotationRate; };
-    std::function< Eigen::Vector3d( ) > rotationAccelerationFunction =
-            [ & ]( ){ return rotationAcceleration; };
-    std::function< Eigen::Vector3d( ) > positionFunction =
-            [ & ]( ){ return position; };
-    std::function< Eigen::Vector3d( ) > velocityFunction =
-            [ & ]( ){ return velocity; };
+    std::function< Eigen::Vector3d( ) > accelerationFunction = [ & ]( ) { return referenceFrameAcceleration; };
+    std::function< Eigen::Vector3d( ) > rotationRateFunction = [ & ]( ) { return rotationRate; };
+    std::function< Eigen::Vector3d( ) > rotationAccelerationFunction = [ & ]( ) { return rotationAcceleration; };
+    std::function< Eigen::Vector3d( ) > positionFunction = [ & ]( ) { return position; };
+    std::function< Eigen::Vector3d( ) > velocityFunction = [ & ]( ) { return velocity; };
 
     // Create object of apparentAcceleraitonModel class; pass functions in constructor
     ApparentAccelerationModel apparentAccelerationModel(
-           accelerationFunction, rotationRateFunction, rotationAccelerationFunction,
-           positionFunction, velocityFunction );
+            accelerationFunction, rotationRateFunction, rotationAccelerationFunction, positionFunction, velocityFunction );
     const Eigen::Vector3d expectedAcceleration( -2.0, 9.0, -10.0 );
 
     // Compute apparent acceleration.
     const Eigen::Vector3d computedAcceleration = apparentAccelerationModel.getAcceleration( );
 
     // Check that resulting acceleration matches expected one.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedAcceleration,
-                                       expectedAcceleration, 1.0e-14 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedAcceleration, expectedAcceleration, 1.0e-14 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

@@ -38,41 +38,36 @@ namespace unit_tests
 // Test if matrix text file reader is working correctly.
 BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
 {
-
     // Test 1
     {
         // Set expected matrix.
         std::map< int, std::vector< int > > expectedMap = {
-            { 1, { 1, 2 } },
-            { 2, { 1, 2, 4 } },
-            { 3, { 1, 2, 4, 8 } },
-            { 4, { 1, 2, 4, 8, 16 } }
+            { 1, { 1, 2 } }, { 2, { 1, 2, 4 } }, { 3, { 1, 2, 4, 8 } }, { 4, { 1, 2, 4, 8, 16 } }
         };
 
         // Read input file and store data in matrix.
-        auto inputFileMap = input_output::readStlVectorMapFromFile< int, int >(
-                paths::getTudatTestDataPath( ) + "/testMap1.txt" );
+        auto inputFileMap = input_output::readStlVectorMapFromFile< int, int >( paths::getTudatTestDataPath( ) + "/testMap1.txt" );
 
         bool allEqual = true;
         // Check if data input file matrix matches expected matrix.
         try
         {
-            for ( auto ent: inputFileMap )
+            for( auto ent: inputFileMap )
             {
                 auto key = ent.first;
                 auto values = ent.second;
-                for ( unsigned int i = 0; i < values.size(); i++ )
+                for( unsigned int i = 0; i < values.size( ); i++ )
                 {
-                    if ( inputFileMap[ key ][ i ] != expectedMap[ key ][ i ] )
+                    if( inputFileMap[ key ][ i ] != expectedMap[ key ][ i ] )
                     {
-                        std::cout << "Element at " << i << " for key " << key << " ("
-                                  << inputFileMap[ key ][ i ] << ") does not match expected value of "
+                        std::cout << "Element at " << i << " for key " << key << " (" << inputFileMap[ key ][ i ]
+                                  << ") does not match expected value of "
                                   << "(" << expectedMap[ key ][ i ] << ")." << std::endl;
                         allEqual = false;
                         break;
                     }
                 }
-                if ( ! allEqual )
+                if( !allEqual )
                 {
                     break;
                 }
@@ -85,44 +80,38 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
         }
 
         BOOST_CHECK( allEqual );
-
     }
-
 
     // Test 2
     {
         // Set expected matrix.
         std::map< double, std::vector< float > > expectedMap = {
-            { 0.0, {  0.5, 0.8 } },
-            { 0.1, { -0.5, 1.0 } },
-            { 0.2, {  0.5 } },
-            { 0.3, {  1e6, 1.0, 1.0 } }
+            { 0.0, { 0.5, 0.8 } }, { 0.1, { -0.5, 1.0 } }, { 0.2, { 0.5 } }, { 0.3, { 1e6, 1.0, 1.0 } }
         };
 
         // Read input file and store data in matrix.
-        auto inputFileMap = input_output::readStlVectorMapFromFile< double, float >(
-                paths::getTudatTestDataPath( ) + "/testMap2.txt" );
+        auto inputFileMap = input_output::readStlVectorMapFromFile< double, float >( paths::getTudatTestDataPath( ) + "/testMap2.txt" );
 
         bool allEqual = true;
         // Check if data input file matrix matches expected matrix.
         try
         {
-            for ( auto ent: inputFileMap )
+            for( auto ent: inputFileMap )
             {
                 auto key = ent.first;
                 auto values = ent.second;
-                for ( unsigned int i = 0; i < values.size(); i++ )
+                for( unsigned int i = 0; i < values.size( ); i++ )
                 {
-                    if ( inputFileMap[ key ][ i ] != expectedMap[ key ][ i ] )
+                    if( inputFileMap[ key ][ i ] != expectedMap[ key ][ i ] )
                     {
-                        std::cout << "Element at " << i << " for key " << key << " ("
-                                  << inputFileMap[ key ][ i ] << ") does not match expected value of "
+                        std::cout << "Element at " << i << " for key " << key << " (" << inputFileMap[ key ][ i ]
+                                  << ") does not match expected value of "
                                   << "(" << expectedMap[ key ][ i ] << ")." << std::endl;
                         allEqual = false;
                         break;
                     }
                 }
-                if ( ! allEqual )
+                if( !allEqual )
                 {
                     break;
                 }
@@ -135,43 +124,39 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
         }
 
         BOOST_CHECK( allEqual );
-
     }
-
 
     // Test 1
     {
         // Set expected matrix.
-        std::map< std::string, std::vector< std::string > > expectedMap = {
-            { "x", { "one", "two" } },
-            { "y", { "three", "four", "five" } },
-            { "z", { "six" } }
-        };
+        std::map< std::string, std::vector< std::string > > expectedMap = { { "x", { "one", "two" } },
+                                                                            { "y", { "three", "four", "five" } },
+                                                                            { "z", { "six" } } };
 
         // Read input file and store data in matrix.
-        auto inputFileMap = input_output::readStlVectorMapFromFile< std::string, std::string >(
-                paths::getTudatTestDataPath( ) + "/testMap3.txt" );
+        auto inputFileMap =
+                input_output::readStlVectorMapFromFile< std::string, std::string >( paths::getTudatTestDataPath( ) + "/testMap3.txt" );
 
         bool allEqual = true;
         // Check if data input file matrix matches expected matrix.
         try
         {
-            for ( auto ent: inputFileMap )
+            for( auto ent: inputFileMap )
             {
                 auto key = ent.first;
                 auto values = ent.second;
-                for ( unsigned int i = 0; i < values.size(); i++ )
+                for( unsigned int i = 0; i < values.size( ); i++ )
                 {
-                    if ( inputFileMap[ key ][ i ] != expectedMap[ key ][ i ] )
+                    if( inputFileMap[ key ][ i ] != expectedMap[ key ][ i ] )
                     {
-                        std::cout << "Element at " << i << " for key " << key << " ("
-                                  << inputFileMap[ key ][ i ] << ") does not match expected value of "
+                        std::cout << "Element at " << i << " for key " << key << " (" << inputFileMap[ key ][ i ]
+                                  << ") does not match expected value of "
                                   << "(" << expectedMap[ key ][ i ] << ")." << std::endl;
                         allEqual = false;
                         break;
                     }
                 }
-                if ( ! allEqual )
+                if( !allEqual )
                 {
                     break;
                 }
@@ -184,13 +169,9 @@ BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
         }
 
         BOOST_CHECK( allEqual );
-
     }
-
-
-
 }
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

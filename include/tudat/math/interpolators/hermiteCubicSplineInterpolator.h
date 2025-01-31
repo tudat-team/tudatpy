@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_HERMITE_CUBIC_SPLINE_INTERPOLATOR_H
 #define TUDAT_HERMITE_CUBIC_SPLINE_INTERPOLATOR_H
 
@@ -26,12 +25,12 @@ namespace interpolators
 {
 
 //! Hermite Cubic Spline Interpolator
-template< typename IndependentVariableType, typename DependentVariableType,
+template< typename IndependentVariableType,
+          typename DependentVariableType,
           typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
 class HermiteCubicSplineInterpolator : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
 public:
-
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::lookUpScheme_;
@@ -51,29 +50,25 @@ public:
      *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
-    HermiteCubicSplineInterpolator(
-            const std::vector< IndependentVariableType >& independentValues,
-            const std::vector< DependentVariableType >& dependentValues,
-            const std::vector< DependentVariableType >& derivativeValues,
-            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-            const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue )
+    HermiteCubicSplineInterpolator( const std::vector< IndependentVariableType >& independentValues,
+                                    const std::vector< DependentVariableType >& dependentValues,
+                                    const std::vector< DependentVariableType >& derivativeValues,
+                                    const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                                    const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+                                    const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
+                                            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         // Check consistency of input data.
         if( dependentValues.size( ) != independentValues.size( ) )
         {
-            throw std::runtime_error(
-                "Error: indep. and dep. variables incompatible in Hermite interpolator." );
+            throw std::runtime_error( "Error: indep. and dep. variables incompatible in Hermite interpolator." );
         }
 
         if( dependentValues.size( ) != derivativeValues.size( ) )
         {
-            throw std::runtime_error(
-                "Error: derivative values incompatible in Hermite interpolator." );
+            throw std::runtime_error( "Error: derivative values incompatible in Hermite interpolator." );
         }
 
         independentValues_ = std::move( independentValues );
@@ -83,7 +78,9 @@ public:
         // Check if data is in ascending order
         if( !std::is_sorted( independentValues_.begin( ), independentValues_.end( ) ) )
         {
-            throw std::runtime_error( "Error when making hermite spline spline interpolator, input vector with independent variables should be in ascending order" );
+            throw std::runtime_error(
+                    "Error when making hermite spline spline interpolator, input vector with independent variables should be in ascending "
+                    "order" );
         }
 
         // compute coefficients
@@ -106,16 +103,14 @@ public:
      *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
-    HermiteCubicSplineInterpolator(
-            const std::map< IndependentVariableType, DependentVariableType >& dataMap,
-            const std::vector< DependentVariableType >& derivativeValues,
-            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-            const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue )
+    HermiteCubicSplineInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
+                                    const std::vector< DependentVariableType >& derivativeValues,
+                                    const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                                    const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+                                    const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
+                                            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         // Check that sizes match
         if( dataMap.size( ) != derivativeValues.size( ) )
@@ -124,8 +119,9 @@ public:
         }
 
         // Fill data vectors with data from map.
-        for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
-             mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
+        for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator mapIterator = dataMap.begin( );
+             mapIterator != dataMap.end( );
+             mapIterator++ )
         {
             independentValues_.push_back( std::move( mapIterator->first ) );
             dependentValues_.push_back( std::move( mapIterator->second ) );
@@ -141,7 +137,7 @@ public:
     }
 
     //! Destructor
-    ~HermiteCubicSplineInterpolator( ){ }
+    ~HermiteCubicSplineInterpolator( ) { }
 
     // Using statement to prevent compiler warning.
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::interpolate;
@@ -175,7 +171,7 @@ public:
 
         // If lowerEntry_ is the last element of independentValues_, execute extrapolation with
         // the last and second to last elements of independentValues_.
-        if ( lowerEntry_ == independentValues_.size( ) - 1 )
+        if( lowerEntry_ == independentValues_.size( ) - 1 )
         {
             lowerEntry_ -= 1;
         }
@@ -183,37 +179,36 @@ public:
         // Compute Hermite spline
         ScalarType factor = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ lowerEntry_ ] ) /
                 static_cast< ScalarType >( independentValues_[ lowerEntry_ + 1 ] - independentValues_[ lowerEntry_ ] );
-        targetValue =
-                coefficients_[ 0 ][ lowerEntry_ ] * factor * factor * factor +
-                coefficients_[ 1 ][ lowerEntry_ ] * factor * factor +
-                coefficients_[ 2 ][ lowerEntry_ ] * factor +
-                coefficients_[ 3 ][ lowerEntry_ ] ;
+        targetValue = coefficients_[ 0 ][ lowerEntry_ ] * factor * factor * factor + coefficients_[ 1 ][ lowerEntry_ ] * factor * factor +
+                coefficients_[ 2 ][ lowerEntry_ ] * factor + coefficients_[ 3 ][ lowerEntry_ ];
 
         return targetValue;
     }
 
-    InterpolatorTypes getInterpolatorType( ){ return hermite_spline_interpolator; }
-
+    InterpolatorTypes getInterpolatorType( )
+    {
+        return hermite_spline_interpolator;
+    }
 
     std::vector< DependentVariableType > getDerivativeValues( )
     {
         return derivativeValues_;
     }
-protected:
 
+protected:
     //! Compute coefficients of the splines
     void computeCoefficients( )
     {
         // Initialize vector
         std::vector< DependentVariableType > zeroVect( independentValues_.size( ) - 1 );
-        for( int i = 0 ; i < 4 ; i++ )
+        for( int i = 0; i < 4; i++ )
         {
             coefficients_.push_back( zeroVect );
         }
 
         // Compute coefficients for polynomials a, b, c and d so that interpolant p is:
         // p(x) = a((x-x0)/(x1-x0))^3 + b((x-x0)/(x1-x0))^2 + c((x-x0)/(x1-x0)) + d.
-        for( unsigned int i = 0 ; i < ( independentValues_.size() - 1 ) ; i++ )
+        for( unsigned int i = 0; i < ( independentValues_.size( ) - 1 ); i++ )
         {
             // Compute coefficient a
             coefficients_[ 0 ][ i ] = 2.0 * dependentValues_[ i ] - 2.0 * dependentValues_[ i + 1 ] +
@@ -233,23 +228,19 @@ protected:
         }
     }
 
-
-
 private:
-
     //! Derivatives of dependent variable to independent variable
-    std::vector< DependentVariableType > derivativeValues_ ;
+    std::vector< DependentVariableType > derivativeValues_;
 
     //! Coefficients of splines
-    std::vector< std::vector< DependentVariableType > > coefficients_ ;
-
+    std::vector< std::vector< DependentVariableType > > coefficients_;
 };
 
 //! Typede for cubic hermite spline with double (in)dependent variables.
 typedef HermiteCubicSplineInterpolator< double, double > HermiteCubicSplineInterpolatorDouble;
 
-} // namespace interpolators
+}  // namespace interpolators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_HERMITE_CUBIC_SPLINE_INTERPOLATOR_H
+#endif  // TUDAT_HERMITE_CUBIC_SPLINE_INTERPOLATOR_H

@@ -28,7 +28,6 @@ namespace basic_astrodynamics
 class CustomTorqueModel : public TorqueModel
 {
 public:
-
     //! Constructor.
     /*!
      *  Constructor.
@@ -36,7 +35,7 @@ public:
      *  \param customUpdateFunction Function to update the value of the custom torque based on the current time (which is the
      *      only input).
      */
-    CustomTorqueModel( const std::function< Eigen::Vector3d( const double ) >& customTorqueFunction ) :
+    CustomTorqueModel( const std::function< Eigen::Vector3d( const double ) >& customTorqueFunction ):
         customTorqueFunction_( customTorqueFunction )
     { }
 
@@ -63,7 +62,7 @@ public:
     void updateMembers( const double currentTime )
     {
         // Update the custom torque model
-        if ( currentTime_ != currentTime )
+        if( currentTime_ != currentTime )
         {
             currentTorque_ = customTorqueFunction_( currentTime );
             currentTime_ = currentTime;
@@ -71,18 +70,15 @@ public:
     }
 
 protected:
-
 private:
-
     //! Function to be used to retrieve the torque.
     const std::function< Eigen::Vector3d( const double ) > customTorqueFunction_;
 
     Eigen::Vector3d currentTorque_;
-
 };
 
-} // namespace basic_astrodynamics
+}  // namespace basic_astrodynamics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CUSTOM_TORQUE_H
+#endif  // TUDAT_CUSTOM_TORQUE_H

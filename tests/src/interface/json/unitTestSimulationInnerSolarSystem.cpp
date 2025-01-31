@@ -21,14 +21,12 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_simulationInnerSolarSystem )
 
 BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
 {
-
     using namespace ephemerides;
     using namespace interpolators;
     using namespace numerical_integrators;
@@ -46,13 +44,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    JsonSimulationManager< > jsonSimulation( INPUT( "barycentric" ) );
+    JsonSimulationManager<> jsonSimulation( INPUT( "barycentric" ) );
     jsonSimulation.updateSettings( );
     jsonSimulation.runPropagation( );
-    std::map< double, Eigen::VectorXd > jsonResults =
-            jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-
-
+    std::map< double, Eigen::VectorXd > jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +58,6 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE ENVIRONMENT AND VEHICLE       ////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -80,8 +74,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     bodyNames[ 5 ] = "Mars";
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames );
     SystemOfBodies bodies = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
@@ -100,8 +93,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
             // Create central gravity acceleration between each 2 bodies.
             if( i != j )
             {
-                currentAccelerations[ bodyNames.at( j ) ].push_back(
-                            std::make_shared< AccelerationSettings >( central_gravity ) );\
+                currentAccelerations[ bodyNames.at( j ) ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
             }
         }
         accelerationMap[ bodyNames.at( i ) ] = currentAccelerations;
@@ -122,10 +114,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     }
 
     // Create acceleration models and propagation settings.
-    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
-
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ///////////////////////////////////////
@@ -136,29 +125,24 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     double finalEphemerisTime = 1.0E7 + 30.0 * physical_constants::JULIAN_DAY;
 
     // Get initial state vector as input to integration.
-    Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
-                bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
-
+    Eigen::VectorXd systemInitialState = getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
 
     // Define numerical integrator settings.
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, initialEphemerisTime, 3600.0 );
-
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 3600.0 );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            //////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodies, integratorSettings, propagatorSettings );
+    const std::shared_ptr< SingleArcDynamicsSimulator<> > dynamicsSimulator =
+            std::make_shared< SingleArcDynamicsSimulator<> >( bodies, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +152,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
 
     std::vector< unsigned int > indices;
     std::vector< unsigned int > sizes;
-    for ( unsigned int i = 0; i < numberOfNumericalBodies; ++i )
+    for( unsigned int i = 0; i < numberOfNumericalBodies; ++i )
     {
         indices.push_back( 3 * i );
         sizes.push_back( 3 );
@@ -176,8 +160,6 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     const double tolerance = 1.0E-12;
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
-
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,13 +177,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
-
 }
-
 
 BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
 {
-
     using namespace ephemerides;
     using namespace interpolators;
     using namespace numerical_integrators;
@@ -219,13 +198,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    JsonSimulationManager< > jsonSimulation( INPUT( "hierarchical" ) );
+    JsonSimulationManager<> jsonSimulation( INPUT( "hierarchical" ) );
     jsonSimulation.updateSettings( );
     jsonSimulation.runPropagation( );
-    std::map< double, Eigen::VectorXd > jsonResults =
-            jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-
-
+    std::map< double, Eigen::VectorXd > jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,7 +212,6 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE ENVIRONMENT AND VEHICLE       ////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -253,8 +228,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     bodyNames[ 5 ] = "Mars";
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames );
     SystemOfBodies bodies = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
@@ -273,8 +247,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
             // Create central gravity acceleration between each 2 bodies.
             if( i != j )
             {
-                currentAccelerations[ bodyNames.at( j ) ].push_back(
-                            std::make_shared< AccelerationSettings >( central_gravity ) );\
+                currentAccelerations[ bodyNames.at( j ) ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
             }
         }
         accelerationMap[ bodyNames.at( i ) ] = currentAccelerations;
@@ -291,11 +264,11 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     // Set central body as Solar System Barycente for each body
     for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
     {
-        if ( bodiesToPropagate.at( i ) == "Sun" )
+        if( bodiesToPropagate.at( i ) == "Sun" )
         {
             centralBodies[ i ] = "SSB";
         }
-        else if ( bodiesToPropagate.at( i ) == "Moon" )
+        else if( bodiesToPropagate.at( i ) == "Moon" )
         {
             centralBodies[ i ] = "Earth";
         }
@@ -306,10 +279,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     }
 
     // Create acceleration models and propagation settings.
-    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
-
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ///////////////////////////////////////
@@ -320,29 +290,24 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     double finalEphemerisTime = 1.0E7 + 30.0 * physical_constants::JULIAN_DAY;
 
     // Get initial state vector as input to integration.
-    Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
-                bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
-
+    Eigen::VectorXd systemInitialState = getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
 
     // Define numerical integrator settings.
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, initialEphemerisTime, 3600.0 );
-
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 3600.0 );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            //////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodies, integratorSettings, propagatorSettings );
+    const std::shared_ptr< SingleArcDynamicsSimulator<> > dynamicsSimulator =
+            std::make_shared< SingleArcDynamicsSimulator<> >( bodies, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -352,7 +317,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
 
     std::vector< unsigned int > indices;
     std::vector< unsigned int > sizes;
-    for ( unsigned int i = 0; i < numberOfNumericalBodies; ++i )
+    for( unsigned int i = 0; i < numberOfNumericalBodies; ++i )
     {
         indices.push_back( 3 * i );
         sizes.push_back( 3 );
@@ -360,8 +325,6 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     const double tolerance = 1.0E-12;
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
-
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -379,12 +342,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
-
 }
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

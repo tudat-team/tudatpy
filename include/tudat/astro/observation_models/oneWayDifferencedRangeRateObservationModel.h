@@ -15,7 +15,6 @@
 
 #include <functional>
 
-
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -28,12 +27,11 @@ namespace tudat
 namespace observation_models
 {
 
-inline double getDifferencedOneWayRangeScalingFactor(
-        const observation_models::LinkEndType referenceLinkEnd,
-        const std::vector< Eigen::Vector6d >& linkEndStates,
-        const std::vector< double >& linkEndTimes,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
-        const bool isFirstPartial )
+inline double getDifferencedOneWayRangeScalingFactor( const observation_models::LinkEndType referenceLinkEnd,
+                                                      const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                      const std::vector< double >& linkEndTimes,
+                                                      const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+                                                      const bool isFirstPartial )
 {
     double currentIntegrationTime;
     try
@@ -43,7 +41,7 @@ inline double getDifferencedOneWayRangeScalingFactor(
     catch( std::runtime_error& caughtException )
     {
         throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
-                        std::string( caughtException.what( ) ) );
+                                  std::string( caughtException.what( ) ) );
     }
 
     return 1.0 / currentIntegrationTime;
@@ -57,13 +55,11 @@ inline double getDifferencedOneWayRangeScalingFactor(
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-class OneWayDifferencedRangeObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
+class OneWayDifferencedRangeObservationModel : public ObservationModel< 1, ObservationScalarType, TimeType >
 {
 public:
-
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
     typedef Eigen::Matrix< ObservationScalarType, 3, 1 > PositionType;
-
 
     //! Constructor.
     /*!
@@ -77,19 +73,15 @@ public:
      */
     OneWayDifferencedRangeObservationModel(
             const LinkEnds& linkEnds,
-            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
-            arcStartLightTimeCalculator,
-            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
-            arcEndLightTimeCalculator,
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcStartLightTimeCalculator,
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcEndLightTimeCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_differenced_range, linkEnds, observationBiasCalculator ),
         arcStartLightTimeCalculator_( arcStartLightTimeCalculator ), arcEndLightTimeCalculator_( arcEndLightTimeCalculator )
-    {
-
-    }
+    { }
 
     //! Destructor
-    ~OneWayDifferencedRangeObservationModel( ){ }
+    ~OneWayDifferencedRangeObservationModel( ) { }
 
     //! Function to compute one-way differenced range observable without any corrections.
     /*!
@@ -116,7 +108,9 @@ public:
         ObservationScalarType lightTimeAtEndInterval;
         if( ancilliarySetings == nullptr )
         {
-            throw std::runtime_error( "Error when simulating one-way averaged Doppler observable; no ancilliary settings found. Ancilliary settings are requiured for integration time" );
+            throw std::runtime_error(
+                    "Error when simulating one-way averaged Doppler observable; no ancilliary settings found. Ancilliary settings are "
+                    "requiured for integration time" );
         }
         TimeType currentIntegrationTime;
         try
@@ -126,46 +120,45 @@ public:
         catch( std::runtime_error& caughtException )
         {
             throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
-                            std::string( caughtException.what( ) ) );
+                                      std::string( caughtException.what( ) ) );
         }
 
         linkEndTimes.resize( 4 );
         linkEndStates.resize( 4 );
 
         StateType transmitterStateAtArcStart, receiverStateAtArcStart, transmitterStateAtArcEnd, receiverStateAtArcEnd;
-        if ( linkEndAssociatedWithTime == receiver )
+        if( linkEndAssociatedWithTime == receiver )
         {
-            //Calculate reception time at ground station at the start and end of the count interval at reception time.
+            // Calculate reception time at ground station at the start and end of the count interval at reception time.
             linkEndTimes[ 1 ] = static_cast< double >( time ) - currentIntegrationTime / 2.0;
             linkEndTimes[ 3 ] = static_cast< double >( time ) + currentIntegrationTime / 2.0;
 
             // Calculate light times at the start of the reception interval
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                         receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 1 ] , 1, ancilliarySetings );
+                    receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 1 ], 1, ancilliarySetings );
 
             // Calculate light times at the end of the reception interval
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 3 ] , 1, ancilliarySetings );
+                    receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 3 ], 1, ancilliarySetings );
 
             linkEndTimes[ 0 ] = linkEndTimes[ 1 ] - static_cast< double >( lightTimeAtStartInterval );
             linkEndTimes[ 2 ] = linkEndTimes[ 3 ] - static_cast< double >( lightTimeAtEndInterval );
-
         }
-        else if ( linkEndAssociatedWithTime == transmitter )
+        else if( linkEndAssociatedWithTime == transmitter )
         {
-            //Calculate reception time at ground station at the start and end of the count interval at reception time.
+            // Calculate reception time at ground station at the start and end of the count interval at reception time.
             linkEndTimes[ 0 ] = static_cast< double >( time ) - currentIntegrationTime / 2.0;
             linkEndTimes[ 2 ] = static_cast< double >( time ) + currentIntegrationTime / 2.0;
 
             // Calculate light times at the start of the reception interval
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 2 ], 0, ancilliarySetings );
+                    receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 2 ], 0, ancilliarySetings );
 
             linkEndTimes[ 3 ] = linkEndTimes[ 2 ] + static_cast< double >( lightTimeAtEndInterval );
 
             // Calculate light times at the end of the reception interval
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 0 ], 0, ancilliarySetings );
+                    receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 0 ], 0, ancilliarySetings );
 
             linkEndTimes[ 1 ] = linkEndTimes[ 0 ] + static_cast< double >( lightTimeAtStartInterval );
         }
@@ -180,8 +173,9 @@ public:
         linkEndStates[ 3 ] = receiverStateAtArcEnd.template cast< double >( );
 
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << ( lightTimeAtEndInterval - lightTimeAtStartInterval ) *
-                 physical_constants::getSpeedOfLight< ObservationScalarType >( ) /
-                 static_cast< ObservationScalarType >( currentIntegrationTime ) ).finished( );
+                         physical_constants::getSpeedOfLight< ObservationScalarType >( ) /
+                         static_cast< ObservationScalarType >( currentIntegrationTime ) )
+                .finished( );
     }
 
     //! Light time calculator to compute light time at the beginning of the integration time
@@ -197,18 +191,15 @@ public:
     }
 
 private:
-
     //! Light time calculator to compute light time at the beginning of the integration time
-    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
-    arcStartLightTimeCalculator_;
+    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcStartLightTimeCalculator_;
 
     //! Light time calculator to compute light time at the end of the integration time
-    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
-    arcEndLightTimeCalculator_;
+    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > arcEndLightTimeCalculator_;
 };
 
-}
+}  // namespace observation_models
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_ONEWAYDIFFERENCEDRANGERATEOBSERVATIONMODEL_H
+#endif  // TUDAT_ONEWAYDIFFERENCEDRANGERATEOBSERVATIONMODEL_H

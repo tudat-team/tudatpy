@@ -36,7 +36,6 @@ namespace mission_segments
 class LambertTargeter
 {
 public:
-
     // Ensure that correctly aligned pointers are generated (Eigen, 2013).
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -52,21 +51,17 @@ public:
     LambertTargeter( const Eigen::Vector3d& aCartesianPositionAtDeparture,
                      const Eigen::Vector3d& aCartesianPositionAtArrival,
                      const double aTimeOfFlight,
-                     const double aGravitationalParameter )
-        : cartesianPositionAtDeparture( aCartesianPositionAtDeparture ),
-          cartesianPositionAtArrival( aCartesianPositionAtArrival ),
-          timeOfFlight( aTimeOfFlight ),
-          gravitationalParameter( aGravitationalParameter ),
-          cartesianVelocityAtDeparture( Eigen::Vector3d::Zero( ) ),
-          cartesianVelocityAtArrival( Eigen::Vector3d::Zero( ) ),
-          solved( false )
+                     const double aGravitationalParameter ):
+        cartesianPositionAtDeparture( aCartesianPositionAtDeparture ), cartesianPositionAtArrival( aCartesianPositionAtArrival ),
+        timeOfFlight( aTimeOfFlight ), gravitationalParameter( aGravitationalParameter ),
+        cartesianVelocityAtDeparture( Eigen::Vector3d::Zero( ) ), cartesianVelocityAtArrival( Eigen::Vector3d::Zero( ) ), solved( false )
     { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~LambertTargeter( ){ }
+    virtual ~LambertTargeter( ) { }
 
     //! Get inertial velocity at departure.
     /*!
@@ -76,7 +71,7 @@ public:
     Eigen::Vector3d getInertialVelocityAtDeparture( )
     {
         // If no solution has yet been computed, solve.
-        if ( !solved ) execute( );
+        if( !solved ) execute( );
 
         // Return computed Cartesian velocity at departure.
         return cartesianVelocityAtDeparture;
@@ -90,7 +85,7 @@ public:
     Eigen::Vector3d getInertialVelocityAtArrival( )
     {
         // If no solution has yet been computed, solve.
-        if ( !solved ) execute( );
+        if( !solved ) execute( );
 
         // Return computed Cartesian velocity at arrival.
         return cartesianVelocityAtArrival;
@@ -105,14 +100,13 @@ public:
     std::pair< Eigen::Vector3d, Eigen::Vector3d > getInertialVelocityVectors( )
     {
         // If no solution has yet been computed, solve.
-        if ( !solved ) execute( );
+        if( !solved ) execute( );
 
         // Return computed Cartesian velocities at departure and arrival.
-        return std::pair< Eigen::Vector3d, Eigen::Vector3d >(
-                    cartesianVelocityAtDeparture, cartesianVelocityAtArrival );
+        return std::pair< Eigen::Vector3d, Eigen::Vector3d >( cartesianVelocityAtDeparture, cartesianVelocityAtArrival );
     }
 
-    Eigen::Vector6d getDepartureState( )  const
+    Eigen::Vector6d getDepartureState( ) const
     {
         return ( Eigen::Vector6d( ) << cartesianPositionAtDeparture, cartesianVelocityAtDeparture ).finished( );
     }
@@ -123,7 +117,6 @@ public:
     }
 
 protected:
-
     //! Execute Lambert targeting algorithm.
     /*!
      * Executes the Lambert targeting algorithm. Since the parameters of the Lambert routine are
@@ -180,21 +173,16 @@ protected:
 private:
 };
 
-Eigen::Vector6d getLambertTargeterInitialKeplerianState(
-        const LambertTargeter& lambertTargeter );
+Eigen::Vector6d getLambertTargeterInitialKeplerianState( const LambertTargeter& lambertTargeter );
 
-Eigen::Vector6d getLambertTargeterKeplerianStateDuringTransfer(
-        const LambertTargeter& lambertTargeter,
-        const double timeAfterDeparture );
+Eigen::Vector6d getLambertTargeterKeplerianStateDuringTransfer( const LambertTargeter& lambertTargeter, const double timeAfterDeparture );
 
-Eigen::Vector6d getLambertTargeterCartesianStateDuringTransfer(
-        const LambertTargeter& lambertTargeter,
-        const double timeAfterDeparture );
+Eigen::Vector6d getLambertTargeterCartesianStateDuringTransfer( const LambertTargeter& lambertTargeter, const double timeAfterDeparture );
 
 //! Typedef for shared-pointer to LambertTargeter.
 typedef std::shared_ptr< LambertTargeter > LambertTargeterPointer;
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat
 
-#endif // TUDAT_LAMBERT_TARGETER_H
+#endif  // TUDAT_LAMBERT_TARGETER_H

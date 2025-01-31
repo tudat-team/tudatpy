@@ -40,28 +40,28 @@ namespace numerical_integrators
  *          multiplication with IndependentVariableType and doubles.
  * \tparam IndependentVariableType The type of the independent variable.
  */
-template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-          typename StateDerivativeType = StateType, typename TimeStepType = IndependentVariableType >
+template< typename IndependentVariableType = double,
+          typename StateType = Eigen::VectorXd,
+          typename StateDerivativeType = StateType,
+          typename TimeStepType = IndependentVariableType >
 class NumericalIntegrator
 {
 public:
-
     //! Typedef to the state derivative function.
     /*!
      * Typedef to the state derivative function. This should be a pointer to a function or a boost
      * function.
      */
-    typedef std::function< StateDerivativeType(
-            const IndependentVariableType, const StateType& ) > StateDerivativeFunction;
+    typedef std::function< StateDerivativeType( const IndependentVariableType, const StateType& ) > StateDerivativeFunction;
 
     //! Default constructor.
     /*!
      * Default constructor, taking a state derivative function as argument.
      * \param stateDerivativeFunction State derivative function.
      */
-    NumericalIntegrator( const StateDerivativeFunction& stateDerivativeFunction ) :
+    NumericalIntegrator( const StateDerivativeFunction& stateDerivativeFunction ):
         stateDerivativeFunction_( stateDerivativeFunction ),
-        propagationTerminationFunction_( [ = ]( const double, const double, const Eigen::MatrixXd& ){ return false; } )
+        propagationTerminationFunction_( [ = ]( const double, const double, const Eigen::MatrixXd& ) { return false; } )
     { }
 
     //! Default virtual destructor.
@@ -141,10 +141,9 @@ public:
      * \param finalTimeTolerance Tolerance to within which the final time should be reached.
      * \return The state at independentVariableEnd.
      */
-    virtual StateType integrateTo(
-            const IndependentVariableType intervalEnd,
-            const TimeStepType initialStepSize,
-            const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( ) );
+    virtual StateType integrateTo( const IndependentVariableType intervalEnd,
+                                   const TimeStepType initialStepSize,
+                                   const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( ) );
 
     //! Perform a single integration step.
     /*!
@@ -185,7 +184,8 @@ public:
      *  \param terminationFunction Function that returns true if termination condition is reached, false if it has not,
      *  as a function of current time.
      */
-    void setPropagationTerminationFunction( std::function< bool( const double, const double, const Eigen::MatrixXd& ) > terminationFunction )
+    void setPropagationTerminationFunction(
+            std::function< bool( const double, const double, const Eigen::MatrixXd& ) > terminationFunction )
     {
         propagationTerminationFunction_ = terminationFunction;
     }
@@ -212,8 +212,7 @@ public:
         TUDAT_UNUSED_PARAMETER( newState );
         TUDAT_UNUSED_PARAMETER( allowRollback );
 
-        throw std::runtime_error(
-                    "Error in numerical integrator. The function to modify the current state has not been implemented" );
+        throw std::runtime_error( "Error in numerical integrator. The function to modify the current state has not been implemented" );
     }
 
     //! Modify the state and time for the current step.
@@ -223,18 +222,19 @@ public:
      * \param newTime The time to set the current time to.
      * \param allowRollback Boolean denoting whether roll-back should be allowed.
      */
-    virtual void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime,
+    virtual void modifyCurrentIntegrationVariables( const StateType& newState,
+                                                    const IndependentVariableType newTime,
                                                     const bool allowRollback = false )
     {
         TUDAT_UNUSED_PARAMETER( newState );
         TUDAT_UNUSED_PARAMETER( newTime );
         TUDAT_UNUSED_PARAMETER( allowRollback );
-        throw std::runtime_error( "Error in numerical integrator. The function to modify the current integration variables has not "
-                                  "been implemented in this integrator." );
+        throw std::runtime_error(
+                "Error in numerical integrator. The function to modify the current integration variables has not "
+                "been implemented in this integrator." );
     }
 
 protected:
-
     //! Function that returns the state derivative.
     /*!
      * Function that returns the state derivative, as passed to the constructor.
@@ -259,10 +259,9 @@ protected:
     std::function< bool( const double, const double, const Eigen::MatrixXd& ) > propagationTerminationFunction_;
 };
 
-
-//extern template class NumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-//extern template class NumericalIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
-//extern template class NumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+// extern template class NumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+// extern template class NumericalIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+// extern template class NumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 //! Perform an integration to a specified independent variable value.
 template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
@@ -275,18 +274,17 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
 
     // Flag to indicate that the integration end value of the independent variable has been
     // reached.
-    bool atIntegrationIntervalEnd = static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) )
-            * stepSize / std::fabs( stepSize )
-            <= finalTimeTolerance;
+    bool atIntegrationIntervalEnd =
+            static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) * stepSize / std::fabs( stepSize ) <=
+            finalTimeTolerance;
 
     int loopCounter = 0;
-    while ( !atIntegrationIntervalEnd )
+    while( !atIntegrationIntervalEnd )
     {
-//        std::cout<<"Steps "<<stepSize<<" "<<
+        //        std::cout<<"Steps "<<stepSize<<" "<<
         // Check if the remaining interval is smaller than the step size.
-        if ( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) )
-             <= std::fabs( stepSize ) *
-             ( 1.0 + finalTimeTolerance ) )
+        if( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) ) <=
+            std::fabs( stepSize ) * ( 1.0 + finalTimeTolerance ) )
         {
             // The next step is beyond the end of the integration interval, so adjust the
             // step size accordingly.
@@ -305,12 +303,11 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
         // Only applicable to adaptive step size methods:
         // Perform additional step(s) to reach intervalEnd exactly, in case the last step was rejected by
         // the variable step size routine and a new step was used that was too small to get to intervalEnd.
-        if ( atIntegrationIntervalEnd )
+        if( atIntegrationIntervalEnd )
         {
             // As long as intervalEnd is not reached, perform additional steps with the remaining time
             // as suggested step size for the variable step size routine.
-            if( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) ) >
-                    finalTimeTolerance )
+            if( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) ) > finalTimeTolerance )
             {
                 // Ensure that integrateTo function does not get stuck in a loop.
                 if( loopCounter < 1000 )
@@ -320,9 +317,10 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
                 }
                 else
                 {
-                    std::cerr << "Warning, integrateTo function has failed to converge to final time to within tolerances, difference between true and requested final time is " <<
-                                 intervalEnd - getCurrentIndependentVariable( ) << ", final time is: " <<
-                                 getCurrentIndependentVariable( ) << std::endl;
+                    std::cerr << "Warning, integrateTo function has failed to converge to final time to within tolerances, difference "
+                                 "between true and requested final time is "
+                              << intervalEnd - getCurrentIndependentVariable( ) << ", final time is: " << getCurrentIndependentVariable( )
+                              << std::endl;
                 }
             }
         }
@@ -336,7 +334,7 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
  * Typedef for shared-pointer to a default numerical integrator (IndependentVariableType = double,
  * StateType = Eigen::VectorXd, StateDerivativeType = Eigen::VectorXd).
  */
-typedef std::shared_ptr< NumericalIntegrator< > > NumericalIntegratorXdPointer;
+typedef std::shared_ptr< NumericalIntegrator<> > NumericalIntegratorXdPointer;
 
 //! Typedef for a shared-pointer to a scalar numerical integrator.
 /*!
@@ -345,8 +343,8 @@ typedef std::shared_ptr< NumericalIntegrator< > > NumericalIntegratorXdPointer;
  */
 typedef std::shared_ptr< NumericalIntegrator< double, double, double > > NumericalIntegratordPointer;
 
-} // namespace numerical_integrators
+}  // namespace numerical_integrators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_NUMERICAL_INTEGRATOR_H
+#endif  // TUDAT_NUMERICAL_INTEGRATOR_H

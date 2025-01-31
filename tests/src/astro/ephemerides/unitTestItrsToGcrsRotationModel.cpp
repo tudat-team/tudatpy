@@ -13,7 +13,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
@@ -34,15 +33,13 @@ BOOST_AUTO_TEST_SUITE( test_itrs_to_gcrs_rotation )
 //! Test ITRS <-> GCRS rotation by compariong against Spice
 BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
 {
-
     spice_interface::loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/naif0012.tls" );
     spice_interface::loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/earth_latest_high_prec.bpc" );
     spice_interface::loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/earth_fixed.tf" );
 
     // Create rotation model
     std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
-            std::make_shared< GcrsToItrsRotationModel >(
-                earth_orientation::createStandardEarthOrientationCalculator( ) );
+            std::make_shared< GcrsToItrsRotationModel >( earth_orientation::createStandardEarthOrientationCalculator( ) );
 
     // Compare spice vs. Tudat for list of evaluation times
     std::vector< double > testTimes;
@@ -53,10 +50,10 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
     {
         Eigen::Matrix3d sofaRotation = earthRotationModel->getRotationToBaseFrame( testTimes.at( test ) ).toRotationMatrix( );
         Eigen::Matrix3d sofaRotationDerivative = earthRotationModel->getDerivativeOfRotationToBaseFrame( testTimes.at( test ) );
-        Eigen::Matrix3d spiceRotation = spice_interface::computeRotationQuaternionBetweenFrames(
-                    "ITRF93", "J2000", testTimes.at( test ) ).toRotationMatrix( );
-        Eigen::Matrix3d spiceRotationDerivative = spice_interface::computeRotationMatrixDerivativeBetweenFrames(
-                    "ITRF93", "J2000", testTimes.at( test ) );
+        Eigen::Matrix3d spiceRotation =
+                spice_interface::computeRotationQuaternionBetweenFrames( "ITRF93", "J2000", testTimes.at( test ) ).toRotationMatrix( );
+        Eigen::Matrix3d spiceRotationDerivative =
+                spice_interface::computeRotationMatrixDerivativeBetweenFrames( "ITRF93", "J2000", testTimes.at( test ) );
 
         // Check whether Spice and Tudat give same result. Note that Spice model is not accurate up to IERS standards. Comparison
         // is done at 10 cm position difference on Earth surface (per component).
@@ -68,7 +65,6 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
             {
                 BOOST_CHECK_SMALL( sofaRotation( i, j ) - spiceRotation( i, j ), tolerance );
                 BOOST_CHECK_SMALL( sofaRotationDerivative( i, j ) - spiceRotationDerivative( i, j ), 1.0E-11 );
-
             }
         }
     }
@@ -77,7 +73,6 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
 //! Test ITRS <-> GCRS rotation by compariong against Sofa
 BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
 {
-
     // Get UTC time for evaluation
     int year = 2007;
     int month = 4;
@@ -85,15 +80,12 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
     int hour = 12;
     int minutes = 0;
     double seconds = 0.0;
-    double sofaCookbookTime = convertCalendarDateToJulianDaysSinceEpoch(
-                year, month, day, hour, minutes, seconds, JULIAN_DAY_ON_J2000 ) *
+    double sofaCookbookTime = convertCalendarDateToJulianDaysSinceEpoch( year, month, day, hour, minutes, seconds, JULIAN_DAY_ON_J2000 ) *
             physical_constants::JULIAN_DAY;
 
     // Create Earth rotation model
     std::shared_ptr< GcrsToItrsRotationModel > earthRotationModelFromUtc =
-            std::make_shared< GcrsToItrsRotationModel >(
-                earth_orientation::createStandardEarthOrientationCalculator( ),
-                utc_scale );
+            std::make_shared< GcrsToItrsRotationModel >( earth_orientation::createStandardEarthOrientationCalculator( ), utc_scale );
 
     // Test Tudat vs. Sofa implementations, with default Sofa EOP corrections (as defined in cookbook
     {
@@ -114,27 +106,40 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
     {
         // Set current time in UTC and TT
         double interpolationUtc = sofaCookbookTime;
-        double interpolationTt = earthRotationModelFromUtc->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( )->
-                getCurrentTime( utc_scale, tt_scale, interpolationUtc );
+        double interpolationTt = earthRotationModelFromUtc->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( )->getCurrentTime(
+                utc_scale, tt_scale, interpolationUtc );
 
         // Get EOP corrections
-        double Xcorrection = earthRotationModelFromUtc->getAnglesCalculator( )->getPrecessionNutationCalculator( )->
-                getDailyCorrectionInterpolator( )->interpolate( interpolationUtc ).x( );
-        double Ycorrection = earthRotationModelFromUtc->getAnglesCalculator( )->getPrecessionNutationCalculator( )->
-                getDailyCorrectionInterpolator( )->interpolate( interpolationUtc ).y( );
-        double xPolarMotion = earthRotationModelFromUtc->getAnglesCalculator( )->getPolarMotionCalculator( )->
-                getPositionOfCipInItrs( interpolationTt, interpolationUtc ).x( );
-        double yPolarMotion = earthRotationModelFromUtc->getAnglesCalculator( )->getPolarMotionCalculator( )->
-                getPositionOfCipInItrs( interpolationTt, interpolationUtc ).y( );
-        double ut1Correction = earthRotationModelFromUtc->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( )->
-                getUt1Correction( utc_scale, Time( sofaCookbookTime ) );
+        double Xcorrection = earthRotationModelFromUtc->getAnglesCalculator( )
+                                     ->getPrecessionNutationCalculator( )
+                                     ->getDailyCorrectionInterpolator( )
+                                     ->interpolate( interpolationUtc )
+                                     .x( );
+        double Ycorrection = earthRotationModelFromUtc->getAnglesCalculator( )
+                                     ->getPrecessionNutationCalculator( )
+                                     ->getDailyCorrectionInterpolator( )
+                                     ->interpolate( interpolationUtc )
+                                     .y( );
+        double xPolarMotion = earthRotationModelFromUtc->getAnglesCalculator( )
+                                      ->getPolarMotionCalculator( )
+                                      ->getPositionOfCipInItrs( interpolationTt, interpolationUtc )
+                                      .x( );
+        double yPolarMotion = earthRotationModelFromUtc->getAnglesCalculator( )
+                                      ->getPolarMotionCalculator( )
+                                      ->getPositionOfCipInItrs( interpolationTt, interpolationUtc )
+                                      .y( );
+        double ut1Correction = earthRotationModelFromUtc->getAnglesCalculator( )->getTerrestrialTimeScaleConverter( )->getUt1Correction(
+                utc_scale, Time( sofaCookbookTime ) );
 
         // Compute Sofa rotation matrix
-        Eigen::Matrix3d  sofaCookbookResult = getSofaEarthOrientationExamples(
-                    3, unit_conversions::convertRadiansToArcSeconds( Xcorrection ) * 1000.0,
-                    unit_conversions::convertRadiansToArcSeconds( Ycorrection ) * 1000.0,
-                    unit_conversions::convertRadiansToArcSeconds( xPolarMotion ),
-                    unit_conversions::convertRadiansToArcSeconds( yPolarMotion ), ut1Correction ).transpose( );
+        Eigen::Matrix3d sofaCookbookResult =
+                getSofaEarthOrientationExamples( 3,
+                                                 unit_conversions::convertRadiansToArcSeconds( Xcorrection ) * 1000.0,
+                                                 unit_conversions::convertRadiansToArcSeconds( Ycorrection ) * 1000.0,
+                                                 unit_conversions::convertRadiansToArcSeconds( xPolarMotion ),
+                                                 unit_conversions::convertRadiansToArcSeconds( yPolarMotion ),
+                                                 ut1Correction )
+                        .transpose( );
 
         // Compute Tudat rotation matrix
         Eigen::Matrix3d tudatResult = earthRotationModelFromUtc->getRotationToBaseFrame( sofaCookbookTime ).toRotationMatrix( );
@@ -156,11 +161,11 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
         }
 
         // Compute Tudat rotation matrix with high-precision time input
-        long double sofaCookbookExtendedTime = convertCalendarDateToJulianDaysSinceEpoch< long double >(
-                    year, month, day, hour, minutes, seconds, JULIAN_DAY_ON_J2000 ) *
+        long double sofaCookbookExtendedTime =
+                convertCalendarDateToJulianDaysSinceEpoch< long double >( year, month, day, hour, minutes, seconds, JULIAN_DAY_ON_J2000 ) *
                 physical_constants::JULIAN_DAY_LONG;
-        Eigen::Matrix3d tudatResultPrecise = earthRotationModelFromUtc->getRotationToBaseFrameFromExtendedTime(
-                    Time( sofaCookbookExtendedTime ) ).toRotationMatrix( );
+        Eigen::Matrix3d tudatResultPrecise =
+                earthRotationModelFromUtc->getRotationToBaseFrameFromExtendedTime( Time( sofaCookbookExtendedTime ) ).toRotationMatrix( );
 
         // Check sofa against Tudat result
         for( unsigned int i = 0; i < 3; i++ )
@@ -175,6 +180,6 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

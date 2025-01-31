@@ -11,7 +11,6 @@
 #ifndef TUDAT_CREATEMASSRATEMODELS_H
 #define TUDAT_CREATEMASSRATEMODELS_H
 
-
 #include <vector>
 #include <string>
 
@@ -36,53 +35,44 @@ namespace simulation_setup
 class MassRateModelSettings
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param massRateType Type of mass rate model that is to be used.
      */
-    MassRateModelSettings(
-            const basic_astrodynamics::AvailableMassRateModels massRateType ):
-        massRateType_( massRateType ){ }
+    MassRateModelSettings( const basic_astrodynamics::AvailableMassRateModels massRateType ): massRateType_( massRateType ) { }
 
     //! Destructor.
-    virtual ~MassRateModelSettings( ){ }
+    virtual ~MassRateModelSettings( ) { }
 
     //! Type of mass rate model that is to be used.
     basic_astrodynamics::AvailableMassRateModels massRateType_;
-
 };
 
 //! Class defining the settings for a custom (i.e. predefined function of time) mass rate model.
-class CustomMassRateSettings: public MassRateModelSettings
+class CustomMassRateSettings : public MassRateModelSettings
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param massRateFunction Function returning the mass rate as a function of time.
      */
-    CustomMassRateSettings(
-            const std::function< double( const double ) > massRateFunction ):
-        MassRateModelSettings( basic_astrodynamics::custom_mass_rate_model ),
-    massRateFunction_( massRateFunction ){ }
+    CustomMassRateSettings( const std::function< double( const double ) > massRateFunction ):
+        MassRateModelSettings( basic_astrodynamics::custom_mass_rate_model ), massRateFunction_( massRateFunction )
+    { }
 
     //! Destructor.
-    ~CustomMassRateSettings( ){ }
+    ~CustomMassRateSettings( ) { }
 
     //! Function returning the mass rate as a function of time.
     std::function< double( const double ) > massRateFunction_;
-
 };
 
-
 //! Class defining the settings of a thrust model where the thrust is directly retrieved from (a) model(s) of an engine.
-class FromThrustMassRateSettings: public MassRateModelSettings
+class FromThrustMassRateSettings : public MassRateModelSettings
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -91,42 +81,37 @@ public:
      * \param associatedThrustSource Name of engine model from which thrust is to be derived (must be empty if
      * useAllThrustModels is set to true)
      */
-    FromThrustMassRateSettings(
-            const bool useAllThrustModels = 1,
-            const std::string& associatedThrustSource = "" ):
-        MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ),
-        associatedThrustSource_( { associatedThrustSource } ), useAllThrustModels_( useAllThrustModels ){ }
+    FromThrustMassRateSettings( const bool useAllThrustModels = 1, const std::string& associatedThrustSource = "" ):
+        MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ), associatedThrustSource_( { associatedThrustSource } ),
+        useAllThrustModels_( useAllThrustModels )
+    { }
 
-    FromThrustMassRateSettings(
-            const std::vector< std::string > associatedThrustSources ):
-        MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ),
-    associatedThrustSource_( associatedThrustSources ), useAllThrustModels_( false ){ }
+    FromThrustMassRateSettings( const std::vector< std::string > associatedThrustSources ):
+        MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ), associatedThrustSource_( associatedThrustSources ),
+        useAllThrustModels_( false )
+    { }
 
     //! Destructor
-    ~FromThrustMassRateSettings( ){ }
+    ~FromThrustMassRateSettings( ) { }
 
     //! Name of engine model from which thrust is to be derived
     std::vector< std::string > associatedThrustSource_;
 
     //! Boolean denoting whether all engines of the associated body are to be combined into a single thrust model.
     bool useAllThrustModels_;
-
 };
-
 
 typedef std::map< std::string, std::vector< std::shared_ptr< MassRateModelSettings > > > SelectedMassRateModelMap;
 
-inline std::shared_ptr< MassRateModelSettings > customMassRate(
-        const std::function< double( const double ) > massRateFunction )
+inline std::shared_ptr< MassRateModelSettings > customMassRate( const std::function< double( const double ) > massRateFunction )
 {
-    return std::make_shared< CustomMassRateSettings >(massRateFunction );
+    return std::make_shared< CustomMassRateSettings >( massRateFunction );
 }
 
-inline std::shared_ptr< MassRateModelSettings > fromThrustMassRate(
-        const bool useAllThrustModels = 1,
-        const std::string& associatedThrustSource = "" )
+inline std::shared_ptr< MassRateModelSettings > fromThrustMassRate( const bool useAllThrustModels = 1,
+                                                                    const std::string& associatedThrustSource = "" )
 {
-    return std::make_shared< FromThrustMassRateSettings >(useAllThrustModels, associatedThrustSource );
+    return std::make_shared< FromThrustMassRateSettings >( useAllThrustModels, associatedThrustSource );
 }
 
 //! Function to create a mass rate model
@@ -144,7 +129,6 @@ std::shared_ptr< basic_astrodynamics::MassRateModel > createMassRateModel(
         const SystemOfBodies& bodies,
         const basic_astrodynamics::AccelerationMap& accelerationModels = basic_astrodynamics::AccelerationMap( ) );
 
-
 //! Function to create a list of mass rate models for a list of bodies.
 /*!
  * Function to create a list of mass rate models for a list of bodies, from specific settings and the full set of
@@ -159,9 +143,8 @@ basic_astrodynamics::MassRateModelMap createMassRateModelsMap(
         const SelectedMassRateModelMap& massRateModelSettings,
         const basic_astrodynamics::AccelerationMap& accelerationModels = basic_astrodynamics::AccelerationMap( ) );
 
+}  // namespace simulation_setup
 
-} // namespace simulation_setup
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_CREATEMASSRATEMODELS_H
+#endif  // TUDAT_CREATEMASSRATEMODELS_H

@@ -20,17 +20,15 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_gravityFieldVariation )
 
 // Test 1: gravity field variation types
 BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_bodyDeformationTypes )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "bodyDeformationTypes" ),
-                            gravitation::bodyDeformationTypes,
-                            gravitation::unsupportedBodyDeformationTypes );
+    BOOST_CHECK_EQUAL_ENUM(
+            INPUT( "bodyDeformationTypes" ), gravitation::bodyDeformationTypes, gravitation::unsupportedBodyDeformationTypes );
 }
 
 // Test 2: basic solid body gravity field variation
@@ -45,17 +43,14 @@ BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_basicSolidBody )
 
     // Create GravityFieldVariationSettings manually
     const std::vector< std::string > deformingBodies = { "Moon" };
-    const std::vector< std::vector< std::complex< double > > > loveNumbers =
-    {
+    const std::vector< std::vector< std::complex< double > > > loveNumbers = {
         { std::complex< double >( 1.0, 2.0 ), std::complex< double >( 2.0, -1.0 ), std::complex< double >( 0.3, -5.0 ) },
         { std::complex< double >( 0.0, 0.5 ), std::complex< double >( 0.0, 2.0 ), std::complex< double >( 4.0, -2.0 ) },
         { std::complex< double >( -3.0, 0.0 ), std::complex< double >( -5.0, 1.0 ), std::complex< double >( 6.0, 0.5 ) }
     };
     const double referenceRadius = 6.4e6;
     const std::shared_ptr< GravityFieldVariationSettings > manualSettings =
-            std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies,
-                                                                               loveNumbers,
-                                                                               referenceRadius );
+            std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers, referenceRadius );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -73,13 +68,11 @@ BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_tabulated )
             parseJSONFile< std::shared_ptr< GravityFieldVariationSettings > >( INPUT( "tabulated" ) );
 
     // Create GravityFieldVariationSettings manually
-    const std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections =
-    {
+    const std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections = {
         { 0.0, ( Eigen::Matrix2d( ) << 0.0, 1.0, -2.0, 1.0 ).finished( ) },
         { 1.0, ( Eigen::Matrix2d( ) << 3.0, 2.5, -1.0, 0.0 ).finished( ) }
     };
-    const std::map< double, Eigen::MatrixXd > sineCoefficientCorrections =
-    {
+    const std::map< double, Eigen::MatrixXd > sineCoefficientCorrections = {
         { 0.0, ( Eigen::Matrix2d( ) << -1.0, 4.0, 0.0, 1.0 ).finished( ) },
         { 1.0, ( Eigen::Matrix2d( ) << 3.0, 0.5, -1.0, -2.0 ).finished( ) }
     };
@@ -87,21 +80,15 @@ BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_tabulated )
     const int minimumOrder = 2;
     const std::shared_ptr< InterpolatorSettings > interpolatorSettings =
             std::make_shared< InterpolatorSettings >( cubic_spline_interpolator );
-    const std::shared_ptr< GravityFieldVariationSettings > manualSettings =
-            std::make_shared< TabulatedGravityFieldVariationSettings >( cosineCoefficientCorrections,
-                                                                          sineCoefficientCorrections,
-                                                                          minimumDegree,
-                                                                          minimumOrder,
-                                                                          interpolatorSettings );
+    const std::shared_ptr< GravityFieldVariationSettings > manualSettings = std::make_shared< TabulatedGravityFieldVariationSettings >(
+            cosineCoefficientCorrections, sineCoefficientCorrections, minimumDegree, minimumOrder, interpolatorSettings );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 
-
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

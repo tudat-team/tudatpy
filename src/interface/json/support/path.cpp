@@ -22,15 +22,16 @@ namespace json_interface
 //! Return \p path with the recognized paths replaced by placeholders (such as ${TUDAT_ROOT_PATH}).
 std::string pathAddingPlaceholders( std::string path )
 {
-    for ( std::vector< std::pair< std::string, std::string > >::reverse_iterator rit = pathPlaceholders.rbegin( );
-          rit != pathPlaceholders.rend( ); ++rit )
+    for( std::vector< std::pair< std::string, std::string > >::reverse_iterator rit = pathPlaceholders.rbegin( );
+         rit != pathPlaceholders.rend( );
+         ++rit )
     {
         const std::string placeholderId = rit->first;
         const std::string placeholderPath = boost::filesystem::canonical( rit->second ).string( );
         path = boost::regex_replace( path, boost::regex( placeholderPath ), "${" + placeholderId + "}" );
     }
     const std::string relativePath = boost::filesystem::relative( path, boost::filesystem::current_path( ) ).string( );
-    if ( ! relativePath.empty( ) && relativePath.size( ) < path.size( ) )
+    if( !relativePath.empty( ) && relativePath.size( ) < path.size( ) )
     {
         path = relativePath;
     }
@@ -40,8 +41,9 @@ std::string pathAddingPlaceholders( std::string path )
 //! Return \p path with the recognized path placeholders (such as ${TUDAT_ROOT_PATH}) replaced by the actual paths.
 std::string pathRemovingPlaceholders( std::string path )
 {
-    for ( std::vector< std::pair< std::string, std::string > >::reverse_iterator rit = pathPlaceholders.rbegin( );
-          rit != pathPlaceholders.rend( ); ++rit )
+    for( std::vector< std::pair< std::string, std::string > >::reverse_iterator rit = pathPlaceholders.rbegin( );
+         rit != pathPlaceholders.rend( );
+         ++rit )
     {
         const std::string placeholderId = rit->first;
         const std::string placeholderPath = boost::filesystem::canonical( rit->second ).string( );
@@ -50,10 +52,9 @@ std::string pathRemovingPlaceholders( std::string path )
     return path;
 }
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
-
+}  // namespace tudat
 
 namespace boost
 {

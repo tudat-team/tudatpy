@@ -33,4 +33,4 @@
 #include "aerodynamics/trimOrientation.h"
 #include "aerodynamics/windModel.h"
 
-#endif // TUDATPY_AERODYNAMICS__H
+#endif  // TUDATPY_AERODYNAMICS__H

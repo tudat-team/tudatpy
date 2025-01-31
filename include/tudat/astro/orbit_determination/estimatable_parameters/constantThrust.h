@@ -20,22 +20,16 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-
-class ConstantThrustMagnitudeParameter: public EstimatableParameter< double >
+class ConstantThrustMagnitudeParameter : public EstimatableParameter< double >
 {
-
 public:
-
-
-    ConstantThrustMagnitudeParameter(
-            const std::shared_ptr< propulsion::ConstantThrustMagnitudeWrapper > thrustWrapper,
-            const std::string& associatedBody,
-            const std::string& engineId ):
-        EstimatableParameter< double  >( constant_thrust_magnitude_parameter, associatedBody, engineId ),
-        thrustWrapper_( thrustWrapper ) { }
+    ConstantThrustMagnitudeParameter( const std::shared_ptr< propulsion::ConstantThrustMagnitudeWrapper > thrustWrapper,
+                                      const std::string& associatedBody,
+                                      const std::string& engineId ):
+        EstimatableParameter< double >( constant_thrust_magnitude_parameter, associatedBody, engineId ), thrustWrapper_( thrustWrapper )
+    { }
 
     ~ConstantThrustMagnitudeParameter( ) { }
-
 
     double getParameterValue( )
     {
@@ -53,28 +47,21 @@ public:
     }
 
 protected:
-
 private:
-
     const std::shared_ptr< propulsion::ConstantThrustMagnitudeWrapper > thrustWrapper_;
 };
 
 template< typename SpecificImpulseSource >
-class ConstantSpecificImpulseParameter: public EstimatableParameter< double >
+class ConstantSpecificImpulseParameter : public EstimatableParameter< double >
 {
-
 public:
-
-
-    ConstantSpecificImpulseParameter(
-            const std::shared_ptr< SpecificImpulseSource > thrustWrapper,
-            const std::string& associatedBody,
-            const std::string& engineId ):
-        EstimatableParameter< double  >( constant_specific_impulse, associatedBody, engineId ),
-        thrustWrapper_( thrustWrapper ) { }
+    ConstantSpecificImpulseParameter( const std::shared_ptr< SpecificImpulseSource > thrustWrapper,
+                                      const std::string& associatedBody,
+                                      const std::string& engineId ):
+        EstimatableParameter< double >( constant_specific_impulse, associatedBody, engineId ), thrustWrapper_( thrustWrapper )
+    { }
 
     ~ConstantSpecificImpulseParameter( ) { }
-
 
     double getParameterValue( )
     {
@@ -92,14 +79,12 @@ public:
     }
 
 protected:
-
 private:
-
     const std::shared_ptr< SpecificImpulseSource > thrustWrapper_;
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CONSTANTTHRUST_H
+#endif  // TUDAT_CONSTANTTHRUST_H

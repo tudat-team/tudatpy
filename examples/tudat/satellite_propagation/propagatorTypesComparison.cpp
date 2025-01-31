@@ -47,7 +47,7 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Predefine variables
-    bool keplerOrbit = false; // toggle use of accelerations (true == no accelerations)
+    bool keplerOrbit = false;  // toggle use of accelerations (true == no accelerations)
     double simulationDuration = 10.0 * physical_constants::JULIAN_DAY;
     double integrationRelativeTolerance = 1.0e-12;
     double integrationAbsoluteTolerance = 1.0e-12;
@@ -74,7 +74,7 @@ int main( )
     // Create body objects
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 1.0e3, simulationEndEpoch + 1.0e3 );
-    for ( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
+    for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
     {
         bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
         bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
@@ -94,12 +94,12 @@ int main( )
 
     // Set constant aerodynamic drag coefficient
     const double referenceAreaAerodynamic = 37.5;
-    const Eigen::Vector3d aerodynamicCoefficients = 2.2 * Eigen::Vector3d::UnitX( ); // only drag coefficient
+    const Eigen::Vector3d aerodynamicCoefficients = 2.2 * Eigen::Vector3d::UnitX( );  // only drag coefficient
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >( referenceAreaAerodynamic, aerodynamicCoefficients, true, true );
 
     bodies[ "Satellite" ]->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Satellite" ) );
+            createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Satellite" ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = referenceAreaAerodynamic;
@@ -108,11 +108,11 @@ int main( )
     occultingBodies.push_back( "Earth" );
     std::shared_ptr< RadiationPressureInterfaceSettings > SatelliteRadiationPressureSettings =
             std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodies[ "Satellite" ]->setRadiationPressureInterface( "Sun", createRadiationPressureInterface(
-                                                               SatelliteRadiationPressureSettings, "Satellite", bodies ) );
+    bodies[ "Satellite" ]->setRadiationPressureInterface(
+            "Sun", createRadiationPressureInterface( SatelliteRadiationPressureSettings, "Satellite", bodies ) );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
@@ -128,7 +128,7 @@ int main( )
 
     // Switch between Kepler orbit or perturbed environment
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSatellite;
-    if ( keplerOrbit )
+    if( keplerOrbit )
     {
         // Only central gravity
         accelerationsOfSatellite[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
@@ -137,9 +137,9 @@ int main( )
     {
         // Define spherical harmonics, third bodies, solar radiation and aerodynamic forces
         accelerationsOfSatellite[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 4, 4 ) );
-        for ( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
+        for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
         {
-            if ( bodiesToCreate.at( i ) != "Earth" )
+            if( bodiesToCreate.at( i ) != "Earth" )
             {
                 accelerationsOfSatellite[ bodiesToCreate.at( i ) ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
             }
@@ -153,8 +153,7 @@ int main( )
     bodiesToPropagate.push_back( "Satellite" );
     centralBodies.push_back( "Earth" );
 
-    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE INITIAL CONDITIONS              ////////////////////////////////////////////
@@ -171,8 +170,8 @@ int main( )
 
     // Convert to Cartesian elements
     double mainGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    const Eigen::Vector6d satelliteInitialState = convertKeplerianToCartesianElements(
-                satelliteInitialStateInKeplerianElements, mainGravitationalParameter );
+    const Eigen::Vector6d satelliteInitialState =
+            convertKeplerianToCartesianElements( satelliteInitialStateInKeplerianElements, mainGravitationalParameter );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             LOOP OVER PROPAGATORS                  ////////////////////////////////////////////
@@ -185,13 +184,13 @@ int main( )
     // Loop over propagators
     std::vector< string > nameAdditionPropagator = { "_cowell", "_encke", "_kepl", "_equi", "_usm7", "_usm6", "_usmem", "_ref" };
     std::vector< string > nameAdditionIntegrator = { "_var", "_const" };
-    for ( unsigned int propagatorType = 0; propagatorType < 8; propagatorType++ )
+    for( unsigned int propagatorType = 0; propagatorType < 8; propagatorType++ )
     {
         // Progress
         std::cout << std::endl << "Propagator: " << propagatorType + 1 << std::endl;
 
         // Loop over integrators
-        for ( unsigned int integratorType = 0; integratorType < 2; integratorType++ )
+        for( unsigned int integratorType = 0; integratorType < 2; integratorType++ )
         {
             // Progress
             std::cout << "Integrator: " << integratorType + 1 << std::endl;
@@ -199,61 +198,74 @@ int main( )
             ///////////////////////     CREATE SIMULATION SETTINGS          ////////////////////////////////////////////
 
             // Propagator settings
-            std::shared_ptr< TranslationalStatePropagatorSettings< > > propagatorSettings;
-            if ( propagatorType == 7 )
+            std::shared_ptr< TranslationalStatePropagatorSettings<> > propagatorSettings;
+            if( propagatorType == 7 )
             {
                 // Reference trajectory
-                propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-                            centralBodies, accelerationModelMap, bodiesToPropagate, satelliteInitialState,
-                            simulationEndEpoch, cowell );
+                propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings<> >(
+                        centralBodies, accelerationModelMap, bodiesToPropagate, satelliteInitialState, simulationEndEpoch, cowell );
             }
             else
             {
                 // Propagator dependent on loop
-                propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< > >(
-                            centralBodies, accelerationModelMap, bodiesToPropagate, satelliteInitialState,
-                            simulationEndEpoch, static_cast< TranslationalPropagatorType >( propagatorType ) );
+                propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings<> >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToPropagate,
+                        satelliteInitialState,
+                        simulationEndEpoch,
+                        static_cast< TranslationalPropagatorType >( propagatorType ) );
             }
 
             // Integrator settings
-            std::shared_ptr< IntegratorSettings< > > integratorSettings;
-            if ( propagatorType == 7 )
+            std::shared_ptr< IntegratorSettings<> > integratorSettings;
+            if( propagatorType == 7 )
             {
                 // Reference trajectory
-                integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< > >(
-                            simulationStartEpoch, 100.0, rungeKuttaFehlberg78, 1.0e-5, 1.0e5,
-                            integrationReferenceTolerance, integrationReferenceTolerance );
+                integratorSettings =
+                        std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances<> >( simulationStartEpoch,
+                                                                                                  100.0,
+                                                                                                  rungeKuttaFehlberg78,
+                                                                                                  1.0e-5,
+                                                                                                  1.0e5,
+                                                                                                  integrationReferenceTolerance,
+                                                                                                  integrationReferenceTolerance );
             }
             else
             {
                 // Integrator dependent on loop
-                if ( integratorType == 0 )
+                if( integratorType == 0 )
                 {
-                    integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< > >(
-                                simulationStartEpoch, 100.0, rungeKuttaFehlberg56, 1.0e-5, 1.0e5,
-                                integrationRelativeTolerance, integrationAbsoluteTolerance );
+                    integratorSettings =
+                            std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances<> >( simulationStartEpoch,
+                                                                                                      100.0,
+                                                                                                      rungeKuttaFehlberg56,
+                                                                                                      1.0e-5,
+                                                                                                      1.0e5,
+                                                                                                      integrationRelativeTolerance,
+                                                                                                      integrationAbsoluteTolerance );
                 }
-                else if ( integratorType == 1 )
+                else if( integratorType == 1 )
                 {
-                    integratorSettings = std::make_shared< IntegratorSettings< > >(
-                                rungeKutta4, simulationStartEpoch, integrationConstantTimeStepSize );
+                    integratorSettings =
+                            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, integrationConstantTimeStepSize );
                 }
             }
 
             ///////////////////////     PROPAGATE ORBIT                     ////////////////////////////////////////////
 
             // Simulate orbit and output computation time
-            SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings,
-                                                             true, false, false, false );
+            SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false, false );
 
             // Retrieve results
             std::map< double, Eigen::VectorXd > cartesianIntegrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-            if ( propagatorType != 7 )
+            if( propagatorType != 7 )
             {
-                if ( integratorType == 0 )
+                if( integratorType == 0 )
                 {
                     // Store number of function evaluations for variable step-size
-                    numberOfFunctionEvaluations.push_back( dynamicsSimulator.getCumulativeNumberOfFunctionEvaluations( ).rbegin( )->second );
+                    numberOfFunctionEvaluations.push_back(
+                            dynamicsSimulator.getCumulativeNumberOfFunctionEvaluations( ).rbegin( )->second );
                     std::cout << "Total Number of Function Evaluations: " << numberOfFunctionEvaluations.back( ) << std::endl;
                 }
                 else
@@ -265,20 +277,22 @@ int main( )
             }
             else
             {
-                std::cout << "Total Number of Function Evaluations: " <<
-                          dynamicsSimulator.getCumulativeNumberOfFunctionEvaluations( ).rbegin( )->second << std::endl;
-                std::cout << "Total propagation Time: " <<
-                          dynamicsSimulator.getCumulativeComputationTimeHistory( ).rbegin( )->second << std::endl;
+                std::cout << "Total Number of Function Evaluations: "
+                          << dynamicsSimulator.getCumulativeNumberOfFunctionEvaluations( ).rbegin( )->second << std::endl;
+                std::cout << "Total propagation Time: " << dynamicsSimulator.getCumulativeComputationTimeHistory( ).rbegin( )->second
+                          << std::endl;
             }
 
             ///////////////////////     PROVIDE OUTPUT TO FILES             ////////////////////////////////////////////
 
             // Write perturbed satellite propagation history to file
-            writeDataMapToTextFile( cartesianIntegrationResult, "cartesian" + nameAdditionPropagator[ propagatorType ] +
-                                    nameAdditionIntegrator[ integratorType ] + ".dat", getOutputPath( "PropagatorTypesComparison/" ) );
+            writeDataMapToTextFile(
+                    cartesianIntegrationResult,
+                    "cartesian" + nameAdditionPropagator[ propagatorType ] + nameAdditionIntegrator[ integratorType ] + ".dat",
+                    getOutputPath( "PropagatorTypesComparison/" ) );
 
             // Break loop if reference propagator
-            if ( propagatorType == 7 )
+            if( propagatorType == 7 )
             {
                 break;
             }
@@ -287,9 +301,13 @@ int main( )
 
     // Write function evaluations and times to file
     writeMatrixToFile( utilities::convertStlVectorToEigenVector( numberOfFunctionEvaluations ),
-                       "functionEvaluations.dat", 16, getOutputPath( "PropagatorTypesComparison/" ) );
+                       "functionEvaluations.dat",
+                       16,
+                       getOutputPath( "PropagatorTypesComparison/" ) );
     writeMatrixToFile( utilities::convertStlVectorToEigenVector( totalPropagationTime ),
-                       "propagationTime.dat", 16, getOutputPath( "PropagatorTypesComparison/" ) );
+                       "propagationTime.dat",
+                       16,
+                       getOutputPath( "PropagatorTypesComparison/" ) );
 
     // Final statement
     // The exit code EXIT_SUCCESS indicates that the program was successfully executed

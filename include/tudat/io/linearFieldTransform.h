@@ -29,7 +29,6 @@ namespace input_output
 class LinearFieldTransform : public FieldTransform
 {
 public:
-
     //! Constructor of the linear field transform.
     /*!
      * Constructor of the linear field transformation. Linear transformation is of the form:
@@ -37,9 +36,7 @@ public:
      * \param aSlope Slope of the linear field transform.
      * \param anIntercept Intercept of the linear field transform.
      */
-    LinearFieldTransform( const double aSlope, const double anIntercept )
-        : slope( aSlope ), intercept( anIntercept )
-    { }
+    LinearFieldTransform( const double aSlope, const double anIntercept ): slope( aSlope ), intercept( anIntercept ) { }
 
     //! Default destructor.
     ~LinearFieldTransform( ) { }
@@ -54,7 +51,6 @@ public:
     std::shared_ptr< std::string > transform( const std::string& input );
 
 protected:
-
     //! Slope of the transformation.
     const double slope;
 
@@ -67,7 +63,7 @@ private:
 //! Typedef for shared-pointer to LinearFieldTransform object.
 typedef std::shared_ptr< LinearFieldTransform > LinearFieldTransformPointer;
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_LINEAR_FIELD_TRANSFORM_H
+#endif  // TUDAT_LINEAR_FIELD_TRANSFORM_H

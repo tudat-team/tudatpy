@@ -38,7 +38,6 @@ namespace geometric_shapes
 class SphereSegment : public SingleSurfaceGeometry
 {
 public:
-
     //! Default constructor.
     /*!
      *  Default constructor. Default angle values are set to a full sphere.
@@ -50,11 +49,9 @@ public:
      */
     SphereSegment( const double radius,
                    const double minimumAzimuthAngle = 0.0,
-                   const double maximumAzimuthAngle
-                   = 2.0 * mathematical_constants::PI,
+                   const double maximumAzimuthAngle = 2.0 * mathematical_constants::PI,
                    const double minimumZenithAngle = 0.0,
-                   const double maximumZenithAngle
-                   = mathematical_constants::PI );
+                   const double maximumZenithAngle = mathematical_constants::PI );
 
     //! Get surface point on sphere segment.
     /*!
@@ -86,7 +83,8 @@ public:
      *          zenith angle.
      * \return Surface derivative on sphere.
      */
-    Eigen::VectorXd getSurfaceDerivative( const double azimuthAngle, const double zenithAngle,
+    Eigen::VectorXd getSurfaceDerivative( const double azimuthAngle,
+                                          const double zenithAngle,
                                           const int powerOfZenithAngleDerivative,
                                           const int powerOfAzimuthAngleDerivative );
 
@@ -105,35 +103,50 @@ public:
      * Returns the radius of the sphere segment.
      * \return Radius of the sphere segment.
      */
-    double getRadius( ) { return radius_; }
+    double getRadius( )
+    {
+        return radius_;
+    }
 
     //! Get maximum value of azimuth angle.
     /*!
      * Returns the maximum values of the azimuth angle.
      * \return Maximum value of azimuth angle.
      */
-    double getMaximumAzimuthAngle( ) { return maximumIndependentVariable1_; }
+    double getMaximumAzimuthAngle( )
+    {
+        return maximumIndependentVariable1_;
+    }
 
     //! Get minimum value of azimuth angle.
     /*!
      * Returns the minimum value of the azimuth angle.
      * \return Minimum value of azimuth angle.
      */
-    double getMinimumAzimuthAngle( ) { return minimumIndependentVariable1_; }
+    double getMinimumAzimuthAngle( )
+    {
+        return minimumIndependentVariable1_;
+    }
 
     //! Get maximum value of zenith angle.
     /*!
      * Returns the maximum value of the zenith angle.
      * \return Maximum value of zenith angle.
      */
-    double getMaximumZenithAngle( ) {  return maximumIndependentVariable2_; }
+    double getMaximumZenithAngle( )
+    {
+        return maximumIndependentVariable2_;
+    }
 
     //! Get minimum value of the zenith angle.
     /*!
      * Returns the minimum value of the zenith.
      * \return Minimum value of zenith angle.
      */
-    double getMinimumZenithAngle( ) { return minimumIndependentVariable2_; }
+    double getMinimumZenithAngle( )
+    {
+        return minimumIndependentVariable2_;
+    }
 
     //! Overload ostream to print class information.
     /*!
@@ -143,12 +156,10 @@ public:
      * \param sphereSegment Sphere segment.
      * \return Stream object.
      */
-    friend std::ostream& operator << ( std::ostream& stream, SphereSegment& sphereSegment );
+    friend std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment );
 
 protected:
-
 private:
-
     //! Sphere radius.
     /*!
      * Sphere radius.
@@ -159,7 +170,7 @@ private:
 //! Typedef for shared-pointer to SphereSegment object.
 typedef std::shared_ptr< SphereSegment > SphereSegmentPointer;
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat
 
-#endif // TUDAT_SPHERE_SEGMENT_H
+#endif  // TUDAT_SPHERE_SEGMENT_H

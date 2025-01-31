@@ -21,8 +21,7 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_state )
 
@@ -71,7 +70,6 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
 
     const double gravitationalParameter = 4.0E+8;
 
-
     // Semi-latus rectum
 
     const Eigen::Vector6d fromFileState0 = getCartesianState< double >( parseJSONFile( INPUT( "keplerian0" ) ) );
@@ -87,7 +85,6 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
 
     BOOST_CHECK_EQUAL( fromFileState0, manualState0 );
 
-
     // Only radius
 
     const Eigen::Vector6d fromFileState1 = getCartesianState< double >( parseJSONFile( INPUT( "keplerian1" ) ) );
@@ -98,13 +95,11 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
 
     BOOST_CHECK_EQUAL( fromFileState1, manualState1 );
 
-
     // Only altitude
 
     const Eigen::Vector6d fromFileState2 = getCartesianState< double >( parseJSONFile( INPUT( "keplerian2" ) ) );
 
     BOOST_CHECK_EQUAL( fromFileState2, manualState1 );
-
 
     // Only mean motion
 
@@ -112,11 +107,10 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
 
     Eigen::Vector6d manualState3 = Eigen::Vector6d::Zero( );
     double meanMotion = 0.01;
-    manualState3( semiMajorAxisIndex ) = std::pow( gravitationalParameter / std::pow( meanMotion, 2 ), 1.0/3.0 );
+    manualState3( semiMajorAxisIndex ) = std::pow( gravitationalParameter / std::pow( meanMotion, 2 ), 1.0 / 3.0 );
     manualState3 = convertKeplerianToCartesianElements( manualState3, gravitationalParameter );
 
     BOOST_CHECK_EQUAL( fromFileState3, manualState3 );
-
 
     // Only period
 
@@ -124,11 +118,10 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
 
     Eigen::Vector6d manualState4 = Eigen::Vector6d::Zero( );
     meanMotion = 2.0 * mathematical_constants::PI / 0.05;
-    manualState4( semiMajorAxisIndex ) = std::pow( gravitationalParameter / std::pow( meanMotion, 2 ), 1.0/3.0 );
+    manualState4( semiMajorAxisIndex ) = std::pow( gravitationalParameter / std::pow( meanMotion, 2 ), 1.0 / 3.0 );
     manualState4 = convertKeplerianToCartesianElements( manualState4, gravitationalParameter );
 
     BOOST_CHECK_EQUAL( fromFileState4, manualState4 );
-
 
     // Peri/apo distances
 
@@ -144,7 +137,6 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
 
     BOOST_CHECK_EQUAL( fromFileState5, manualState5 );
 
-
     // Peri/apo altitudes
 
     const Eigen::Vector6d fromFileState6 = getCartesianState< double >( parseJSONFile( INPUT( "keplerian6" ) ) );
@@ -158,7 +150,6 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
     manualState6 = convertKeplerianToCartesianElements( manualState6, gravitationalParameter );
 
     BOOST_CHECK_EQUAL( fromFileState6, manualState6 );
-
 
     // Semi-latus rectum
 
@@ -175,7 +166,6 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
 
     BOOST_CHECK_EQUAL( fromFileState7, manualState7 );
 
-
     // Eccentric anomaly
 
     const Eigen::Vector6d fromFileState8 = getCartesianState< double >( parseJSONFile( INPUT( "keplerian8" ) ) );
@@ -190,7 +180,6 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
 
     BOOST_CHECK_EQUAL( fromFileState8, manualState8 );
 
-
     // Mean anomaly
 
     const Eigen::Vector6d fromFileState9 = getCartesianState< double >( parseJSONFile( INPUT( "keplerian9" ) ) );
@@ -199,12 +188,11 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
     Eigen::Vector6d manualState9 = Eigen::Vector6d::Zero( );
     manualState9( semiMajorAxisIndex ) = 3.0;
     manualState9( eccentricityIndex ) = eccentricity;
-    manualState9( trueAnomalyIndex ) = convertEccentricAnomalyToTrueAnomaly(
-                convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly ), eccentricity );
+    manualState9( trueAnomalyIndex ) =
+            convertEccentricAnomalyToTrueAnomaly( convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly ), eccentricity );
     manualState9 = convertKeplerianToCartesianElements( manualState9, gravitationalParameter );
 
     BOOST_CHECK_EQUAL( fromFileState9, manualState9 );
-
 }
 
 // Test 5: Spherical state
@@ -219,11 +207,9 @@ BOOST_AUTO_TEST_CASE( test_json_state_spherical )
     spice_interface::loadStandardSpiceKernels( );
     std::shared_ptr< Body > centralBody = createBodies( getDefaultBodySettings( { "Earth" } ) ).at( "Earth" );
 
-
     // From radius
 
-    const Eigen::Vector6d fromFileState = getCartesianState< double >(
-                parseJSONFile( INPUT( "spherical" ) ), KeyPath( ), centralBody );
+    const Eigen::Vector6d fromFileState = getCartesianState< double >( parseJSONFile( INPUT( "spherical" ) ), KeyPath( ), centralBody );
 
     Eigen::Vector6d manualState;
     manualState( radiusIndex ) = 2.0;
@@ -234,16 +220,14 @@ BOOST_AUTO_TEST_CASE( test_json_state_spherical )
     manualState( headingAngleIndex ) = 0.0;
 
     manualState = tudat::ephemerides::transformStateToGlobalFrame(
-                convertSphericalOrbitalToCartesianState( manualState ),
-                666.0, centralBody->getRotationalEphemeris( ) );
+            convertSphericalOrbitalToCartesianState( manualState ), 666.0, centralBody->getRotationalEphemeris( ) );
 
     BOOST_CHECK_EQUAL( fromFileState, manualState );
 
-
     // From altitude
 
-    const Eigen::Vector6d fromFileStateAltitude = getCartesianState< double >(
-                parseJSONFile( INPUT( "spherical_altitude" ) ), KeyPath( ), centralBody );
+    const Eigen::Vector6d fromFileStateAltitude =
+            getCartesianState< double >( parseJSONFile( INPUT( "spherical_altitude" ) ), KeyPath( ), centralBody );
 
     Eigen::Vector6d manualStateAltitude;
     manualStateAltitude( radiusIndex ) = 2.0;
@@ -254,14 +238,13 @@ BOOST_AUTO_TEST_CASE( test_json_state_spherical )
     manualStateAltitude( headingAngleIndex ) = -0.12;
 
     manualStateAltitude = tudat::ephemerides::transformStateToGlobalFrame(
-                convertSphericalOrbitalToCartesianState( manualStateAltitude ),
-                -8.0E+5, centralBody->getRotationalEphemeris( ) );
+            convertSphericalOrbitalToCartesianState( manualStateAltitude ), -8.0E+5, centralBody->getRotationalEphemeris( ) );
 
     BOOST_CHECK_EQUAL( fromFileStateAltitude, manualStateAltitude );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat
