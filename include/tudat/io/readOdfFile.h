@@ -37,7 +37,7 @@ namespace input_output
 //! ODF file clock offset block
 class OdfClockOffsetBlock
 {
-   public:
+public:
     /*!
      * Constructor. Parses an ODF clock offset block, according to table 3-6 of TRK-2-18 (2018).
      *
@@ -49,23 +49,20 @@ class OdfClockOffsetBlock
     // specified in the header.
     double getStartTime( )
     {
-        return static_cast< double >( integerStartTime_ ) +
-                static_cast< double >( fractionalStartTime_ ) * 1.0E-9;
+        return static_cast< double >( integerStartTime_ ) + static_cast< double >( fractionalStartTime_ ) * 1.0E-9;
     }
 
     // Returns the end time of the clock offset validity in UTC seconds since the reference time
     // specified in the header.
     double getEndTime( )
     {
-        return static_cast< double >( integerEndTime_ ) +
-                static_cast< double >( fractionalEndTime_ ) * 1.0E-9;
+        return static_cast< double >( integerEndTime_ ) + static_cast< double >( fractionalEndTime_ ) * 1.0E-9;
     }
 
     // Returns the clock offset in seconds.
     double getClockOffset( )
     {
-        return static_cast< double >( integerClockOffset_ ) +
-                static_cast< double >( fractionalClockOffset_ ) * 1.0E-9;
+        return static_cast< double >( integerClockOffset_ ) + static_cast< double >( fractionalClockOffset_ ) * 1.0E-9;
     }
 
     // Returns the ID of the primary DSN receiving station.
@@ -80,7 +77,7 @@ class OdfClockOffsetBlock
         return secondaryStationId_;
     }
 
-   private:
+private:
     unsigned int integerStartTime_;     // sec
     unsigned int fractionalStartTime_;  // nsec
 
@@ -99,7 +96,7 @@ class OdfClockOffsetBlock
 //! ODF file ramp block
 class OdfRampBlock
 {
-   public:
+public:
     /*!
      * Constructor. Parses an ODF ramp block, according to table 3-5 of TRK-2-18 (2018).
      *
@@ -110,30 +107,26 @@ class OdfRampBlock
     // Returns the ramp start frequency in Hz.
     double getRampStartFrequency( )
     {
-        return static_cast< double >( integerRampStartFrequency_ ) * 1.0E9 +
-                static_cast< double >( integerRampStartFrequencyModulo_ ) +
+        return static_cast< double >( integerRampStartFrequency_ ) * 1.0E9 + static_cast< double >( integerRampStartFrequencyModulo_ ) +
                 static_cast< double >( fractionalRampStartFrequency_ ) * 1.0E-9;
     }
 
     // Returns the constant ramp rate in Hz/s.
     double getRampRate( )
     {
-        return static_cast< double >( integerRampRate_ ) +
-                static_cast< double >( fractionalRampRate_ ) * 1.0E-9;
+        return static_cast< double >( integerRampRate_ ) + static_cast< double >( fractionalRampRate_ ) * 1.0E-9;
     }
 
     // Returns the ramp start time in UTC seconds since the reference time specified in the header.
     Time getRampStartTime( )
     {
-        return Time( static_cast< double >( integerRampStartTime_ ) ) +
-                Time( static_cast< double >( fractionalRampStartTime_ ) * 1.0E-9 );
+        return Time( static_cast< double >( integerRampStartTime_ ) ) + Time( static_cast< double >( fractionalRampStartTime_ ) * 1.0E-9 );
     }
 
     // Returns the ramp end time in UTC seconds since the reference time specified in the header.
     Time getRampEndTime( )
     {
-        return Time( static_cast< double >( integerRampEndTime_ ) ) +
-                Time( static_cast< double >( fractionalRampEndTime_ ) * 1.0E-9 );
+        return Time( static_cast< double >( integerRampEndTime_ ) ) + Time( static_cast< double >( fractionalRampEndTime_ ) * 1.0E-9 );
     }
 
     // ID of the DSN station to which the ramp block applies, specified according to TRK-2-18
@@ -150,7 +143,7 @@ class OdfRampBlock
      */
     void printDataBlock( std::ofstream &outFile );
 
-   private:
+private:
     unsigned int integerRampStartTime_;     // sec
     unsigned int fractionalRampStartTime_;  // nsec
 
@@ -172,12 +165,12 @@ class OdfRampBlock
 // Base class defining the observable specific portion of an ODF data block.
 class OdfDataSpecificBlock
 {
-   public:
+public:
     /*!
      * Constructor.
      * @param dataType_ Data type, specified according to section 3.2.4 of TRK-2-18 (2018).
      */
-    OdfDataSpecificBlock( int dataType_ ) : dataType_( dataType_ ) { }
+    OdfDataSpecificBlock( int dataType_ ): dataType_( dataType_ ) { }
 
     // Destructor
     virtual ~OdfDataSpecificBlock( ) { }
@@ -201,7 +194,7 @@ class OdfDataSpecificBlock
 // Derived class defining a Delta differential one-way Doppler data block
 class OdfDDodDataBlock : public OdfDataSpecificBlock
 {
-   public:
+public:
     /*!
      * Constructor. Parses a the observable specific portion of a Delta differential one-way Doppler
      * block, according to table 3-4b of TRK-2-18 (2018).
@@ -232,8 +225,7 @@ class OdfDDodDataBlock : public OdfDataSpecificBlock
     // Returns the reference frequency in Hz
     double getReferenceFrequency( )
     {
-        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ +
-                referenceFrequencyLowPart_ / 1.0E3;
+        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
     }
 
     int getComposite1( )
@@ -253,7 +245,7 @@ class OdfDDodDataBlock : public OdfDataSpecificBlock
         return secondReceivingStationDownlinkDelay_ * 1.0e-9;
     }
 
-   private:
+private:
     int secondReceivingStationId_;
     int quasarOrSpacecraftId_;
     int phasePointIndicator_;
@@ -268,7 +260,7 @@ class OdfDDodDataBlock : public OdfDataSpecificBlock
 // Derived class defining a Delta differential one-way ranging data block
 class OdfDDorDataBlock : public OdfDataSpecificBlock
 {
-   public:
+public:
     /*!
      * Constructor. Parses a the observable specific portion of a Delta differential one-way ranging
      * block, according to table 3-4c of TRK-2-18 (2018).
@@ -299,8 +291,7 @@ class OdfDDorDataBlock : public OdfDataSpecificBlock
     // Returns the reference frequency in Hz
     double getReferenceFrequency( )
     {
-        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ +
-                referenceFrequencyLowPart_ / 1.0E3;
+        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
     }
 
     int getComposite1( )
@@ -314,7 +305,7 @@ class OdfDDorDataBlock : public OdfDataSpecificBlock
         return secondReceivingStationDownlinkDelay_ * 1.0e-9;
     }
 
-   private:
+private:
     int secondReceivingStationId_;
     int quasarOrSpacecraftId_;
     int modulusIndicator_;
@@ -328,7 +319,7 @@ class OdfDDorDataBlock : public OdfDataSpecificBlock
 // Derived class defining an n-way (n >= 1) Doppler data block
 class OdfDopplerDataBlock : public OdfDataSpecificBlock
 {
-   public:
+public:
     /*!
      * Constructor. Parses a the observable specific portion of an n-way Doppler block, according to
      * table 3-4d of TRK-2-18 (2018).
@@ -360,8 +351,7 @@ class OdfDopplerDataBlock : public OdfDataSpecificBlock
     // Returns the reference frequency in Hz
     double getReferenceFrequency( )
     {
-        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ +
-                referenceFrequencyLowPart_ / 1.0E3;
+        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
     }
 
     // Returns the count interval in seconds.
@@ -383,7 +373,7 @@ class OdfDopplerDataBlock : public OdfDataSpecificBlock
      */
     void printDataBlock( std::ofstream &outFile );
 
-   private:
+private:
     int receiverChannel_;
     int spacecraftId_;
     int receiverExciterFlag_;
@@ -399,7 +389,7 @@ class OdfDopplerDataBlock : public OdfDataSpecificBlock
 // Derived class defining a sequential range data block
 class OdfSequentialRangeDataBlock : public OdfDataSpecificBlock
 {
-   public:
+public:
     /*!
      * Constructor. Parses a the observable specific portion of an sequential range data block,
      * according to table 3-4e of TRK-2-18 (2018).
@@ -419,8 +409,7 @@ class OdfSequentialRangeDataBlock : public OdfDataSpecificBlock
     // Returns the reference frequency in Hz
     double getReferenceFrequency( )
     {
-        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ +
-                referenceFrequencyLowPart_ / 1.0E3;
+        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
     }
 
     // Returns the uplink delay at transmitting station in seconds.
@@ -449,7 +438,7 @@ class OdfSequentialRangeDataBlock : public OdfDataSpecificBlock
 
     int reservedBlock_;
 
-   private:
+private:
     int spacecraftId_;
 
     int referenceFrequencyHighPart_;  // 2^24 mHz
@@ -466,7 +455,7 @@ class OdfSequentialRangeDataBlock : public OdfDataSpecificBlock
 // Derived class defining a tone range data block
 class OdfToneRangeDataBlock : public OdfDataSpecificBlock
 {
-   public:
+public:
     /*!
      * Constructor. Parses a the observable specific portion of a tone range data block, according
      * to table 3-4f of TRK-2-18 (2018).
@@ -486,8 +475,7 @@ class OdfToneRangeDataBlock : public OdfDataSpecificBlock
     // Returns the reference frequency in Hz
     double getReferenceFrequency( )
     {
-        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ +
-                referenceFrequencyLowPart_ / 1.0E3;
+        return std::pow( 2.0, 24 ) / 1.0E3 * referenceFrequencyHighPart_ + referenceFrequencyLowPart_ / 1.0E3;
     }
 
     // Returns the uplink delay at transmitting station in seconds.
@@ -496,7 +484,7 @@ class OdfToneRangeDataBlock : public OdfDataSpecificBlock
         return transmittingStationUplinkDelay_ * 1.0e-9;
     }
 
-   private:
+private:
     int integerObservableTime_;  // sec
     int spacecraftId_;
     int reservedBlock1_;
@@ -514,7 +502,7 @@ class OdfToneRangeDataBlock : public OdfDataSpecificBlock
 // Derived class defining an angular observable data block
 class OdfAngleDataBlock : public OdfDataSpecificBlock
 {
-   public:
+public:
     /*!
      * Constructor. Parses the observable specific portion of a angular data block, according to
      * table 3-4g of TRK-2-18 (2018).
@@ -532,7 +520,7 @@ class OdfAngleDataBlock : public OdfDataSpecificBlock
         return spacecraftId_;
     }
 
-   private:
+private:
     int reservedBlock1_;
     int spacecraftId_;
     int reservedBlock2_;
@@ -547,7 +535,7 @@ class OdfAngleDataBlock : public OdfDataSpecificBlock
 // (2018).
 class OdfCommonDataBlock
 {
-   public:
+public:
     /*!
      * Constructor. Parses the common portion of an ODF data block, according to table 3-4a of
      * TRK-2-18 (2018).
@@ -559,15 +547,13 @@ class OdfCommonDataBlock
     // Returns the observable time in UTC seconds since the reference time specified in the header.
     Time getObservableTime( )
     {
-        return Time( static_cast< double >( integerTimeTag_ ) ) +
-                Time( static_cast< double >( fractionalTimeTag_ ) / 1000.0 );
+        return Time( static_cast< double >( integerTimeTag_ ) ) + Time( static_cast< double >( fractionalTimeTag_ ) / 1000.0 );
     }
 
     // Returns the observable value in SI units.
     double getObservableValue( )
     {
-        return static_cast< double >( integerObservable_ ) +
-                static_cast< double >( fractionalObservable_ ) / 1.0E9;
+        return static_cast< double >( integerObservable_ ) + static_cast< double >( fractionalObservable_ ) / 1.0E9;
     }
 
     // Returns the downlink delay at the receiving station in seconds.
@@ -593,7 +579,7 @@ class OdfCommonDataBlock
      */
     void printDataBlock( std::ofstream &outFile );
 
-   private:
+private:
     uint32_t integerTimeTag_;            // sec
     int fractionalTimeTag_;              // msec
     int receivingStationDownlinkDelay_;  // nsec
@@ -605,7 +591,7 @@ class OdfCommonDataBlock
 // Class defining a single data block of an ODF file.
 class OdfDataBlock
 {
-   public:
+public:
     /*!
      * Constructor. Parses an ODF data block, dividing the data into a common data block and an
      * observable specific data block. According to section 3.2.4 of TRK-2-18 (2018).
@@ -638,7 +624,7 @@ class OdfDataBlock
         outFile << std::endl;
     }
 
-   private:
+private:
     // Observable specific data block.
     std::shared_ptr< OdfDataSpecificBlock > observableSpecificDataBlock_;
 
@@ -649,7 +635,7 @@ class OdfDataBlock
 // Class containing the raw data from an ODF file, according to TRK-2-18 (2018).
 class OdfRawFileContents
 {
-   public:
+public:
     /*!
      * Constructor. Extracts all the data from an ODF file.
      *
@@ -693,8 +679,7 @@ class OdfRawFileContents
     }
 
     //! Function to retrieve the clock offset blocks
-    std::map< std::pair< int, int >, std::shared_ptr< OdfClockOffsetBlock > >
-    getClockOffsetBlocks( )
+    std::map< std::pair< int, int >, std::shared_ptr< OdfClockOffsetBlock > > getClockOffsetBlocks( )
     {
         return clockOffsetBlocks_;
     }
@@ -706,7 +691,7 @@ class OdfRawFileContents
      */
     void writeOdfToTextFile( const std::string &odfTextFile );
 
-   private:
+private:
     //! Vector of data blocks
     std::vector< std::shared_ptr< OdfDataBlock > > dataBlocks_;
 

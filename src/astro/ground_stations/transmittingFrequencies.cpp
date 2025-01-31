@@ -16,60 +16,55 @@ namespace tudat
 namespace ground_stations
 {
 
-template< >
+template<>
 double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const double& lookupTime )
 {
     return getCurrentFrequency( lookupTime );
 }
 
-template< >
+template<>
 double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const Time& lookupTime )
 {
     return getCurrentFrequency( lookupTime );
 }
 
-template< >
+template<>
 long double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const double& lookupTime )
 {
     return getCurrentLongFrequency( lookupTime );
 }
 
-template< >
+template<>
 long double StationFrequencyInterpolator::getTemplatedCurrentFrequency( const Time& lookupTime )
 {
     return getCurrentLongFrequency( lookupTime );
 }
 
-template< >
-double StationFrequencyInterpolator::getTemplatedFrequencyIntegral(
-        const double& quadratureStartTime, const double& quadratureEndTime )
+template<>
+double StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const double& quadratureStartTime, const double& quadratureEndTime )
 {
     return getFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
-template< >
-double StationFrequencyInterpolator::getTemplatedFrequencyIntegral(
-        const Time& quadratureStartTime, const Time& quadratureEndTime )
+template<>
+double StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
 {
     return getFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
-template< >
-long double StationFrequencyInterpolator::getTemplatedFrequencyIntegral(
-        const double& quadratureStartTime, const double& quadratureEndTime )
+template<>
+long double StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const double& quadratureStartTime,
+                                                                         const double& quadratureEndTime )
 {
     return getLongFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
-template< >
-long double StationFrequencyInterpolator::getTemplatedFrequencyIntegral(
-        const Time& quadratureStartTime, const Time& quadratureEndTime )
+template<>
+long double StationFrequencyInterpolator::getTemplatedFrequencyIntegral( const Time& quadratureStartTime, const Time& quadratureEndTime )
 {
     return getLongFrequencyIntegral( quadratureStartTime, quadratureEndTime );
 }
 
+}  // namespace ground_stations
 
-
-} // namespace ground_stations
-
-} // namespace tudat
+}  // namespace tudat

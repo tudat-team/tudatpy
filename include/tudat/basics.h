@@ -11,4 +11,4 @@
 #ifndef TUDAT_BASICS_H
 #define TUDAT_BASICS_H
 
-#endif // TUDAT_BASICS_H
+#endif  // TUDAT_BASICS_H

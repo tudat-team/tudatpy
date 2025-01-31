@@ -24,16 +24,14 @@ BOOST_AUTO_TEST_SUITE( test_pole_tide_site_displacement )
 
 BOOST_AUTO_TEST_CASE( testPoleTideSiteDisplacement )
 {
-
     // Retrieve polar motion calculator
-    std::shared_ptr< EarthOrientationAnglesCalculator > standardEarthRotationModel =
-        createStandardEarthOrientationCalculator( );
-    std::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator =
-        standardEarthRotationModel->getPolarMotionCalculator( );
+    std::shared_ptr< EarthOrientationAnglesCalculator > standardEarthRotationModel = createStandardEarthOrientationCalculator( );
+    std::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator = standardEarthRotationModel->getPolarMotionCalculator( );
 
-    std::bind( static_cast< Eigen::Vector2d( OneDimensionalInterpolator< double, Eigen::Vector2d >::* )( const double )>
-                 ( &OneDimensionalInterpolator< double, Eigen::Vector2d >::interpolate ),
-               standardPolarMotionCalculator->getDailyIersValueInterpolator( ), std::placeholders::_1 );
+    std::bind( static_cast< Eigen::Vector2d ( OneDimensionalInterpolator< double, Eigen::Vector2d >::* )( const double ) >(
+                       &OneDimensionalInterpolator< double, Eigen::Vector2d >::interpolate ),
+               standardPolarMotionCalculator->getDailyIersValueInterpolator( ),
+               std::placeholders::_1 );
 
     PoleTideDeformation poleTideDeformationModel = PoleTideDeformation( standardPolarMotionCalculator );
 
@@ -41,33 +39,30 @@ BOOST_AUTO_TEST_CASE( testPoleTideSiteDisplacement )
 
     for( int testSite = 0; testSite < 3; testSite++ )
     {
-        std::shared_ptr<ground_stations::GroundStationState> nominalSiteState;
+        std::shared_ptr< ground_stations::GroundStationState > nominalSiteState;
         if( testSite == 0 )
         {
             Eigen::Vector3d sphericalState = ( Eigen::Vector3d( ) << 6378.0E3, 0.0, 0.0 ).finished( );
-            nominalSiteState = std::make_shared<ground_stations::GroundStationState>(
-                sphericalState, spherical_position );
+            nominalSiteState = std::make_shared< ground_stations::GroundStationState >( sphericalState, spherical_position );
         }
         else if( testSite == 1 )
         {
-                Eigen::Vector3d sphericalState = ( Eigen::Vector3d( ) << 6378.0E3, 0.0, mathematical_constants::PI / 2.0 ).finished( );
-                nominalSiteState = std::make_shared<ground_stations::GroundStationState>(
-                    sphericalState, spherical_position );
+            Eigen::Vector3d sphericalState = ( Eigen::Vector3d( ) << 6378.0E3, 0.0, mathematical_constants::PI / 2.0 ).finished( );
+            nominalSiteState = std::make_shared< ground_stations::GroundStationState >( sphericalState, spherical_position );
         }
         else if( testSite == 2 )
         {
             Eigen::Vector3d sphericalState = ( Eigen::Vector3d( ) << 6378.0E3, mathematical_constants::PI / 4.0, 0.0 ).finished( );
-            nominalSiteState = std::make_shared<ground_stations::GroundStationState>(
-                sphericalState, spherical_position );
+            nominalSiteState = std::make_shared< ground_stations::GroundStationState >( sphericalState, spherical_position );
         }
 
-        for ( int i = 0; i < 10; i++ )
+        for( int i = 0; i < 10; i++ )
         {
             double currentTime = physical_constants::JULIAN_YEAR * static_cast< double >( i );
-            Eigen::Vector2d offsets =
-                unit_conversions::convertRadiansToDegrees(
-                    standardEarthRotationModel->getPolarMotionCalculator( )->getPositionOfCipInItrs(
-                        currentTime, sofa_interface::convertTTtoUTC( currentTime ) ) ) * 3600.0 * 1000.0 -
+            Eigen::Vector2d offsets = unit_conversions::convertRadiansToDegrees(
+                                              standardEarthRotationModel->getPolarMotionCalculator( )->getPositionOfCipInItrs(
+                                                      currentTime, sofa_interface::convertTTtoUTC( currentTime ) ) ) *
+                            3600.0 * 1000.0 -
                     earth_orientation::getSecularPolePositionInMas( currentTime );
             offsets( 1 ) *= -1.0;
 
@@ -106,13 +101,10 @@ BOOST_AUTO_TEST_CASE( testPoleTideSiteDisplacement )
             }
         }
     }
-
-
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

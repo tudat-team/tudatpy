@@ -12,15 +12,14 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/math/geometric/conicalFrustum.h"
 
-
 namespace tudat
 {
 namespace geometric_shapes
 {
 
 using mathematical_constants::PI;
-using std::sin;
 using std::cos;
+using std::sin;
 
 //! Conical frustum consructor, sets all shape parameters.
 
@@ -31,7 +30,7 @@ ConicalFrustum::ConicalFrustum( const double coneHalfAngle,
                                 const double maximumAzimuthAngle )
 {
     coneHalfAngle_ = coneHalfAngle;
-    startRadius_= startRadius;
+    startRadius_ = startRadius;
     length_ = length;
     setMinimumIndependentVariable( 1, minimumAzimuthAngle );
     setMaximumIndependentVariable( 1, maximumAzimuthAngle );
@@ -45,10 +44,8 @@ Eigen::VectorXd ConicalFrustum::getSurfacePoint( double azimuthAngle, double len
     // Determines the radius of the cone at the given length fraction.
     double localRadius_ = startRadius_ + length_ * lengthFraction * std::tan( coneHalfAngle_ );
 
-
     // Set x and y coordinate of untransformed cone.
-    cartesianPositionVector_ = coordinate_conversions::
-            convertCylindricalToCartesian( Eigen::Vector3d( localRadius_, azimuthAngle, 0.0 ) );
+    cartesianPositionVector_ = coordinate_conversions::convertCylindricalToCartesian( Eigen::Vector3d( localRadius_, azimuthAngle, 0.0 ) );
 
     // Set z coordinate of untransformed cone.
     cartesianPositionVector_( 2 ) = -length_ * lengthFraction;
@@ -61,16 +58,17 @@ Eigen::VectorXd ConicalFrustum::getSurfacePoint( double azimuthAngle, double len
 }
 
 //! Get surface derivative on conical frustum.
-Eigen::VectorXd ConicalFrustum::getSurfaceDerivative(
-        const double lengthFraction, const double azimuthAngle,
-        const int powerOfLengthFractionDerivative, const int powerOfAzimuthAngleDerivative )
+Eigen::VectorXd ConicalFrustum::getSurfaceDerivative( const double lengthFraction,
+                                                      const double azimuthAngle,
+                                                      const int powerOfLengthFractionDerivative,
+                                                      const int powerOfAzimuthAngleDerivative )
 {
     // Declare and set size of derivative vector.
     Eigen::VectorXd derivative_ = Eigen::VectorXd( 3 );
 
     // No negative derivatives may be retrieved, a zero vector is returned in
     // this case.
-    if ( powerOfLengthFractionDerivative < 0 || powerOfAzimuthAngleDerivative < 0 )
+    if( powerOfLengthFractionDerivative < 0 || powerOfAzimuthAngleDerivative < 0 )
     {
         derivative_( 0 ) = 0.0;
         derivative_( 1 ) = 0.0;
@@ -81,7 +79,7 @@ Eigen::VectorXd ConicalFrustum::getSurfaceDerivative(
 
     // When requesting the zeroth derivative with respect to the two
     // independent variables, the surface point is returned.
-    else if ( powerOfLengthFractionDerivative == 0 && powerOfAzimuthAngleDerivative == 0 )
+    else if( powerOfLengthFractionDerivative == 0 && powerOfAzimuthAngleDerivative == 0 )
     {
         derivative_ = getSurfacePoint( lengthFraction, azimuthAngle );
     }
@@ -96,27 +94,27 @@ Eigen::VectorXd ConicalFrustum::getSurfaceDerivative(
 
         switch( powerOfLengthFractionDerivative )
         {
-        case( 0 ):
+            case( 0 ):
 
-            derivative1Contribution_( 0 ) = 0.0;
-            derivative1Contribution_( 1 ) = 0.0;
-            derivative1Contribution_( 2 ) = -length_ * lengthFraction;
-            break;
+                derivative1Contribution_( 0 ) = 0.0;
+                derivative1Contribution_( 1 ) = 0.0;
+                derivative1Contribution_( 2 ) = -length_ * lengthFraction;
+                break;
 
-        case( 1 ):
+            case( 1 ):
 
-            derivative1Contribution_( 0 ) = 0.0;
-            derivative1Contribution_( 1 ) = 0.0;
-            derivative1Contribution_( 2 ) = -length_;
-            break;
+                derivative1Contribution_( 0 ) = 0.0;
+                derivative1Contribution_( 1 ) = 0.0;
+                derivative1Contribution_( 2 ) = -length_;
+                break;
 
-        // For all higher derivatives, all components are zero.
-        default:
+            // For all higher derivatives, all components are zero.
+            default:
 
-            derivative1Contribution_( 0 ) = 0.0;
-            derivative1Contribution_( 1 ) = 0.0;
-            derivative1Contribution_( 2 ) = 0.0;
-            break;
+                derivative1Contribution_( 0 ) = 0.0;
+                derivative1Contribution_( 1 ) = 0.0;
+                derivative1Contribution_( 2 ) = 0.0;
+                break;
         }
 
         // Since this derivative is "cyclical", as it is only dependant on sines
@@ -125,37 +123,37 @@ Eigen::VectorXd ConicalFrustum::getSurfaceDerivative(
         // see basic_mathematics::coordinateConversions::convertSphericalToCartesian
         switch( powerOfAzimuthAngleDerivative % 4 )
         {
-        case( 0 ):
+            case( 0 ):
 
-            derivative2Contribution_( 0 ) = -sin( azimuthAngle );
-            derivative2Contribution_( 1 ) = cos( azimuthAngle );
-            derivative2Contribution_( 2 ) = 0.0;
-            break;
+                derivative2Contribution_( 0 ) = -sin( azimuthAngle );
+                derivative2Contribution_( 1 ) = cos( azimuthAngle );
+                derivative2Contribution_( 2 ) = 0.0;
+                break;
 
-        case( 1 ):
+            case( 1 ):
 
-            derivative2Contribution_( 0 ) = -cos( azimuthAngle );
-            derivative2Contribution_( 1 ) = -sin( azimuthAngle );
-            derivative2Contribution_( 2 ) = 0.0;
-            break;
+                derivative2Contribution_( 0 ) = -cos( azimuthAngle );
+                derivative2Contribution_( 1 ) = -sin( azimuthAngle );
+                derivative2Contribution_( 2 ) = 0.0;
+                break;
 
-        case( 2 ):
+            case( 2 ):
 
-            derivative2Contribution_( 0 ) = sin( azimuthAngle );
-            derivative2Contribution_( 1 ) = -cos( azimuthAngle );
-            derivative2Contribution_( 2 ) = 0.0;
-            break;
+                derivative2Contribution_( 0 ) = sin( azimuthAngle );
+                derivative2Contribution_( 1 ) = -cos( azimuthAngle );
+                derivative2Contribution_( 2 ) = 0.0;
+                break;
 
-        case( 3 ):
+            case( 3 ):
 
-            derivative2Contribution_( 0 ) = cos( azimuthAngle );
-            derivative2Contribution_( 1 ) = sin( azimuthAngle );
-            derivative2Contribution_( 2 ) = 0.0;
-            break;
+                derivative2Contribution_( 0 ) = cos( azimuthAngle );
+                derivative2Contribution_( 1 ) = sin( azimuthAngle );
+                derivative2Contribution_( 2 ) = 0.0;
+                break;
 
-        default:
+            default:
 
-            throw std::runtime_error( " Bad value for powerOfAzimuthAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 ");
+                throw std::runtime_error( " Bad value for powerOfAzimuthAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 " );
         }
 
         // Combine contributions to derivative.
@@ -174,48 +172,46 @@ Eigen::VectorXd ConicalFrustum::getSurfaceDerivative(
 //! Get parameter of conical frustum.
 double ConicalFrustum::getParameter( const int index )
 {
-   // Check which parameter is selected.
-   switch( index )
-   {
-   case( 0 ):
+    // Check which parameter is selected.
+    switch( index )
+    {
+        case( 0 ):
 
-       parameter_ = startRadius_;
-       break;
+            parameter_ = startRadius_;
+            break;
 
-   case( 1 ):
+        case( 1 ):
 
-       parameter_ = length_;
-       break;
+            parameter_ = length_;
+            break;
 
-   case( 2 ):
+        case( 2 ):
 
-       parameter_ = coneHalfAngle_;
-       break;
+            parameter_ = coneHalfAngle_;
+            break;
 
-   default:
-       std::string errorMessage = "Parameter " + std::to_string( index ) + "does not exist in ConicalFrustum.";
-       throw std::runtime_error( errorMessage );
-   }
+        default:
+            std::string errorMessage = "Parameter " + std::to_string( index ) + "does not exist in ConicalFrustum.";
+            throw std::runtime_error( errorMessage );
+    }
 
-   // Return parameter.
-   return parameter_;
+    // Return parameter.
+    return parameter_;
 }
 
 //! Overload ostream to print class information.
-std::ostream &operator << ( std::ostream &stream, ConicalFrustum& conicalFrustum )
+std::ostream &operator<<( std::ostream &stream, ConicalFrustum &conicalFrustum )
 {
     stream << "This is a conical frustum geometry." << std::endl;
-    stream << "The circumferential angle runs from: "
-           << conicalFrustum.getMinimumAzimuthAngle( ) * 180.0 / PI << " degrees to "
+    stream << "The circumferential angle runs from: " << conicalFrustum.getMinimumAzimuthAngle( ) * 180.0 / PI << " degrees to "
            << conicalFrustum.getMaximumAzimuthAngle( ) * 180.0 / PI << " degrees" << std::endl;
     stream << "The start radius is: " << conicalFrustum.getStartRadius( ) << std::endl;
     stream << "The length is: " << conicalFrustum.getLength( ) << std::endl;
-    stream << "The cone half angle is: "  << conicalFrustum.getConeHalfAngle( ) * 180.0 / PI
-           << " degrees" << std::endl;
+    stream << "The cone half angle is: " << conicalFrustum.getConeHalfAngle( ) * 180.0 / PI << " degrees" << std::endl;
 
     // Return stream.
     return stream;
 }
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat

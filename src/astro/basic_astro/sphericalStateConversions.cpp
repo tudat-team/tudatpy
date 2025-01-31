@@ -34,22 +34,20 @@ double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame 
 }
 
 //! Function to convert a Cartesian to a spherical orbital state.
-Eigen::Vector6d convertCartesianToSphericalOrbitalState(
-        const Eigen::Vector6d& bodyFixedCartesianState )
+Eigen::Vector6d convertCartesianToSphericalOrbitalState( const Eigen::Vector6d& bodyFixedCartesianState )
 {
     Eigen::Vector6d sphericalOrbitalState;
 
     // Compute and set spherical position
-    Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical< double >(
-                bodyFixedCartesianState.segment( 0, 3 ) );
+    Eigen::Vector3d sphericalPosition =
+            coordinate_conversions::convertCartesianToSpherical< double >( bodyFixedCartesianState.segment( 0, 3 ) );
     sphericalOrbitalState( radiusIndex ) = sphericalPosition( 0 );
     sphericalOrbitalState( latitudeIndex ) = mathematical_constants::PI / 2.0 - sphericalPosition( 1 );
     sphericalOrbitalState( longitudeIndex ) = sphericalPosition( 2 );
 
     // Convert velocity to vertical frame.
-    Eigen::Vector3d verticalFrameVelocity =
-            reference_frames::getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-                sphericalOrbitalState( longitudeIndex ), sphericalOrbitalState( latitudeIndex ) ) *
+    Eigen::Vector3d verticalFrameVelocity = reference_frames::getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+                                                    sphericalOrbitalState( longitudeIndex ), sphericalOrbitalState( latitudeIndex ) ) *
             bodyFixedCartesianState.segment( 3, 3 );
 
     // Set velocity in spherical orbital state.
@@ -58,10 +56,8 @@ Eigen::Vector6d convertCartesianToSphericalOrbitalState(
     sphericalOrbitalState( headingAngleIndex ) = calculateHeadingAngle( verticalFrameVelocity );
 
     return sphericalOrbitalState;
-
 }
 
-} // namespace tudat
+}  // namespace orbital_element_conversions
 
-} // namespace orbital_element_conversions
-
+}  // namespace tudat

@@ -36,4 +36,4 @@
 #include "propagators/stateTransitionMatrixInterface.h"
 #include "propagators/variationalEquations.h"
 
-#endif // TUDAT_PROPAGATORS_H
+#endif  // TUDAT_PROPAGATORS_H

@@ -29,10 +29,9 @@ namespace observation_partials
 {
 
 //! Derived class for scaling three-dimensional position partial to one-way range-rate (differenced) observable partial
-class DifferencedObservablePartialScaling: public PositionPartialScaling
+class DifferencedObservablePartialScaling : public PositionPartialScaling
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -44,13 +43,12 @@ public:
             const std::shared_ptr< PositionPartialScaling > secondPartialScaling,
             const std::pair< std::vector< int >, std::vector< int > > timeStateIndices,
             const std::function< void( const observation_models::LinkEndType ) > customCheckFunction = nullptr ):
-        firstPartialScaling_( firstPartialScaling ), secondPartialScaling_( secondPartialScaling ),
-        firstIndices_( timeStateIndices.first ), secondIndices_( timeStateIndices.second ),
-        customCheckFunction_( ){ }
+        firstPartialScaling_( firstPartialScaling ), secondPartialScaling_( secondPartialScaling ), firstIndices_( timeStateIndices.first ),
+        secondIndices_( timeStateIndices.second ), customCheckFunction_( )
+    { }
 
     //! Destructor
-    ~DifferencedObservablePartialScaling( ){ }
-
+    ~DifferencedObservablePartialScaling( ) { }
 
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
@@ -70,8 +68,8 @@ public:
 
 template< int ObservationSize >
 estimatable_parameters::EstimatebleParameterIdentifier getDifferencedPartialParameterIdentifier(
-    const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
-    const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial )
+        const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
+        const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial )
 {
     if( firstPartial != nullptr )
     {
@@ -88,11 +86,9 @@ estimatable_parameters::EstimatebleParameterIdentifier getDifferencedPartialPara
 }
 //! Class to compute the partial derivatives of a one-way range-rate (differenced) observation
 template< int ObservationSize >
-class DifferencedObservablePartial: public ObservationPartial< ObservationSize >
+class DifferencedObservablePartial : public ObservationPartial< ObservationSize >
 {
-
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -103,23 +99,23 @@ public:
     DifferencedObservablePartial(
             const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
             const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial,
-            const std::function< double(
-                    const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
-                    const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
-                    const bool ) > scalingFactorFunction,
+            const std::function< double( const observation_models::LinkEndType,
+                                         const std::vector< Eigen::Vector6d >&,
+                                         const std::vector< double >&,
+                                         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+                                         const bool ) > scalingFactorFunction,
             const std::pair< std::vector< int >, std::vector< int > >& undifferencedTimeAndStateIndices ):
         ObservationPartial< ObservationSize >( getDifferencedPartialParameterIdentifier< ObservationSize >( firstPartial, secondPartial ) ),
-        firstPartial_( firstPartial ),
-        secondPartial_( secondPartial ),
-        scalingFactorFunction_( scalingFactorFunction ),
+        firstPartial_( firstPartial ), secondPartial_( secondPartial ), scalingFactorFunction_( scalingFactorFunction ),
         undifferencedTimeAndStateIndices_( undifferencedTimeAndStateIndices )
     {
         if( firstPartial_ != nullptr && secondPartial_ != nullptr )
         {
-//            if( firstPartial_->getParameterIdentifier( ) != secondPartial_->getParameterIdentifier( ) )
-//            {
-//                throw std::runtime_error( "Error when creating differenced observable partial; first and second parameter identifiers are no equal" );
-//            }
+            //            if( firstPartial_->getParameterIdentifier( ) != secondPartial_->getParameterIdentifier( ) )
+            //            {
+            //                throw std::runtime_error( "Error when creating differenced observable partial; first and second parameter
+            //                identifiers are no equal" );
+            //            }
         }
     }
 
@@ -141,7 +137,8 @@ public:
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
+                    Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         using namespace observation_partials;
 
@@ -175,47 +172,44 @@ public:
         }
 
         std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > differencedPartials;
-        double firstPartialScalingFactor = scalingFactorFunction_(
-                linkEndOfFixedTime, states, times, ancillarySettings, true );
-        double secondPartialScalingFactor = scalingFactorFunction_(
-                linkEndOfFixedTime, states, times, ancillarySettings, false );
+        double firstPartialScalingFactor = scalingFactorFunction_( linkEndOfFixedTime, states, times, ancillarySettings, true );
+        double secondPartialScalingFactor = scalingFactorFunction_( linkEndOfFixedTime, states, times, ancillarySettings, false );
 
         // Scale partials by arc duration
         for( unsigned int i = 0; i < firstPartials.size( ); i++ )
         {
             differencedPartials.push_back(
-                        std::make_pair( - firstPartials[ i ].first * firstPartialScalingFactor, firstPartials[ i ].second ) );
+                    std::make_pair( -firstPartials[ i ].first * firstPartialScalingFactor, firstPartials[ i ].second ) );
         }
 
         for( unsigned int i = 0; i < secondPartials.size( ); i++ )
         {
             differencedPartials.push_back(
-                        std::make_pair( secondPartials[ i ].first * secondPartialScalingFactor, secondPartials[ i ].second ) );
+                    std::make_pair( secondPartials[ i ].first * secondPartialScalingFactor, secondPartials[ i ].second ) );
         }
 
         return differencedPartials;
     }
 
 protected:
-
     //! Partial object for arc start range observation
     std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial_;
 
     //! Partial object for arc end range observation
     std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial_;
 
-    const std::function< double(
-            const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
-            const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
-            const bool ) > scalingFactorFunction_;
+    const std::function< double( const observation_models::LinkEndType,
+                                 const std::vector< Eigen::Vector6d >&,
+                                 const std::vector< double >&,
+                                 const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+                                 const bool ) >
+            scalingFactorFunction_;
 
     const std::pair< std::vector< int >, std::vector< int > > undifferencedTimeAndStateIndices_;
 };
 
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-}
-
-
-#endif // TUDAT_DIFFERENCEDOBSERVATIONPARTIAL_H
+#endif  // TUDAT_DIFFERENCEDOBSERVATIONPARTIAL_H

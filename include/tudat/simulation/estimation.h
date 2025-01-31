@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_ESTIMATIONHEADER_H
 #define TUDAT_ESTIMATIONHEADER_H
 
@@ -23,4 +22,4 @@
 #include "tudat/math/statistics/basicStatistics.h"
 #include "tudat/math/statistics/randomVariableGenerator.h"
 
-#endif // TUDAT_ESTIMATIONHEADER_H
+#endif  // TUDAT_ESTIMATIONHEADER_H

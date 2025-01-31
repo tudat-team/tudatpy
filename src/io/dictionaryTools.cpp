@@ -11,8 +11,6 @@
 
 #include <sstream>
 
-
-
 #include "tudat/io/dictionaryTools.h"
 
 namespace tudat
@@ -30,10 +28,10 @@ void checkRequiredParameters( const DictionaryPointer& aDictionary )
 
     // Loop through all dictionary entries to check if any required parameters have not been
     // extracted. Add any missing, required parameters to the list.
-    for ( Dictionary::const_iterator iteratorDictionary = aDictionary->begin( );
-          iteratorDictionary != aDictionary->end( ); iteratorDictionary++ )
+    for( Dictionary::const_iterator iteratorDictionary = aDictionary->begin( ); iteratorDictionary != aDictionary->end( );
+         iteratorDictionary++ )
     {
-        if ( !( *iteratorDictionary )->isExtracted && ( *iteratorDictionary )->isRequired )
+        if( !( *iteratorDictionary )->isExtracted && ( *iteratorDictionary )->isRequired )
         {
             missingRequiredParameters.insert( *iteratorDictionary );
         }
@@ -41,7 +39,7 @@ void checkRequiredParameters( const DictionaryPointer& aDictionary )
 
     // Check if list is non-empty. If it is non-empty, throw an error, indicating which required
     // parameters are missing.
-    if ( missingRequiredParameters.size( ) > 0 )
+    if( missingRequiredParameters.size( ) > 0 )
     {
         // Create error message.
         std::stringstream missingRequiredParametersMessage;
@@ -52,12 +50,11 @@ void checkRequiredParameters( const DictionaryPointer& aDictionary )
         lastIterator--;
 
         // Loop through the list and add the name of the missing parameter to the error message.
-        for ( RequiredParametersList::const_iterator missingParametersIterator
-              = missingRequiredParameters.begin( );
-              missingParametersIterator != lastIterator; missingParametersIterator++ )
+        for( RequiredParametersList::const_iterator missingParametersIterator = missingRequiredParameters.begin( );
+             missingParametersIterator != lastIterator;
+             missingParametersIterator++ )
         {
-            missingRequiredParametersMessage
-                    << "\"" << ( *missingParametersIterator )->parameterName << "\", ";
+            missingRequiredParametersMessage << "\"" << ( *missingParametersIterator )->parameterName << "\", ";
         }
 
         missingRequiredParametersMessage << "\"" << ( *lastIterator )->parameterName << "\".";
@@ -68,25 +65,24 @@ void checkRequiredParameters( const DictionaryPointer& aDictionary )
 }
 
 //! Add entry.
-void addEntry( const DictionaryPointer& dictionary, const std::string& parameterName,
-               const bool isRequired, const bool isCaseSensitive, const StringSet& someSynonyms )
+void addEntry( const DictionaryPointer& dictionary,
+               const std::string& parameterName,
+               const bool isRequired,
+               const bool isCaseSensitive,
+               const StringSet& someSynonyms )
 {
-    dictionary->insert( std::make_shared< DictionaryEntry >(
-                            parameterName, isRequired, isCaseSensitive, someSynonyms ) );
+    dictionary->insert( std::make_shared< DictionaryEntry >( parameterName, isRequired, isCaseSensitive, someSynonyms ) );
 }
 
 //! Find entry.
-DictionaryIterator findEntry( const DictionaryPointer dictionary,
-                              const std::string& parameterName )
+DictionaryIterator findEntry( const DictionaryPointer dictionary, const std::string& parameterName )
 {
-    DictionaryIterator iteratorDictionary
-            = std::find_if( dictionary->begin( ), dictionary->end( ),
-                            DictionaryComparer( parameterName ) );
+    DictionaryIterator iteratorDictionary = std::find_if( dictionary->begin( ), dictionary->end( ), DictionaryComparer( parameterName ) );
 
     std::stringstream errorMessage;
     errorMessage << "Dictionary entry \"" << parameterName << "\" not found!" << std::endl;
 
-    if ( iteratorDictionary == dictionary->end( ) )
+    if( iteratorDictionary == dictionary->end( ) )
     {
         throw std::runtime_error( errorMessage.str( ) );
     }
@@ -94,6 +90,6 @@ DictionaryIterator findEntry( const DictionaryPointer dictionary,
     return iteratorDictionary;
 }
 
-} // namespace dictionary
-} // namespace input_output
-} // namespace tudat
+}  // namespace dictionary
+}  // namespace input_output
+}  // namespace tudat

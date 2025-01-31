@@ -24,10 +24,9 @@ namespace tudat
 namespace acceleration_partials
 {
 
-class PolyhedronGravityPartial: public AccelerationPartial
+class PolyhedronGravityPartial : public AccelerationPartial
 {
 public:
-
     //! Contructor.
     /*!
      *  Constructor, requires input on the acceleration model as of which partials are to be computed.
@@ -41,15 +40,14 @@ public:
      *  \param rotationMatrixPartials Map of RotationMatrixPartial, one for each paramater representing a property of the
      *  rotation of the body exerting the acceleration wrt which an acceleration partial will be calculated.
      */
-    PolyhedronGravityPartial(
-        const std::string& acceleratedBody,
-        const std::string& acceleratingBody,
-        const std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel > accelerationModel,
-        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
-            observation_partials::RotationMatrixPartialNamedList( ) );
+    PolyhedronGravityPartial( const std::string& acceleratedBody,
+                              const std::string& acceleratingBody,
+                              const std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel > accelerationModel,
+                              const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
+                                      observation_partials::RotationMatrixPartialNamedList( ) );
 
     //! Destructor
-    ~PolyhedronGravityPartial( ){ }
+    ~PolyhedronGravityPartial( ) { }
 
     //! Function for updating the partial object to current state and time.
     /*!
@@ -71,9 +69,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtPositionOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -96,9 +95,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtVelocityOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
+    void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 3 )
     {
         if( addContribution )
         {
@@ -122,7 +122,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -146,7 +148,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -192,7 +196,6 @@ public:
     }
 
 private:
-
     //! The current partial of the acceleration wrt the position of the body undergoing the acceleration.
     /*!
      *  The current partial of the acceleration wrt the position of the body undergoing the acceleration.
@@ -259,11 +262,10 @@ private:
      *  Map is pre-created and set through the constructor.
      */
     observation_partials::RotationMatrixPartialNamedList rotationMatrixPartials_;
-
 };
 
-} // namespace acceleration_partials
+}  // namespace acceleration_partials
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif //TUDAT_POLYHEDRONACCELERATIONPARTIAL_H
+#endif  // TUDAT_POLYHEDRONACCELERATIONPARTIAL_H

@@ -16,33 +16,34 @@
 
 using namespace tudat;
 
-double findLocalMinimumOfTargetDistance(
-        const double lowerBound,
-        const double upperBound,
-        const double tolerance,
-        const std::function< Eigen::Vector3d( const double )> positionFunction )
+double findLocalMinimumOfTargetDistance( const double lowerBound,
+                                         const double upperBound,
+                                         const double tolerance,
+                                         const std::function< Eigen::Vector3d( const double ) > positionFunction )
 {
     double currentUpperBound = upperBound;
     double currentLowerBound = lowerBound;
     double newTestValue = ( currentUpperBound + currentLowerBound ) / 2.0;
     double currentTestValue;
 
-    double currentUpperDistance, currentLowerDistance, currentTestDistance ;
+    double currentUpperDistance, currentLowerDistance, currentTestDistance;
     int currentUpperDerivative, currentLowerDerivative, currentTestDerivative;
 
     int counter = 0;
     do
     {
-
         currentTestValue = newTestValue;
 
         currentUpperDistance = positionFunction( currentUpperBound ).norm( );
-        currentLowerDistance  = positionFunction( currentLowerBound ).norm( );
+        currentLowerDistance = positionFunction( currentLowerBound ).norm( );
         currentTestDistance = positionFunction( currentTestValue ).norm( );
 
-        currentUpperDerivative = utilities::sgn< double >( ( currentUpperDistance - positionFunction( currentUpperBound - tolerance ).norm( ) ) / tolerance );
-        currentLowerDerivative  = utilities::sgn< double >( ( currentLowerDistance - positionFunction( currentLowerBound - tolerance ).norm( ) ) / tolerance );
-        currentTestDerivative = utilities::sgn< double >( ( currentTestDistance - positionFunction( currentTestValue - tolerance ).norm( ) ) / tolerance );
+        currentUpperDerivative = utilities::sgn< double >(
+                ( currentUpperDistance - positionFunction( currentUpperBound - tolerance ).norm( ) ) / tolerance );
+        currentLowerDerivative = utilities::sgn< double >(
+                ( currentLowerDistance - positionFunction( currentLowerBound - tolerance ).norm( ) ) / tolerance );
+        currentTestDerivative =
+                utilities::sgn< double >( ( currentTestDistance - positionFunction( currentTestValue - tolerance ).norm( ) ) / tolerance );
 
         //        if( currentUpperDerivative == currentLowerDerivative )
         //        {
@@ -51,12 +52,12 @@ double findLocalMinimumOfTargetDistance(
         //                       currentLowerDistance<<" "<<currentTestDistance<<" "<<currentUpperDistance<<" "<<
         //                       ( ( currentLowerDistance - positionFunction( currentLowerBound - tolerance ).norm( ) ) / tolerance )<<" "<<
         //                       ( ( currentTestDistance - positionFunction( currentTestValue - tolerance ).norm( ) ) / tolerance )<<" "<<
-        //                       ( ( currentUpperDistance - positionFunction( currentUpperBound - tolerance ).norm( ) ) / tolerance )<<" "<<counter<<std::endl<<std::endl;
+        //                       ( ( currentUpperDistance - positionFunction( currentUpperBound - tolerance ).norm( ) ) / tolerance )<<"
+        //                       "<<counter<<std::endl<<std::endl;
         //        }
 
-        if(  currentUpperDerivative > 0 && currentTestDerivative < 0 )
+        if( currentUpperDerivative > 0 && currentTestDerivative < 0 )
         {
-
             newTestValue = ( currentUpperBound + currentTestValue ) / 2.0;
             currentLowerBound = currentTestValue;
         }
@@ -64,24 +65,23 @@ double findLocalMinimumOfTargetDistance(
         {
             newTestValue = ( currentTestValue + currentLowerBound ) / 2.0;
             currentUpperBound = currentTestValue;
-
         }
         else
         {
+            //            std::cout<<std::setprecision( 12 )<<currentLowerBound<<" "<<currentTestValue<<" "<<currentUpperBound<<" "<<
+            //                       currentLowerDistance<<" "<<currentTestDistance<<" "<<currentUpperDistance<<" "<<
+            //                       ( ( currentLowerDistance - positionFunction( currentLowerBound - tolerance ).norm( ) ) / tolerance )<<"
+            //                       "<< ( ( currentTestDistance - positionFunction( currentTestValue - tolerance ).norm( ) ) / tolerance
+            //                       )<<" "<< ( ( currentUpperDistance - positionFunction( currentUpperBound - tolerance ).norm( ) ) /
+            //                       tolerance )<<" "<<counter<<std::endl<<std::endl;
 
-//            std::cout<<std::setprecision( 12 )<<currentLowerBound<<" "<<currentTestValue<<" "<<currentUpperBound<<" "<<
-//                       currentLowerDistance<<" "<<currentTestDistance<<" "<<currentUpperDistance<<" "<<
-//                       ( ( currentLowerDistance - positionFunction( currentLowerBound - tolerance ).norm( ) ) / tolerance )<<" "<<
-//                       ( ( currentTestDistance - positionFunction( currentTestValue - tolerance ).norm( ) ) / tolerance )<<" "<<
-//                       ( ( currentUpperDistance - positionFunction( currentUpperBound - tolerance ).norm( ) ) / tolerance )<<" "<<counter<<std::endl<<std::endl;
-
-//            std::cerr<<"Error 1 when finding minium target distance"<<std::endl;
+            //            std::cerr<<"Error 1 when finding minium target distance"<<std::endl;
         }
 
-        counter ++;
+        counter++;
         if( counter > 1E5 )
         {
-            std::cerr<<"Error 2 when finding minium target distance"<<std::endl;
+            std::cerr << "Error 2 when finding minium target distance" << std::endl;
         }
 
     } while( std::fabs( newTestValue - currentTestValue ) > tolerance );
@@ -89,19 +89,16 @@ double findLocalMinimumOfTargetDistance(
     return newTestValue;
 }
 
-std::map< double, double > findLocalMinimaOfTargetDistance(
-        const double lowerBound,
-        const double upperBound,
-        const double threshold,
-        const double tolerance,
-        const double initialSearchTimeStep,
-        const std::function< Eigen::Vector3d( const double )> positionFunction )
+std::map< double, double > findLocalMinimaOfTargetDistance( const double lowerBound,
+                                                            const double upperBound,
+                                                            const double threshold,
+                                                            const double tolerance,
+                                                            const double initialSearchTimeStep,
+                                                            const std::function< Eigen::Vector3d( const double ) > positionFunction )
 {
     std::map< double, double > minima;
 
-    double upperTime = lowerBound + 2.0 * initialSearchTimeStep,
-            middleTime = lowerBound + initialSearchTimeStep,
-            lowerTime = lowerBound;
+    double upperTime = lowerBound + 2.0 * initialSearchTimeStep, middleTime = lowerBound + initialSearchTimeStep, lowerTime = lowerBound;
 
     double upperValue, middleValue, lowerValue;
 
@@ -113,8 +110,7 @@ std::map< double, double > findLocalMinimaOfTargetDistance(
         middleValue = ( positionFunction( middleTime ) ).norm( );
         lowerValue = ( positionFunction( lowerTime ) ).norm( );
 
-        if( utilities::sgn( upperValue - middleValue ) > 0 &&
-                utilities::sgn( middleValue - lowerValue ) < 0 )
+        if( utilities::sgn( upperValue - middleValue ) > 0 && utilities::sgn( middleValue - lowerValue ) < 0 )
         {
             candidateTime = findLocalMinimumOfTargetDistance( lowerTime, upperTime, tolerance, positionFunction );
 
@@ -127,36 +123,36 @@ std::map< double, double > findLocalMinimaOfTargetDistance(
         upperTime += initialSearchTimeStep;
         middleTime += initialSearchTimeStep;
         lowerTime += initialSearchTimeStep;
-
-
     }
     return minima;
 }
 
-
-
-void getCloseApproachTimes(
-        const double initialTime, const double finalTime, const double approachThreshold )
+void getCloseApproachTimes( const double initialTime, const double finalTime, const double approachThreshold )
 {
+    std::map< double, double > closeApproachTimes = findLocalMinimaOfTargetDistance(
+            initialTime,
+            finalTime,
+            approachThreshold,
+            5.0,
+            1800.0,
+            std::bind(
+                    spice_interface::getBodyCartesianPositionAtEpoch, "-28", " Callisto", "ECLIPJ2000", "None", std::placeholders::_1 ) );
 
-        std::map< double, double > closeApproachTimes = findLocalMinimaOfTargetDistance(
-                    initialTime, finalTime, approachThreshold, 5.0, 1800.0,
-                    std::bind( spice_interface::getBodyCartesianPositionAtEpoch, "-28", " Callisto",
-                               "ECLIPJ2000", "None", std::placeholders::_1 ) );
-
-        for( auto it : closeApproachTimes )
-        {
-            std::cout<<std::setprecision( 16 )<<it.first<<" "<<it.second<<" "<<
-                       spice_interface::getBodyCartesianStateAtEpoch(
-                           "-28", " Callisto", "ECLIPJ2000", "None", it.first ).segment( 3, 3 ).norm( )<<std::endl;
-        }
-        std::cout<<std::endl;
-        for( auto it : closeApproachTimes )
-        {
-            std::cout<<std::setprecision( 16 )<<it.first<<" "<<spice_interface::getBodyCartesianStateAtEpoch(
-                           "-28", " Callisto", "ECLIPJ2000", "None", it.first ).transpose( )<<std::endl;
-        }
-
+    for( auto it: closeApproachTimes )
+    {
+        std::cout << std::setprecision( 16 ) << it.first << " " << it.second << " "
+                  << spice_interface::getBodyCartesianStateAtEpoch( "-28", " Callisto", "ECLIPJ2000", "None", it.first )
+                             .segment( 3, 3 )
+                             .norm( )
+                  << std::endl;
+    }
+    std::cout << std::endl;
+    for( auto it: closeApproachTimes )
+    {
+        std::cout << std::setprecision( 16 ) << it.first << " "
+                  << spice_interface::getBodyCartesianStateAtEpoch( "-28", " Callisto", "ECLIPJ2000", "None", it.first ).transpose( )
+                  << std::endl;
+    }
 }
 //! Execute propagation of orbit of Asterix around the Earth.
 int main( )
@@ -168,8 +164,4 @@ int main( )
     double finalTime = 33.0 * tudat::physical_constants::JULIAN_YEAR;
     double approachThreshold = 2.0E7;
     getCloseApproachTimes( initialTime, finalTime, approachThreshold );
-
-
-
 }
-

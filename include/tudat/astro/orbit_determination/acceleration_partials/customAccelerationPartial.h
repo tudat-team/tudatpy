@@ -21,35 +21,32 @@ namespace tudat
 namespace acceleration_partials
 {
 
-
-
 //! Class to calculate the partials of the custom acceleration w.r.t. parameters and states.
-class CustomAccelerationPartial: public AccelerationPartial
+class CustomAccelerationPartial : public AccelerationPartial
 {
 public:
-
-    CustomAccelerationPartial(
-            const std::string acceleratedBody,
-            const std::string acceleratingBody,
-            const std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > customAcceleration,
-            const std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet > customAccelerationPartialSet = nullptr ):
+    CustomAccelerationPartial( const std::string acceleratedBody,
+                               const std::string acceleratingBody,
+                               const std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > customAcceleration,
+                               const std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet >
+                                       customAccelerationPartialSet = nullptr ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::custom_acceleration ),
-        customAcceleration_( customAcceleration ),
-        customAccelerationPartialSet_( customAccelerationPartialSet )
+        customAcceleration_( customAcceleration ), customAccelerationPartialSet_( customAccelerationPartialSet )
     {
         currentPartialWrtUndergoingState_.setZero( );
         currentPartialWrtExertingState_.setZero( );
 
         estimatable_parameters::EstimatebleParameterIdentifier undergoingBodyIdentifier =
-            std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratedBody, "" ) );
+                std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratedBody, "" ) );
         if( customAccelerationPartialSet->customInitialStatePartials_.count( undergoingBodyIdentifier ) > 0 )
         {
             bodyUndergoingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( undergoingBodyIdentifier );
         }
 
         estimatable_parameters::EstimatebleParameterIdentifier exertingBodyIdentifier =
-            std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratingBody, "" ) );
-        if( customAccelerationPartialSet->customInitialStatePartials_.count( exertingBodyIdentifier ) > 0 && ( exertingBodyIdentifier != undergoingBodyIdentifier ) )
+                std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratingBody, "" ) );
+        if( customAccelerationPartialSet->customInitialStatePartials_.count( exertingBodyIdentifier ) > 0 &&
+            ( exertingBodyIdentifier != undergoingBodyIdentifier ) )
         {
             bodyExertingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( exertingBodyIdentifier );
         }
@@ -66,9 +63,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtPositionOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -92,7 +90,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -115,9 +115,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtVelocityOfAcceleratedBody(
-        Eigen::Block< Eigen::MatrixXd > partialMatrix,
-        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -141,7 +142,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -162,18 +165,18 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-                const std::pair< std::string, std::string >& stateReferencePoint,
-                const propagators::IntegratedStateType integratedStateType )
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType )
     {
         return 0;
     }
 
     void createCustomParameterPartialFunction(
-        Eigen::MatrixXd& partialBlock,
-        const std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > customPartialCalculator )
+            Eigen::MatrixXd& partialBlock,
+            const std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > customPartialCalculator )
     {
-        partialBlock = customPartialCalculator->computePartial( currentTime_, customAcceleration_->getAcceleration( ), customAcceleration_ );
+        partialBlock =
+                customPartialCalculator->computePartial( currentTime_, customAcceleration_->getAcceleration( ), customAcceleration_ );
     }
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!
@@ -182,16 +185,18 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
         int parameterSize = 0;
-        if( customAccelerationPartialSet_->customDoubleParameterPartials_.count( parameter->getParameterName( ) )!= 0 )
+        if( customAccelerationPartialSet_->customDoubleParameterPartials_.count( parameter->getParameterName( ) ) != 0 )
         {
-            partialFunction = std::bind( &CustomAccelerationPartial::createCustomParameterPartialFunction, this,
-                                         std::placeholders::_1,
-                                         customAccelerationPartialSet_->customDoubleParameterPartials_.at( parameter->getParameterName( ) ) );
+            partialFunction =
+                    std::bind( &CustomAccelerationPartial::createCustomParameterPartialFunction,
+                               this,
+                               std::placeholders::_1,
+                               customAccelerationPartialSet_->customDoubleParameterPartials_.at( parameter->getParameterName( ) ) );
             parameterSize = 1;
         }
         return std::make_pair( partialFunction, parameterSize );
@@ -209,11 +214,13 @@ public:
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
         int parameterSize = 0;
-        if( customAccelerationPartialSet_->customVectorParameterPartials_.count( parameter->getParameterName( ) )!= 0 )
+        if( customAccelerationPartialSet_->customVectorParameterPartials_.count( parameter->getParameterName( ) ) != 0 )
         {
-            partialFunction = std::bind( &CustomAccelerationPartial::createCustomParameterPartialFunction, this,
-                                         std::placeholders::_1,
-                                         customAccelerationPartialSet_->customVectorParameterPartials_.at( parameter->getParameterName( ) ) );
+            partialFunction =
+                    std::bind( &CustomAccelerationPartial::createCustomParameterPartialFunction,
+                               this,
+                               std::placeholders::_1,
+                               customAccelerationPartialSet_->customVectorParameterPartials_.at( parameter->getParameterName( ) ) );
             parameterSize = parameter->getParameterSize( );
         }
         return std::make_pair( partialFunction, parameterSize );
@@ -234,13 +241,13 @@ public:
             if( bodyUndergoingPositionPartial_ != nullptr )
             {
                 currentPartialWrtUndergoingState_ = bodyUndergoingPositionPartial_->computePartial(
-                    currentTime, customAcceleration_->getAcceleration( ), customAcceleration_ );
+                        currentTime, customAcceleration_->getAcceleration( ), customAcceleration_ );
             }
 
             if( bodyExertingPositionPartial_ != nullptr )
             {
                 currentPartialWrtExertingState_ = bodyExertingPositionPartial_->computePartial(
-                    currentTime, customAcceleration_->getAcceleration( ), customAcceleration_ );
+                        currentTime, customAcceleration_->getAcceleration( ), customAcceleration_ );
             }
 
             currentTime_ = currentTime;
@@ -248,7 +255,6 @@ public:
     }
 
 protected:
-
     const std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > customAcceleration_;
 
     std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet > customAccelerationPartialSet_;
@@ -260,12 +266,10 @@ protected:
     Eigen::Matrix< double, 3, 6 > currentPartialWrtUndergoingState_;
 
     Eigen::Matrix< double, 3, 6 > currentPartialWrtExertingState_;
-
-
 };
 
-} // namespace acceleration_partials
+}  // namespace acceleration_partials
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CUSTOMACCELERATIONPARTIALS_H
+#endif  // TUDAT_CUSTOMACCELERATIONPARTIALS_H

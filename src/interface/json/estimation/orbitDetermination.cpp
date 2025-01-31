@@ -16,8 +16,9 @@ namespace tudat
 namespace simulation_setup
 {
 
-void updateInverseAPrioriCovarianceFromJSON(
-        const nlohmann::json& jsonObject, const int numberOfParameters, Eigen::MatrixXd& inverseAprioriCovariance )
+void updateInverseAPrioriCovarianceFromJSON( const nlohmann::json& jsonObject,
+                                             const int numberOfParameters,
+                                             Eigen::MatrixXd& inverseAprioriCovariance )
 {
     using namespace json_interface;
     using K = Keys::Estimation;
@@ -36,12 +37,12 @@ void updateInverseAPrioriCovarianceFromJSON(
             inverseAprioriCovariance = data;
         }
     }
-    catch( ... ) { }
+    catch( ... )
+    { }
 
     if( inverseAprioriCovariance.rows( ) > 0 )
     {
-        if( ( inverseAprioriCovariance.rows( ) != numberOfParameters ) ||
-                ( inverseAprioriCovariance.cols( ) != numberOfParameters ) )
+        if( ( inverseAprioriCovariance.rows( ) != numberOfParameters ) || ( inverseAprioriCovariance.cols( ) != numberOfParameters ) )
         {
             throw std::runtime_error( "Error when reading a priori covariance from file, sizes are incompatible" );
         }
@@ -52,7 +53,7 @@ void updateInverseAPrioriCovarianceFromJSON(
         {
             std::map< int, double > data = getValue< std::map< int, double > >( jsonObject, K::inverseAprioriCovariance );
             inverseAprioriCovariance.setZero( numberOfParameters, numberOfParameters );
-            for( auto entry : data )
+            for( auto entry: data )
             {
                 inverseAprioriCovariance( entry.first, entry.first ) = entry.second;
             }
@@ -72,9 +73,6 @@ void updateInverseAPrioriCovarianceFromJSON(
             //            catch( ... ){ }
         }
     }
-
-
-
 }
 
 void updateObservationWeightsFromJSON(
@@ -89,70 +87,68 @@ void updateObservationWeightsFromJSON(
     {
         double constantWeight = getValue< double >( jsonObject, K::dataWeights );
 
-        for( auto observable : numberOfObservations )
+        for( auto observable: numberOfObservations )
         {
-            for( auto linkEnds : observable.second )
+            for( auto linkEnds: observable.second )
             {
-                observableWeights[ observable.first ][ linkEnds.first ] = Eigen::VectorXd::Constant(
-                            linkEnds.second, constantWeight );
+                observableWeights[ observable.first ][ linkEnds.first ] = Eigen::VectorXd::Constant( linkEnds.second, constantWeight );
             }
         }
 
         return;
     }
-    catch( ... ){ }
+    catch( ... )
+    { }
 
-//    try
-//    {
-//        std::map< observation_models::ObservableType, double > weightPerObservable = getValue<
-//                std::map< observation_models::ObservableType, double > >( jsonObject, K::dataWeights );
+    //    try
+    //    {
+    //        std::map< observation_models::ObservableType, double > weightPerObservable = getValue<
+    //                std::map< observation_models::ObservableType, double > >( jsonObject, K::dataWeights );
 
-//        for( auto observable : numberOfObservations )
-//        {
-//            for( auto linkEnds : observable.second )
-//            {
-//                observableWeights[ observable.first ][ linkEnds.first ] = Eigen::VectorXd::Constant(
-//                            linkEnds.second, weightPerObservable.at( observable.first ) );
-//            }
-//        }
+    //        for( auto observable : numberOfObservations )
+    //        {
+    //            for( auto linkEnds : observable.second )
+    //            {
+    //                observableWeights[ observable.first ][ linkEnds.first ] = Eigen::VectorXd::Constant(
+    //                            linkEnds.second, weightPerObservable.at( observable.first ) );
+    //            }
+    //        }
 
+    //        return;
+    //    }
+    //    catch( ... ){ }
 
-//        return;
-//    }
-//    catch( ... ){ }
+    //    try
+    //    {
+    //        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > >
+    //                weightPerObservableAndLinkEnds = getValue<
+    //                std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > > >(
+    //                    jsonObject, K::dataWeights );
 
-//    try
-//    {
-//        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > >
-//                weightPerObservableAndLinkEnds = getValue<
-//                std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > > >(
-//                    jsonObject, K::dataWeights );
+    //        for( auto observable : numberOfObservations )
+    //        {
+    //            for( auto linkEnds : observable.second )
+    //            {
+    //                observableWeights[ observable.first ][ linkEnds.first ] = Eigen::VectorXd::Constant(
+    //                            linkEnds.second, weightPerObservableAndLinkEnds.at( observable.first ).at( linkEnds.first ) );
+    //            }
+    //        }
 
-//        for( auto observable : numberOfObservations )
-//        {
-//            for( auto linkEnds : observable.second )
-//            {
-//                observableWeights[ observable.first ][ linkEnds.first ] = Eigen::VectorXd::Constant(
-//                            linkEnds.second, weightPerObservableAndLinkEnds.at( observable.first ).at( linkEnds.first ) );
-//            }
-//        }
+    //        return;
+    //    }
+    //    catch( ... ){ }
 
-//        return;
-//    }
-//    catch( ... ){ }
+    //    try
+    //    {
+    //        observableWeights = getValue<
+    //                std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > >(
+    //                    jsonObject, K::dataWeights );
 
-//    try
-//    {
-//        observableWeights = getValue<
-//                std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > >(
-//                    jsonObject, K::dataWeights );
-
-//        return;
-//    }
-//    catch( ... ){ }
+    //        return;
+    //    }
+    //    catch( ... ){ }
 }
 
+}  // namespace simulation_setup
 
-} // namespace propagators
-
-} // namespace tudat
+}  // namespace tudat

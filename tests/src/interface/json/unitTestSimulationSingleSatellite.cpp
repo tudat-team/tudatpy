@@ -21,14 +21,12 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_simulationSingleSatellite )
 
 BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
 {
-
     using namespace simulation_setup;
     using namespace propagators;
     using namespace numerical_integrators;
@@ -43,13 +41,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    JsonSimulationManager< > jsonSimulation( INPUT( "main" ) );
+    JsonSimulationManager<> jsonSimulation( INPUT( "main" ) );
     jsonSimulation.updateSettings( );
     jsonSimulation.runPropagation( );
-    std::map< double, Eigen::VectorXd > jsonResults =
-            jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-
-
+    std::map< double, Eigen::VectorXd > jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,14 +62,11 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
     // Set simulation end epoch.
     const double simulationEndEpoch = 3600.0;
 
-
     // Create body objects.
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Earth" );
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodiesToCreate );
-    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
-                Eigen::Vector6d::Zero( ) );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ) );
 
     // Create Earth object
     SystemOfBodies bodies = createBodies( bodySettings );
@@ -99,14 +91,12 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
 
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
 
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            //////////////////////////////////////
@@ -122,29 +112,25 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = 2.4412;
 
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
-
+    const Eigen::Vector6d asterixInitialState =
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
 
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, 0.0, fixedStepSize );
-
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            //////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodies, integratorSettings, propagatorSettings );
+    const std::shared_ptr< SingleArcDynamicsSimulator<> > dynamicsSimulator =
+            std::make_shared< SingleArcDynamicsSimulator<> >( bodies, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,8 +143,6 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
     const double tolerance = 1.0E-15;
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
-
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,12 +160,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
-
 }
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

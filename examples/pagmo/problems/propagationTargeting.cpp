@@ -15,12 +15,15 @@
 
 using namespace tudat;
 
-PropagationTargetingProblem::PropagationTargetingProblem(const double altitudeOfPerigee,
-        const double altitudeOfApogee, const double altitudeOfTarget, const double longitudeOfTarget,
-        const std::shared_ptr< propagators::DependentVariableSaveSettings> dependentVariablesToSave,
-        const bool useExtendedDynamics) :
-    altitudeOfPerigee_( altitudeOfPerigee ), altitudeOfApogee_( altitudeOfApogee ),
-    altitudeOfTarget_( altitudeOfTarget ), longitudeOfTarget_( longitudeOfTarget ), dependentVariablesToSave_( dependentVariablesToSave ),
+PropagationTargetingProblem::PropagationTargetingProblem(
+        const double altitudeOfPerigee,
+        const double altitudeOfApogee,
+        const double altitudeOfTarget,
+        const double longitudeOfTarget,
+        const std::shared_ptr< propagators::DependentVariableSaveSettings > dependentVariablesToSave,
+        const bool useExtendedDynamics ):
+    altitudeOfPerigee_( altitudeOfPerigee ), altitudeOfApogee_( altitudeOfApogee ), altitudeOfTarget_( altitudeOfTarget ),
+    longitudeOfTarget_( longitudeOfTarget ), dependentVariablesToSave_( dependentVariablesToSave ),
     useExtendedDynamics_( useExtendedDynamics )
 {
     using namespace tudat;
@@ -35,22 +38,20 @@ PropagationTargetingProblem::PropagationTargetingProblem(const double altitudeOf
 
     // Definition of the orbit
     earthRadius_ = spice_interface::getAverageRadius( "Earth" );
-    radiusOfPerigee_ =  earthRadius_ + altitudeOfPerigee_;
+    radiusOfPerigee_ = earthRadius_ + altitudeOfPerigee_;
     radiusOfApogee_ = earthRadius_ + altitudeOfApogee_;
     earthGravitationalParameter_ = spice_interface::getBodyGravitationalParameter( "Earth" );
-    semiMajorAxis_ = (radiusOfApogee_ + radiusOfPerigee_)/2.0;
+    semiMajorAxis_ = ( radiusOfApogee_ + radiusOfPerigee_ ) / 2.0;
 
-    //Integration time: half a orbit
+    // Integration time: half a orbit
     simulationStartEpoch_ = 0.0;
-    simulationEndEpoch_ = 1.2 * mathematical_constants::PI *
-            std::sqrt(pow(semiMajorAxis_,3)/earthGravitationalParameter_);
+    simulationEndEpoch_ = 1.2 * mathematical_constants::PI * std::sqrt( pow( semiMajorAxis_, 3 ) / earthGravitationalParameter_ );
 
     // Create the body Earth from Spice interface
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
     if( useExtendedDynamics_ )
     {
-        bodySettings =
-                getDefaultBodySettings( {"Earth", "Moon", "Sun"}, simulationStartEpoch_ - 3600.0, simulationEndEpoch_ + 3600.0 );
+        bodySettings = getDefaultBodySettings( { "Earth", "Moon", "Sun" }, simulationStartEpoch_ - 3600.0, simulationEndEpoch_ + 3600.0 );
         bodySettings[ "Moon" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
         bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrientation( "J2000" );
         bodySettings[ "Sun" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
@@ -58,24 +59,21 @@ PropagationTargetingProblem::PropagationTargetingProblem(const double altitudeOf
     }
     else
     {
-        bodySettings =
-                getDefaultBodySettings( {"Earth"} );
+        bodySettings = getDefaultBodySettings( { "Earth" } );
     }
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-                Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+    bodySettings[ "Earth" ]->ephemerisSettings =
+            std::make_shared< simulation_setup::ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
 
     bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
     bodySettings[ "Earth" ]->ephemerisSettings->resetFrameOrientation( "J2000" );
 
-
-    //Create bodies and add the satellite as an empty body
+    // Create bodies and add the satellite as an empty body
     bodies_ = simulation_setup::createBodies( bodySettings );
-    bodies_["Satellite"] = std::make_shared<Body>();
+    bodies_[ "Satellite" ] = std::make_shared< Body >( );
     setGlobalFrameBodyEphemerides( bodies_, "Earth", "J2000" );
 }
 
-
-std::vector<double> PropagationTargetingProblem::fitness(const std::vector<double> &x) const
+std::vector< double > PropagationTargetingProblem::fitness( const std::vector< double > &x ) const
 {
     using namespace tudat;
     using namespace tudat::simulation_setup;
@@ -90,83 +88,82 @@ std::vector<double> PropagationTargetingProblem::fitness(const std::vector<doubl
     const double earthRotationRate = 2.0 * mathematical_constants::PI / physical_constants::SIDEREAL_DAY;
     const double fixedStepSize = 30.0;
 
-    //Define position of the target at 35000 km from Earth at 30 deg latitude
+    // Define position of the target at 35000 km from Earth at 30 deg latitude
     Eigen::Vector3d target;
-    target[0] = (earthRadius_ + altitudeOfTarget_) * cos(longitudeOfTarget_*mathematical_constants::PI/180);
-    target[1] = (earthRadius_ + altitudeOfTarget_) * sin(longitudeOfTarget_*mathematical_constants::PI/180);
-    target[2] = 0.0;
+    target[ 0 ] = ( earthRadius_ + altitudeOfTarget_ ) * cos( longitudeOfTarget_ * mathematical_constants::PI / 180 );
+    target[ 1 ] = ( earthRadius_ + altitudeOfTarget_ ) * sin( longitudeOfTarget_ * mathematical_constants::PI / 180 );
+    target[ 2 ] = 0.0;
 
-    //Define initial position of satellite at the perigee
+    // Define initial position of satellite at the perigee
     Eigen::Vector6d initialKeplerElements;
     initialKeplerElements[ semiMajorAxisIndex ] = semiMajorAxis_;
-    initialKeplerElements[ eccentricityIndex ] = (radiusOfApogee_ - radiusOfPerigee_)/(radiusOfApogee_ + radiusOfPerigee_);
-    initialKeplerElements[ inclinationIndex ] = 35.0 * mathematical_constants::PI/180.0;
-    initialKeplerElements[ argumentOfPeriapsisIndex ] = x[0] * mathematical_constants::PI/180.0;
-    initialKeplerElements[ longitudeOfAscendingNodeIndex ] = x[1] * mathematical_constants::PI/180.0;
+    initialKeplerElements[ eccentricityIndex ] = ( radiusOfApogee_ - radiusOfPerigee_ ) / ( radiusOfApogee_ + radiusOfPerigee_ );
+    initialKeplerElements[ inclinationIndex ] = 35.0 * mathematical_constants::PI / 180.0;
+    initialKeplerElements[ argumentOfPeriapsisIndex ] = x[ 0 ] * mathematical_constants::PI / 180.0;
+    initialKeplerElements[ longitudeOfAscendingNodeIndex ] = x[ 1 ] * mathematical_constants::PI / 180.0;
     initialKeplerElements[ trueAnomalyIndex ] = 0.0;
 
-    const Eigen::Vector6d systemInitialState = convertKeplerianToCartesianElements(
-                initialKeplerElements, earthGravitationalParameter_ );
+    const Eigen::Vector6d systemInitialState = convertKeplerianToCartesianElements( initialKeplerElements, earthGravitationalParameter_ );
 
-    //Setup simulation. Simple Keplerian orbit (only central-gravity of Earth)
+    // Setup simulation. Simple Keplerian orbit (only central-gravity of Earth)
     std::vector< std::string > bodiesToPropagate = { "Satellite" };
     std::vector< std::string > centralBodies = { "Earth" };
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSatellite;
     if( useExtendedDynamics_ )
     {
-        accelerationsOfSatellite[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >(
-                                                           2, 2 ) );
-        accelerationsOfSatellite[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                          point_mass_gravity ) );
-        accelerationsOfSatellite[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         point_mass_gravity ) );
+        accelerationsOfSatellite[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
+        accelerationsOfSatellite[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+        accelerationsOfSatellite[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationMap[ "Satellite" ] = accelerationsOfSatellite;
     }
     else
     {
-        accelerationsOfSatellite[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                           point_mass_gravity ) );
+        accelerationsOfSatellite[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
         accelerationMap[ "Satellite" ] = accelerationsOfSatellite;
     }
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies_, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies_, accelerationMap, bodiesToPropagate, centralBodies );
 
-    //Setup propagator (cowell) and integrator (RK4 fixed stepsize)
+    // Setup propagator (cowell) and integrator (RK4 fixed stepsize)
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch_, cowell, dependentVariablesToSave_ );
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch_, fixedStepSize );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                accelerationModelMap,
+                                                                                bodiesToPropagate,
+                                                                                systemInitialState,
+                                                                                simulationEndEpoch_,
+                                                                                cowell,
+                                                                                dependentVariablesToSave_ );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch_, fixedStepSize );
 
-    //Start simulation
-    SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies_, integratorSettings, propagatorSettings, true, false, false );
+    // Start simulation
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies_, integratorSettings, propagatorSettings, true, false, false );
 
-    //Retrieve results
+    // Retrieve results
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     previousStateHistory_ = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     previousFinalState_ = previousStateHistory_.rbegin( )->second;
-    previousDependentVariablesHistory_ = dynamicsSimulator.getDependentVariableHistory();
-    previousDependentVariablesFinalValues_ = previousDependentVariablesHistory_.rbegin()->second;
+    previousDependentVariablesHistory_ = dynamicsSimulator.getDependentVariableHistory( );
+    previousDependentVariablesFinalValues_ = previousDependentVariablesHistory_.rbegin( )->second;
 
-
-    //Find minimum distance from target
+    // Find minimum distance from target
     Eigen::Vector3d separationFromTarget =
-            Eigen::Quaterniond( Eigen::AngleAxisd(
-                                    -earthRotationRate * integrationResult.begin( )->first, Eigen::Vector3d::UnitZ( ) ) ) *
-            ( integrationResult.begin( )->second.segment( 0, 3 ) )- target;
+            Eigen::Quaterniond( Eigen::AngleAxisd( -earthRotationRate * integrationResult.begin( )->first, Eigen::Vector3d::UnitZ( ) ) ) *
+                    ( integrationResult.begin( )->second.segment( 0, 3 ) ) -
+            target;
 
     double bestDistanceFromTarget = separationFromTarget.norm( );
     double timeForBestDistanceFromTarget = integrationResult.begin( )->first;
 
     for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integrationResult.begin( );
-         stateIterator != integrationResult.end( ); stateIterator++ )
+         stateIterator != integrationResult.end( );
+         stateIterator++ )
     {
-        separationFromTarget = Eigen::Quaterniond( Eigen::AngleAxisd(
-                                                       -earthRotationRate * stateIterator->first, Eigen::Vector3d::UnitZ( ) ) ) *
-                stateIterator->second.segment( 0, 3 ) - target;
+        separationFromTarget =
+                Eigen::Quaterniond( Eigen::AngleAxisd( -earthRotationRate * stateIterator->first, Eigen::Vector3d::UnitZ( ) ) ) *
+                        stateIterator->second.segment( 0, 3 ) -
+                target;
         const double distanceFromTarget = separationFromTarget.norm( );
 
         if( distanceFromTarget < bestDistanceFromTarget )
@@ -174,18 +171,14 @@ std::vector<double> PropagationTargetingProblem::fitness(const std::vector<doubl
             bestDistanceFromTarget = distanceFromTarget;
             timeForBestDistanceFromTarget = stateIterator->first;
         }
-
     }
 
-    std::vector< double > output = {bestDistanceFromTarget} ;
+    std::vector< double > output = { bestDistanceFromTarget };
 
     return output;
-
-
 }
 
-
-std::pair<std::vector<double>, std::vector<double>> PropagationTargetingProblem::get_bounds() const
+std::pair< std::vector< double >, std::vector< double > > PropagationTargetingProblem::get_bounds( ) const
 {
-    return {{0.0, 0.0}, {360.0, 180.0}};
+    return { { 0.0, 0.0 }, { 360.0, 180.0 } };
 }

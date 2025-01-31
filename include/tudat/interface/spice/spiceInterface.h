@@ -40,102 +40,103 @@ extern "C" {
 
 #include "tudat/astro/ephemerides/tleEphemeris.h"
 
-namespace tudat {
+namespace tudat
+{
 
-namespace spice_interface {
+namespace spice_interface
+{
 
 //! @get_docstring(convert_julian_date_to_ephemeris_time)
-double convertJulianDateToEphemerisTime(const double julianDate);
+double convertJulianDateToEphemerisTime( const double julianDate );
 
 //! @get_docstring(convert_ephemeris_time_to_julian_date)
-double convertEphemerisTimeToJulianDate(const double ephemerisTime);
+double convertEphemerisTimeToJulianDate( const double ephemerisTime );
 
 //! @get_docstring(convert_date_string_to_ephemeris_time)
-double convertDateStringToEphemerisTime(const std::string &dateString);
+double convertDateStringToEphemerisTime( const std::string &dateString );
 
 //! @get_docstring(get_body_cartesian_state_at_epoch)
-Eigen::Vector6d getBodyCartesianStateAtEpoch(
-    const std::string &targetBodyName, const std::string &observerBodyName,
-    const std::string &referenceFrameName, const std::string &aberrationCorrections,
-    const double ephemerisTime);
+Eigen::Vector6d getBodyCartesianStateAtEpoch( const std::string &targetBodyName,
+                                              const std::string &observerBodyName,
+                                              const std::string &referenceFrameName,
+                                              const std::string &aberrationCorrections,
+                                              const double ephemerisTime );
 
 //! @get_docstring(get_body_cartesian_position_at_epoch)
-Eigen::Vector3d getBodyCartesianPositionAtEpoch(const std::string &targetBodyName,
-                                                const std::string &observerBodyName,
-                                                const std::string &referenceFrameName,
-                                                const std::string &aberrationCorrections,
-                                                const double ephemerisTime);
+Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string &targetBodyName,
+                                                 const std::string &observerBodyName,
+                                                 const std::string &referenceFrameName,
+                                                 const std::string &aberrationCorrections,
+                                                 const double ephemerisTime );
 
 //! @get_docstring(get_cartesian_state_from_tle_at_epoch)
-Eigen::Vector6d getCartesianStateFromTleAtEpoch(double epoch, std::shared_ptr<ephemerides::Tle> tle);
+Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< ephemerides::Tle > tle );
 
 //! @get_docstring(compute_rotation_quaternion_between_frames)
-Eigen::Quaterniond computeRotationQuaternionBetweenFrames(const std::string &originalFrame,
-                                                          const std::string &newFrame,
-                                                          const double ephemerisTime);
+Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string &originalFrame,
+                                                           const std::string &newFrame,
+                                                           const double ephemerisTime );
 
-Eigen::Matrix3d computeRotationMatrixBetweenFrames(const std::string &originalFrame,
-                                                   const std::string &newFrame,
-                                                   const double ephemerisTime);
+Eigen::Matrix3d computeRotationMatrixBetweenFrames( const std::string &originalFrame,
+                                                    const std::string &newFrame,
+                                                    const double ephemerisTime );
 
-Eigen::Matrix6d computeStateRotationMatrixBetweenFrames(const std::string &originalFrame,
-                                                   const std::string &newFrame,
-                                                   const double ephemerisTime);
+Eigen::Matrix6d computeStateRotationMatrixBetweenFrames( const std::string &originalFrame,
+                                                         const std::string &newFrame,
+                                                         const double ephemerisTime );
 
 //! @get_docstring(compute_rotation_matrix_derivative_between_frames)
-Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames(const std::string &originalFrame,
-                                                             const std::string &newFrame,
-                                                             const double ephemerisTime);
+Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string &originalFrame,
+                                                              const std::string &newFrame,
+                                                              const double ephemerisTime );
 
 //! @get_docstring(get_angular_velocity_vector_of_frame_in_original_frame)
-Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame(const std::string &originalFrame,
-                                                               const std::string &newFrame,
-                                                               const double ephemerisTime);
+Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::string &originalFrame,
+                                                                const std::string &newFrame,
+                                                                const double ephemerisTime );
 
-std::pair<Eigen::Quaterniond, Eigen::Matrix3d> computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(
-    const std::string &originalFrame, const std::string &newFrame, const double ephemerisTime);
+std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(
+        const std::string &originalFrame,
+        const std::string &newFrame,
+        const double ephemerisTime );
 
 //! @get_docstring(get_body_properties)
-std::vector<double> getBodyProperties(const std::string &body,
-                                      const std::string &property,
-                                      const int maximumNumberOfValues = 1);
+std::vector< double > getBodyProperties( const std::string &body, const std::string &property, const int maximumNumberOfValues = 1 );
 
 //! @get_docstring(get_body_gravitational_parameter)
-double getBodyGravitationalParameter(const std::string &body);
+double getBodyGravitationalParameter( const std::string &body );
 
 //! @get_docstring(get_average_radius)
-double getAverageRadius(const std::string &body);
+double getAverageRadius( const std::string &body );
 
-double getAverageEquatorialRadius( const std::string& body );
+double getAverageEquatorialRadius( const std::string &body );
 
-double getPolarRadius( const std::string& body );
+double getPolarRadius( const std::string &body );
 
 //! @get_docstring(convert_body_name_to_naif_id)
-int convertBodyNameToNaifId(const std::string &bodyName);
+int convertBodyNameToNaifId( const std::string &bodyName );
 
 //! Convert a NAIF identification number to its body name.
 std::string convertNaifIdToBodyName( int bodyNaifId );
 
 //! @get_docstring(check_body_property_in_kernel_pool)
-bool checkBodyPropertyInKernelPool(const std::string &bodyName, const std::string &bodyProperty);
+bool checkBodyPropertyInKernelPool( const std::string &bodyName, const std::string &bodyProperty );
 
 //! @get_docstring(load_kernel)
-void loadSpiceKernelInTudat(const std::string &fileName);
+void loadSpiceKernelInTudat( const std::string &fileName );
 
 //! @get_docstring(get_total_count_of_kernels_loaded)
-int getTotalCountOfKernelsLoaded();
+int getTotalCountOfKernelsLoaded( );
 
 //! @get_docstring(clear_kernels)
-void clearSpiceKernels();
+void clearSpiceKernels( );
 
 //! @get_docstring(get_standard_kernels)
-std::vector<std::string> getStandardSpiceKernels(const std::vector<std::string> alternativeEphemerisKernels =
-                                                     std::vector<std::string>());
+std::vector< std::string > getStandardSpiceKernels(
+        const std::vector< std::string > alternativeEphemerisKernels = std::vector< std::string >( ) );
 
 //! @get_docstring(load_standard_kernels)
-void loadStandardSpiceKernels(const std::vector<std::string> alternativeEphemerisKernels =
-                                  std::vector<std::string>());
-
+void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels = std::vector< std::string >( ) );
 
 Eigen::Matrix3d getRotationFromJ2000ToEclipJ2000( );
 
@@ -171,7 +172,7 @@ void toggleErrorReturn( );
  * @brief Sets the CSPICE error output device to "ABORT".
  *
  * This function uses the CSPICE function `errdev_c` to configure the error output device
- * such that errors cause the program to terminate execution immediately. When set to 
+ * such that errors cause the program to terminate execution immediately. When set to
  * "ABORT", CSPICE routines will output error messages (if enabled) and then stop execution.
  *
  * This setting is useful for non-interactive programs or applications where errors should
@@ -277,9 +278,7 @@ std::string getErrorMessage( );
  */
 bool checkFailure( );
 
+}  // namespace spice_interface
+}  // namespace tudat
 
-
-}// namespace spice_interface
-}// namespace tudat
-
-#endif// TUDAT_SPICE_INTERFACE_H
+#endif  // TUDAT_SPICE_INTERFACE_H

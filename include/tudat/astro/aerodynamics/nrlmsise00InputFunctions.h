@@ -16,20 +16,17 @@
 
 #include "tudat/io/solarActivityData.h"
 
-
 namespace tudat
 {
 
 namespace aerodynamics
 {
 
-
 //! Struct for Solar Activity data.
 /*!
  *
  */
-struct NRLMSISE00Input
-{
+struct NRLMSISE00Input {
     //! Input for computation of NRLMSISE00 atmospheric conditions at current time and position.
     /*!
      * Input for computation of NRLMSISE00 atmospheric conditions at current time and position. The computation of
@@ -44,15 +41,17 @@ struct NRLMSISE00Input
      * \param apVector Current magnetic index data vector: \sa ap_array
      * \param switches List of NRLMSISE-specific flags: \sa nrlmsise_flags
      */
-    NRLMSISE00Input(
-            int year = 0, int dayOfTheYear = 0, double secondOfTheDay = 0.0,
-            double localSolarTime = 0.0, double f107 = 0.0, double f107a = 0.0,
-            double apDaily = 0.0,
-            std::vector< double > apVector = std::vector< double>( 7, 0.0 ),
-            std::vector< int > switches = std::vector< int >( ) )
-        : year( year ), dayOfTheYear( dayOfTheYear ), secondOfTheDay( secondOfTheDay) ,
-          localSolarTime( localSolarTime ), f107( f107 ), f107a( f107a ),
-          apDaily( apDaily ), apVector( apVector ), switches( switches )
+    NRLMSISE00Input( int year = 0,
+                     int dayOfTheYear = 0,
+                     double secondOfTheDay = 0.0,
+                     double localSolarTime = 0.0,
+                     double f107 = 0.0,
+                     double f107a = 0.0,
+                     double apDaily = 0.0,
+                     std::vector< double > apVector = std::vector< double >( 7, 0.0 ),
+                     std::vector< int > switches = std::vector< int >( ) ):
+        year( year ), dayOfTheYear( dayOfTheYear ), secondOfTheDay( secondOfTheDay ), localSolarTime( localSolarTime ), f107( f107 ),
+        f107a( f107a ), apDaily( apDaily ), apVector( apVector ), switches( switches )
     {
         if( switches.empty( ) )
         {
@@ -68,7 +67,7 @@ struct NRLMSISE00Input
     int dayOfTheYear;
 
     //! Number of seconds into the current day.
-    double secondOfTheDay;\
+    double secondOfTheDay;
 
     //! Local solar time at the computation position
     double localSolarTime;
@@ -89,7 +88,6 @@ struct NRLMSISE00Input
     std::vector< int > switches;
 };
 
-
 //! NRLMSISE00 Input function
 /*!
  * This function is used to define the input for the NRLMSISE model.
@@ -104,12 +102,15 @@ struct NRLMSISE00Input
  * \param localSolarTime Local solar time that is used when adjustSolarTime is set to true.
  * \return NRLMSISE00Input nrlmsiseInputFunction
  */
-NRLMSISE00Input nrlmsiseInputFunction( const double altitude, const double longitude,
-                                       const double latitude, const double time,
+NRLMSISE00Input nrlmsiseInputFunction( const double altitude,
+                                       const double longitude,
+                                       const double latitude,
+                                       const double time,
                                        const tudat::input_output::solar_activity::SolarActivityDataMap& solarActivityMap,
-                                       const bool adjustSolarTime = false, const double localSolarTime = 0.0 );
+                                       const bool adjustSolarTime = false,
+                                       const double localSolarTime = 0.0 );
 
 }  // namespace aerodynamics
 }  // namespace tudat
 
-#endif // TUDAT_NRLMSISE00_ATMOSPHERE_H_
+#endif  // TUDAT_NRLMSISE00_ATMOSPHERE_H_

@@ -27,12 +27,7 @@ namespace interpolators
 /*!
  *  Enum of available lookup schemes.
  */
-enum AvailableLookupScheme
-{
-    undefinedScheme,
-    huntingAlgorithm,
-    binarySearch
-};
+enum AvailableLookupScheme { undefinedScheme, huntingAlgorithm, binarySearch };
 
 //! Look-up scheme class for nearest left neighbour search.
 /*!
@@ -44,15 +39,14 @@ template< typename IndependentVariableType >
 class LookUpScheme
 {
 public:
-
     //! Constructor, used to set data vector.
     /*!
      * Constructor, used to set data vector.
      * \param independentVariableValues vector of independent variable values in which to perform
      * lookup procedure.
      */
-    LookUpScheme( const std::vector< IndependentVariableType >& independentVariableValues )
-        : independentVariableValues_( independentVariableValues )
+    LookUpScheme( const std::vector< IndependentVariableType >& independentVariableValues ):
+        independentVariableValues_( independentVariableValues )
     { }
 
     //! Destructor.
@@ -83,8 +77,8 @@ public:
         }
         return independentVariableValues_.at( index );
     }
-protected:
 
+protected:
     //! Vector of independent variable values in which lookup is to be performed.
     /*!
      * Vector of independent variable values in which lookup is to be performed.
@@ -98,10 +92,9 @@ protected:
  *  \tparam IndependentVariableType Type of entries of vector in which lookup is to be performed.
  */
 template< typename IndependentVariableType >
-class HuntingAlgorithmLookupScheme: public LookUpScheme< IndependentVariableType >
+class HuntingAlgorithmLookupScheme : public LookUpScheme< IndependentVariableType >
 {
 public:
-
     using LookUpScheme< IndependentVariableType >::independentVariableValues_;
 
     //! Constructor, used to set data vector.
@@ -110,18 +103,15 @@ public:
      * \param independentVariableValues vector of independent variable values in which to perform
      * lookup procedure.
      */
-    HuntingAlgorithmLookupScheme( const std::vector< IndependentVariableType >&
-                                  independentVariableValues )
-        : LookUpScheme< IndependentVariableType >( independentVariableValues ),
-          isFirstLookupDone( 0 ),
-          previousNearestLowerIndex_( 0 )
+    HuntingAlgorithmLookupScheme( const std::vector< IndependentVariableType >& independentVariableValues ):
+        LookUpScheme< IndependentVariableType >( independentVariableValues ), isFirstLookupDone( 0 ), previousNearestLowerIndex_( 0 )
     { }
 
     //! Default destructor
     /*!
      *  Default destructor
      */
-    ~HuntingAlgorithmLookupScheme( ){ }
+    ~HuntingAlgorithmLookupScheme( ) { }
 
     //! Find nearest left neighbour.
     /*!
@@ -137,31 +127,27 @@ public:
         int newNearestLowerIndex = 0;
 
         // If this is first call of function, use binary search.
-        if ( !isFirstLookupDone )
+        if( !isFirstLookupDone )
         {
-            newNearestLowerIndex = basic_mathematics::computeNearestLeftNeighborUsingBinarySearch
-                    < IndependentVariableType >( independentVariableValues_, valueToLookup );
+            newNearestLowerIndex = basic_mathematics::computeNearestLeftNeighborUsingBinarySearch< IndependentVariableType >(
+                    independentVariableValues_, valueToLookup );
             isFirstLookupDone = 1;
         }
 
         else
         {
             // If requested value is in same interval, return same value as previous time.
-            if ( basic_mathematics::isIndependentVariableInInterval< IndependentVariableType >
-                 ( previousNearestLowerIndex_, valueToLookup, independentVariableValues_ ) )
+            if( basic_mathematics::isIndependentVariableInInterval< IndependentVariableType >(
+                        previousNearestLowerIndex_, valueToLookup, independentVariableValues_ ) )
             {
                 newNearestLowerIndex = previousNearestLowerIndex_;
-
             }
 
             // Otherwise, perform hunting algorithm.
             else
             {
-                newNearestLowerIndex =
-                        basic_mathematics::findNearestLeftNeighbourUsingHuntingAlgorithm<
-                        IndependentVariableType >
-                        (  valueToLookup, previousNearestLowerIndex_, independentVariableValues_ );
-
+                newNearestLowerIndex = basic_mathematics::findNearestLeftNeighbourUsingHuntingAlgorithm< IndependentVariableType >(
+                        valueToLookup, previousNearestLowerIndex_, independentVariableValues_ );
             }
         }
 
@@ -172,7 +158,6 @@ public:
     }
 
 private:
-
     //! Boolean to denote whether a lookup has been done.
     /*!
      * Boolean to denote whether a lookup has been done.
@@ -192,10 +177,9 @@ private:
  * \tparam IndependentVariableType Type of entries of vector in which lookup is to be performed.
  */
 template< typename IndependentVariableType >
-class BinarySearchLookupScheme: public LookUpScheme< IndependentVariableType >
+class BinarySearchLookupScheme : public LookUpScheme< IndependentVariableType >
 {
 public:
-
     using LookUpScheme< IndependentVariableType >::independentVariableValues_;
 
     //! Constructor, used to set data vector.
@@ -204,16 +188,15 @@ public:
      * \param independentVariableValues vector of independent variable values in which to perform
      * lookup procedure.
      */
-    BinarySearchLookupScheme(
-            const std::vector< IndependentVariableType >& independentVariableValues )
-        : LookUpScheme< IndependentVariableType >( independentVariableValues )
+    BinarySearchLookupScheme( const std::vector< IndependentVariableType >& independentVariableValues ):
+        LookUpScheme< IndependentVariableType >( independentVariableValues )
     { }
 
     //! Default destructor
     /*!
      *  Default destructor
      */
-    ~BinarySearchLookupScheme( ){ }
+    ~BinarySearchLookupScheme( ) { }
 
     //! Find nearest left neighbour.
     /*!
@@ -224,24 +207,21 @@ public:
      */
     int findNearestLowerNeighbour( const IndependentVariableType valueToLookup )
     {
-        return basic_mathematics::computeNearestLeftNeighborUsingBinarySearch
-                < IndependentVariableType >( independentVariableValues_, valueToLookup );
+        return basic_mathematics::computeNearestLeftNeighborUsingBinarySearch< IndependentVariableType >( independentVariableValues_,
+                                                                                                          valueToLookup );
     }
-
 };
 
 //! Typedef for shared-pointer to LookUpScheme object with double-type entries.
 typedef std::shared_ptr< LookUpScheme< double > > LookUpSchemeDoublePointer;
 
 //! Typedef for shared-pointer to HuntingAlgorithmLookupScheme object with double-type entries.
-typedef std::shared_ptr< HuntingAlgorithmLookupScheme< double > >
-HuntingAlgorithmLookupSchemeDoublePointer;
+typedef std::shared_ptr< HuntingAlgorithmLookupScheme< double > > HuntingAlgorithmLookupSchemeDoublePointer;
 
 //! Typedef for shared-pointer to BinarySearchLookupScheme object with double-type entries.
-typedef std::shared_ptr< BinarySearchLookupScheme< double > >
-BinarySearchLookupSchemeDoublePointer;
+typedef std::shared_ptr< BinarySearchLookupScheme< double > > BinarySearchLookupSchemeDoublePointer;
 
-} // namespace interpolators
-} // namespace tudat
+}  // namespace interpolators
+}  // namespace tudat
 
-#endif // TUDAT_LOOK_UP_SCHEME_H
+#endif  // TUDAT_LOOK_UP_SCHEME_H

@@ -27,10 +27,9 @@ namespace filters
  *  \tparam DependentVariableType Type of dependent variable. Default is double.
  */
 template< typename IndependentVariableType = double, typename DependentVariableType = double >
-class KalmanFilterBase: public FilterBase< IndependentVariableType, DependentVariableType >
+class KalmanFilterBase : public FilterBase< IndependentVariableType, DependentVariableType >
 {
 public:
-
     //! Inherit typedefs from base class.
     typedef typename FilterBase< IndependentVariableType, DependentVariableType >::DependentVector DependentVector;
     typedef typename FilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
@@ -58,17 +57,20 @@ public:
                       const IndependentVariableType initialTime,
                       const DependentVector& initialStateVector,
                       const DependentMatrix& initialCovarianceMatrix,
-                      const std::shared_ptr< IntegratorSettings > integratorSettings ) :
-        FilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
-                                                                      filteringStepSize, initialTime, initialStateVector,
-                                                                      initialCovarianceMatrix, integratorSettings )
+                      const std::shared_ptr< IntegratorSettings > integratorSettings ):
+        FilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty,
+                                                                      measurementUncertainty,
+                                                                      filteringStepSize,
+                                                                      initialTime,
+                                                                      initialStateVector,
+                                                                      initialCovarianceMatrix,
+                                                                      integratorSettings )
     { }
 
     //! Destructor.
-    virtual ~KalmanFilterBase( ){ }
+    virtual ~KalmanFilterBase( ) { }
 
 protected:
-
     //! Function to predict the state for the next time step.
     /*!
      *  Function to predict the state for the next time step, with the either the use of the integrator provided in
@@ -89,8 +91,8 @@ protected:
      */
     DependentVector predictState( const DependentVector& currentStateVector )
     {
-        return this->isStateToBeIntegrated_ ? propagateState( currentStateVector ) :
-                                              this->systemFunction_( this->currentTime_, currentStateVector );
+        return this->isStateToBeIntegrated_ ? propagateState( currentStateVector )
+                                            : this->systemFunction_( this->currentTime_, currentStateVector );
     }
 
     //! Function to correct the covariance for the next time step.
@@ -105,13 +107,12 @@ protected:
                                     const DependentMatrix& kalmanGain )
     {
         this->aPosterioriCovarianceEstimate_ = ( this->identityMatrix_ - kalmanGain * currentMeasurementMatrix ) *
-                aPrioriCovarianceEstimate * ( this->identityMatrix_ - kalmanGain * currentMeasurementMatrix ).transpose( ) +
+                        aPrioriCovarianceEstimate * ( this->identityMatrix_ - kalmanGain * currentMeasurementMatrix ).transpose( ) +
                 kalmanGain * this->measurementUncertainty_ * kalmanGain.transpose( );
         this->historyOfCovarianceEstimates_[ this->currentTime_ ] = this->aPosterioriCovarianceEstimate_;
     }
 
 private:
-
     //! Function to propagate state to the next time step, by overwriting previous state.
     /*!
      *  Function to propagate state to the next time step, by overwriting previous state, with the use of the integrator
@@ -127,17 +128,16 @@ private:
         // Integrate equations
         return this->integrator_->performIntegrationStep( this->filteringStepSize_ );
     }
-
 };
 
 //! Typedef for a filter with double data type.
-typedef KalmanFilterBase< > KalmanFilterDouble;
+typedef KalmanFilterBase<> KalmanFilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
 typedef std::shared_ptr< KalmanFilterDouble > KalmanFilterDoublePointer;
 
-} // namespace filters
+}  // namespace filters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_KALMAN_FILTER_H
+#endif  // TUDAT_KALMAN_FILTER_H

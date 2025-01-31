@@ -25,9 +25,11 @@ namespace tudat
 namespace orbit_determination
 {
 
-void getMaximumUsedDegreeAndOrder(
-        const int maximumDegree, const int maximumOrder, const int evaluationDegree,
-        int& maximumUsedDegree, int& maximumUsedOrder );
+void getMaximumUsedDegreeAndOrder( const int maximumDegree,
+                                   const int maximumOrder,
+                                   const int evaluationDegree,
+                                   int& maximumUsedDegree,
+                                   int& maximumUsedOrder );
 
 //! (Base) class for calculating the partial of a spherical harmonic acceleration w.r.t. a tidal love number.
 /*!
@@ -40,7 +42,6 @@ void getMaximumUsedDegreeAndOrder(
 class TidalLoveNumberPartialInterface
 {
 public:
-
     //! Constructor from objects.
     /*!
      *  Constructor from objects.
@@ -52,39 +53,33 @@ public:
      *  deformed body.
      *  \param deformedBody Name of body being tidally deformed.
      */
-    TidalLoveNumberPartialInterface(
-            const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > gravityFieldVariations,
-            const std::function< Eigen::Vector3d( ) > deformedBodyPositionFunction,
-            const std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions,
-            const std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction,
-            const std::string& deformedBody ):
-        deformedBodyPositionFunction_( deformedBodyPositionFunction ),
-        deformingBodyStateFunctions_( deformingBodyStateFunctions ),
-        rotationToDeformedBodyFrameFrameFunction_( rotationToDeformedBodyFrameFrameFunction ),
-        deformedBody_( deformedBody )
+    TidalLoveNumberPartialInterface( const std::shared_ptr< gravitation::SolidBodyTideGravityFieldVariations > gravityFieldVariations,
+                                     const std::function< Eigen::Vector3d( ) > deformedBodyPositionFunction,
+                                     const std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions,
+                                     const std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction,
+                                     const std::string& deformedBody ):
+        deformedBodyPositionFunction_( deformedBodyPositionFunction ), deformingBodyStateFunctions_( deformingBodyStateFunctions ),
+        rotationToDeformedBodyFrameFrameFunction_( rotationToDeformedBodyFrameFrameFunction ), deformedBody_( deformedBody )
     {
         // Get members from input objects.
         deformingBodyGravitationalParameters_ = gravityFieldVariations->getDeformingBodyMasses( );
         positionsOfDeformingBodies_.resize( deformingBodyStateFunctions_.size( ) );
         deformedBodyReferenceRadius_ = gravityFieldVariations->getDeformedBodyReferenceRadius( );
         deformedBodyGravitationalParameterFunction_ = gravityFieldVariations->getDeformedBodyMassFunction( );
-        deformingBodies_  = gravityFieldVariations->getDeformingBodies( );
-
+        deformingBodies_ = gravityFieldVariations->getDeformingBodies( );
 
         realLoveNumberScaler_ =
                 std::make_pair( ( Eigen::Vector2d( ) << 1.0, 0.0 ).finished( ), ( Eigen::Vector2d( ) << 0.0, 1.0 ).finished( ) );
-        complexLoveNumberScaler_ =
-                std::make_pair( ( Eigen::Matrix2d( ) << 1.0, 0.0, 0.0, -1.0  ).finished( ),
+        complexLoveNumberScaler_ = std::make_pair( ( Eigen::Matrix2d( ) << 1.0, 0.0, 0.0, -1.0 ).finished( ),
                                                    ( Eigen::Matrix2d( ) << 0.0, 1.0, 1.0, 0.0 ).finished( ) );
         for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )
         {
             allDeformingBodyIndices_.push_back( i );
         }
-
     }
 
     //! Destructor
-    virtual ~TidalLoveNumberPartialInterface( ){ }
+    virtual ~TidalLoveNumberPartialInterface( ) { }
 
     //! Function to obtain the indices of given list of body names in deformingBodies_ member vector
     /*!
@@ -108,14 +103,12 @@ public:
      *  \return Partial derivatives of spherical harmonic coefficients. Stl vector entries denote values at requested orders,
      *  Eigen vector rows denote C and S coefficient, respectively; columns denote real and complex tidal Love number components.
      */
-    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >
-    calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers(
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers(
             const int degree,
             const std::vector< int >& orders,
             const std::vector< int >& deformingBodyIndices,
             const int maximumDegree,
             const int maximumOrder );
-
 
     //! Function to calculate the partial of spherical harmonic acceleration w.r.t. complex tidal love numbers.
     /*!
@@ -129,16 +122,14 @@ public:
      *  \return Partial derivatives of spherical harmonic coefficients. Stl vector entries denote values at all orders at degree,
      *  Eigen vector rows denote C and S coefficient, respectively; columns denote real and complex tidal Love number components.
      */
-    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >
-    calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber(
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber(
             const int degree,
             const std::vector< int >& deformingBodyIndices,
             const int maximumDegree,
             const int maximumOrder )
     {
         return calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers(
-                        degree, estimatable_parameters::fullDegreeOrders[ degree - 2 ], deformingBodyIndices,
-                maximumDegree, maximumOrder );
+                degree, estimatable_parameters::fullDegreeOrders[ degree - 2 ], deformingBodyIndices, maximumDegree, maximumOrder );
     }
 
     //! Function to calculate the partial of spherical harmonic acceleration w.r.t. real tidal love numbers.
@@ -155,21 +146,19 @@ public:
      *  Eigen vector rows denote C and S coefficient, respectively; Eigen vector has one column, denoting real part of tidal
      *  Love number.
      */
-    virtual std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >
-    calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
+    virtual std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
             const int degree,
             const std::vector< int >& orders,
             const std::vector< int >& deformingBodyIndices,
             const int maximumDegree,
             const int maximumOrder );
 
-    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >
-    calculateSphericalHarmonicCoefficientsPartialWrtModeCoupledTidalLoveNumbers(
-        const std::vector< std::pair< int, int > > parameterDegreeAndOrderIndices,
-        const std::map< int, std::vector< int > >& ordersPerDegree,
-        const std::vector< int >& deformingBodyIndices,
-        const int maximumDegree,
-        const int maximumOrder );
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientsPartialWrtModeCoupledTidalLoveNumbers(
+            const std::vector< std::pair< int, int > > parameterDegreeAndOrderIndices,
+            const std::map< int, std::vector< int > >& ordersPerDegree,
+            const std::vector< int >& deformingBodyIndices,
+            const int maximumDegree,
+            const int maximumOrder );
 
     //! Function to calculate the partial of spherical harmonic acceleration w.r.t. real tidal love numbers.
     /*!
@@ -184,16 +173,14 @@ public:
      *  Eigen vector rows denote C and S coefficient, respectively; Eigen vector has one column, denoting real part of tidal
      *  Love number.
      */
-    virtual std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >
-    calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber(
+    virtual std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber(
             const int degree,
             const std::vector< int >& deformingBodyIndices,
             const int maximumDegree,
             const int maximumOrder )
     {
         return calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
-                    degree, estimatable_parameters::fullDegreeOrders[ degree - 2 ], deformingBodyIndices,
-                maximumDegree, maximumOrder );
+                degree, estimatable_parameters::fullDegreeOrders[ degree - 2 ], deformingBodyIndices, maximumDegree, maximumOrder );
     }
 
     //! Update tidal Love number interface to current time
@@ -300,10 +287,9 @@ public:
         {
             if( parameterDoublePartialFunctions_.count( std::make_pair( parameter, maximumDegreeAndOrder ) ) == 0 )
             {
-                std::string errorMessage =
-                        "Parameter of type " + std::to_string( parameter->getParameterName( ).first ) + ", " +
-                           parameter->getParameterName( ).second.first + ", " +
-                           parameter->getParameterName( ).second.second + " not found in list of existing partials";
+                std::string errorMessage = "Parameter of type " + std::to_string( parameter->getParameterName( ).first ) + ", " +
+                        parameter->getParameterName( ).second.first + ", " + parameter->getParameterName( ).second.second +
+                        " not found in list of existing partials";
                 throw std::runtime_error( errorMessage );
             }
             else
@@ -332,7 +318,6 @@ public:
         return getCurrentParameterPartial( parameter, maximumDegreeAndOrder );
     }
 
-
     //! Function to retrieve a partial w.r.t. a vector parameter
     /*!
      * Function to retrieve a partial w.r.t. a vector parameter. An error is thrown if there is no dependency w.r.t.
@@ -344,17 +329,15 @@ public:
      */
     std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >& getCurrentParameterPartial(
             const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
-            const std::pair< int, int > maximumDegreeAndOrder  )
+            const std::pair< int, int > maximumDegreeAndOrder )
     {
-
         if( currentVectorParameterPartials_.count( std::make_pair( parameter, maximumDegreeAndOrder ) ) == 0 )
         {
             if( parameterVectorPartialFunctions_.count( std::make_pair( parameter, maximumDegreeAndOrder ) ) == 0 )
             {
-                std::string errorMessage =
-                        "Parameter of type " + std::to_string( parameter->getParameterName( ).first ) + ", " +
-                           parameter->getParameterName( ).second.first + ", " +
-                           parameter->getParameterName( ).second.second + " not found in list of existing partials";
+                std::string errorMessage = "Parameter of type " + std::to_string( parameter->getParameterName( ).first ) + ", " +
+                        parameter->getParameterName( ).second.first + ", " + parameter->getParameterName( ).second.second +
+                        " not found in list of existing partials";
                 throw std::runtime_error( errorMessage );
             }
             else
@@ -384,20 +367,18 @@ public:
         return getCurrentParameterPartial( parameter, maximumDegreeAndOrder );
     }
 
-
     //! Name of body being deformed
     std::string getDeformedBody( )
     {
         return deformedBody_;
     }
 
-
     std::vector< std::string > getDeformingBodies( )
     {
         return deformingBodies_;
     }
-protected:
 
+protected:
     //! Function to compute Love number partials from pre-computed partials and provided scaling values
     /*!
      * Function to compute Love number partials from pre-computed partials and provided scaling values. This function is
@@ -412,7 +393,7 @@ protected:
     std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientPartialMatrix(
             const std::vector< Eigen::Vector2d >& coefficientPartialsPerOrder,
             const std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, Eigen::Matrix< double, 2, Eigen::Dynamic > >&
-            coefficientPartialScalers );
+                    coefficientPartialScalers );
 
     //! Function to calculate the partial of spherical harmonic coefficients w.r.t. real part of tidal love numbers.
     /*!
@@ -428,12 +409,11 @@ protected:
      *  \return Vector of partials of Spherical harmonic coefficients ([C_{nm};S_{nm}]). w.r.t. real part of tidal love number
      *  Entries of return vector correspond to orders given by corresponding entry in orders vector.
      */
-    std::vector< Eigen::Vector2d > calculateCoefficientPartialWrtRealTidalLoveNumber(
-            const int degree,
-            const std::vector< int >& orders,
-            const std::vector< int >& deformingBodyIndices,
-            const int maximumDegree,
-            const int maximumOrder );
+    std::vector< Eigen::Vector2d > calculateCoefficientPartialWrtRealTidalLoveNumber( const int degree,
+                                                                                      const std::vector< int >& orders,
+                                                                                      const std::vector< int >& deformingBodyIndices,
+                                                                                      const int maximumDegree,
+                                                                                      const int maximumOrder );
 
     //! Function to pre-calculate all states of bodies involved.
     /*!
@@ -454,12 +434,8 @@ protected:
      */
     virtual void setCurrentTidalBodyStates( const int degree, const int order, const int body );
 
-
-
     //! Reference radius used by tidal deformation model.
     double deformedBodyReferenceRadius_;
-
-
 
     //! Function to retrieve current state of body being tidally deformed
     /*!
@@ -471,11 +447,8 @@ protected:
     //! Function to retrieve current state of body being accelerated.
     std::function< Eigen::Vector3d( ) > acceleratingBodyPositionFunction_;
 
-
-
     //! Function to retrieve current gravitational parameter of body being deformed.
     std::function< double( ) > deformedBodyGravitationalParameterFunction_;
-
 
     //! Current gravitational parameter of body being deformed.
     double deformedBodyGravitationalParameter_;
@@ -491,8 +464,6 @@ protected:
 
     //! Current time to which object has been updated.
     double currentTime_;
-
-
 
     //! Current relative position in inertial frame of body causing deformation, as set by setCurrentTidalBodyStates function
     Eigen::Vector3d relativeDeformingBodyPosition_;
@@ -514,7 +485,6 @@ protected:
     //! Current sine of longitude of body causing deformation, in frame fixed to body being deformed, times i (sqrt(-1)) as set by
     //! setCurrentTidalBodyStates function
     std::complex< double > iLongitude_;
-
 
     //! Values used to scale real Love number partials to themselves (trivial, but required for interface)
     std::pair< Eigen::Matrix< double, 2, 1 >, Eigen::Matrix< double, 2, 1 > > realLoveNumberScaler_;
@@ -539,40 +509,39 @@ protected:
     //! List of current positions of bodies causing deformation
     std::vector< Eigen::Vector3d > positionsOfDeformingBodies_;
 
+    //! List of functions to compute values of partials w.r.t. double parameter partials
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >, std::pair< int, int > >,
+              std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > >
+            currentDoubleParameterPartials_;
 
     //! List of functions to compute values of partials w.r.t. double parameter partials
-    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
-    std::pair< int, int > >, std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > > currentDoubleParameterPartials_;
-
-    //! List of functions to compute values of partials w.r.t. double parameter partials
-    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
-    std::pair< int, int > >, std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >
-    parameterDoublePartialFunctions_;
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >, std::pair< int, int > >,
+              std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >
+            parameterDoublePartialFunctions_;
 
     //! Iterator over list of functions to compute values of partials w.r.t. double parameter partials
-    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
-    std::pair< int, int > >, std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >::iterator
-    parameterDoublePartialFunctionIterator_;
-
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >, std::pair< int, int > >,
+              std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >::iterator
+            parameterDoublePartialFunctionIterator_;
 
     //! List of current values of partials w.r.t. double parameter values (emptied at beginning of every time step).
-    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
-    std::pair< int, int > >, std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > > currentVectorParameterPartials_;
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >, std::pair< int, int > >,
+              std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > >
+            currentVectorParameterPartials_;
 
     //! List of functions to compute values of partials w.r.t. vector parameter partials
-    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
-    std::pair< int, int > >, std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >
-    parameterVectorPartialFunctions_;
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >, std::pair< int, int > >,
+              std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >
+            parameterVectorPartialFunctions_;
 
     //! Iterator over list of functions to compute values of partials w.r.t. vector parameter partials
-    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
-    std::pair< int, int > >, std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >::iterator
-    parameterVectorPartialFunctionIterator_;
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >, std::pair< int, int > >,
+              std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >::iterator
+            parameterVectorPartialFunctionIterator_;
 };
 
-}
+}  // namespace orbit_determination
 
-}
+}  // namespace tudat
 
-
-#endif // TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
+#endif  // TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H

@@ -20,21 +20,15 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-
-class ScaledLongitudeLibrationAmplitude: public EstimatableParameter< double >
+class ScaledLongitudeLibrationAmplitude : public EstimatableParameter< double >
 {
-
 public:
-
-
-    ScaledLongitudeLibrationAmplitude(
-            const std::shared_ptr< ephemerides::DirectLongitudeLibrationCalculator > librationCalculator,
-            const std::string& associatedBody ):
-        EstimatableParameter< double  >( scaled_longitude_libration_amplitude, associatedBody ),
-        librationCalculator_( librationCalculator ) { }
+    ScaledLongitudeLibrationAmplitude( const std::shared_ptr< ephemerides::DirectLongitudeLibrationCalculator > librationCalculator,
+                                       const std::string& associatedBody ):
+        EstimatableParameter< double >( scaled_longitude_libration_amplitude, associatedBody ), librationCalculator_( librationCalculator )
+    { }
 
     ~ScaledLongitudeLibrationAmplitude( ) { }
-
 
     double getParameterValue( )
     {
@@ -52,14 +46,12 @@ public:
     }
 
 protected:
-
 private:
-
     std::shared_ptr< ephemerides::DirectLongitudeLibrationCalculator > librationCalculator_;
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_LONGITUDELIBRATIONAMPLITUDE_H
+#endif  // TUDAT_LONGITUDELIBRATIONAMPLITUDE_H

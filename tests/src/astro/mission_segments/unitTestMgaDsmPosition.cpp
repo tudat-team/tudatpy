@@ -50,25 +50,18 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     // GTOP software distributed and downloadable from the ESA website, or within the PaGMO
     // Astrotoolbox.
     const double expectedDsmDeltaV = 910.801673341206;
-    const Eigen::Vector3d expectedEndVelocity ( 17969.3166254715, -23543.6915939142,
-                                             6.38384671663485 );
+    const Eigen::Vector3d expectedEndVelocity( 17969.3166254715, -23543.6915939142, 6.38384671663485 );
 
     // Specify the required parameters.
     // Set the planetary positions and velocities.
 
     const Eigen::Vector6d planet1State =
-            ( Eigen::Vector6d( ) <<
-              -148689402143.081, 7454242895.97607, 0.0,
-              -1976.48781307596, -29863.4035321021, 0.0 ).finished( );
-    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris1 =
-            std::make_shared< ephemerides::ConstantEphemeris >( planet1State );
+            ( Eigen::Vector6d( ) << -148689402143.081, 7454242895.97607, 0.0, -1976.48781307596, -29863.4035321021, 0.0 ).finished( );
+    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris1 = std::make_shared< ephemerides::ConstantEphemeris >( planet1State );
 
     const Eigen::Vector6d planet2State =
-            ( Eigen::Vector6d( ) <<
-              -128359548637.032, -78282803797.7343, 0.,
-              TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
-    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris2 =
-            std::make_shared< ephemerides::ConstantEphemeris >( planet2State );
+            ( Eigen::Vector6d( ) << -128359548637.032, -78282803797.7343, 0., TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
+    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris2 = std::make_shared< ephemerides::ConstantEphemeris >( planet2State );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 399.999999715 * physical_constants::JULIAN_DAY;
@@ -83,15 +76,12 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     const double dimensionlessRadiusDsm = 0.915891737859598;
 
     Eigen::VectorXd legFreeParameters =
-            ( Eigen::VectorXd( 6 ) << 0.0, timeOfFlight,
-              dsmTimeOfFlightFraction, dimensionlessRadiusDsm, inPlaneAngle, outOfPlaneAngle ).finished( );
+            ( Eigen::VectorXd( 6 ) << 0.0, timeOfFlight, dsmTimeOfFlightFraction, dimensionlessRadiusDsm, inPlaneAngle, outOfPlaneAngle )
+                    .finished( );
 
     // Set test case.
-    mission_segments::DsmPositionBasedTransferLeg transferLeg(
-           constantEphemeris1, constantEphemeris2,
-            sunGravitationalParameter );
+    mission_segments::DsmPositionBasedTransferLeg transferLeg( constantEphemeris1, constantEphemeris2, sunGravitationalParameter );
     transferLeg.updateLegParameters( legFreeParameters );
-
 
     BOOST_CHECK_CLOSE_FRACTION( expectedDsmDeltaV, transferLeg.getLegDeltaV( ), tolerance );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedEndVelocity, transferLeg.getArrivalVelocity( ), tolerance );
@@ -113,18 +103,15 @@ BOOST_AUTO_TEST_CASE( testVelocities )
 
         // Check if Keplerian state (slow elements) is the same for each output point
         Eigen::Vector6d previousKeplerianState = Eigen::Vector6d::Constant( TUDAT_NAN );
-        for( auto it : statesAlongTrajectory )
+        for( auto it: statesAlongTrajectory )
         {
             Eigen::Vector6d currentCartesianState = it.second;
             Eigen::Vector6d currentKeplerianState = tudat::orbital_element_conversions::convertCartesianToKeplerianElements(
-                        currentCartesianState, sunGravitationalParameter );
+                    currentCartesianState, sunGravitationalParameter );
             if( previousKeplerianState == previousKeplerianState )
             {
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            ( previousKeplerianState.segment( 0, 5 ) ),
-                            ( currentKeplerianState.segment( 0, 5 ) ),
-                            1.0E-14 );
-
+                        ( previousKeplerianState.segment( 0, 5 ) ), ( currentKeplerianState.segment( 0, 5 ) ), 1.0E-14 );
             }
             previousKeplerianState = currentKeplerianState;
         }
@@ -136,7 +123,6 @@ BOOST_AUTO_TEST_CASE( testVelocities )
             BOOST_CHECK_SMALL( std::fabs( statesAlongTrajectory.rbegin( )->second( i ) - dsmLocation( i ) ), 5.0E-2 );
         }
 
-
         // Get data on 10 equispace points on trajectory
         std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
         transferLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, outputTimes );
@@ -146,10 +132,10 @@ BOOST_AUTO_TEST_CASE( testVelocities )
         BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, dsmTime - timeTolerance, 1.0E-14 );
 
         // Check if thrust acceleration is zero
-        for( auto it : thrustAccelerationsAlongTrajectory )
+        for( auto it: thrustAccelerationsAlongTrajectory )
         {
             Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
-            BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm(), 1.0E-14 );
+            BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm( ), 1.0E-14 );
         }
     }
 
@@ -166,18 +152,15 @@ BOOST_AUTO_TEST_CASE( testVelocities )
 
         // Check if Keplerian state (slow elements) is the same for each output point
         Eigen::Vector6d previousKeplerianState = Eigen::Vector6d::Constant( TUDAT_NAN );
-        for( auto it : statesAlongTrajectory )
+        for( auto it: statesAlongTrajectory )
         {
             Eigen::Vector6d currentCartesianState = it.second;
             Eigen::Vector6d currentKeplerianState = tudat::orbital_element_conversions::convertCartesianToKeplerianElements(
-                        currentCartesianState, sunGravitationalParameter );
+                    currentCartesianState, sunGravitationalParameter );
             if( previousKeplerianState == previousKeplerianState )
             {
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            ( previousKeplerianState.segment( 0, 5 ) ),
-                            ( currentKeplerianState.segment( 0, 5 ) ),
-                            1.0E-14 );
-
+                        ( previousKeplerianState.segment( 0, 5 ) ), ( currentKeplerianState.segment( 0, 5 ) ), 1.0E-14 );
             }
             previousKeplerianState = currentKeplerianState;
         }
@@ -189,7 +172,6 @@ BOOST_AUTO_TEST_CASE( testVelocities )
             BOOST_CHECK_SMALL( std::fabs( statesAlongTrajectory.rbegin( )->second( i ) - planet2State( i ) ), 1.0E-2 );
         }
 
-
         // Get data on 10 equispace points on trajectory
         std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
         transferLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, outputTimes );
@@ -199,17 +181,15 @@ BOOST_AUTO_TEST_CASE( testVelocities )
         BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, timeOfFlight, 1.0E-14 );
 
         // Check if thrust acceleration is zero
-        for( auto it : thrustAccelerationsAlongTrajectory )
+        for( auto it: thrustAccelerationsAlongTrajectory )
         {
             Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
-            BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm(), 1.0E-14 );
+            BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm( ), 1.0E-14 );
         }
-
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

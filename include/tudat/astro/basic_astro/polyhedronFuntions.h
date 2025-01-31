@@ -35,8 +35,7 @@ namespace basic_astrodynamics
  * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  * @return Volume.
  */
-double computePolyhedronSurfaceArea (const Eigen::MatrixXd& verticesCoordinates,
-                                     const Eigen::MatrixXi& verticesDefiningEachFacet );
+double computePolyhedronSurfaceArea( const Eigen::MatrixXd& verticesCoordinates, const Eigen::MatrixXi& verticesDefiningEachFacet );
 
 /*! Computes the volume of a polyhedron.
  *
@@ -46,8 +45,7 @@ double computePolyhedronSurfaceArea (const Eigen::MatrixXd& verticesCoordinates,
  * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  * @return Volume.
  */
-double computePolyhedronVolume (const Eigen::MatrixXd& verticesCoordinates,
-                                const Eigen::MatrixXi& verticesDefiningEachFacet );
+double computePolyhedronVolume( const Eigen::MatrixXd& verticesCoordinates, const Eigen::MatrixXi& verticesDefiningEachFacet );
 
 /*! Computes the mean radius of the polyhedron.
  *
@@ -57,8 +55,7 @@ double computePolyhedronVolume (const Eigen::MatrixXd& verticesCoordinates,
  * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  * @return Mean radius.
  */
-double computePolyhedronMeanRadius( const Eigen::MatrixXd& verticesCoordinates,
-                                    const Eigen::MatrixXi& verticesDefiningEachFacet );
+double computePolyhedronMeanRadius( const Eigen::MatrixXd& verticesCoordinates, const Eigen::MatrixXi& verticesDefiningEachFacet );
 
 /*! Computes the centroid a polyhedron.
  *
@@ -69,7 +66,7 @@ double computePolyhedronMeanRadius( const Eigen::MatrixXd& verticesCoordinates,
  * @param verticesDefiningEachFacet Index (0 based) of the vertices constituting each facet (one row per facet, 3 columns).
  * @return Position of centroid.
  */
-Eigen::Vector3d computePolyhedronCentroidPosition (const Eigen::MatrixXd& verticesCoordinates,
+Eigen::Vector3d computePolyhedronCentroidPosition( const Eigen::MatrixXd& verticesCoordinates,
                                                    const Eigen::MatrixXi& verticesDefiningEachFacet );
 
 /*! Adjusts the centroid of the polyhedron to the desired value.
@@ -83,10 +80,9 @@ Eigen::Vector3d computePolyhedronCentroidPosition (const Eigen::MatrixXd& vertic
  * @param desiredCentroid Desired position of the centroid wrt the frame in which the vertices were defined.
  * @return Corrected coordinates of vertices.
  */
-Eigen::MatrixXd modifyPolyhedronCentroidPosition (const Eigen::MatrixXd& verticesCoordinates,
+Eigen::MatrixXd modifyPolyhedronCentroidPosition( const Eigen::MatrixXd& verticesCoordinates,
                                                   const Eigen::MatrixXi& verticesDefiningEachFacet,
                                                   const Eigen::Vector3d desiredCentroid );
-
 
 /*! Computes the inertia tensor a polyhedron.
  *
@@ -97,7 +93,7 @@ Eigen::MatrixXd modifyPolyhedronCentroidPosition (const Eigen::MatrixXd& vertice
  * @param density Density of polyhedron
  * @return Inertia tensor.
  */
-Eigen::Matrix3d computePolyhedronInertiaTensor (const Eigen::MatrixXd& verticesCoordinates,
+Eigen::Matrix3d computePolyhedronInertiaTensor( const Eigen::MatrixXd& verticesCoordinates,
                                                 const Eigen::MatrixXi& verticesDefiningEachFacet,
                                                 const double density );
 
@@ -111,12 +107,12 @@ Eigen::Matrix3d computePolyhedronInertiaTensor (const Eigen::MatrixXd& verticesC
  * @param gravitationalConstant Gravitational constant
  * @return Inertia tensor.
  */
-Eigen::Matrix3d computePolyhedronInertiaTensor (const Eigen::MatrixXd& verticesCoordinates,
+Eigen::Matrix3d computePolyhedronInertiaTensor( const Eigen::MatrixXd& verticesCoordinates,
                                                 const Eigen::MatrixXi& verticesDefiningEachFacet,
                                                 const double gravitationalParameter,
                                                 const double gravitationalConstant );
 
-} // namespace basic_astrodynamics
-} // namespace tudat
+}  // namespace basic_astrodynamics
+}  // namespace tudat
 
-#endif //TUDAT_POLYHEDRONFUNTIONS_H
+#endif  // TUDAT_POLYHEDRONFUNTIONS_H

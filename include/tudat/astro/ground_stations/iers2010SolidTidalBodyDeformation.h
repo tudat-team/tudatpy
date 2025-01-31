@@ -31,7 +31,6 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-
 namespace iers_2010_parameters
 {
 
@@ -59,15 +58,12 @@ const static double DEGREE_TWO_DIURNAL_TOROIDAL_LOVE_NUMBER = 0.0012;
 
 const static double DEGREE_TWO_SEMIDIURNAL_TOROIDAL_LOVE_NUMBER = 0.0024;
 
-}
-
-
-
+}  // namespace iers_2010_parameters
 
 //! Calculate trigonometric expressions for correction fo site displacements, step 1 of IERS Conventions 2010, Chapter 7
 std::vector< Eigen::Vector3d > calculateDisplacementCorrectionTrigonometricPart( const Eigen::Vector3d& relativeBodyState,
-                                                                                     const Eigen::Vector3d& stationSphericalCoordinates,
-                                                                                     const std::vector< bool >& calculateTerms );
+                                                                                 const Eigen::Vector3d& stationSphericalCoordinates,
+                                                                                 const std::vector< bool >& calculateTerms );
 
 Eigen::Vector3d calculateFirstCorrectionStepDisplacements( const Eigen::Vector3d& relativeBodyState,
                                                            const Eigen::Vector3d& stationSphericalCoordinates,
@@ -124,10 +120,9 @@ Eigen::Vector3d calculateFrequencyDependentDisplacementCorrections( const Eigen:
                                                                     const Eigen::MatrixXd& amplitudes,
                                                                     const Eigen::Vector3d& stationSphericalCoordinates );
 
-class Iers2010EarthDeformation: public BasicTidalBodyDeformation
+class Iers2010EarthDeformation : public BasicTidalBodyDeformation
 {
 public:
-
     using BasicTidalBodyDeformation::calculateDisplacement;
 
     Iers2010EarthDeformation(
@@ -143,8 +138,9 @@ public:
             const std::vector< double >& correctionLoveAndShidaNumbers,
             const std::string& diurnalFile = "",
             const std::string& longPeriodFile = "",
-            const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction =
-            [](const double time){return sofa_interface::calculateDoodsonFundamentalArguments( time ); } );
+            const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
+                return sofa_interface::calculateDoodsonFundamentalArguments( time );
+            } );
 
     ~Iers2010EarthDeformation( ) { }
 
@@ -159,9 +155,7 @@ public:
      *  \param doodsonArguments Doodson arguments for band-dependent Love number corrections, given as zeroes
      *  by default, in which case the arguments will be computed internally.
      */
-    Eigen::Vector3d calculateDisplacement(
-            const double time,
-            const Eigen::Vector3d& bodyFixedPosition );
+    Eigen::Vector3d calculateDisplacement( const double time, const Eigen::Vector3d& bodyFixedPosition );
 
     //! Function to calculate the site displacement at a given time and nominal site state.
     /*!
@@ -176,9 +170,7 @@ public:
     Eigen::Vector3d calculateDisplacement( const double ephemerisTime,
                                            const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState );
 
-
 private:
-
     Eigen::Vector3d calculateDisplacement( const std::shared_ptr< ground_stations::GroundStationState > nominalSiteState,
                                            const Eigen::Vector6d& doodsonArguments );
 
@@ -220,10 +212,8 @@ private:
     std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction_;
 };
 
+}  // namespace basic_astrodynamics
 
+}  // namespace tudat
 
-} // namespace basic_astrodynamics
-
-} // namespace tudat
-
-#endif // TUDAT_IERS202SOLIDTIDALBODYDEFORMATION_H
+#endif  // TUDAT_IERS202SOLIDTIDALBODYDEFORMATION_H

@@ -21,20 +21,18 @@ namespace tudat
 namespace gravitation
 {
 
-class PolynomialGravityFieldVariations: public GravityFieldVariations
+class PolynomialGravityFieldVariations : public GravityFieldVariations
 {
 public:
-    PolynomialGravityFieldVariations(
-            const std::map< int, Eigen::MatrixXd >& cosineAmplitudes,
-            const std::map< int, Eigen::MatrixXd >& sineAmplitudes,
-            const double referenceEpoch,
-            const int minimumDegree = 2,
-            const int minimumOrder = 0 );
+    PolynomialGravityFieldVariations( const std::map< int, Eigen::MatrixXd >& cosineAmplitudes,
+                                      const std::map< int, Eigen::MatrixXd >& sineAmplitudes,
+                                      const double referenceEpoch,
+                                      const int minimumDegree = 2,
+                                      const int minimumOrder = 0 );
 
-    virtual ~PolynomialGravityFieldVariations( ){ }
+    virtual ~PolynomialGravityFieldVariations( ) { }
 
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections(
-            const double time );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
 
     std::map< int, Eigen::MatrixXd > getCosineAmplitudes( )
     {
@@ -56,7 +54,6 @@ public:
         sineAmplitudes_ = sineAmplitudes;
     }
 
-
     std::map< int, Eigen::MatrixXd >& getCosineAmplitudesReference( )
     {
         return cosineAmplitudes_;
@@ -73,17 +70,15 @@ public:
     }
 
 protected:
-
     std::map< int, Eigen::MatrixXd > cosineAmplitudes_;
 
     std::map< int, Eigen::MatrixXd > sineAmplitudes_;
 
     const double referenceEpoch_;
-
 };
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_PPOLYNOMIALGRAVITYFIELDVARIATIONS_H
+#endif  // TUDAT_PPOLYNOMIALGRAVITYFIELDVARIATIONS_H

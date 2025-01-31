@@ -17,7 +17,6 @@
 #include <vector>
 #include <map>
 
-
 #include <type_traits>
 #include <memory>
 #include <Eigen/Geometry>
@@ -33,8 +32,7 @@ namespace estimatable_parameters
 {
 
 //! List of parameters that can be estimated by the orbit determination code.
-enum EstimatebleParametersEnum
-{
+enum EstimatebleParametersEnum {
     arc_wise_initial_body_state,
     initial_body_state,
     initial_rotational_body_state,
@@ -156,21 +154,17 @@ bool isParameterClockProperty( const EstimatebleParametersEnum parameterType );
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;
 
-
 class CustomAccelerationPartialSettings
 {
 public:
-
-    CustomAccelerationPartialSettings(
-        const std::string bodyUndergoingAcceleration,
-        const std::string bodyExertingAcceleration,
-        const basic_astrodynamics::AvailableAcceleration accelerationType ):
-        bodyUndergoingAcceleration_( bodyUndergoingAcceleration ),
-        bodyExertingAcceleration_( bodyExertingAcceleration ),
+    CustomAccelerationPartialSettings( const std::string bodyUndergoingAcceleration,
+                                       const std::string bodyExertingAcceleration,
+                                       const basic_astrodynamics::AvailableAcceleration accelerationType ):
+        bodyUndergoingAcceleration_( bodyUndergoingAcceleration ), bodyExertingAcceleration_( bodyExertingAcceleration ),
         accelerationType_( accelerationType )
-        { }
+    { }
 
-    virtual ~CustomAccelerationPartialSettings( ){ }
+    virtual ~CustomAccelerationPartialSettings( ) { }
 
     std::string bodyUndergoingAcceleration_;
 
@@ -178,72 +172,69 @@ public:
 
     basic_astrodynamics::AvailableAcceleration accelerationType_;
 
-    bool accelerationMatches(
-        const std::string bodyUndergoingAcceleration,
-        const std::string bodyExertingAcceleration,
-        const basic_astrodynamics::AvailableAcceleration accelerationType )
+    bool accelerationMatches( const std::string bodyUndergoingAcceleration,
+                              const std::string bodyExertingAcceleration,
+                              const basic_astrodynamics::AvailableAcceleration accelerationType )
     {
-        return ( accelerationType_ == accelerationType ) &&
-        ( bodyUndergoingAcceleration_ == bodyUndergoingAcceleration ) &&
-        ( bodyExertingAcceleration_ == bodyExertingAcceleration );
+        return ( accelerationType_ == accelerationType ) && ( bodyUndergoingAcceleration_ == bodyUndergoingAcceleration ) &&
+                ( bodyExertingAcceleration_ == bodyExertingAcceleration );
     }
 };
 
-class NumericalAccelerationPartialSettings: public CustomAccelerationPartialSettings
+class NumericalAccelerationPartialSettings : public CustomAccelerationPartialSettings
 {
 public:
-
     NumericalAccelerationPartialSettings(
-        const Eigen::VectorXd& parameterPerturbation,
-        const std::string bodyUndergoingAcceleration,
-        const std::string bodyExertingAcceleration,
-        const basic_astrodynamics::AvailableAcceleration accelerationType,
-        const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentUpdateSettings =
-        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) ):
+            const Eigen::VectorXd& parameterPerturbation,
+            const std::string bodyUndergoingAcceleration,
+            const std::string bodyExertingAcceleration,
+            const basic_astrodynamics::AvailableAcceleration accelerationType,
+            const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentUpdateSettings =
+                    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) ):
         CustomAccelerationPartialSettings( bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ),
-        parameterPerturbation_( parameterPerturbation ), environmentUpdateSettings_( environmentUpdateSettings ){ }
+        parameterPerturbation_( parameterPerturbation ), environmentUpdateSettings_( environmentUpdateSettings )
+    { }
 
     Eigen::VectorXd parameterPerturbation_;
 
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentUpdateSettings_;
 };
 
-class AnalyticalAccelerationPartialSettings: public CustomAccelerationPartialSettings
+class AnalyticalAccelerationPartialSettings : public CustomAccelerationPartialSettings
 {
 public:
-
     AnalyticalAccelerationPartialSettings(
-        const std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction,
-        const std::string bodyUndergoingAcceleration,
-        const std::string bodyExertingAcceleration,
-        const basic_astrodynamics::AvailableAcceleration accelerationType ):
+            const std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction,
+            const std::string bodyUndergoingAcceleration,
+            const std::string bodyExertingAcceleration,
+            const basic_astrodynamics::AvailableAcceleration accelerationType ):
         CustomAccelerationPartialSettings( bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ),
-    accelerationPartialFunction_( accelerationPartialFunction ){ }
+        accelerationPartialFunction_( accelerationPartialFunction )
+    { }
 
     std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction_;
 };
 
-
 inline std::shared_ptr< CustomAccelerationPartialSettings > analyticalAccelerationPartialSettings(
-    const std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction,
-    const std::string bodyUndergoingAcceleration,
-    const std::string bodyExertingAcceleration,
-    const basic_astrodynamics::AvailableAcceleration accelerationType )
+        const std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction,
+        const std::string bodyUndergoingAcceleration,
+        const std::string bodyExertingAcceleration,
+        const basic_astrodynamics::AvailableAcceleration accelerationType )
 {
     return std::make_shared< AnalyticalAccelerationPartialSettings >(
-        accelerationPartialFunction, bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType );
+            accelerationPartialFunction, bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType );
 }
 
 inline std::shared_ptr< CustomAccelerationPartialSettings > numericalAccelerationPartialSettings(
-    const Eigen::VectorXd& parameterPerturbation,
-    const std::string bodyUndergoingAcceleration,
-    const std::string bodyExertingAcceleration,
-    const basic_astrodynamics::AvailableAcceleration accelerationType,
-    const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentUpdateSettings  =
-    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) )
+        const Eigen::VectorXd& parameterPerturbation,
+        const std::string bodyUndergoingAcceleration,
+        const std::string bodyExertingAcceleration,
+        const basic_astrodynamics::AvailableAcceleration accelerationType,
+        const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentUpdateSettings =
+                std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) )
 {
     return std::make_shared< NumericalAccelerationPartialSettings >(
-        parameterPerturbation, bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType, environmentUpdateSettings );
+            parameterPerturbation, bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType, environmentUpdateSettings );
 }
 
 //! Base class for a parameter that is to be estimated.
@@ -254,7 +245,6 @@ inline std::shared_ptr< CustomAccelerationPartialSettings > numericalAcceleratio
 template< typename ParameterType >
 class EstimatableParameter
 {
-
 public:
     //! Constructor.
     /*!
@@ -266,8 +256,9 @@ public:
      */
     EstimatableParameter( const EstimatebleParametersEnum parameterName,
                           const std::string& associatedBody,
-                          const std::string& pointOnBodyId = ""  ):
-        parameterName_( std::make_pair( parameterName, std::make_pair( associatedBody, pointOnBodyId ) ) ){ }
+                          const std::string& pointOnBodyId = "" ):
+        parameterName_( std::make_pair( parameterName, std::make_pair( associatedBody, pointOnBodyId ) ) )
+    { }
 
     //! Virtual destructor.
     virtual ~EstimatableParameter( ) { }
@@ -291,7 +282,10 @@ public:
      *  Function to retrieve the type and associated body of the parameter.
      *  \return Identifier of parameter as a pair of parameter type and body of which parameter is a property.
      */
-    EstimatebleParameterIdentifier getParameterName( ) { return parameterName_; }
+    EstimatebleParameterIdentifier getParameterName( )
+    {
+        return parameterName_;
+    }
 
     virtual std::string getParameterDescription( )
     {
@@ -355,7 +349,7 @@ public:
         return Eigen::VectorXd::Zero( 0 );
     }
 
-    virtual void throwExceptionIfNotFullyDefined( ){ }
+    virtual void throwExceptionIfNotFullyDefined( ) { }
 
     std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > getCustomPartialSettings( )
     {
@@ -369,7 +363,8 @@ public:
         bool hasCustomSettings = false;
         for( unsigned int i = 0; i < customPartialSettings_.size( ); i++ )
         {
-            if( customPartialSettings_.at( i )->accelerationMatches( bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ) == true )
+            if( customPartialSettings_.at( i )->accelerationMatches(
+                        bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ) == true )
             {
                 hasCustomSettings = true;
             }
@@ -390,7 +385,6 @@ public:
     }
 
 protected:
-
     //! Identifier of parameter.
     EstimatebleParameterIdentifier parameterName_;
 
@@ -402,27 +396,23 @@ protected:
         {
             for( unsigned int j = i + 1; j < customPartialSettings_.size( ); j++ )
             {
-                if( customPartialSettings_.at( i )->accelerationMatches(
-                    customPartialSettings_.at( j )->bodyUndergoingAcceleration_,
-                    customPartialSettings_.at( j )->bodyExertingAcceleration_,
-                    customPartialSettings_.at( j )->accelerationType_  ) )
+                if( customPartialSettings_.at( i )->accelerationMatches( customPartialSettings_.at( j )->bodyUndergoingAcceleration_,
+                                                                         customPartialSettings_.at( j )->bodyExertingAcceleration_,
+                                                                         customPartialSettings_.at( j )->accelerationType_ ) )
                 {
-                    throw std::runtime_error( "Error, found multiple custom partials for acceleration on (" +
-                                                  customPartialSettings_.at( j )->bodyUndergoingAcceleration_ +") due to (" +
-                                                  customPartialSettings_.at( j )->bodyExertingAcceleration_ + ") of type: " +
-                                                  basic_astrodynamics::getAccelerationModelName( customPartialSettings_.at( j )->accelerationType_ ) );
+                    throw std::runtime_error(
+                            "Error, found multiple custom partials for acceleration on (" +
+                            customPartialSettings_.at( j )->bodyUndergoingAcceleration_ + ") due to (" +
+                            customPartialSettings_.at( j )->bodyExertingAcceleration_ + ") of type: " +
+                            basic_astrodynamics::getAccelerationModelName( customPartialSettings_.at( j )->accelerationType_ ) );
                 }
             }
-
         }
     }
-
-
 };
 
-class CustomEstimatableParameter: public EstimatableParameter< Eigen::VectorXd >
+class CustomEstimatableParameter : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
     //! Constructor.
     /*!
@@ -432,15 +422,13 @@ public:
      *  \param associatedBody Name of body associated with patameters
      *  \param pointOnBodyId Reference point on body associated with parameter (empty by default).
      */
-    CustomEstimatableParameter(
-        const std::string& customId,
-        const int parameterSize,
-        const std::function< Eigen::VectorXd( ) > getParameterFunction,
-        const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
-        EstimatableParameter< Eigen::VectorXd >( custom_estimated_parameter, "", customId ),
-        parameterSize_( parameterSize ),
-        getParameterFunction_( getParameterFunction ),
-        setParameterFunction_( setParameterFunction ){ }
+    CustomEstimatableParameter( const std::string& customId,
+                                const int parameterSize,
+                                const std::function< Eigen::VectorXd( ) > getParameterFunction,
+                                const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
+        EstimatableParameter< Eigen::VectorXd >( custom_estimated_parameter, "", customId ), parameterSize_( parameterSize ),
+        getParameterFunction_( getParameterFunction ), setParameterFunction_( setParameterFunction )
+    { }
 
     //! Virtual destructor.
     ~CustomEstimatableParameter( ) { }
@@ -456,8 +444,7 @@ public:
         if( currentParameter.rows( ) != parameterSize_ )
         {
             throw std::runtime_error( "Error, when getting cutom parameter value, size is incompatible " +
-                                          std::to_string( currentParameter.rows( ) ) + ", " +
-                                          std::to_string( parameterSize_ ) );
+                                      std::to_string( currentParameter.rows( ) ) + ", " + std::to_string( parameterSize_ ) );
         }
         return currentParameter;
     }
@@ -472,8 +459,7 @@ public:
         if( parameterValue.rows( ) != parameterSize_ )
         {
             throw std::runtime_error( "Error, when getting cutom parameter value, size is incompatible " +
-                                      std::to_string( parameterValue.rows( ) ) + ", " +
-                                      std::to_string( parameterSize_ ) );
+                                      std::to_string( parameterValue.rows( ) ) + ", " + std::to_string( parameterSize_ ) );
         }
         setParameterFunction_( parameterValue );
     }
@@ -488,65 +474,55 @@ public:
         return parameterSize_;
     }
 
-
-
 protected:
-
     int parameterSize_;
 
     std::function< Eigen::VectorXd( ) > getParameterFunction_;
 
     std::function< void( const Eigen::VectorXd& ) > setParameterFunction_;
-
 };
 
 class CustomAccelerationPartialCalculator
 {
 public:
+    CustomAccelerationPartialCalculator( ) { }
 
-    CustomAccelerationPartialCalculator( ){ }
+    virtual ~CustomAccelerationPartialCalculator( ) { }
 
-    virtual ~CustomAccelerationPartialCalculator( ){ }
-
-    virtual Eigen::MatrixXd computePartial(
-        const double currentTime, const Eigen::Vector3d& currentAcceleration,
-        const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel ) = 0;
+    virtual Eigen::MatrixXd computePartial( const double currentTime,
+                                            const Eigen::Vector3d& currentAcceleration,
+                                            const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel ) = 0;
 
 protected:
-//    std::string bodyUndergoingAcceleration_;
-//
-//    std::string bodyExertingAcceleration_;
-//
-//    basic_astrodynamics::AvailableAcceleration accelerationType_;
+    //    std::string bodyUndergoingAcceleration_;
+    //
+    //    std::string bodyExertingAcceleration_;
+    //
+    //    basic_astrodynamics::AvailableAcceleration accelerationType_;
 };
 
-
-class NumericalAccelerationPartialWrtStateCalculator: public CustomAccelerationPartialCalculator
+class NumericalAccelerationPartialWrtStateCalculator : public CustomAccelerationPartialCalculator
 {
 public:
-
-    NumericalAccelerationPartialWrtStateCalculator(
-        const Eigen::VectorXd& bodyStatePerturbations,
-        const std::function< Eigen::Vector6d( ) > bodyStateGetFunction,
-        const std::function< void( const Eigen::Vector6d& ) > bodyStateSetFunction,
-        const std::function< void( const double ) > environmentUpdateFunction ):
-        bodyStatePerturbations_( bodyStatePerturbations ),
-        bodyStateGetFunction_( bodyStateGetFunction ),
-        bodyStateSetFunction_( bodyStateSetFunction ),
-        environmentUpdateFunction_( environmentUpdateFunction )
+    NumericalAccelerationPartialWrtStateCalculator( const Eigen::VectorXd& bodyStatePerturbations,
+                                                    const std::function< Eigen::Vector6d( ) > bodyStateGetFunction,
+                                                    const std::function< void( const Eigen::Vector6d& ) > bodyStateSetFunction,
+                                                    const std::function< void( const double ) > environmentUpdateFunction ):
+        bodyStatePerturbations_( bodyStatePerturbations ), bodyStateGetFunction_( bodyStateGetFunction ),
+        bodyStateSetFunction_( bodyStateSetFunction ), environmentUpdateFunction_( environmentUpdateFunction )
     {
         if( bodyStatePerturbations_.rows( ) != 6 )
         {
-            throw std::runtime_error( "Error when making numerical acceleration partial for initial state parameter, sizes are inconsistent: " +
-                                      std::to_string( bodyStatePerturbations_.rows( ) ) + ", " + std::to_string( 6 ) );
+            throw std::runtime_error(
+                    "Error when making numerical acceleration partial for initial state parameter, sizes are inconsistent: " +
+                    std::to_string( bodyStatePerturbations_.rows( ) ) + ", " + std::to_string( 6 ) );
         }
         currentPartial_ = Eigen::MatrixXd::Zero( 3, 6 );
-
     }
 
-    Eigen::MatrixXd computePartial(
-        const double currentTime, const Eigen::Vector3d& currentAcceleration,
-        const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel )
+    Eigen::MatrixXd computePartial( const double currentTime,
+                                    const Eigen::Vector3d& currentAcceleration,
+                                    const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel )
     {
         currentPartial_.setZero( );
 
@@ -585,13 +561,12 @@ public:
 
             // Compute partial
             currentPartial_.block( 0, i, 3, 1 ) =
-                ( upperturbedAcceleration - downperturbedAcceleration ) / ( 2.0 * bodyStatePerturbations_( i ) );
+                    ( upperturbedAcceleration - downperturbedAcceleration ) / ( 2.0 * bodyStatePerturbations_( i ) );
         }
         return currentPartial_;
     }
 
 protected:
-
     Eigen::VectorXd bodyStatePerturbations_;
 
     const std::function< Eigen::Vector6d( ) > bodyStateGetFunction_;
@@ -603,38 +578,32 @@ protected:
     Eigen::Matrix< double, 3, 6 > currentPartial_;
 };
 
-class AnalyticalAccelerationPartialCalculator: public CustomAccelerationPartialCalculator
+class AnalyticalAccelerationPartialCalculator : public CustomAccelerationPartialCalculator
 {
 public:
-
     AnalyticalAccelerationPartialCalculator(
-        const std::function<Eigen::MatrixXd( const double, const Eigen::Vector3d & )> accelerationPartialFunction,
-        const int parameterSize,
-        const std::string parameterName ) :
-        accelerationPartialFunction_( accelerationPartialFunction ), parameterSize_( parameterSize ),
-        parameterName_( parameterName )
-    {
-    }
+            const std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction,
+            const int parameterSize,
+            const std::string parameterName ):
+        accelerationPartialFunction_( accelerationPartialFunction ), parameterSize_( parameterSize ), parameterName_( parameterName )
+    { }
 
-    Eigen::MatrixXd computePartial(
-        const double currentTime, const Eigen::Vector3d &currentAcceleration,
-        const std::shared_ptr<basic_astrodynamics::AccelerationModel3d> accelerationModel )
+    Eigen::MatrixXd computePartial( const double currentTime,
+                                    const Eigen::Vector3d& currentAcceleration,
+                                    const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel )
     {
         Eigen::MatrixXd currentAccelerationPartial = accelerationPartialFunction_( currentTime, currentAcceleration );
-        if ( currentAccelerationPartial.cols( ) != parameterSize_)
+        if( currentAccelerationPartial.cols( ) != parameterSize_ )
         {
-            throw std::runtime_error( "Error when making numerical acceleration partial for parameter " +
-                                      parameterName_ + ", sizes are inconsistent: " +
-                                      std::to_string( currentAccelerationPartial.cols( )) + ", " +
-                                      std::to_string( parameterSize_));
+            throw std::runtime_error( "Error when making numerical acceleration partial for parameter " + parameterName_ +
+                                      ", sizes are inconsistent: " + std::to_string( currentAccelerationPartial.cols( ) ) + ", " +
+                                      std::to_string( parameterSize_ ) );
         }
         return currentAccelerationPartial;
     }
 
 protected:
-
-
-    std::function<Eigen::MatrixXd( const double, const Eigen::Vector3d & )> accelerationPartialFunction_;
+    std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction_;
 
     int parameterSize_;
 
@@ -644,23 +613,25 @@ protected:
 class CustomSingleAccelerationPartialCalculatorSet
 {
 public:
-    CustomSingleAccelerationPartialCalculatorSet( ){ }
+    CustomSingleAccelerationPartialCalculatorSet( ) { }
 
     std::map< estimatable_parameters::EstimatebleParameterIdentifier,
-        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customInitialStatePartials_;
+              std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > >
+            customInitialStatePartials_;
 
     std::map< estimatable_parameters::EstimatebleParameterIdentifier,
-        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customDoubleParameterPartials_;
+              std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > >
+            customDoubleParameterPartials_;
 
     std::map< estimatable_parameters::EstimatebleParameterIdentifier,
-        std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > > customVectorParameterPartials_;
+              std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > >
+            customVectorParameterPartials_;
 
     int getNumberOfCustomPartials( )
     {
         return customInitialStatePartials_.size( ) + customDoubleParameterPartials_.size( ) + customVectorParameterPartials_.size( );
     }
 };
-
 
 //! Function to determine if an initial state parameter is a single- or multi-arc parameter
 /*!
@@ -676,37 +647,30 @@ bool isDynamicalParameterSingleArc(
     bool flag = -1;
     switch( parameterToCheck->getParameterName( ).first )
     {
-    case arc_wise_initial_body_state:
-    {
-        flag = false;
-        break;
-    }
-    case initial_body_state:
-    {
-        flag = true;
-        break;
-    }
-    case initial_rotational_body_state:
-    {
-        flag = true;
-        break;
-    }
-    case initial_mass_state:
-    {
-        flag = true;
-        break;
-    }
-    default:
-        throw std::runtime_error( "Error when checking single/multi-arc dynamical parameter, parameter not identified" );
+        case arc_wise_initial_body_state: {
+            flag = false;
+            break;
+        }
+        case initial_body_state: {
+            flag = true;
+            break;
+        }
+        case initial_rotational_body_state: {
+            flag = true;
+            break;
+        }
+        case initial_mass_state: {
+            flag = true;
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when checking single/multi-arc dynamical parameter, parameter not identified" );
     }
     return flag;
-
 }
 
+}  // namespace estimatable_parameters
 
+}  // namespace tudat
 
-} // namespace estimatable_parameters
-
-} // namespace tudat
-
-#endif // TUDAT_ESTIMATABLEPARAMETERS_H
+#endif  // TUDAT_ESTIMATABLEPARAMETERS_H

@@ -26,11 +26,10 @@ namespace observation_models
  *  2 in this model. The difference is that the first and last link end will be the same for the former case, and different for
  *  the latter case. The retransmission of a signal at the intermediate link ends can be done with a (negative or positive) delay.
  */
-template< typename ObservationScalarType = double,
-          typename TimeType = double >
-class NWayRangeObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
+template< typename ObservationScalarType = double, typename TimeType = double >
+class NWayRangeObservationModel : public ObservationModel< 1, ObservationScalarType, TimeType >
 {
-public:    
+public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
     typedef Eigen::Matrix< ObservationScalarType, 3, 1 > PositionType;
 
@@ -44,28 +43,28 @@ public:
      */
     NWayRangeObservationModel(
             const LinkEnds& linkEnds,
-            const std::vector< std::shared_ptr< observation_models::LightTimeCalculator
-                < ObservationScalarType, TimeType > > > lightTimeCalculators,
+            const std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >
+                    lightTimeCalculators,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
-            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-                = std::make_shared< LightTimeConvergenceCriteria >( ) ):
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                    std::make_shared< LightTimeConvergenceCriteria >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator )
     {
-        multiLegLightTimeCalculator_ = std::make_shared< observation_models::MultiLegLightTimeCalculator<
-                ObservationScalarType, TimeType > >( lightTimeCalculators, lightTimeConvergenceCriteria );
+        multiLegLightTimeCalculator_ =
+                std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
+                        lightTimeCalculators, lightTimeConvergenceCriteria );
     }
 
-    NWayRangeObservationModel(
-            const LinkEnds& linkEnds,
-            const std::shared_ptr< observation_models::MultiLegLightTimeCalculator
-                < ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
-            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
+    NWayRangeObservationModel( const LinkEnds& linkEnds,
+                               const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
+                                       multiLegLightTimeCalculator,
+                               const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ),
         multiLegLightTimeCalculator_( multiLegLightTimeCalculator )
     { }
 
     //! Destructor
-    ~NWayRangeObservationModel( ){ }
+    ~NWayRangeObservationModel( ) { }
 
     //! Function to compute n-way range observable without any corrections.
     /*!
@@ -90,15 +89,15 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr  )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
-
         ObservationScalarType totalLightTime = multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
 
         // Return total range observation.
-        return ( Eigen::Matrix< ObservationScalarType, 1, 1 >(
-                     ) << totalLightTime * physical_constants::getSpeedOfLight< ObservationScalarType >( ) ).finished( );
+        return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )
+                 << totalLightTime * physical_constants::getSpeedOfLight< ObservationScalarType >( ) )
+                .finished( );
     }
 
     std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculators( )
@@ -112,14 +111,12 @@ public:
     }
 
 private:
-
     // Object that iteratively computes the light time of multiple legs
     std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator_;
-
 };
 
-} // namespace observation_models
+}  // namespace observation_models
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_NWAYRANGEOBSERVATIONMODEL_H
+#endif  // TUDAT_NWAYRANGEOBSERVATIONMODEL_H

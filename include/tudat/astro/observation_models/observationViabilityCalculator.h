@@ -30,19 +30,16 @@ namespace tudat
 namespace observation_models
 {
 
-
 //! Enum defining possible checks which can be performed for observation viability,
 /*!
  *  Enum defining possible checks which can be performed for observation viability, the string and double parameter shown in the
  *  comments are used to define it when making an ObservationViabilitySettings object
  */
-enum ObservationViabilityType
-{
-    minimum_elevation_angle,    //properties: no string, double = elevation angle
-    body_avoidance_angle,       //properties: string = body to avoid, double = avoidance angle
-    body_occultation            //properties: string = occulting body, no double
+enum ObservationViabilityType {
+    minimum_elevation_angle,  // properties: no string, double = elevation angle
+    body_avoidance_angle,     // properties: string = body to avoid, double = avoidance angle
+    body_occultation          // properties: string = occulting body, no double
 };
-
 
 //! Base class for determining whether an observation is possible or not
 /*!
@@ -54,12 +51,11 @@ enum ObservationViabilityType
 class ObservationViabilityCalculator
 {
 public:
-
     //! Base class constructor
-    ObservationViabilityCalculator( ){ }
+    ObservationViabilityCalculator( ) { }
 
     //! Base class destructor
-    virtual ~ObservationViabilityCalculator( ){ }
+    virtual ~ObservationViabilityCalculator( ) { }
 
     //! Pure virtual base class function for determining whether an observation is viable.
     /*!
@@ -72,15 +68,13 @@ public:
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
      *  \return True if observation is viable, false if not.
      */
-    virtual bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                      const std::vector< double >& linkEndTimes ) = 0;
+    virtual bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes ) = 0;
 };
 
-double getEvaluationEpochOfViabilityBody(
-    const std::vector< Eigen::Vector6d >& linkEndStates,
-    const std::vector< double >& linkEndTimes,
-    const std::pair< int, int > linkEndIndexPair,
-    const std::function< Eigen::Vector6d( const double ) > viabilityBodyStateFunction  );
+double getEvaluationEpochOfViabilityBody( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                          const std::vector< double >& linkEndTimes,
+                                          const std::pair< int, int > linkEndIndexPair,
+                                          const std::function< Eigen::Vector6d( const double ) > viabilityBodyStateFunction );
 
 //! Function to check whether an observation is viable
 /*!
@@ -96,7 +90,9 @@ double getEvaluationEpochOfViabilityBody(
  * \return True if observation is viable, false if not.
  */
 bool isObservationViable(
-        const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times, const LinkEnds& linkEnds,
+        const std::vector< Eigen::Vector6d >& states,
+        const std::vector< double >& times,
+        const LinkEnds& linkEnds,
         const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators );
 
 //! Function to check whether an observation is viable
@@ -110,16 +106,14 @@ bool isObservationViable(
  * \param viabilityCalculators List of viability calculators
  * \return True if observation is viable, false if not.
  */
-bool isObservationViable(
-        const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times,
-        const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators );
-
+bool isObservationViable( const std::vector< Eigen::Vector6d >& states,
+                          const std::vector< double >& times,
+                          const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators );
 
 //! Function to check whether an observation is possible based on minimum elevation angle criterion at one link end.
-class MinimumElevationAngleCalculator: public ObservationViabilityCalculator
+class MinimumElevationAngleCalculator : public ObservationViabilityCalculator
 {
 public:
-
     //! Constructor.
     /*!
      * Constructor, takes a variable defining the geometry and the minimmum elevation angle and current angle calculator.
@@ -131,15 +125,15 @@ public:
      * \param minimumElevationAngle Minimum elevation angle that is allowed.
      * \param pointingAngleCalculator Object to calculate pointing angles (elevation angle) at ground station
      */
-    MinimumElevationAngleCalculator(
-            const std::vector< std::pair< int, int > > linkEndIndices,
-            const double minimumElevationAngle,
-            const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator ):
+    MinimumElevationAngleCalculator( const std::vector< std::pair< int, int > > linkEndIndices,
+                                     const double minimumElevationAngle,
+                                     const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator ):
         linkEndIndices_( linkEndIndices ), minimumElevationAngle_( minimumElevationAngle ),
-        pointingAngleCalculator_( pointingAngleCalculator ){ }
+        pointingAngleCalculator_( pointingAngleCalculator )
+    { }
 
     //! Destructor
-    ~MinimumElevationAngleCalculator( ){ }
+    ~MinimumElevationAngleCalculator( ) { }
 
     //! Function for determining whether the elevation angle at station is sufficient to allow observation.
     /*!
@@ -151,10 +145,9 @@ public:
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
      *  \return True if observation is viable, false if not.
      */
-    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
-                              const std::vector< double >& linkEndTimes );
-private:
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes );
 
+private:
     //! Vector of indices denoting which combinations of entries of vectors are to be used in isObservationViable  function
     /*!
      *  Vector of indices denoting which combinations of entries from the linkEndIndices and linkEndTimes vectors to use for
@@ -193,10 +186,9 @@ double computeCosineBodyAvoidanceAngle( const std::vector< Eigen::Vector6d >& li
  *  NOTE: This class computes the position of the body that is to be avoided in at the time halfway between transmission and
  *  reception time of the signal
  */
-class BodyAvoidanceAngleCalculator: public ObservationViabilityCalculator
+class BodyAvoidanceAngleCalculator : public ObservationViabilityCalculator
 {
 public:
-
     //! Constructor
     /*!
      *  \brief BodyAvoidanceAngleCalculator
@@ -214,13 +206,12 @@ public:
                                   const double bodyAvoidanceAngle,
                                   const std::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid,
                                   const std::string bodyToAvoid ):
-        linkEndIndices_( linkEndIndices ),
-        bodyAvoidanceAngle_( bodyAvoidanceAngle ),
-        stateFunctionOfBodyToAvoid_( stateFunctionOfBodyToAvoid ),
-        bodyToAvoid_( bodyToAvoid ){ }
+        linkEndIndices_( linkEndIndices ), bodyAvoidanceAngle_( bodyAvoidanceAngle ),
+        stateFunctionOfBodyToAvoid_( stateFunctionOfBodyToAvoid ), bodyToAvoid_( bodyToAvoid )
+    { }
 
     //! Destructor
-    ~BodyAvoidanceAngleCalculator( ){ }
+    ~BodyAvoidanceAngleCalculator( ) { }
 
     //! Function for determining whether the avoidance angle to a given body at station is sufficient to allow observation.
     /*!
@@ -233,11 +224,9 @@ public:
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
      *  \return True if observation is viable, false if not.
      */
-    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
-                              const std::vector< double >& linkEndTimes );
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes );
 
 private:
-
     //! Vector of indices denoting which combinations of entries of vectors to isObservationViable are to be used.
     /*!
      *  Vector of indices denoting which combinations of entries from the linkEndIndices and linkEndTimes vectors to use for
@@ -258,11 +247,10 @@ private:
     std::string bodyToAvoid_;
 };
 
-bool computeOccultation(
-    const Eigen::Vector3d observer1Position,
-    const Eigen::Vector3d observer2Position,
-    const Eigen::Vector3d occulterPosition,
-    const double radius );
+bool computeOccultation( const Eigen::Vector3d observer1Position,
+                         const Eigen::Vector3d observer2Position,
+                         const Eigen::Vector3d occulterPosition,
+                         const double radius );
 
 //! Function to check whether an observation is possible, based on whether a given body is causing an occultation of the link
 /*!
@@ -270,17 +258,15 @@ bool computeOccultation(
  *  NOTE: This class computes the position of the occulting body in at the time halfway between transmission and reception time of
  *  the signal
  */
-class OccultationCalculator: public ObservationViabilityCalculator
+class OccultationCalculator : public ObservationViabilityCalculator
 {
 public:
-
-    OccultationCalculator(
-            const std::vector< std::pair< int, int > > linkEndIndices,
-            const std::function< Eigen::Vector6d( const double ) > stateFunctionOfOccultingBody,
-            const double radiusOfOccultingBody ):
-        linkEndIndices_( linkEndIndices ),
-        stateFunctionOfOccultingBody_( stateFunctionOfOccultingBody ),
-        radiusOfOccultingBody_( radiusOfOccultingBody ){ }
+    OccultationCalculator( const std::vector< std::pair< int, int > > linkEndIndices,
+                           const std::function< Eigen::Vector6d( const double ) > stateFunctionOfOccultingBody,
+                           const double radiusOfOccultingBody ):
+        linkEndIndices_( linkEndIndices ), stateFunctionOfOccultingBody_( stateFunctionOfOccultingBody ),
+        radiusOfOccultingBody_( radiusOfOccultingBody )
+    { }
 
     //! Function for determining whether the link is occulted during the observataion.
     /*!
@@ -293,11 +279,9 @@ public:
      *  function computeObservationsAndLinkEndData of the associated ObservationModel.
      *  \return True if observation is viable, false if not.
      */
-    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
-                              const std::vector< double >& linkEndTimes );
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes );
 
 private:
-
     //! Vector of indices denoting which combinations of entries of vectors to isObservationViable are to be used.
     /*!
      *  Vector of indices denoting which combinations of entries from the linkEndIndices and linkEndTimes vectors to use for
@@ -315,8 +299,8 @@ private:
     double radiusOfOccultingBody_;
 };
 
-}
+}  // namespace observation_models
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_OBSERVATIONVIABILITYCALCULATOR_H
+#endif  // TUDAT_OBSERVATIONVIABILITYCALCULATOR_H

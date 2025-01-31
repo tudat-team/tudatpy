@@ -22,8 +22,6 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/tidalLoveNumberPartialInterface.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 
-
-
 namespace tudat
 {
 
@@ -35,10 +33,9 @@ namespace acceleration_partials
  *  Class for calculating partial derivatives of a spherical harmonic gravitational acceleration, as calculated by the
  *  SphericalHarmonicsGravitationalAccelerationModel class.
  */
-class SphericalHarmonicsGravityPartial: public AccelerationPartial
+class SphericalHarmonicsGravityPartial : public AccelerationPartial
 {
 public:
-
     //! Contructor.
     /*!
      *  Constructor, requires input on the acceleration model as of which partials are to be computed.
@@ -59,13 +56,12 @@ public:
             const std::string& acceleratingBody,
             const std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
-            observation_partials::RotationMatrixPartialNamedList( ),
-            const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >&
-            tidalLoveNumberPartialInterfaces =
-            std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >( ) );
+                    observation_partials::RotationMatrixPartialNamedList( ),
+            const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >& tidalLoveNumberPartialInterfaces =
+                    std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >( ) );
 
     //! Destructor
-    ~SphericalHarmonicsGravityPartial( ){ }
+    ~SphericalHarmonicsGravityPartial( ) { }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -78,9 +74,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtPositionOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -103,9 +100,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtVelocityOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
+    void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 3 )
     {
         if( addContribution )
         {
@@ -129,7 +127,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -153,7 +153,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -174,14 +176,13 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-                const std::pair< std::string, std::string >& stateReferencePoint,
-                const propagators::IntegratedStateType integratedStateType )
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType )
     {
         bool doesDependencyExist = false;
         if( ( ( stateReferencePoint.first == acceleratingBody_ ||
-              ( stateReferencePoint.first == acceleratedBody_  && accelerationUsesMutualAttraction_ ) )
-              && integratedStateType == propagators::body_mass_state ) )
+                ( stateReferencePoint.first == acceleratedBody_ && accelerationUsesMutualAttraction_ ) ) &&
+              integratedStateType == propagators::body_mass_state ) )
         {
             throw std::runtime_error( "Warning, dependency of central gravity on body masses not yet implemented" );
         }
@@ -199,8 +200,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -221,11 +222,10 @@ public:
      *  \param integratedStateType Type of propagated state for which partial is to be computed.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      */
-    void wrtNonTranslationalStateOfAdditionalBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType,
-            const bool addContribution = true )
+    void wrtNonTranslationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                   const std::pair< std::string, std::string >& stateReferencePoint,
+                                                   const propagators::IntegratedStateType integratedStateType,
+                                                   const bool addContribution = true )
     {
         if( stateReferencePoint.first == acceleratingBody_ && integratedStateType == propagators::rotational_state )
         {
@@ -313,7 +313,6 @@ public:
     }
 
 protected:
-
     //! Function to reset the relevant member objects to the current time.
     void resetCurrentTimeOfMemberObjects( )
     {
@@ -332,22 +331,20 @@ protected:
         }
     }
 
-    void wrtPolynomialGravityFieldVariations(
-        const std::vector< std::pair< int, int > >& cosineBlockIndices,
-        const std::vector< std::pair< int, int > >& sineBlockIndices,
-        const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
-        const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
-        const double referenceEpoch,
-        Eigen::MatrixXd& partialDerivatives );
+    void wrtPolynomialGravityFieldVariations( const std::vector< std::pair< int, int > >& cosineBlockIndices,
+                                              const std::vector< std::pair< int, int > >& sineBlockIndices,
+                                              const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+                                              const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+                                              const double referenceEpoch,
+                                              Eigen::MatrixXd& partialDerivatives );
 
-    void wrtPeriodicGravityFieldVariations(
-        const std::vector< std::pair< int, int > >& cosineBlockIndices,
-        const std::vector< std::pair< int, int > >& sineBlockIndices,
-        const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
-        const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
-        const std::vector< double >& frequencies,
-        const double referenceEpoch,
-        Eigen::MatrixXd& partialDerivatives );
+    void wrtPeriodicGravityFieldVariations( const std::vector< std::pair< int, int > >& cosineBlockIndices,
+                                            const std::vector< std::pair< int, int > >& sineBlockIndices,
+                                            const std::vector< std::vector< std::pair< int, int > > > powersPerCosineBlockIndex,
+                                            const std::vector< std::vector< std::pair< int, int > > > powersPerSineBlockIndex,
+                                            const std::vector< double >& frequencies,
+                                            const double referenceEpoch,
+                                            Eigen::MatrixXd& partialDerivatives );
 
     //! Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
     /*!
@@ -358,9 +355,7 @@ protected:
      *  \param partialDerivatives Matrix of acceleration partials that is set by this function (returned by reference),
      *  with each column containg the partial wrt a single coefficient (in same order as blockIndices).
      */
-    void wrtCosineCoefficientBlock(
-            const std::vector< std::pair< int, int > >& blockIndices,
-            Eigen::MatrixXd& partialDerivatives );
+    void wrtCosineCoefficientBlock( const std::vector< std::pair< int, int > >& blockIndices, Eigen::MatrixXd& partialDerivatives );
 
     //! Function to calculate the partial of the acceleration wrt a set of sine coefficients.
     /*!
@@ -371,9 +366,7 @@ protected:
      *  \param partialDerivatives Matrix of acceleration partials that is set by this function (returned by reference),
      *  with each column containg the partial wrt a single coefficient (in same order as blockIndices).
      */
-    void wrtSineCoefficientBlock(
-            const std::vector< std::pair< int, int > >& blockIndices,
-            Eigen::MatrixXd& partialDerivatives );
+    void wrtSineCoefficientBlock( const std::vector< std::pair< int, int > >& blockIndices, Eigen::MatrixXd& partialDerivatives );
 
     //! Function to calculate an acceleration partial wrt a rotational parameter.
     /*!
@@ -386,10 +379,9 @@ protected:
      *  \param secondaryIdentifier Identifier required to unambiguously define the parameter (in addition to information in
      *  parameterType.
      */
-    void wrtRotationModelParameter(
-            Eigen::MatrixXd& accelerationPartial,
-            const estimatable_parameters::EstimatebleParametersEnum parameterType,
-            const std::string& secondaryIdentifier );
+    void wrtRotationModelParameter( Eigen::MatrixXd& accelerationPartial,
+                                    const estimatable_parameters::EstimatebleParametersEnum parameterType,
+                                    const std::string& secondaryIdentifier );
 
     //! Function to calculate an acceleration partial wrt a tidal parameter.
     /*!
@@ -417,11 +409,11 @@ protected:
             Eigen::MatrixXd& accelerationPartial );
 
     void wrtModeCoupledLoveNumbers(
-        const std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
-        const std::vector< int >& responseIndices,
-        const std::vector< std::pair< int, int > >& responseDegreeOrders,
-        const int parameterSize,
-        Eigen::MatrixXd& partialMatrix );
+            const std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
+            const std::vector< int >& responseIndices,
+            const std::vector< std::pair< int, int > >& responseDegreeOrders,
+            const int parameterSize,
+            Eigen::MatrixXd& partialMatrix );
 
     //! Function to return the gravitational parameter used for calculating the acceleration.
     std::function< double( ) > gravitationalParameterFunction_;
@@ -547,11 +539,10 @@ protected:
      *  into account as an inertial effect.
      */
     bool accelerationUsesMutualAttraction_;
-
 };
 
-} // namespace acceleration_partials
+}  // namespace acceleration_partials
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_SPHERICALHARMONICACCELERATIONPARTIAL_H
+#endif  // TUDAT_SPHERICALHARMONICACCELERATIONPARTIAL_H

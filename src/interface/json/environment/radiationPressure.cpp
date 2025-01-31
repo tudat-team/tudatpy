@@ -18,38 +18,32 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.
-void to_json( nlohmann::json& jsonObject,
-              const std::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings )
 {
-    if ( ! radiationPressureInterfaceSettings )
+    if( !radiationPressureInterfaceSettings )
     {
         return;
     }
     using namespace json_interface;
     using K = Keys::Body::RadiationPressure;
 
-    const RadiationPressureType radiationPressureType =
-            radiationPressureInterfaceSettings->getRadiationPressureType( );
+    const RadiationPressureType radiationPressureType = radiationPressureInterfaceSettings->getRadiationPressureType( );
     jsonObject[ K::type ] = radiationPressureType;
 
-    switch ( radiationPressureType )
+    switch( radiationPressureType )
     {
-    case cannon_ball_radiation_pressure_interface:
-    {
-        std::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallRadiationPressureInterfaceSettings =
-                std::dynamic_pointer_cast< CannonBallRadiationPressureInterfaceSettings >(
-                    radiationPressureInterfaceSettings );
-        assertNonnullptrPointer( cannonBallRadiationPressureInterfaceSettings );
-        jsonObject[ K::referenceArea ] = cannonBallRadiationPressureInterfaceSettings->getArea( );
-        jsonObject[ K::radiationPressureCoefficient ] =
-                cannonBallRadiationPressureInterfaceSettings->getRadiationPressureCoefficient( );
-        jsonObject[ K::occultingBodies ] =
-                cannonBallRadiationPressureInterfaceSettings->getOccultingBodies( );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( radiationPressureType, radiationPressureTypes,
-                                      unsupportedRadiationPressureTypes );
+        case cannon_ball_radiation_pressure_interface: {
+            std::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallRadiationPressureInterfaceSettings =
+                    std::dynamic_pointer_cast< CannonBallRadiationPressureInterfaceSettings >( radiationPressureInterfaceSettings );
+            assertNonnullptrPointer( cannonBallRadiationPressureInterfaceSettings );
+            jsonObject[ K::referenceArea ] = cannonBallRadiationPressureInterfaceSettings->getArea( );
+            jsonObject[ K::radiationPressureCoefficient ] =
+                    cannonBallRadiationPressureInterfaceSettings->getRadiationPressureCoefficient( );
+            jsonObject[ K::occultingBodies ] = cannonBallRadiationPressureInterfaceSettings->getOccultingBodies( );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( radiationPressureType, radiationPressureTypes, unsupportedRadiationPressureTypes );
     }
 }
 
@@ -65,45 +59,40 @@ void from_json( const nlohmann::json& jsonObject,
 
     // Get name of source body
     std::string sourceBody;
-    if ( ! isDefined( jsonObject, K::sourceBody ) )
+    if( !isDefined( jsonObject, K::sourceBody ) )
     {
         try
         {
             sourceBody = getParentKey( jsonObject );
         }
-        catch ( ... ) { }
+        catch( ... )
+        { }
     }
-    if ( sourceBody.empty( ) )
+    if( sourceBody.empty( ) )
     {
         sourceBody = getValue< std::string >( jsonObject, K::sourceBody );
     }
 
     // Get occulting bodies
-    const std::vector< std::string > occultingBodies =
-            getValue( jsonObject, K::occultingBodies, std::vector< std::string >( ) );
+    const std::vector< std::string > occultingBodies = getValue( jsonObject, K::occultingBodies, std::vector< std::string >( ) );
 
-    switch ( radiationPressureType )
+    switch( radiationPressureType )
     {
-    case cannon_ball_radiation_pressure_interface:
-    {
-        // Reference area (either from the current object or from the current object's parent's parent, i.e. the body)
-        const double referenceArea = getValue< double >(
-                    jsonObject, { K::referenceArea, SpecialKeys::up / SpecialKeys::up / Keys::Body::referenceArea } );
+        case cannon_ball_radiation_pressure_interface: {
+            // Reference area (either from the current object or from the current object's parent's parent, i.e. the body)
+            const double referenceArea =
+                    getValue< double >( jsonObject, { K::referenceArea, SpecialKeys::up / SpecialKeys::up / Keys::Body::referenceArea } );
 
-        CannonBallRadiationPressureInterfaceSettings defaults( "", TUDAT_NAN, TUDAT_NAN );
-        radiationPressureInterfaceSettings = std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    sourceBody,
-                    referenceArea,
-                    getValue< double >( jsonObject, K::radiationPressureCoefficient ),
-                    occultingBodies );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( radiationPressureType, radiationPressureTypes,
-                                      unsupportedRadiationPressureTypes );
+            CannonBallRadiationPressureInterfaceSettings defaults( "", TUDAT_NAN, TUDAT_NAN );
+            radiationPressureInterfaceSettings = std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                    sourceBody, referenceArea, getValue< double >( jsonObject, K::radiationPressureCoefficient ), occultingBodies );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( radiationPressureType, radiationPressureTypes, unsupportedRadiationPressureTypes );
     }
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

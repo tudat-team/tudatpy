@@ -7,30 +7,28 @@ namespace tudat
 namespace mission_segments
 {
 
-
-void TransferTrajectory::evaluateTrajectory(
-        const std::vector< double >& nodeTimes,
-        const std::vector< Eigen::VectorXd >& legFreeParameters,
-        const std::vector< Eigen::VectorXd >& nodeFreeParameters )
+void TransferTrajectory::evaluateTrajectory( const std::vector< double >& nodeTimes,
+                                             const std::vector< Eigen::VectorXd >& legFreeParameters,
+                                             const std::vector< Eigen::VectorXd >& nodeFreeParameters )
 {
     totalDeltaV_ = 0.0;
     totalTimeOfFlight_ = 0.0;
 
-    std::vector< bool > legEvaluated ( legs_.size( ), false );
-    std::vector< bool > nodeEvaluated ( nodes_.size( ), false );
+    std::vector< bool > legEvaluated( legs_.size( ), false );
+    std::vector< bool > nodeEvaluated( nodes_.size( ), false );
 
     Eigen::VectorXd legTotalParameters;
     Eigen::VectorXd nodeTotalParameters;
 
     // Loop over nodes and legs until all are defined
     unsigned int iteration = 0;
-    while ( ( std::find(legEvaluated.begin(), legEvaluated.end(), false) != legEvaluated.end() ) ||
-            ( std::find(nodeEvaluated.begin(), nodeEvaluated.end(), false) != nodeEvaluated.end() ) )
+    while( ( std::find( legEvaluated.begin( ), legEvaluated.end( ), false ) != legEvaluated.end( ) ) ||
+           ( std::find( nodeEvaluated.begin( ), nodeEvaluated.end( ), false ) != nodeEvaluated.end( ) ) )
     {
         ++iteration;
 
         // First node
-        if ( !nodeEvaluated.at( 0 ) && ( nodes_.at( 0 )->nodeComputesOutgoingVelocity( ) || legEvaluated.at( 0 ) ) )
+        if( !nodeEvaluated.at( 0 ) && ( nodes_.at( 0 )->nodeComputesOutgoingVelocity( ) || legEvaluated.at( 0 ) ) )
         {
             getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( 0 ), 0, nodeTotalParameters );
             nodes_.at( 0 )->updateNodeParameters( nodeTotalParameters );
@@ -42,8 +40,8 @@ void TransferTrajectory::evaluateTrajectory(
         for( unsigned int i = 0; i < legs_.size( ); i++ )
         {
             // Evaluate leg i
-            if ( !legEvaluated.at( i ) && (!nodes_.at( i )->nodeComputesOutgoingVelocity( ) || nodeEvaluated.at( i ) ) &&
-                 (!nodes_.at( i+1 )->nodeComputesIncomingVelocity( ) || nodeEvaluated.at( i+1 ) ) )
+            if( !legEvaluated.at( i ) && ( !nodes_.at( i )->nodeComputesOutgoingVelocity( ) || nodeEvaluated.at( i ) ) &&
+                ( !nodes_.at( i + 1 )->nodeComputesIncomingVelocity( ) || nodeEvaluated.at( i + 1 ) ) )
             {
                 getLegTotalParameters( nodeTimes, legFreeParameters.at( i ), i, legTotalParameters );
                 legs_.at( i )->updateLegParameters( legTotalParameters );
@@ -53,35 +51,33 @@ void TransferTrajectory::evaluateTrajectory(
             }
 
             // Evaluate node i+1 (as long as it isn't the last node)
-            if ( i < legs_.size( ) - 1 )
+            if( i < legs_.size( ) - 1 )
             {
-                if ( !nodeEvaluated.at( i+1 ) && (nodes_.at( i+1 )->nodeComputesIncomingVelocity( ) || legEvaluated.at(i) ) &&
-                     (nodes_.at( i+1 )->nodeComputesOutgoingVelocity( ) || legEvaluated.at(i+1) ) )
+                if( !nodeEvaluated.at( i + 1 ) && ( nodes_.at( i + 1 )->nodeComputesIncomingVelocity( ) || legEvaluated.at( i ) ) &&
+                    ( nodes_.at( i + 1 )->nodeComputesOutgoingVelocity( ) || legEvaluated.at( i + 1 ) ) )
                 {
-                    getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( i+1 ), i+1, nodeTotalParameters );
-                    nodes_.at( i+1 )->updateNodeParameters( nodeTotalParameters );
-                    nodeEvaluated.at( i+1 ) = true;
-                    totalDeltaV_ += nodes_.at( i+1 )->getNodeDeltaV( );
-
+                    getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( i + 1 ), i + 1, nodeTotalParameters );
+                    nodes_.at( i + 1 )->updateNodeParameters( nodeTotalParameters );
+                    nodeEvaluated.at( i + 1 ) = true;
+                    totalDeltaV_ += nodes_.at( i + 1 )->getNodeDeltaV( );
                 }
             }
         }
 
         // Last node
-        if ( !nodeEvaluated.at( legs_.size( ) ) && ( nodes_.at( legs_.size( ) )->nodeComputesIncomingVelocity( ) ||
-                                                     legEvaluated.at( legs_.size( )-1 ) ) )
+        if( !nodeEvaluated.at( legs_.size( ) ) &&
+            ( nodes_.at( legs_.size( ) )->nodeComputesIncomingVelocity( ) || legEvaluated.at( legs_.size( ) - 1 ) ) )
         {
-            getNodeTotalParameters(nodeTimes, nodeFreeParameters.at( legs_.size( ) ), legs_.size( ), nodeTotalParameters );
+            getNodeTotalParameters( nodeTimes, nodeFreeParameters.at( legs_.size( ) ), legs_.size( ), nodeTotalParameters );
             nodes_.at( legs_.size( ) )->updateNodeParameters( nodeTotalParameters );
             nodeEvaluated.at( legs_.size( ) ) = true;
             totalDeltaV_ += nodes_.at( legs_.size( ) )->getNodeDeltaV( );
         }
 
-        if (iteration > legs_.size( ) + nodes_.size() )
+        if( iteration > legs_.size( ) + nodes_.size( ) )
         {
             throw std::runtime_error( "evaluateTrajectory used more than maximum possible number of iterations." );
         }
-
     }
 
     isComputed_ = true;
@@ -98,7 +94,6 @@ double TransferTrajectory::getTotalDeltaV( )
         throw std::runtime_error( "Error when getting Delta V for transfer trajectory; transfer parameters not set!" );
     }
 }
-
 
 double TransferTrajectory::getNodeDeltaV( const int nodeIndex )
 {
@@ -124,7 +119,7 @@ double TransferTrajectory::getLegDeltaV( const int legIndex )
     }
 }
 
-double TransferTrajectory::getTotalTimeOfFlight ( )
+double TransferTrajectory::getTotalTimeOfFlight( )
 {
     if( isComputed_ )
     {
@@ -156,10 +151,8 @@ std::vector< double > TransferTrajectory::getDeltaVPerLeg( )
     return deltaVPerLeg;
 }
 
-
-void TransferTrajectory::getStatesAlongTrajectoryPerLeg(
-        std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
-        const int numberOfDataPointsPerLeg )
+void TransferTrajectory::getStatesAlongTrajectoryPerLeg( std::vector< std::map< double, Eigen::Vector6d > >& statesAlongTrajectoryPerLeg,
+                                                         const int numberOfDataPointsPerLeg )
 {
     if( isComputed_ )
     {
@@ -177,8 +170,7 @@ void TransferTrajectory::getStatesAlongTrajectoryPerLeg(
     }
 }
 
-std::vector< std::map< double, Eigen::Vector6d > > TransferTrajectory::getStatesAlongTrajectoryPerLeg(
-        const int numberOfDataPointsPerLeg )
+std::vector< std::map< double, Eigen::Vector6d > > TransferTrajectory::getStatesAlongTrajectoryPerLeg( const int numberOfDataPointsPerLeg )
 {
     if( isComputed_ )
     {
@@ -202,8 +194,7 @@ void TransferTrajectory::getStatesAlongTrajectory( std::map< double, Eigen::Vect
         statesAlongTrajectory = statesAlongTrajectoryPerLeg.at( 0 );
         for( unsigned int i = 0; i < statesAlongTrajectoryPerLeg.size( ); i++ )
         {
-            statesAlongTrajectory.insert( statesAlongTrajectoryPerLeg.at( i ).begin( ),
-                                          statesAlongTrajectoryPerLeg.at( i ).end( ) );
+            statesAlongTrajectory.insert( statesAlongTrajectoryPerLeg.at( i ).begin( ), statesAlongTrajectoryPerLeg.at( i ).end( ) );
         }
     }
     else
@@ -237,8 +228,7 @@ void TransferTrajectory::getInertialThrustAccelerationsAlongTrajectoryPerLeg(
 
         for( unsigned int i = 0; i < legs_.size( ); i++ )
         {
-            legs_.at( i )->getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectoryPerLeg[ i ],
-                                                                  numberOfDataPointsPerLeg );
+            legs_.at( i )->getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectoryPerLeg[ i ], numberOfDataPointsPerLeg );
         }
     }
     else
@@ -253,8 +243,7 @@ std::vector< std::map< double, Eigen::Vector3d > > TransferTrajectory::getInerti
     if( isComputed_ )
     {
         std::vector< std::map< double, Eigen::Vector3d > > thrustAccelerationsAlongTrajectoryPerLeg;
-        getInertialThrustAccelerationsAlongTrajectoryPerLeg(thrustAccelerationsAlongTrajectoryPerLeg,
-                                                            numberOfDataPointsPerLeg);
+        getInertialThrustAccelerationsAlongTrajectoryPerLeg( thrustAccelerationsAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
         return thrustAccelerationsAlongTrajectoryPerLeg;
     }
     else
@@ -270,8 +259,7 @@ void TransferTrajectory::getInertialThrustAccelerationsAlongTrajectory(
     if( isComputed_ )
     {
         std::vector< std::map< double, Eigen::Vector3d > > thrustAccelerationsAlongTrajectoryPerLeg;
-        getInertialThrustAccelerationsAlongTrajectoryPerLeg(thrustAccelerationsAlongTrajectoryPerLeg,
-                                                            numberOfDataPointsPerLeg);
+        getInertialThrustAccelerationsAlongTrajectoryPerLeg( thrustAccelerationsAlongTrajectoryPerLeg, numberOfDataPointsPerLeg );
         thrustAccelerationsAlongTrajectory = thrustAccelerationsAlongTrajectoryPerLeg.at( 0 );
         for( unsigned int i = 0; i < thrustAccelerationsAlongTrajectoryPerLeg.size( ); i++ )
         {
@@ -285,13 +273,12 @@ void TransferTrajectory::getInertialThrustAccelerationsAlongTrajectory(
     }
 }
 
-std::map< double, Eigen::Vector3d > TransferTrajectory::getInertialThrustAccelerationsAlongTrajectory(
-        const int numberOfDataPointsPerLeg )
+std::map< double, Eigen::Vector3d > TransferTrajectory::getInertialThrustAccelerationsAlongTrajectory( const int numberOfDataPointsPerLeg )
 {
     if( isComputed_ )
     {
         std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
-        getInertialThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, numberOfDataPointsPerLeg);
+        getInertialThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, numberOfDataPointsPerLeg );
         return thrustAccelerationsAlongTrajectory;
     }
     else
@@ -306,22 +293,22 @@ std::map< double, Eigen::Vector3d > TransferTrajectory::getRswThrustAcceleration
     {
         // Get inertial acceleration
         std::map< double, Eigen::Vector3d > inertialThrustAccelerationsAlongTrajectory;
-        getInertialThrustAccelerationsAlongTrajectory(inertialThrustAccelerationsAlongTrajectory,
-                                                      numberOfDataPointsPerLeg);
+        getInertialThrustAccelerationsAlongTrajectory( inertialThrustAccelerationsAlongTrajectory, numberOfDataPointsPerLeg );
 
         // Get inertial state
         std::map< double, Eigen::Vector6d > statesAlongTrajectory;
-        getStatesAlongTrajectory(statesAlongTrajectory, numberOfDataPointsPerLeg );
+        getStatesAlongTrajectory( statesAlongTrajectory, numberOfDataPointsPerLeg );
 
         std::map< double, Eigen::Vector3d > rswThrustAccelerationsAlongTrajectory;
 
-        for( std::map< double, Eigen::Vector3d >::iterator it = inertialThrustAccelerationsAlongTrajectory.begin();
-             it != inertialThrustAccelerationsAlongTrajectory.end(); ++it )
+        for( std::map< double, Eigen::Vector3d >::iterator it = inertialThrustAccelerationsAlongTrajectory.begin( );
+             it != inertialThrustAccelerationsAlongTrajectory.end( );
+             ++it )
         {
             double time = it->first;
-            rswThrustAccelerationsAlongTrajectory[time] =
-                    reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(statesAlongTrajectory[time]) *
-                    inertialThrustAccelerationsAlongTrajectory[time];
+            rswThrustAccelerationsAlongTrajectory[ time ] =
+                    reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix( statesAlongTrajectory[ time ] ) *
+                    inertialThrustAccelerationsAlongTrajectory[ time ];
         }
 
         return rswThrustAccelerationsAlongTrajectory;
@@ -338,22 +325,21 @@ std::map< double, Eigen::Vector3d > TransferTrajectory::getTnwThrustAcceleration
     {
         // Get inertial acceleration
         std::map< double, Eigen::Vector3d > inertialThrustAccelerationsAlongTrajectory;
-        getInertialThrustAccelerationsAlongTrajectory(inertialThrustAccelerationsAlongTrajectory,
-                                                      numberOfDataPointsPerLeg);
+        getInertialThrustAccelerationsAlongTrajectory( inertialThrustAccelerationsAlongTrajectory, numberOfDataPointsPerLeg );
 
         // Get inertial state
         std::map< double, Eigen::Vector6d > statesAlongTrajectory;
-        getStatesAlongTrajectory(statesAlongTrajectory, numberOfDataPointsPerLeg );
+        getStatesAlongTrajectory( statesAlongTrajectory, numberOfDataPointsPerLeg );
 
         std::map< double, Eigen::Vector3d > tnwThrustAccelerationsAlongTrajectory;
 
-        for( std::map< double, Eigen::Vector3d >::iterator it = inertialThrustAccelerationsAlongTrajectory.begin();
-             it != inertialThrustAccelerationsAlongTrajectory.end(); ++it )
+        for( std::map< double, Eigen::Vector3d >::iterator it = inertialThrustAccelerationsAlongTrajectory.begin( );
+             it != inertialThrustAccelerationsAlongTrajectory.end( );
+             ++it )
         {
             double time = it->first;
-            tnwThrustAccelerationsAlongTrajectory[time] =
-                    reference_frames::getInertialToTnwRotation(statesAlongTrajectory[time]) *
-                    inertialThrustAccelerationsAlongTrajectory[time];
+            tnwThrustAccelerationsAlongTrajectory[ time ] = reference_frames::getInertialToTnwRotation( statesAlongTrajectory[ time ] ) *
+                    inertialThrustAccelerationsAlongTrajectory[ time ];
         }
 
         return tnwThrustAccelerationsAlongTrajectory;
@@ -364,11 +350,10 @@ std::map< double, Eigen::Vector3d > TransferTrajectory::getTnwThrustAcceleration
     }
 }
 
-void TransferTrajectory::getLegTotalParameters(
-        const std::vector< double >& nodeTimes,
-        const Eigen::VectorXd& legFreeParameters,
-        const int legIndex,
-        Eigen::VectorXd& legTotalParameters )
+void TransferTrajectory::getLegTotalParameters( const std::vector< double >& nodeTimes,
+                                                const Eigen::VectorXd& legFreeParameters,
+                                                const int legIndex,
+                                                Eigen::VectorXd& legTotalParameters )
 {
     if( legs_.at( legIndex )->getTransferLegType( ) == unpowered_unperturbed_leg )
     {
@@ -377,10 +362,9 @@ void TransferTrajectory::getLegTotalParameters(
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
         if( legFreeParameters.rows( ) != 0 )
         {
-            throw std::runtime_error(
-                        "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
-                        " (type: unpowered, unperturbed). Leg should have no free parameters (except node times), but " +
-                        std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
+            throw std::runtime_error( "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
+                                      " (type: unpowered, unperturbed). Leg should have no free parameters (except node times), but " +
+                                      std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
         }
     }
     else if( legs_.at( legIndex )->getTransferLegType( ) == dsm_position_based_leg )
@@ -390,16 +374,14 @@ void TransferTrajectory::getLegTotalParameters(
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
         if( legFreeParameters.rows( ) != 4 )
         {
-            throw std::runtime_error(
-                        "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
-                        " (type: position-based DSM). Leg should have 4 free parameters (except node times), but " +
-                        std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
+            throw std::runtime_error( "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
+                                      " (type: position-based DSM). Leg should have 4 free parameters (except node times), but " +
+                                      std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
         }
         else
         {
             legTotalParameters.segment( 2, 4 ) = legFreeParameters;
         }
-
     }
     else if( legs_.at( legIndex )->getTransferLegType( ) == dsm_velocity_based_leg )
     {
@@ -408,10 +390,9 @@ void TransferTrajectory::getLegTotalParameters(
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
         if( legFreeParameters.rows( ) != 1 )
         {
-            throw std::runtime_error(
-                        "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
-                        " (type: velocity-based DSM). Leg should have 1 free parameters (except node times), but " +
-                        std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
+            throw std::runtime_error( "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
+                                      " (type: velocity-based DSM). Leg should have 1 free parameters (except node times), but " +
+                                      std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
         }
         else
         {
@@ -425,56 +406,51 @@ void TransferTrajectory::getLegTotalParameters(
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
         if( legFreeParameters.rows( ) != 1 )
         {
-            throw std::runtime_error(
-                        "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
-                        " (type: spherical shaping). Leg should have 1 free parameters (except node times), but " +
-                        std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
+            throw std::runtime_error( "Error when getting leg parameters for leg " + std::to_string( legIndex ) +
+                                      " (type: spherical shaping). Leg should have 1 free parameters (except node times), but " +
+                                      std::to_string( legFreeParameters.rows( ) ) + " free parameters detected." );
         }
         else
         {
             legTotalParameters( 2 ) = legFreeParameters( 0 );
         }
     }
-    else if ( legs_.at( legIndex )->getTransferLegType( ) == hodographic_low_thrust_leg )
+    else if( legs_.at( legIndex )->getTransferLegType( ) == hodographic_low_thrust_leg )
     {
         std::shared_ptr< shape_based_methods::HodographicShapingLeg > hodographicShapingLeg =
                 std::dynamic_pointer_cast< shape_based_methods::HodographicShapingLeg >( legs_.at( legIndex ) );
-        if (hodographicShapingLeg == nullptr)
+        if( hodographicShapingLeg == nullptr )
         {
-            throw std::runtime_error("Error getting leg parameters, hodographic leg shaping type is invalid");
+            throw std::runtime_error( "Error getting leg parameters, hodographic leg shaping type is invalid" );
         }
-        const int legFreeVelocityShapingParameters = hodographicShapingLeg->getNumberOfFreeCoefficients();
+        const int legFreeVelocityShapingParameters = hodographicShapingLeg->getNumberOfFreeCoefficients( );
 
         legTotalParameters.resize( 3 + legFreeVelocityShapingParameters, 1 );
         legTotalParameters( 0 ) = nodeTimes.at( legIndex );
         legTotalParameters( 1 ) = nodeTimes.at( legIndex + 1 );
         if( 1 + legFreeVelocityShapingParameters != legFreeParameters.rows( ) )
         {
-            throw std::runtime_error(
-                        "Error getting leg parameters, hodographic leg free parameters are incompatible for leg " + std::to_string( legIndex ) +
-                        ". Expected " + std::to_string( 1 + legFreeVelocityShapingParameters ) +
-                        " free parameters (excluding node times; including number of revolutions), but "  +
-                        std::to_string( legFreeParameters.rows( ) ) + " are provided." );
+            throw std::runtime_error( "Error getting leg parameters, hodographic leg free parameters are incompatible for leg " +
+                                      std::to_string( legIndex ) + ". Expected " + std::to_string( 1 + legFreeVelocityShapingParameters ) +
+                                      " free parameters (excluding node times; including number of revolutions), but " +
+                                      std::to_string( legFreeParameters.rows( ) ) + " are provided." );
         }
         else
         {
-            legTotalParameters.segment( 2, 1 + legFreeVelocityShapingParameters) = legFreeParameters;
+            legTotalParameters.segment( 2, 1 + legFreeVelocityShapingParameters ) = legFreeParameters;
         }
     }
     else
     {
         throw std::runtime_error( "Error when getting leg parameters, leg type not recognized" );
     }
-
 }
 
-void TransferTrajectory::getNodeTotalParameters(
-        const std::vector< double >& nodeTimes,
-        const Eigen::VectorXd& nodeFreeParameters,
-        const int nodeIndex,
-        Eigen::VectorXd& nodeTotalParameters )
+void TransferTrajectory::getNodeTotalParameters( const std::vector< double >& nodeTimes,
+                                                 const Eigen::VectorXd& nodeFreeParameters,
+                                                 const int nodeIndex,
+                                                 Eigen::VectorXd& nodeTotalParameters )
 {
-
     if( nodes_.at( nodeIndex )->getTransferNodeType( ) == swingby )
     {
         if( !nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) && !nodes_.at( nodeIndex )->nodeComputesIncomingVelocity( ) )
@@ -483,38 +459,38 @@ void TransferTrajectory::getNodeTotalParameters(
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
             if( nodeFreeParameters.rows( ) != 0 )
             {
-                throw std::runtime_error(
-                            "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
-                            " (type: swingby), node does not compute in- or outgoing velocities. Node should have 0 free parameters (except node times), but " +
-                            std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
+                throw std::runtime_error( "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
+                                          " (type: swingby), node does not compute in- or outgoing velocities. Node should have 0 free "
+                                          "parameters (except node times), but " +
+                                          std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
             }
         }
-        else if ( nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) && !nodes_.at( nodeIndex )->nodeComputesIncomingVelocity( ) )
+        else if( nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) && !nodes_.at( nodeIndex )->nodeComputesIncomingVelocity( ) )
         {
             nodeTotalParameters.resize( 4, 1 );
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
             if( nodeFreeParameters.rows( ) != 3 )
             {
-                throw std::runtime_error(
-                            "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
-                            " (type: swingby), node computes only outgoing velocity. Node should have 3 free parameters (except node times), but " +
-                            std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
+                throw std::runtime_error( "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
+                                          " (type: swingby), node computes only outgoing velocity. Node should have 3 free parameters "
+                                          "(except node times), but " +
+                                          std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
             }
             else
             {
                 nodeTotalParameters.segment( 1, 3 ) = nodeFreeParameters;
             }
         }
-        else if ( nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) && nodes_.at( nodeIndex )->nodeComputesIncomingVelocity( ) )
+        else if( nodes_.at( nodeIndex )->nodeComputesOutgoingVelocity( ) && nodes_.at( nodeIndex )->nodeComputesIncomingVelocity( ) )
         {
             nodeTotalParameters.resize( 7, 1 );
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
             if( nodeFreeParameters.rows( ) != 6 )
             {
-                throw std::runtime_error(
-                            "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
-                            " (type: swingby), node computes incoming and outgoing velocities. Node should have 6 free parameters (except node times), but " +
-                            std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
+                throw std::runtime_error( "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
+                                          " (type: swingby), node computes incoming and outgoing velocities. Node should have 6 free "
+                                          "parameters (except node times), but " +
+                                          std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
             }
             else
             {
@@ -527,10 +503,10 @@ void TransferTrajectory::getNodeTotalParameters(
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
             if( nodeFreeParameters.rows( ) != 3 )
             {
-                throw std::runtime_error(
-                            "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
-                            " (type: swingby), node computes only incoming velocity. Node should have 3 free parameters (except node times), but " +
-                            std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
+                throw std::runtime_error( "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
+                                          " (type: swingby), node computes only incoming velocity. Node should have 3 free parameters "
+                                          "(except node times), but " +
+                                          std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
             }
             else
             {
@@ -546,10 +522,10 @@ void TransferTrajectory::getNodeTotalParameters(
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
             if( nodeFreeParameters.rows( ) != 0 )
             {
-                throw std::runtime_error(
-                            "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
-                            " (type: escape_and_departure), node does not outgoing velocity. Node should have 0 free parameters (except node times), but " +
-                            std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
+                throw std::runtime_error( "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
+                                          " (type: escape_and_departure), node does not outgoing velocity. Node should have 0 free "
+                                          "parameters (except node times), but " +
+                                          std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
             }
         }
         else
@@ -558,10 +534,10 @@ void TransferTrajectory::getNodeTotalParameters(
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
             if( nodeFreeParameters.rows( ) != 3 )
             {
-                throw std::runtime_error(
-                            "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
-                            " (type: escape_and_departure), node computes outgoing velocity. Node should have 3 free parameters (except node times), but " +
-                            std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
+                throw std::runtime_error( "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
+                                          " (type: escape_and_departure), node computes outgoing velocity. Node should have 3 free "
+                                          "parameters (except node times), but " +
+                                          std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
             }
             else
             {
@@ -577,10 +553,10 @@ void TransferTrajectory::getNodeTotalParameters(
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
             if( nodeFreeParameters.rows( ) != 0 )
             {
-                throw std::runtime_error(
-                            "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
-                            " (type: capture_and_insertion), node does not compute incoming velocity. Node should have 0 free parameters (except node times), but " +
-                            std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
+                throw std::runtime_error( "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
+                                          " (type: capture_and_insertion), node does not compute incoming velocity. Node should have 0 "
+                                          "free parameters (except node times), but " +
+                                          std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
             }
         }
         else
@@ -589,10 +565,10 @@ void TransferTrajectory::getNodeTotalParameters(
             nodeTotalParameters( 0 ) = nodeTimes.at( nodeIndex );
             if( nodeFreeParameters.rows( ) != 3 )
             {
-                throw std::runtime_error(
-                            "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
-                            " (type: capture_and_insertion), node computes incoming velocity. Node should have 3 free parameters (except node times), but " +
-                            std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
+                throw std::runtime_error( "Error when getting node parameters for node " + std::to_string( nodeIndex ) +
+                                          " (type: capture_and_insertion), node computes incoming velocity. Node should have 3 free "
+                                          "parameters (except node times), but " +
+                                          std::to_string( nodeFreeParameters.rows( ) ) + " free parameters detected." );
             }
             else
             {
@@ -606,7 +582,6 @@ void TransferTrajectory::getNodeTotalParameters(
     }
 }
 
-} // namespace mission_segments
+}  // namespace mission_segments
 
-} // namespace tudat
-
+}  // namespace tudat

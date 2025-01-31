@@ -18,25 +18,20 @@ namespace tudat
 namespace reference_frames
 {
 
-Eigen::Vector3d computeBodyFixedAeroAngles(
-        const Eigen::Matrix3d& inertialToBodyFixedFrame,
-        const Eigen::Matrix3d& trajectoryToInertialFrame )
+Eigen::Vector3d computeBodyFixedAeroAngles( const Eigen::Matrix3d& inertialToBodyFixedFrame,
+                                            const Eigen::Matrix3d& trajectoryToInertialFrame )
 {
     // Retrieve rotation matrix that is to be converted to orientation angles.
-    Eigen::Matrix3d currentRotationFromBodyToTrajectoryFrame_ =
-            ( inertialToBodyFixedFrame * trajectoryToInertialFrame ).transpose( );
+    Eigen::Matrix3d currentRotationFromBodyToTrajectoryFrame_ = ( inertialToBodyFixedFrame * trajectoryToInertialFrame ).transpose( );
 
     // Compute associated Euler angles and set as orientation angles.
-    Eigen::Vector3d eulerAngles = basic_mathematics::get132EulerAnglesFromRotationMatrix(
-                currentRotationFromBodyToTrajectoryFrame_ );
+    Eigen::Vector3d eulerAngles = basic_mathematics::get132EulerAnglesFromRotationMatrix( currentRotationFromBodyToTrajectoryFrame_ );
     return ( Eigen::Vector3d( ) << -eulerAngles( 2 ), eulerAngles( 1 ), eulerAngles( 0 ) ).finished( );
-
 }
 Eigen::Vector3d FromGenericEphemerisAerodynamicAngleInterface::getAngles( const double time,
                                                                           const Eigen::Matrix3d& trajectoryToInertialFrame )
 {
-    return computeBodyFixedAeroAngles(
-                ephemeris_->getRotationMatrixToTargetFrame( time ), trajectoryToInertialFrame );
+    return computeBodyFixedAeroAngles( ephemeris_->getRotationMatrixToTargetFrame( time ), trajectoryToInertialFrame );
 }
 
 void FromGenericEphemerisAerodynamicAngleInterface::resetCurrentTime( )
@@ -44,10 +39,7 @@ void FromGenericEphemerisAerodynamicAngleInterface::resetCurrentTime( )
     ephemeris_->resetCurrentTime( );
 }
 
-
-
-Eigen::Vector3d FromAeroEphemerisAerodynamicAngleInterface::getAngles( const double time,
-                           const Eigen::Matrix3d& trajectoryToInertialFrame )
+Eigen::Vector3d FromAeroEphemerisAerodynamicAngleInterface::getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame )
 {
     ephemeris_->update( time );
     return ephemeris_->getBodyAngles( time );
@@ -58,9 +50,7 @@ void FromAeroEphemerisAerodynamicAngleInterface::resetCurrentTime( )
     ephemeris_->resetCurrentTime( );
 }
 
-
-
-}
+}  // namespace reference_frames
 
 namespace ephemerides
 {
@@ -98,12 +88,11 @@ void AerodynamicAngleRotationalEphemeris::update( const double currentTime )
             {
                 resetCurrentTime( );
             }
-
         }
     }
 }
 
-void AerodynamicAngleRotationalEphemeris::resetCurrentTime(  )
+void AerodynamicAngleRotationalEphemeris::resetCurrentTime( )
 {
     if( currentTime_ == currentTime_ )
     {
@@ -117,6 +106,5 @@ void AerodynamicAngleRotationalEphemeris::resetCurrentTime(  )
     }
 }
 
-
-} // namespace tudat
-} // namespace ephemerides
+}  // namespace ephemerides
+}  // namespace tudat

@@ -27,16 +27,17 @@ namespace estimatable_parameters
  *  List of all orders in a single degree (starting at 2), generated at compile time and used for tidal love number
  *  partial interface function calls over a full degree.
  */
-static const std::vector< std::vector< int > > fullDegreeOrders =
-{ { 0, 1, 2 }, { 0, 1, 2, 3 }, { 0, 1, 2, 3, 4 }, { 0, 1, 2, 3, 4, 5 }, { 0, 1, 2, 3, 4, 5, 6 } };
-
+static const std::vector< std::vector< int > > fullDegreeOrders = { { 0, 1, 2 },
+                                                                    { 0, 1, 2, 3 },
+                                                                    { 0, 1, 2, 3, 4 },
+                                                                    { 0, 1, 2, 3, 4, 5 },
+                                                                    { 0, 1, 2, 3, 4, 5, 6 } };
 
 //!Pure virtual base class for estimating tidal Love number properties
 template< typename ParameterScalar >
-class TidalLoveNumber: public EstimatableParameter< ParameterScalar >
+class TidalLoveNumber : public EstimatableParameter< ParameterScalar >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -49,24 +50,19 @@ public:
      * \param loveNumberType Type of Love number property that is to be estimated.
      * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
      */
-    TidalLoveNumber(
-            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
-            const std::string& associatedBody,
-            const int degree,
-            const std::vector< int > orders,
-            const bool sumOrders,
-            const EstimatebleParametersEnum loveNumberType,
-            const bool useComplexComponents = 0 ):
-        EstimatableParameter< ParameterScalar >( loveNumberType, associatedBody ),
-        degree_( degree ),
-        orders_( orders ),
-        sumOrders_( sumOrders ),
-        gravityFieldVariationModel_( gravityFieldVariationModel ),
-        useComplexComponents_( useComplexComponents )
+    TidalLoveNumber( const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+                     const std::string& associatedBody,
+                     const int degree,
+                     const std::vector< int > orders,
+                     const bool sumOrders,
+                     const EstimatebleParametersEnum loveNumberType,
+                     const bool useComplexComponents = 0 ):
+        EstimatableParameter< ParameterScalar >( loveNumberType, associatedBody ), degree_( degree ), orders_( orders ),
+        sumOrders_( sumOrders ), gravityFieldVariationModel_( gravityFieldVariationModel ), useComplexComponents_( useComplexComponents )
     { }
 
     //! Destructor
-    virtual ~TidalLoveNumber( ){ }
+    virtual ~TidalLoveNumber( ) { }
 
     //! Function to retrieve the size of the parameter
     /*!
@@ -130,38 +126,37 @@ public:
 
     //! Function to retrieve parameter description.
     /*!
-    * Function to retrieve parameter description.
-    * \return Description tidal Love number.
-    */
+     * Function to retrieve parameter description.
+     * \return Description tidal Love number.
+     */
     std::string getParameterDescription( )
     {
         std::string parameterDescription =
                 getParameterTypeString( this->parameterName_.first ) + "of " + this->parameterName_.second.first + " due to ";
-        for ( unsigned int i = 0 ; i < getDeformingBodies( ).size( ) ; i++ )
+        for( unsigned int i = 0; i < getDeformingBodies( ).size( ); i++ )
         {
             parameterDescription += getDeformingBodies( )[ i ];
-            if ( i != getDeformingBodies( ).size( ) - 1 )
+            if( i != getDeformingBodies( ).size( ) - 1 )
             {
                 parameterDescription += " & ";
             }
         }
-        parameterDescription += " for degree " + std::to_string(degree_) + " and orders: ";
-        for ( unsigned int i = 0 ; i < orders_.size( ) ; i++ )
+        parameterDescription += " for degree " + std::to_string( degree_ ) + " and orders: ";
+        for( unsigned int i = 0; i < orders_.size( ); i++ )
         {
-            if (i != orders_.size( )-1)
+            if( i != orders_.size( ) - 1 )
             {
-                parameterDescription += std::to_string(orders_[i]) + ", ";
+                parameterDescription += std::to_string( orders_[ i ] ) + ", ";
             }
             else
             {
-                parameterDescription += std::to_string(orders_[i]) + ".";
+                parameterDescription += std::to_string( orders_[ i ] ) + ".";
             }
         }
         return parameterDescription;
     }
 
 protected:
-
     //! Degree of Love number that is to be estimated
     int degree_;
 
@@ -183,14 +178,12 @@ protected:
 
     //! Size of the estimated parameter
     int parameterSize_;
-
 };
 
 //! Class for estimating the tidal Love number k_{n} at a single degree that is constant for all orders
-class FullDegreeTidalLoveNumber: public TidalLoveNumber< Eigen::VectorXd >
+class FullDegreeTidalLoveNumber : public TidalLoveNumber< Eigen::VectorXd >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -199,14 +192,17 @@ public:
      * \param degree Degree of Love number that is to be estimateds
      * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
      */
-    FullDegreeTidalLoveNumber(
-            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
-            const std::string& associatedBody,
-            const int degree,
-            const bool useComplexComponents = 0 ):
-        TidalLoveNumber< Eigen::VectorXd >(
-            gravityFieldVariationModel, associatedBody, degree, fullDegreeOrders.at( degree - 2 ), 1,
-            full_degree_tidal_love_number, useComplexComponents )
+    FullDegreeTidalLoveNumber( const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+                               const std::string& associatedBody,
+                               const int degree,
+                               const bool useComplexComponents = 0 ):
+        TidalLoveNumber< Eigen::VectorXd >( gravityFieldVariationModel,
+                                            associatedBody,
+                                            degree,
+                                            fullDegreeOrders.at( degree - 2 ),
+                                            1,
+                                            full_degree_tidal_love_number,
+                                            useComplexComponents )
     {
         if( useComplexComponents_ )
         {
@@ -217,7 +213,6 @@ public:
             parameterSize_ = 1;
         }
     }
-
 
     //! Get value of Love number k_{n}
     /*!
@@ -235,33 +230,30 @@ public:
 
     //! Function to retrieve parameter description.
     /*!
-    * Function to retrieve parameter description.
-    * \return Description tidal Love number.
-    */
+     * Function to retrieve parameter description.
+     * \return Description tidal Love number.
+     */
     std::string getParameterDescription( )
     {
         std::string parameterDescription =
                 getParameterTypeString( this->parameterName_.first ) + "of " + this->parameterName_.second.first + " due to ";
-        for ( unsigned int i = 0 ; i < getDeformingBodies( ).size( ) ; i++ )
+        for( unsigned int i = 0; i < getDeformingBodies( ).size( ); i++ )
         {
             parameterDescription += getDeformingBodies( )[ i ];
-            if ( i != getDeformingBodies( ).size( ) - 1 )
+            if( i != getDeformingBodies( ).size( ) - 1 )
             {
                 parameterDescription += " & ";
             }
         }
-        parameterDescription += " for degree " + std::to_string(degree_) + ".";
+        parameterDescription += " for degree " + std::to_string( degree_ ) + ".";
         return parameterDescription;
     }
-
 };
 
-
 //! Class for estimating the tidal Love number k_{n} at a single degree that is constant for all orders
-class ModeCoupledTidalLoveNumber: public EstimatableParameter< Eigen::VectorXd >
+class ModeCoupledTidalLoveNumber : public EstimatableParameter< Eigen::VectorXd >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -271,15 +263,16 @@ public:
      * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
      */
     ModeCoupledTidalLoveNumber(
-        const std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
-        const std::string& associatedBody,
-        const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
-        const bool useComplexComponents = 0 );
+            const std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+            const std::string& associatedBody,
+            const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+            const bool useComplexComponents = 0 );
 
     Eigen::VectorXd getParameterValue( )
     {
         Eigen::VectorXd currentParameters = Eigen::VectorXd::Zero( parameterSize_ );
-        std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers = gravityFieldVariationModel_->getLoveNumbers( );
+        std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers =
+                gravityFieldVariationModel_->getLoveNumbers( );
 
         int counter = 0;
         for( auto it: loveNumberIndices_ )
@@ -293,10 +286,10 @@ public:
         return currentParameters;
     }
 
-
     void setParameterValue( Eigen::VectorXd parameterValue )
     {
-        std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers = gravityFieldVariationModel_->getLoveNumbers( );
+        std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers =
+                gravityFieldVariationModel_->getLoveNumbers( );
 
         int counter = 0;
         for( auto it: loveNumberIndices_ )
@@ -323,7 +316,6 @@ public:
     {
         return gravityFieldVariationModel_->getDeformingBodies( );
     }
-
 
     std::vector< std::pair< int, int > > getParameterForcingDegreeAndOrderIndices( )
     {
@@ -368,17 +360,12 @@ private:
 
     // For each independent Love number, the response degree/order (as an index in responseDegreeOrders_);
     std::vector< int > responseIndices_;
-
-
-
 };
 
-
 //! Class for estimating the tidal Love numbers k_{n,m} at a single degree that may vary for different orders
-class SingleDegreeVariableTidalLoveNumber: public TidalLoveNumber< Eigen::VectorXd >
+class SingleDegreeVariableTidalLoveNumber : public TidalLoveNumber< Eigen::VectorXd >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -394,9 +381,13 @@ public:
             const int degree,
             const std::vector< int > orders,
             const bool useComplexComponents = 0 ):
-        TidalLoveNumber< Eigen::VectorXd >(
-            gravityFieldVariationModel, associatedBody, degree, orders, 0, single_degree_variable_tidal_love_number,
-            useComplexComponents )
+        TidalLoveNumber< Eigen::VectorXd >( gravityFieldVariationModel,
+                                            associatedBody,
+                                            degree,
+                                            orders,
+                                            0,
+                                            single_degree_variable_tidal_love_number,
+                                            useComplexComponents )
     {
         if( useComplexComponents_ )
         {
@@ -426,40 +417,39 @@ public:
 
     //! Function to retrieve parameter description.
     /*!
-    * Function to retrieve parameter description.
-    * \return Description tidal Love number.
-    */
+     * Function to retrieve parameter description.
+     * \return Description tidal Love number.
+     */
     std::string getParameterDescription( )
     {
         std::string parameterDescription =
                 getParameterTypeString( this->parameterName_.first ) + "of " + this->parameterName_.second.first + " due to ";
-        for ( unsigned int i = 0 ; i < getDeformingBodies( ).size( ) ; i++ )
+        for( unsigned int i = 0; i < getDeformingBodies( ).size( ); i++ )
         {
             parameterDescription += getDeformingBodies( )[ i ];
-            if ( i != getDeformingBodies( ).size( ) - 1 )
+            if( i != getDeformingBodies( ).size( ) - 1 )
             {
                 parameterDescription += " & ";
             }
         }
-        parameterDescription += " for degree " + std::to_string(degree_) + " and orders: ";
-        for ( unsigned int i = 0 ; i < orders_.size( ) ; i++ )
+        parameterDescription += " for degree " + std::to_string( degree_ ) + " and orders: ";
+        for( unsigned int i = 0; i < orders_.size( ); i++ )
         {
-            if (i != orders_.size( )-1)
+            if( i != orders_.size( ) - 1 )
             {
-                parameterDescription += std::to_string(orders_[i]) + ", ";
+                parameterDescription += std::to_string( orders_[ i ] ) + ", ";
             }
             else
             {
-                parameterDescription += std::to_string(orders_[i]) + ".";
+                parameterDescription += std::to_string( orders_[ i ] ) + ".";
             }
-
         }
         return parameterDescription;
     }
 };
 
-}
+}  // namespace estimatable_parameters
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_TIDALLOVENUMBERPARAMETER_H
+#endif  // TUDAT_TIDALLOVENUMBERPARAMETER_H

@@ -15,7 +15,6 @@
  *
  */
 
-
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
@@ -31,10 +30,9 @@ namespace basic_astrodynamics
  *  Body shape model for an oblate spheroid (flattened sphere), typically used as approximation for
  *  planets and large moons.
  */
-class OblateSpheroidBodyShapeModel: public BodyShapeModel
+class OblateSpheroidBodyShapeModel : public BodyShapeModel
 {
 public:
-
     //! Constructor
     /*!
      *  Constructor, sets the geomtric properties of the shape.
@@ -49,7 +47,7 @@ public:
     }
 
     //! Destructor
-    ~OblateSpheroidBodyShapeModel( ){ }
+    ~OblateSpheroidBodyShapeModel( ) { }
 
     //! Calculates the altitude above the oblate spheroid
     /*!
@@ -60,8 +58,7 @@ public:
      */
     double getAltitude( const Eigen::Vector3d& bodyFixedPosition )
     {
-        return coordinate_conversions::calculateAltitudeOverOblateSpheroid(
-                    bodyFixedPosition, equatorialRadius_, flattening_, 1.0E-4 );
+        return coordinate_conversions::calculateAltitudeOverOblateSpheroid( bodyFixedPosition, equatorialRadius_, flattening_, 1.0E-4 );
     }
 
     //! Calculates the geodetic position w.r.t. the oblate spheroid.
@@ -74,11 +71,10 @@ public:
      *  the required change of position (in m) between two iterations.
      *  \return Geodetic coordinates at requested point.
      */
-    Eigen::Vector3d getGeodeticPositionWrtShape( const Eigen::Vector3d& bodyFixedPosition,
-                                        const double tolerance = 1.0E-4 )
+    Eigen::Vector3d getGeodeticPositionWrtShape( const Eigen::Vector3d& bodyFixedPosition, const double tolerance = 1.0E-4 )
     {
         return coordinate_conversions::convertCartesianToGeodeticCoordinates(
-                    bodyFixedPosition, equatorialRadius_, flattening_, tolerance );
+                bodyFixedPosition, equatorialRadius_, flattening_, tolerance );
     }
 
     //! Calculates the geodetic latitude w.r.t. the oblate spheroid.
@@ -91,11 +87,9 @@ public:
      *  the required change of position (in m) between two iterations.
      *  \return Geodetic latitude at requested point.
      */
-    double getGeodeticLatitude( const Eigen::Vector3d& bodyFixedPosition,
-                                        const double tolerance = 1.0E-4 )
+    double getGeodeticLatitude( const Eigen::Vector3d& bodyFixedPosition, const double tolerance = 1.0E-4 )
     {
-        return coordinate_conversions::calculateGeodeticLatitude(
-                    bodyFixedPosition, equatorialRadius_, flattening_, tolerance );
+        return coordinate_conversions::calculateGeodeticLatitude( bodyFixedPosition, equatorialRadius_, flattening_, tolerance );
     }
 
     //! Function to return the mean radius of the oblate spheroid.
@@ -139,8 +133,7 @@ private:
     double flattening_;
 };
 
-} // namespace basic_astrodynamics
-} // namespace tudat
+}  // namespace basic_astrodynamics
+}  // namespace tudat
 
-
-#endif // TUDAT_OBLATESPHEROIDBODYSHAPEMODEL_H
+#endif  // TUDAT_OBLATESPHEROIDBODYSHAPEMODEL_H

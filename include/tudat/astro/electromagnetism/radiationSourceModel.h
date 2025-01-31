@@ -38,13 +38,12 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "occultationModel.h"
 
-
 namespace tudat
 {
 namespace electromagnetism
 {
 
-typedef std::vector<std::pair<double, Eigen::Vector3d>> IrradianceWithSourceList;
+typedef std::vector< std::pair< double, Eigen::Vector3d > > IrradianceWithSourceList;
 
 class SourcePanelRadiosityModelUpdater;
 
@@ -60,20 +59,16 @@ class SourcePanelRadiosityModelUpdater;
 class RadiationSourceModel
 {
 public:
-    explicit RadiationSourceModel( const std::string& sourceName = "" ):
-    sourceName_( sourceName )
-    {
+    explicit RadiationSourceModel( const std::string& sourceName = "" ): sourceName_( sourceName ) { }
 
-    }
-
-    virtual ~RadiationSourceModel() = default;
+    virtual ~RadiationSourceModel( ) = default;
 
     /*!
      * Update class members.
      *
      * @param currentTime Current simulation time
      */
-    void updateMembers(double currentTime);
+    void updateMembers( double currentTime );
 
     /*!
      * Evaluate the irradiance [W/m²] at a certain position due to this source.
@@ -83,8 +78,7 @@ public:
      *         Contains a single element for point sources, multiple elements for paneled sources. Each element can be
      *         thought of as ray from the source to the target.
      */
-    virtual IrradianceWithSourceList evaluateIrradianceAtPosition(
-            const Eigen::Vector3d& targetPosition) = 0;
+    virtual IrradianceWithSourceList evaluateIrradianceAtPosition( const Eigen::Vector3d& targetPosition ) = 0;
 
     /*!
      * Evaluate the total irradiance [W/m²] at a certain position due to this source. Individual rays are merged, as
@@ -93,8 +87,7 @@ public:
      * @param targetPosition Position where to evaluate the irradiance in local (i.e. source-fixed) coordinates
      * @return Total irradiance from this source at the target position [W/m²]
      */
-    double evaluateTotalIrradianceAtPosition(
-            const Eigen::Vector3d& targetPosition);
+    double evaluateTotalIrradianceAtPosition( const Eigen::Vector3d& targetPosition );
 
     std::string getSourceName( )
     {
@@ -102,9 +95,9 @@ public:
     }
 
 protected:
-    virtual void updateMembers_(const double currentTime) {};
+    virtual void updateMembers_( const double currentTime ) { };
 
-    double currentTime_{TUDAT_NAN};
+    double currentTime_{ TUDAT_NAN };
 
     std::string sourceName_;
 };
@@ -127,25 +120,23 @@ public:
      *
      * @param luminosityModel Luminosity model of this source
      */
-    explicit IsotropicPointRadiationSourceModel(
-            const std::shared_ptr<LuminosityModel>& luminosityModel,
-            const std::string& sourceName = "" ):
-        RadiationSourceModel( sourceName ),
-        luminosityModel_(luminosityModel) {}
+    explicit IsotropicPointRadiationSourceModel( const std::shared_ptr< LuminosityModel >& luminosityModel,
+                                                 const std::string& sourceName = "" ):
+        RadiationSourceModel( sourceName ), luminosityModel_( luminosityModel )
+    { }
 
-    IrradianceWithSourceList evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) override;
+    IrradianceWithSourceList evaluateIrradianceAtPosition( const Eigen::Vector3d& targetPosition ) override;
 
-    const std::shared_ptr<LuminosityModel>& getLuminosityModel() const
+    const std::shared_ptr< LuminosityModel >& getLuminosityModel( ) const
     {
         return luminosityModel_;
     }
 
 private:
-    void updateMembers_(double currentTime) override;
+    void updateMembers_( double currentTime ) override;
 
-    std::shared_ptr<LuminosityModel> luminosityModel_;
+    std::shared_ptr< LuminosityModel > luminosityModel_;
 };
-
 
 /*!
  * Class modeling a single panel on a paneled source.
@@ -168,40 +159,35 @@ public:
      * @param surfaceNormal Surface normal vector of the panel [-]
      * @param radiosityModels List of radiosity models of the panel
      */
-    RadiationSourcePanel(
-        double area,
-        const Eigen::Vector3d& relativeCenter,
-        const Eigen::Vector3d& surfaceNormal,
-        std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels) :
-        area_(area),
-        relativeCenter_(relativeCenter),
-        surfaceNormal_(surfaceNormal),
-        radiosityModels_(std::move(radiosityModels))
+    RadiationSourcePanel( double area,
+                          const Eigen::Vector3d& relativeCenter,
+                          const Eigen::Vector3d& surfaceNormal,
+                          std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels ):
+        area_( area ), relativeCenter_( relativeCenter ), surfaceNormal_( surfaceNormal ), radiosityModels_( std::move( radiosityModels ) )
     {
-        Eigen::Vector3d relativeCenterInSphericalCoords =
-            coordinate_conversions::convertCartesianToSpherical(relativeCenter);
-        latitude_ = mathematical_constants::PI / 2.0 - relativeCenterInSphericalCoords[1];
-        longitude_ = relativeCenterInSphericalCoords[2];
+        Eigen::Vector3d relativeCenterInSphericalCoords = coordinate_conversions::convertCartesianToSpherical( relativeCenter );
+        latitude_ = mathematical_constants::PI / 2.0 - relativeCenterInSphericalCoords[ 1 ];
+        longitude_ = relativeCenterInSphericalCoords[ 2 ];
     }
 
     /*!
-    * Update class members.
-    *
-    * @param currentTime Current simulation time
-    */
-    void updateMembers(double currentTime);
+     * Update class members.
+     *
+     * @param currentTime Current simulation time
+     */
+    void updateMembers( double currentTime );
 
-    double getArea() const
+    double getArea( ) const
     {
         return area_;
     }
 
-    void setArea(double area)
+    void setArea( double area )
     {
         area_ = area;
     }
 
-    const Eigen::Vector3d& getRelativeCenter() const
+    const Eigen::Vector3d& getRelativeCenter( ) const
     {
         return relativeCenter_;
     }
@@ -209,55 +195,51 @@ public:
     /*!
      * Set relative center with pre-computed polar/azimuth angles.
      */
-    void setRelativeCenter(
-        const Eigen::Vector3d& relativeCenter,
-        const double polarAngle,
-        const double azimuthAngle)
+    void setRelativeCenter( const Eigen::Vector3d& relativeCenter, const double polarAngle, const double azimuthAngle )
     {
         relativeCenter_ = relativeCenter;
         latitude_ = mathematical_constants::PI / 2.0 - polarAngle;
         longitude_ = azimuthAngle;
     }
 
-    const Eigen::Vector3d& getSurfaceNormal() const
+    const Eigen::Vector3d& getSurfaceNormal( ) const
     {
         return surfaceNormal_;
     }
 
-    void setSurfaceNormal(const Eigen::Vector3d& surfaceNormal)
+    void setSurfaceNormal( const Eigen::Vector3d& surfaceNormal )
     {
         surfaceNormal_ = surfaceNormal;
     }
 
-    double getLatitude() const
+    double getLatitude( ) const
     {
         return latitude_;
     }
 
-    double getLongitude() const
+    double getLongitude( ) const
     {
         return longitude_;
     }
 
-    const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& getRadiosityModels() const
+    const std::vector< std::unique_ptr< SourcePanelRadiosityModel > >& getRadiosityModels( ) const
     {
         return radiosityModels_;
     }
 
-    std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& getRadiosityModels()
+    std::vector< std::unique_ptr< SourcePanelRadiosityModel > >& getRadiosityModels( )
     {
         return radiosityModels_;
     }
 
 private:
     double area_;
-    double latitude_{};
-    double longitude_{};
+    double latitude_{ };
+    double longitude_{ };
     Eigen::Vector3d relativeCenter_;
     Eigen::Vector3d surfaceNormal_;
-    std::vector<std::unique_ptr<SourcePanelRadiosityModel>> radiosityModels_;
+    std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels_;
 };
-
 
 //*********************************************************************************************
 //   Paneled radiation source
@@ -277,64 +259,63 @@ private:
 class PaneledRadiationSourceModel : public RadiationSourceModel
 {
 public:
-
     /*!
      * Constructor for a shape-aware paneled source. The shape model is necessary for automatic panel generation.
      *
      * @param sourceBodyShapeModel Shape model of this source
      */
-    explicit PaneledRadiationSourceModel(
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
-            std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
-            const std::string& sourceName = "" ) :
-        RadiationSourceModel( sourceName ),
-        sourceBodyShapeModel_(sourceBodyShapeModel),
-        sourcePanelRadiosityModelUpdater_(std::move(sourcePanelRadiosityModelUpdater)) {}
+    explicit PaneledRadiationSourceModel( const std::shared_ptr< basic_astrodynamics::BodyShapeModel >& sourceBodyShapeModel,
+                                          std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater,
+                                          const std::string& sourceName = "" ):
+        RadiationSourceModel( sourceName ), sourceBodyShapeModel_( sourceBodyShapeModel ),
+        sourcePanelRadiosityModelUpdater_( std::move( sourcePanelRadiosityModelUpdater ) )
+    { }
 
     /*!
      * Constructor for shape-oblivious paneled source. No knowledge of shape necessary if panels are given manually.
      */
-    explicit PaneledRadiationSourceModel(
-            std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
-            const std::string& sourceName = "" ) :
-                PaneledRadiationSourceModel(nullptr, std::move(sourcePanelRadiosityModelUpdater),sourceName) {}
+    explicit PaneledRadiationSourceModel( std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater,
+                                          const std::string& sourceName = "" ):
+        PaneledRadiationSourceModel( nullptr, std::move( sourcePanelRadiosityModelUpdater ), sourceName )
+    { }
 
-    IrradianceWithSourceList evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) override;
+    IrradianceWithSourceList evaluateIrradianceAtPosition( const Eigen::Vector3d& targetPosition ) override;
 
     /*!
      * Get all panels comprising this paneled source.
      *
      * @return Panels comprising this paneled source
      */
-    virtual const std::vector<RadiationSourcePanel>& getPanels() const = 0;
+    virtual const std::vector< RadiationSourcePanel >& getPanels( ) const = 0;
 
     /*!
-    * Get the number of panels comprising this paneled source. For dynamically generated paneling, this may be
-    * the target number, not the currently existing one.
-    */
-    virtual unsigned int getNumberOfPanels() const = 0;
+     * Get the number of panels comprising this paneled source. For dynamically generated paneling, this may be
+     * the target number, not the currently existing one.
+     */
+    virtual unsigned int getNumberOfPanels( ) const = 0;
 
-    double getVisibleArea() const
+    double getVisibleArea( ) const
     {
         return visibleArea;
     }
 
-    const std::unique_ptr<SourcePanelRadiosityModelUpdater>& getSourcePanelRadiosityModelUpdater() const
+    const std::unique_ptr< SourcePanelRadiosityModelUpdater >& getSourcePanelRadiosityModelUpdater( ) const
     {
         return sourcePanelRadiosityModelUpdater_;
     }
 
-    virtual std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( ){ return std::vector< Eigen::Vector7d >( ); }
-
+    virtual std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( )
+    {
+        return std::vector< Eigen::Vector7d >( );
+    }
 
 protected:
-    std::shared_ptr<basic_astrodynamics::BodyShapeModel> sourceBodyShapeModel_;
-    std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater_;
+    std::shared_ptr< basic_astrodynamics::BodyShapeModel > sourceBodyShapeModel_;
+    std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater_;
 
 private:
-
     // For dependent variable
-    double visibleArea{TUDAT_NAN};
+    double visibleArea{ TUDAT_NAN };
 };
 
 /*!
@@ -356,13 +337,12 @@ public:
      *
      * @param panels Panels comprising this paneled source
      */
-    explicit StaticallyPaneledRadiationSourceModel(
-            std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
-            std::vector<RadiationSourcePanel> panels,
-            const std::string& sourceName = "") :
-            PaneledRadiationSourceModel(std::move(sourcePanelRadiosityModelUpdater)),
-            numberOfPanels(panels.size()),
-            panels_(std::move(panels)) {}
+    explicit StaticallyPaneledRadiationSourceModel( std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater,
+                                                    std::vector< RadiationSourcePanel > panels,
+                                                    const std::string& sourceName = "" ):
+        PaneledRadiationSourceModel( std::move( sourcePanelRadiosityModelUpdater ) ), numberOfPanels( panels.size( ) ),
+        panels_( std::move( panels ) )
+    { }
 
     /*!
      * Constructor for automatic generation of panels.
@@ -371,36 +351,33 @@ public:
      * @param baseRadiosityModels Radiosity models that will be copied for each panel
      * @param numberOfPanels Number of panels for automatic generation
      */
-    explicit StaticallyPaneledRadiationSourceModel(
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
-            std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
-            const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels,
-            int numberOfPanels) :
-            PaneledRadiationSourceModel(sourceBodyShapeModel, std::move(sourcePanelRadiosityModelUpdater)),
-            numberOfPanels(numberOfPanels)
+    explicit StaticallyPaneledRadiationSourceModel( const std::shared_ptr< basic_astrodynamics::BodyShapeModel >& sourceBodyShapeModel,
+                                                    std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater,
+                                                    const std::vector< std::unique_ptr< SourcePanelRadiosityModel > >& baseRadiosityModels,
+                                                    int numberOfPanels ):
+        PaneledRadiationSourceModel( sourceBodyShapeModel, std::move( sourcePanelRadiosityModelUpdater ) ), numberOfPanels( numberOfPanels )
     {
-        generatePanels(baseRadiosityModels);
+        generatePanels( baseRadiosityModels );
     }
 
-    const std::vector<RadiationSourcePanel>& getPanels() const override
+    const std::vector< RadiationSourcePanel >& getPanels( ) const override
     {
         return panels_;
     }
 
-    unsigned int getNumberOfPanels() const override
+    unsigned int getNumberOfPanels( ) const override
     {
         return numberOfPanels;
     }
 
 private:
-    void updateMembers_(double currentTime) override;
+    void updateMembers_( double currentTime ) override;
 
-    void generatePanels(const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels);
-
+    void generatePanels( const std::vector< std::unique_ptr< SourcePanelRadiosityModel > >& baseRadiosityModels );
 
     unsigned int numberOfPanels;
 
-    std::vector<RadiationSourcePanel> panels_;
+    std::vector< RadiationSourcePanel > panels_;
 };
 
 /*!
@@ -421,35 +398,34 @@ public:
      * @param baseRadiosityModels Radiosity models that will be copied for each panel
      * @param numberOfPanelsPerRing Number of panels for each ring, excluding the central cap
      */
-    explicit DynamicallyPaneledRadiationSourceModel(
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& sourceBodyShapeModel,
-            std::unique_ptr<SourcePanelRadiosityModelUpdater> sourcePanelRadiosityModelUpdater,
-            const std::vector<std::unique_ptr<SourcePanelRadiosityModel>>& baseRadiosityModels,
-            const std::vector<int>& numberOfPanelsPerRing,
-            const std::string& sourceName = "");
+    explicit DynamicallyPaneledRadiationSourceModel( const std::shared_ptr< basic_astrodynamics::BodyShapeModel >& sourceBodyShapeModel,
+                                                     std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater,
+                                                     const std::vector< std::unique_ptr< SourcePanelRadiosityModel > >& baseRadiosityModels,
+                                                     const std::vector< int >& numberOfPanelsPerRing,
+                                                     const std::string& sourceName = "" );
 
-    IrradianceWithSourceList evaluateIrradianceAtPosition(const Eigen::Vector3d& targetPosition) override;
+    IrradianceWithSourceList evaluateIrradianceAtPosition( const Eigen::Vector3d& targetPosition ) override;
 
-    const std::vector<RadiationSourcePanel>& getPanels() const override
+    const std::vector< RadiationSourcePanel >& getPanels( ) const override
     {
         return panels_;
     }
 
-    unsigned int getNumberOfPanels() const override
+    unsigned int getNumberOfPanels( ) const override
     {
         return numberOfPanels;
     }
 
-    std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( ) override ;
+    std::vector< Eigen::Vector7d > getCurrentPanelGeomtry( ) override;
 
 private:
-    void updateMembers_(double currentTime) override;
+    void updateMembers_( double currentTime ) override;
 
     unsigned int numberOfPanels;
 
-    const std::vector<int> numberOfPanelsPerRing_;
+    const std::vector< int > numberOfPanelsPerRing_;
 
-    std::vector<RadiationSourcePanel> panels_;
+    std::vector< RadiationSourcePanel > panels_;
 };
 
 class SourcePanelRadiosityModelUpdater
@@ -466,26 +442,25 @@ public:
      * @param originalSourceToSourceOccultationModels Occultation models between original sources and source
      */
     explicit SourcePanelRadiosityModelUpdater(
-            const std::function<Eigen::Vector3d()>& sourcePositionFunction,
-            const std::function<Eigen::Quaterniond()>& sourceRotationFromLocalToGlobalFrameFunction,
-            const std::map<std::string, std::shared_ptr<IsotropicPointRadiationSourceModel>>& originalSourceModels,
-            const std::map<std::string, std::shared_ptr<basic_astrodynamics::BodyShapeModel>>& originalSourceBodyShapeModels,
-            const std::map<std::string, std::function<Eigen::Vector3d()>>& originalSourcePositionFunctions,
-            const std::map<std::string, std::shared_ptr<OccultationModel>>& originalSourceToSourceOccultationModels) :
-                sourcePositionFunction_(sourcePositionFunction),
-                sourceRotationFromLocalToGlobalFrameFunction_(sourceRotationFromLocalToGlobalFrameFunction),
-                originalSourceModels_(originalSourceModels),
-                originalSourceBodyShapeModels_(originalSourceBodyShapeModels),
-                originalSourcePositionFunctions_(originalSourcePositionFunctions),
-                originalSourceToSourceOccultationModels_(originalSourceToSourceOccultationModels)
+            const std::function< Eigen::Vector3d( ) >& sourcePositionFunction,
+            const std::function< Eigen::Quaterniond( ) >& sourceRotationFromLocalToGlobalFrameFunction,
+            const std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > >& originalSourceModels,
+            const std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& originalSourceBodyShapeModels,
+            const std::map< std::string, std::function< Eigen::Vector3d( ) > >& originalSourcePositionFunctions,
+            const std::map< std::string, std::shared_ptr< OccultationModel > >& originalSourceToSourceOccultationModels ):
+        sourcePositionFunction_( sourcePositionFunction ),
+        sourceRotationFromLocalToGlobalFrameFunction_( sourceRotationFromLocalToGlobalFrameFunction ),
+        originalSourceModels_( originalSourceModels ), originalSourceBodyShapeModels_( originalSourceBodyShapeModels ),
+        originalSourcePositionFunctions_( originalSourcePositionFunctions ),
+        originalSourceToSourceOccultationModels_( originalSourceToSourceOccultationModels )
     {
-        for (const auto& kv : originalSourceToSourceOccultationModels_)
+        for( const auto& kv: originalSourceToSourceOccultationModels_ )
         {
             auto originalSourceBodyName = kv.first;
-            originalSourceBodyNames_.push_back(originalSourceBodyName);
+            originalSourceBodyNames_.push_back( originalSourceBodyName );
 
-            auto occultingBodyNames = kv.second->getOccultingBodyNames();
-            originalSourceToSourceOccultingBodyNames_.insert(occultingBodyNames.begin(), occultingBodyNames.end());
+            auto occultingBodyNames = kv.second->getOccultingBodyNames( );
+            originalSourceToSourceOccultingBodyNames_.insert( occultingBodyNames.begin( ), occultingBodyNames.end( ) );
         }
     }
 
@@ -494,35 +469,35 @@ public:
      *
      * @param currentTime Current simulation time
      */
-    void updateMembers(double currentTime);
+    void updateMembers( double currentTime );
 
-    void updatePanel(RadiationSourcePanel& panel);
+    void updatePanel( RadiationSourcePanel& panel );
 
-    const std::vector<std::string>& getOriginalSourceBodyNames() const
+    const std::vector< std::string >& getOriginalSourceBodyNames( ) const
     {
         return originalSourceBodyNames_;
     }
 
-    const std::set<std::string>& getOriginalSourceToSourceOccultingBodyNames() const
+    const std::set< std::string >& getOriginalSourceToSourceOccultingBodyNames( ) const
     {
         return originalSourceToSourceOccultingBodyNames_;
     }
 
 private:
-    std::function<Eigen::Vector3d()> sourcePositionFunction_;
-    std::function<Eigen::Quaterniond()> sourceRotationFromLocalToGlobalFrameFunction_;
+    std::function< Eigen::Vector3d( ) > sourcePositionFunction_;
+    std::function< Eigen::Quaterniond( ) > sourceRotationFromLocalToGlobalFrameFunction_;
 
-    std::vector<std::string> originalSourceBodyNames_;
-    std::set<std::string> originalSourceToSourceOccultingBodyNames_;
-    std::map<std::string, std::shared_ptr<IsotropicPointRadiationSourceModel>> originalSourceModels_;
-    std::map<std::string, std::shared_ptr<basic_astrodynamics::BodyShapeModel>> originalSourceBodyShapeModels_;
-    std::map<std::string, std::function<Eigen::Vector3d()>> originalSourcePositionFunctions_;
-    std::map<std::string, std::shared_ptr<OccultationModel>> originalSourceToSourceOccultationModels_;
+    std::vector< std::string > originalSourceBodyNames_;
+    std::set< std::string > originalSourceToSourceOccultingBodyNames_;
+    std::map< std::string, std::shared_ptr< IsotropicPointRadiationSourceModel > > originalSourceModels_;
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::BodyShapeModel > > originalSourceBodyShapeModels_;
+    std::map< std::string, std::function< Eigen::Vector3d( ) > > originalSourcePositionFunctions_;
+    std::map< std::string, std::shared_ptr< OccultationModel > > originalSourceToSourceOccultationModels_;
 
-    std::map<std::string, Eigen::Vector3d> originalSourceToSourceCenterDirections_; // in source frame
-    std::map<std::string, double> originalSourceUnoccultedIrradiances_;
+    std::map< std::string, Eigen::Vector3d > originalSourceToSourceCenterDirections_;  // in source frame
+    std::map< std::string, double > originalSourceUnoccultedIrradiances_;
 
-    double currentTime_{TUDAT_NAN};
+    double currentTime_{ TUDAT_NAN };
 };
 
 /*!
@@ -538,7 +513,7 @@ private:
  * @param n number of points to generate
  * @return a pair of vectors of polar angles (between 0 and π) and azimuth angles (between 0 and 2π)
  */
-std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Spiraling(unsigned int n);
+std::pair< std::vector< double >, std::vector< double > > generateEvenlySpacedPoints_Spiraling( unsigned int n );
 
 /*!
  * Generate evenly spaced points on a sphere using algorithm from Wetterer (2014). This is used for uniform panel
@@ -553,7 +528,7 @@ std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_S
  * @param n number of points to generate
  * @return a pair of vectors of polar angles (between 0 and π) and azimuth angles (between 0 and 2π)
  */
-std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_Staggered(unsigned int n);
+std::pair< std::vector< double >, std::vector< double > > generateEvenlySpacedPoints_Staggered( unsigned int n );
 
 /*!
  * Generate panels for the spherical cap of the source body that is visible from the target. The spherical cap is
@@ -569,11 +544,10 @@ std::pair<std::vector<double>, std::vector<double>> generateEvenlySpacedPoints_S
  * @return a tuple of vectors of Cartesian panel centers, the respective polar angles (between 0 and π) and azimuth angles
  *      (between 0 and 2π), and areas
  */
-std::tuple<std::vector<Eigen::Vector3d>, std::vector<double>, std::vector<double>, std::vector<double>>
-generatePaneledSphericalCap_EqualAngularResolution(
-        const Eigen::Vector3d& targetPosition,
-        const std::vector<int>& numberOfPanelsPerRing,
-        double bodyRadius);
+std::tuple< std::vector< Eigen::Vector3d >, std::vector< double >, std::vector< double >, std::vector< double > >
+generatePaneledSphericalCap_EqualAngularResolution( const Eigen::Vector3d& targetPosition,
+                                                    const std::vector< int >& numberOfPanelsPerRing,
+                                                    double bodyRadius );
 
 /*!
  * Generate panels for the spherical cap of the source body that is visible from the target as in Knocke (1988). The
@@ -589,14 +563,12 @@ generatePaneledSphericalCap_EqualAngularResolution(
  * @return a tuple of vectors of Cartesian panel centers, the respective polar angles (between 0 and π) and azimuth angles
  *      (between 0 and 2π), and areas
  */
-std::tuple<std::vector<Eigen::Vector3d>, std::vector<double>, std::vector<double>, std::vector<double>>
-generatePaneledSphericalCap_EqualProjectedAttenuatedArea(
-        const Eigen::Vector3d& targetPosition,
-        const std::vector<int>& numberOfPanelsPerRing,
-        double bodyRadius);
+std::tuple< std::vector< Eigen::Vector3d >, std::vector< double >, std::vector< double >, std::vector< double > >
+generatePaneledSphericalCap_EqualProjectedAttenuatedArea( const Eigen::Vector3d& targetPosition,
+                                                          const std::vector< int >& numberOfPanelsPerRing,
+                                                          double bodyRadius );
 
+}  // namespace electromagnetism
+}  // namespace tudat
 
-} // tudat
-} // electromagnetism
-
-#endif //TUDAT_RADIATIONSOURCEMODEL_H
+#endif  // TUDAT_RADIATIONSOURCEMODEL_H

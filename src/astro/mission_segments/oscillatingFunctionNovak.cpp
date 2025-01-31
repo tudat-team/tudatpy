@@ -41,71 +41,58 @@ double OscillatingFunctionNovak::evaluate( const double anAzimuthalAngle )
 {
     // Oscillating function [Novak and Vasile, 2011].
     const double elevationAngle =
-            ( boundaryParameters_(  ).first( 0 )
-              + boundaryParameters_(  ).first( 1 ) * anAzimuthalAngle )
-            * std::cos( anAzimuthalAngle )
-            + ( boundaryParameters_(  ).second( 0 )
-                + boundaryParameters_(  ).second( 1 ) * anAzimuthalAngle )
-            * std::sin ( anAzimuthalAngle );
+            ( boundaryParameters_( ).first( 0 ) + boundaryParameters_( ).first( 1 ) * anAzimuthalAngle ) * std::cos( anAzimuthalAngle ) +
+            ( boundaryParameters_( ).second( 0 ) + boundaryParameters_( ).second( 1 ) * anAzimuthalAngle ) * std::sin( anAzimuthalAngle );
 
     return elevationAngle;
 }
 
 //! Compute the derivative of the function.
-double OscillatingFunctionNovak::computeDerivative(
-        const unsigned int order,
-        const double anAzimuthalAngle )
+double OscillatingFunctionNovak::computeDerivative( const unsigned int order, const double anAzimuthalAngle )
 {
     // Function itself.
-    if ( order == 0 )
+    if( order == 0 )
     {
         return evaluate( anAzimuthalAngle );
     }
     // First derivative.
-    else if ( order == 1 )
+    else if( order == 1 )
     {
         // First derivative of the oscillating function with respect to the (in-plane) azimuthal angle.
-        const double firstDerivative = (
-                    boundaryParameters_(  ).first( 1 )
-                    + boundaryParameters_(  ).second( 0 )
-                    + boundaryParameters_(  ).second( 1 ) * anAzimuthalAngle )
-                * std::cos( anAzimuthalAngle )
-                - ( boundaryParameters_(  ).first( 0 )
-                    + boundaryParameters_(  ).first( 1 ) * anAzimuthalAngle
-                    - boundaryParameters_(  ).second( 1 ) ) * std::sin( anAzimuthalAngle );
+        const double firstDerivative = ( boundaryParameters_( ).first( 1 ) + boundaryParameters_( ).second( 0 ) +
+                                         boundaryParameters_( ).second( 1 ) * anAzimuthalAngle ) *
+                        std::cos( anAzimuthalAngle ) -
+                ( boundaryParameters_( ).first( 0 ) + boundaryParameters_( ).first( 1 ) * anAzimuthalAngle -
+                  boundaryParameters_( ).second( 1 ) ) *
+                        std::sin( anAzimuthalAngle );
         return firstDerivative;
     }
     // Second derivative.
-    else if ( order == 2 )
+    else if( order == 2 )
     {
         // Second derivative of the oscillating function with respect to the (in-plane) azimuthal
         // angle.
-        const double secondDerivative = (
-                    - 1.0 * boundaryParameters_(  ).first( 0 )
-                    - boundaryParameters_(  ).first( 1 ) * anAzimuthalAngle
-                    + 2.0 * boundaryParameters_(  ).second( 1 ) )
-                * std::cos( anAzimuthalAngle ) - (
-                    2.0 * boundaryParameters_(  ).first( 1 )
-                    + boundaryParameters_(  ).second( 0 )
-                    + boundaryParameters_(  ).second( 1 ) * anAzimuthalAngle )
-                * std::sin( anAzimuthalAngle );
+        const double secondDerivative = ( -1.0 * boundaryParameters_( ).first( 0 ) - boundaryParameters_( ).first( 1 ) * anAzimuthalAngle +
+                                          2.0 * boundaryParameters_( ).second( 1 ) ) *
+                        std::cos( anAzimuthalAngle ) -
+                ( 2.0 * boundaryParameters_( ).first( 1 ) + boundaryParameters_( ).second( 0 ) +
+                  boundaryParameters_( ).second( 1 ) * anAzimuthalAngle ) *
+                        std::sin( anAzimuthalAngle );
 
         return secondDerivative;
     }
     // Third derivative.
-    else if ( order == 3 )
+    else if( order == 3 )
     {
         // Third derivative of the oscillating function with repect to the (in-plane) azimuthal
         // angle.
-        const double thirdDerivative = -1.0 * (
-                    3.0 * boundaryParameters_(  ).first( 1 )
-                    + boundaryParameters_(  ).second( 0 )
-                    + boundaryParameters_(  ).second( 1 ) * anAzimuthalAngle )
-                * std::cos( anAzimuthalAngle ) + (
-                    boundaryParameters_(  ).first( 0 )
-                    + boundaryParameters_(  ).first( 1 ) * anAzimuthalAngle
-                    - 3.0 * boundaryParameters_(  ).second( 1 ) )
-                * std::sin( anAzimuthalAngle );
+        const double thirdDerivative = -1.0 *
+                        ( 3.0 * boundaryParameters_( ).first( 1 ) + boundaryParameters_( ).second( 0 ) +
+                          boundaryParameters_( ).second( 1 ) * anAzimuthalAngle ) *
+                        std::cos( anAzimuthalAngle ) +
+                ( boundaryParameters_( ).first( 0 ) + boundaryParameters_( ).first( 1 ) * anAzimuthalAngle -
+                  3.0 * boundaryParameters_( ).second( 1 ) ) *
+                        std::sin( anAzimuthalAngle );
 
         return thirdDerivative;
     }
@@ -117,8 +104,7 @@ double OscillatingFunctionNovak::computeDerivative(
 }
 
 //! Compute the definite integral of the function.
-double OscillatingFunctionNovak::computeDefiniteIntegral(
-        const unsigned int order, const double lowerBound, const double upperBound )
+double OscillatingFunctionNovak::computeDefiniteIntegral( const unsigned int order, const double lowerBound, const double upperBound )
 {
     // Declare unused parameters.
     TUDAT_UNUSED_PARAMETER( order );
@@ -129,5 +115,5 @@ double OscillatingFunctionNovak::computeDefiniteIntegral(
     throw std::runtime_error( "Cannot compute the integral, this is not supported for this function class." );
 }
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat

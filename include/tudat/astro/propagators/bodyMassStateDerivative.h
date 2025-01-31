@@ -21,7 +21,6 @@
 #include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/propagators/singleStateTypeDerivative.h"
 
-
 namespace tudat
 {
 
@@ -34,10 +33,9 @@ namespace propagators
  *  for mass propagation, both represent the physical body mass (in kg).
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class BodyMassStateDerivative: public propagators::SingleStateTypeDerivative< StateScalarType, TimeType >
+class BodyMassStateDerivative : public propagators::SingleStateTypeDerivative< StateScalarType, TimeType >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor, sets the mass rate models and the bodies that are to be propagated (single mass rate model per body).
@@ -46,27 +44,26 @@ public:
      * more entries than the massRateModels map, as a body's mass can be 'propagated' with no rate model (i.e. constant
      * mass).
      */
-    BodyMassStateDerivative(
-            const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
-            const std::vector< std::string >& bodiesToIntegrate ):
-        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
-            propagators::body_mass_state ),
+    BodyMassStateDerivative( const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
+                             const std::vector< std::string >& bodiesToIntegrate ):
+        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >( propagators::body_mass_state ),
         bodiesToIntegrate_( bodiesToIntegrate )
     {
-        for( std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator modelIterator
-             = massRateModels.begin( ); modelIterator != massRateModels.end( ); modelIterator++ )
+        for( std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator modelIterator =
+                     massRateModels.begin( );
+             modelIterator != massRateModels.end( );
+             modelIterator++ )
         {
-           massRateModels_[ modelIterator->first ].push_back( modelIterator->second );
+            massRateModels_[ modelIterator->first ].push_back( modelIterator->second );
         }
 
         for( unsigned int i = 0; i < bodiesToIntegrate_.size( ); i++ )
         {
             if( massRateModels_.count( bodiesToIntegrate_.at( i ) ) == 0 )
             {
-                std::cerr<<"Warning, propagating mass of body " + bodiesToIntegrate_.at( i )  +
-                           " without any mass rate models."<<std::endl;
-                massRateModels_[ bodiesToIntegrate_.at( i ) ] =
-                        std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > >( );
+                std::cerr << "Warning, propagating mass of body " + bodiesToIntegrate_.at( i ) + " without any mass rate models."
+                          << std::endl;
+                massRateModels_[ bodiesToIntegrate_.at( i ) ] = std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > >( );
             }
         }
 
@@ -82,28 +79,24 @@ public:
      * mass).
      */
     BodyMassStateDerivative(
-            const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >&
-            massRateModels,
+            const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >& massRateModels,
             const std::vector< std::string >& bodiesToIntegrate ):
-        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
-            propagators::body_mass_state ),
+        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >( propagators::body_mass_state ),
         massRateModels_( massRateModels ), bodiesToIntegrate_( bodiesToIntegrate )
     {
         for( unsigned int i = 0; i < bodiesToIntegrate_.size( ); i++ )
         {
             if( massRateModels_.count( bodiesToIntegrate_.at( i ) ) == 0 )
             {
-                massRateModels_[ bodiesToIntegrate_.at( i ) ] =
-                        std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > >( );
+                massRateModels_[ bodiesToIntegrate_.at( i ) ] = std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > >( );
             }
         }
 
         verifyInput( );
     }
 
-
     //! Destructor
-    virtual ~BodyMassStateDerivative( ){ }
+    virtual ~BodyMassStateDerivative( ) { }
 
     //! Calculates the state derivative of the system of equations for the mass dynamics
     /*!
@@ -115,28 +108,24 @@ public:
      * \param stateDerivative Mass rates of the bodies for which the mass is propagated, in the same order as
      * bodiesToIntegrate_
      */
-    void calculateSystemStateDerivative(
-            const TimeType time,
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
+    void calculateSystemStateDerivative( const TimeType time,
+                                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+                                         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         stateDerivative.setZero( );
 
         // Iterate over all mass rate models, retrieve value and put into corresponding entry.
         int currentIndex = 0;
-        for( massRateModelIterator_ = massRateModels_.begin( );
-             massRateModelIterator_ != massRateModels_.end( );
-             massRateModelIterator_++ )
+        for( massRateModelIterator_ = massRateModels_.begin( ); massRateModelIterator_ != massRateModels_.end( ); massRateModelIterator_++ )
         {
             stateDerivative( currentIndex, 0 ) = 0.0;
             for( unsigned int i = 0; i < massRateModelIterator_->second.size( ); i++ )
             {
-                stateDerivative( currentIndex, 0 ) += static_cast< StateScalarType >(
-                            massRateModelIterator_->second.at ( i )->getMassRate( ) );
+                stateDerivative( currentIndex, 0 ) +=
+                        static_cast< StateScalarType >( massRateModelIterator_->second.at( i )->getMassRate( ) );
 
                 currentIndex++;
             }
-
         }
     }
 
@@ -148,13 +137,11 @@ public:
     void clearStateDerivativeModel( )
     {
         // Reset all mass rate times (to allow multiple evaluations at same time, e.g. stage 2  and 3 in RK4 integrator)
-        for( massRateModelIterator_ = massRateModels_.begin( );
-             massRateModelIterator_ != massRateModels_.end( );
-             massRateModelIterator_++ )
+        for( massRateModelIterator_ = massRateModels_.begin( ); massRateModelIterator_ != massRateModels_.end( ); massRateModelIterator_++ )
         {
             for( unsigned int i = 0; i < massRateModelIterator_->second.size( ); i++ )
             {
-                massRateModelIterator_->second.at ( i )->resetCurrentTime( );
+                massRateModelIterator_->second.at( i )->resetCurrentTime( );
             }
         }
     }
@@ -168,16 +155,12 @@ public:
      */
     void updateStateDerivativeModel( const TimeType currentTime )
     {
-
-
         // Update local variables of mass rate model objects.
-        for( massRateModelIterator_ = massRateModels_.begin( );
-             massRateModelIterator_ != massRateModels_.end( );
-             massRateModelIterator_++ )
+        for( massRateModelIterator_ = massRateModels_.begin( ); massRateModelIterator_ != massRateModels_.end( ); massRateModelIterator_++ )
         {
             for( unsigned int i = 0; i < massRateModelIterator_->second.size( ); i++ )
             {
-                massRateModelIterator_->second.at ( i )->updateMembers( static_cast< double >( currentTime ) );
+                massRateModelIterator_->second.at( i )->updateMembers( static_cast< double >( currentTime ) );
             }
         }
     }
@@ -185,7 +168,8 @@ public:
     //! Function included for compatibility purposes with base class, local and global representation is equal for mass rate
     //! model. Function returns (by reference)  input internalSolution.
     void convertCurrentStateToGlobalRepresentation(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution,
+            const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
         currentCartesianLocalSoluton = internalSolution;
@@ -194,17 +178,17 @@ public:
     //! Function included for compatibility purposes with base class, input and output representation is equal for mass rate
     //! model. Function returns input outputSolution.
     virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution,
+            const TimeType& time )
     {
         return outputSolution;
     }
 
     //! Function included for compatibility purposes with base class, input and output representation is equal for mass rate
     //! model. Function returns  (by reference) input internalSolution.
-    void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
-            const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
+    void convertToOutputSolution( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
+                                  const TimeType& time,
+                                  Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
         currentCartesianLocalSoluton = internalSolution;
     }
@@ -241,21 +225,18 @@ public:
         // Check if body is propagated.
         double totalMassRate = 0.0;
 
-        if( std::find( bodiesToIntegrate_.begin( ),
-                       bodiesToIntegrate_.end( ),
-                       bodyName ) == bodiesToIntegrate_.end( ) )
+        if( std::find( bodiesToIntegrate_.begin( ), bodiesToIntegrate_.end( ), bodyName ) == bodiesToIntegrate_.end( ) )
         {
-            std::string errorMessage = "Error when getting total mass rate for body " + bodyName +
-                    ", no such acceleration is found";
+            std::string errorMessage = "Error when getting total mass rate for body " + bodyName + ", no such acceleration is found";
             throw std::runtime_error( errorMessage );
         }
         else
         {
             if( massRateModels_.count( bodyName ) != 0 )
             {
-                for( unsigned int i = 0; i < massRateModels_.at( bodyName ).size( ); i++  )
+                for( unsigned int i = 0; i < massRateModels_.at( bodyName ).size( ); i++ )
                 {
-                    totalMassRate += massRateModels_.at( bodyName ).at ( i )->getMassRate( );
+                    totalMassRate += massRateModels_.at( bodyName ).at( i )->getMassRate( );
                 }
             }
         }
@@ -268,27 +249,22 @@ public:
     }
 
 private:
-
     void verifyInput( )
     {
         for( unsigned int i = 0; i < bodiesToIntegrate_.size( ); i++ )
         {
             if( massRateModels_.count( bodiesToIntegrate_.at( i ) ) == 0 )
             {
-                throw std::runtime_error( "Error, requested propagation of mass of body " +
-                                          bodiesToIntegrate_.at( i ) +
+                throw std::runtime_error( "Error, requested propagation of mass of body " + bodiesToIntegrate_.at( i ) +
                                           ", but no mass rate models provided" );
             }
         }
 
-        for( auto it : massRateModels_ )
+        for( auto it: massRateModels_ )
         {
-            if( std::find( bodiesToIntegrate_.begin( ),
-                           bodiesToIntegrate_.end( ),
-                           it.first ) == bodiesToIntegrate_.end( ) )
+            if( std::find( bodiesToIntegrate_.begin( ), bodiesToIntegrate_.end( ), it.first ) == bodiesToIntegrate_.end( ) )
             {
-                throw std::runtime_error( "Error, provided mass rate models for body " +
-                                          it.first +
+                throw std::runtime_error( "Error, provided mass rate models for body " + it.first +
                                           ", but this body is not included in list of bodies for which mass is to be propagated." );
             }
         }
@@ -307,11 +283,10 @@ private:
      * mass).
      */
     std::vector< std::string > bodiesToIntegrate_;
-
 };
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_BODYMASSSTATEDERIVATIVE_H
+#endif  // TUDAT_BODYMASSSTATEDERIVATIVE_H

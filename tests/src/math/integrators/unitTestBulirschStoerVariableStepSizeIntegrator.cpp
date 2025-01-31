@@ -43,10 +43,10 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_bulirsch_stoer_integrator )
 
+using numerical_integrator_test_functions::computeAnalyticalStateFehlbergODE;
+using numerical_integrator_test_functions::computeFehlbergLogirithmicTestODEStateDerivative;
 using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivative;
 using numerical_integrator_test_functions::computeVanDerPolStateDerivative;
-using numerical_integrator_test_functions::computeFehlbergLogirithmicTestODEStateDerivative;
-using numerical_integrator_test_functions::computeAnalyticalStateFehlbergODE;
 
 using namespace numerical_integrators;
 
@@ -54,32 +54,41 @@ using namespace numerical_integrators;
 BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78 )
 {
     // Setup integrator
-    RungeKuttaCoefficients coeff_rk78 =
-            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78);
+    RungeKuttaCoefficients coeff_rk78 = RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 );
 
     // Integrator settings
     double minimumStepSize = std::numeric_limits< double >::epsilon( );
     double maximumStepSize = std::numeric_limits< double >::infinity( );
-    double initialStepSize = 1E-4; // Don't make this too small
-    Eigen::VectorXd relativeTolerance(1);
+    double initialStepSize = 1E-4;  // Don't make this too small
+    Eigen::VectorXd relativeTolerance( 1 );
     relativeTolerance << 1E-12;
     Eigen::VectorXd absoluteTolerance = relativeTolerance;
 
     // Initial conditions
     double initialTime = 0.5;
     Eigen::VectorXd initialState( 1 );
-    initialState << 0.5; // 1 large error
-
+    initialState << 0.5;  // 1 large error
 
     // Setup integrator
-    BulirschStoerVariableStepSizeIntegratorXd integrator_bs(
-                getBulirschStoerStepSequence( bulirsch_stoer_sequence, 4 ),
-                computeNonAutonomousModelStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
+    BulirschStoerVariableStepSizeIntegratorXd integrator_bs( getBulirschStoerStepSequence( bulirsch_stoer_sequence, 4 ),
+                                                             computeNonAutonomousModelStateDerivative,
+                                                             initialTime,
+                                                             initialState,
+                                                             minimumStepSize,
+                                                             maximumStepSize,
+                                                             initialStepSize,
+                                                             relativeTolerance,
+                                                             absoluteTolerance );
 
-    RungeKuttaVariableStepSizeIntegratorXd integrator_rk78(
-                coeff_rk78, computeNonAutonomousModelStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
+    RungeKuttaVariableStepSizeIntegratorXd integrator_rk78( coeff_rk78,
+                                                            computeNonAutonomousModelStateDerivative,
+                                                            initialTime,
+                                                            initialState,
+                                                            minimumStepSize,
+                                                            maximumStepSize,
+                                                            initialStepSize,
+                                                            relativeTolerance,
+                                                            absoluteTolerance );
 
     double endTime = 1.5;
     Eigen::VectorXd solution_bs = integrator_bs.integrateTo( endTime, initialStepSize );
@@ -94,14 +103,12 @@ BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78 )
 BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78_v2 )
 {
     // Setup integrator
-    RungeKuttaCoefficients coeff_rk78 =
-            RungeKuttaCoefficients::get(
-                rungeKuttaFehlberg78 );
+    RungeKuttaCoefficients coeff_rk78 = RungeKuttaCoefficients::get( rungeKuttaFehlberg78 );
 
     // Integrator settings
     double minimumStepSize = std::numeric_limits< double >::epsilon( );
     double maximumStepSize = std::numeric_limits< double >::infinity( );
-    double initialStepSize = 1.0; // Don't make this too small
+    double initialStepSize = 1.0;  // Don't make this too small
     double relativeTolerance = 1E-10;
     double absoluteTolerance = 1E-10;
 
@@ -111,14 +118,25 @@ BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78_v2 )
     initialState << -1.0;
 
     // Setup integrator
-    BulirschStoerVariableStepSizeIntegratorXd integrator_bs(
-                getBulirschStoerStepSequence( bulirsch_stoer_sequence, 4 ),
-                computeNonAutonomousModelStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
+    BulirschStoerVariableStepSizeIntegratorXd integrator_bs( getBulirschStoerStepSequence( bulirsch_stoer_sequence, 4 ),
+                                                             computeNonAutonomousModelStateDerivative,
+                                                             initialTime,
+                                                             initialState,
+                                                             minimumStepSize,
+                                                             maximumStepSize,
+                                                             initialStepSize,
+                                                             relativeTolerance,
+                                                             absoluteTolerance );
 
-    RungeKuttaVariableStepSizeIntegratorXd integrator_rk78(
-                coeff_rk78, computeNonAutonomousModelStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
+    RungeKuttaVariableStepSizeIntegratorXd integrator_rk78( coeff_rk78,
+                                                            computeNonAutonomousModelStateDerivative,
+                                                            initialTime,
+                                                            initialState,
+                                                            minimumStepSize,
+                                                            maximumStepSize,
+                                                            initialStepSize,
+                                                            relativeTolerance,
+                                                            absoluteTolerance );
 
     double endTime = 2.0;
     Eigen::VectorXd solution_bs = integrator_bs.integrateTo( endTime, initialStepSize );
@@ -133,13 +151,12 @@ BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78_v2 )
 BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78_VanDerPol )
 {
     // Setup integrator
-    RungeKuttaCoefficients coeff_rk78 =
-            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 );
+    RungeKuttaCoefficients coeff_rk78 = RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 );
 
     // Integrator settings
     double minimumStepSize = std::numeric_limits< double >::epsilon( );
     double maximumStepSize = std::numeric_limits< double >::infinity( );
-    double initialStepSize = 1; // Don't make this too small
+    double initialStepSize = 1;  // Don't make this too small
     double relativeTolerance = 1E-15;
     double absoluteTolerance = 1E-15;
 
@@ -149,18 +166,29 @@ BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78_VanDerPol )
     initialState << -1.0, 1.0;
 
     // Setup integrator
-    BulirschStoerVariableStepSizeIntegratorXd integrator_bs(
-                getBulirschStoerStepSequence( bulirsch_stoer_sequence, 4 ),
-                computeVanDerPolStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
+    BulirschStoerVariableStepSizeIntegratorXd integrator_bs( getBulirschStoerStepSequence( bulirsch_stoer_sequence, 4 ),
+                                                             computeVanDerPolStateDerivative,
+                                                             initialTime,
+                                                             initialState,
+                                                             minimumStepSize,
+                                                             maximumStepSize,
+                                                             initialStepSize,
+                                                             relativeTolerance,
+                                                             absoluteTolerance );
 
-    RungeKuttaVariableStepSizeIntegratorXd integrator_rk78(
-                coeff_rk78, computeVanDerPolStateDerivative, initialTime, initialState,
-                minimumStepSize, maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
+    RungeKuttaVariableStepSizeIntegratorXd integrator_rk78( coeff_rk78,
+                                                            computeVanDerPolStateDerivative,
+                                                            initialTime,
+                                                            initialState,
+                                                            minimumStepSize,
+                                                            maximumStepSize,
+                                                            initialStepSize,
+                                                            relativeTolerance,
+                                                            absoluteTolerance );
 
     double endTime = 1.4;
-    Eigen::VectorXd solution_bs = integrator_bs.integrateTo( endTime,initialStepSize );
-    Eigen::VectorXd solution_rk78 = integrator_rk78.integrateTo( endTime,initialStepSize );
+    Eigen::VectorXd solution_bs = integrator_bs.integrateTo( endTime, initialStepSize );
+    Eigen::VectorXd solution_rk78 = integrator_rk78.integrateTo( endTime, initialStepSize );
 
     Eigen::VectorXd difference = solution_rk78 - solution_bs;
 
@@ -170,5 +198,5 @@ BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78_VanDerPol )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

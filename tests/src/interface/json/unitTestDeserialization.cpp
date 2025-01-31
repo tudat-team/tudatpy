@@ -22,8 +22,7 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_deserialization )
 
@@ -59,12 +58,12 @@ BOOST_AUTO_TEST_CASE( test_json_valueAccess )
     BOOST_CHECK_EQUAL( getValue< double >( enemy, SpecialKeys::root / "mass" ), 19.5 );
 
     // Context: several levels
-    const nlohmann::json valencia =
-            getValue< nlohmann::json >( enemy, std::string( "mother" ) / "birthplace" / "city" );
+    const nlohmann::json valencia = getValue< nlohmann::json >( enemy, std::string( "mother" ) / "birthplace" / "city" );
     BOOST_CHECK_EQUAL( valencia.at( "name" ), "Valencia" );
     BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::root / "mass" ), 19.5 );
-    BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::up / SpecialKeys::up / SpecialKeys::up /
-                                           SpecialKeys::up / SpecialKeys::up / "mass" ), 19.5 );
+    BOOST_CHECK_EQUAL( getValue< double >(
+                               valencia, SpecialKeys::up / SpecialKeys::up / SpecialKeys::up / SpecialKeys::up / SpecialKeys::up / "mass" ),
+                       19.5 );
     BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::up / "continent" / "temperatureRange" / 0 ), -15 );
     BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::up / "continent" / "temperatureRange" / 1 ), 45 );
 
@@ -148,10 +147,8 @@ BOOST_AUTO_TEST_CASE( test_json_modular )
             ]
             )"_json;
 
-    simulation[ "export" ][ 0 ][ "file" ] =
-            ( boost::filesystem::path( "export" ) / "../outputs/epochs.txt" ).string( );
-    simulation[ "export" ][ 1 ][ "file" ] =
-            ( boost::filesystem::path( "export" ) / "../states.txt" ).string( );
+    simulation[ "export" ][ 0 ][ "file" ] = ( boost::filesystem::path( "export" ) / "../outputs/epochs.txt" ).string( );
+    simulation[ "export" ][ 1 ][ "file" ] = ( boost::filesystem::path( "export" ) / "../states.txt" ).string( );
 
     BOOST_CHECK_EQUAL( modular, simulation );
 }
@@ -162,8 +159,8 @@ BOOST_AUTO_TEST_CASE( test_json_mergeable )
     using namespace json_interface;
     using namespace boost::filesystem;
 
-    const nlohmann::json merged1 = getDeserializedJSON(
-                getPathForJSONFile( INPUT( ( path( "mergeable" ) / "inputs" / "merge1" ).string( ) ) ) );
+    const nlohmann::json merged1 =
+            getDeserializedJSON( getPathForJSONFile( INPUT( ( path( "mergeable" ) / "inputs" / "merge1" ).string( ) ) ) );
 
     const nlohmann::json manual1 =
             R"(
@@ -175,9 +172,8 @@ BOOST_AUTO_TEST_CASE( test_json_mergeable )
 
     BOOST_CHECK_EQUAL( merged1, manual1 );
 
-
-    const nlohmann::json merged2 = getDeserializedJSON(
-                getPathForJSONFile( INPUT( ( path( "mergeable" ) / "inputs" / "merge2" ).string( ) ) ) );
+    const nlohmann::json merged2 =
+            getDeserializedJSON( getPathForJSONFile( INPUT( ( path( "mergeable" ) / "inputs" / "merge2" ).string( ) ) ) );
 
     const nlohmann::json manual2 =
             R"(
@@ -195,9 +191,8 @@ BOOST_AUTO_TEST_CASE( test_json_mergeable )
 
     BOOST_CHECK_EQUAL( merged2, manual2 );
 
-
-    const nlohmann::json merged3 = getDeserializedJSON(
-                getPathForJSONFile( INPUT( ( path( "mergeable" ) / "inputs" / "merge3" ).string( ) ) ) );
+    const nlohmann::json merged3 =
+            getDeserializedJSON( getPathForJSONFile( INPUT( ( path( "mergeable" ) / "inputs" / "merge3" ).string( ) ) ) );
 
     const nlohmann::json manual3 =
             R"(
@@ -223,6 +218,6 @@ BOOST_AUTO_TEST_CASE( test_json_mergeable )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

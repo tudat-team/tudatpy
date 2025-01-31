@@ -16,11 +16,10 @@ namespace tudat
 namespace gravitation
 {
 
-std::pair< int, int > getMaximumDegreeOrderForPolynomialVariations(
-    const std::map< int, Eigen::MatrixXd >& cosineAmplitudes,
-    const std::map< int, Eigen::MatrixXd >& sineAmplitudes,
-    const int minimumDegree,
-    const int minimumOrder  )
+std::pair< int, int > getMaximumDegreeOrderForPolynomialVariations( const std::map< int, Eigen::MatrixXd >& cosineAmplitudes,
+                                                                    const std::map< int, Eigen::MatrixXd >& sineAmplitudes,
+                                                                    const int minimumDegree,
+                                                                    const int minimumOrder )
 {
     int maximumOrder = -1;
     int maximumDegree = -1;
@@ -29,7 +28,7 @@ std::pair< int, int > getMaximumDegreeOrderForPolynomialVariations(
     {
         throw std::runtime_error( "Error when creating polynomial gravity field variations, no variation blocks defined." );
     }
-    for( auto it : cosineAmplitudes )
+    for( auto it: cosineAmplitudes )
     {
         if( it.second.rows( ) == 0 || it.second.cols( ) == 0 )
         {
@@ -46,7 +45,7 @@ std::pair< int, int > getMaximumDegreeOrderForPolynomialVariations(
         }
     }
 
-    for( auto it : sineAmplitudes )
+    for( auto it: sineAmplitudes )
     {
         if( it.second.rows( ) == 0 || it.second.cols( ) == 0 )
         {
@@ -72,55 +71,56 @@ std::pair< int, int > getMaximumDegreeOrderForPolynomialVariations(
 }
 
 //! Class constructor
-PolynomialGravityFieldVariations::PolynomialGravityFieldVariations(
-        const std::map< int, Eigen::MatrixXd >& cosineAmplitudes,
-        const std::map< int, Eigen::MatrixXd >& sineAmplitudes,
-        const double referenceEpoch,
-        const int minimumDegree,
-        const int minimumOrder ):
-    GravityFieldVariations( minimumDegree, minimumOrder,
-                            getMaximumDegreeOrderForPolynomialVariations( cosineAmplitudes, sineAmplitudes, minimumDegree, minimumOrder ).first,
-                            getMaximumDegreeOrderForPolynomialVariations( cosineAmplitudes, sineAmplitudes, minimumDegree, minimumOrder ).second ),
-    cosineAmplitudes_( cosineAmplitudes ),
-    sineAmplitudes_( sineAmplitudes ),
-    referenceEpoch_( referenceEpoch )
+PolynomialGravityFieldVariations::PolynomialGravityFieldVariations( const std::map< int, Eigen::MatrixXd >& cosineAmplitudes,
+                                                                    const std::map< int, Eigen::MatrixXd >& sineAmplitudes,
+                                                                    const double referenceEpoch,
+                                                                    const int minimumDegree,
+                                                                    const int minimumOrder ):
+    GravityFieldVariations(
+            minimumDegree,
+            minimumOrder,
+            getMaximumDegreeOrderForPolynomialVariations( cosineAmplitudes, sineAmplitudes, minimumDegree, minimumOrder ).first,
+            getMaximumDegreeOrderForPolynomialVariations( cosineAmplitudes, sineAmplitudes, minimumDegree, minimumOrder ).second ),
+    cosineAmplitudes_( cosineAmplitudes ), sineAmplitudes_( sineAmplitudes ), referenceEpoch_( referenceEpoch )
 {
-    for( auto it : cosineAmplitudes_ )
+    for( auto it: cosineAmplitudes_ )
     {
         if( sineAmplitudes_.count( it.first ) != 0 )
         {
-            if( ( it.second.rows( ) != sineAmplitudes_.at( it.first ).rows( ) ) || ( it.second.cols( ) != sineAmplitudes_.at( it.first ).cols( ) ) )
+            if( ( it.second.rows( ) != sineAmplitudes_.at( it.first ).rows( ) ) ||
+                ( it.second.cols( ) != sineAmplitudes_.at( it.first ).cols( ) ) )
             {
-                throw std::runtime_error( "Error when creating polynomial gravity field variation, sine and cosine sizes are inconsistent" );
+                throw std::runtime_error(
+                        "Error when creating polynomial gravity field variation, sine and cosine sizes are inconsistent" );
             }
         }
     }
 
-    for( auto it : sineAmplitudes_ )
+    for( auto it: sineAmplitudes_ )
     {
         if( cosineAmplitudes_.count( it.first ) != 0 )
         {
-            if( ( it.second.rows( ) != cosineAmplitudes_.at( it.first ).rows( ) ) || ( it.second.cols( ) != cosineAmplitudes_.at( it.first ).cols( ) ) )
+            if( ( it.second.rows( ) != cosineAmplitudes_.at( it.first ).rows( ) ) ||
+                ( it.second.cols( ) != cosineAmplitudes_.at( it.first ).cols( ) ) )
             {
-                throw std::runtime_error( "Error when creating polynomial gravity field variation, sine and cosine sizes are inconsistent" );
+                throw std::runtime_error(
+                        "Error when creating polynomial gravity field variation, sine and cosine sizes are inconsistent" );
             }
         }
     }
 }
 
-
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PolynomialGravityFieldVariations::calculateSphericalHarmonicsCorrections(
-        const double time )
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PolynomialGravityFieldVariations::calculateSphericalHarmonicsCorrections( const double time )
 {
     Eigen::MatrixXd cosineCorrections = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
     Eigen::MatrixXd sineCorrections = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
 
-    for( auto it : cosineAmplitudes_ )
+    for( auto it: cosineAmplitudes_ )
     {
         cosineCorrections += it.second * std::pow( time - referenceEpoch_, it.first );
     }
 
-    for( auto it : sineAmplitudes_ )
+    for( auto it: sineAmplitudes_ )
     {
         sineCorrections += it.second * std::pow( time - referenceEpoch_, it.first );
     }
@@ -128,6 +128,6 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > PolynomialGravityFieldVariations::
     return std::make_pair( cosineCorrections, sineCorrections );
 }
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat

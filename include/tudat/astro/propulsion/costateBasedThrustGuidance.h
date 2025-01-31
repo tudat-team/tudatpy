@@ -39,10 +39,9 @@ namespace propulsion
 // *  costates are provided as input to the class (as a function of time), and are used to determine the thrust direction,
 // *  based on the algorithm by Kluever (2010), extended to Modified Equinoctial Elements by Boudestijn (2014)
 // */
-//class MeeCostateBasedThrustGuidance: public BodyFixedForceDirectionGuidance
+// class MeeCostateBasedThrustGuidance: public BodyFixedForceDirectionGuidance
 //{
-//public:
-
+// public:
 
 //    //! Constructor
 //    /*!
@@ -86,7 +85,7 @@ namespace propulsion
 //        throw std::runtime_error( "Error, body-fixed frame to propagation frame not yet implemented for MeeCostateBasedThrustGuidance." );
 //    }
 
-//private:
+// private:
 
 //    //! Function to update the force direction to the current time.
 //    /*!
@@ -94,7 +93,6 @@ namespace propulsion
 //     *  \param time Time to which object is to be updated.
 //     */
 //    void updateForceDirection( const double time );
-
 
 //    //!  Function returning the state of the body under thrust as a function of time
 //    std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction_;
@@ -113,9 +111,8 @@ namespace propulsion
 
 //};
 
-} // namespace propulsion
+}  // namespace propulsion
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_THRUSTDIRECTIONGUIDANCE_H
+#endif  // TUDAT_THRUSTDIRECTIONGUIDANCE_H

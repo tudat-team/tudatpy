@@ -12,20 +12,16 @@
  *              http://resolver.tudelft.nl/uuid:3fc91471-8e47-4215-af43-718740e6694e
  */
 
-
 #ifndef TUDAT_POINTINGANGLESCALCULATOR_H
 #define TUDAT_POINTINGANGLESCALCULATOR_H
 
 #include <memory>
-
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ground_stations/groundStationState.h"
-
-
 
 namespace tudat
 {
@@ -42,7 +38,6 @@ namespace ground_stations
 class PointingAnglesCalculator
 {
 public:
-
     //! Constructor, takes functions defininf the sub-rotations from inertial to topocentric frame.
     /*!
      *  Constructor, takes functions defininf the sub-rotations from inertial to topocentric frame.
@@ -51,11 +46,11 @@ public:
      *  \param rotationFromBodyFixedToTopoCentricFrame Function returning the rotation from the body-fixed to the
      *  topocentric frame at a specified time (note that this rotation is typically time-independent).
      */
-    PointingAnglesCalculator(
-            const std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame,
-            const std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame ):
+    PointingAnglesCalculator( const std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame,
+                              const std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame ):
         rotationFromInertialToBodyFixedFrame_( rotationFromInertialToBodyFixedFrame ),
-        rotationFromBodyFixedToTopoCentricFrame_( rotationFromBodyFixedToTopoCentricFrame ){ }
+        rotationFromBodyFixedToTopoCentricFrame_( rotationFromBodyFixedToTopoCentricFrame )
+    { }
 
     //! Function to compute the elevation given a vector wrt topocentric frame.
     /*!
@@ -127,9 +122,7 @@ public:
         return rotationFromBodyFixedToTopoCentricFrame_;
     }
 
-
 private:
-
     //! Function returning the rotation from the inertial to the body-fixed frame at a specified time.
     const std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame_;
 
@@ -141,27 +134,23 @@ private:
     const std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame_;
 };
 
+std::pair< double, double > calculateGroundStationPointingAngles( const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
+                                                                  const std::vector< Eigen::Vector6d > linkEndStates,
+                                                                  const std::vector< double > linkEndTimes,
+                                                                  const std::pair< int, int >& linkEndIndices );
 
-std::pair< double, double > calculateGroundStationPointingAngles(
-        const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
-        const std::vector< Eigen::Vector6d > linkEndStates,
-        const std::vector< double > linkEndTimes,
-        const std::pair< int, int >& linkEndIndices );
+double calculateGroundStationElevationAngle( const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
+                                             const std::vector< Eigen::Vector6d > linkEndStates,
+                                             const std::vector< double > linkEndTimes,
+                                             const std::pair< int, int >& linkEndIndices );
 
-double calculateGroundStationElevationAngle(
-        const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
-        const std::vector< Eigen::Vector6d > linkEndStates,
-        const std::vector< double > linkEndTimes,
-        const std::pair< int, int >& linkEndIndices );
+double calculateGroundStationAzimuthAngle( const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
+                                           const std::vector< Eigen::Vector6d > linkEndStates,
+                                           const std::vector< double > linkEndTimes,
+                                           const std::pair< int, int >& linkEndIndices );
 
-double calculateGroundStationAzimuthAngle(
-        const std::shared_ptr< PointingAnglesCalculator > angleCalculator,
-        const std::vector< Eigen::Vector6d > linkEndStates,
-        const std::vector< double > linkEndTimes,
-        const std::pair< int, int >& linkEndIndices );
+}  // namespace ground_stations
 
-}
+}  // namespace tudat
 
-}
-
-#endif // TUDAT_POINTINGANGLESCALCULATOR_H
+#endif  // TUDAT_POINTINGANGLESCALCULATOR_H

@@ -31,16 +31,12 @@ namespace unit_tests
  *      f(x) = x^{2} - 3
  * \f]
  */
-struct TestFunction1 : public TestFunction,
-        public basic_mathematics::BasicFunction< double, double >
-{
+struct TestFunction1 : public TestFunction, public basic_mathematics::BasicFunction< double, double > {
     //! Maximum order of the derivative before throwing an exception.
     unsigned int maximumDerivativeOrder;
 
     //! Create a function, where aMaximumDerivativeOrder is the maximum order of the derivative.
-    TestFunction1( unsigned int aMaximumDerivativeOrder )
-        : maximumDerivativeOrder( aMaximumDerivativeOrder )
-    { }
+    TestFunction1( unsigned int aMaximumDerivativeOrder ): maximumDerivativeOrder( aMaximumDerivativeOrder ) { }
 
     //! Mathematical test function.
     double evaluate( const double inputValue )
@@ -51,27 +47,27 @@ struct TestFunction1 : public TestFunction,
 
     //! Derivatives of mathematical test function.
     double computeDerivative( const unsigned int order, const double inputValue )
-    { 
+    {
         // Sanity check.
-        if ( order > maximumDerivativeOrder )
+        if( order > maximumDerivativeOrder )
         {
             throw std::runtime_error( "The root-finder should not evaluate higher derivatives!" );
         }
 
         // Return the analytical expression for the derivatives.
-        if ( order == 0 )
+        if( order == 0 )
         {
             // Return the function value: y = inputValue^2 - 3.
             return evaluate( inputValue );
         }
 
-        else if ( order == 1 )
+        else if( order == 1 )
         {
             // Return the first derivative function value: y = 2 * inputValue.
             return 2.0 * inputValue;
         }
 
-        else if ( order == 2 )
+        else if( order == 2 )
         {
             // Return the second derivative function value: y = 2.
             return 2.0;
@@ -79,14 +75,12 @@ struct TestFunction1 : public TestFunction,
 
         else
         {
-            throw std::runtime_error(
-                        "An error occured when evaluating the order of the derivative." );
+            throw std::runtime_error( "An error occured when evaluating the order of the derivative." );
         }
     }
 
     //! Crash on integration as root_finders should not execute these.
-    double computeDefiniteIntegral( const unsigned int order, const double lowerBound,
-                                    const double upperbound )
+    double computeDefiniteIntegral( const unsigned int order, const double lowerBound, const double upperbound )
     {
         throw std::runtime_error( "The root-finder should not evaluate integrals!" );
     }
@@ -101,14 +95,17 @@ struct TestFunction1 : public TestFunction,
     {
         return std::sqrt( 3.0 );
     }
-    
+
     //! Get the accuracy of the true location of the root.
     /*!
      * Returns the accuracy of the true location of the function root, here 1e-15.
      *
      * \return Accuracy of the true location of the root.
      */
-    double getTrueRootAccuracy( ) { return 1.0e-15; }
+    double getTrueRootAccuracy( )
+    {
+        return 1.0e-15;
+    }
 
     //! Get a reasonable initial guess of the root location.
     /*!
@@ -116,7 +113,10 @@ struct TestFunction1 : public TestFunction,
      *
      * \return Initial guess for the true location of the function root.
      */
-    double getInitialGuess( ) { return 4.0; }
+    double getInitialGuess( )
+    {
+        return 4.0;
+    }
 
     //! Get a reasonable lower boundary for the root location.
     /*!
@@ -124,7 +124,10 @@ struct TestFunction1 : public TestFunction,
      *
      * \return Lower bound for the true location of the function root.
      */
-    double getLowerBound( ) { return -1.0; }
+    double getLowerBound( )
+    {
+        return -1.0;
+    }
 
     //! Get a reasonable upper boundary for the root location.
     /*!
@@ -132,14 +135,16 @@ struct TestFunction1 : public TestFunction,
      *
      * \return Upper bound for the true location of the function root.
      */
-    double getUpperBound( ) { return 4.0; }
+    double getUpperBound( )
+    {
+        return 4.0;
+    }
 
 protected:
-
 private:
 };
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat
 
-#endif // TUDAT_TEST_FUNCTION1_H
+#endif  // TUDAT_TEST_FUNCTION1_H

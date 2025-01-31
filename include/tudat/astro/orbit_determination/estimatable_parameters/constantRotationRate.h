@@ -25,21 +25,18 @@ namespace estimatable_parameters
  * Interface class for estimation of a body's constant rotation rate parameter. Interfaces the estimation with the rotation
  * rate parameter of a SimpleRotationalEphemeris object
  */
-class RotationRate: public EstimatableParameter< double >
+class RotationRate : public EstimatableParameter< double >
 {
-
 public:
-
     //! Constructor
     /*!
      *  Constructor
      *  \param rotationModel SimpleRotationalEphemeris object of which rotation rate parameter is a property
      *  \param associatedBody Name of body of which parameter is a property.
      */
-    RotationRate( const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
-                  const std::string& associatedBody ):
-        EstimatableParameter< double >( constant_rotation_rate, associatedBody ),
-        rotationModel_( rotationModel ){ }
+    RotationRate( const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel, const std::string& associatedBody ):
+        EstimatableParameter< double >( constant_rotation_rate, associatedBody ), rotationModel_( rotationModel )
+    { }
 
     //! Destructor
     ~RotationRate( ) { }
@@ -75,15 +72,13 @@ public:
     }
 
 protected:
-
 private:
-
     //! SimpleRotationalEphemeris object of which rotation rate parameter is a property
     std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel_;
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CONSTANTROTATIONRATE_H
+#endif  // TUDAT_CONSTANTROTATIONRATE_H

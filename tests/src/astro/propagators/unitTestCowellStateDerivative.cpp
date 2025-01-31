@@ -13,7 +13,6 @@
 
 #include <string>
 
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
@@ -42,8 +41,7 @@ namespace tudat
 namespace unit_tests
 {
 
-
-//Using declarations.
+// Using declarations.
 using namespace tudat::ephemerides;
 using namespace tudat::interpolators;
 using namespace tudat::numerical_integrators;
@@ -59,7 +57,7 @@ BOOST_AUTO_TEST_SUITE( test_cowell_propagator )
 //! Test to check whether the frame origin transformations are handled properly.
 BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 {
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
@@ -71,7 +69,6 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     bodyNames[ 2 ] = "Moon";
     bodyNames[ 3 ] = "Mars";
 
-
     // Specify initial time
     double initialEphemerisTime = 1.0E7;
     double finalEphemerisTime = 2.0E7;
@@ -79,14 +76,13 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings = getDefaultBodySettings(
-                bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer, "SSB", "ECLIPJ2000" );
+    BodyListSettings bodySettings =
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer, "SSB", "ECLIPJ2000" );
     bodySettings.at( "Mars" )->ephemerisSettings->resetFrameOrigin( "Earth" );
     bodySettings.at( "Earth" )->ephemerisSettings->resetFrameOrigin( "Sun" );
     bodySettings.at( "Moon" )->ephemerisSettings->resetFrameOrigin( "Earth" );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-
 
     // Set accelerations between bodies that are to be taken into account (mutual point mass gravity between all bodies).
     SelectedAccelerationMap accelerationMap;
@@ -123,9 +119,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     unsigned int numberOfNumericalBodies = bodiesToIntegrate.size( );
 
     // Define numerical integrator settings.
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, initialEphemerisTime, 200.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 200.0 );
 
     // Define central bodies to use in propagation (all w.r.t SSB).
     std::vector< std::string > centralBodies;
@@ -138,34 +133,31 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     }
 
     // Get initial state vector as input to integration.
-    Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
-                bodiesToIntegrate, centralBodies, bodies, initialEphemerisTime );
+    Eigen::VectorXd systemInitialState = getInitialStatesOfBodies( bodiesToIntegrate, centralBodies, bodies, initialEphemerisTime );
 
     // Create acceleration models and propagation settings.
-    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, centralBodyMap );
-    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
-            std::make_shared< SingleArcPropagatorProcessingSettings >( );
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, centralBodyMap );
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = std::make_shared< SingleArcPropagatorProcessingSettings >( );
     outputSettings->setIntegratedResult( true );
 
     // Toggle all output for test purposes
-    outputSettings->getPrintSettings( )->reset(
-            true, true,
-            0.5E7, 0,
-            true, true,  true,
-            true, true, true );
+    outputSettings->getPrintSettings( )->reset( true, true, 0.5E7, 0, true, true, true, true, true, true );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
-              std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
-              cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-              outputSettings );
-
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                    cowell,
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                    outputSettings );
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, propagatorSettings );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
     std::map< double, Eigen::VectorXd > solutionSet1 = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     // Define new central bodies (hierarchical system)
@@ -178,44 +170,47 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
         centralBodyMap[ bodiesToIntegrate[ i ] ] = centralBodies[ i ];
     }
 
-    systemInitialState = getInitialStatesOfBodies(
-                bodiesToIntegrate, centralBodies, bodies, initialEphemerisTime );
+    systemInitialState = getInitialStatesOfBodies( bodiesToIntegrate, centralBodies, bodies, initialEphemerisTime );
 
     // Create new acceleration models and propagation settings.
-    AccelerationMap accelerationModelMap2 = createAccelerationModelsMap(
-                bodies, accelerationMap, centralBodyMap );
+    AccelerationMap accelerationModelMap2 = createAccelerationModelsMap( bodies, accelerationMap, centralBodyMap );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings2 =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
-              std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
-              cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-              outputSettings );
-
-
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap2,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                    cowell,
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                    outputSettings );
 
     // Create new simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator2(
-                bodies, propagatorSettings2 );
+    SingleArcDynamicsSimulator<> dynamicsSimulator2( bodies, propagatorSettings2 );
     std::map< double, Eigen::VectorXd > solutionSet2 = dynamicsSimulator2.getEquationsOfMotionNumericalSolution( );
 
     // Create integration and propagation settings for reverse in time propagation
-    std::map< double, Eigen::VectorXd >::iterator solutionSetIterator = (--solutionSet2.end( ) );
+    std::map< double, Eigen::VectorXd >::iterator solutionSetIterator = ( --solutionSet2.end( ) );
     Eigen::VectorXd systemFinalState = solutionSetIterator->second;
-    std::shared_ptr< IntegratorSettings< > > integratorSettings2 =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, solutionSetIterator->first, -200.0 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings2 =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, solutionSetIterator->first, -200.0 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings3 =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemFinalState,
-              solutionSetIterator->first,
-              integratorSettings2,
-              std::make_shared< PropagationTimeTerminationSettings >( initialEphemerisTime ),
-              cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-              outputSettings );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap2,
+                    bodiesToIntegrate,
+                    systemFinalState,
+                    solutionSetIterator->first,
+                    integratorSettings2,
+                    std::make_shared< PropagationTimeTerminationSettings >( initialEphemerisTime ),
+                    cowell,
+                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
+                    outputSettings );
 
     // Create new simulation object and propagate dynamics backwards in time.
-    SingleArcDynamicsSimulator< > dynamicsSimulator3(
-               bodies, propagatorSettings3 );
+    SingleArcDynamicsSimulator<> dynamicsSimulator3( bodies, propagatorSettings3 );
     std::map< double, Eigen::VectorXd > solutionSet3 = dynamicsSimulator3.getEquationsOfMotionNumericalSolution( );
 
     // Create interpolators from three numerical solutions (first one is inertial; second and third are non-inertial)
@@ -255,7 +250,6 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
         // Retrieve data from interpolators; transform to inertial frames and compare.
         currentInertialSolution = interpolator1->interpolate( currentTime );
 
-
         for( unsigned int k = 0; k < 2; k++ )
         {
             if( k == 0 )
@@ -269,13 +263,13 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
             currentNonInertialSolution = currentInterpolator->interpolate( currentTime );
 
-            reconstructedInertialSolution.segment( 0, 6 ) = currentNonInertialSolution.segment( 0, 6 ) +
-                    currentNonInertialSolution.segment( 6, 6 );
+            reconstructedInertialSolution.segment( 0, 6 ) =
+                    currentNonInertialSolution.segment( 0, 6 ) + currentNonInertialSolution.segment( 6, 6 );
             reconstructedInertialSolution.segment( 6, 6 ) = currentNonInertialSolution.segment( 6, 6 );
-            reconstructedInertialSolution.segment( 12, 6 )= currentNonInertialSolution.segment( 12, 6 ) +
-                    reconstructedInertialSolution.segment( 0, 6 );
-            reconstructedInertialSolution.segment( 18, 6 ) = currentNonInertialSolution.segment( 18, 6 ) +
-                    reconstructedInertialSolution.segment( 6, 6 );
+            reconstructedInertialSolution.segment( 12, 6 ) =
+                    currentNonInertialSolution.segment( 12, 6 ) + reconstructedInertialSolution.segment( 0, 6 );
+            reconstructedInertialSolution.segment( 18, 6 ) =
+                    currentNonInertialSolution.segment( 18, 6 ) + reconstructedInertialSolution.segment( 6, 6 );
 
             // Compare states.
             stateDifference = reconstructedInertialSolution - currentInertialSolution;
@@ -305,25 +299,19 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
             }
         }
 
-
-
         // Test whether ephemeris objects have been properly reset, i.e. whether all states have been properly transformed to the
         // ephemeris frame.
 
         // Retrieve data from interpolators; transform to inertial frames and compare.
         currentInertialSolution = interpolator1->interpolate( currentTime );
 
-        reconstructedInertialSolution.segment( 0, 6 ) = earthEphemeris->getCartesianState( currentTime ) +
-                sunEphemeris->getCartesianState( currentTime );
+        reconstructedInertialSolution.segment( 0, 6 ) =
+                earthEphemeris->getCartesianState( currentTime ) + sunEphemeris->getCartesianState( currentTime );
         reconstructedInertialSolution.segment( 6, 6 ) = sunEphemeris->getCartesianState( currentTime );
-        reconstructedInertialSolution.segment( 12, 6 ) =
-                moonEphemeris->getCartesianState( currentTime ) +
-                earthEphemeris->getCartesianState( currentTime ) +
-                sunEphemeris->getCartesianState( currentTime );
-        reconstructedInertialSolution.segment( 18, 6 ) =
-                marsEphemeris->getCartesianState( currentTime ) +
-                earthEphemeris->getCartesianState( currentTime ) +
-                sunEphemeris->getCartesianState( currentTime );
+        reconstructedInertialSolution.segment( 12, 6 ) = moonEphemeris->getCartesianState( currentTime ) +
+                earthEphemeris->getCartesianState( currentTime ) + sunEphemeris->getCartesianState( currentTime );
+        reconstructedInertialSolution.segment( 18, 6 ) = marsEphemeris->getCartesianState( currentTime ) +
+                earthEphemeris->getCartesianState( currentTime ) + sunEphemeris->getCartesianState( currentTime );
 
         // Compare states.
         stateDifference = reconstructedInertialSolution - currentInertialSolution;
@@ -353,7 +341,6 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
         currentTime += stepSize;
     }
-
 }
 
 //! Test to ensure that a point-mass acceleration on a body produces a Kepler orbit (to within
@@ -361,7 +348,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 template< typename TimeType, typename StateScalarType >
 void testCowellPropagationOfKeplerOrbit( )
 {
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
@@ -377,15 +364,13 @@ void testCowellPropagationOfKeplerOrbit( )
 
     // Create bodies needed in simulation
     BodyListSettings bodySettings =
-            getDefaultBodySettings(
-                bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer,"SSB", "ECLIPJ2000" );
-
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer, "SSB", "ECLIPJ2000" );
 
     // Change ephemeris settings of Moon and Earth to make test results analysis more transparent.
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )->
-            resetFrameOrigin( "Earth" );
-    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
-                Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )
+            ->resetFrameOrigin( "Earth" );
+    bodySettings.at( "Earth" )->ephemerisSettings =
+            std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
 
     SystemOfBodies bodies = createSystemOfBodies< StateScalarType, TimeType >( bodySettings );
 
@@ -402,8 +387,7 @@ void testCowellPropagationOfKeplerOrbit( )
 
     // Define settings for numerical integrator.
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >
-            ( rungeKutta4, initialEphemerisTime, 120.0 );
+            std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialEphemerisTime, 120.0 );
 
     // Run test where Moon gravity is/is not taken into account.
     for( unsigned testCase = 0; testCase < 2; testCase++ )
@@ -412,14 +396,12 @@ void testCowellPropagationOfKeplerOrbit( )
         StateScalarType effectiveGravitationalParameter;
         if( testCase == 0 )
         {
-            effectiveGravitationalParameter =
-                    bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
+            effectiveGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
                     bodies.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( );
         }
         else
         {
-            effectiveGravitationalParameter =
-                    bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+            effectiveGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
         }
 
         // Define central bodies for integration.
@@ -428,68 +410,58 @@ void testCowellPropagationOfKeplerOrbit( )
 
         if( testCase == 0 )
         {
-            effectiveGravitationalParameter =
-                    bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
+            effectiveGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
                     bodies.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( );
             centralBodies.push_back( "Earth" );
-
         }
         else
         {
-            effectiveGravitationalParameter =
-                    bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+            effectiveGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
             centralBodies.push_back( "SSB" );
         }
         centralBodyMap[ bodiesToIntegrate[ 0 ] ] = centralBodies[ 0 ];
 
-
         // Create system initial state.
-        Eigen::Matrix< StateScalarType, 6, 1  > systemInitialState =
-                Eigen::Matrix< StateScalarType, 6, 1  >( bodiesToIntegrate.size( ) * 6 );
-        for( unsigned int i = 0; i < numberOfNumericalBodies ; i++ )
+        Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState = Eigen::Matrix< StateScalarType, 6, 1 >( bodiesToIntegrate.size( ) * 6 );
+        for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
         {
-            systemInitialState.segment( i * 6 , 6 ) =
-                    spice_interface::getBodyCartesianStateAtEpoch(
-                      bodiesToIntegrate[ i ], "Earth", "ECLIPJ2000", "NONE", initialEphemerisTime ).
-                    template cast< StateScalarType >( );
+            systemInitialState.segment( i * 6, 6 ) = spice_interface::getBodyCartesianStateAtEpoch(
+                                                             bodiesToIntegrate[ i ], "Earth", "ECLIPJ2000", "NONE", initialEphemerisTime )
+                                                             .template cast< StateScalarType >( );
         }
 
         // Create acceleration models and propagation settings.
-        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+        AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
-                ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
-                  //cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 1.0E6 );
+                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                        centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
+        // cowell, std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ), 1.0E6 );
 
         // Create dynamics simulation object.
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, true );
+                bodies, integratorSettings, propagatorSettings, true, false, true );
 
-        Eigen::Matrix< StateScalarType, 6, 1  > initialKeplerElements =
-            orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
-                Eigen::Matrix< StateScalarType, 6, 1  >( systemInitialState ), effectiveGravitationalParameter );
-
+        Eigen::Matrix< StateScalarType, 6, 1 > initialKeplerElements =
+                orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
+                        Eigen::Matrix< StateScalarType, 6, 1 >( systemInitialState ), effectiveGravitationalParameter );
 
         // Compare numerical state and kepler orbit at each time step.
         std::shared_ptr< Ephemeris > moonEphemeris = bodies.at( "Moon" )->getEphemeris( );
         double currentTime = initialEphemerisTime + buffer;
         while( currentTime < finalEphemerisTime - buffer )
         {
-
-            Eigen::VectorXd stateDifference
-                = ( orbital_element_conversions::convertKeplerianToCartesianElements(
-                    propagateKeplerOrbit< StateScalarType >( initialKeplerElements, currentTime - initialEphemerisTime,
-                                          effectiveGravitationalParameter ),
-                    effectiveGravitationalParameter )
-                - moonEphemeris->template getTemplatedStateFromEphemeris< StateScalarType >( currentTime ) ).
-                    template cast< double >( );
+            Eigen::VectorXd stateDifference =
+                    ( orbital_element_conversions::convertKeplerianToCartesianElements(
+                              propagateKeplerOrbit< StateScalarType >(
+                                      initialKeplerElements, currentTime - initialEphemerisTime, effectiveGravitationalParameter ),
+                              effectiveGravitationalParameter ) -
+                      moonEphemeris->template getTemplatedStateFromEphemeris< StateScalarType >( currentTime ) )
+                            .template cast< double >( );
 
             for( int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( stateDifference( i ), 1E-3 );
-                BOOST_CHECK_SMALL( stateDifference( i  + 3 ), 2.0E-9 );
-
+                BOOST_CHECK_SMALL( stateDifference( i + 3 ), 2.0E-9 );
             }
             currentTime += 10000.0;
         }
@@ -500,17 +472,15 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
 {
     testCowellPropagationOfKeplerOrbit< double, double >( );
 
-    #if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
     testCowellPropagationOfKeplerOrbit< double, long double >( );
     testCowellPropagationOfKeplerOrbit< Time, double >( );
     testCowellPropagationOfKeplerOrbit< Time, long double >( );
-    #endif
-
+#endif
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
+}  // namespace unit_tests
 
-}
-
-}
+}  // namespace tudat

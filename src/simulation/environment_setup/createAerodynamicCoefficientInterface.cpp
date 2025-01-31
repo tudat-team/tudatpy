@@ -38,33 +38,44 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
     std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings;
     if( numberOfIndependentVariables == 1 )
     {
-        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 1 >(
-                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
-                    momentReferencePoint, independentVariableNames,
-                    forceCoefficientFrame,
-                    momentCoefficientFrame, interpolatorSettings );
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 1 >( forceCoefficientFiles,
+                                                                                           momentCoefficientFiles,
+                                                                                           referenceLength,
+                                                                                           referenceArea,
+                                                                                           momentReferencePoint,
+                                                                                           independentVariableNames,
+                                                                                           forceCoefficientFrame,
+                                                                                           momentCoefficientFrame,
+                                                                                           interpolatorSettings );
     }
     else if( numberOfIndependentVariables == 2 )
     {
-        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 2 >(
-                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
-                    momentReferencePoint, independentVariableNames,
-                    forceCoefficientFrame,
-                    momentCoefficientFrame, interpolatorSettings );
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 2 >( forceCoefficientFiles,
+                                                                                           momentCoefficientFiles,
+                                                                                           referenceLength,
+                                                                                           referenceArea,
+                                                                                           momentReferencePoint,
+                                                                                           independentVariableNames,
+                                                                                           forceCoefficientFrame,
+                                                                                           momentCoefficientFrame,
+                                                                                           interpolatorSettings );
     }
     else if( numberOfIndependentVariables == 3 )
     {
-        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 3 >(
-                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
-                    momentReferencePoint, independentVariableNames,
-                    forceCoefficientFrame,
-                    momentCoefficientFrame, interpolatorSettings );
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 3 >( forceCoefficientFiles,
+                                                                                           momentCoefficientFiles,
+                                                                                           referenceLength,
+                                                                                           referenceArea,
+                                                                                           momentReferencePoint,
+                                                                                           independentVariableNames,
+                                                                                           forceCoefficientFrame,
+                                                                                           momentCoefficientFrame,
+                                                                                           interpolatorSettings );
     }
     else
     {
         throw std::runtime_error( "Error when reading aerodynamic coefficient settings from file, found " +
-                                  std::to_string( numberOfIndependentVariables ) +
-                                  " independent variables, up to 3 currently supported" );
+                                  std::to_string( numberOfIndependentVariables ) + " independent variables, up to 3 currently supported" );
     }
 
     if( !momentReferencePoint.hasNaN( ) )
@@ -88,10 +99,15 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
 {
     if( referenceLength != lateralReferenceLength && lateralReferenceLength == lateralReferenceLength )
     {
-        throw std::runtime_error( "Error when using deprecated reading of aerodynamic coefficients from files, lateral reference length must be equal to regular reference length" );
+        throw std::runtime_error(
+                "Error when using deprecated reading of aerodynamic coefficients from files, lateral reference length must be equal to "
+                "regular reference length" );
     }
     return readTabulatedAerodynamicCoefficientsFromFiles(
-            forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea,
+            forceCoefficientFiles,
+            momentCoefficientFiles,
+            referenceLength,
+            referenceArea,
             independentVariableNames,
             aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
             aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
@@ -99,10 +115,8 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
             interpolatorSettings );
 }
 
-
 //! Function to create aerodynamic coefficient settings from coefficients stored in data files
-std::shared_ptr< AerodynamicCoefficientSettings >
-readTabulatedAerodynamicCoefficientsFromFiles(
+std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
@@ -118,33 +132,28 @@ readTabulatedAerodynamicCoefficientsFromFiles(
     if( numberOfIndependentVariables == 1 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 1 >(
-                forceCoefficientFiles, referenceArea, independentVariableNames,
-                forceCoefficientFrame, interpolatorSettings );
+                forceCoefficientFiles, referenceArea, independentVariableNames, forceCoefficientFrame, interpolatorSettings );
     }
     else if( numberOfIndependentVariables == 2 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 2 >(
-                forceCoefficientFiles, referenceArea, independentVariableNames,
-                forceCoefficientFrame, interpolatorSettings );
+                forceCoefficientFiles, referenceArea, independentVariableNames, forceCoefficientFrame, interpolatorSettings );
     }
     else if( numberOfIndependentVariables == 3 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 3 >(
-                forceCoefficientFiles, referenceArea, independentVariableNames,
-                forceCoefficientFrame, interpolatorSettings );
+                forceCoefficientFiles, referenceArea, independentVariableNames, forceCoefficientFrame, interpolatorSettings );
     }
     else
     {
         throw std::runtime_error( "Error when reading aerodynamic coefficient settings from file, found " +
-                                  std::to_string( numberOfIndependentVariables ) +
-                                  " independent variables, up to 3 currently supported" );
+                                  std::to_string( numberOfIndependentVariables ) + " independent variables, up to 3 currently supported" );
     }
     return coefficientSettings;
 }
 
 //! Function to create aerodynamic coefficient settings from coefficients stored in data files
-std::shared_ptr< AerodynamicCoefficientSettings >
-readTabulatedAerodynamicCoefficientsFromFilesDeprecated(
+std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFilesDeprecated(
         const std::map< int, std::string > forceCoefficientFiles,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
@@ -153,36 +162,40 @@ readTabulatedAerodynamicCoefficientsFromFilesDeprecated(
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 {
     return readTabulatedAerodynamicCoefficientsFromFiles(
-            forceCoefficientFiles,  referenceArea, independentVariableNames,  aerodynamics::getAerodynamicCoefficientFrame(
-                    areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ), interpolatorSettings );
+            forceCoefficientFiles,
+            referenceArea,
+            independentVariableNames,
+            aerodynamics::getAerodynamicCoefficientFrame( areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
+            interpolatorSettings );
 }
 
 //! Function to create an aerodynamic coefficient interface containing constant coefficients.
-std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
-createConstantCoefficientAerodynamicCoefficientInterface(
+std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createConstantCoefficientAerodynamicCoefficientInterface(
         const Eigen::Vector3d constantForceCoefficient,
         const Eigen::Vector3d constantMomentCoefficient,
         const double referenceLength,
         const double referenceArea,
         const Eigen::Vector3d& momentReferencePoint,
         const aerodynamics::AerodynamicCoefficientFrames forceCoefficientsFrame,
-        const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame  )
+        const aerodynamics::AerodynamicCoefficientFrames momentCoefficientsFrame )
 {
     // Create coefficient interface
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
             std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                [ = ]( const std::vector< double >& ){ return constantForceCoefficient; },
-                [ = ]( const std::vector< double >& ){ return constantMomentCoefficient; },
-                referenceLength, referenceArea, momentReferencePoint,
-                std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
-                forceCoefficientsFrame, momentCoefficientsFrame );
+                    [ = ]( const std::vector< double >& ) { return constantForceCoefficient; },
+                    [ = ]( const std::vector< double >& ) { return constantMomentCoefficient; },
+                    referenceLength,
+                    referenceArea,
+                    momentReferencePoint,
+                    std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
+                    forceCoefficientsFrame,
+                    momentCoefficientsFrame );
     coefficientInterface->updateFullCurrentCoefficients( std::vector< double >( ) );
     return coefficientInterface;
 }
 
 //! Function to create an aerodynamic coefficient interface containing constant coefficients.
-std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
-createZeroParameterAerodynamicCoefficientInterface(
+std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createZeroParameterAerodynamicCoefficientInterface(
         const std::function< Eigen::Vector3d( ) > constantForceCoefficientFunction,
         const std::function< Eigen::Vector3d( ) > constantMomentCoefficientFunction,
         const double referenceLength,
@@ -194,18 +207,20 @@ createZeroParameterAerodynamicCoefficientInterface(
     // Create coefficient interface
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
             std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                [ = ]( const std::vector< double >& ){ return constantForceCoefficientFunction( ); },
-                [ = ]( const std::vector< double >& ){ return constantMomentCoefficientFunction( ); },
-                referenceLength, referenceArea, momentReferencePoint,
-                std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
-                forceCoefficientsFrame, momentCoefficientsFrame );
+                    [ = ]( const std::vector< double >& ) { return constantForceCoefficientFunction( ); },
+                    [ = ]( const std::vector< double >& ) { return constantMomentCoefficientFunction( ); },
+                    referenceLength,
+                    referenceArea,
+                    momentReferencePoint,
+                    std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
+                    forceCoefficientsFrame,
+                    momentCoefficientsFrame );
     coefficientInterface->updateFullCurrentCoefficients( std::vector< double >( ) );
     return coefficientInterface;
 }
 
 //! Factory function for tabulated (1-D independent variables) aerodynamic coefficient interface from coefficient settings.
-std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
-createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
+std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
         const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body )
 {
@@ -216,17 +231,15 @@ createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
             std::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettings< 1 > >( coefficientSettings );
     if( tabulatedCoefficientSettings == nullptr )
     {
-        throw std::runtime_error(
-                    "Error, expected tabulated aerodynamic coefficients of size " +
-                    std::to_string( 1 ) + "for body " + body );
+        throw std::runtime_error( "Error, expected tabulated aerodynamic coefficients of size " + std::to_string( 1 ) + "for body " +
+                                  body );
     }
     else
     {
-
         // Retrieve or generate interpolation settings
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > forceInterpolator;
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > momentInterpolator;
-        if ( tabulatedCoefficientSettings->getInterpolatorSettings( ) == nullptr )
+        if( tabulatedCoefficientSettings->getInterpolatorSettings( ) == nullptr )
         {
             forceInterpolator = createOneDimensionalInterpolator( tabulatedCoefficientSettings->getForceCoefficients( ),
                                                                   std::make_shared< InterpolatorSettings >( linear_interpolator ) );
@@ -235,35 +248,36 @@ createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
         }
         else
         {
-            forceInterpolator = createOneDimensionalInterpolator( tabulatedCoefficientSettings->getForceCoefficients( ),
-                                                                  std::dynamic_pointer_cast< InterpolatorSettings >(
-                                                                      tabulatedCoefficientSettings->getInterpolatorSettings( ) ) );
-            momentInterpolator = createOneDimensionalInterpolator( tabulatedCoefficientSettings->getForceCoefficients( ),
-                                                                   std::dynamic_pointer_cast< InterpolatorSettings >(
-                                                                       tabulatedCoefficientSettings->getInterpolatorSettings( ) ) );
+            forceInterpolator = createOneDimensionalInterpolator(
+                    tabulatedCoefficientSettings->getForceCoefficients( ),
+                    std::dynamic_pointer_cast< InterpolatorSettings >( tabulatedCoefficientSettings->getInterpolatorSettings( ) ) );
+            momentInterpolator = createOneDimensionalInterpolator(
+                    tabulatedCoefficientSettings->getForceCoefficients( ),
+                    std::dynamic_pointer_cast< InterpolatorSettings >( tabulatedCoefficientSettings->getInterpolatorSettings( ) ) );
         }
 
         // Create aerodynamic coefficient interface.
-        return  std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                    std::bind( &Interpolator< double, Eigen::Vector3d >::interpolate, forceInterpolator, std::placeholders::_1 ),
-                    std::bind( &Interpolator< double, Eigen::Vector3d >::interpolate, momentInterpolator, std::placeholders::_1 ),
-                    tabulatedCoefficientSettings->getReferenceLength( ),
-                    tabulatedCoefficientSettings->getReferenceArea( ),
-                    tabulatedCoefficientSettings->getMomentReferencePoint( ),
-                    tabulatedCoefficientSettings->getIndependentVariableNames( ),
-                    tabulatedCoefficientSettings->getForceCoefficientsFrame( ),
-                    tabulatedCoefficientSettings->getMomentCoefficientsFrame( ) );
+        return std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                std::bind( &Interpolator< double, Eigen::Vector3d >::interpolate, forceInterpolator, std::placeholders::_1 ),
+                std::bind( &Interpolator< double, Eigen::Vector3d >::interpolate, momentInterpolator, std::placeholders::_1 ),
+                tabulatedCoefficientSettings->getReferenceLength( ),
+                tabulatedCoefficientSettings->getReferenceArea( ),
+                tabulatedCoefficientSettings->getMomentReferencePoint( ),
+                tabulatedCoefficientSettings->getIndependentVariableNames( ),
+                tabulatedCoefficientSettings->getForceCoefficientsFrame( ),
+                tabulatedCoefficientSettings->getMomentCoefficientsFrame( ) );
     }
 }
 
 std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMomentContributionInterface(
-            const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame,
-            const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame,
-            const std::shared_ptr< Body > body )
+        const aerodynamics::AerodynamicCoefficientFrames forceCoefficientFrame,
+        const aerodynamics::AerodynamicCoefficientFrames momentCoefficientFrame,
+        const std::shared_ptr< Body > body )
 {
     if( body->getFlightConditions( ) == nullptr )
     {
-        throw std::runtime_error( "Error when creating moment contribution interface, body " + body->getBodyName( ) + " has no flight conditions." );
+        throw std::runtime_error( "Error when creating moment contribution interface, body " + body->getBodyName( ) +
+                                  " has no flight conditions." );
     }
 
     std::pair< reference_frames::AerodynamicsReferenceFrames, double > forceCoefficientFrameId =
@@ -275,49 +289,48 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
 
     if( forceCoefficientFrameId.first == momentCoefficientFrameId.first )
     {
-        coefficientRotationFunction = [=](){ return Eigen::Matrix3d::Identity( ); };
+        coefficientRotationFunction = [ = ]( ) { return Eigen::Matrix3d::Identity( ); };
     }
     else
     {
-        coefficientRotationFunction = [=](){ return body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
-                forceCoefficientFrameId.first, momentCoefficientFrameId.first ); };
+        coefficientRotationFunction = [ = ]( ) {
+            return body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
+                    forceCoefficientFrameId.first, momentCoefficientFrameId.first );
+        };
     }
 
     if( momentCoefficientFrameId.first == reference_frames::body_frame )
     {
-        armRotationFunction = [=](){ return Eigen::Matrix3d::Identity( ); };
+        armRotationFunction = [ = ]( ) { return Eigen::Matrix3d::Identity( ); };
     }
     else
     {
-        armRotationFunction = [=]( )
-            {
-                return body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
+        armRotationFunction = [ = ]( ) {
+            return body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
                     reference_frames::body_frame, momentCoefficientFrameId.first );
-            };
+        };
     }
 
-    return std::make_shared< aerodynamics::AerodynamicMomentContributionInterface >(
-            coefficientRotationFunction, armRotationFunction, std::bind( &Body::getBodyFixedCenterOfMass, body ), forceCoefficientFrameId.second );
+    return std::make_shared< aerodynamics::AerodynamicMomentContributionInterface >( coefficientRotationFunction,
+                                                                                     armRotationFunction,
+                                                                                     std::bind( &Body::getBodyFixedCenterOfMass, body ),
+                                                                                     forceCoefficientFrameId.second );
 }
 
 std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMomentContributionInterface(
-    const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
-    const std::shared_ptr< Body > body )
+        const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
+        const std::shared_ptr< Body > body )
 {
     return createMomentContributionInterface(
-        coefficientSettings->getForceCoefficientsFrame( ),
-        coefficientSettings->getMomentCoefficientsFrame( ),
-        body );
+            coefficientSettings->getForceCoefficientsFrame( ), coefficientSettings->getMomentCoefficientsFrame( ), body );
 }
 
 //! Function to create and aerodynamic coefficient interface.
-std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
-createAerodynamicCoefficientInterface(
+std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynamicCoefficientInterface(
         const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body,
         const SystemOfBodies& bodies )
 {
-
     using namespace tudat::aerodynamics;
 
     std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface;
@@ -325,21 +338,18 @@ createAerodynamicCoefficientInterface(
     // Check type of interface that is to be created.
     switch( coefficientSettings->getAerodynamicCoefficientType( ) )
     {
-    case constant_aerodynamic_coefficients:
-    {
-        // Check consistency of type.
-        std::shared_ptr< ConstantAerodynamicCoefficientSettings > constantCoefficientSettings =
-                std::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >(
-                    coefficientSettings );
-        if( constantCoefficientSettings == nullptr )
-        {
-            throw std::runtime_error(
-                        "Error, expected constant aerodynamic coefficients for body " + body );
-        }
-        else
-        {
-            // create constant interface.
-            coefficientInterface = createConstantCoefficientAerodynamicCoefficientInterface(
+        case constant_aerodynamic_coefficients: {
+            // Check consistency of type.
+            std::shared_ptr< ConstantAerodynamicCoefficientSettings > constantCoefficientSettings =
+                    std::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >( coefficientSettings );
+            if( constantCoefficientSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected constant aerodynamic coefficients for body " + body );
+            }
+            else
+            {
+                // create constant interface.
+                coefficientInterface = createConstantCoefficientAerodynamicCoefficientInterface(
                         constantCoefficientSettings->getConstantForceCoefficient( ),
                         constantCoefficientSettings->getConstantMomentCoefficient( ),
                         constantCoefficientSettings->getReferenceLength( ),
@@ -347,24 +357,21 @@ createAerodynamicCoefficientInterface(
                         constantCoefficientSettings->getMomentReferencePoint( ),
                         constantCoefficientSettings->getForceCoefficientsFrame( ),
                         constantCoefficientSettings->getMomentCoefficientsFrame( ) );
+            }
+            break;
         }
-        break;
-    }
-    case custom_aerodynamic_coefficients:
-    {
-        // Check consistency of type.
-        std::shared_ptr< CustomAerodynamicCoefficientSettings > customCoefficientSettings =
-                std::dynamic_pointer_cast< CustomAerodynamicCoefficientSettings >(
-                    coefficientSettings );
-        if( customCoefficientSettings == nullptr )
-        {
-            throw std::runtime_error(
-                        "Error, expected custom aerodynamic coefficients for body " + body );
-        }
-        else
-        {
-            // create constant interface.
-            coefficientInterface = std::make_shared< CustomAerodynamicCoefficientInterface >(
+        case custom_aerodynamic_coefficients: {
+            // Check consistency of type.
+            std::shared_ptr< CustomAerodynamicCoefficientSettings > customCoefficientSettings =
+                    std::dynamic_pointer_cast< CustomAerodynamicCoefficientSettings >( coefficientSettings );
+            if( customCoefficientSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected custom aerodynamic coefficients for body " + body );
+            }
+            else
+            {
+                // create constant interface.
+                coefficientInterface = std::make_shared< CustomAerodynamicCoefficientInterface >(
                         customCoefficientSettings->getForceCoefficientFunction( ),
                         customCoefficientSettings->getMomentCoefficientFunction( ),
                         customCoefficientSettings->getReferenceLength( ),
@@ -373,103 +380,88 @@ createAerodynamicCoefficientInterface(
                         customCoefficientSettings->getIndependentVariableNames( ),
                         customCoefficientSettings->getForceCoefficientsFrame( ),
                         customCoefficientSettings->getMomentCoefficientsFrame( ) );
-        }
-        break;
-    }
-    case tabulated_coefficients:
-    {
-        // Check number of dimensions of tabulated coefficients.
-        int numberOfDimensions = coefficientSettings->getIndependentVariableNames( ).size( );
-        switch( numberOfDimensions )
-        {
-        case 1:
-        {
-            coefficientInterface = createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
-                        coefficientSettings, body );
+            }
             break;
         }
-        case 2:
-        {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 2 >(
-                        coefficientSettings, body );
+        case tabulated_coefficients: {
+            // Check number of dimensions of tabulated coefficients.
+            int numberOfDimensions = coefficientSettings->getIndependentVariableNames( ).size( );
+            switch( numberOfDimensions )
+            {
+                case 1: {
+                    coefficientInterface = createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface( coefficientSettings, body );
+                    break;
+                }
+                case 2: {
+                    coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 2 >( coefficientSettings, body );
+                    break;
+                }
+                case 3: {
+                    coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 3 >( coefficientSettings, body );
+                    break;
+                }
+                case 4: {
+                    coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 4 >( coefficientSettings, body );
+                    break;
+                }
+                case 5: {
+                    coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 5 >( coefficientSettings, body );
+                    break;
+                }
+                case 6: {
+                    coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 6 >( coefficientSettings, body );
+                    break;
+                }
+                default:
+                    throw std::runtime_error( "Error when making tabulated aerodynamic coefficient interface, " +
+                                              std::to_string( numberOfDimensions ) + " dimensions not yet implemented" );
+            }
             break;
         }
-        case 3:
-        {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 3 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 4:
-        {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 4 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 5:
-        {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 5 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 6:
-        {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 6 >(
-                        coefficientSettings, body );
+        case scaled_coefficients: {
+            // Check consistency of type and class.
+            std::shared_ptr< ScaledAerodynamicCoefficientInterfaceSettings > scaledCoefficientSettings =
+                    std::dynamic_pointer_cast< ScaledAerodynamicCoefficientInterfaceSettings >( coefficientSettings );
+            if( coefficientSettings->getAddForceContributionToMoments( ) )
+            {
+                throw std::runtime_error(
+                        "Error when creating scaled aerodynamic coefficients, force contribution to moments not permitted." );
+            }
+            if( scaledCoefficientSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected scaled aerodynamic coefficient settings for body " + body );
+            }
+            else
+            {
+                std::shared_ptr< AerodynamicCoefficientInterface > baseInterface =
+                        createAerodynamicCoefficientInterface( scaledCoefficientSettings->getBaseSettings( ), body, bodies );
+                coefficientInterface =
+                        std::make_shared< ScaledAerodynamicCoefficientInterface >( baseInterface,
+                                                                                   scaledCoefficientSettings->getForceScaling( ),
+                                                                                   scaledCoefficientSettings->getMomentScaling( ),
+                                                                                   scaledCoefficientSettings->getIsScalingAbsolute( ) );
+            }
             break;
         }
         default:
-            throw std::runtime_error( "Error when making tabulated aerodynamic coefficient interface, " +
-                                      std::to_string( numberOfDimensions ) + " dimensions not yet implemented" );
-        }
-        break;
-    }
-    case scaled_coefficients:
-    {
-        // Check consistency of type and class.
-        std::shared_ptr< ScaledAerodynamicCoefficientInterfaceSettings > scaledCoefficientSettings =
-                std::dynamic_pointer_cast< ScaledAerodynamicCoefficientInterfaceSettings >(
-                    coefficientSettings );
-        if( coefficientSettings->getAddForceContributionToMoments( ) )
-        {
-            throw std::runtime_error( "Error when creating scaled aerodynamic coefficients, force contribution to moments not permitted." );
-        }
-        if( scaledCoefficientSettings == nullptr )
-        {
-            throw std::runtime_error(
-                        "Error, expected scaled aerodynamic coefficient settings for body " + body );
-        }
-        else
-        {
-            std::shared_ptr< AerodynamicCoefficientInterface > baseInterface = createAerodynamicCoefficientInterface(
-                        scaledCoefficientSettings->getBaseSettings( ), body, bodies );
-            coefficientInterface = std::make_shared< ScaledAerodynamicCoefficientInterface >(
-                        baseInterface, scaledCoefficientSettings->getForceScaling( ),
-                        scaledCoefficientSettings->getMomentScaling( ), scaledCoefficientSettings->getIsScalingAbsolute( ) );
-        }
-        break;
-    }
-    default:
-        throw std::runtime_error( "Error, do not recognize aerodynamic coefficient settings for " + body );
+            throw std::runtime_error( "Error, do not recognize aerodynamic coefficient settings for " + body );
     }
 
     // Create and set control surfaces
     if( coefficientSettings->getControlSurfaceSettings( ).size( ) != 0 )
     {
-        std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
-                controlSurfaceIncrementInterfaces;
-        std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > >
-                controlSurfaceSettings = coefficientSettings->getControlSurfaceSettings( );
-        for( std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > >::iterator
-             settingIterator = controlSurfaceSettings.begin( ); settingIterator != controlSurfaceSettings.end( );
+        std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > > controlSurfaceIncrementInterfaces;
+        std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > > controlSurfaceSettings =
+                coefficientSettings->getControlSurfaceSettings( );
+        for( std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > >::iterator settingIterator =
+                     controlSurfaceSettings.begin( );
+             settingIterator != controlSurfaceSettings.end( );
              settingIterator++ )
         {
             controlSurfaceIncrementInterfaces[ settingIterator->first ] =
-                    createControlSurfaceIncrementAerodynamicCoefficientInterface(
-                        settingIterator->second, body );
+                    createControlSurfaceIncrementAerodynamicCoefficientInterface( settingIterator->second, body );
         }
         coefficientInterface->setControlSurfaceIncrements( controlSurfaceIncrementInterfaces );
-
     }
 
     std::shared_ptr< AerodynamicMomentContributionInterface > momentContributionInterface;
@@ -486,16 +478,16 @@ createAerodynamicCoefficientInterface(
     return coefficientInterface;
 }
 
-std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
-createAerodynamicCoefficientInterfaceDeprecated(
+std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynamicCoefficientInterfaceDeprecated(
         const std::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body )
 {
-    std::cerr<<"Warning, you are using an outdated version of the create_aerodynamic_coefficient_interface function. Please use the updated one, which has the bodies (as SystemOfBodies object) as third input argument"<<std::endl;
+    std::cerr << "Warning, you are using an outdated version of the create_aerodynamic_coefficient_interface function. Please use the "
+                 "updated one, which has the bodies (as SystemOfBodies object) as third input argument"
+              << std::endl;
     SystemOfBodies bodies = SystemOfBodies( );
-    return createAerodynamicCoefficientInterface(
-            coefficientSettings, body, bodies );
+    return createAerodynamicCoefficientInterface( coefficientSettings, body, bodies );
 }
-} // simulation_setup
+}  // namespace simulation_setup
 
-} // tudat
+}  // namespace tudat

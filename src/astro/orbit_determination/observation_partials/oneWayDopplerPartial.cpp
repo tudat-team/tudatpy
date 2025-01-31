@@ -17,44 +17,42 @@ namespace observation_partials
 {
 
 //! Function to computed the derivative of the unit vector from transmitter to receiver w.r.t. the observation time
-Eigen::Vector3d computePartialOfUnitVectorWrtLinkEndTime(
-        const Eigen::Vector3d& vectorToReceiver,
-        const Eigen::Vector3d& unitVectorToReceiver,
-        const double linkEndDistance,
-        const Eigen::Vector3d linkEndVelocity )
+Eigen::Vector3d computePartialOfUnitVectorWrtLinkEndTime( const Eigen::Vector3d& vectorToReceiver,
+                                                          const Eigen::Vector3d& unitVectorToReceiver,
+                                                          const double linkEndDistance,
+                                                          const Eigen::Vector3d linkEndVelocity )
 {
-    return linkEndVelocity / linkEndDistance - vectorToReceiver * unitVectorToReceiver.dot( linkEndVelocity ) /
-            ( linkEndDistance * linkEndDistance );
+    return linkEndVelocity / linkEndDistance -
+            vectorToReceiver * unitVectorToReceiver.dot( linkEndVelocity ) / ( linkEndDistance * linkEndDistance );
 }
 
 //! Function to computed the derivative of velocity component along line-of-sight vector w.r.t. the observation time
-double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-        const Eigen::Vector3d& vectorToReceiver,
-        const Eigen::Vector3d& projectedLinkEndVelocity,
-        const Eigen::Vector3d& variableLinkEndVelocity,
-        const Eigen::Vector3d& projectedLinkEndAcceleration,
-        const bool linkEndIsReceiver,
-        const bool projectedLinkEndIsVariableLinkEnd )
+double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime( const Eigen::Vector3d& vectorToReceiver,
+                                                                  const Eigen::Vector3d& projectedLinkEndVelocity,
+                                                                  const Eigen::Vector3d& variableLinkEndVelocity,
+                                                                  const Eigen::Vector3d& projectedLinkEndAcceleration,
+                                                                  const bool linkEndIsReceiver,
+                                                                  const bool projectedLinkEndIsVariableLinkEnd )
 {
     Eigen::Vector3d normalizedVector = vectorToReceiver.normalized( );
     double distance = vectorToReceiver.norm( );
 
-    return static_cast< double >( linkEndIsReceiver ? 1.0 : -1.0 ) * computePartialOfUnitVectorWrtLinkEndTime(
-                vectorToReceiver, normalizedVector, distance, variableLinkEndVelocity ).dot( projectedLinkEndVelocity ) +
+    return static_cast< double >( linkEndIsReceiver ? 1.0 : -1.0 ) *
+            computePartialOfUnitVectorWrtLinkEndTime( vectorToReceiver, normalizedVector, distance, variableLinkEndVelocity )
+                    .dot( projectedLinkEndVelocity ) +
             static_cast< double >( projectedLinkEndIsVariableLinkEnd ) * normalizedVector.dot( projectedLinkEndAcceleration );
 }
 
 OneWayDopplerDirectFirstOrderProperTimeComponentScaling::OneWayDopplerDirectFirstOrderProperTimeComponentScaling(
-    const std::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel,
-    const observation_models::LinkEndType linkEndWithPartial,
-    const observation_models::LinkEnds linkEnds,
-    const bool computeStatePartials ):
-    OneWayDopplerProperTimeComponentScaling( linkEndWithPartial ),
-    properTimeRateModel_( properTimeRateModel ),
+        const std::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel,
+        const observation_models::LinkEndType linkEndWithPartial,
+        const observation_models::LinkEnds linkEnds,
+        const bool computeStatePartials ):
+    OneWayDopplerProperTimeComponentScaling( linkEndWithPartial ), properTimeRateModel_( properTimeRateModel ),
     computeStatePartials_( true )
 {
     partialWrtPerturbedPositions_.resize( properTimeRateModel->getGravitationalParameters( ).size( ) );
-    if( linkEndWithPartial_ ==  observation_models::transmitter )
+    if( linkEndWithPartial_ == observation_models::transmitter )
     {
         oppositeLinkEnd_ = linkEnds.at( observation_models::receiver );
     }
@@ -74,8 +72,7 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
                                                                       const Eigen::VectorXd currentObservation )
 {
     // Get state of computation point
-    Eigen::Vector6d computationPointState = properTimeRateModel_->getComputationPointState(
-                times, linkEndStates );
+    Eigen::Vector6d computationPointState = properTimeRateModel_->getComputationPointState( times, linkEndStates );
 
     // Set evaluation time of proper time derivative
     currentLinkEndTime_ == ( linkEndWithPartial_ == observation_models::transmitter ) ? ( times.at( 0 ) ) : ( times.at( 1 ) );
@@ -85,8 +82,7 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
     if( computeStatePartials_ )
     {
         // Set partial w.r.t. velocity (only for computation point)
-        partialWrtVelocity_ = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                              ( computationPointState.segment( 3, 3 )).transpose( );
+        partialWrtVelocity_ = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * ( computationPointState.segment( 3, 3 ) ).transpose( );
     }
     else
     {
@@ -99,7 +95,6 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
     {
         currentGravitationalParameter_ = properTimeRateModel_->getGravitationalParameters( ).at( i )( );
 
-
         Eigen::Vector6d perturberRelativeState = properTimeRateModel_->getCurrentPerturbedStates( ).at( i );
         currentDistance_ = ( computationPointState - perturberRelativeState ).segment( 0, 3 ).norm( );
 
@@ -107,8 +102,8 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
         if( computeStatePartials_ )
         {
             partialWrtPerturbedPositions_[ i ] = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                    ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) *
-                    currentGravitationalParameter_ / ( currentDistance_ * currentDistance_ ) *
+                    ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) * currentGravitationalParameter_ /
+                    ( currentDistance_ * currentDistance_ ) *
                     ( ( computationPointState - perturberRelativeState ).segment( 0, 3 ).normalized( ) ).transpose( );
             if( !( static_cast< int >( i ) == skipBodyIndex_ ) )
             {
@@ -122,20 +117,21 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
 Eigen::Matrix< double, 1, 3 > OneWayDopplerDirectFirstOrderProperTimeComponentScaling::getPositionScalingFactor(
         const observation_models::LinkEndType linkEndType )
 {
-//    std::cout<<"In proper time partials "<<computeStatePartials_<<" "<<linkEndType<<" "<<properTimeRateModel_->getComputationPointLinkEndType( )<<" "<<oppositeBodyIndex_<<std::endl;
+    //    std::cout<<"In proper time partials "<<computeStatePartials_<<" "<<linkEndType<<"
+    //    "<<properTimeRateModel_->getComputationPointLinkEndType( )<<" "<<oppositeBodyIndex_<<std::endl;
     if( computeStatePartials_ )
     {
-        if ( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ))
+        if( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ) )
         {
             return partialWrPosition_;
         }
-        else if ( oppositeBodyIndex_ >= 0 )
+        else if( oppositeBodyIndex_ >= 0 )
         {
             return partialWrtPerturbedPositions_.at( oppositeBodyIndex_ );
         }
         else
         {
-            return Eigen::Matrix<double, 1, 3>::Zero( );
+            return Eigen::Matrix< double, 1, 3 >::Zero( );
         }
     }
     else
@@ -144,16 +140,13 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerDirectFirstOrderProperTimeComponentSc
     }
 }
 
-
 //! Function to retrieve the scaling factor for the derivative w.r.t. the velocity of a given link end
-Eigen::Matrix< double, 1, 3 >
-OneWayDopplerDirectFirstOrderProperTimeComponentScaling::getVelocityScalingFactor(
+Eigen::Matrix< double, 1, 3 > OneWayDopplerDirectFirstOrderProperTimeComponentScaling::getVelocityScalingFactor(
         const observation_models::LinkEndType linkEndType )
 {
     if( computeStatePartials_ )
     {
-        return partialWrtVelocity_ * ( ( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ) ) ?
-                                           ( 1.0 ) : ( 0.0 ) );
+        return partialWrtVelocity_ * ( ( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ) ) ? ( 1.0 ) : ( 0.0 ) );
     }
     else
     {
@@ -203,10 +196,10 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     receiverVelocity_ = linkEndStates.at( 1 ).segment( 3, 3 );
     transmitterVelocity_ = linkEndStates.at( 0 ).segment( 3, 3 );
 
-    double lineOfSightVelocityReceiver = observation_models::calculateLineOfSightVelocityAsCFraction< double >(
-                lineOfSightVector, receiverVelocity_ );
-    double lineOfSightVelocityTransmitter = observation_models::calculateLineOfSightVelocityAsCFraction< double >(
-                lineOfSightVector, transmitterVelocity_ );
+    double lineOfSightVelocityReceiver =
+            observation_models::calculateLineOfSightVelocityAsCFraction< double >( lineOfSightVector, receiverVelocity_ );
+    double lineOfSightVelocityTransmitter =
+            observation_models::calculateLineOfSightVelocityAsCFraction< double >( lineOfSightVector, transmitterVelocity_ );
 
     // Compute scaling terms of transmitter/receiver
     transmitterPartialScalingTerm_ = 0.0;
@@ -224,38 +217,52 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     transmitterPartialScalingTerm_ *= ( 1.0 - lineOfSightVelocityReceiver );
 
     // Compute position partial scaling term,
-    positionScalingFactor_ =
-            ( receiverVelocity_.transpose( ) * receiverPartialScalingTerm_ +
-              transmitterVelocity_.transpose( ) * transmitterPartialScalingTerm_ ) / divisionTerm_ *
-            ( Eigen::Matrix3d::Identity( ) - lineOfSightVector * lineOfSightVector.transpose( ) ) / distance;
+    positionScalingFactor_ = ( receiverVelocity_.transpose( ) * receiverPartialScalingTerm_ +
+                               transmitterVelocity_.transpose( ) * transmitterPartialScalingTerm_ ) /
+            divisionTerm_ * ( Eigen::Matrix3d::Identity( ) - lineOfSightVector * lineOfSightVector.transpose( ) ) / distance;
 
     if( fixedLinkEnd == observation_models::receiver )
     {
-        lightTimeEffectPositionScalingFactor_ =
-                -1.0 / ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( transmitterVelocity_ ) ) * divisionTerm_ ) *
+        lightTimeEffectPositionScalingFactor_ = -1.0 /
+                ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( transmitterVelocity_ ) ) * divisionTerm_ ) *
                 ( transmitterPartialScalingTerm_ *
-                  computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                      ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                      transmitterVelocity_, transmitterVelocity_, transmitterAccelerationFunction_( times.at( 0 ) ), false, true ) +
+                          computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                                  ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                                  transmitterVelocity_,
+                                  transmitterVelocity_,
+                                  transmitterAccelerationFunction_( times.at( 0 ) ),
+                                  false,
+                                  true ) +
                   receiverPartialScalingTerm_ *
-                  computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                      ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                      receiverVelocity_, transmitterVelocity_,  Eigen::Vector3d::Zero( ), false, false ) );
+                          computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                                  ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                                  receiverVelocity_,
+                                  transmitterVelocity_,
+                                  Eigen::Vector3d::Zero( ),
+                                  false,
+                                  false ) );
     }
     else if( fixedLinkEnd == observation_models::transmitter )
     {
-        lightTimeEffectPositionScalingFactor_ =
-                1.0 / ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( receiverVelocity_ ) ) * divisionTerm_ ) *
+        lightTimeEffectPositionScalingFactor_ = 1.0 /
+                ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( receiverVelocity_ ) ) * divisionTerm_ ) *
                 ( receiverPartialScalingTerm_ *
-                  computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                      ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                      receiverVelocity_, receiverVelocity_, receiverAccelerationFunction_( times.at( 1 ) ), true, true ) +
+                          computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                                  ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                                  receiverVelocity_,
+                                  receiverVelocity_,
+                                  receiverAccelerationFunction_( times.at( 1 ) ),
+                                  true,
+                                  true ) +
                   transmitterPartialScalingTerm_ *
-                  computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                      ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                      transmitterVelocity_, receiverVelocity_, Eigen::Vector3d::Zero( ), true, true ) );
+                          computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                                  ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                                  transmitterVelocity_,
+                                  receiverVelocity_,
+                                  Eigen::Vector3d::Zero( ),
+                                  true,
+                                  true ) );
     }
-
 
     positionScalingFactor_ += lineOfSightVector.transpose( ) * lightTimeEffectPositionScalingFactor_;
 
@@ -268,16 +275,13 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
 
     if( transmitterProperTimePartials_ != nullptr )
     {
-        transmitterProperTimePartials_->update(
-                    linkEndStates, times, fixedLinkEnd, currentObservation );
+        transmitterProperTimePartials_->update( linkEndStates, times, fixedLinkEnd, currentObservation );
     }
 
     if( receiverProperTimePartials_ != nullptr )
     {
-        receiverProperTimePartials_->update(
-                    linkEndStates, times, fixedLinkEnd, currentObservation );
+        receiverProperTimePartials_->update( linkEndStates, times, fixedLinkEnd, currentObservation );
     }
-
 }
 
 //! Function to retrieve the position scaling factor for specific link end
@@ -288,12 +292,14 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getPositionScalingFactor( co
 
     if( transmitterProperTimePartials_ != nullptr )
     {
-        scalingFactor += transmitterProperTimePartials_->getPositionScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+        scalingFactor += transmitterProperTimePartials_->getPositionScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT /
+                divisionTerm_;
     }
 
     if( receiverProperTimePartials_ != nullptr )
     {
-        scalingFactor -= receiverProperTimePartials_->getPositionScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+        scalingFactor -=
+                receiverProperTimePartials_->getPositionScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
     }
 
     return scalingFactor;
@@ -307,18 +313,19 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getFixedTimePositionScalingF
 //! Function to retrieve the velocity scaling factor for specific link end
 Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
 {
-    Eigen::Matrix< double, 1, 3 > scalingFactor =
-            ( ( linkEndType == observation_models::receiver ) ? ( transmitterVelocityScalingFactor_ ) :
-                                                                ( receiverVelocityScalingFactor_ ) );
+    Eigen::Matrix< double, 1, 3 > scalingFactor = ( ( linkEndType == observation_models::receiver ) ? ( transmitterVelocityScalingFactor_ )
+                                                                                                    : ( receiverVelocityScalingFactor_ ) );
 
     if( transmitterProperTimePartials_ != nullptr )
     {
-        scalingFactor += transmitterProperTimePartials_->getVelocityScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+        scalingFactor += transmitterProperTimePartials_->getVelocityScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT /
+                divisionTerm_;
     }
 
     if( receiverProperTimePartials_ != nullptr )
     {
-        scalingFactor -= receiverProperTimePartials_->getVelocityScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
+        scalingFactor -=
+                receiverProperTimePartials_->getVelocityScalingFactor( linkEndType ) * physical_constants::SPEED_OF_LIGHT / divisionTerm_;
     }
 
     return scalingFactor;
@@ -330,8 +337,7 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getFixedTimeVelocityScalingF
 }
 
 //! Function to get the size of the direct dependency of proper time rate on parameter
-int OneWayDopplerScaling::getProperTimeParameterDependencySize(
-        const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
+int OneWayDopplerScaling::getProperTimeParameterDependencySize( const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
 {
     int transmitterDependencySize = 0;
     if( transmitterProperTimePartials_ != nullptr )
@@ -344,7 +350,6 @@ int OneWayDopplerScaling::getProperTimeParameterDependencySize(
     {
         receiverDependencySize = receiverProperTimePartials_->getParameterDependencySize( parameterType );
     }
-
 
     int totalDependencySize = 0;
     if( transmitterDependencySize == receiverDependencySize )
@@ -405,13 +410,10 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > O
     }
     if( parameterType.first == estimatable_parameters::initial_body_state )
     {
-
     }
     return totalPartial;
 }
 
+}  // namespace observation_partials
 
-}
-
-}
-
+}  // namespace tudat

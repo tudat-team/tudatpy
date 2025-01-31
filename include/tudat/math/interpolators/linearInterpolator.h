@@ -41,20 +41,16 @@ namespace interpolators
  * This class is used to perform linear interpolation in a single dimension from a set of
  * data in independent and dependent variables.
  */
-template< typename IndependentVariableType, typename DependentVariableType,
-          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type  >
-class LinearInterpolator
-        : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
+template< typename IndependentVariableType,
+          typename DependentVariableType,
+          typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
+class LinearInterpolator : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
 public:
-
     // Using statements to prevent having to put 'this' everywhere in the code.
-    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
-    dependentValues_;
-    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
-    independentValues_;
-    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
-    lookUpScheme_;
+    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
+    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
+    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::lookUpScheme_;
     using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Constructor from map of independent and dependent data.
@@ -76,13 +72,12 @@ public:
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                         const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                         const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) :
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue )
+                                std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
-        if ( dataMap.size( ) == 0 )
+        if( dataMap.size( ) == 0 )
         {
             throw std::runtime_error( "The vectors used in the linear interpolator initialization are empty." );
         }
@@ -93,8 +88,9 @@ public:
 
         // Fill data vectors with data from map.
         int counter = 0;
-        for ( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
-              mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
+        for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator mapIterator = dataMap.begin( );
+             mapIterator != dataMap.end( );
+             mapIterator++ )
         {
             independentValues_[ counter ] = std::move( mapIterator->first );
             dependentValues_[ counter ] = std::move( mapIterator->second );
@@ -123,10 +119,12 @@ public:
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                         const AvailableLookupScheme selectedLookupScheme,
                         const BoundaryInterpolationType boundaryHandling,
-                        const DependentVariableType& defaultExtrapolationValue ) :
-        LinearInterpolator< IndependentVariableType, DependentVariableType >( dataMap, selectedLookupScheme, boundaryHandling,
-                                                                              std::make_pair( defaultExtrapolationValue,
-                                                                                              defaultExtrapolationValue ) )
+                        const DependentVariableType& defaultExtrapolationValue ):
+        LinearInterpolator< IndependentVariableType, DependentVariableType >(
+                dataMap,
+                selectedLookupScheme,
+                boundaryHandling,
+                std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
     { }
 
     //! Constructor from vectors of independent and dependent data.
@@ -150,26 +148,25 @@ public:
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                         const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                         const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue )
+                                std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
-        if ( independentValues.size( ) == 0 || dependentValues.size( ) == 0 )
+        if( independentValues.size( ) == 0 || dependentValues.size( ) == 0 )
         {
-            throw std::runtime_error(
-                        "The vectors used in the linear interpolator initialization are empty." );
+            throw std::runtime_error( "The vectors used in the linear interpolator initialization are empty." );
         }
 
         // Set data vectors.
         independentValues_ = std::move( independentValues );
-        dependentValues_= std::move( dependentValues );
+        dependentValues_ = std::move( dependentValues );
 
         // Check if data is in ascending order
         if( !std::is_sorted( independentValues_.begin( ), independentValues_.end( ) ) )
         {
-            throw std::runtime_error( "Error when making linear interpolator, input vector with independent variables should be in ascending order" );
+            throw std::runtime_error(
+                    "Error when making linear interpolator, input vector with independent variables should be in ascending order" );
         }
 
         // Create lookup scheme from independent variable values
@@ -196,18 +193,20 @@ public:
                         const std::vector< DependentVariableType >& dependentValues,
                         const AvailableLookupScheme selectedLookupScheme,
                         const BoundaryInterpolationType boundaryHandling,
-                        const DependentVariableType& defaultExtrapolationValue ) :
-        LinearInterpolator< IndependentVariableType, DependentVariableType >( independentValues, dependentValues,
-                                                                              selectedLookupScheme, boundaryHandling,
-                                                                              std::make_pair( defaultExtrapolationValue,
-                                                                                              defaultExtrapolationValue ) )
+                        const DependentVariableType& defaultExtrapolationValue ):
+        LinearInterpolator< IndependentVariableType, DependentVariableType >(
+                independentValues,
+                dependentValues,
+                selectedLookupScheme,
+                boundaryHandling,
+                std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
     { }
 
     //! Default destructor
     /*!
      *  Default destructor
      */
-    ~LinearInterpolator( ){ }
+    ~LinearInterpolator( ) { }
 
     //! Function interpolates dependent variable value at given independent variable value.
     /*!
@@ -232,7 +231,7 @@ public:
 
         // If newNearestLowerIndex is the last element of independentValues_, execute extrapolation with
         // the last and second to last elements of independentValues_.
-        if ( newNearestLowerIndex == independentValues_.size( ) - 1 )
+        if( newNearestLowerIndex == independentValues_.size( ) - 1 )
         {
             newNearestLowerIndex -= 1;
         }
@@ -240,23 +239,22 @@ public:
         // Perform linear interpolation.
         interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
                 ( independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
-                static_cast< ScalarType >( independentValues_[ newNearestLowerIndex + 1 ] -
-                independentValues_[ newNearestLowerIndex ] ) *
-                ( dependentValues_[ newNearestLowerIndex + 1 ] -
-                dependentValues_[ newNearestLowerIndex ] );
+                        static_cast< ScalarType >( independentValues_[ newNearestLowerIndex + 1 ] -
+                                                   independentValues_[ newNearestLowerIndex ] ) *
+                        ( dependentValues_[ newNearestLowerIndex + 1 ] - dependentValues_[ newNearestLowerIndex ] );
 
         return interpolatedValue;
     }
 
-    InterpolatorTypes getInterpolatorType( ){ return linear_interpolator; }
-
+    InterpolatorTypes getInterpolatorType( )
+    {
+        return linear_interpolator;
+    }
 };
 
-
-//extern template class LinearInterpolator< double, Eigen::VectorXd >;
-//extern template class LinearInterpolator< double, Eigen::Vector6d >;
-//extern template class LinearInterpolator< double, Eigen::MatrixXd >;
-
+// extern template class LinearInterpolator< double, Eigen::VectorXd >;
+// extern template class LinearInterpolator< double, Eigen::Vector6d >;
+// extern template class LinearInterpolator< double, Eigen::MatrixXd >;
 
 //! Typedef for linear interpolator with (in)dependent variable = double.
 typedef LinearInterpolator< double, double > LinearInterpolatorDouble;
@@ -305,12 +303,11 @@ double computeLinearInterpolation( const Eigen::VectorXd& sortedIndependentVaria
  * \return Vector of dependent variable associated with target independent
  *              value in vector of sorted independent variables.
  */
-Eigen::VectorXd computeLinearInterpolation(
-        const std::map< double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
-        const double targetIndependentVariableValue );
+Eigen::VectorXd computeLinearInterpolation( const std::map< double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
+                                            const double targetIndependentVariableValue );
 
-} // namespace interpolators
+}  // namespace interpolators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_LINEAR_INTERPOLATOR_H
+#endif  // TUDAT_LINEAR_INTERPOLATOR_H

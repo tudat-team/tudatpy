@@ -12,10 +12,6 @@
 #ifndef TUDAT_NEWTON_RAPHSON_H
 #define TUDAT_NEWTON_RAPHSON_H
 
-
-
-
-
 #include <memory>
 
 #include "tudat/math/root_finders/rootFinder.h"
@@ -47,7 +43,6 @@ template< typename DataType = double >
 class NewtonRaphson : public RootFinder< DataType >
 {
 public:
-
     //! Useful type definition for the function pointer (from base class)
     typedef typename RootFinder< DataType >::FunctionPointer FunctionPointer;
 
@@ -60,9 +55,7 @@ public:
      *  \param terminationFunction The function specifying the termination conditions of the
      *  root-finding process \sa RootFinderCore::terminationFunction
      */
-    NewtonRaphson( TerminationFunction terminationFunction )
-        : RootFinder< DataType >( terminationFunction )
-    { }
+    NewtonRaphson( TerminationFunction terminationFunction ): RootFinder< DataType >( terminationFunction ) { }
 
     //! Constructor taking typical convergence criteria.
     /*!
@@ -74,10 +67,9 @@ public:
      *  \param maxIterations Maximum number of iterations after which the root finder is
      *  terminated, i.e. convergence is assumed
      */
-    NewtonRaphson( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations )
-        : RootFinder< DataType >(
-              createTerminationCondition( relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) )
-    {}
+    NewtonRaphson( const DataType relativeIndependentVariableTolerance, const unsigned int maxIterations ):
+        RootFinder< DataType >( createTerminationCondition( relativeIndependentVariableTolerance, TUDAT_NAN, TUDAT_NAN, maxIterations ) )
+    { }
 
     //! Default destructor.
     /*!
@@ -100,12 +92,12 @@ public:
         this->rootFunction = rootFunction;
 
         // Start at initial guess, and compute the function value and its first derivative.
-        DataType currentRootValue       = TUDAT_NAN;
-        DataType nextRootValue          = initialGuess;
-        DataType currentFunctionValue   = TUDAT_NAN;
-        DataType nextFunctionValue      = this->rootFunction->evaluate( nextRootValue );
+        DataType currentRootValue = TUDAT_NAN;
+        DataType nextRootValue = initialGuess;
+        DataType currentFunctionValue = TUDAT_NAN;
+        DataType nextFunctionValue = this->rootFunction->evaluate( nextRootValue );
         DataType currentDerivativeValue = TUDAT_NAN;
-        DataType nextDerivativeValue    = this->rootFunction->computeDerivative( 1, nextRootValue );
+        DataType nextDerivativeValue = this->rootFunction->computeDerivative( 1, nextRootValue );
 
         if( !( nextFunctionValue == mathematical_constants::getFloatingInteger< DataType >( 0 ) ) )
         {
@@ -116,34 +108,29 @@ public:
             do
             {
                 // Save the old values.
-                currentRootValue       = nextRootValue;
-                currentFunctionValue   = nextFunctionValue;
+                currentRootValue = nextRootValue;
+                currentFunctionValue = nextFunctionValue;
                 currentDerivativeValue = nextDerivativeValue;
 
                 // Compute next value of root using the following algorithm (see class documentation):
-                nextRootValue          = currentRootValue -
-                        currentFunctionValue / currentDerivativeValue;
-                nextFunctionValue      = this->rootFunction->evaluate( nextRootValue );
-                nextDerivativeValue    = this->rootFunction->computeDerivative( 1, nextRootValue );
+                nextRootValue = currentRootValue - currentFunctionValue / currentDerivativeValue;
+                nextFunctionValue = this->rootFunction->evaluate( nextRootValue );
+                nextDerivativeValue = this->rootFunction->computeDerivative( 1, nextRootValue );
 
                 // Update the counter.
                 counter++;
-            }
-            while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
-                   !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue,
-                                                currentFunctionValue, counter ) );
+            } while( nextFunctionValue != mathematical_constants::getFloatingInteger< DataType >( 0 ) &&
+                     !this->terminationFunction_( nextRootValue, currentRootValue, nextFunctionValue, currentFunctionValue, counter ) );
         }
 
         return nextRootValue;
     }
 
 protected:
-
 private:
-
 };
 
-} // namespace root_finders
-} // namespace tudat
+}  // namespace root_finders
+}  // namespace tudat
 
-#endif // TUDAT_NEWTON_RAPHSON_H
+#endif  // TUDAT_NEWTON_RAPHSON_H

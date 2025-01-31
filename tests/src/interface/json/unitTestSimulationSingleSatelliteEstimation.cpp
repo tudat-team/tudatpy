@@ -21,14 +21,12 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_simulationSingleSatelliteEstimation )
 
 BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteEstimation_main )
 {
-
     using namespace simulation_setup;
     using namespace propagators;
     using namespace numerical_integrators;
@@ -44,228 +42,217 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteEstimation_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    JsonEstimationManager< > jsonSimulation( INPUT( "main" ) );
-    std::cout<<"A"<<std::endl;
+    JsonEstimationManager<> jsonSimulation( INPUT( "main" ) );
+    std::cout << "A" << std::endl;
     jsonSimulation.updateSettings( );
-    std::cout<<"B"<<std::endl;
+    std::cout << "B" << std::endl;
 
     jsonSimulation.runPropagation( );
-    std::cout<<"C"<<std::endl;
+    std::cout << "C" << std::endl;
 
-    std::map< double, Eigen::VectorXd > jsonStates =
-            jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > jsonStates = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::MatrixXd > jsonStateTransition =
             jsonSimulation.getVariationalEquationsSolver( )->getNumericalVariationalEquationsSolution( )[ 0 ];
     std::map< double, Eigen::MatrixXd > jsonSensitivity =
             jsonSimulation.getVariationalEquationsSolver( )->getNumericalVariationalEquationsSolution( )[ 1 ];
 
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    ///////////////////////            MANUAL SIMULATION             ////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    ///////////////////////            MANUAL SIMULATION             ////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    ///////////////////////     CREATE ENVIRONMENT AND VEHICLE       ////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    ///////////////////////     CREATE ENVIRONMENT AND VEHICLE       ////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    // Load Spice kernels.
+    //    spice_interface::loadStandardSpiceKernels( );
 
-//    // Load Spice kernels.
-//    spice_interface::loadStandardSpiceKernels( );
+    //    // Set simulation end epoch.
+    //    const double simulationEndEpoch = 3600.0;
 
-//    // Set simulation end epoch.
-//    const double simulationEndEpoch = 3600.0;
+    //    // Create body objects.
+    //    std::vector< std::string > bodiesToCreate;
+    //    bodiesToCreate.push_back( "Earth" );
+    //    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+    //            getDefaultBodySettings( bodiesToCreate );
+    //    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
+    //                Eigen::Vector6d::Zero( ) );
 
+    //    // Create Earth object
+    //    SystemOfBodies bodies = createBodies( bodySettings );
 
-//    // Create body objects.
-//    std::vector< std::string > bodiesToCreate;
-//    bodiesToCreate.push_back( "Earth" );
-//    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-//            getDefaultBodySettings( bodiesToCreate );
-//    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
-//                Eigen::Vector6d::Zero( ) );
+    //    // Create spacecraft object.
+    //    bodies[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
 
-//    // Create Earth object
-//    SystemOfBodies bodies = createBodies( bodySettings );
+    //    // Finalize body creation.
+    //    setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
-//    // Create spacecraft object.
-//    bodies[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    ///////////////////////            CREATE ACCELERATIONS          ////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    // Finalize body creation.
-//    setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
+    //    // Define propagator settings variables.
+    //    SelectedAccelerationMap accelerationMap;
+    //    std::vector< std::string > bodiesToPropagate;
+    //    std::vector< std::string > centralBodies;
 
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    ///////////////////////            CREATE ACCELERATIONS          ////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    bodiesToPropagate.push_back( "Asterix" );
+    //    centralBodies.push_back( "Earth" );
 
-//    // Define propagator settings variables.
-//    SelectedAccelerationMap accelerationMap;
-//    std::vector< std::string > bodiesToPropagate;
-//    std::vector< std::string > centralBodies;
+    //    // Define propagation settings.
+    //    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+    //    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
+    //                                                     basic_astrodynamics::central_gravity ) );
+    //    accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
 
-//    bodiesToPropagate.push_back( "Asterix" );
-//    centralBodies.push_back( "Earth" );
+    //    // Create acceleration models and propagation settings.
+    //    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+    //                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-//    // Define propagation settings.
-//    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-//    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-//                                                     basic_astrodynamics::central_gravity ) );
-//    accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    ///////////////////////             CREATE PROPAGATION SETTINGS            //////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    // Create acceleration models and propagation settings.
-//    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-//                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    //    // Set Keplerian elements for Asterix.
+    //    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    //    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+    //    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
+    //    asterixInitialStateInKeplerianElements( inclinationIndex ) = 1.4888;
+    //    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = 4.1137;
+    //    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.4084;
+    //    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = 2.4412;
 
+    //    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    //    const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
+    //                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    ///////////////////////             CREATE PROPAGATION SETTINGS            //////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+    //            std::make_shared< TranslationalStatePropagatorSettings< double > >
+    //            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
 
-//    // Set Keplerian elements for Asterix.
-//    Eigen::Vector6d asterixInitialStateInKeplerianElements;
-//    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
-//    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
-//    asterixInitialStateInKeplerianElements( inclinationIndex ) = 1.4888;
-//    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = 4.1137;
-//    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.4084;
-//    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = 2.4412;
+    //    const double fixedStepSize = 10.0;
+    //    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+    //            std::make_shared< IntegratorSettings< > >
+    //            ( rungeKutta4, 0.0, fixedStepSize );
 
-//    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-//    const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
-//                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+    //    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    //    parameterNames.push_back(
+    //                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+    //                    "Asterix", asterixInitialState, "Earth" ) );
+    //    parameterNames.push_back(
+    //                std::make_shared< EstimatableParameterSettings >(
+    //                    "Earth", gravitational_parameter ) );
 
+    //    // Create parameters
+    //    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+    //            createParametersToEstimate( parameterNames, bodies );
 
-//    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-//            std::make_shared< TranslationalStatePropagatorSettings< double > >
-//            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    ///////////////////////             PROPAGATE ORBIT            //////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    const double fixedStepSize = 10.0;
-//    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-//            std::make_shared< IntegratorSettings< > >
-//            ( rungeKutta4, 0.0, fixedStepSize );
+    //    // Create simulation object and propagate dynamics.
+    //    const std::shared_ptr< SingleArcVariationalEquationsSolver< > > variationalEquationsSolver =
+    //            std::make_shared< SingleArcVariationalEquationsSolver< > >(
+    //                bodies, integratorSettings, propagatorSettings, parametersToEstimate, true, nullptr, false, true, false );
 
-//    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-//    parameterNames.push_back(
-//                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-//                    "Asterix", asterixInitialState, "Earth" ) );
-//    parameterNames.push_back(
-//                std::make_shared< EstimatableParameterSettings >(
-//                    "Earth", gravitational_parameter ) );
+    //    const std::map< double, Eigen::VectorXd > states = variationalEquationsSolver->getDynamicsSimulator(
+    //    )->getEquationsOfMotionNumericalSolution( ); const std::map< double, Eigen::MatrixXd > stateTransition =
+    //    variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ]; const std::map< double, Eigen::MatrixXd >
+    //    sensitivity = variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 1 ];
 
-//    // Create parameters
-//    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-//            createParametersToEstimate( parameterNames, bodies );
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    ///////////////////////        COMPARE RESULTS           ////////////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //    const std::vector< unsigned int > indices = { 0, 3 };
+    //    const std::vector< unsigned int > sizes = { 3, 3 };
+    //    const double tolerance = 1.0E-15;
 
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    ///////////////////////             PROPAGATE ORBIT            //////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonStates, states, indices, sizes, tolerance );
 
-//    // Create simulation object and propagate dynamics.
-//    const std::shared_ptr< SingleArcVariationalEquationsSolver< > > variationalEquationsSolver =
-//            std::make_shared< SingleArcVariationalEquationsSolver< > >(
-//                bodies, integratorSettings, propagatorSettings, parametersToEstimate, true, nullptr, false, true, false );
+    //    Eigen::MatrixXd finalStateTransition = jsonStateTransition.rbegin( )->second;
 
-//    const std::map< double, Eigen::VectorXd > states = variationalEquationsSolver->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-//    const std::map< double, Eigen::MatrixXd > stateTransition = variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ];
-//    const std::map< double, Eigen::MatrixXd > sensitivity = variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 1 ];
+    //    std::vector< std::pair< unsigned int, unsigned int > > indicesStateTransition =
+    //    { { 0, 0 }, { 0, 3 }, { 3, 0 }, { 3, 3 } };
+    //    std::vector< std::pair< unsigned int, unsigned int > > sizesStateTransition =
+    //    { { 3, 3 }, { 3, 3 }, { 3, 3 }, { 3, 3 } };
 
+    //    std::vector< double > absoluteTolerancesStateTransition;
+    //    absoluteTolerancesStateTransition.push_back(
+    //                finalStateTransition.block( 0, 0, 3, 3 ).norm( ) * tolerance );
+    //    absoluteTolerancesStateTransition.push_back(
+    //                finalStateTransition.block( 0, 3, 3, 3 ).norm( ) * tolerance );
+    //    absoluteTolerancesStateTransition.push_back(
+    //                finalStateTransition.block( 3, 0, 3, 3 ).norm( ) * tolerance );
+    //    absoluteTolerancesStateTransition.push_back(
+    //                finalStateTransition.block( 3, 3, 3, 3 ).norm( ) * tolerance );
 
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    ///////////////////////        COMPARE RESULTS           ////////////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
+    //                stateTransition, jsonStateTransition, indicesStateTransition,
+    //                sizesStateTransition, absoluteTolerancesStateTransition );
 
-//    const std::vector< unsigned int > indices = { 0, 3 };
-//    const std::vector< unsigned int > sizes = { 3, 3 };
-//    const double tolerance = 1.0E-15;
+    //    for( int i = 0; i < jsonFinalSensitivity.cols( ); i++ )
+    //    {
+    //        Eigen::MatrixXd jsonFinalSensitivity = jsonSensitivity.rbegin( )->second;
 
-//    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonStates, states, indices, sizes, tolerance );
+    //        std::vector< std::pair< unsigned int, unsigned int > > indicesSensitivity;
+    //        std::vector< std::pair< unsigned int, unsigned int > > sizesSensitivity;
+    //        std::vector< double > absoluteTolerancesSensitivity;
 
-//    Eigen::MatrixXd finalStateTransition = jsonStateTransition.rbegin( )->second;
+    //        indicesSensitivity.push_back( std::make_pair( 0, i ) );
+    //        indicesSensitivity.push_back( std::make_pair( 3, i ) );
 
-//    std::vector< std::pair< unsigned int, unsigned int > > indicesStateTransition =
-//    { { 0, 0 }, { 0, 3 }, { 3, 0 }, { 3, 3 } };
-//    std::vector< std::pair< unsigned int, unsigned int > > sizesStateTransition =
-//    { { 3, 3 }, { 3, 3 }, { 3, 3 }, { 3, 3 } };
+    //        sizesSensitivity.push_back( std::make_pair( 3, 1 ) );
+    //        sizesSensitivity.push_back( std::make_pair( 3, 1 ) );
 
-//    std::vector< double > absoluteTolerancesStateTransition;
-//    absoluteTolerancesStateTransition.push_back(
-//                finalStateTransition.block( 0, 0, 3, 3 ).norm( ) * tolerance );
-//    absoluteTolerancesStateTransition.push_back(
-//                finalStateTransition.block( 0, 3, 3, 3 ).norm( ) * tolerance );
-//    absoluteTolerancesStateTransition.push_back(
-//                finalStateTransition.block( 3, 0, 3, 3 ).norm( ) * tolerance );
-//    absoluteTolerancesStateTransition.push_back(
-//                finalStateTransition.block( 3, 3, 3, 3 ).norm( ) * tolerance );
+    //        absoluteTolerancesSensitivity.push_back(
+    //                    jsonFinalSensitivity.block( 0, i, 3, 1 ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+    //        absoluteTolerancesSensitivity.push_back(
+    //                    jsonFinalSensitivity.block( 3, i, 3, 1 ).norm( ) * std::numeric_limits< double >::epsilon( ) );
 
-//    BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
-//                stateTransition, jsonStateTransition, indicesStateTransition,
-//                sizesStateTransition, absoluteTolerancesStateTransition );
+    //        BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
+    //                    sensitivity, jsonSensitivity, indicesSensitivity,
+    //                    sizesSensitivity, absoluteTolerancesSensitivity );
+    //    }
 
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    ///////////      CHECK CONSISTENCY OF from_json AND to_json FUNCTIONS          //////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //    // Convert jsonSimulation to JSON (using to_json functions) and use that to reset the simulation
+    //    // (using from_json functions)
+    //    jsonSimulation.resetJsonObject( jsonSimulation.getAsJson( ) );
+    //    jsonSimulation.updateSettings( );
 
+    //    // Get results
+    //    jsonSimulation.runPropagation( );
+    //    jsonStates =
+    //            jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+    //    jsonStateTransition =
+    //            jsonSimulation.getVariationalEquationsSolver( )->getNumericalVariationalEquationsSolution( )[ 0 ];
+    //    jsonSensitivity =
+    //            jsonSimulation.getVariationalEquationsSolver( )->getNumericalVariationalEquationsSolution( )[ 1 ];
 
-//    for( int i = 0; i < jsonFinalSensitivity.cols( ); i++ )
-//    {
-//        Eigen::MatrixXd jsonFinalSensitivity = jsonSensitivity.rbegin( )->second;
+    //    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonStates, states, indices, sizes, tolerance );
 
-//        std::vector< std::pair< unsigned int, unsigned int > > indicesSensitivity;
-//        std::vector< std::pair< unsigned int, unsigned int > > sizesSensitivity;
-//        std::vector< double > absoluteTolerancesSensitivity;
+    //    BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
+    //                stateTransition, jsonStateTransition, indicesStateTransition,
+    //                sizesStateTransition, absoluteTolerancesStateTransition );
 
-//        indicesSensitivity.push_back( std::make_pair( 0, i ) );
-//        indicesSensitivity.push_back( std::make_pair( 3, i ) );
-
-//        sizesSensitivity.push_back( std::make_pair( 3, 1 ) );
-//        sizesSensitivity.push_back( std::make_pair( 3, 1 ) );
-
-//        absoluteTolerancesSensitivity.push_back(
-//                    jsonFinalSensitivity.block( 0, i, 3, 1 ).norm( ) * std::numeric_limits< double >::epsilon( ) );
-//        absoluteTolerancesSensitivity.push_back(
-//                    jsonFinalSensitivity.block( 3, i, 3, 1 ).norm( ) * std::numeric_limits< double >::epsilon( ) );
-
-
-//        BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
-//                    sensitivity, jsonSensitivity, indicesSensitivity,
-//                    sizesSensitivity, absoluteTolerancesSensitivity );
-//    }
-
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    ///////////      CHECK CONSISTENCY OF from_json AND to_json FUNCTIONS          //////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//    // Convert jsonSimulation to JSON (using to_json functions) and use that to reset the simulation
-//    // (using from_json functions)
-//    jsonSimulation.resetJsonObject( jsonSimulation.getAsJson( ) );
-//    jsonSimulation.updateSettings( );
-
-//    // Get results
-//    jsonSimulation.runPropagation( );
-//    jsonStates =
-//            jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
-//    jsonStateTransition =
-//            jsonSimulation.getVariationalEquationsSolver( )->getNumericalVariationalEquationsSolution( )[ 0 ];
-//    jsonSensitivity =
-//            jsonSimulation.getVariationalEquationsSolver( )->getNumericalVariationalEquationsSolution( )[ 1 ];
-
-//    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonStates, states, indices, sizes, tolerance );
-
-//    BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
-//                stateTransition, jsonStateTransition, indicesStateTransition,
-//                sizesStateTransition, absoluteTolerancesStateTransition );
-
-//    BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
-//                sensitivity, jsonSensitivity, indicesSensitivity,
-//                sizesSensitivity, absoluteTolerancesSensitivity );
+    //    BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
+    //                sensitivity, jsonSensitivity, indicesSensitivity,
+    //                sizesSensitivity, absoluteTolerancesSensitivity );
 }
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

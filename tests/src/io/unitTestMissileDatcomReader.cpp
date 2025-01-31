@@ -34,14 +34,13 @@ BOOST_AUTO_TEST_CASE( testMissileDatcomData )
     using namespace tudat;
 
     // Load missile Datcom data.
-    std::string fileLocation = paths::getTudatTestDataPath( )
-            + "/testFileMissileDatcomReader.dat";
+    std::string fileLocation = paths::getTudatTestDataPath( ) + "/testFileMissileDatcomReader.dat";
     input_output::MissileDatcomReader missileDatcomReader( fileLocation );
 
     std::vector< double > missileDatcomData = missileDatcomReader.getMissileDatcomData( );
     double summation = 0.0;
 
-    for ( unsigned int i = 0; i < missileDatcomData.size( ); i++ )
+    for( unsigned int i = 0; i < missileDatcomData.size( ); i++ )
     {
         summation = summation + missileDatcomData[ i ];
     }
@@ -51,11 +50,10 @@ BOOST_AUTO_TEST_CASE( testMissileDatcomData )
     // 400. When summed this gives the following result:
     const double expectedSummationResult = 229900.0;
 
-    BOOST_CHECK_CLOSE_FRACTION( summation, expectedSummationResult,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( summation, expectedSummationResult, std::numeric_limits< double >::epsilon( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

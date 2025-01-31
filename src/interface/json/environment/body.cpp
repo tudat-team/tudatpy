@@ -30,7 +30,7 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `BodySettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodySettings >& bodySettings )
 {
-    if ( ! bodySettings )
+    if( !bodySettings )
     {
         return;
     }
@@ -54,9 +54,7 @@ void to_json( nlohmann::json& jsonObject, const BodyListSettings& bodyListSettin
     throw std::runtime_error( "Error writing BodyListSettings to JSON not yet enabled." );
 }
 
-
-} // namespace simulation_setup
-
+}  // namespace simulation_setup
 
 namespace json_interface
 {
@@ -88,6 +86,6 @@ void updateBodySettings( std::shared_ptr< simulation_setup::BodySettings >& body
     updateFromJSONIfDefined( bodySettings->groundStationSettings, jsonObject, K::groundStation );
 }
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat

@@ -34,7 +34,6 @@ namespace geometric_shapes
 class ConicalFrustum : public SingleSurfaceGeometry
 {
 public:
-
     //! Conical frustum consructor, sets all shape parameters.
     /*!
      * Conical frustum consructor, sets all shape parameters.
@@ -51,8 +50,7 @@ public:
                     const double startRadius,
                     const double length,
                     const double minimumAzimuthAngle = 0.0,
-                    const double maximumAzimuthAngle
-                    = 2.0 * mathematical_constants::PI );
+                    const double maximumAzimuthAngle = 2.0 * mathematical_constants::PI );
 
     //! Get surface point on conical frustum.
     /*!
@@ -85,7 +83,8 @@ public:
      *          azimuth angle.
      * \return Surface derivative on conical frustum.
      */
-    Eigen::VectorXd getSurfaceDerivative( const double lengthFraction, const double azimuthAngle,
+    Eigen::VectorXd getSurfaceDerivative( const double lengthFraction,
+                                          const double azimuthAngle,
                                           const int powerOfLengthFractionDerivative,
                                           const int powerOfAzimuthAngleDerivative );
 
@@ -104,35 +103,50 @@ public:
      * Returns the cone half angle.
      * \return Cone half angle.
      */
-    double getConeHalfAngle( ) { return coneHalfAngle_; }
+    double getConeHalfAngle( )
+    {
+        return coneHalfAngle_;
+    }
 
     //! Get length.
     /*!
      * Returns the length.
      * \return Cone length.
      */
-    double getLength( ) { return length_; }
+    double getLength( )
+    {
+        return length_;
+    }
 
     //! Get start radius.
     /*!
      * Returns the start radius.
      * \return Start radius.
      */
-    double getStartRadius( ) { return startRadius_; }
+    double getStartRadius( )
+    {
+        return startRadius_;
+    }
 
     //! Get minimum azimuth angle.
     /*!
      * Retuns the minimum azimuth angle.
      *  \return Minimum azimuth angle.
      */
-    double getMinimumAzimuthAngle( ) { return minimumIndependentVariable1_; }
+    double getMinimumAzimuthAngle( )
+    {
+        return minimumIndependentVariable1_;
+    }
 
     //! Get maximum azimuth angle.
     /*!
      * Returns the maximum azimuth angle.
      * \return Maximum azimuth angle.
      */
-    double getMaximumAzimuthAngle( ) { return maximumIndependentVariable1_; }
+    double getMaximumAzimuthAngle( )
+    {
+        return maximumIndependentVariable1_;
+    }
 
     //! Overload ostream to print class information.
     /*!
@@ -143,12 +157,10 @@ public:
      * \param conicalFrustum Conical frustum of which info is to be printed.
      * \return Stream with printed info.
      */
-    friend std::ostream &operator << ( std::ostream &stream, ConicalFrustum & conicalFrustum );
+    friend std::ostream &operator<<( std::ostream &stream, ConicalFrustum &conicalFrustum );
 
 protected:
-
 private:
-
     //! Cone half angle.
     /*!
      * Cone half angle.
@@ -171,7 +183,7 @@ private:
 //! Typedef for shared-pointer to ConicalFrustum object.
 typedef std::shared_ptr< ConicalFrustum > ConicalFrustumPointer;
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat
 
-#endif // TUDAT_CONICALFRUSTUM_H
+#endif  // TUDAT_CONICALFRUSTUM_H

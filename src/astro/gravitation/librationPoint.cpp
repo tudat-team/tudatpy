@@ -22,10 +22,6 @@
 #include <cmath>
 #include <stdexcept>
 
-
-
-
-
 #include "tudat/astro/gravitation/librationPoint.h"
 #include "tudat/math/basic/functionProxy.h"
 
@@ -39,8 +35,7 @@ using namespace root_finders;
 using namespace basic_mathematics;
 
 //! Compute location of Lagrange libration point.
-void LibrationPoint::computeLocationOfLibrationPoint(
-        LagrangeLibrationPoints lagrangeLibrationPoint )
+void LibrationPoint::computeLocationOfLibrationPoint( LagrangeLibrationPoints lagrangeLibrationPoint )
 {
     using std::pow;
     using std::sqrt;
@@ -49,79 +44,75 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     // parameter, or computed locations directly of equilateral libration points.
     switch( lagrangeLibrationPoint )
     {
-    case l1:
-    {
-        // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
+        case l1: {
+            // Create an object containing the function of which we whish to obtain the root from.
+            UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
                     std::bind( &LibrationPoint::computeL1LocationFunction, this, std::placeholders::_1 ) );
 
-        // Add the first derivative of the root function.
-        rootFunction->addBinding( -1, std::bind( &LibrationPoint::
-                computeL1FirstDerivativeLocationFunction, this, std::placeholders::_1 ) );
+            // Add the first derivative of the root function.
+            rootFunction->addBinding( -1,
+                                      std::bind( &LibrationPoint::computeL1FirstDerivativeLocationFunction, this, std::placeholders::_1 ) );
 
-        // Set position vector of L1 in Cartesian elements based on result of Newton-Raphson
-        // root-finding algorithm.
-        positionOfLibrationPoint_ << rootFinder->execute( rootFunction, 1.0 ), 0.0, 0.0;
-    }
+            // Set position vector of L1 in Cartesian elements based on result of Newton-Raphson
+            // root-finding algorithm.
+            positionOfLibrationPoint_ << rootFinder->execute( rootFunction, 1.0 ), 0.0, 0.0;
+        }
         break;
 
-    case l2:
-    {
-        // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
+        case l2: {
+            // Create an object containing the function of which we whish to obtain the root from.
+            UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
                     std::bind( &LibrationPoint::computeL2LocationFunction, this, std::placeholders::_1 ) );
 
-        // Add the first derivative of the root function.
-        rootFunction->addBinding( -1, std::bind( &LibrationPoint::
-                computeL2FirstDerivativeLocationFunction, this, std::placeholders::_1 ) );
+            // Add the first derivative of the root function.
+            rootFunction->addBinding( -1,
+                                      std::bind( &LibrationPoint::computeL2FirstDerivativeLocationFunction, this, std::placeholders::_1 ) );
 
-        // Set position vector of L1 in Cartesian elements based on result of Newton-Raphson
-        // root-finding algorithm.
-        positionOfLibrationPoint_ << rootFinder->execute( rootFunction, 1.0 ), 0.0, 0.0;
-    }
+            // Set position vector of L1 in Cartesian elements based on result of Newton-Raphson
+            // root-finding algorithm.
+            positionOfLibrationPoint_ << rootFinder->execute( rootFunction, 1.0 ), 0.0, 0.0;
+        }
         break;
 
-    case l3:
-    {
-        // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
+        case l3: {
+            // Create an object containing the function of which we whish to obtain the root from.
+            UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
                     std::bind( &LibrationPoint::computeL3LocationFunction, this, std::placeholders::_1 ) );
 
-        // Add the first derivative of the root function.
-        rootFunction->addBinding( -1, std::bind( &LibrationPoint::
-                computeL3FirstDerivativeLocationFunction, this, std::placeholders::_1 ) );
+            // Add the first derivative of the root function.
+            rootFunction->addBinding( -1,
+                                      std::bind( &LibrationPoint::computeL3FirstDerivativeLocationFunction, this, std::placeholders::_1 ) );
 
-        // Set position vector of L1 in Cartesian elements based on result of Newton-Raphson
-        // root-finding algorithm.
-        positionOfLibrationPoint_ << rootFinder->execute( rootFunction, -1.0 ), 0.0, 0.0;
-    }
+            // Set position vector of L1 in Cartesian elements based on result of Newton-Raphson
+            // root-finding algorithm.
+            positionOfLibrationPoint_ << rootFinder->execute( rootFunction, -1.0 ), 0.0, 0.0;
+        }
         break;
 
-    case l4:
+        case l4:
 
-        // Set position vector of L4 in Cartesian elements.
-        positionOfLibrationPoint_.x( ) = 0.5 - massParameter;
-        positionOfLibrationPoint_.y( ) = 0.5 * sqrt( 3.0 );
-        positionOfLibrationPoint_.z( ) = 0.0;
+            // Set position vector of L4 in Cartesian elements.
+            positionOfLibrationPoint_.x( ) = 0.5 - massParameter;
+            positionOfLibrationPoint_.y( ) = 0.5 * sqrt( 3.0 );
+            positionOfLibrationPoint_.z( ) = 0.0;
 
-        break;
+            break;
 
-    case l5:
+        case l5:
 
-        // Set position vector of L5 in Cartesian elements.
-        positionOfLibrationPoint_.x( ) = 0.5 - massParameter;
-        positionOfLibrationPoint_.y( ) = -0.5 * sqrt( 3.0 );
-        positionOfLibrationPoint_.z( ) = 0.0;
+            // Set position vector of L5 in Cartesian elements.
+            positionOfLibrationPoint_.x( ) = 0.5 - massParameter;
+            positionOfLibrationPoint_.y( ) = -0.5 * sqrt( 3.0 );
+            positionOfLibrationPoint_.z( ) = 0.0;
 
-        break;
+            break;
 
-    default:
+        default:
 
-        throw std::runtime_error(
-                            "The Lagrange libration point requested does not exist." );
+            throw std::runtime_error( "The Lagrange libration point requested does not exist." );
     };
 }
 
-} // namespace circular_restricted_three_body_problem
+}  // namespace circular_restricted_three_body_problem
 
-} // namespace tudat
+}  // namespace tudat

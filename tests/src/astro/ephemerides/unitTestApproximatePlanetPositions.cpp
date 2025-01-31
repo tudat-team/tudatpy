@@ -66,14 +66,12 @@ BOOST_AUTO_TEST_CASE( testOrbitalElements )
 
     // Convert the expected Keplerian elements to Cartesian elements.
     Eigen::Vector6d expectedEphemeris;
-    expectedEphemeris = orbital_element_conversions::
-            convertKeplerianToCartesianElements(
-            expectedKeplerianElements,
-            marsEphemeris.getSunGravitationalParameter( ) );
+    expectedEphemeris = orbital_element_conversions::convertKeplerianToCartesianElements( expectedKeplerianElements,
+                                                                                          marsEphemeris.getSunGravitationalParameter( ) );
 
     // Retrieve state of Mars in Cartesian elements at Julian date 2455626.5.
-    Eigen::Vector6d marsState = marsEphemeris.getCartesianState(
-                ( 2455626.5 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
+    Eigen::Vector6d marsState =
+            marsEphemeris.getCartesianState( ( 2455626.5 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
 
     // Test if the computed ephemeris matches the expected ephemeris within the tolerance set.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedEphemeris, marsState, tolerance );
@@ -88,26 +86,21 @@ BOOST_AUTO_TEST_CASE( testCircularCoplannar )
 {
     using namespace ephemerides;
 
-    ApproximateJplCircularCoplanarEphemeris marsEphemeris(
-                "Mars" );
+    ApproximateJplCircularCoplanarEphemeris marsEphemeris( "Mars" );
 
-    Eigen::Vector6d marsStateCircularCoplanar
-            = marsEphemeris.getCartesianState(
-                ( 2455626.5 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
+    Eigen::Vector6d marsStateCircularCoplanar =
+            marsEphemeris.getCartesianState( ( 2455626.5 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
 
     // Compute the Keplerian elements from this ephemeris.
     Eigen::Vector6d keplerianElementsCircularCoplanar;
-    keplerianElementsCircularCoplanar = orbital_element_conversions::
-            convertCartesianToKeplerianElements( marsStateCircularCoplanar,
-                    marsEphemeris.getSunGravitationalParameter( ) + marsEphemeris.getPlanetGravitationalParameter( ) );
+    keplerianElementsCircularCoplanar = orbital_element_conversions::convertCartesianToKeplerianElements(
+            marsStateCircularCoplanar, marsEphemeris.getSunGravitationalParameter( ) + marsEphemeris.getPlanetGravitationalParameter( ) );
 
     // Check the eccentricity, inclination and z-component of velocity and position are 0.
     BOOST_CHECK_SMALL( keplerianElementsCircularCoplanar( 1 ), 1e-15 );
-    BOOST_CHECK_SMALL( keplerianElementsCircularCoplanar( 2 ),
-                       std::numeric_limits< double >::min( ) );
+    BOOST_CHECK_SMALL( keplerianElementsCircularCoplanar( 2 ), std::numeric_limits< double >::min( ) );
     BOOST_CHECK_SMALL( marsStateCircularCoplanar( 2 ), 2.0e-5 );
-    BOOST_CHECK_SMALL( marsStateCircularCoplanar( 5 ),
-                       std::numeric_limits< double >::min( ) );
+    BOOST_CHECK_SMALL( marsStateCircularCoplanar( 5 ), std::numeric_limits< double >::min( ) );
 
     // Check that the reference frame properties are as expected.
     BOOST_CHECK_EQUAL( marsEphemeris.getReferenceFrameOrientation( ), "ECLIPJ2000" );
@@ -116,8 +109,8 @@ BOOST_AUTO_TEST_CASE( testCircularCoplannar )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat
 
 //    // Compute the difference in semi-major axis between Test 2 and
 //    // the external ephemeris_data "p_elem_t2.txt".
@@ -159,33 +152,33 @@ BOOST_AUTO_TEST_SUITE_END( )
 //        cerr << "( " << maximumErrorPosition << " meters )." << endl;
 //    }
 
-    /* FIX THIS TEST!!!
-    // Check size of velocity.
-    Eigen::Vector3d errorVelocity = velocityMars - marsEphemeris.segment( 3, 3 );
+/* FIX THIS TEST!!!
+// Check size of velocity.
+Eigen::Vector3d errorVelocity = velocityMars - marsEphemeris.segment( 3, 3 );
 
-    // Error in scalar velocity should be smaller than maximum expected offset with respect to
-    // ellipitical and inclined orbits.
-    double expectedErrorVelocity = fabs(
-                sqrt( predefinedSun.getGravitationalParameter( )
-                      / marsEphemeris.segment( 0, 3 ).norm( ) ) *
-                ( ( 1.0 - cos( keplerianElementsTest3D.getInclination( ) )
-                    + sqrt( ( 1.0 - keplerianElementsTest3D.getEccentricity( ) ) /
-                            ( 1.0 + keplerianElementsTest3D.getEccentricity( ) ) ) - 1.0 ) ) );
+// Error in scalar velocity should be smaller than maximum expected offset with respect to
+// ellipitical and inclined orbits.
+double expectedErrorVelocity = fabs(
+            sqrt( predefinedSun.getGravitationalParameter( )
+                  / marsEphemeris.segment( 0, 3 ).norm( ) ) *
+            ( ( 1.0 - cos( keplerianElementsTest3D.getInclination( ) )
+                + sqrt( ( 1.0 - keplerianElementsTest3D.getEccentricity( ) ) /
+                        ( 1.0 + keplerianElementsTest3D.getEccentricity( ) ) ) - 1.0 ) ) );
 
 
-    if ( errorVelocity.norm( ) > expectedErrorVelocity )
-    {
-        isApproximateSolarSystemEphemerisErroneous = true;
+if ( errorVelocity.norm( ) > expectedErrorVelocity )
+{
+    isApproximateSolarSystemEphemerisErroneous = true;
 
-        // Generate error statements.
-        cerr << "The computed error in velocity of the " << endl;
-        cerr << "coplanar circular position of Mars "
-             << "( " << errorVelocity.norm( ) << " meters per second )" << endl;
-        cerr << "using the ApproximateJplCircularCoplanarEphemeris class, exceeds "
-             << "the expected error " << endl;
-        cerr << "( " << expectedErrorVelocity << " meters per second )." << endl;
-        cerr << "The computed error exceeds the expected error by: "
-             << fabs( errorVelocity.norm( ) - expectedErrorVelocity )
-             << " meters per second." << endl;
-    }
-    */
+    // Generate error statements.
+    cerr << "The computed error in velocity of the " << endl;
+    cerr << "coplanar circular position of Mars "
+         << "( " << errorVelocity.norm( ) << " meters per second )" << endl;
+    cerr << "using the ApproximateJplCircularCoplanarEphemeris class, exceeds "
+         << "the expected error " << endl;
+    cerr << "( " << expectedErrorVelocity << " meters per second )." << endl;
+    cerr << "The computed error exceeds the expected error by: "
+         << fabs( errorVelocity.norm( ) - expectedErrorVelocity )
+         << " meters per second." << endl;
+}
+*/

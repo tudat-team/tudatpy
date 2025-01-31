@@ -14,7 +14,6 @@
 namespace tudat
 {
 
-
 namespace ephemerides
 {
 
@@ -23,19 +22,17 @@ void CustomBodyFixedDirectionCalculator::update( const double time )
     if( time != currentTime_ )
     {
         currentBodyAxisDirection_ = inertialBodyAxisDirectionFunction_( time );
-        currentTime_ =  time;
+        currentTime_ = time;
     }
 }
 
-Eigen::Quaterniond DirectionBasedRotationalEphemeris::getRotationToBaseFrame(
-        const double currentTime )
+Eigen::Quaterniond DirectionBasedRotationalEphemeris::getRotationToBaseFrame( const double currentTime )
 {
     Eigen::Vector3d eulerAngles = getEulerAngles( currentTime );
 
-    return Eigen::Quaterniond(
-                  Eigen::AngleAxisd( eulerAngles( 0 ), Eigen::Vector3d::UnitZ( ) )  *
-                  Eigen::AngleAxisd( eulerAngles( 1 ), Eigen::Vector3d::UnitY( ) )  *
-                  Eigen::AngleAxisd( eulerAngles( 2 ), Eigen::Vector3d::UnitX( ) ) );
+    return Eigen::Quaterniond( Eigen::AngleAxisd( eulerAngles( 0 ), Eigen::Vector3d::UnitZ( ) ) *
+                               Eigen::AngleAxisd( eulerAngles( 1 ), Eigen::Vector3d::UnitY( ) ) *
+                               Eigen::AngleAxisd( eulerAngles( 2 ), Eigen::Vector3d::UnitX( ) ) );
 }
 
 void DirectionBasedRotationalEphemeris::update( const double currentTime )
@@ -51,7 +48,8 @@ void DirectionBasedRotationalEphemeris::update( const double currentTime )
             }
             else
             {
-                throw std::runtime_error( "Error when using DirectionBasedRotationalEphemeris, inerial body axis direction function no set" );
+                throw std::runtime_error(
+                        "Error when using DirectionBasedRotationalEphemeris, inerial body axis direction function no set" );
             }
         }
         else
@@ -61,8 +59,7 @@ void DirectionBasedRotationalEphemeris::update( const double currentTime )
     }
 }
 
-
-void DirectionBasedRotationalEphemeris::resetCurrentTime(  )
+void DirectionBasedRotationalEphemeris::resetCurrentTime( )
 {
     currentTime_ = TUDAT_NAN;
     currentInertialDirection_.setConstant( TUDAT_NAN );
@@ -87,7 +84,6 @@ Eigen::Vector3d DirectionBasedRotationalEphemeris::getEulerAngles( const double 
     return eulerAngles_;
 }
 
-
 void DirectionBasedRotationalEphemeris::calculateEulerAngles( )
 {
     eulerAngles_( 0 ) = std::atan2( currentInertialDirection_.y( ), currentInertialDirection_.x( ) );
@@ -104,5 +100,5 @@ void DirectionBasedRotationalEphemeris::calculateEulerAngles( )
     currentEulerAnglesTime_ = currentTime_;
 }
 
-} // namespace tudat
-} // namespace ephemerides
+}  // namespace ephemerides
+}  // namespace tudat

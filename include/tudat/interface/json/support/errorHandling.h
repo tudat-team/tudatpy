@@ -29,12 +29,7 @@ namespace json_interface
 {
 
 //! Possible responses to an exception during validation phase in Tudat apps that use json_interface.
-enum ExceptionResponseType
-{
-    continueSilently,
-    printWarning,
-    throwError
-};
+enum ExceptionResponseType { continueSilently, printWarning, throwError };
 
 //! Class for errors generated during the retrieval of a value from a `json` object.
 /*!
@@ -49,8 +44,8 @@ public:
      * \param errorMessage The first part of the message to be printed.
      * \param keyPath Key path trying to access / accessed when the error was generated.
      */
-    ValueAccessError( const std::string& errorMessage, const KeyPath& keyPath )
-        : runtime_error( errorMessage.c_str( ) ), keyPath( keyPath ) { }
+    ValueAccessError( const std::string& errorMessage, const KeyPath& keyPath ): runtime_error( errorMessage.c_str( ) ), keyPath( keyPath )
+    { }
 
     //! Key path trying to access / accessed when the error was generated.
     KeyPath keyPath;
@@ -82,7 +77,7 @@ public:
      */
     void rethrowIfNotTriggeredByMissingValueAt( const KeyPath& keyPath ) const
     {
-        if ( ! wasTriggeredByMissingValueAt( keyPath ) )
+        if( !wasTriggeredByMissingValueAt( keyPath ) )
         {
             throw *this;
         }
@@ -102,9 +97,11 @@ public:
      * \param keyPath Key path trying to access when the error was generated.
      * \param expectedTypeInfo Type id info of the expected type.
      */
-    UnrecognizedValueAccessError( const KeyPath& keyPath, const std::type_info& expectedTypeInfo ) :
-        ValueAccessError( "Unrecognized error when trying to create object of type " +
-                          boost::core::demangled_name( expectedTypeInfo ) + " from key", keyPath ) { }
+    UnrecognizedValueAccessError( const KeyPath& keyPath, const std::type_info& expectedTypeInfo ):
+        ValueAccessError(
+                "Unrecognized error when trying to create object of type " + boost::core::demangled_name( expectedTypeInfo ) + " from key",
+                keyPath )
+    { }
 };
 
 //! Class for errors generated when trying to access a key from a `json` object that does not exist.
@@ -119,7 +116,7 @@ public:
      * Constructor.
      * \param keyPath Key path trying to access when the error was generated.
      */
-    UndefinedKeyError( const KeyPath& keyPath ) : ValueAccessError( "Undefined key", keyPath ) { }
+    UndefinedKeyError( const KeyPath& keyPath ): ValueAccessError( "Undefined key", keyPath ) { }
 
     //! Rethrow `this` if default values are not allowed, or print a message if requested by user.
     /*!
@@ -129,11 +126,11 @@ public:
      */
     void handleUseOfDefaultValue( const nlohmann::json& defaultValue, const ExceptionResponseType& response ) const
     {
-        if ( ! containsAnyOf( keyPath, SpecialKeys::objectContaining ) )
+        if( !containsAnyOf( keyPath, SpecialKeys::objectContaining ) )
         {
-            if ( response != continueSilently )
+            if( response != continueSilently )
             {
-                if ( response == throwError )
+                if( response == throwError )
                 {
                     throw *this;
                 }
@@ -154,7 +151,7 @@ public:
     template< typename NumberType >
     void rethrowIfNaNNotAllowed( bool allowNaN, const NumberType& defaultValue ) const
     {
-        if ( ! allowNaN && isNaN( defaultValue ) )
+        if( !allowNaN && isNaN( defaultValue ) )
         {
             throw *this;
         }
@@ -175,9 +172,10 @@ public:
      * \param value The `json` object that was going to be converted to the expected type.
      * \param expectedTypeInfo Type id info of the expected type.
      */
-    IllegalValueError( const KeyPath& keyPath, const nlohmann::json& value, const std::type_info& expectedTypeInfo ) :
+    IllegalValueError( const KeyPath& keyPath, const nlohmann::json& value, const std::type_info& expectedTypeInfo ):
         ValueAccessError( "Illegal value for key", keyPath ), value( value ),
-        expectedTypeName( boost::core::demangled_name( expectedTypeInfo ) ) { }
+        expectedTypeName( boost::core::demangled_name( expectedTypeInfo ) )
+    { }
 
     //! Associated (illegal) value.
     nlohmann::json value;
@@ -208,10 +206,10 @@ public:
      * \param errorMessage @copydoc ReportableBugError::errorMessage
      * \param reportURL @copydoc ReportableBugError::reportURL
      */
-    ReportableBugError(
-            const std::string& errorMessage = "Internal Tudat error. Please, report this bug by using this link: ",
-            const std::string& reportURL = "https://github.com/Tudat/tudat/issues" )
-        : std::exception( ), errorMessage( errorMessage ), reportURL( reportURL ) { }
+    ReportableBugError( const std::string& errorMessage = "Internal Tudat error. Please, report this bug by using this link: ",
+                        const std::string& reportURL = "https://github.com/Tudat/tudat/issues" ):
+        std::exception( ), errorMessage( errorMessage ), reportURL( reportURL )
+    { }
 
     //! Full error message.
     virtual const char* what( ) const throw( )
@@ -230,7 +228,6 @@ protected:
     std::string reportURL;
 };
 
-
 //! Class for errors that print a report bug link to open an issue on GitHub (optionally pre-filled).
 /*!
  * Class for errors that print a report bug link to open an issue on GitHub (optionally pre-filled).
@@ -245,10 +242,10 @@ public:
      * \param issueTitle @copydoc AutoReportableBugError::issueTitle
      * \param issueBody @copydoc AutoReportableBugError::issueBody
      */
-    AutoReportableBugError(
-            const std::string& errorMessage = "Internal Tudat error. Please, report this bug by using this link: ",
-            const std::string& issueTitle = "", const std::string& issueBody = "" )
-        : ReportableBugError( errorMessage ), issueTitle( issueTitle ), issueBody( issueBody )
+    AutoReportableBugError( const std::string& errorMessage = "Internal Tudat error. Please, report this bug by using this link: ",
+                            const std::string& issueTitle = "",
+                            const std::string& issueBody = "" ):
+        ReportableBugError( errorMessage ), issueTitle( issueTitle ), issueBody( issueBody )
     {
         updateReportURL( );
     }
@@ -309,7 +306,6 @@ private:
     }
 };
 
-
 // nullptr POINTERS
 
 //! Class for errors generated when a pointer that should not be `nullptr` is `nullptr`.
@@ -324,17 +320,15 @@ public:
     /*!
      * Empty constructor.
      */
-    nullptrPointerError( ) : AutoReportableBugError( )
+    nullptrPointerError( ): AutoReportableBugError( )
     {
         const std::string typeName = boost::core::demangled_name( typeid( T ) );
-        errorMessage =
-                "nullptr-pointer of type " + typeName +
+        errorMessage = "nullptr-pointer of type " + typeName +
                 " is not allowed to be nullptr.\n"
                 "If you think this is not your fault, consider reporting this bug by using this link: ";
 
         const std::string title = "nullptr-pointer of type " + typeName;
-        const std::string body =
-                "I encountered this error when using Tudat's `json_interface`:\n```\n" + errorMessage + "\n```\n";
+        const std::string body = "I encountered this error when using Tudat's `json_interface`:\n```\n" + errorMessage + "\n```\n";
 
         setIssue( title, body );
     }
@@ -349,7 +343,7 @@ public:
 template< typename T >
 void assertNonnullptrPointer( const std::shared_ptr< T >& pointer )
 {
-    if ( pointer )
+    if( pointer )
     {
         return;
     }
@@ -358,8 +352,6 @@ void assertNonnullptrPointer( const std::shared_ptr< T >& pointer )
         throw nullptrPointerError< T >( );
     }
 }
-
-
 
 // ENUMS
 
@@ -374,9 +366,8 @@ public:
     /*!
      * Empty constructor.
      */
-    UnknownEnumError( ) : runtime_error( "Unknown conversion between enum and string." ) { }
+    UnknownEnumError( ): runtime_error( "Unknown conversion between enum and string." ) { }
 };
-
 
 // enum <-> std::string
 
@@ -391,17 +382,16 @@ public:
 template< typename EnumType >
 EnumType enumFromString( const std::string& stringValue, const std::map< EnumType, std::string >& stringValues )
 {
-    for ( auto entry : stringValues )
+    for( auto entry: stringValues )
     {
-        if ( stringValue == entry.second )
+        if( stringValue == entry.second )
         {
             return entry.first;
         }
     }
-    std::cerr << "Unknown string \"" << stringValue << "\" for enum " <<
-                 boost::core::demangled_name( typeid( EnumType ) ) << std::endl;
+    std::cerr << "Unknown string \"" << stringValue << "\" for enum " << boost::core::demangled_name( typeid( EnumType ) ) << std::endl;
     std::cerr << "Recognized strings:" << std::endl;
-    for ( auto entry : stringValues )
+    for( auto entry: stringValues )
     {
         std::cerr << "  " << entry.second << std::endl;
     }
@@ -419,18 +409,17 @@ EnumType enumFromString( const std::string& stringValue, const std::map< EnumTyp
 template< typename EnumType >
 std::string stringFromEnum( const EnumType enumValue, const std::map< EnumType, std::string >& stringValues )
 {
-    if ( stringValues.count( enumValue ) > 0 )
+    if( stringValues.count( enumValue ) > 0 )
     {
         return stringValues.at( enumValue );
     }
     else
     {
-        std::cerr << "Unknown string representation for enum value "
-                  << boost::core::demangled_name( typeid( EnumType ) ) << "::" << enumValue << std::endl;
+        std::cerr << "Unknown string representation for enum value " << boost::core::demangled_name( typeid( EnumType ) )
+                  << "::" << enumValue << std::endl;
         throw UnknownEnumError( );
     }
 }
-
 
 //! Class for errors generated when trying to use a value for an `enum` of type `T` that is not supported by
 //! json_interface.
@@ -449,12 +438,12 @@ public:
      * \param stringValues Map containing the string representation for the values of `EnumType`
      * (including \p enumValue).
      */
-    UnsupportedEnumError( const T enumValue, const std::map< T, std::string >& stringValues )
-        : std::runtime_error( "The value \"" + stringFromEnum( enumValue, stringValues ) + "\" for " +
-                              boost::core::demangled_name( typeid( T ) ) +
-                              "\" is not supported directly by the `json_interface`.\n" +
-                              "Write your own JSON-based C++ application if you want to use this Tudat feature " +
-                              "in combination with JSON input files." ) { }
+    UnsupportedEnumError( const T enumValue, const std::map< T, std::string >& stringValues ):
+        std::runtime_error( "The value \"" + stringFromEnum( enumValue, stringValues ) + "\" for " +
+                            boost::core::demangled_name( typeid( T ) ) + "\" is not supported directly by the `json_interface`.\n" +
+                            "Write your own JSON-based C++ application if you want to use this Tudat feature " +
+                            "in combination with JSON input files." )
+    { }
 };
 
 //! Class for errors generated when trying to use a value for an `enum` of type `EnumType` that is marked as supported
@@ -474,20 +463,17 @@ public:
      * \param stringValues Map containing the string representation for the values of `EnumType`
      * (including \p enumValue).
      */
-    UnimplementedEnumError( const EnumType enumValue, const std::map< EnumType, std::string >& stringValues )
-        : AutoReportableBugError( )
+    UnimplementedEnumError( const EnumType enumValue, const std::map< EnumType, std::string >& stringValues ): AutoReportableBugError( )
     {
         const std::string typeName = boost::core::demangled_name( typeid( EnumType ) );
         const std::string stringValue = stringFromEnum( enumValue, stringValues );
 
-        errorMessage =
-                "The value \"" + stringValue + "\" for " + typeName +
+        errorMessage = "The value \"" + stringValue + "\" for " + typeName +
                 " is marked as supported by `json_interface`, but no implementation was found.\n"
                 "This is an internal bug of Tudat. Please, report it by using this link: ";
 
         const std::string title = "Missing implementation for \"" + stringValue + "\" in json_interface";
-        const std::string body =
-                "The value \"" + stringValue + "\" for `" + typeName +
+        const std::string body = "The value \"" + stringValue + "\" for `" + typeName +
                 "` is marked as supported by `json_interface`, but no implementation was found.\n";
 
         setIssue( title, body );
@@ -509,7 +495,7 @@ void handleUnimplementedEnumValue( const EnumType enumValue,
                                    const std::map< EnumType, std::string >& stringValues,
                                    const std::vector< EnumType >& unssupportedValues )
 {
-    if ( contains( unssupportedValues, enumValue ) )
+    if( contains( unssupportedValues, enumValue ) )
     {
         UnsupportedEnumError< EnumType > error( enumValue, stringValues );
         error.what( );
@@ -521,8 +507,8 @@ void handleUnimplementedEnumValue( const EnumType enumValue,
     }
 }
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_ERRORHANDLING_H
+#endif  // TUDAT_JSONINTERFACE_ERRORHANDLING_H

@@ -50,7 +50,6 @@ typedef Eigen::Matrix< int, 6, 6 > Matrix6i;
 //! Typedef for Matrix6f.
 typedef Eigen::Matrix< float, 6, 6 > Matrix6f;
 
-
 //! Typedef for Matrix6d.
 typedef Eigen::Matrix< double, 6, 6 > Matrix6d;
 
@@ -75,6 +74,6 @@ typedef Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > MatrixXld;
 //! Typedef for VectorXld.
 typedef Eigen::Matrix< long double, Eigen::Dynamic, 1 > VectorXld;
 
-} // namespace Eigen
+}  // namespace Eigen
 
-#endif // TUDAT_BASIC_TYPEDEFS_H
+#endif  // TUDAT_BASIC_TYPEDEFS_H

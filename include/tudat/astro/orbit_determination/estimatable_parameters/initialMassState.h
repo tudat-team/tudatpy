@@ -23,45 +23,36 @@ namespace estimatable_parameters
 
 //! Interface class for the estimation of an initial rotational state.
 template< typename InitialStateParameterType = double >
-class InitialMassStateParameter: public EstimatableParameter<
-        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
+class InitialMassStateParameter : public EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
 {
 public:
-
-
-    InitialMassStateParameter(
-            const std::string& associatedBody,
-            const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialMassState ):
-        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >(
-            initial_mass_state, associatedBody ),
-        initialMassState_( initialMassState ){ }
-
+    InitialMassStateParameter( const std::string& associatedBody,
+                               const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialMassState ):
+        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( initial_mass_state, associatedBody ),
+        initialMassState_( initialMassState )
+    { }
 
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getParameterValue( )
     {
         return initialMassState_;
     }
 
-    void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  parameterValue )
+    void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
         initialMassState_ = parameterValue;
     }
-
 
     int getParameterSize( )
     {
         return 1;
     }
 
-
 private:
-
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialMassState_;
 };
 
+}  // namespace estimatable_parameters
 
-} // namespace estimatable_parameters
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_INITIALMASSSTATE_H
+#endif  // TUDAT_INITIALMASSSTATE_H

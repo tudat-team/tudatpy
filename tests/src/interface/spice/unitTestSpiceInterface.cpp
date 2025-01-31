@@ -27,9 +27,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
-
-
 #include <functional>
 #include <memory>
 
@@ -54,10 +51,10 @@ using Eigen::Vector6d;
 
 BOOST_AUTO_TEST_SUITE( test_spice_wrappers )
 
-//BOOST_AUTO_TEST_CASE( testMultiSpiceKernels )
+// BOOST_AUTO_TEST_CASE( testMultiSpiceKernels )
 //{
-//    using namespace spice_interface;
-//    using namespace physical_constants;
+//     using namespace spice_interface;
+//     using namespace physical_constants;
 
 //    spice_interface::loadStandardSpiceKernels( );
 //    spice_interface::loadSpiceKernelInTudat( paths::getSpiceKernelPath() + "/MEX_ROB_040101_041231_001.BSP" );
@@ -82,15 +79,15 @@ BOOST_AUTO_TEST_CASE( testNoKernelCrash )
     // Get state from wrapper for state:
     toggleErrorReturn( );
     suppressErrorOutput( );
-    const Eigen::Vector6d wrapperState = getBodyCartesianStateAtEpoch(
-        target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
+    const Eigen::Vector6d wrapperState =
+            getBodyCartesianStateAtEpoch( target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
     TUDAT_UNUSED_PARAMETER( wrapperState );
 }
 
 // Test 1: Test Julian day <-> Ephemeris time conversions at J2000.
 BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
 {
-    std::cout<<"Test*******************"<<std::endl;
+    std::cout << "Test*******************" << std::endl;
     using namespace spice_interface;
     using namespace input_output;
     using namespace physical_constants;
@@ -102,24 +99,20 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
     const double ephemerisTimeOneYearAfterJ2000 = JULIAN_YEAR;
 
     // Convert to Julian day.
-    const double julianDayOneYearAfterJ2000Spice = convertEphemerisTimeToJulianDate(
-                ephemerisTimeOneYearAfterJ2000 );
+    const double julianDayOneYearAfterJ2000Spice = convertEphemerisTimeToJulianDate( ephemerisTimeOneYearAfterJ2000 );
 
     // Exact Julian day at J2000.
     const double julianDayOneYearAfterJ2000 = 2451545.0 + JULIAN_YEAR_IN_DAYS;
 
     // Compare exact and converted values of Julian dat at J2000.
-    BOOST_CHECK_CLOSE_FRACTION( julianDayOneYearAfterJ2000Spice, julianDayOneYearAfterJ2000,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( julianDayOneYearAfterJ2000Spice, julianDayOneYearAfterJ2000, std::numeric_limits< double >::epsilon( ) );
 
     // Convert exact Julian day at J2000 to ephemeris time.
-    const double ephemerisTimeOneYearAfterJ2000Spice = convertJulianDateToEphemerisTime(
-                julianDayOneYearAfterJ2000 );
+    const double ephemerisTimeOneYearAfterJ2000Spice = convertJulianDateToEphemerisTime( julianDayOneYearAfterJ2000 );
 
     // Compare exact and converted values of ephemeris time at J2000.
-    BOOST_CHECK_CLOSE_FRACTION( ephemerisTimeOneYearAfterJ2000Spice,
-                                ephemerisTimeOneYearAfterJ2000,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            ephemerisTimeOneYearAfterJ2000Spice, ephemerisTimeOneYearAfterJ2000, std::numeric_limits< double >::epsilon( ) );
 }
 
 // Test 2: Test retrieval position and state of bodies.
@@ -137,32 +130,34 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_2 )
     const double ephemerisTime = 1.0E6;
 
     // Get state from wrapper for state:
-    const Eigen::Vector6d wrapperState = getBodyCartesianStateAtEpoch(
-                target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
+    const Eigen::Vector6d wrapperState =
+            getBodyCartesianStateAtEpoch( target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
 
     // Get position from wrapper for position:
-    const Eigen::Vector3d wrapperPosition = getBodyCartesianPositionAtEpoch(
-                target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
+    const Eigen::Vector3d wrapperPosition =
+            getBodyCartesianPositionAtEpoch( target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
 
     // Get state directly from spice.
     double directSpiceState[ 6 ];
     double directLightTime;
-    spkezr_c( target.c_str( ), ephemerisTime, referenceFrame.c_str( ),
-              aberrationCorrections.c_str( ), observer.c_str( ),
-              directSpiceState, &directLightTime );
+    spkezr_c( target.c_str( ),
+              ephemerisTime,
+              referenceFrame.c_str( ),
+              aberrationCorrections.c_str( ),
+              observer.c_str( ),
+              directSpiceState,
+              &directLightTime );
 
     // Compare direct and wrapped results for state.
-    for ( unsigned int i = 0; i < 6; i++ )
+    for( unsigned int i = 0; i < 6; i++ )
     {
-        BOOST_CHECK_CLOSE_FRACTION( directSpiceState[ i ] * 1000.0, wrapperState[ i ],
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( directSpiceState[ i ] * 1000.0, wrapperState[ i ], std::numeric_limits< double >::epsilon( ) );
     }
 
     // Compare direct and wrapped results for position.
-    for ( unsigned int i = 0; i < 3; i++ )
+    for( unsigned int i = 0; i < 3; i++ )
     {
-        BOOST_CHECK_CLOSE_FRACTION( directSpiceState[ i ] * 1000.0 , wrapperPosition[ i ],
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( directSpiceState[ i ] * 1000.0, wrapperPosition[ i ], std::numeric_limits< double >::epsilon( ) );
     }
 }
 
@@ -179,50 +174,39 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
     const double ephemerisTime = 1.0e6;
 
     // Check if identity matrix (no rotation) is obtained if observer and target frame are equal.
-    Eigen::Quaterniond rotationQuaternion = computeRotationQuaternionBetweenFrames(
-                observer, target, ephemerisTime );
+    Eigen::Quaterniond rotationQuaternion = computeRotationQuaternionBetweenFrames( observer, target, ephemerisTime );
     Eigen::Vector3d testVector = Eigen::Vector3d::Zero( );
     Eigen::Vector3d testVector2 = Eigen::Vector3d::Zero( );
 
-    for ( unsigned int i = 0; i < 3; i++ )
+    for( unsigned int i = 0; i < 3; i++ )
     {
         testVector = Eigen::Vector3d::Zero( );
         testVector[ i ] = 1.0;
         testVector2 = rotationQuaternion * testVector;
-        TUDAT_CHECK_MATRIX_CLOSE( testVector, testVector2,
-                                  std::numeric_limits< double >::epsilon( ) );
+        TUDAT_CHECK_MATRIX_CLOSE( testVector, testVector2, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Check if direct and wrapped results of non-trivial rotation are equal.
     target = "IAU_EARTH";
 
     // Retrieve rotation from wrapper.
-    rotationQuaternion = computeRotationQuaternionBetweenFrames(
-                observer, target, ephemerisTime );
-    Eigen::Matrix3d rotationMatrixDerivative = computeRotationMatrixDerivativeBetweenFrames(
-                observer, target, ephemerisTime );
+    rotationQuaternion = computeRotationQuaternionBetweenFrames( observer, target, ephemerisTime );
+    Eigen::Matrix3d rotationMatrixDerivative = computeRotationMatrixDerivativeBetweenFrames( observer, target, ephemerisTime );
 
     // Create rotational ephemeris with Spice
     std::shared_ptr< ephemerides::SpiceRotationalEphemeris > spiceRotationalEphemeris =
-            std::make_shared< ephemerides::SpiceRotationalEphemeris >(
-                observer, target );
-    Eigen::Quaterniond rotationQuaternionFromObject = spiceRotationalEphemeris->
-            getRotationToTargetFrame( ephemerisTime );
-    Eigen::Quaterniond inverseRotationQuaternionFromObject = spiceRotationalEphemeris->
-            getRotationToBaseFrame( ephemerisTime );
+            std::make_shared< ephemerides::SpiceRotationalEphemeris >( observer, target );
+    Eigen::Quaterniond rotationQuaternionFromObject = spiceRotationalEphemeris->getRotationToTargetFrame( ephemerisTime );
+    Eigen::Quaterniond inverseRotationQuaternionFromObject = spiceRotationalEphemeris->getRotationToBaseFrame( ephemerisTime );
 
-    Eigen::Matrix3d rotationMatrixDerivativeFromObject = spiceRotationalEphemeris->
-            getDerivativeOfRotationToTargetFrame( ephemerisTime );
-    Eigen::Matrix3d inverseRotationMatrixDerivativeFromObject = spiceRotationalEphemeris->
-            getDerivativeOfRotationToBaseFrame( ephemerisTime );
+    Eigen::Matrix3d rotationMatrixDerivativeFromObject = spiceRotationalEphemeris->getDerivativeOfRotationToTargetFrame( ephemerisTime );
+    Eigen::Matrix3d inverseRotationMatrixDerivativeFromObject =
+            spiceRotationalEphemeris->getDerivativeOfRotationToBaseFrame( ephemerisTime );
 
     // Convert result to Matrix3d for comparison.
     const Eigen::Matrix3d rotationMatrix = Eigen::Matrix3d( rotationQuaternion );
-    const Eigen::Matrix3d rotationMatrixFromObject =
-            Eigen::Matrix3d( rotationQuaternionFromObject );
-    const Eigen::Matrix3d inverseRotationMatrixFromObject =
-            Eigen::Matrix3d( inverseRotationQuaternionFromObject );
-
+    const Eigen::Matrix3d rotationMatrixFromObject = Eigen::Matrix3d( rotationQuaternionFromObject );
+    const Eigen::Matrix3d inverseRotationMatrixFromObject = Eigen::Matrix3d( inverseRotationQuaternionFromObject );
 
     // Retrieve rotation directly from spice.
     double stateTransitionMatrix[ 6 ][ 6 ];
@@ -232,70 +216,50 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
     sxform_c( target.c_str( ), observer.c_str( ), ephemerisTime, inverseStateTransitionMatrix );
 
     // Check equality of results.
-    for ( unsigned int i = 0; i < 3; i++ )
+    for( unsigned int i = 0; i < 3; i++ )
     {
-        for ( unsigned int j = 0; j < 3; j++ )
+        for( unsigned int j = 0; j < 3; j++ )
         {
-            BOOST_CHECK_SMALL( stateTransitionMatrix[ i ][ j ] - rotationMatrix( i, j ),
-                               2.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( stateTransitionMatrix[ i ][ j ] -
-                               rotationMatrixFromObject( i, j ),
+            BOOST_CHECK_SMALL( stateTransitionMatrix[ i ][ j ] - rotationMatrix( i, j ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( stateTransitionMatrix[ i ][ j ] - rotationMatrixFromObject( i, j ),
                                5.0 * std::numeric_limits< double >::epsilon( ) );
 
-            BOOST_CHECK_SMALL( stateTransitionMatrix[ i + 3 ][ j ] -
-                               rotationMatrixDerivative( i, j ),
+            BOOST_CHECK_SMALL( stateTransitionMatrix[ i + 3 ][ j ] - rotationMatrixDerivative( i, j ),
                                2.0E-4 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( stateTransitionMatrix[ i + 3 ][ j ] -
-                               rotationMatrixDerivativeFromObject( i, j ),
+            BOOST_CHECK_SMALL( stateTransitionMatrix[ i + 3 ][ j ] - rotationMatrixDerivativeFromObject( i, j ),
                                2.0E-4 * std::numeric_limits< double >::epsilon( ) );
 
-            BOOST_CHECK_SMALL( inverseStateTransitionMatrix[ i ][ j ] -
-                               inverseRotationMatrixFromObject( i, j ),
+            BOOST_CHECK_SMALL( inverseStateTransitionMatrix[ i ][ j ] - inverseRotationMatrixFromObject( i, j ),
                                2.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( inverseStateTransitionMatrix[ i + 3 ][ j ] -
-                               inverseRotationMatrixDerivativeFromObject( i, j ),
+            BOOST_CHECK_SMALL( inverseStateTransitionMatrix[ i + 3 ][ j ] - inverseRotationMatrixDerivativeFromObject( i, j ),
                                2.0E-4 * std::numeric_limits< double >::epsilon( ) );
-
         }
     }
 
     // Check whether concatenation of forward and backward rotation from object yield no rotation.
-    Eigen::Quaterniond forwardBackwardRotation =
-            rotationQuaternionFromObject * inverseRotationQuaternionFromObject;
-    BOOST_CHECK_SMALL( forwardBackwardRotation.w( ) - 1.0,
-                       std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( forwardBackwardRotation.x( ),
-                       std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( forwardBackwardRotation.y( ),
-                       std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( forwardBackwardRotation.z( ),
-                       std::numeric_limits< double >::epsilon( ) );
+    Eigen::Quaterniond forwardBackwardRotation = rotationQuaternionFromObject * inverseRotationQuaternionFromObject;
+    BOOST_CHECK_SMALL( forwardBackwardRotation.w( ) - 1.0, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( forwardBackwardRotation.x( ), std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( forwardBackwardRotation.y( ), std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( forwardBackwardRotation.z( ), std::numeric_limits< double >::epsilon( ) );
 
     // Check automatic state conversion to/from rotating frame.
-    Eigen::Vector6d stateOfMoonInJ2000 = spice_interface::getBodyCartesianStateAtEpoch(
-                "Moon", "SSB", "J2000", "NONE", 1.0E7 );
-    Eigen::Vector6d expectedStateOfMoonWrtEarth = spice_interface::getBodyCartesianStateAtEpoch(
-                "Moon", "SSB", "IAU_Earth", "NONE", 1.0E7 );
+    Eigen::Vector6d stateOfMoonInJ2000 = spice_interface::getBodyCartesianStateAtEpoch( "Moon", "SSB", "J2000", "NONE", 1.0E7 );
+    Eigen::Vector6d expectedStateOfMoonWrtEarth =
+            spice_interface::getBodyCartesianStateAtEpoch( "Moon", "SSB", "IAU_Earth", "NONE", 1.0E7 );
 
     Eigen::Vector6d computedStateOfMoonWrtEarth =
-            ephemerides::transformStateToTargetFrame(
-                stateOfMoonInJ2000, 1.0E7,  spiceRotationalEphemeris );
+            ephemerides::transformStateToTargetFrame( stateOfMoonInJ2000, 1.0E7, spiceRotationalEphemeris );
     Eigen::Vector6d computedStateOfMoonInJ2000 =
-            ephemerides::transformStateToInertialOrientation(
-                computedStateOfMoonWrtEarth, 1.0E7,  spiceRotationalEphemeris );
+            ephemerides::transformStateToInertialOrientation( computedStateOfMoonWrtEarth, 1.0E7, spiceRotationalEphemeris );
 
     for( unsigned int i = 0; i < 3; i++ )
     {
-        BOOST_CHECK_SMALL(
-                    std::fabs( expectedStateOfMoonWrtEarth( i ) - computedStateOfMoonWrtEarth( i ) ), 1.0E-4 );
-        BOOST_CHECK_SMALL(
-                    std::fabs( expectedStateOfMoonWrtEarth( i + 3 ) - computedStateOfMoonWrtEarth( i + 3 ) ), 1.0E-8 );
+        BOOST_CHECK_SMALL( std::fabs( expectedStateOfMoonWrtEarth( i ) - computedStateOfMoonWrtEarth( i ) ), 1.0E-4 );
+        BOOST_CHECK_SMALL( std::fabs( expectedStateOfMoonWrtEarth( i + 3 ) - computedStateOfMoonWrtEarth( i + 3 ) ), 1.0E-8 );
 
-        BOOST_CHECK_SMALL(
-                    std::fabs( stateOfMoonInJ2000( i ) - computedStateOfMoonInJ2000( i ) ), 1.0E-4 );
-        BOOST_CHECK_SMALL(
-                    std::fabs( stateOfMoonInJ2000( i + 3 ) - computedStateOfMoonInJ2000( i + 3 ) ), 1.0E-8 );
-
+        BOOST_CHECK_SMALL( std::fabs( stateOfMoonInJ2000( i ) - computedStateOfMoonInJ2000( i ) ), 1.0E-4 );
+        BOOST_CHECK_SMALL( std::fabs( stateOfMoonInJ2000( i + 3 ) - computedStateOfMoonInJ2000( i + 3 ) ), 1.0E-8 );
     }
 }
 
@@ -313,13 +277,11 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_4 )
     const double sunGravitationalParameter = 1.327124400420322e+20;
 
     // Check if results are the same.
-    BOOST_CHECK_CLOSE_FRACTION( sunGravitationalParameterSpice, sunGravitationalParameter,
-                                std::numeric_limits< double >::epsilon( )  );
+    BOOST_CHECK_CLOSE_FRACTION( sunGravitationalParameterSpice, sunGravitationalParameter, std::numeric_limits< double >::epsilon( ) );
 
     // Check if same result is obtained through general property retrieval function.
     sunGravitationalParameterSpice = getBodyProperties( "Sun", "GM", 1 )[ 0 ] * 1.0e9;
-    BOOST_CHECK_CLOSE_FRACTION( sunGravitationalParameterSpice, sunGravitationalParameter,
-                                std::numeric_limits< double >::epsilon( )  );
+    BOOST_CHECK_CLOSE_FRACTION( sunGravitationalParameterSpice, sunGravitationalParameter, std::numeric_limits< double >::epsilon( ) );
 
     // Retrieve average Earth radius from Spice through wrapper.
     const double averageEarthRadius = getAverageRadius( "Earth" );
@@ -327,13 +289,11 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_4 )
     // Retrieve Earth radii directly from Spice and compute average
     double spiceEarthRadii[ 3 ];
     SpiceInt numberOfReturnParameters = 0;
-    bodvrd_c( "Earth","RADII", 3, &numberOfReturnParameters, spiceEarthRadii );
-    const double directAverageEarthRadius = 1000.0 * ( spiceEarthRadii[ 0 ] + spiceEarthRadii[ 1 ]
-                                                       + spiceEarthRadii[ 2 ] ) / 3.0;
+    bodvrd_c( "Earth", "RADII", 3, &numberOfReturnParameters, spiceEarthRadii );
+    const double directAverageEarthRadius = 1000.0 * ( spiceEarthRadii[ 0 ] + spiceEarthRadii[ 1 ] + spiceEarthRadii[ 2 ] ) / 3.0;
 
     // Compare average Earth radii.
-    BOOST_CHECK_CLOSE_FRACTION( directAverageEarthRadius, averageEarthRadius,
-                                std::numeric_limits< double >::epsilon( )  );
+    BOOST_CHECK_CLOSE_FRACTION( directAverageEarthRadius, averageEarthRadius, std::numeric_limits< double >::epsilon( ) );
 
     // Check correct conversion of name to NAIF ID.
     const double naifSunId = convertBodyNameToNaifId( "Sun" );
@@ -364,38 +324,30 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     Eigen::Vector6d ephemerisState = Eigen::Vector6d( );
 
     // Check calculated state with no aberration corrections.
-    directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                aberrationCorrections, ephemerisTime );
+    directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
     ephemerisState = spiceEphemeris.getCartesianState( ephemerisTime );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
-                                       std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState, std::numeric_limits< double >::epsilon( ) );
 
     // Check calculated state with light time correction.
     spiceEphemeris = SpiceEphemeris( target, observer, 0, 1, 0, referenceFrame );
     aberrationCorrections = "LT";
-    directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                aberrationCorrections, ephemerisTime );
+    directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
     ephemerisState = spiceEphemeris.getCartesianState( ephemerisTime );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
-                                       std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState, std::numeric_limits< double >::epsilon( ) );
 
     // Check calculated state with converged light time correction.
     spiceEphemeris = SpiceEphemeris( target, observer, 0, 1, 1, referenceFrame );
     aberrationCorrections = "CN";
-    directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                aberrationCorrections, ephemerisTime );
+    directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
     ephemerisState = spiceEphemeris.getCartesianState( ephemerisTime );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
-                                       std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState, std::numeric_limits< double >::epsilon( ) );
 
     // Check calculated state with light time correction and stellar aberration.
     spiceEphemeris = SpiceEphemeris( target, observer, 1, 1, 0, referenceFrame );
     aberrationCorrections = "LT+S";
-    directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                aberrationCorrections, ephemerisTime );
+    directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
     ephemerisState = spiceEphemeris.getCartesianState( ephemerisTime );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
-                                       std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState, std::numeric_limits< double >::epsilon( ) );
 
     // Check whether exceptions are handled correctly when giving inconsistent input to
     // SpiceEphemeris constrcutor.
@@ -461,16 +413,11 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_6 )
 
     // Get state from wrapper for state:
     const Eigen::Vector6d wrapperState = getBodyCartesianStateAtEpoch(
-                target, observer, referenceFrame, aberrationCorrections,
-                convertJulianDateToEphemerisTime( julianDay ) );
+            target, observer, referenceFrame, aberrationCorrections, convertJulianDateToEphemerisTime( julianDay ) );
 
     // Set state as retrieved from Horizons (see Issue wiki-knowledgebase-spice interface)
     Eigen::Vector6d horizonsState;
-    horizonsState << 2.066392047883538e8,
-            2.364158324807732e7,
-            -4.570656418319555e6,
-            -1.850837582360033,
-            2.612355357135549e1,
+    horizonsState << 2.066392047883538e8, 2.364158324807732e7, -4.570656418319555e6, -1.850837582360033, 2.612355357135549e1,
             5.930879066959573e-1;
     horizonsState *= 1000.0;
 
@@ -514,5 +461,5 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

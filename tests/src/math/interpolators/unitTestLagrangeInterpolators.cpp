@@ -12,7 +12,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/mathematicalConstants.h"
@@ -31,12 +30,10 @@ namespace unit_tests
  *  \param evaluationPoint Independent variable at which polynomial is to be evaluated.
  *  \return Polynomial value.
  */
-double evaluatePolynomial( const std::map< int, double >& coefficients,
-                           const double evaluationPoint )
+double evaluatePolynomial( const std::map< int, double >& coefficients, const double evaluationPoint )
 {
     double polynomialValue = 0.0;
-    for( std::map< int, double >::const_iterator it = coefficients.begin( );
-         it != coefficients.end( ) ; it++ )
+    for( std::map< int, double >::const_iterator it = coefficients.begin( ); it != coefficients.end( ); it++ )
     {
         polynomialValue += it->second * std::pow( evaluationPoint, it->first );
     }
@@ -49,7 +46,7 @@ double evaluatePolynomial( const std::map< int, double >& coefficients,
  *  \param polynomialOrder Order of polynomial.
  *  \return Polynomial coefficients with the coefficient as map value and order as key.
  */
-std::map< int, double > getPolynomialCoefficients( const int polynomialOrder)
+std::map< int, double > getPolynomialCoefficients( const int polynomialOrder )
 {
     std::map< int, double > allCoefficients;
     allCoefficients[ 0 ] = 8.05425;
@@ -66,12 +63,9 @@ std::map< int, double > getPolynomialCoefficients( const int polynomialOrder)
     allCoefficients[ 11 ] = -0.000000324;
 
     // Copy subset of allCoefficients map into currentCoefficients.
-    std::map< int, double > currentCoefficients( allCoefficients.begin(),
-        std::next( allCoefficients.begin(), polynomialOrder + 1 ) );
+    std::map< int, double > currentCoefficients( allCoefficients.begin( ), std::next( allCoefficients.begin( ), polynomialOrder + 1 ) );
     return currentCoefficients;
-
 }
-
 
 //! Create quasi-random vector of non-uniform independent variables
 /*!
@@ -114,7 +108,6 @@ std::vector< double > getIndependentVariableVector( )
     return independentVariableVector;
 }
 
-
 BOOST_AUTO_TEST_SUITE( test_lagrange_interpolation )
 
 // Test whetehr Lagrange interpolator can properly reproduce polynomial interpolation
@@ -139,43 +132,34 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_polynomials )
         // Generate dependent variables
         for( unsigned int i = 0; i < independentVariableVector.size( ); i++ )
         {
-            dataMap[ independentVariableVector.at( i ) ] =
-                    evaluatePolynomial( coefficients, independentVariableVector.at( i ) );
+            dataMap[ independentVariableVector.at( i ) ] = evaluatePolynomial( coefficients, independentVariableVector.at( i ) );
         }
 
         // Create interpolator
-        interpolators::LagrangeInterpolator< double, double > interpolator =
-                interpolators::LagrangeInterpolator< double, double >(
-                    dataMap, stages, interpolators::huntingAlgorithm,
-                    interpolators::lagrange_no_boundary_interpolation );
+        interpolators::LagrangeInterpolator< double, double > interpolator = interpolators::LagrangeInterpolator< double, double >(
+                dataMap, stages, interpolators::huntingAlgorithm, interpolators::lagrange_no_boundary_interpolation );
 
         // Iterate over all data points inside allowed (i.e. non-boundary) range
         int offsetEntries = stages / 2 - 1;
-        for( unsigned int i = offsetEntries;
-             i < independentVariableVector.size( ) - ( offsetEntries + 2 ); i++ )
+        for( unsigned int i = offsetEntries; i < independentVariableVector.size( ) - ( offsetEntries + 2 ); i++ )
         {
             // Test current interval at 10 equispaced points
-            double currentStepSize =  ( independentVariableVector.at( i + 1 ) -
-                                        independentVariableVector.at( i ) ) / 10.0;
-            for( unsigned j = 0; j < 10; j ++ )
+            double currentStepSize = ( independentVariableVector.at( i + 1 ) - independentVariableVector.at( i ) ) / 10.0;
+            for( unsigned j = 0; j < 10; j++ )
             {
-                double currentDataPoint = independentVariableVector.at( i ) +
-                        static_cast< double >( j ) * currentStepSize;
+                double currentDataPoint = independentVariableVector.at( i ) + static_cast< double >( j ) * currentStepSize;
 
                 // Check interpolated value against theoretical polynomial
                 if( j < 9 )
                 {
-                    BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolate( currentDataPoint ),
-                                                evaluatePolynomial( coefficients, currentDataPoint ),
-                                                5.0E-15 );
+                    BOOST_CHECK_CLOSE_FRACTION(
+                            interpolator.interpolate( currentDataPoint ), evaluatePolynomial( coefficients, currentDataPoint ), 5.0E-15 );
                 }
                 else
                 {
-                    BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolate( currentDataPoint ),
-                                                evaluatePolynomial( coefficients, currentDataPoint ),
-                                                2.0E-14 );
+                    BOOST_CHECK_CLOSE_FRACTION(
+                            interpolator.interpolate( currentDataPoint ), evaluatePolynomial( coefficients, currentDataPoint ), 2.0E-14 );
                 }
-
             }
         }
     }
@@ -204,15 +188,17 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
             // Generate dependent variables
             for( unsigned int i = 0; i < independentVariableVectorSize; i++ )
             {
-                dataVector.push_back( evaluatePolynomial(
-                                          coefficients, independentVariableVector.at( i ) ) );
+                dataVector.push_back( evaluatePolynomial( coefficients, independentVariableVector.at( i ) ) );
             }
 
             // Create interpolator with cubic spline interpolation at boundaries
             interpolators::LagrangeInterpolator< double, double > lagrangeInterpolator =
                     interpolators::LagrangeInterpolator< double, double >(
-                        independentVariableVector, dataVector, stages,
-                        interpolators::huntingAlgorithm, static_cast< interpolators::LagrangeInterpolatorBoundaryHandling >( testCase ) );
+                            independentVariableVector,
+                            dataVector,
+                            stages,
+                            interpolators::huntingAlgorithm,
+                            static_cast< interpolators::LagrangeInterpolatorBoundaryHandling >( testCase ) );
 
             // Create spline interpolator from edge points at lower bound.
             int dataPointsForSpline = ( stages / 2 > 4 ) ? ( stages / 2 ) : 4;
@@ -224,24 +210,19 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
             interpolators::CubicSplineInterpolator< double, double > lowerBoundInterpolator =
                     interpolators::CubicSplineInterpolator< double, double >( boundaryMap );
 
-
             // Test whether the Lagrange interpolators correctly evaluate the cubic spline
             // polynomials at the lower edges.
             for( unsigned int i = 0; i < stages / 2 - 1; i++ )
             {
-                double currentStepSize = ( independentVariableVector.at( i + 1 ) -
-                                           independentVariableVector.at( i ) ) / 10.0;
-                for( unsigned int j = 0; j < 10; j ++ )
+                double currentStepSize = ( independentVariableVector.at( i + 1 ) - independentVariableVector.at( i ) ) / 10.0;
+                for( unsigned int j = 0; j < 10; j++ )
                 {
-                    double currentTestIndependentVariable = independentVariableVector.at( i ) +
-                            static_cast< double >( i ) * currentStepSize;
+                    double currentTestIndependentVariable =
+                            independentVariableVector.at( i ) + static_cast< double >( i ) * currentStepSize;
                     double interpolatedValue = lagrangeInterpolator.interpolate( currentTestIndependentVariable );
                     if( testCase < 2 )
                     {
-                        BOOST_CHECK_EQUAL(
-                            interpolatedValue,
-                            lowerBoundInterpolator.interpolate(
-                                currentTestIndependentVariable ));
+                        BOOST_CHECK_EQUAL( interpolatedValue, lowerBoundInterpolator.interpolate( currentTestIndependentVariable ) );
                     }
                     else
                     {
@@ -252,35 +233,29 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
 
             // Create spline interpolator from edge points at upper bound.
             boundaryMap.clear( );
-            for( unsigned int i = independentVariableVectorSize - dataPointsForSpline;
-                 i < independentVariableVectorSize; i++ )
+            for( unsigned int i = independentVariableVectorSize - dataPointsForSpline; i < independentVariableVectorSize; i++ )
             {
                 boundaryMap[ independentVariableVector.at( i ) ] = dataVector.at( i );
             }
             interpolators::CubicSplineInterpolator< double, double > upperBoundInterpolator =
                     interpolators::CubicSplineInterpolator< double, double >( boundaryMap );
 
-
             // Test whether the Lagrange interpolators correctly evaluate the cubic spline
             // polynomials at the uper edges.
             for( unsigned int i = 0; i < stages / 2 - 1; i++ )
             {
-                double currentStepSize =
-                        ( independentVariableVector.at( independentVariableVectorSize - i - 1 ) -
-                          independentVariableVector.at( independentVariableVectorSize - i - 2 ) ) /
+                double currentStepSize = ( independentVariableVector.at( independentVariableVectorSize - i - 1 ) -
+                                           independentVariableVector.at( independentVariableVectorSize - i - 2 ) ) /
                         10.0;
-                for( unsigned int j = 0; j < 10; j ++ )
+                for( unsigned int j = 0; j < 10; j++ )
                 {
-                    double currentTestIndependentVariable = independentVariableVector.at(
-                                independentVariableVectorSize - i - 2 ) +
+                    double currentTestIndependentVariable = independentVariableVector.at( independentVariableVectorSize - i - 2 ) +
                             static_cast< double >( i ) * currentStepSize;
                     double interpolatedValue = lagrangeInterpolator.interpolate( currentTestIndependentVariable );
 
                     if( testCase < 2 )
                     {
-                        BOOST_CHECK_EQUAL( interpolatedValue,
-                                           upperBoundInterpolator.interpolate(
-                                               currentTestIndependentVariable ));
+                        BOOST_CHECK_EQUAL( interpolatedValue, upperBoundInterpolator.interpolate( currentTestIndependentVariable ) );
                     }
                     else
                     {
@@ -306,34 +281,30 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
             // Generate dependent variables
             for( unsigned int i = 0; i < independentVariableVectorSize; i++ )
             {
-                dataVector.push_back( evaluatePolynomial(
-                                          coefficients, independentVariableVector.at( i ) ) );
+                dataVector.push_back( evaluatePolynomial( coefficients, independentVariableVector.at( i ) ) );
             }
 
             // Create interpolator lagrange_no_boundary_interpolation
             interpolators::LagrangeInterpolator< double, double > lagrangeInterpolator =
-                    interpolators::LagrangeInterpolator< double, double >(
-                        independentVariableVector, dataVector, stages,
-                        interpolators::huntingAlgorithm,
-                        interpolators::lagrange_no_boundary_interpolation );
+                    interpolators::LagrangeInterpolator< double, double >( independentVariableVector,
+                                                                           dataVector,
+                                                                           stages,
+                                                                           interpolators::huntingAlgorithm,
+                                                                           interpolators::lagrange_no_boundary_interpolation );
 
             // Test for each whether the interpolator correctly throws an exception if
             // interpolation at the lower boundary is requested.
             for( unsigned int i = 0; i < stages / 2 - 1; i++ )
             {
-                double currentStepSize =
-                        ( independentVariableVector.at( i + 1 ) -
-                          independentVariableVector.at( i ) ) / 3.0;
+                double currentStepSize = ( independentVariableVector.at( i + 1 ) - independentVariableVector.at( i ) ) / 3.0;
 
-                for( unsigned int j = 0; j < 3; j ++ )
+                for( unsigned int j = 0; j < 3; j++ )
                 {
                     try
                     {
                         double currentTestIndependentVariable =
-                                independentVariableVector.at( i ) +
-                                static_cast< double >( j ) * currentStepSize;
+                                independentVariableVector.at( i ) + static_cast< double >( j ) * currentStepSize;
                         lagrangeInterpolator.interpolate( currentTestIndependentVariable );
-
                     }
                     catch( std::runtime_error const& )
                     {
@@ -348,20 +319,16 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
             // interpolation at the upper boundary is requested.
             for( unsigned int i = 0; i < stages / 2 - 1; i++ )
             {
-                double currentStepSize = ( independentVariableVector.at(
-                                               independentVariableVectorSize - i - 1 ) -
-                                           independentVariableVector.at(
-                                               independentVariableVectorSize - i - 2 ) ) / 3.0;
-                for( unsigned int j = 0; j < 3; j ++ )
+                double currentStepSize = ( independentVariableVector.at( independentVariableVectorSize - i - 1 ) -
+                                           independentVariableVector.at( independentVariableVectorSize - i - 2 ) ) /
+                        3.0;
+                for( unsigned int j = 0; j < 3; j++ )
                 {
                     try
                     {
-                        double currentTestIndependentVariable =
-                                independentVariableVector.at(
-                                    independentVariableVectorSize - i - 2 ) +
+                        double currentTestIndependentVariable = independentVariableVector.at( independentVariableVectorSize - i - 2 ) +
                                 static_cast< double >( j ) * currentStepSize;
                         lagrangeInterpolator.interpolate( currentTestIndependentVariable );
-
                     }
                     catch( std::runtime_error const& )
                     {
@@ -374,7 +341,6 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
         }
     }
 }
-
 
 // Test to check whether the various error handling methods are correctly implemented
 BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
@@ -391,10 +357,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
         runtimeErrorOccurred = false;
         try
         {
-            interpolators::LagrangeInterpolator< double, double > interpolator =
-                    interpolators::LagrangeInterpolator< double, double >(
-                        dataMap, 8, interpolators::huntingAlgorithm,
-                        interpolators::lagrange_no_boundary_interpolation );
+            interpolators::LagrangeInterpolator< double, double > interpolator = interpolators::LagrangeInterpolator< double, double >(
+                    dataMap, 8, interpolators::huntingAlgorithm, interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error const& )
         {
@@ -409,10 +373,11 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
         {
             dataVector.push_back( 1.0 );
             interpolators::LagrangeInterpolator< double, double > interpolator =
-                    interpolators::LagrangeInterpolator< double, double >(
-                        independentVariableVector, dataVector, 8,
-                        interpolators::huntingAlgorithm,
-                        interpolators::lagrange_no_boundary_interpolation );
+                    interpolators::LagrangeInterpolator< double, double >( independentVariableVector,
+                                                                           dataVector,
+                                                                           8,
+                                                                           interpolators::huntingAlgorithm,
+                                                                           interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error const& )
         {
@@ -428,10 +393,11 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
         {
             independentVariableVector.push_back( 1.0 );
             interpolators::LagrangeInterpolator< double, double > interpolator =
-                    interpolators::LagrangeInterpolator< double, double >(
-                        independentVariableVector, dataVector, 8,
-                        interpolators::huntingAlgorithm,
-                        interpolators::lagrange_no_boundary_interpolation );
+                    interpolators::LagrangeInterpolator< double, double >( independentVariableVector,
+                                                                           dataVector,
+                                                                           8,
+                                                                           interpolators::huntingAlgorithm,
+                                                                           interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error const& )
         {
@@ -452,13 +418,10 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
             dataMap[ independentVariableVector.at( 0 ) ] = TUDAT_NAN;
             for( unsigned int i = 1; i < independentVariableVector.size( ); i++ )
             {
-                dataMap[ independentVariableVector.at( i ) ] = evaluatePolynomial(
-                            coefficients, independentVariableVector.at( i ) );
+                dataMap[ independentVariableVector.at( i ) ] = evaluatePolynomial( coefficients, independentVariableVector.at( i ) );
             }
-            interpolators::LagrangeInterpolator< double, double > interpolator =
-                    interpolators::LagrangeInterpolator< double, double >(
-                        dataMap, 8, interpolators::huntingAlgorithm,
-                        interpolators::lagrange_no_boundary_interpolation );
+            interpolators::LagrangeInterpolator< double, double > interpolator = interpolators::LagrangeInterpolator< double, double >(
+                    dataMap, 8, interpolators::huntingAlgorithm, interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error const& )
         {
@@ -477,14 +440,14 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
             dataMap[ independentVariableVector.at( 0 ) ] = TUDAT_NAN;
             for( unsigned int i = 1; i < independentVariableVector.size( ); i++ )
             {
-                dataVector.push_back( evaluatePolynomial(
-                                          coefficients, independentVariableVector.at( i ) ) );
+                dataVector.push_back( evaluatePolynomial( coefficients, independentVariableVector.at( i ) ) );
             }
             interpolators::LagrangeInterpolator< double, double > interpolator =
-                    interpolators::LagrangeInterpolator< double, double >(
-                        independentVariableVector, dataVector, 8,
-                        interpolators::huntingAlgorithm,
-                        interpolators::lagrange_no_boundary_interpolation );
+                    interpolators::LagrangeInterpolator< double, double >( independentVariableVector,
+                                                                           dataVector,
+                                                                           8,
+                                                                           interpolators::huntingAlgorithm,
+                                                                           interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error const& )
         {
@@ -499,7 +462,7 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
     // Test error throwing when making Lagrange Interpolator with odd number of stages
     {
         // Test for a range of odd number of stages
-        for( unsigned int numberOfStages = 1; numberOfStages < 12; numberOfStages+= 2 )
+        for( unsigned int numberOfStages = 1; numberOfStages < 12; numberOfStages += 2 )
         {
             // Create interpolator with odd number of stages for map constructor
             runtimeErrorOccurred = false;
@@ -508,13 +471,10 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                 coefficients = getPolynomialCoefficients( numberOfStages - 1 );
                 for( unsigned int i = 0; i < independentVariableVector.size( ); i++ )
                 {
-                    dataMap[ independentVariableVector.at( i ) ] = evaluatePolynomial(
-                                coefficients, independentVariableVector.at( i ) );
+                    dataMap[ independentVariableVector.at( i ) ] = evaluatePolynomial( coefficients, independentVariableVector.at( i ) );
                 }
-                interpolators::LagrangeInterpolator< double, double > interpolator =
-                        interpolators::LagrangeInterpolator< double, double >(
-                            dataMap, numberOfStages, interpolators::huntingAlgorithm,
-                            interpolators::lagrange_no_boundary_interpolation );
+                interpolators::LagrangeInterpolator< double, double > interpolator = interpolators::LagrangeInterpolator< double, double >(
+                        dataMap, numberOfStages, interpolators::huntingAlgorithm, interpolators::lagrange_no_boundary_interpolation );
             }
             catch( std::runtime_error const& )
             {
@@ -532,14 +492,14 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                 coefficients = getPolynomialCoefficients( numberOfStages - 1 );
                 for( unsigned int i = 0; i < independentVariableVector.size( ); i++ )
                 {
-                    dataVector.push_back( evaluatePolynomial(
-                                              coefficients, independentVariableVector.at( i ) ) );
+                    dataVector.push_back( evaluatePolynomial( coefficients, independentVariableVector.at( i ) ) );
                 }
                 interpolators::LagrangeInterpolator< double, double > interpolator =
-                        interpolators::LagrangeInterpolator< double, double >(
-                            independentVariableVector, dataVector, numberOfStages,
-                            interpolators::huntingAlgorithm,
-                            interpolators::lagrange_no_boundary_interpolation );
+                        interpolators::LagrangeInterpolator< double, double >( independentVariableVector,
+                                                                               dataVector,
+                                                                               numberOfStages,
+                                                                               interpolators::huntingAlgorithm,
+                                                                               interpolators::lagrange_no_boundary_interpolation );
             }
             catch( std::runtime_error const& )
             {
@@ -562,14 +522,14 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
             coefficients = getPolynomialCoefficients( numberOfStages - 1 );
             for( unsigned int i = 0; i < independentVariableVector.size( ) - 1; i++ )
             {
-                dataVector.push_back( evaluatePolynomial(
-                                          coefficients, independentVariableVector.at( i ) ) );
+                dataVector.push_back( evaluatePolynomial( coefficients, independentVariableVector.at( i ) ) );
             }
             interpolators::LagrangeInterpolator< double, double > interpolator =
-                    interpolators::LagrangeInterpolator< double, double >(
-                        independentVariableVector, dataVector, numberOfStages,
-                        interpolators::huntingAlgorithm,
-                        interpolators::lagrange_no_boundary_interpolation );
+                    interpolators::LagrangeInterpolator< double, double >( independentVariableVector,
+                                                                           dataVector,
+                                                                           numberOfStages,
+                                                                           interpolators::huntingAlgorithm,
+                                                                           interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error const& )
         {
@@ -582,10 +542,8 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
     }
 }
 
-
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

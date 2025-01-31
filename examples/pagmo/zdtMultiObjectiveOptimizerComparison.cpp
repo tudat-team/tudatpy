@@ -24,24 +24,18 @@
 #include "pagmo/problem.hpp"
 #include "Problems/himmelblau.h"
 
-template< typename OutputStream, typename ScalarType,
-          int NumberOfRows, int NumberOfColumns, int Options, int MaximumRows, int MaximumCols >
-void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
-                         NumberOfRows, NumberOfColumns, Options,
-                         MaximumRows, MaximumCols >& value,
-                         const int precision, const std::string& delimiter,
-                         const bool endLineAfterRow  = 0 )
+template< typename OutputStream, typename ScalarType, int NumberOfRows, int NumberOfColumns, int Options, int MaximumRows, int MaximumCols >
+void writeValueToStream( OutputStream& stream,
+                         const Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns, Options, MaximumRows, MaximumCols >& value,
+                         const int precision,
+                         const std::string& delimiter,
+                         const bool endLineAfterRow = 0 )
 {
-    for ( int i = 0; i < value.rows( ); i++ )
+    for( int i = 0; i < value.rows( ); i++ )
     {
-        for ( int j = 0; j < value.cols( ); j++ )
+        for( int j = 0; j < value.cols( ); j++ )
         {
-            stream << delimiter << " "
-                   << std::setprecision( precision ) << std::left
-                   << std::setw( precision + 1 )
-                   << value( i, j );
-
-
+            stream << delimiter << " " << std::setprecision( precision ) << std::left << std::setw( precision + 1 ) << value( i, j );
         }
         if( endLineAfterRow )
         {
@@ -52,16 +46,17 @@ void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
 }
 
 template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
-void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
-                        const std::string& outputFilename,
-                        const int precisionOfMatrixEntries = 16,
-                        const boost::filesystem::path& outputDirectory =
-        "/home/dominic/Software/optimizationBundle/tudatBundle/tudatExampleApplications/libraryExamples/Pagmo2/bin/applications/",
-                        const std::string& delimiter = "\t",
-                        const std::string& header = "" )
+void writeMatrixToFile(
+        Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
+        const std::string& outputFilename,
+        const int precisionOfMatrixEntries = 16,
+        const boost::filesystem::path& outputDirectory =
+                "/home/dominic/Software/optimizationBundle/tudatBundle/tudatExampleApplications/libraryExamples/Pagmo2/bin/applications/",
+        const std::string& delimiter = "\t",
+        const std::string& header = "" )
 {
     // Check if output directory exists; create it if it doesn't.
-    if ( !boost::filesystem::exists( outputDirectory ) )
+    if( !boost::filesystem::exists( outputDirectory ) )
     {
         boost::filesystem::create_directories( outputDirectory );
     }
@@ -73,8 +68,7 @@ void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns
     // Write header
     outputFile_ << header;
 
-    writeValueToStream( outputFile_, matrixToWrite, precisionOfMatrixEntries,
-                        delimiter, true );
+    writeValueToStream( outputFile_, matrixToWrite, precisionOfMatrixEntries, delimiter, true );
 
     outputFile_.close( );
 }
@@ -83,28 +77,26 @@ pagmo::algorithm getAlgorithm( const int index )
 {
     switch( index )
     {
-    case 0:
-    {
-        pagmo::algorithm algo{ pagmo::nsga2( ) };
-        return algo;
-        break;
-    }
-    case 1:
-    {
-        pagmo::algorithm algo{ pagmo::moead( ) };
-        return algo;
-        break;
-    }
-    case 2:
-    {
-        pagmo::algorithm algo{ pagmo::ihs( ) };
-        return algo;
-        break;
-    }
+        case 0: {
+            pagmo::algorithm algo{ pagmo::nsga2( ) };
+            return algo;
+            break;
+        }
+        case 1: {
+            pagmo::algorithm algo{ pagmo::moead( ) };
+            return algo;
+            break;
+        }
+        case 2: {
+            pagmo::algorithm algo{ pagmo::ihs( ) };
+            return algo;
+            break;
+        }
     }
 }
 
-void printPopulationToFile( const int problemIndex, const int iterationIndex,
+void printPopulationToFile( const int problemIndex,
+                            const int iterationIndex,
                             const std::vector< pagmo::vector_double >& population,
                             const bool isFitness )
 {
@@ -119,11 +111,13 @@ void printPopulationToFile( const int problemIndex, const int iterationIndex,
 
     if( !isFitness )
     {
-        writeMatrixToFile( matrixToPrint, "population_mo_" + std::to_string( problemIndex ) + "_" + std::to_string( iterationIndex ) + ".dat" );
+        writeMatrixToFile( matrixToPrint,
+                           "population_mo_" + std::to_string( problemIndex ) + "_" + std::to_string( iterationIndex ) + ".dat" );
     }
     else
     {
-        writeMatrixToFile( matrixToPrint, "fitness_mo_" + std::to_string( problemIndex ) + "_" + std::to_string( iterationIndex ) + ".dat" );
+        writeMatrixToFile( matrixToPrint,
+                           "fitness_mo_" + std::to_string( problemIndex ) + "_" + std::to_string( iterationIndex ) + ".dat" );
     }
 }
 
@@ -133,7 +127,7 @@ int main( )
 
     for( unsigned int i = 0; i < 3; i++ )
     {
-        pagmo::problem prob{ pagmo::zdt( 3, 2 ) };//my_problem( 0, 5, 0, 5) };
+        pagmo::problem prob{ pagmo::zdt( 3, 2 ) };  // my_problem( 0, 5, 0, 5) };
 
         pagmo::algorithm algo = getAlgorithm( i );
 
@@ -141,21 +135,18 @@ int main( )
 
         for( int j = 1; j <= 64; j++ )
         {
-
             isl.evolve( );
 
-            //isl.get_population( ).get_f()
+            // isl.get_population( ).get_f()
 
             printPopulationToFile( i, j, isl.get_population( ).get_x( ), false );
             printPopulationToFile( i, j, isl.get_population( ).get_f( ), true );
 
-            //std::cout << "Best x: " << isl.get_population().champion_x()[0] << std::endl;
-            //std::cout << "Best y: " << isl.get_population().champion_x()[1] << std::endl;
-            while( isl.status()!=pagmo::evolve_status::idle )
-                isl.wait();
-
+            // std::cout << "Best x: " << isl.get_population().champion_x()[0] << std::endl;
+            // std::cout << "Best y: " << isl.get_population().champion_x()[1] << std::endl;
+            while( isl.status( ) != pagmo::evolve_status::idle ) isl.wait( );
         }
-        std::cout<<i<<" done"<<std::endl;
+        std::cout << i << " done" << std::endl;
     }
     return 0;
 }

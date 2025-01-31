@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_CREATENUMERICALSIMULATOR_H
 #define TUDAT_CREATENUMERICALSIMULATOR_H
 
@@ -38,39 +37,49 @@ namespace simulation_setup
  */
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > createSingleArcDynamicsSimulator(
-        const  simulation_setup::SystemOfBodies& bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const bool areEquationsOfMotionToBeIntegrated = true,
         const bool clearNumericalSolutions = true,
         const bool setIntegratedResult = true )
 {
     return std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                bodies,propagatorSettings, areEquationsOfMotionToBeIntegrated, propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
+            bodies,
+            propagatorSettings,
+            areEquationsOfMotionToBeIntegrated,
+            propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > createDynamicsSimulator(
-        const  simulation_setup::SystemOfBodies& bodies,
+        const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const bool areEquationsOfMotionToBeIntegrated = true )
 {
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+        nullptr )
     {
         return std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodies, std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
-                    areEquationsOfMotionToBeIntegrated, propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
+                bodies,
+                std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
+                areEquationsOfMotionToBeIntegrated,
+                propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
     }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+             nullptr )
     {
         return std::make_shared< propagators::MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodies, std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
-                    areEquationsOfMotionToBeIntegrated );
+                bodies,
+                std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
+                areEquationsOfMotionToBeIntegrated );
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return std::make_shared< propagators::HybridArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
-                    areEquationsOfMotionToBeIntegrated, false );
+                bodies,
+                std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
+                areEquationsOfMotionToBeIntegrated,
+                false );
     }
     else
     {
@@ -80,53 +89,61 @@ std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > c
 
 //! Function to create variational equations solver object
 /*!
-*  Function to create variational equations solver object
-*  \param bodies Map of bodies (with names) of all bodies in integration.
-*  \param integratorSettings Settings for numerical integrator.
-*  \param propagatorSettings Settings for propagator.
-*  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
-*  \param integrateDynamicalAndVariationalEquationsConcurrently Boolean defining whether variational and dynamical
-*  equations are to be propagated concurrently (if true) or sequentially (of false)
-*  \param variationalOnlyIntegratorSettings Settings for numerical integrator when integrating only variational
-*  equations.
-*  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
-*  (default true) after propagation and resetting of state transition interface.
-*  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the
-*  end of this contructor.
-*  \return Variational equations solver object
-*/
+ *  Function to create variational equations solver object
+ *  \param bodies Map of bodies (with names) of all bodies in integration.
+ *  \param integratorSettings Settings for numerical integrator.
+ *  \param propagatorSettings Settings for propagator.
+ *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
+ *  \param integrateDynamicalAndVariationalEquationsConcurrently Boolean defining whether variational and dynamical
+ *  equations are to be propagated concurrently (if true) or sequentially (of false)
+ *  \param variationalOnlyIntegratorSettings Settings for numerical integrator when integrating only variational
+ *  equations.
+ *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
+ *  (default true) after propagation and resetting of state transition interface.
+ *  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the
+ *  end of this contructor.
+ *  \return Variational equations solver object
+ */
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType > >
-createVariationalEquationsSolver(
+std::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType > > createVariationalEquationsSolver(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet<  StateScalarType > > parametersToEstimate,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
         const bool integrateEquationsOnCreation = 1 )
 {
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+        nullptr )
     {
         return std::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodies, std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >(
-                        propagatorSettings ), parametersToEstimate, true, integrateEquationsOnCreation );
+                bodies,
+                std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
+                parametersToEstimate,
+                true,
+                integrateEquationsOnCreation );
     }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+             nullptr )
     {
         return std::make_shared< propagators::MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodies, std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >(
-                        propagatorSettings ), parametersToEstimate, integrateEquationsOnCreation );
+                bodies,
+                std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
+                parametersToEstimate,
+                integrateEquationsOnCreation );
     }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+             nullptr )
     {
         return std::make_shared< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodies, std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >(
-                        propagatorSettings ), parametersToEstimate, integrateEquationsOnCreation );
+                bodies,
+                std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
+                parametersToEstimate,
+                integrateEquationsOnCreation );
     }
     else
     {
         throw std::runtime_error( "Error when creating variational equations solver, dynamics type not recognized" );
     }
 }
-
 
 //! Function to crate interface for state transition/sensitivity matrix results
 /*!
@@ -142,26 +159,29 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
         const int dynamicalStateSize,
         const int totalParameterSize )
 {
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+        nullptr )
     {
-        return  std::make_shared<
-                propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                    dynamicalStateSize, totalParameterSize, std::vector< std::pair< int, int > >( ) );
+        return std::make_shared< propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
+                std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
+                dynamicalStateSize,
+                totalParameterSize,
+                std::vector< std::pair< int, int > >( ) );
     }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) != nullptr )
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ) !=
+             nullptr )
     {
-        return  std::make_shared<
-                propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
-                    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
-                    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
-                    std::vector< double >( ),
-                    std::vector< double >( ),
-                    std::vector< double >( ),
-                    parametersToEstimate,
-                    dynamicalStateSize, totalParameterSize,
-                    std::vector< std::vector< std::pair< int, int > > >( ));
+        return std::make_shared< propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface< StateScalarType > >(
+                std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
+                std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
+                std::vector< double >( ),
+                std::vector< double >( ),
+                std::vector< double >( ),
+                parametersToEstimate,
+                dynamicalStateSize,
+                totalParameterSize,
+                std::vector< std::vector< std::pair< int, int > > >( ) );
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
@@ -174,9 +194,8 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
     }
 }
 
+}  // namespace simulation_setup
 
-} // namespace simulation_setup
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_CREATENUMERICALSIMULATOR_H
+#endif  // TUDAT_CREATENUMERICALSIMULATOR_H

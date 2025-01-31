@@ -22,18 +22,14 @@ namespace ground_stations
 {
 
 //! Map of `PositionElementTypes` string representations.
-static std::map< coordinate_conversions::PositionElementTypes, std::string > positionElementTypes =
-{
+static std::map< coordinate_conversions::PositionElementTypes, std::string > positionElementTypes = {
     { coordinate_conversions::cartesian_position, "cartesianPosition" },
     { coordinate_conversions::spherical_position, "sphericalPosition" },
     { coordinate_conversions::geodetic_position, "geodeticPosition" }
 };
 
 //! `PositionElementTypes` not supported by `json_interface`.
-static std::vector< coordinate_conversions::PositionElementTypes > unsupportedPositionElementTypes =
-{
-};
-
+static std::vector< coordinate_conversions::PositionElementTypes > unsupportedPositionElementTypes = { };
 
 //! Convert `PositionElementTypes` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const coordinate_conversions::PositionElementTypes& positionElementType )
@@ -47,7 +43,7 @@ inline void from_json( const nlohmann::json& jsonObject, coordinate_conversions:
     positionElementType = json_interface::enumFromString( jsonObject, positionElementTypes );
 }
 
-}
+}  // namespace ground_stations
 
 namespace simulation_setup
 {
@@ -58,8 +54,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GroundStationSe
 //! Create a shared pointer to a `GroundStationSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GroundStationSettings >& groundStationSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_GROUNDSTATION_H
+#endif  // TUDAT_JSONINTERFACE_GROUNDSTATION_H

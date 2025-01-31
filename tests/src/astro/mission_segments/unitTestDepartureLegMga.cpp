@@ -19,7 +19,7 @@
 
 #include <limits>
 
-#include <boost/test/tools/floating_point_comparison.hpp> 
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -50,24 +50,17 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     // GTOP software distributed and downloadable from the ESA website, or within the PaGMO
     // Astrotoolbox.
     const double expectedDeltaV = 2754.63598732926;
-    const Eigen::Vector3d expectedVelocity ( 34216.4827530912, -15170.1440677825,
-                                             395.792122152361 );
+    const Eigen::Vector3d expectedVelocity( 34216.4827530912, -15170.1440677825, 395.792122152361 );
 
     // Specify the required parameters.
     // Set the planetary positions and velocities.
     const Eigen::Vector6d planet1State =
-            ( Eigen::Vector6d( ) <<
-              113191651440.549, 95992973233.5064, 0.0,
-              -19752.2624404406, 22607.9064746733, 0.0 ).finished( );
-    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris1 =
-            std::make_shared< ephemerides::ConstantEphemeris >( planet1State );
+            ( Eigen::Vector6d( ) << 113191651440.549, 95992973233.5064, 0.0, -19752.2624404406, 22607.9064746733, 0.0 ).finished( );
+    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris1 = std::make_shared< ephemerides::ConstantEphemeris >( planet1State );
 
     const Eigen::Vector6d planet2State =
-            ( Eigen::Vector6d( ) <<
-              -35554348960.8278, -102574987127.178, 648696819.780156,
-              TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
-    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris2 =
-            std::make_shared< ephemerides::ConstantEphemeris >( planet2State );
+            ( Eigen::Vector6d( ) << -35554348960.8278, -102574987127.178, 648696819.780156, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
+    std::shared_ptr< ephemerides::Ephemeris > constantEphemeris2 = std::make_shared< ephemerides::ConstantEphemeris >( planet2State );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 158.302027105278 * physical_constants::JULIAN_DAY;
@@ -76,10 +69,8 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     const double sunGravitationalParameter = 1.32712428e20;
 
     using namespace mission_segments;
-    UnpoweredUnperturbedTransferLeg transferLeg(
-                constantEphemeris1, constantEphemeris2,
-                sunGravitationalParameter );
-    transferLeg.updateLegParameters( ( Eigen::VectorXd( 2 )<<0.0, timeOfFlight ).finished( ) );
+    UnpoweredUnperturbedTransferLeg transferLeg( constantEphemeris1, constantEphemeris2, sunGravitationalParameter );
+    transferLeg.updateLegParameters( ( Eigen::VectorXd( 2 ) << 0.0, timeOfFlight ).finished( ) );
 
     // Set the Earth gravitational parameters.
     const double earthGravitationalParameter = 3.9860119e14;
@@ -88,14 +79,10 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     const double semiMajorAxis = std::numeric_limits< double >::infinity( );
     const double eccentricity = 0.;
 
-    Eigen::Vector3d departureVelocity =
-            transferLeg.getDepartureVelocity( );
+    Eigen::Vector3d departureVelocity = transferLeg.getDepartureVelocity( );
     DepartureWithFixedOutgoingVelocityNode departureNode(
-                constantEphemeris1,
-                earthGravitationalParameter, semiMajorAxis, eccentricity,
-                [=]( ){ return departureVelocity; } );
-    departureNode.updateNodeParameters( ( Eigen::VectorXd( 1 )<< 0.0 ).finished( ) );
-
+            constantEphemeris1, earthGravitationalParameter, semiMajorAxis, eccentricity, [ = ]( ) { return departureVelocity; } );
+    departureNode.updateNodeParameters( ( Eigen::VectorXd( 1 ) << 0.0 ).finished( ) );
 
     // Prepare the variables for the results.
     Eigen::Vector3d resultingVelocity = transferLeg.getArrivalVelocity( );
@@ -117,18 +104,15 @@ BOOST_AUTO_TEST_CASE( testVelocities )
 
     // Check if Keplerian state (slow elements) is the same for each output point
     Eigen::Vector6d previousKeplerianState = Eigen::Vector6d::Constant( TUDAT_NAN );
-    for( auto it : statesAlongTrajectory )
+    for( auto it: statesAlongTrajectory )
     {
         Eigen::Vector6d currentCartesianState = it.second;
-        Eigen::Vector6d currentKeplerianState = tudat::orbital_element_conversions::convertCartesianToKeplerianElements(
-                    currentCartesianState, sunGravitationalParameter );
+        Eigen::Vector6d currentKeplerianState =
+                tudat::orbital_element_conversions::convertCartesianToKeplerianElements( currentCartesianState, sunGravitationalParameter );
         if( previousKeplerianState == previousKeplerianState )
         {
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        ( previousKeplerianState.segment( 0, 5 ) ),
-                        ( currentKeplerianState.segment( 0, 5 ) ),
-                        1.0E-14 );
-
+                    ( previousKeplerianState.segment( 0, 5 ) ), ( currentKeplerianState.segment( 0, 5 ) ), 1.0E-14 );
         }
         previousKeplerianState = currentKeplerianState;
     }
@@ -140,8 +124,6 @@ BOOST_AUTO_TEST_CASE( testVelocities )
         BOOST_CHECK_SMALL( std::fabs( statesAlongTrajectory.rbegin( )->second( i ) - planet2State( i ) ), 1.0E-2 );
     }
 
-
-
     // Get thrust acceleration on 10 equispace points on trajectory
     std::map< double, Eigen::Vector3d > thrustAccelerationsAlongTrajectory;
     transferLeg.getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, 10 );
@@ -151,14 +133,14 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     BOOST_CHECK_CLOSE_FRACTION( thrustAccelerationsAlongTrajectory.rbegin( )->first, timeOfFlight, 1.0E-14 );
 
     // Check if thrust acceleration is zero
-    for( auto it : thrustAccelerationsAlongTrajectory )
+    for( auto it: thrustAccelerationsAlongTrajectory )
     {
         Eigen::Vector3d currentCartesianThrustAcceleration = it.second;
-        BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm(), 1.0E-14 );
+        BOOST_CHECK_SMALL( currentCartesianThrustAcceleration.norm( ), 1.0E-14 );
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

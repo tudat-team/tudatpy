@@ -26,8 +26,7 @@ namespace propagators
 class SingleDependentVariableSaveSettings;
 
 //! Enum listing the available types of propagation termination settings.
-enum PropagationTerminationTypes
-{
+enum PropagationTerminationTypes {
     time_stopping_condition = 0,
     cpu_time_stopping_condition = 1,
     dependent_variable_stopping_condition = 2,
@@ -35,7 +34,6 @@ enum PropagationTerminationTypes
     custom_stopping_condition = 4,
     non_sequential_stopping_condition = 5
 };
-
 
 //! Base class for defining propagation termination settings.
 /*!
@@ -45,7 +43,6 @@ enum PropagationTerminationTypes
 class PropagationTerminationSettings
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -55,10 +52,11 @@ public:
      */
     PropagationTerminationSettings( const PropagationTerminationTypes terminationType,
                                     const bool checkTerminationToExactCondition = false ):
-        terminationType_( terminationType ), checkTerminationToExactCondition_( checkTerminationToExactCondition ){ }
+        terminationType_( terminationType ), checkTerminationToExactCondition_( checkTerminationToExactCondition )
+    { }
 
     //! Destructor
-    virtual ~PropagationTerminationSettings( ){ }
+    virtual ~PropagationTerminationSettings( ) { }
 
     //! Type of stopping condition that is to be used.
     PropagationTerminationTypes terminationType_;
@@ -66,7 +64,6 @@ public:
     //! Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate
     //! on the first step where it is violated.
     bool checkTerminationToExactCondition_;
-
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time
@@ -74,10 +71,9 @@ public:
  *  Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time. Note that the
  *  propagator will finish a given time step, slightly surpassing the defined final time.
  */
-class PropagationTimeTerminationSettings: public PropagationTerminationSettings
+class PropagationTimeTerminationSettings : public PropagationTerminationSettings
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -85,17 +81,15 @@ public:
      * \param checkTerminationToExactCondition Boolean to denote whether the propagation is to terminate exactly on the final
      * condition, or whether it is to terminate on the first step where it is violated.
      */
-    PropagationTimeTerminationSettings( const double terminationTime,
-                                        const bool checkTerminationToExactCondition = false ):
-        PropagationTerminationSettings( time_stopping_condition, checkTerminationToExactCondition ),
-        terminationTime_( terminationTime ){ }
+    PropagationTimeTerminationSettings( const double terminationTime, const bool checkTerminationToExactCondition = false ):
+        PropagationTerminationSettings( time_stopping_condition, checkTerminationToExactCondition ), terminationTime_( terminationTime )
+    { }
 
     //! Destructor
-    ~PropagationTimeTerminationSettings( ){ }
+    ~PropagationTimeTerminationSettings( ) { }
 
     //! Maximum time for the propagation, upon which the propagation is to be stopped
     double terminationTime_;
-
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of CPU time
@@ -103,25 +97,23 @@ public:
  *  Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of CPU time.
  *  Note that the propagator will finish a given time step, slightly surpassing the defined final CPU time.
  */
-class PropagationCPUTimeTerminationSettings: public PropagationTerminationSettings
+class PropagationCPUTimeTerminationSettings : public PropagationTerminationSettings
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param cpuTerminationTime Maximum cpu time for the propagation, upon which the propagation is to be stopped
      */
     PropagationCPUTimeTerminationSettings( const double cpuTerminationTime ):
-        PropagationTerminationSettings( cpu_time_stopping_condition ),
-        cpuTerminationTime_( cpuTerminationTime ){ }
+        PropagationTerminationSettings( cpu_time_stopping_condition ), cpuTerminationTime_( cpuTerminationTime )
+    { }
 
     //! Destructor
-    ~PropagationCPUTimeTerminationSettings( ){ }
+    ~PropagationCPUTimeTerminationSettings( ) { }
 
     //! Maximum cpu time for the propagation, upon which the propagation is to be stopped
     double cpuTerminationTime_;
-
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a given dependent variable reaches a
@@ -133,10 +125,9 @@ public:
  *  Note that the propagator will finish a given time step, slightly surpassing the defined limit value of the dependent
  *  variable
  */
-class PropagationDependentVariableTerminationSettings: public PropagationTerminationSettings
+class PropagationDependentVariableTerminationSettings : public PropagationTerminationSettings
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -154,20 +145,19 @@ public:
             const bool useAsLowerLimit,
             const bool checkTerminationToExactCondition = false,
             const std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = nullptr ):
-        PropagationTerminationSettings(
-            dependent_variable_stopping_condition, checkTerminationToExactCondition ),
-        dependentVariableSettings_( dependentVariableSettings ),
-        limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ),
+        PropagationTerminationSettings( dependent_variable_stopping_condition, checkTerminationToExactCondition ),
+        dependentVariableSettings_( dependentVariableSettings ), limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ),
         terminationRootFinderSettings_( terminationRootFinderSettings )
     {
         if( checkTerminationToExactCondition_ && ( terminationRootFinderSettings_ == nullptr ) )
         {
-            throw std::runtime_error( "Error when defining exact dependent variable propagation termination settings. Root finder not defined." );
+            throw std::runtime_error(
+                    "Error when defining exact dependent variable propagation termination settings. Root finder not defined." );
         }
     }
 
     //! Destructor
-    ~PropagationDependentVariableTerminationSettings( ){ }
+    ~PropagationDependentVariableTerminationSettings( ) { }
 
     //! Settings for dependent variable that is to be checked
     std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings_;
@@ -188,10 +178,9 @@ public:
  *  Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time. Note that the
  *  propagator will finish a given time step, slightly surpassing the defined final time.
  */
-class PropagationCustomTerminationSettings: public PropagationTerminationSettings
+class PropagationCustomTerminationSettings : public PropagationTerminationSettings
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -200,18 +189,18 @@ public:
      */
     PropagationCustomTerminationSettings( const std::function< bool( const double ) >& checkStopCondition ):
         PropagationTerminationSettings( custom_stopping_condition ),
-        checkStopCondition_( [=]( const double time, const Eigen::MatrixXd&  ){ return checkStopCondition( time ); } ){ }
+        checkStopCondition_( [ = ]( const double time, const Eigen::MatrixXd& ) { return checkStopCondition( time ); } )
+    { }
 
-    PropagationCustomTerminationSettings( const std::function< bool( const double, const Eigen::MatrixXd&  ) >& checkStopCondition ):
-        PropagationTerminationSettings( custom_stopping_condition ),
-        checkStopCondition_( checkStopCondition ){ }
+    PropagationCustomTerminationSettings( const std::function< bool( const double, const Eigen::MatrixXd& ) >& checkStopCondition ):
+        PropagationTerminationSettings( custom_stopping_condition ), checkStopCondition_( checkStopCondition )
+    { }
 
     //! Destructor
-    ~PropagationCustomTerminationSettings( ){ }
+    ~PropagationCustomTerminationSettings( ) { }
 
     //! Custom temination function.
     std::function< bool( const double, const Eigen::MatrixXd& ) > checkStopCondition_;
-
 };
 
 //! Class for propagation stopping conditions settings: combination of other stopping conditions.
@@ -220,10 +209,9 @@ public:
  *  to define that all of any number of conditions must be met, or that a single of these settings must be met to
  *  stop the propagation.
  */
-class PropagationHybridTerminationSettings: public PropagationTerminationSettings
+class PropagationHybridTerminationSettings : public PropagationTerminationSettings
 {
 public:
-
     //! Constructor
     /*!
      * \brief PropagationHybridTerminationSettings
@@ -231,11 +219,9 @@ public:
      * \param fulfillSingleCondition Boolean denoting whether a single (if true) or all (if false) of the conditions
      * defined by the entries in the terminationSettings list should be met.
      */
-    PropagationHybridTerminationSettings(
-            const std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationSettings,
-            const bool fulfillSingleCondition = false ):
-        PropagationTerminationSettings( hybrid_stopping_condition ),
-        terminationSettings_( terminationSettings ),
+    PropagationHybridTerminationSettings( const std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationSettings,
+                                          const bool fulfillSingleCondition = false ):
+        PropagationTerminationSettings( hybrid_stopping_condition ), terminationSettings_( terminationSettings ),
         fulfillSingleCondition_( fulfillSingleCondition )
     {
         checkTerminationToExactCondition_ = false;
@@ -249,7 +235,7 @@ public:
     }
 
     //! Destructor
-    ~PropagationHybridTerminationSettings( ){ }
+    ~PropagationHybridTerminationSettings( ) { }
 
     //! List of termination settings for which stopping conditions are created.
     std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationSettings_;
@@ -257,7 +243,6 @@ public:
     //! Boolean denoting whether a single (if true) or all (if false) of the conditions
     //! defined by the entries in the terminationSettings list should be met.
     bool fulfillSingleCondition_;
-
 };
 
 //! Class for propagation stopping conditions settings: combination of two stopping conditions.
@@ -265,35 +250,31 @@ public:
  *  Class for propagation stopping conditions settings: combination of two stopping conditions. This class should be used
  *  to define a "forward" and a "backward" propagation legs.
  */
-class NonSequentialPropagationTerminationSettings: public PropagationTerminationSettings
+class NonSequentialPropagationTerminationSettings : public PropagationTerminationSettings
 {
 public:
-
     //! Constructor
     /*!
      * \brief NonSequentialPropagationTerminationSettings
      * \param forwardTerminationSettings Termination settings for forward propagation.
      * \param backwardTerminationSettings Termination settings for backward propagation.
      */
-    NonSequentialPropagationTerminationSettings(
-            const std::shared_ptr< PropagationTerminationSettings > forwardTerminationSettings,
-            const std::shared_ptr< PropagationTerminationSettings > backwardTerminationSettings ):
-            PropagationTerminationSettings( non_sequential_stopping_condition ),
-            forwardTerminationSettings_( forwardTerminationSettings ),
-            backwardTerminationSettings_( backwardTerminationSettings )
+    NonSequentialPropagationTerminationSettings( const std::shared_ptr< PropagationTerminationSettings > forwardTerminationSettings,
+                                                 const std::shared_ptr< PropagationTerminationSettings > backwardTerminationSettings ):
+        PropagationTerminationSettings( non_sequential_stopping_condition ), forwardTerminationSettings_( forwardTerminationSettings ),
+        backwardTerminationSettings_( backwardTerminationSettings )
     {
         checkTerminationToExactCondition_ = forwardTerminationSettings_->checkTerminationToExactCondition_;
     }
 
     //! Destructor
-    ~NonSequentialPropagationTerminationSettings( ){ }
+    ~NonSequentialPropagationTerminationSettings( ) { }
 
     //! Termination settings for forward propagation leg.
     std::shared_ptr< PropagationTerminationSettings > forwardTerminationSettings_;
 
     //! Termination settings for backward propagation leg.
     std::shared_ptr< PropagationTerminationSettings > backwardTerminationSettings_;
-
 };
 
 inline std::shared_ptr< PropagationTerminationSettings > propagationDependentVariableTerminationSettings(
@@ -304,59 +285,49 @@ inline std::shared_ptr< PropagationTerminationSettings > propagationDependentVar
         const std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = nullptr )
 {
     return std::make_shared< PropagationDependentVariableTerminationSettings >(
-                dependentVariableSettings, limitValue, useAsLowerLimit, checkTerminationToExactCondition,
-                terminationRootFinderSettings );
+            dependentVariableSettings, limitValue, useAsLowerLimit, checkTerminationToExactCondition, terminationRootFinderSettings );
 }
 
 inline std::shared_ptr< PropagationTerminationSettings > propagationTimeTerminationSettings(
         const double terminationTime,
-        const bool checkTerminationToExactCondition = false  )
+        const bool checkTerminationToExactCondition = false )
 {
-    return std::make_shared< PropagationTimeTerminationSettings >(
-                terminationTime, checkTerminationToExactCondition );
+    return std::make_shared< PropagationTimeTerminationSettings >( terminationTime, checkTerminationToExactCondition );
 }
 
-inline std::shared_ptr< PropagationTerminationSettings > propagationCPUTimeTerminationSettings(
-        const double cpuTerminationTime )
+inline std::shared_ptr< PropagationTerminationSettings > propagationCPUTimeTerminationSettings( const double cpuTerminationTime )
 {
-    return std::make_shared< PropagationCPUTimeTerminationSettings >(
-                cpuTerminationTime );
+    return std::make_shared< PropagationCPUTimeTerminationSettings >( cpuTerminationTime );
 }
 
 inline std::shared_ptr< PropagationTerminationSettings > propagationHybridTerminationSettings(
         const std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationSettings,
         const bool fulfillSingleCondition = false )
 {
-    return std::make_shared< PropagationHybridTerminationSettings >(
-                terminationSettings, fulfillSingleCondition );
+    return std::make_shared< PropagationHybridTerminationSettings >( terminationSettings, fulfillSingleCondition );
 }
 
 inline std::shared_ptr< PropagationTerminationSettings > popagationCustomTerminationSettings(
         const std::function< bool( const double ) > checkStopCondition )
 {
-    return std::make_shared< PropagationCustomTerminationSettings >(
-                checkStopCondition );
+    return std::make_shared< PropagationCustomTerminationSettings >( checkStopCondition );
 }
 
 inline std::shared_ptr< PropagationTerminationSettings > popagationCustomTerminationSettingsFromFullState(
-    const std::function< bool( const double, const Eigen::MatrixXd& ) > checkStopCondition )
+        const std::function< bool( const double, const Eigen::MatrixXd& ) > checkStopCondition )
 {
-    return std::make_shared< PropagationCustomTerminationSettings >(
-        checkStopCondition );
+    return std::make_shared< PropagationCustomTerminationSettings >( checkStopCondition );
 }
 
 inline std::shared_ptr< PropagationTerminationSettings > nonSequentialPropagationTerminationSettings(
         const std::shared_ptr< PropagationTerminationSettings > forwardTerminationSettings,
         const std::shared_ptr< PropagationTerminationSettings > backwardTerminationSettings )
 {
-    return std::make_shared< NonSequentialPropagationTerminationSettings >(
-            forwardTerminationSettings, backwardTerminationSettings );
+    return std::make_shared< NonSequentialPropagationTerminationSettings >( forwardTerminationSettings, backwardTerminationSettings );
 }
 
+}  // namespace propagators
 
+}  // namespace tudat
 
-} // namespace propagators
-
-} // namespace tudat
-
-#endif // TUDAT_PROPAGATIONTERMINATIONSETTINGS_H
+#endif  // TUDAT_PROPAGATIONTERMINATIONSETTINGS_H

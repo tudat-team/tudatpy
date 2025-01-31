@@ -34,9 +34,11 @@ namespace gravitation
  *  \return Spherical harmonic cosine coefficient (non-normalized) of triaxial ellipsoid at
  *  requested degree and order.
  */
-double calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity(
-        const double aSquaredMinusCSquared, const double bSquaredMinusCSquared,
-        const double referenceRadius, const int degree, const int order );
+double calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity( const double aSquaredMinusCSquared,
+                                                                        const double bSquaredMinusCSquared,
+                                                                        const double referenceRadius,
+                                                                        const int degree,
+                                                                        const int order );
 
 //! Function to calculate triaxial ellipsoid reference radius
 /*!
@@ -47,8 +49,7 @@ double calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity(
  *  \param axisC Smallest axis of triaxial ellipsoid
  *  \return Triaxial ellipsoid reference radius of spherical harmonic expansion
  */
-double calculateTriAxialEllipsoidReferenceRadius(
-        const double axisA, const double axisB, const double axisC );
+double calculateTriAxialEllipsoidReferenceRadius( const double axisA, const double axisB, const double axisC );
 
 //! Function to calculate triaxial ellipsoid volume
 /*!
@@ -58,8 +59,7 @@ double calculateTriAxialEllipsoidReferenceRadius(
  *  \param axisC Smallest axis of triaxial ellipsoid
  *  \return Volume of triaxial ellipsoid.
  */
-double calculateTriAxialEllipsoidVolume(
-        const double axisA, const double axisB, const double axisC );
+double calculateTriAxialEllipsoidVolume( const double axisA, const double axisB, const double axisC );
 
 //! Function to calculate (non-normalized) cosine spherical harmonic coefficients for a homogeneous
 //! triaxial ellipsoid
@@ -75,9 +75,11 @@ double calculateTriAxialEllipsoidVolume(
  *  \return Spherical harmonic cosine coefficient matrix (non-normalized) of triaxial ellipsoid up
  *  to requested degree and order.
  */
-Eigen::MatrixXd createTriAxialEllipsoidSphericalHarmonicCosineCoefficients(
-        const double axisA, const double axisB, const double axisC,
-        const int maximumDegree, const int maximumOrder );
+Eigen::MatrixXd createTriAxialEllipsoidSphericalHarmonicCosineCoefficients( const double axisA,
+                                                                            const double axisB,
+                                                                            const double axisC,
+                                                                            const int maximumDegree,
+                                                                            const int maximumOrder );
 
 //! Function to calculate (non-normalized) cosine and sine spherical harmonic coefficients for a
 //! homogeneous triaxial ellipsoid
@@ -95,9 +97,11 @@ Eigen::MatrixXd createTriAxialEllipsoidSphericalHarmonicCosineCoefficients(
  *  \return Spherical harmonic cosine and coefficient matrix (non-normalized) pair of triaxial
  *  ellipsoid up to requested degree and order.
  */
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidSphericalHarmonicCoefficients(
-        const double axisA, const double axisB, const double axisC,
-        const int maximumDegree, const int maximumOrder );
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidSphericalHarmonicCoefficients( const double axisA,
+                                                                                                    const double axisB,
+                                                                                                    const double axisC,
+                                                                                                    const int maximumDegree,
+                                                                                                    const int maximumOrder );
 
 //! Function to calculate (normalized) cosine and sine spherical harmonic coefficients for a
 //! homogeneous triaxial ellipsoid
@@ -115,11 +119,13 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidSphericalHa
  *  \return Spherical harmonic cosine and coefficient matrix (normalized) pair of triaxial
  *  ellipsoid up to requested degree and order.
  */
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
-        const double axisA, const double axisB, const double axisC,
-        const int maximumDegree, const int maximumOrder );
-}
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients( const double axisA,
+                                                                                                              const double axisB,
+                                                                                                              const double axisC,
+                                                                                                              const int maximumDegree,
+                                                                                                              const int maximumOrder );
+}  // namespace gravitation
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_TRIAXIALELLIPSOIDGRAVITY_H
+#endif  // TUDAT_TRIAXIALELLIPSOIDGRAVITY_H

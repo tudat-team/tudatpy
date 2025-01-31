@@ -34,6 +34,6 @@ namespace observation_partials
 ////template class ObservationPartialWrtArcWiseTimeDriftBias< 2 >;
 ////template class ObservationPartialWrtArcWiseTimeDriftBias< 3 >;
 
-}
+}  // namespace observation_partials
 
-}
+}  // namespace tudat

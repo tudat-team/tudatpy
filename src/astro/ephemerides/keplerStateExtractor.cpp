@@ -19,8 +19,6 @@
 
 #include <stdexcept>
 
-
-
 #include "tudat/astro/basic_astro/orbitalElementConversions.h"
 
 #include "tudat/astro/basic_astro/convertMeanToEccentricAnomalies.h"
@@ -34,24 +32,20 @@ namespace ephemerides
 {
 
 //! Extract the Keplerian Elements.
-std::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
-        ParsedDataLineMapPtr dataLineMap )
+std::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract( ParsedDataLineMapPtr dataLineMap )
 {
     // Short-hand notation.
     namespace parsed_data_vector_utilities = input_output::parsed_data_vector_utilities;
     using Eigen::Vector6d;
 
     // Create a new KeplerianElements object.
-    std::shared_ptr< Vector6d > keplerianElements
-            = std::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
+    std::shared_ptr< Vector6d > keplerianElements = std::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
 
     // Find and set semi-major axis.
-    if ( checkOptionalFieldType( dataLineMap, 1,
-                                 input_output::field_types::state::semiMajorAxis ) )
+    if( checkOptionalFieldType( dataLineMap, 1, input_output::field_types::state::semiMajorAxis ) )
     {
-        ( *keplerianElements )( orbital_element_conversions::semiMajorAxisIndex )
-                = parsed_data_vector_utilities::getField< double >(
-                    dataLineMap, input_output::field_types::state::semiMajorAxis );
+        ( *keplerianElements )( orbital_element_conversions::semiMajorAxisIndex ) =
+                parsed_data_vector_utilities::getField< double >( dataLineMap, input_output::field_types::state::semiMajorAxis );
     }
 
     else
@@ -60,12 +54,10 @@ std::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
     }
 
     // Find and set eccentricity.
-    if ( checkOptionalFieldType( dataLineMap, 1,
-                                 input_output::field_types::state::eccentricity ) )
+    if( checkOptionalFieldType( dataLineMap, 1, input_output::field_types::state::eccentricity ) )
     {
-        ( *keplerianElements )( orbital_element_conversions::eccentricityIndex )
-                = parsed_data_vector_utilities::getField< double >(
-                    dataLineMap, input_output::field_types::state::eccentricity );
+        ( *keplerianElements )( orbital_element_conversions::eccentricityIndex ) =
+                parsed_data_vector_utilities::getField< double >( dataLineMap, input_output::field_types::state::eccentricity );
     }
 
     else
@@ -74,12 +66,10 @@ std::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
     }
 
     // Find and set inclination.
-    if ( checkOptionalFieldType( dataLineMap, 1,
-                                 input_output::field_types::state::inclination ) )
+    if( checkOptionalFieldType( dataLineMap, 1, input_output::field_types::state::inclination ) )
     {
-        ( *keplerianElements )( orbital_element_conversions::inclinationIndex )
-                = parsed_data_vector_utilities::getField< double >(
-                    dataLineMap, input_output::field_types::state::inclination );
+        ( *keplerianElements )( orbital_element_conversions::inclinationIndex ) =
+                parsed_data_vector_utilities::getField< double >( dataLineMap, input_output::field_types::state::inclination );
     }
 
     else
@@ -88,12 +78,10 @@ std::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
     }
 
     // Find and set longitude of ascending node.
-    if ( checkOptionalFieldType( dataLineMap, 1,
-                                 input_output::field_types::state::longitudeOfAscendingNode ) )
+    if( checkOptionalFieldType( dataLineMap, 1, input_output::field_types::state::longitudeOfAscendingNode ) )
     {
-        ( *keplerianElements )( orbital_element_conversions::longitudeOfAscendingNodeIndex )
-                = parsed_data_vector_utilities::getField< double >(
-                    dataLineMap, input_output::field_types::state::longitudeOfAscendingNode );
+        ( *keplerianElements )( orbital_element_conversions::longitudeOfAscendingNodeIndex ) =
+                parsed_data_vector_utilities::getField< double >( dataLineMap, input_output::field_types::state::longitudeOfAscendingNode );
     }
 
     else
@@ -102,12 +90,10 @@ std::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
     }
 
     // Find and set argument of periapsis.
-    if ( checkOptionalFieldType( dataLineMap, 1,
-                                 input_output::field_types::state::argumentOfPeriapsis ) )
+    if( checkOptionalFieldType( dataLineMap, 1, input_output::field_types::state::argumentOfPeriapsis ) )
     {
-        ( *keplerianElements )( orbital_element_conversions::argumentOfPeriapsisIndex )
-                = parsed_data_vector_utilities::getField< double >(
-                    dataLineMap, input_output::field_types::state::argumentOfPeriapsis );
+        ( *keplerianElements )( orbital_element_conversions::argumentOfPeriapsisIndex ) =
+                parsed_data_vector_utilities::getField< double >( dataLineMap, input_output::field_types::state::argumentOfPeriapsis );
     }
 
     else
@@ -116,34 +102,28 @@ std::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
     }
 
     // Find and set true anomaly.
-    if ( checkOptionalFieldType( dataLineMap, 1,
-                                 input_output::field_types::state::trueAnomaly ) )
+    if( checkOptionalFieldType( dataLineMap, 1, input_output::field_types::state::trueAnomaly ) )
     {
-        ( *keplerianElements )( orbital_element_conversions::trueAnomalyIndex )
-                = parsed_data_vector_utilities::getField< double >(
-                    dataLineMap, input_output::field_types::state::trueAnomaly );
+        ( *keplerianElements )( orbital_element_conversions::trueAnomalyIndex ) =
+                parsed_data_vector_utilities::getField< double >( dataLineMap, input_output::field_types::state::trueAnomaly );
     }
 
     // If the true anomaly is not present, check for mean anomaly.
-    else if ( checkOptionalFieldType( dataLineMap, 1,
-                                      input_output::field_types::state::meanAnomaly ) )
+    else if( checkOptionalFieldType( dataLineMap, 1, input_output::field_types::state::meanAnomaly ) )
     {
         // Store mean anomaly.
-        const double meanAnomaly = parsed_data_vector_utilities::getField< double >(
-                    dataLineMap, input_output::field_types::state::meanAnomaly );
+        const double meanAnomaly =
+                parsed_data_vector_utilities::getField< double >( dataLineMap, input_output::field_types::state::meanAnomaly );
 
         // Retrieve eccentricity.
-        const double eccentricity
-                = ( *keplerianElements )( orbital_element_conversions::eccentricityIndex );
+        const double eccentricity = ( *keplerianElements )( orbital_element_conversions::eccentricityIndex );
 
         // Convert to eccentric anomaly.
-        const double eccentricAnomaly = orbital_element_conversions::
-                convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly );
+        const double eccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly );
 
         // Convert eccentric anomaly to true anomaly and set the latter.
-        ( *keplerianElements )( orbital_element_conversions::trueAnomalyIndex )
-                = orbital_element_conversions::
-                convertEccentricAnomalyToTrueAnomaly( eccentricAnomaly, eccentricity );
+        ( *keplerianElements )( orbital_element_conversions::trueAnomalyIndex ) =
+                orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly( eccentricAnomaly, eccentricity );
     }
 
     else
@@ -154,5 +134,5 @@ std::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
     return keplerianElements;
 }
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat

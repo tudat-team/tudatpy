@@ -45,11 +45,10 @@ namespace gravitation
  * \return Gravitational acceleration exerted on body1 [m s^-2].
  * \sa computeGravitationalForce.
  */
-Eigen::Vector3d computeGravitationalAcceleration(
-        const double universalGravitationalConstant,
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double massOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( )  );
+Eigen::Vector3d computeGravitationalAcceleration( const double universalGravitationalConstant,
+                                                  const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                                  const double massOfBodyExertingAcceleration,
+                                                  const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( ) );
 
 //! Compute gravitational acceleration.
 /*!
@@ -71,10 +70,9 @@ Eigen::Vector3d computeGravitationalAcceleration(
  * \return Gravitational acceleration exerted on body1 [m s^-2].
  * \sa computeGravitationalForce.
  */
-Eigen::Vector3d computeGravitationalAcceleration(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double gravitationalParameterOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( ) );
+Eigen::Vector3d computeGravitationalAcceleration( const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                                  const double gravitationalParameterOfBodyExertingAcceleration,
+                                                  const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( ) );
 
 //! Compute gravitational force.
 /*!
@@ -95,12 +93,11 @@ Eigen::Vector3d computeGravitationalAcceleration(
  * \return Gravitational force exerted on body1 [N].
  * \sa computeGravitationalAcceleration.
  */
-Eigen::Vector3d computeGravitationalForce(
-        const double universalGravitationalParameter,
-        const double massOfBodySubjectToForce,
-        const Eigen::Vector3d& positionOfBodySubjectToForce,
-        const double massOfBodyExertingForce,
-        const Eigen::Vector3d& positionOfBodyExertingForce = Eigen::Vector3d::Zero( )  );
+Eigen::Vector3d computeGravitationalForce( const double universalGravitationalParameter,
+                                           const double massOfBodySubjectToForce,
+                                           const Eigen::Vector3d& positionOfBodySubjectToForce,
+                                           const double massOfBodyExertingForce,
+                                           const Eigen::Vector3d& positionOfBodyExertingForce = Eigen::Vector3d::Zero( ) );
 
 //! Compute gravitational force.
 /*!
@@ -121,11 +118,10 @@ Eigen::Vector3d computeGravitationalForce(
  * \return Gravitational force exerted on body1 [N].
  * \sa computeGravitationalAcceleration.
  */
-Eigen::Vector3d computeGravitationalForce(
-        const double massOfBodySubjectToForce,
-        const Eigen::Vector3d& positionOfBodySubjectToForce,
-        const double gravitationalParameterOfBodyExertingForce,
-        const Eigen::Vector3d& positionOfBodyExertingForce = Eigen::Vector3d::Zero( )  );
+Eigen::Vector3d computeGravitationalForce( const double massOfBodySubjectToForce,
+                                           const Eigen::Vector3d& positionOfBodySubjectToForce,
+                                           const double gravitationalParameterOfBodyExertingForce,
+                                           const Eigen::Vector3d& positionOfBodyExertingForce = Eigen::Vector3d::Zero( ) );
 
 /*! Compute gravitational potential.
  *
@@ -146,10 +142,9 @@ Eigen::Vector3d computeGravitationalForce(
  *          (body2) [m].
  * @return Gravitational potential acting on body1 [m^2 s^-2].
  */
-double computeGravitationalPotential(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double gravitationalParameterOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( ) );
+double computeGravitationalPotential( const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                      const double gravitationalParameterOfBodyExertingAcceleration,
+                                      const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( ) );
 
 /*! Compute gravitational potential.
  *
@@ -170,11 +165,10 @@ double computeGravitationalPotential(
  *          (body2) [m].
  * @return Gravitational potential acting on body1 [m^2 s^-2].
  */
-double computeGravitationalPotential(
-        const double universalGravitationalConstant,
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double massOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( ) );
+double computeGravitationalPotential( const double universalGravitationalConstant,
+                                      const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                      const double massOfBodyExertingAcceleration,
+                                      const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( ) );
 
 //! Template class for central gravitational acceleration model.
 /*!
@@ -183,17 +177,14 @@ double computeGravitationalPotential(
  * \tparam StateMatrix Data type for state matrix (default = Eigen::Vector3d).
  */
 template< typename StateMatrix = Eigen::Vector3d >
-class CentralGravitationalAccelerationModel
-        : public basic_astrodynamics::AccelerationModel< StateMatrix >,
-        public SphericalHarmonicsGravitationalAccelerationModelBase< StateMatrix >
+class CentralGravitationalAccelerationModel : public basic_astrodynamics::AccelerationModel< StateMatrix >,
+                                              public SphericalHarmonicsGravitationalAccelerationModelBase< StateMatrix >
 {
 private:
-
     //! Typedef for base class.
     typedef SphericalHarmonicsGravitationalAccelerationModelBase< StateMatrix > Base;
 
 public:
-
     //! Constructor taking position-functions for bodies, and constant gravitational parameter.
     /*!
      * Constructor taking a pointer to a function returning the position of the body subject to
@@ -217,14 +208,14 @@ public:
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
-            const bool isMutualAttractionUsed = false )
-        : Base( positionOfBodySubjectToAccelerationFunction,
-                [ = ]( ){ return aGravitationalParameter; },
+                    []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
+            const bool isMutualAttractionUsed = false ):
+        Base(
+                positionOfBodySubjectToAccelerationFunction,
+                [ = ]( ) { return aGravitationalParameter; },
                 positionOfBodyExertingAccelerationFunction,
                 isMutualAttractionUsed )
-    {
-    }
+    { }
 
     //! Constructor taking position-functions for bodies, and constant gravitational parameter.
     /*!
@@ -250,14 +241,13 @@ public:
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
             const std::function< double( ) > aGravitationalParameterFunction,
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
-            const bool isMutualAttractionUsed = false )
-        : Base( positionOfBodySubjectToAccelerationFunction,
-                aGravitationalParameterFunction,
-                positionOfBodyExertingAccelerationFunction,
-                isMutualAttractionUsed )
-    {
-    }
+                    []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
+            const bool isMutualAttractionUsed = false ):
+        Base( positionOfBodySubjectToAccelerationFunction,
+              aGravitationalParameterFunction,
+              positionOfBodyExertingAccelerationFunction,
+              isMutualAttractionUsed )
+    { }
 
     //! Update members.
     /*!
@@ -272,33 +262,27 @@ public:
         {
             this->updateBaseMembers( );
             this->currentAcceleration_ = computeGravitationalAcceleration(
-                        this->positionOfBodySubjectToAcceleration,
-                        this->gravitationalParameter,
-                        this->positionOfBodyExertingAcceleration );
+                    this->positionOfBodySubjectToAcceleration, this->gravitationalParameter, this->positionOfBodyExertingAcceleration );
 
-            if ( this->updatePotential_ )
+            if( this->updatePotential_ )
             {
                 this->currentPotential_ = computeGravitationalPotential(
-                        this->positionOfBodySubjectToAcceleration,
-                        this->gravitationalParameter,
-                        this->positionOfBodyExertingAcceleration );
+                        this->positionOfBodySubjectToAcceleration, this->gravitationalParameter, this->positionOfBodyExertingAcceleration );
             }
         }
     }
-
 
 protected:
 private:
 };
 
 //! Typedef for CentralGravitationalAccelerationModel3d.
-typedef CentralGravitationalAccelerationModel< > CentralGravitationalAccelerationModel3d;
+typedef CentralGravitationalAccelerationModel<> CentralGravitationalAccelerationModel3d;
 
 //! Typedef for shared-pointer to CentralGravitationalAccelerationModel3d.
-typedef std::shared_ptr< CentralGravitationalAccelerationModel3d >
-CentralGravitationalAccelerationModel3dPointer;
+typedef std::shared_ptr< CentralGravitationalAccelerationModel3d > CentralGravitationalAccelerationModel3dPointer;
 
-} // namespace gravitation
-} // namespace tudat
+}  // namespace gravitation
+}  // namespace tudat
 
-#endif // TUDAT_CENTRAL_GRAVITY_MODEL_H
+#endif  // TUDAT_CENTRAL_GRAVITY_MODEL_H

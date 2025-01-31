@@ -11,7 +11,6 @@
 #ifndef TUDAT_CONSTANTROTATIONALORIENTATION_H
 #define TUDAT_CONSTANTROTATIONALORIENTATION_H
 
-
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 
@@ -27,22 +26,19 @@ namespace estimatable_parameters
  *  Interfaces the estimation with the right ascension and declination Euler angle members of a SimpleRotationalEphemeris
  *  object
  */
-class ConstantRotationalOrientation: public EstimatableParameter< Eigen::VectorXd >
+class ConstantRotationalOrientation : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
-
     //! Constructor
     /*!
      *  Constructor
      *  \param rotationModel SimpleRotationalEphemeris object of which pole position is a property
      *  \param associatedBody Name of body of which parameter is a property.
      */
-    ConstantRotationalOrientation(
-            const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
-            const std::string& associatedBody ):
-        EstimatableParameter< Eigen::VectorXd >( rotation_pole_position, associatedBody ),
-        rotationModel_( rotationModel ) { }
+    ConstantRotationalOrientation( const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
+                                   const std::string& associatedBody ):
+        EstimatableParameter< Eigen::VectorXd >( rotation_pole_position, associatedBody ), rotationModel_( rotationModel )
+    { }
 
     //! Destructor
     ~ConstantRotationalOrientation( ) { }
@@ -64,8 +60,7 @@ public:
      */
     void setParameterValue( const Eigen::VectorXd parameterValue )
     {
-        rotationModel_->resetInitialPoleRightAscensionAndDeclination(
-                    parameterValue.x( ), parameterValue.y( ) );
+        rotationModel_->resetInitialPoleRightAscensionAndDeclination( parameterValue.x( ), parameterValue.y( ) );
     }
 
     //! Function to retrieve the size of the parameter
@@ -79,15 +74,13 @@ public:
     }
 
 protected:
-
 private:
-
     //! SimpleRotationalEphemeris object of which rotation rate parameter is a property
     std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel_;
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CONSTANTROTATIONALORIENTATION_H
+#endif  // TUDAT_CONSTANTROTATIONALORIENTATION_H

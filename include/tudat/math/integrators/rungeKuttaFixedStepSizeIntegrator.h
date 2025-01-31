@@ -12,8 +12,8 @@
 #ifdef TUDAT_BUILD_GNU
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif // TUDAT_BUILD_GNU
-#endif // NDEBUG
+#endif  // TUDAT_BUILD_GNU
+#endif  // NDEBUG
 
 #ifndef TUDAT_RUNGE_KUTTA_FIXED_STEP_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_FIXED_STEP_INTEGRATOR_H
@@ -46,25 +46,24 @@ template< typename IndependentVariableType = double,
           typename StateDerivativeType = Eigen::VectorXd,
           typename TimeStepType = IndependentVariableType >
 class RungeKuttaFixedStepSizeIntegrator
-        : public numerical_integrators::ReinitializableNumericalIntegrator<
-        IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
+    : public numerical_integrators::
+              ReinitializableNumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 public:
-
     //! Typedef for the base class.
     /*!
      * Typedef of the base class with all template parameters filled in.
      */
-    typedef numerical_integrators::ReinitializableNumericalIntegrator<
-    IndependentVariableType, StateType, StateDerivativeType, TimeStepType > ReinitializableNumericalIntegratorBase;
+    typedef numerical_integrators::
+            ReinitializableNumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
+                    ReinitializableNumericalIntegratorBase;
 
     //! Typedef for the state derivative function.
     /*!
      * Typedef to the state derivative function inherited from the base class.
      * \sa NumericalIntegrator::StateDerivativeFunction.
      */
-    typedef typename ReinitializableNumericalIntegratorBase::NumericalIntegratorBase::
-    StateDerivativeFunction StateDerivativeFunction;
+    typedef typename ReinitializableNumericalIntegratorBase::NumericalIntegratorBase::StateDerivativeFunction StateDerivativeFunction;
 
     //! Default constructor.
     /*!
@@ -75,19 +74,16 @@ public:
      * \param coefficientsSet The fixed step coefficient type to use for integration.
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
-    RungeKuttaFixedStepSizeIntegrator( const StateDerivativeFunction& stateDerivativeFunction,
-                                       const IndependentVariableType intervalStart,
-                                       const StateType& initialState,
-                                       const TimeStepType& stepSize,
-                                       const CoefficientSets& coefficientsSet,
-                                       const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower ) :
-        ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
-        currentIndependentVariable_( intervalStart ),
-        currentState_( initialState ),
-        lastIndependentVariable_( intervalStart ),
-        stepSize_( stepSize ),
-        coefficientsSet_( coefficientsSet ),
-        orderToUse_( orderToUse )
+    RungeKuttaFixedStepSizeIntegrator(
+            const StateDerivativeFunction& stateDerivativeFunction,
+            const IndependentVariableType intervalStart,
+            const StateType& initialState,
+            const TimeStepType& stepSize,
+            const CoefficientSets& coefficientsSet,
+            const RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse = RungeKuttaCoefficients::OrderEstimateToIntegrate::lower ):
+        ReinitializableNumericalIntegratorBase( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
+        currentState_( initialState ), lastIndependentVariable_( intervalStart ), stepSize_( stepSize ),
+        coefficientsSet_( coefficientsSet ), orderToUse_( orderToUse )
     {
         // Load the Butcher tableau coefficients.
         setCoefficients( coefficientsSet );
@@ -104,27 +100,26 @@ public:
         butcherTableau_ = butcherTableau_.get( coefficientsSet );
 
         // If the coefficient set is not already fixed step size, remove the b column according to the order to use.
-        if ( !(butcherTableau_.isFixedStepSize) )
+        if( !( butcherTableau_.isFixedStepSize ) )
         {
-            if (orderToUse_ == RungeKuttaCoefficients::OrderEstimateToIntegrate::lower)
+            if( orderToUse_ == RungeKuttaCoefficients::OrderEstimateToIntegrate::lower )
             {
                 // Keep the first row of bCoefficients.
                 Eigen::MatrixXd oldBCoefficients = butcherTableau_.bCoefficients;
-                butcherTableau_.bCoefficients = Eigen::MatrixXd::Zero( 1, oldBCoefficients.cols() );
+                butcherTableau_.bCoefficients = Eigen::MatrixXd::Zero( 1, oldBCoefficients.cols( ) );
                 butcherTableau_.bCoefficients.row( 0 ) = oldBCoefficients.row( 0 );
             }
             else
             {
                 // Keep the second row of bCoefficients.
                 Eigen::MatrixXd oldBCoefficients = butcherTableau_.bCoefficients;
-                butcherTableau_.bCoefficients = Eigen::MatrixXd::Zero( 1, oldBCoefficients.cols() );
+                butcherTableau_.bCoefficients = Eigen::MatrixXd::Zero( 1, oldBCoefficients.cols( ) );
                 butcherTableau_.bCoefficients.row( 0 ) = oldBCoefficients.row( 1 );
             }
         }
 
         currentScaledStateDerivatives_.clear( );
         currentScaledStateDerivatives_.resize( this->butcherTableau_.cCoefficients.rows( ) );
-
     }
 
     //! Get step size of the next step.
@@ -132,14 +127,20 @@ public:
      * Returns the step size of the next step.
      * \return Step size to be used for the next step.
      */
-    virtual TimeStepType getNextStepSize( ) const { return stepSize_; }
+    virtual TimeStepType getNextStepSize( ) const
+    {
+        return stepSize_;
+    }
 
     //! Get current state.
     /*!
      * Returns the current state of the integrator.
      * \return Current integrated state,
      */
-    virtual StateType getCurrentState( ) const { return currentState_; }
+    virtual StateType getCurrentState( ) const
+    {
+        return currentState_;
+    }
 
     //! Returns the current independent variable.
     /*!
@@ -166,17 +167,16 @@ public:
         StateType stateUpdate = StateType::Zero( currentState_.rows( ), currentState_.cols( ) );
 
         // Compute the k_i state derivatives per stage.
-        for ( int stage = 0; stage < this->butcherTableau_.cCoefficients.rows( ); stage++ )
+        for( int stage = 0; stage < this->butcherTableau_.cCoefficients.rows( ); stage++ )
         {
             // Compute the intermediate state.
             stateUpdate.setZero( );
-            for ( int column = 0; column < stage; column++ )
+            for( int column = 0; column < stage; column++ )
             {
                 if( this->butcherTableau_.aCoefficients( stage, column ) !=
-                        mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
+                    mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
                 {
-                    stateUpdate += this->butcherTableau_.aCoefficients( stage, column ) *
-                            currentScaledStateDerivatives_[ column ];
+                    stateUpdate += this->butcherTableau_.aCoefficients( stage, column ) * currentScaledStateDerivatives_[ column ];
                 }
             }
 
@@ -184,14 +184,15 @@ public:
             StateType intermediateState = this->currentState_ + stateUpdate;
 
             // Compute the state derivative.
-            const IndependentVariableType time = this->currentIndependentVariable_ +
-                    this->butcherTableau_.cCoefficients( stage ) * stepSize;
+            const IndependentVariableType time =
+                    this->currentIndependentVariable_ + this->butcherTableau_.cCoefficients( stage ) * stepSize;
             currentScaledStateDerivatives_[ stage ] = stepSize * this->stateDerivativeFunction_( time, intermediateState );
 
             // Check if propagation should terminate because the propagation termination condition has been reached
             // while computing the intermediate state.
             // If so, return immediately the current state (not recomputed yet), which will be discarded.
-            if ( this->propagationTerminationFunction_( static_cast< double >( time ), TUDAT_NAN, intermediateState.template cast< double >( ) ) )
+            if( this->propagationTerminationFunction_(
+                        static_cast< double >( time ), TUDAT_NAN, intermediateState.template cast< double >( ) ) )
             {
                 this->propagationTerminationConditionReachedDuringStep_ = true;
                 return this->currentState_;
@@ -199,10 +200,10 @@ public:
         }
 
         stateUpdate.setZero( );
-        for ( int stage = 0; stage < this->butcherTableau_.cCoefficients.rows( ); stage++ )
+        for( int stage = 0; stage < this->butcherTableau_.cCoefficients.rows( ); stage++ )
         {
             if( this->butcherTableau_.bCoefficients( 0, stage ) !=
-                    mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
+                mathematical_constants::getFloatingInteger< typename StateType::Scalar >( 0 ) )
             {
                 // Update the estimate.
                 stateUpdate += this->butcherTableau_.bCoefficients( 0, stage ) * currentScaledStateDerivatives_[ stage ];
@@ -219,8 +220,6 @@ public:
         return currentState_;
     }
 
-
-
     //! Rollback internal state to the last state.
     /*!
      * Performs rollback of internal state to the last state. This function can only be called once
@@ -231,7 +230,7 @@ public:
      */
     virtual bool rollbackToPreviousState( )
     {
-        if ( currentIndependentVariable_ == lastIndependentVariable_ )
+        if( currentIndependentVariable_ == lastIndependentVariable_ )
         {
             return false;
         }
@@ -284,7 +283,7 @@ public:
     void modifyCurrentState( const StateType& newState, const bool allowRollback = false )
     {
         currentState_ = newState;
-        if ( !allowRollback )
+        if( !allowRollback )
         {
             this->lastIndependentVariable_ = currentIndependentVariable_;
         }
@@ -297,19 +296,19 @@ public:
      * \param newTime The time to set the current time to.
      * \param allowRollback Boolean denoting whether roll-back should be allowed.
      */
-    void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime,
+    void modifyCurrentIntegrationVariables( const StateType& newState,
+                                            const IndependentVariableType newTime,
                                             const bool allowRollback = false )
     {
         currentState_ = newState;
         currentIndependentVariable_ = newTime;
-        if ( !allowRollback )
+        if( !allowRollback )
         {
             this->lastIndependentVariable_ = currentIndependentVariable_;
         }
     }
 
 protected:
-
     //! Current independent variable.
     /*!
      * Current independent variable as computed by performIntegrationStep().
@@ -356,17 +355,16 @@ protected:
     RungeKuttaCoefficients::OrderEstimateToIntegrate orderToUse_;
 };
 
-//extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-//extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
-//extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
-
+// extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+// extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+// extern template class RungeKuttaFixedStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 //! Typedef of RK fixed-step integrator (state/state derivative = VectorXd, independent variable = double).
 /*!
  * Typedef of a RK fixed-step integrator with VectorXds as state and state derivative and double as
  * independent variable.
  */
-typedef RungeKuttaFixedStepSizeIntegrator< > RungeKuttaFixedStepSizeIntegratorXd;
+typedef RungeKuttaFixedStepSizeIntegrator<> RungeKuttaFixedStepSizeIntegratorXd;
 
 //! Typedef of a scalar RK fixed-step integrator.
 /*!
@@ -389,15 +387,15 @@ typedef std::shared_ptr< RungeKuttaFixedStepSizeIntegratorXd > RungeKuttaFixedSt
  */
 typedef std::shared_ptr< RungeKuttaFixedStepSizeIntegratord > RungeKuttaFixedStepSizeIntegratordPointer;
 
-} // namespace numerical_integrators
+}  // namespace numerical_integrators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_RUNGE_KUTTA_FIXED_STEP_INTEGRATOR_H
+#endif  // TUDAT_RUNGE_KUTTA_FIXED_STEP_INTEGRATOR_H
 
 #ifdef NDEBUG
 #ifdef TUDAT_BUILD_GNU
 // turn the warnings back on
 #pragma GCC diagnostic pop
-#endif // TUDAT_BUILD_GNU
-#endif // NDEBUG
+#endif  // TUDAT_BUILD_GNU
+#endif  // NDEBUG

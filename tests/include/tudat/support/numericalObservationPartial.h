@@ -14,9 +14,6 @@
 #include <memory>
 #include <functional>
 
-
-
-
 #include "tudat/astro/orbit_determination/observation_partials/observationPartial.h"
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
@@ -56,8 +53,8 @@ Eigen::MatrixXd calculateNumericalObservationParameterPartial(
         const double evaluationTime,
         std::function< void( ) > updateFunction = &emptyVoidFunction );
 
-}
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_NUMERICALOBSERVATIONPARTIAL_H
+#endif  // TUDAT_NUMERICALOBSERVATIONPARTIAL_H

@@ -28,14 +28,16 @@ namespace unit_tests
 using namespace input_output;
 
 //! Test transform struct used to test FieldTransform.
-struct TestTransform : public input_output::FieldTransform
-{
+struct TestTransform : public input_output::FieldTransform {
     static const std::shared_ptr< std::string > result;
-    std::shared_ptr< std::string > transform( const std::string& input ) { return result; }
+    std::shared_ptr< std::string > transform( const std::string& input )
+    {
+        return result;
+    }
 };
 
 //! Set result of transform in TestTransform to a string.
-const std::shared_ptr< std::string > TestTransform::result( new std::string( "Transformed!") );
+const std::shared_ptr< std::string > TestTransform::result( new std::string( "Transformed!" ) );
 
 // Define Boost test suite.
 BOOST_AUTO_TEST_SUITE( test_field_value )
@@ -138,8 +140,7 @@ BOOST_AUTO_TEST_CASE( testFieldValueGetPointerFunction )
     FieldValue testFieldValue2( field_types::state::inclination, testString );
 
     // Retrieve (raw) data.
-    std::shared_ptr< std::string > returnedRawData
-            = testFieldValue2.getPointer< std::string >( );
+    std::shared_ptr< std::string > returnedRawData = testFieldValue2.getPointer< std::string >( );
 
     // Verify that returned data is correct.
     BOOST_CHECK_EQUAL( *returnedRawData, testString );
@@ -156,12 +157,12 @@ BOOST_AUTO_TEST_CASE( testFieldValueType )
     BOOST_CHECK_EQUAL( testType, testFieldValue1.type );
 
     // Test constructor with transform.
-    FieldValue testFieldValue2( testType, "foo", std::make_shared< TestTransform >(  ) );
+    FieldValue testFieldValue2( testType, "foo", std::make_shared< TestTransform >( ) );
     BOOST_CHECK_EQUAL( testType, testFieldValue2.type );
 }
 
 // Close Boost test suite.
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

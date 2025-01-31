@@ -13,7 +13,6 @@
 
 #include <string>
 
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
@@ -42,8 +41,7 @@ namespace tudat
 namespace unit_tests
 {
 
-
-//Using declarations.
+// Using declarations.
 using namespace tudat::ephemerides;
 using namespace tudat::interpolators;
 using namespace tudat::numerical_integrators;
@@ -57,15 +55,15 @@ using namespace tudat;
 BOOST_AUTO_TEST_SUITE( test_forwards_backwards_rpopagation )
 
 template< typename TimeType >
-std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
-        const int integratorCase, const int initialTime, const bool propagateForwards )
+std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings( const int integratorCase,
+                                                                          const int initialTime,
+                                                                          const bool propagateForwards )
 {
     double initialTimeMultiplier = ( propagateForwards ? 1.0 : -1.0 );
     std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings;
     if( integratorCase == 0 )
     {
-        integratorSettings = std::make_shared< IntegratorSettings< TimeType > >
-                ( rungeKutta4, initialTime, initialTimeMultiplier * 300.0 );
+        integratorSettings = std::make_shared< IntegratorSettings< TimeType > >( rungeKutta4, initialTime, initialTimeMultiplier * 300.0 );
     }
     else if( integratorCase < 5 )
     {
@@ -77,20 +75,17 @@ std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
         else if( integratorCase == 2 )
         {
             coefficientSet = rungeKuttaFehlberg56;
-
         }
         else if( integratorCase == 3 )
         {
             coefficientSet = rungeKuttaFehlberg78;
-
         }
         else if( integratorCase == 4 )
         {
             coefficientSet = rungeKutta87DormandPrince;
-
         }
-        integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
-                ( initialTime, initialTimeMultiplier * 300.0, coefficientSet, 1.0E-3, 3600.0 );
+        integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
+                initialTime, initialTimeMultiplier * 300.0, coefficientSet, 1.0E-3, 3600.0 );
     }
     return integratorSettings;
 }
@@ -101,7 +96,7 @@ std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
 template< typename TimeType = double, typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int integratorCase )
 {
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
@@ -118,11 +113,10 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
     double buffer = 3600.0;
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - 2.0 * buffer, finalEphemerisTime + 2.0 * buffer,
-                                    "Earth", "ECLIPJ2000" );
-    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )->
-            resetFrameOrigin( "Earth" );
+    BodyListSettings bodySettings = getDefaultBodySettings(
+            bodyNames, initialEphemerisTime - 2.0 * buffer, finalEphemerisTime + 2.0 * buffer, "Earth", "ECLIPJ2000" );
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings.at( "Moon" )->ephemerisSettings )
+            ->resetFrameOrigin( "Earth" );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
@@ -139,27 +133,24 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
     centralBodies.push_back( "Earth" );
 
     // Define settings for numerical integrator.
-    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings = getIntegrationSettings< TimeType >(
-                integratorCase, initialEphemerisTime, true );
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            getIntegrationSettings< TimeType >( integratorCase, initialEphemerisTime, true );
 
     // Propagate forwards
     {
-
-
         // Create acceleration models and propagation settings.
-        Eigen::Matrix< StateScalarType, 6, 1  > systemInitialState =
+        Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState =
                 spice_interface::getBodyCartesianStateAtEpoch(
-                    bodiesToIntegrate[ 0 ], centralBodies[ 0 ], "ECLIPJ2000", "NONE", initialEphemerisTime ).
-                template cast< StateScalarType >( );
-        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+                        bodiesToIntegrate[ 0 ], centralBodies[ 0 ], "ECLIPJ2000", "NONE", initialEphemerisTime )
+                        .template cast< StateScalarType >( );
+        AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
-                ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime + buffer );
+                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                        centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime + buffer );
 
         // Create dynamics simulation object.
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, true, true );
+                bodies, integratorSettings, propagatorSettings, true, true, true );
     }
 
     double testTime = initialEphemerisTime + ( finalEphemerisTime - initialEphemerisTime ) / 2.0;
@@ -171,19 +162,18 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
     // Propagate backwards
     {
         // Create acceleration models and propagation settings.
-        Eigen::Matrix< StateScalarType, 6, 1  > systemInitialState =
+        Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState =
                 spice_interface::getBodyCartesianStateAtEpoch(
-                    bodiesToIntegrate[ 0 ], centralBodies[ 0 ], "ECLIPJ2000", "NONE", finalEphemerisTime ).
-                template cast< StateScalarType >( );
-        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+                        bodiesToIntegrate[ 0 ], centralBodies[ 0 ], "ECLIPJ2000", "NONE", finalEphemerisTime )
+                        .template cast< StateScalarType >( );
+        AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >
-                ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime - buffer );
+                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >(
+                        centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime - buffer );
 
         // Create dynamics simulation object.
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, true, true );
+                bodies, integratorSettings, propagatorSettings, true, true, true );
     }
 
     Eigen::Vector6d backwardState = bodies.at( "Moon" )->getEphemeris( )->getCartesianState( testTime );
@@ -206,7 +196,6 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
+}  // namespace unit_tests
 
-}
-
-}
+}  // namespace tudat

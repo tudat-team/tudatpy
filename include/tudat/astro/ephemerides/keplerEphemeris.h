@@ -36,7 +36,6 @@ namespace ephemerides
 class KeplerEphemeris : public Ephemeris
 {
 public:
-
     using Ephemeris::getCartesianState;
 
     //! Class constructor.
@@ -63,8 +62,7 @@ public:
                      const double centralBodyGravitationalParameter,
                      const std::string& referenceFrameOrigin = "SSB",
                      const std::string& referenceFrameOrientation = "ECLIPJ2000",
-                     const double rootFinderAbsoluteTolerance =
-                         200.0 * std::numeric_limits< double >::epsilon( ),
+                     const double rootFinderAbsoluteTolerance = 200.0 * std::numeric_limits< double >::epsilon( ),
                      const double rootFinderMaximumNumberOfIterations = 1000.0 );
 
     //! Function to get state from ephemeris.
@@ -73,11 +71,9 @@ public:
      *  \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      *  \return Keplerian orbit Cartesian state at given time.
      */
-    Eigen::Vector6d getCartesianState(
-            const double secondsSinceEpoch );
+    Eigen::Vector6d getCartesianState( const double secondsSinceEpoch );
 
 private:
-
     //! Kepler elements at time epochOfInitialState.
     Eigen::Vector6d initialStateInKeplerianElements_;
 
@@ -109,8 +105,8 @@ private:
     bool isOrbitHyperbolic_;
 };
 
-} // namespace ephemerides
+}  // namespace ephemerides
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_KEPLEREPHEMERIS_H
+#endif  // TUDAT_KEPLEREPHEMERIS_H

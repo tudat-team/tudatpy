@@ -18,14 +18,14 @@
 #include "low_thrust/shape_based/createBaseFunctionHodographicShaping.h"
 #include "low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h"
 #include "low_thrust/shape_based/hodographicShapingOptimisationSetup.h"
-//#include "low_thrust/hybridMethod.h"
-//#include "low_thrust/hybridMethodModel.h"
-//#include "low_thrust/hybridOptimisationSetup.h"
+// #include "low_thrust/hybridMethod.h"
+// #include "low_thrust/hybridMethodModel.h"
+// #include "low_thrust/hybridOptimisationSetup.h"
 #include "low_thrust/lowThrustLeg.h"
 #include "low_thrust/lowThrustLegSettings.h"
 #include "low_thrust/lowThrustOptimisationSetup.h"
-//#include "low_thrust/simsFlanagan.h"
-//#include "low_thrust/simsFlanaganModel.h"
-//#include "low_thrust/simsFlanaganOptimisationSetup.h"
+// #include "low_thrust/simsFlanagan.h"
+// #include "low_thrust/simsFlanaganModel.h"
+// #include "low_thrust/simsFlanaganOptimisationSetup.h"
 
-#endif // TUDAT_LOW_THRUST_H
+#endif  // TUDAT_LOW_THRUST_H

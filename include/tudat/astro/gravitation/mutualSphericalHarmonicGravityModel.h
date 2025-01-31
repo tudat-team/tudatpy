@@ -11,12 +11,9 @@
 #ifndef TUDAT_MUTUALSPHERICALHARMONICGRAVITYMODEL_H
 #define TUDAT_MUTUALSPHERICALHARMONICGRAVITYMODEL_H
 
-
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <memory>
-
-
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -26,8 +23,6 @@
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/basics/basicTypedefs.h"
-
-
 
 namespace tudat
 {
@@ -42,8 +37,7 @@ namespace gravitation
  *  coefficients is left untouched, not compromising the environment  model, while the C(0,0) term is not calculated doubly
  *  by the MutualSphericalHarmonicsGravitationalAccelerationModel class.
  */
-Eigen::MatrixXd setDegreeAndOrderCoefficientToZero( const std::function< Eigen::MatrixXd( ) >
-                                                    originalCosineCoefficientFunction );
+Eigen::MatrixXd setDegreeAndOrderCoefficientToZero( const std::function< Eigen::MatrixXd( ) > originalCosineCoefficientFunction );
 
 //! Class to calculate the mutual spherical harmonic gravitational acceleration between two bodies.
 /*!
@@ -53,11 +47,9 @@ Eigen::MatrixXd setDegreeAndOrderCoefficientToZero( const std::function< Eigen::
  *  planetary system (Earth-Moon, Mars-Phoboss-Deimos, Jupiter-Galilean satellites).
  *  Model is taken from Lainey et al. (2001, 2004)
  */
-class MutualSphericalHarmonicsGravitationalAccelerationModel
-        : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
+class MutualSphericalHarmonicsGravitationalAccelerationModel : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 private:
-
     //! Typedef for coefficient-matrix-returning function.
     typedef std::function< Eigen::MatrixXd( ) > CoefficientMatrixReturningFunction;
 
@@ -68,7 +60,6 @@ private:
     typedef std::function< double( ) > DataReturningFunction;
 
 public:
-
     //! Constructor.
     /*!
      *  Constructor, provides the position functions of the involved bodies, and the required data on their gravitational
@@ -120,41 +111,39 @@ public:
             const std::function< Eigen::Quaterniond( ) >& toLocalFrameOfBodyExertingAccelerationTransformation,
             const std::function< Eigen::Quaterniond( ) >& toLocalFrameOfBodyUndergoingAccelerationTransformation,
             const bool useCentralBodyFixedFrame,
-            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >
-            sphericalHarmonicsCacheOfBodyExertingAcceleration =
-            std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ),
-            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache >
-            sphericalHarmonicsCacheOfBodyUndergoingAcceleration =
-            std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) ):
-        useCentralBodyFixedFrame_( useCentralBodyFixedFrame ),
-        gravitationalParameterFunction_( gravitationalParameterFunction )
+            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCacheOfBodyExertingAcceleration =
+                    std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ),
+            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCacheOfBodyUndergoingAcceleration =
+                    std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) ):
+        useCentralBodyFixedFrame_( useCentralBodyFixedFrame ), gravitationalParameterFunction_( gravitationalParameterFunction )
     {
-
         // Create spherical harmonic acceleration due to expansion of body exerting acceleration
-        accelerationModelFromShExpansionOfBodyExertingAcceleration_ = std::make_shared<
-                SphericalHarmonicsGravitationalAccelerationModel >(
-                    positionOfBodySubjectToAccelerationFunction, gravitationalParameterFunction,
-                    equatorialRadiusOfBodyExertingAcceleration,
-                    cosineHarmonicCoefficientsFunctionOfBodyExertingAcceleration,
-                    sineHarmonicCoefficientsFunctionOfBodyExertingAcceleration,
-                    positionOfBodyExertingAccelerationFunction,
-                    toLocalFrameOfBodyExertingAccelerationTransformation,
-                    useCentralBodyFixedFrame, sphericalHarmonicsCacheOfBodyExertingAcceleration );
+        accelerationModelFromShExpansionOfBodyExertingAcceleration_ = std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
+                positionOfBodySubjectToAccelerationFunction,
+                gravitationalParameterFunction,
+                equatorialRadiusOfBodyExertingAcceleration,
+                cosineHarmonicCoefficientsFunctionOfBodyExertingAcceleration,
+                sineHarmonicCoefficientsFunctionOfBodyExertingAcceleration,
+                positionOfBodyExertingAccelerationFunction,
+                toLocalFrameOfBodyExertingAccelerationTransformation,
+                useCentralBodyFixedFrame,
+                sphericalHarmonicsCacheOfBodyExertingAcceleration );
 
         // Create spherical harmonic acceleration due to expansion of body undergoing acceleration, with the C(0,0) term set
         // to zero to prevent the double computation of the central term. Note that the order of the position functions is
         // switched wrt the regular input, to ensure that the acceleration vector points in the right direction
         // (i.e. from body undergoing to body exerting acceleration).
-        accelerationModelFromShExpansionOfBodyUndergoingAcceleration_ = std::make_shared<
-                SphericalHarmonicsGravitationalAccelerationModel >(
-                    positionOfBodyExertingAccelerationFunction, gravitationalParameterFunction,
-                    equatorialRadiusOfBodyUndergoingAcceleration,
-                    std::bind( &setDegreeAndOrderCoefficientToZero,
-                                 cosineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration ),
-                    sineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration,
-                    positionOfBodySubjectToAccelerationFunction,
-                    toLocalFrameOfBodyUndergoingAccelerationTransformation,
-                    useCentralBodyFixedFrame, sphericalHarmonicsCacheOfBodyUndergoingAcceleration );
+        accelerationModelFromShExpansionOfBodyUndergoingAcceleration_ =
+                std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
+                        positionOfBodyExertingAccelerationFunction,
+                        gravitationalParameterFunction,
+                        equatorialRadiusOfBodyUndergoingAcceleration,
+                        std::bind( &setDegreeAndOrderCoefficientToZero, cosineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration ),
+                        sineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration,
+                        positionOfBodySubjectToAccelerationFunction,
+                        toLocalFrameOfBodyUndergoingAccelerationTransformation,
+                        useCentralBodyFixedFrame,
+                        sphericalHarmonicsCacheOfBodyUndergoingAcceleration );
     }
 
     //! Update member variables used by the acceleration model.
@@ -207,8 +196,7 @@ public:
     /*!
      *  Function returning the object calculating spherical harmonic acceleration due to the body exerting acceleration
      */
-    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
-        getAccelerationModelFromShExpansionOfBodyExertingAcceleration( )
+    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > getAccelerationModelFromShExpansionOfBodyExertingAcceleration( )
     {
         return accelerationModelFromShExpansionOfBodyExertingAcceleration_;
     }
@@ -217,14 +205,12 @@ public:
     /*!
      *  Function returning the object calculating spherical harmonic acceleration due to the body undergoing acceleration
      */
-    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
-        getAccelerationModelFromShExpansionOfBodyUndergoingAcceleration( )
+    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > getAccelerationModelFromShExpansionOfBodyUndergoingAcceleration( )
     {
         return accelerationModelFromShExpansionOfBodyUndergoingAcceleration_;
     }
 
 protected:
-
     //! Boolean denoting whether the acceleration is expressed in a frame centered on the body exerting the acceleration
     /*!
      *  Boolean denoting whether the acceleration is expressed in a frame centered on the body exerting the acceleration,
@@ -240,8 +226,7 @@ protected:
     /*!
      *  Object calculating spherical harmonic acceleration due to the body exerting acceleration
      */
-    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
-        accelerationModelFromShExpansionOfBodyExertingAcceleration_;
+    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > accelerationModelFromShExpansionOfBodyExertingAcceleration_;
 
     //! Object calculating spherical harmonic acceleration due to the body undergoing acceleration
     /*!
@@ -250,14 +235,11 @@ protected:
      *  exerting the acceleration. Note that this acceleration has no central-central term (i.e. C(0,0) is set to zero),
      *  as this term is only calculated by accelerationModelFromShExpansionOfBodyExertingAcceleration_.
      */
-    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
-        accelerationModelFromShExpansionOfBodyUndergoingAcceleration_;
-
-
+    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > accelerationModelFromShExpansionOfBodyUndergoingAcceleration_;
 };
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_MUTUALSPHERICALHARMONICGRAVITYMODEL_H
+#endif  // TUDAT_MUTUALSPHERICALHARMONICGRAVITYMODEL_H
