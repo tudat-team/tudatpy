@@ -31,9 +31,8 @@ namespace observation_partials
  * object
  * \return derivative of (direct geometric) right ascension w.r.t. position of observer or observed object.
  */
-Eigen::Matrix< double, 1, 3 > calculatePartialOfRightAscensionWrtLinkEndPosition(
-        const Eigen::Vector3d& relativeRangeVector,
-        const bool isLinkEndReceiver );
+Eigen::Matrix< double, 1, 3 > calculatePartialOfRightAscensionWrtLinkEndPosition( const Eigen::Vector3d& relativeRangeVector,
+                                                                                  const bool isLinkEndReceiver );
 
 //! Function to compute the derivative of (direct geometric) declination w.r.t. position of observer or observed object.
 /*!
@@ -43,9 +42,8 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfRightAscensionWrtLinkEndPosition
  * object
  * \return derivative of (direct geometric) declination w.r.t. position of observer or observed object.
  */
-Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition(
-        Eigen::Vector3d relativeRangeVector,
-        const bool isLinkEndReceiver );
+Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition( Eigen::Vector3d relativeRangeVector,
+                                                                               const bool isLinkEndReceiver );
 
 //! Function to compute the derivative of (direct geometric) right ascension and declination w.r.t. position of observer or
 //! observed object.
@@ -57,18 +55,16 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition(
  * object
  * \return Derivative of (direct geometric) right ascension and declination w.r.t. position of observer or observed object.
  */
-Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPosition(
-        Eigen::Vector3d relativeRangeVector,
-        const bool isLinkEndReceiver );
+Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPosition( Eigen::Vector3d relativeRangeVector,
+                                                                                   const bool isLinkEndReceiver );
 
 //! Derived class for scaling three-dimensional position partial to angular position observable partial
-class AngularPositionScaling: public DirectPositionPartialScaling< 2 >
+class AngularPositionScaling : public DirectPositionPartialScaling< 2 >
 {
 public:
-
-    AngularPositionScaling( ): DirectPositionPartialScaling< 2 >( observation_models::angular_position ){ }
+    AngularPositionScaling( ): DirectPositionPartialScaling< 2 >( observation_models::angular_position ) { }
     //! Destructor
-    ~AngularPositionScaling( ){ }
+    ~AngularPositionScaling( ) { }
 
     //! Update the scaling object to the current times and states
     /*!
@@ -91,14 +87,12 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor(
-            const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return referenceScalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
     }
 
-    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor(
-        const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 2, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return scalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
     }
@@ -123,9 +117,7 @@ public:
         return currentLinkEndType_;
     }
 
-
 private:
-
     //! Predeclared common scaling factor
     Eigen::Matrix< double, 2, 3 > scalingFactor_;
 
@@ -137,11 +129,9 @@ private:
 
     //! Fixed link end for last computation of update() function.
     observation_models::LinkEndType currentLinkEndType_;
-
 };
 
+}  // namespace observation_partials
 
-}
-
-}
-#endif // ANGULARPOSITIONPARTIAL_H
+}  // namespace tudat
+#endif  // ANGULARPOSITIONPARTIAL_H

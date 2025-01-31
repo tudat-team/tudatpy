@@ -1,8 +1,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
-
 #include <limits>
 #include <boost/test/unit_test.hpp>
 
@@ -22,13 +20,12 @@
 #include "tudat/simulation/estimation_setup/createEstimatableParameters.h"
 #include "tudat/io/basicInputOutput.h"
 
-
 namespace tudat
 {
 namespace unit_tests
 {
 
-//Using declarations.
+// Using declarations.
 using namespace tudat::observation_models;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::interpolators;
@@ -59,14 +56,13 @@ Eigen::MatrixXd getArcwiseExpectedClockPartials( const double timeIntoArc )
     expectedArcWiseSatelliteCoefficientPartials.block( 0, 6, 1, 3 ) = getGlobalExpectedClockPartials( timeIntoArc );
 
     return expectedArcWiseSatelliteCoefficientPartials;
-
 }
 BOOST_AUTO_TEST_CASE( test_ClockPartials )
 {
     double initialEphemerisTime = 1.0E7;
     double finalEphemerisTime = 1.2E7;
 
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define celestial bodies in simulation.
@@ -76,8 +72,7 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
     bodyNames.push_back( "Moon" );
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames );
     SystemOfBodies bodyMap = createSystemOfBodies( bodySettings );
     bodyMap.createEmptyBody( "LAGEOS" );
     std::shared_ptr< Body > lageos = bodyMap.at( "LAGEOS" );
@@ -90,17 +85,14 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
     lageosKeplerianElements[ argumentOfPeriapsisIndex ] = 259.35 * mathematical_constants::PI / 180.0;
     lageosKeplerianElements[ longitudeOfAscendingNodeIndex ] = 31.56 * mathematical_constants::PI / 180.0;
     lageosKeplerianElements[ trueAnomalyIndex ] = 1.0;
-    Eigen::Vector6d dummyLageosState = convertKeplerianToCartesianElements(
-            lageosKeplerianElements, getBodyGravitationalParameter("Earth" ) );
-    lageos->setEphemeris( std::make_shared< ConstantEphemeris >(
-            dummyLageosState, "Earth", "ECLIPJ2000" ) );
+    Eigen::Vector6d dummyLageosState =
+            convertKeplerianToCartesianElements( lageosKeplerianElements, getBodyGravitationalParameter( "Earth" ) );
+    lageos->setEphemeris( std::make_shared< ConstantEphemeris >( dummyLageosState, "Earth", "ECLIPJ2000" ) );
 
     // Create ground stations
     std::map< std::pair< std::string, std::string >, Eigen::Vector3d > groundStationsToCreate;
-    groundStationsToCreate[ std::make_pair( "Earth", "Graz" ) ] =
-            ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( );
-    groundStationsToCreate[ std::make_pair( "Earth", "Station2" ) ] =
-        ( Eigen::Vector3d( ) << 2.7E6, 3.2E6, 0.1E5 ).finished( );
+    groundStationsToCreate[ std::make_pair( "Earth", "Graz" ) ] = ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( );
+    groundStationsToCreate[ std::make_pair( "Earth", "Station2" ) ] = ( Eigen::Vector3d( ) << 2.7E6, 3.2E6, 0.1E5 ).finished( );
     createGroundStations( bodyMap, groundStationsToCreate );
 
     std::shared_ptr< GroundStation > grazStation = bodyMap.at( "Earth" )->getGroundStation( "Graz" );
@@ -124,7 +116,8 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
     lageosArcPolynomialErrors.push_back( 0.0 );
 
     // Create and set timing system of satellite.
-    std::shared_ptr< TimingSystem > lageosTimingSystem = std::make_shared< TimingSystem >( satelliteClockErrorArcTimes, lageosArcPolynomialErrors );
+    std::shared_ptr< TimingSystem > lageosTimingSystem =
+            std::make_shared< TimingSystem >( satelliteClockErrorArcTimes, lageosArcPolynomialErrors );
     std::shared_ptr< VehicleSystems > lageosSystemHardware = std::make_shared< VehicleSystems >( );
     lageosSystemHardware->setTimingSystem( lageosTimingSystem );
     lageos->setVehicleSystems( lageosSystemHardware );
@@ -179,57 +172,47 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
     biasSettingsList.push_back( std::make_shared< TiminigSystemBiasSettings >( "LAGEOS", "" ) );
     biasSettingsList.push_back( std::make_shared< TiminigSystemBiasSettings >( "Earth", "Graz" ) );
     std::shared_ptr< ObservationModelSettings > uplinkRangeSettings = std::make_shared< ObservationModelSettings >(
-        one_way_range, oneWayUplinkLinkEnds, nullptr, std::make_shared< MultipleObservationBiasSettings >( biasSettingsList ) );
+            one_way_range, oneWayUplinkLinkEnds, nullptr, std::make_shared< MultipleObservationBiasSettings >( biasSettingsList ) );
     std::shared_ptr< ObservationModelSettings > downlinkRangeSettings = std::make_shared< ObservationModelSettings >(
-        one_way_range, oneWayDownlinkLinkEnds, nullptr, std::make_shared< MultipleObservationBiasSettings >( biasSettingsList ) );
+            one_way_range, oneWayDownlinkLinkEnds, nullptr, std::make_shared< MultipleObservationBiasSettings >( biasSettingsList ) );
     std::shared_ptr< ObservationModelSettings > twoWayRangeSettings = std::make_shared< ObservationModelSettings >(
-        n_way_range, twoWayLinkEnds, nullptr, std::make_shared< MultipleObservationBiasSettings >( biasSettingsList ) );
+            n_way_range, twoWayLinkEnds, nullptr, std::make_shared< MultipleObservationBiasSettings >( biasSettingsList ) );
     std::shared_ptr< ObservationModelSettings > threeWayRangeSettings = std::make_shared< ObservationModelSettings >(
-        n_way_range, threeWayLinkEnds, nullptr, std::make_shared< MultipleObservationBiasSettings >( biasSettingsList ) );
+            n_way_range, threeWayLinkEnds, nullptr, std::make_shared< MultipleObservationBiasSettings >( biasSettingsList ) );
     std::shared_ptr< ObservationModelSettings > threeWayRangeSettingsInverse = std::make_shared< ObservationModelSettings >(
-        n_way_range, threeWayLinkEndsInverse, nullptr, std::make_shared< MultipleObservationBiasSettings >( biasSettingsList ) );
+            n_way_range, threeWayLinkEndsInverse, nullptr, std::make_shared< MultipleObservationBiasSettings >( biasSettingsList ) );
 
-    std::shared_ptr< ObservationModel< 1, double, double > > uplinkRangeModel = ObservationModelCreator< 1, double, double >::createObservationModel(
-        uplinkRangeSettings, bodyMap );
-    std::shared_ptr< ObservationModel< 1, double, double > > downlinkRangeModel = ObservationModelCreator< 1, double, double >::createObservationModel(
-        downlinkRangeSettings, bodyMap );    
-    std::shared_ptr< ObservationModel< 1, double, double > > twoWayRangeModel = ObservationModelCreator< 1, double, double >::createObservationModel(
-        twoWayRangeSettings, bodyMap );
-    std::shared_ptr< ObservationModel< 1, double, double > > threeWayRangeModel = ObservationModelCreator< 1, double, double >::createObservationModel(
-        threeWayRangeSettings, bodyMap );
-    std::shared_ptr< ObservationModel< 1, double, double > > threeWayInverseRangeModel = ObservationModelCreator< 1, double, double >::createObservationModel(
-        threeWayRangeSettingsInverse, bodyMap );
+    std::shared_ptr< ObservationModel< 1, double, double > > uplinkRangeModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( uplinkRangeSettings, bodyMap );
+    std::shared_ptr< ObservationModel< 1, double, double > > downlinkRangeModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( downlinkRangeSettings, bodyMap );
+    std::shared_ptr< ObservationModel< 1, double, double > > twoWayRangeModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( twoWayRangeSettings, bodyMap );
+    std::shared_ptr< ObservationModel< 1, double, double > > threeWayRangeModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( threeWayRangeSettings, bodyMap );
+    std::shared_ptr< ObservationModel< 1, double, double > > threeWayInverseRangeModel =
+            ObservationModelCreator< 1, double, double >::createObservationModel( threeWayRangeSettingsInverse, bodyMap );
 
     // Get range without timing errors.
     double testTime = 1.05E7 + 2.0E4;
-//    Eigen::VectorXd uplinkRangeWithoutTimeError = uplinkRangeModel->computeObservations( testTime, receiver );
-//
-//    // Get times into arcs of timing errors of station and satellite.
-//    std::pair< Time, int > timeIntoCurrentSatelliteArc = lageosTimingSystem->getTimeIntoCurrentArcAndArcIndex( testTime );
-//    std::pair< Time, int > timeIntoCurrentStationArc = grazTimingSystem->getTimeIntoCurrentArcAndArcIndex(
-//        testTime - uplinkRangeWithoutTimeError.x( ) / physical_constants::SPEED_OF_LIGHT );
+    //    Eigen::VectorXd uplinkRangeWithoutTimeError = uplinkRangeModel->computeObservations( testTime, receiver );
+    //
+    //    // Get times into arcs of timing errors of station and satellite.
+    //    std::pair< Time, int > timeIntoCurrentSatelliteArc = lageosTimingSystem->getTimeIntoCurrentArcAndArcIndex( testTime );
+    //    std::pair< Time, int > timeIntoCurrentStationArc = grazTimingSystem->getTimeIntoCurrentArcAndArcIndex(
+    //        testTime - uplinkRangeWithoutTimeError.x( ) / physical_constants::SPEED_OF_LIGHT );
 
     // Create parameters from global and arcwise satellite clock corrections.
     std::shared_ptr< GlobalPolynomialClockCorrections > globalSatellitePolynomialClockCorrections =
-        std::make_shared< GlobalPolynomialClockCorrections >(
-            lageosTimingSystem,  std::vector< int >( {2, 0, 1} ), "LAGEOS", "" );
-    std::shared_ptr< MultiArcClockCorrections > arcWiseSatellitePolynomialClockCorrections =
-        std::make_shared< MultiArcClockCorrections >(
-            lageosTimingSystem,
-            std::vector< int >( { 2, 0, 1 } ),
-            std::vector< int >( { 0, 1, 10, 37 } ),
-            "LAGEOS", "" );
+            std::make_shared< GlobalPolynomialClockCorrections >( lageosTimingSystem, std::vector< int >( { 2, 0, 1 } ), "LAGEOS", "" );
+    std::shared_ptr< MultiArcClockCorrections > arcWiseSatellitePolynomialClockCorrections = std::make_shared< MultiArcClockCorrections >(
+            lageosTimingSystem, std::vector< int >( { 2, 0, 1 } ), std::vector< int >( { 0, 1, 10, 37 } ), "LAGEOS", "" );
 
     // Create parameters from global and arcwise station clock corrections.
-    std::shared_ptr<GlobalPolynomialClockCorrections> globalStationPolynomialClockCorrections =
-        std::make_shared<GlobalPolynomialClockCorrections>(
-            grazTimingSystem, std::vector<int>( { 2, 0, 1 } ), "Earth", "Graz" );
-    std::shared_ptr<MultiArcClockCorrections> arcWiseStationPolynomialClockCorrections =
-        std::make_shared<MultiArcClockCorrections>(
-            grazTimingSystem,
-            std::vector<int>( { 2, 0, 1 } ),
-            std::vector<int>( { 1, 0, 4, 16 } ),
-            "Earth", "Graz" );
+    std::shared_ptr< GlobalPolynomialClockCorrections > globalStationPolynomialClockCorrections =
+            std::make_shared< GlobalPolynomialClockCorrections >( grazTimingSystem, std::vector< int >( { 2, 0, 1 } ), "Earth", "Graz" );
+    std::shared_ptr< MultiArcClockCorrections > arcWiseStationPolynomialClockCorrections = std::make_shared< MultiArcClockCorrections >(
+            grazTimingSystem, std::vector< int >( { 2, 0, 1 } ), std::vector< int >( { 1, 0, 4, 16 } ), "Earth", "Graz" );
 
     // Create timing partials wrt satellite clock corrections, and test against expeted values
     {
@@ -275,55 +258,66 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
             {
                 std::map< int, std::shared_ptr< TimingPartial > > timingPartialsWrtGlobalSatelliteClockParameters =
                         createTimingPartialWrtClockProperty< Eigen::VectorXd >(
-                            testLinkEnds, observableType, globalSatellitePolynomialClockCorrections,
-                            getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
+                                testLinkEnds,
+                                observableType,
+                                globalSatellitePolynomialClockCorrections,
+                                getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
                 std::map< int, std::shared_ptr< TimingPartial > > timingPartialsWrtArcWiseSatelliteClockParameters =
                         createTimingPartialWrtClockProperty< Eigen::VectorXd >(
-                            testLinkEnds, observableType, arcWiseSatellitePolynomialClockCorrections,
-                            getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
+                                testLinkEnds,
+                                observableType,
+                                arcWiseSatellitePolynomialClockCorrections,
+                                getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
 
                 BOOST_CHECK_EQUAL( timingPartialsWrtGlobalSatelliteClockParameters.size( ), numberOfPartialObjects );
                 BOOST_CHECK_EQUAL( timingPartialsWrtArcWiseSatelliteClockParameters.size( ), numberOfPartialObjects );
 
                 int counter = 0;
-                for( auto it : timingPartialsWrtGlobalSatelliteClockParameters )
+                for( auto it: timingPartialsWrtGlobalSatelliteClockParameters )
                 {
                     BOOST_CHECK_EQUAL( it.first, satelliteLinkEndIndices.at( counter ) );
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.second->getPartialOfClockErrorWrtParameter( testTime ),
-                                                       expectedGlobalSatelliteCoefficientOneWayPartials, std::numeric_limits< double >::epsilon( ) );
+                                                       expectedGlobalSatelliteCoefficientOneWayPartials,
+                                                       std::numeric_limits< double >::epsilon( ) );
                     counter++;
                 }
 
                 counter = 0;
-                for( auto it : timingPartialsWrtArcWiseSatelliteClockParameters )
+                for( auto it: timingPartialsWrtArcWiseSatelliteClockParameters )
                 {
                     BOOST_CHECK_EQUAL( it.first, satelliteLinkEndIndices.at( counter ) );
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.second->getPartialOfClockErrorWrtParameter( testTime ),
-                                                       expectedArcWiseSatelliteCoefficientPartials, std::numeric_limits< double >::epsilon( ) )
+                                                       expectedArcWiseSatelliteCoefficientPartials,
+                                                       std::numeric_limits< double >::epsilon( ) )
                     counter++;
                 }
             }
 
             {
                 std::shared_ptr< ObservationPartial< 1 > > partialWrtGlobalSatelliteClockParameters =
-                    ObservationPartialWrtClockCreator< Eigen::VectorXd, 1 >::createPartialWrtClockProperty(
-                        testLinkEnds, observableType, globalSatellitePolynomialClockCorrections,
-                        getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
+                        ObservationPartialWrtClockCreator< Eigen::VectorXd, 1 >::createPartialWrtClockProperty(
+                                testLinkEnds,
+                                observableType,
+                                globalSatellitePolynomialClockCorrections,
+                                getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
 
                 std::shared_ptr< ObservationPartial< 1 > > partialWrtArcwiseSatelliteClockParameters =
-                    ObservationPartialWrtClockCreator< Eigen::VectorXd, 1 >::createPartialWrtClockProperty(
-                        testLinkEnds, observableType, arcWiseSatellitePolynomialClockCorrections,
-                        getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
+                        ObservationPartialWrtClockCreator< Eigen::VectorXd, 1 >::createPartialWrtClockProperty(
+                                testLinkEnds,
+                                observableType,
+                                arcWiseSatellitePolynomialClockCorrections,
+                                getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
 
                 std::vector< double > linkEndTimes;
                 std::vector< Eigen::Vector6d > linkEndStates;
                 observationModel->computeObservationsWithLinkEndData( testTime, receiver, linkEndTimes, linkEndStates );
 
-                std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > rangePartialWrtGlobalSatelliteClockParameters =
-                    partialWrtGlobalSatelliteClockParameters->calculatePartial( linkEndStates, linkEndTimes );
-                std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > rangePartialWrtArcwiseSatelliteClockParameters =
-                    partialWrtArcwiseSatelliteClockParameters->calculatePartial( linkEndStates, linkEndTimes );
-
+                std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > >
+                        rangePartialWrtGlobalSatelliteClockParameters =
+                                partialWrtGlobalSatelliteClockParameters->calculatePartial( linkEndStates, linkEndTimes );
+                std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > >
+                        rangePartialWrtArcwiseSatelliteClockParameters =
+                                partialWrtArcwiseSatelliteClockParameters->calculatePartial( linkEndStates, linkEndTimes );
 
                 BOOST_CHECK_EQUAL( rangePartialWrtGlobalSatelliteClockParameters.size( ), numberOfPartialObjects );
                 BOOST_CHECK_EQUAL( rangePartialWrtArcwiseSatelliteClockParameters.size( ), numberOfPartialObjects );
@@ -332,11 +326,16 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
                 for( unsigned int partialIndex = 0; partialIndex < rangePartialWrtGlobalSatelliteClockParameters.size( ); partialIndex++ )
                 {
                     auto it = rangePartialWrtGlobalSatelliteClockParameters.at( partialIndex );
-                    BOOST_CHECK_CLOSE_FRACTION( it.second, linkEndTimes.at( satelliteLinkEndIndices.at( counter ) ), std::numeric_limits< double >::epsilon( ) );
-                    double timeIntoCurrentArc = linkEndTimes.at( satelliteLinkEndIndices.at( counter ) ) - satelliteClockErrorArcTimes.at( currentSatelliteArc );
+                    BOOST_CHECK_CLOSE_FRACTION( it.second,
+                                                linkEndTimes.at( satelliteLinkEndIndices.at( counter ) ),
+                                                std::numeric_limits< double >::epsilon( ) );
+                    double timeIntoCurrentArc = linkEndTimes.at( satelliteLinkEndIndices.at( counter ) ) -
+                            satelliteClockErrorArcTimes.at( currentSatelliteArc );
                     Eigen::MatrixXd expectedPartials = getGlobalExpectedClockPartials( timeIntoCurrentArc ) *
-                        ( ( satelliteLinkEndIndices.at( counter ) % 2 == 0 ) ? -1.0 : 1.0 );
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.first, ( expectedPartials * physical_constants::SPEED_OF_LIGHT ), std::numeric_limits< double >::epsilon( ) );
+                            ( ( satelliteLinkEndIndices.at( counter ) % 2 == 0 ) ? -1.0 : 1.0 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.first,
+                                                       ( expectedPartials * physical_constants::SPEED_OF_LIGHT ),
+                                                       std::numeric_limits< double >::epsilon( ) );
                     counter++;
                 }
 
@@ -344,11 +343,16 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
                 for( unsigned int partialIndex = 0; partialIndex < rangePartialWrtArcwiseSatelliteClockParameters.size( ); partialIndex++ )
                 {
                     auto it = rangePartialWrtArcwiseSatelliteClockParameters.at( partialIndex );
-                    BOOST_CHECK_CLOSE_FRACTION( it.second, linkEndTimes.at( satelliteLinkEndIndices.at( counter ) ), std::numeric_limits< double >::epsilon( ) );
-                    double timeIntoCurrentArc = linkEndTimes.at( satelliteLinkEndIndices.at( counter ) ) - satelliteClockErrorArcTimes.at( currentSatelliteArc );
+                    BOOST_CHECK_CLOSE_FRACTION( it.second,
+                                                linkEndTimes.at( satelliteLinkEndIndices.at( counter ) ),
+                                                std::numeric_limits< double >::epsilon( ) );
+                    double timeIntoCurrentArc = linkEndTimes.at( satelliteLinkEndIndices.at( counter ) ) -
+                            satelliteClockErrorArcTimes.at( currentSatelliteArc );
                     Eigen::MatrixXd expectedPartials = getArcwiseExpectedClockPartials( timeIntoCurrentArc ) *
-                                                       ( ( satelliteLinkEndIndices.at( counter ) % 2 == 0 ) ? -1.0 : 1.0 );
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.first, ( expectedPartials * physical_constants::SPEED_OF_LIGHT ), std::numeric_limits< double >::epsilon( ) );
+                            ( ( satelliteLinkEndIndices.at( counter ) % 2 == 0 ) ? -1.0 : 1.0 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.first,
+                                                       ( expectedPartials * physical_constants::SPEED_OF_LIGHT ),
+                                                       std::numeric_limits< double >::epsilon( ) );
                     counter++;
                 }
             }
@@ -397,56 +401,66 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
 
             {
                 std::map< int, std::shared_ptr< TimingPartial > > timingPartialsWrtGlobalStationClockParameters =
-                    createTimingPartialWrtClockProperty< Eigen::VectorXd >(
-                        testLinkEnds, observableType, globalStationPolynomialClockCorrections,
-                        getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
+                        createTimingPartialWrtClockProperty< Eigen::VectorXd >(
+                                testLinkEnds,
+                                observableType,
+                                globalStationPolynomialClockCorrections,
+                                getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
                 std::map< int, std::shared_ptr< TimingPartial > > timingPartialsWrtArcWiseStationClockParameters =
-                    createTimingPartialWrtClockProperty< Eigen::VectorXd >(
-                        testLinkEnds, observableType, arcWiseStationPolynomialClockCorrections,
-                        getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
+                        createTimingPartialWrtClockProperty< Eigen::VectorXd >(
+                                testLinkEnds,
+                                observableType,
+                                arcWiseStationPolynomialClockCorrections,
+                                getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
 
                 BOOST_CHECK_EQUAL( timingPartialsWrtGlobalStationClockParameters.size( ), numberOfPartialObjects );
                 BOOST_CHECK_EQUAL( timingPartialsWrtArcWiseStationClockParameters.size( ), numberOfPartialObjects );
 
                 int counter = 0;
-                for( auto it : timingPartialsWrtGlobalStationClockParameters )
+                for( auto it: timingPartialsWrtGlobalStationClockParameters )
                 {
                     BOOST_CHECK_EQUAL( it.first, stationLinkEndIndices.at( counter ) );
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.second->getPartialOfClockErrorWrtParameter( testTime ),
-                                                       expectedGlobalStationCoefficientOneWayPartials, std::numeric_limits< double >::epsilon( ) );
+                                                       expectedGlobalStationCoefficientOneWayPartials,
+                                                       std::numeric_limits< double >::epsilon( ) );
                     counter++;
                 }
 
                 counter = 0;
-                for( auto it : timingPartialsWrtArcWiseStationClockParameters )
+                for( auto it: timingPartialsWrtArcWiseStationClockParameters )
                 {
                     BOOST_CHECK_EQUAL( it.first, stationLinkEndIndices.at( counter ) );
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.second->getPartialOfClockErrorWrtParameter( testTime ),
-                                                       expectedArcWiseStationCoefficientPartials, std::numeric_limits< double >::epsilon( ) )
+                                                       expectedArcWiseStationCoefficientPartials,
+                                                       std::numeric_limits< double >::epsilon( ) )
                     counter++;
                 }
             }
 
             {
                 std::shared_ptr< ObservationPartial< 1 > > partialWrtGlobalStationClockParameters =
-                    ObservationPartialWrtClockCreator< Eigen::VectorXd, 1 >::createPartialWrtClockProperty(
-                        testLinkEnds, observableType, globalStationPolynomialClockCorrections,
-                        getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
+                        ObservationPartialWrtClockCreator< Eigen::VectorXd, 1 >::createPartialWrtClockProperty(
+                                testLinkEnds,
+                                observableType,
+                                globalStationPolynomialClockCorrections,
+                                getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
 
                 std::shared_ptr< ObservationPartial< 1 > > partialWrtArcwiseStationClockParameters =
-                    ObservationPartialWrtClockCreator< Eigen::VectorXd, 1 >::createPartialWrtClockProperty(
-                        testLinkEnds, observableType, arcWiseStationPolynomialClockCorrections,
-                        getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
+                        ObservationPartialWrtClockCreator< Eigen::VectorXd, 1 >::createPartialWrtClockProperty(
+                                testLinkEnds,
+                                observableType,
+                                arcWiseStationPolynomialClockCorrections,
+                                getClockInducedBiases( observationModel->getObservationBiasCalculator( ) ) );
 
                 std::vector< double > linkEndTimes;
                 std::vector< Eigen::Vector6d > linkEndStates;
                 observationModel->computeObservationsWithLinkEndData( testTime, receiver, linkEndTimes, linkEndStates );
 
                 std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > rangePartialWrtGlobalStationClockParameters =
-                    partialWrtGlobalStationClockParameters->calculatePartial( linkEndStates, linkEndTimes );
-                std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > rangePartialWrtArcwiseStationClockParameters =
-                    partialWrtArcwiseStationClockParameters->calculatePartial( linkEndStates, linkEndTimes );
-
+                        partialWrtGlobalStationClockParameters->calculatePartial( linkEndStates, linkEndTimes );
+                std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > >
+                        rangePartialWrtArcwiseStationClockParameters =
+                                partialWrtArcwiseStationClockParameters->calculatePartial( linkEndStates, linkEndTimes );
 
                 BOOST_CHECK_EQUAL( rangePartialWrtGlobalStationClockParameters.size( ), numberOfPartialObjects );
                 BOOST_CHECK_EQUAL( rangePartialWrtArcwiseStationClockParameters.size( ), numberOfPartialObjects );
@@ -455,11 +469,15 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
                 for( unsigned int partialIndex = 0; partialIndex < rangePartialWrtGlobalStationClockParameters.size( ); partialIndex++ )
                 {
                     auto it = rangePartialWrtGlobalStationClockParameters.at( partialIndex );
-                    BOOST_CHECK_CLOSE_FRACTION( it.second, linkEndTimes.at( stationLinkEndIndices.at( counter ) ), std::numeric_limits< double >::epsilon( ) );
-                    double timeIntoCurrentArc = linkEndTimes.at( stationLinkEndIndices.at( counter ) ) - grazClockErrorArcTimes.at( currentStationArc );
+                    BOOST_CHECK_CLOSE_FRACTION(
+                            it.second, linkEndTimes.at( stationLinkEndIndices.at( counter ) ), std::numeric_limits< double >::epsilon( ) );
+                    double timeIntoCurrentArc =
+                            linkEndTimes.at( stationLinkEndIndices.at( counter ) ) - grazClockErrorArcTimes.at( currentStationArc );
                     Eigen::MatrixXd expectedPartials = getGlobalExpectedClockPartials( timeIntoCurrentArc ) *
-                                                       ( ( stationLinkEndIndices.at( counter ) % 2 == 0 ) ? -1.0 : 1.0 );
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.first, ( expectedPartials * physical_constants::SPEED_OF_LIGHT ), std::numeric_limits< double >::epsilon( ) );
+                            ( ( stationLinkEndIndices.at( counter ) % 2 == 0 ) ? -1.0 : 1.0 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.first,
+                                                       ( expectedPartials * physical_constants::SPEED_OF_LIGHT ),
+                                                       std::numeric_limits< double >::epsilon( ) );
                     counter++;
                 }
 
@@ -467,22 +485,23 @@ BOOST_AUTO_TEST_CASE( test_ClockPartials )
                 for( unsigned int partialIndex = 0; partialIndex < rangePartialWrtArcwiseStationClockParameters.size( ); partialIndex++ )
                 {
                     auto it = rangePartialWrtArcwiseStationClockParameters.at( partialIndex );
-                    BOOST_CHECK_CLOSE_FRACTION( it.second, linkEndTimes.at( stationLinkEndIndices.at( counter ) ), std::numeric_limits< double >::epsilon( ) );
-                    double timeIntoCurrentArc = linkEndTimes.at( stationLinkEndIndices.at( counter ) ) - grazClockErrorArcTimes.at( currentStationArc );
+                    BOOST_CHECK_CLOSE_FRACTION(
+                            it.second, linkEndTimes.at( stationLinkEndIndices.at( counter ) ), std::numeric_limits< double >::epsilon( ) );
+                    double timeIntoCurrentArc =
+                            linkEndTimes.at( stationLinkEndIndices.at( counter ) ) - grazClockErrorArcTimes.at( currentStationArc );
                     Eigen::MatrixXd expectedPartials = getArcwiseExpectedClockPartials( timeIntoCurrentArc ) *
-                                                       ( ( stationLinkEndIndices.at( counter ) % 2 == 0 ) ? -1.0 : 1.0 );
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.first, ( expectedPartials * physical_constants::SPEED_OF_LIGHT ), std::numeric_limits< double >::epsilon( ) );
+                            ( ( stationLinkEndIndices.at( counter ) % 2 == 0 ) ? -1.0 : 1.0 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.first,
+                                                       ( expectedPartials * physical_constants::SPEED_OF_LIGHT ),
+                                                       std::numeric_limits< double >::epsilon( ) );
                     counter++;
                 }
             }
         }
     }
-
 }
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
-
+}  // namespace tudat

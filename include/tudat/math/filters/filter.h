@@ -47,7 +47,6 @@ template< typename IndependentVariableType = double, typename DependentVariableT
 class FilterBase
 {
 public:
-
     //! Typedef of the state and measurement vectors.
     typedef Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > DependentVector;
 
@@ -64,8 +63,8 @@ public:
     typedef numerical_integrators::IntegratorSettings< IndependentVariableType > IntegratorSettings;
 
     //! Typedef of the integrator.
-    typedef numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVector,
-    DependentVector, IndependentVariableType > Integrator;
+    typedef numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVector, DependentVector, IndependentVariableType >
+            Integrator;
 
     //! Constructor.
     /*!
@@ -86,23 +85,23 @@ public:
                 const IndependentVariableType initialTime,
                 const DependentVector& initialStateVector,
                 const DependentMatrix& initialCovarianceMatrix,
-                const std::shared_ptr< IntegratorSettings > integratorSettings ) :
-        systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ),
-        filteringStepSize_( filteringStepSize ), initialTime_( initialTime ), currentTime_( initialTime ),
-        aPosterioriStateEstimate_( initialStateVector ), aPosterioriCovarianceEstimate_( initialCovarianceMatrix )
+                const std::shared_ptr< IntegratorSettings > integratorSettings ):
+        systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ), filteringStepSize_( filteringStepSize ),
+        initialTime_( initialTime ), currentTime_( initialTime ), aPosterioriStateEstimate_( initialStateVector ),
+        aPosterioriCovarianceEstimate_( initialCovarianceMatrix )
     {
         // Check that uncertainty matrices are square
-        if ( systemUncertainty_.rows( ) != systemUncertainty_.cols( ) )
+        if( systemUncertainty_.rows( ) != systemUncertainty_.cols( ) )
         {
             throw std::runtime_error( "Error in setting up filter. The system uncertainty matrix has to be square." );
         }
-        if ( measurementUncertainty_.rows( ) != measurementUncertainty_.cols( ) )
+        if( measurementUncertainty_.rows( ) != measurementUncertainty_.cols( ) )
         {
             throw std::runtime_error( "Error in setting up filter. The measurement uncertainty matrix has to be square." );
         }
 
         // Check that state vector and system uncertainty match in size
-        if ( initialStateVector.rows( ) != systemUncertainty.rows( ) )
+        if( initialStateVector.rows( ) != systemUncertainty.rows( ) )
         {
             throw std::runtime_error( "Error in setting up filter. The state vector and system uncertainty have different sizes." );
         }
@@ -112,13 +111,17 @@ public:
 
         // Create system and measurement functions based on input parameters// Get time step information
         systemFunction_ = std::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createSystemFunction,
-                                     this, std::placeholders::_1, std::placeholders::_2 );
+                                     this,
+                                     std::placeholders::_1,
+                                     std::placeholders::_2 );
         measurementFunction_ = std::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createMeasurementFunction,
-                                          this, std::placeholders::_1, std::placeholders::_2 );
+                                          this,
+                                          std::placeholders::_1,
+                                          std::placeholders::_2 );
 
         // Create numerical integrator
         isStateToBeIntegrated_ = integratorSettings != nullptr;
-        if ( isStateToBeIntegrated_ )
+        if( isStateToBeIntegrated_ )
         {
             generateNumericalIntegrator( integratorSettings );
         }
@@ -132,7 +135,7 @@ public:
     }
 
     //! Destructor.
-    virtual ~FilterBase( ){ }
+    virtual ~FilterBase( ) { }
 
     //! Function to update the filter with the data from the new time step.
     /*!
@@ -154,12 +157,11 @@ public:
         DependentVector systemNoise = DependentVector::Zero( systemUncertainty_.rows( ) );
 
         // Loop over dimensions and add noise
-        for ( int i = 0; i < systemUncertainty_.rows( ); i++ )
+        for( int i = 0; i < systemUncertainty_.rows( ); i++ )
         {
-            if ( systemNoiseDistribution_.at( i ) != nullptr )
+            if( systemNoiseDistribution_.at( i ) != nullptr )
             {
-                systemNoise[ i ] = static_cast< DependentVariableType >(
-                            systemNoiseDistribution_.at( i )->getRandomVariableValue( ) );
+                systemNoise[ i ] = static_cast< DependentVariableType >( systemNoiseDistribution_.at( i )->getRandomVariableValue( ) );
             }
         }
 
@@ -180,12 +182,12 @@ public:
         DependentVector measurementNoise = DependentVector::Zero( measurementUncertainty_.rows( ) );
 
         // Loop over dimensions and add noise
-        for ( int i = 0; i < measurementUncertainty_.rows( ); i++ )
+        for( int i = 0; i < measurementUncertainty_.rows( ); i++ )
         {
-            if ( measurementNoiseDistribution_.at( i ) != nullptr )
+            if( measurementNoiseDistribution_.at( i ) != nullptr )
             {
-                measurementNoise[ i ] = static_cast< DependentVariableType >(
-                            measurementNoiseDistribution_.at( i )->getRandomVariableValue( ) );
+                measurementNoise[ i ] =
+                        static_cast< DependentVariableType >( measurementNoiseDistribution_.at( i )->getRandomVariableValue( ) );
             }
         }
 
@@ -195,13 +197,22 @@ public:
     }
 
     //! Function to retrieve step-size for filtering.
-    IndependentVariableType getFilteringStepSize( ) { return filteringStepSize_; }
+    IndependentVariableType getFilteringStepSize( )
+    {
+        return filteringStepSize_;
+    }
 
     //! Function to retrieve initial time.
-    IndependentVariableType getInitialTime( ) { return initialTime_; }
+    IndependentVariableType getInitialTime( )
+    {
+        return initialTime_;
+    }
 
     //! Function to retrieve current time.
-    IndependentVariableType getCurrentTime( ) { return currentTime_; }
+    IndependentVariableType getCurrentTime( )
+    {
+        return currentTime_;
+    }
 
     //! Function to retrieve current state estimate.
     /*!
@@ -209,7 +220,10 @@ public:
      *  filter with the updateFilter function.
      *  \return Current state estimate.
      */
-    DependentVector getCurrentStateEstimate( ) { return aPosterioriStateEstimate_; }
+    DependentVector getCurrentStateEstimate( )
+    {
+        return aPosterioriStateEstimate_;
+    }
 
     //! Function to retrieve current covariance estimate.
     /*!
@@ -217,7 +231,10 @@ public:
      *  updating the filter with the updateFilter function.
      *  \return Current state estimate.
      */
-    DependentMatrix getCurrentCovarianceEstimate( ) { return aPosterioriCovarianceEstimate_; }
+    DependentMatrix getCurrentCovarianceEstimate( )
+    {
+        return aPosterioriCovarianceEstimate_;
+    }
 
     //! Function to retrieve the history of estimated states.
     /*!
@@ -281,7 +298,7 @@ public:
     {
         // Update estimates with user-provided data
         aPosterioriStateEstimate_ = newStateEstimate;
-        if ( !newCovarianceEstimate.isZero( ) )
+        if( !newCovarianceEstimate.isZero( ) )
         {
             aPosterioriCovarianceEstimate_ = newCovarianceEstimate;
         }
@@ -310,25 +327,25 @@ public:
         currentTime_ -= filteringStepSize_;
 
         // Erase state estimate corresponding to current time
-        if ( historyOfStateEstimates_.count( timeToBeRemoved ) != 0 )
+        if( historyOfStateEstimates_.count( timeToBeRemoved ) != 0 )
         {
             historyOfStateEstimates_.erase( timeToBeRemoved );
         }
         aPosterioriStateEstimate_ = historyOfStateEstimates_.rbegin( )->second;
 
         // Erase covariance estimate corresponding to current time
-        if ( historyOfCovarianceEstimates_.count( timeToBeRemoved ) != 0 )
+        if( historyOfCovarianceEstimates_.count( timeToBeRemoved ) != 0 )
         {
             historyOfCovarianceEstimates_.erase( timeToBeRemoved );
         }
         aPosterioriCovarianceEstimate_ = historyOfCovarianceEstimates_.rbegin( )->second;
 
         // Erase last noise entries
-        if ( !systemNoiseHistory_.empty( ) )
+        if( !systemNoiseHistory_.empty( ) )
         {
             systemNoiseHistory_.pop_back( );
         }
-        if ( !measurementNoiseHistory_.empty( ) )
+        if( !measurementNoiseHistory_.empty( ) )
         {
             measurementNoiseHistory_.pop_back( );
         }
@@ -338,7 +355,6 @@ public:
     }
 
 protected:
-
     //! Function to create the function that defines the system model.
     /*!
      *  Function to create the function that defines the system model. The output of this function is then bound
@@ -378,8 +394,10 @@ protected:
      *  \param measurementEstimate Vector denoting the measurement estimate.
      *  \param gainMatrix Gain matrix, such as Kalman gain (for Kalman filters).
      */
-    void correctState( const DependentVector& aPrioriStateEstimate, const DependentVector& currentMeasurementVector,
-                       const DependentVector& measurementEstimate, const DependentMatrix& gainMatrix )
+    void correctState( const DependentVector& aPrioriStateEstimate,
+                       const DependentVector& currentMeasurementVector,
+                       const DependentVector& measurementEstimate,
+                       const DependentMatrix& gainMatrix )
     {
         aPosterioriStateEstimate_ = aPrioriStateEstimate + gainMatrix * ( currentMeasurementVector - measurementEstimate );
         historyOfStateEstimates_[ currentTime_ ] = aPosterioriStateEstimate_;
@@ -391,7 +409,8 @@ protected:
      *  the integrator provided in the integratorSettings, or the systemFunction_ input by the user.
      */
     virtual void correctCovariance( const DependentMatrix& aPrioriCovarianceEstimate,
-                                    const DependentMatrix& currentMeasurementMatrix, const DependentMatrix& kalmanGain ) = 0;
+                                    const DependentMatrix& currentMeasurementMatrix,
+                                    const DependentMatrix& kalmanGain ) = 0;
 
     //! Function to clear the history of stored variables for derived class-specific variables.
     /*!
@@ -406,7 +425,10 @@ protected:
      *  a derived class, to add other variables to the list of elements to be reverted.
      *  \param timeToBeRemoved Double denoting the current time, i.e., the instant that has to be discarded.
      */
-    virtual void specificRevertToPreviousTimeStep( const double timeToBeRemoved ) { TUDAT_UNUSED_PARAMETER( timeToBeRemoved ); }
+    virtual void specificRevertToPreviousTimeStep( const double timeToBeRemoved )
+    {
+        TUDAT_UNUSED_PARAMETER( timeToBeRemoved );
+    }
 
     //! System function.
     /*!
@@ -472,7 +494,6 @@ protected:
     std::map< IndependentVariableType, DependentMatrix > historyOfCovarianceEstimates_;
 
 private:
-
     //! Function to generate the noise distributions for both system and measurement modeling.
     /*!
      *  Function to generate the noise distributions for both system and measurement modeling, which uses
@@ -484,15 +505,14 @@ private:
         using namespace tudat::statistics;
 
         // Create system noise
-        for ( unsigned int i = 0; i < systemUncertainty_.rows( ); i++ )
+        for( unsigned int i = 0; i < systemUncertainty_.rows( ); i++ )
         {
-            if ( static_cast< double >( systemUncertainty_( i, i ) ) != 0.0 )
+            if( static_cast< double >( systemUncertainty_( i, i ) ) != 0.0 )
             {
-                systemNoiseDistribution_.push_back(
-                            createBoostContinuousRandomVariableGenerator(
-                                normal_boost_distribution, { 0.0, static_cast< double >(
-                                                             std::sqrt( systemUncertainty_( i, i ) ) ) },
-                                static_cast< double >( i ) ) );
+                systemNoiseDistribution_.push_back( createBoostContinuousRandomVariableGenerator(
+                        normal_boost_distribution,
+                        { 0.0, static_cast< double >( std::sqrt( systemUncertainty_( i, i ) ) ) },
+                        static_cast< double >( i ) ) );
             }
             else
             {
@@ -501,15 +521,14 @@ private:
         }
 
         // Create measurement noise
-        for ( unsigned int i = 0; i < measurementUncertainty_.rows( ); i++ )
+        for( unsigned int i = 0; i < measurementUncertainty_.rows( ); i++ )
         {
-            if ( static_cast< double >( measurementUncertainty_( i, i ) ) != 0.0 )
+            if( static_cast< double >( measurementUncertainty_( i, i ) ) != 0.0 )
             {
-                measurementNoiseDistribution_.push_back(
-                            createBoostContinuousRandomVariableGenerator(
-                                normal_boost_distribution, { 0.0, static_cast< double >(
-                                                             std::sqrt( measurementUncertainty_( i, i ) ) ) },
-                                static_cast< double >( systemUncertainty_.rows( ) + i ) ) );
+                measurementNoiseDistribution_.push_back( createBoostContinuousRandomVariableGenerator(
+                        normal_boost_distribution,
+                        { 0.0, static_cast< double >( std::sqrt( measurementUncertainty_( i, i ) ) ) },
+                        static_cast< double >( systemUncertainty_.rows( ) + i ) ) );
             }
             else
             {
@@ -528,37 +547,36 @@ private:
     void generateNumericalIntegrator( const std::shared_ptr< IntegratorSettings > integratorSettings )
     {
         // Check that integration time-step matches filtering time-step
-        if ( filteringStepSize_ != integratorSettings->initialTimeStep_ )
+        if( filteringStepSize_ != integratorSettings->initialTimeStep_ )
         {
             throw std::runtime_error( "Error while setting up filter. The filtering and integration step sizes do not match." );
         }
 
         // Generate integrator
-        switch ( integratorSettings->integratorType_ )
+        switch( integratorSettings->integratorType_ )
         {
-        case numerical_integrators::euler:
-        case numerical_integrators::rungeKutta4:
-        {
-            integrator_ = numerical_integrators::createIntegrator< IndependentVariableType, DependentVector >(
+            case numerical_integrators::euler:
+            case numerical_integrators::rungeKutta4: {
+                integrator_ = numerical_integrators::createIntegrator< IndependentVariableType, DependentVector >(
                         systemFunction_, aPosterioriStateEstimate_, integratorSettings );
-            break;
-        }
-        case numerical_integrators::rungeKuttaVariableStepSize:
-        {
-            // Warn user of changes that will be made
-            std::cerr << "Warning in setting up filter. Integrator requested is variable step-size, but only constant "
-                         "step-size integrators are supported. Step-size control will be turned off." << std::endl;
+                break;
+            }
+            case numerical_integrators::rungeKuttaVariableStepSize: {
+                // Warn user of changes that will be made
+                std::cerr << "Warning in setting up filter. Integrator requested is variable step-size, but only constant "
+                             "step-size integrators are supported. Step-size control will be turned off."
+                          << std::endl;
 
-            // Create integrator object
-            integrator_ = numerical_integrators::createIntegrator< IndependentVariableType, DependentVector >(
+                // Create integrator object
+                integrator_ = numerical_integrators::createIntegrator< IndependentVariableType, DependentVector >(
                         systemFunction_, aPosterioriStateEstimate_, integratorSettings );
 
-            // Turn off step-size control
-            integrator_->setStepSizeControl( false );
-            break;
-        }
-        default:
-            throw std::runtime_error( "Error in setting up filter. Only Euler and Runge-Kutta integrators are supported." );
+                // Turn off step-size control
+                integrator_->setStepSizeControl( false );
+                break;
+            }
+            default:
+                throw std::runtime_error( "Error in setting up filter. Only Euler and Runge-Kutta integrators are supported." );
         }
     }
 
@@ -573,17 +591,16 @@ private:
 
     //! Vector of measurement noise hisotries.
     std::vector< DependentVector > measurementNoiseHistory_;
-
 };
 
 //! Typedef for a filter with double data type.
-typedef FilterBase< > FilterDouble;
+typedef FilterBase<> FilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
 typedef std::shared_ptr< FilterDouble > FilterDoublePointer;
 
-} // namespace filters
+}  // namespace filters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_FILTER_H
+#endif  // TUDAT_FILTER_H

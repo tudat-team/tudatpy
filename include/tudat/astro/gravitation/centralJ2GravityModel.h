@@ -54,29 +54,25 @@ namespace gravitation
  *          (body2) [m].
  * \return Gravitational acceleration exerted on body1 due to J2-effect [m s^-2].
  */
-Eigen::Vector3d computeGravitationalAccelerationDueToJ2(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double gravitationalParameterOfBodyExertingAcceleration,
-        const double equatorialRadiusOfBodyExertingAcceleration,
-        const double j2CoefficientOfGravityField,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration );
+Eigen::Vector3d computeGravitationalAccelerationDueToJ2( const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                                         const double gravitationalParameterOfBodyExertingAcceleration,
+                                                         const double equatorialRadiusOfBodyExertingAcceleration,
+                                                         const double j2CoefficientOfGravityField,
+                                                         const Eigen::Vector3d& positionOfBodyExertingAcceleration );
 
 //! Central + J2 gravitational acceleration model class.
 /*!
  * This class implements a gravitational acceleration model that includes the central and J2
  * (unnormalized coefficient of general spherical harmonics expansion) terms.
  */
-class CentralJ2GravitationalAccelerationModel
-        : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >,
-        public SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d >
+class CentralJ2GravitationalAccelerationModel : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >,
+                                                public SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d >
 {
 private:
-
     //! Typedef for base class.
     typedef SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d > Base;
 
 public:
-
     //! Constructor taking position-functions for bodies, and constant parameters of spherical
     //! harmonics expansion.
     /*!
@@ -101,13 +97,9 @@ public:
             const double aGravitationalParameter,
             const double anEquatorialRadius,
             const double aJ2GravityCoefficient,
-            const Base::StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( ){ return Eigen::Vector3d::Zero( ); } )
-        : Base( positionOfBodySubjectToAccelerationFunction,
-                aGravitationalParameter,
-                positionOfBodyExertingAccelerationFunction, false ),
-          equatorialRadius( anEquatorialRadius ),
-          j2GravityCoefficient( aJ2GravityCoefficient )
+            const Base::StateFunction positionOfBodyExertingAccelerationFunction = []( ) { return Eigen::Vector3d::Zero( ); } ):
+        Base( positionOfBodySubjectToAccelerationFunction, aGravitationalParameter, positionOfBodyExertingAccelerationFunction, false ),
+        equatorialRadius( anEquatorialRadius ), j2GravityCoefficient( aJ2GravityCoefficient )
     {
         this->updateMembers( );
     }
@@ -137,7 +129,6 @@ public:
     }
 
 protected:
-
     //! Equatorial radius [m].
     /*!
      * Equatorial radius of unnormalized spherical harmonics gravity field
@@ -155,10 +146,9 @@ private:
 };
 
 //! Typedef for shared-pointer to CentralJ2GravitationalAccelerationModel.
-typedef std::shared_ptr< CentralJ2GravitationalAccelerationModel >
-CentralJ2GravitationalAccelerationModelPointer;
+typedef std::shared_ptr< CentralJ2GravitationalAccelerationModel > CentralJ2GravitationalAccelerationModelPointer;
 
-} // namespace gravitation
-} // namespace tudat
+}  // namespace gravitation
+}  // namespace tudat
 
-#endif // TUDAT_CENTRAL_J2_GRAVITY_MODEL_H
+#endif  // TUDAT_CENTRAL_J2_GRAVITY_MODEL_H

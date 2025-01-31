@@ -22,23 +22,22 @@ namespace input_output
 {
 
 //! Create a parser that parses based on a separator and given field type list.
-SeparatedParser::SeparatedParser( std::string separator, int numberOfFields, ... )
-    : TextParser ( false ), doTrim( true )
+SeparatedParser::SeparatedParser( std::string separator, int numberOfFields, ... ): TextParser( false ), doTrim( true )
 {
     // Copy number of fields.
     numberOfFields_ = numberOfFields;
     separator_ = separator;
 
     // Create a fancy vector (list) of all the fields.
-    va_list listOfArguments;                // Define argument list variable.
-    va_start( listOfArguments,numberOfFields );  // init list; point to last defined argument.
+    va_list listOfArguments;                      // Define argument list variable.
+    va_start( listOfArguments, numberOfFields );  // init list; point to last defined argument.
 
-    for ( int i = 0; i < numberOfFields; i++ )
+    for( int i = 0; i < numberOfFields; i++ )
     {
-        typeList.push_back( va_arg( listOfArguments, FieldType ) ); // get next argument.
+        typeList.push_back( va_arg( listOfArguments, FieldType ) );  // get next argument.
     }
 
-    va_end ( listOfArguments );  // clean up the system stack.
+    va_end( listOfArguments );  // clean up the system stack.
 }
 
 //! Parses one line of text.
@@ -56,42 +55,38 @@ void SeparatedParser::parseLine( std::string& line )
 
     // Split string into multiple strings based on provided separator and place in vector.
     typedef boost::algorithm::split_iterator< std::string::iterator > string_split_iterator;
-    for( string_split_iterator stringIterator =
-         boost::algorithm::make_split_iterator( line, boost::algorithm::first_finder(
-                                                    separator_, boost::algorithm::is_iequal( ) ) );
-         stringIterator!=string_split_iterator( );
+    for( string_split_iterator stringIterator = boost::algorithm::make_split_iterator(
+                 line, boost::algorithm::first_finder( separator_, boost::algorithm::is_iequal( ) ) );
+         stringIterator != string_split_iterator( );
          ++stringIterator )
     {
         // Prevent empty rows due to a double separator.
-        if ( !boost::copy_range< std::string >( *stringIterator ).empty( ) )
+        if( !boost::copy_range< std::string >( *stringIterator ).empty( ) )
         {
             vectorOfIndividualStrings_.push_back( boost::copy_range< std::string >( *stringIterator ) );
         }
     }
 
     // Verify that number of individual vectors corresponds to the specified number of fields.
-    if ( vectorOfIndividualStrings_.size( ) != numberOfFields_ )
+    if( vectorOfIndividualStrings_.size( ) != numberOfFields_ )
     {
         std::cerr << "Number of elements in the line (" << vectorOfIndividualStrings_.size( )
-        << ") does not match the specified number of fields (" << numberOfFields_ << ")"
-        << std::endl;
+                  << ") does not match the specified number of fields (" << numberOfFields_ << ")" << std::endl;
     }
 
     // Create a new data line
-    ParsedDataLineMapPtr currentLineData = std::make_shared< ParsedDataLineMap >(
-                std::map< FieldType, FieldValuePtr >( ) );
+    ParsedDataLineMapPtr currentLineData = std::make_shared< ParsedDataLineMap >( std::map< FieldType, FieldValuePtr >( ) );
 
     // Register the data line with the global current parsed data vector
     parsedData->push_back( currentLineData );
 
     // Loop over all fields, until the end position pointer is located at the end of the string
-    for ( int unsigned currentFieldNumber = 0; currentFieldNumber < numberOfFields_;
-          currentFieldNumber++ )
+    for( int unsigned currentFieldNumber = 0; currentFieldNumber < numberOfFields_; currentFieldNumber++ )
     {
         // If we need to trim whitespace, do so.
-        if ( doTrim )
+        if( doTrim )
         {
-                boost::trim( vectorOfIndividualStrings_.at( currentFieldNumber ) );
+            boost::trim( vectorOfIndividualStrings_.at( currentFieldNumber ) );
         }
 
         // Get the corresponding field type.
@@ -101,7 +96,7 @@ void SeparatedParser::parseLine( std::string& line )
         std::shared_ptr< FieldTransform > transformer;
 
         // If type corresponds to one of the entries of the unit transformation map.
-        if ( unitTransformationMap_.find( type ) != unitTransformationMap_.end( ) )
+        if( unitTransformationMap_.find( type ) != unitTransformationMap_.end( ) )
         {
             // Set corresponding transformer.
             transformer = unitTransformationMap_.find( type )->second;
@@ -113,14 +108,12 @@ void SeparatedParser::parseLine( std::string& line )
         }
 
         // Store the resulting string.
-        FieldValuePtr value(
-                    new FieldValue(type, vectorOfIndividualStrings_.at( currentFieldNumber ),
-                                   transformer ) );
+        FieldValuePtr value( new FieldValue( type, vectorOfIndividualStrings_.at( currentFieldNumber ), transformer ) );
 
         // Store the type and value in the current line data
         currentLineData->insert( FieldDataPair( type, value ) );
     }
 }
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat

@@ -12,7 +12,6 @@
  *              DEEP SPACE COMMUNICATIONS AND NAVIGATION SERIES, JPL/NASA
  */
 
-
 #ifndef TUDAT_OBSERVATIONFREQUENCIES_H
 #define TUDAT_OBSERVATIONFREQUENCIES_H
 
@@ -25,13 +24,7 @@ namespace tudat
 namespace observation_models
 {
 
-enum FrequencyBands
-{
-    s_band,
-    x_band,
-    ka_band,
-    ku_band
-};
+enum FrequencyBands { s_band, x_band, ka_band, ku_band };
 
 /*!
  * Function returning a string with the name of the frequency band.
@@ -94,8 +87,8 @@ inline FrequencyBands convertDoubleToFrequencyBand( const double frequencyBand )
     return convertDoubleVectorToFrequencyBands( { frequencyBand } ).front( );
 }
 
-} // namespace observation_models
+}  // namespace observation_models
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif //TUDAT_OBSERVATIONFREQUENCIES_H
+#endif  // TUDAT_OBSERVATIONFREQUENCIES_H

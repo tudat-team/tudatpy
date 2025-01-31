@@ -6,10 +6,8 @@ namespace tudat
 namespace propagators
 {
 
-//template class NBodyCowellStateDerivative< double, double >;
+// template class NBodyCowellStateDerivative< double, double >;
 
+}  // namespace propagators
 
-} // namespace propagators
-
-} // namespace tudat
-
+}  // namespace tudat

@@ -22,12 +22,9 @@ namespace basic_astrodynamics
 {
 
 //! Map of `AvailableTorque`s string representations.
-static std::map< AvailableTorque, std::string > torqueTypes =
-{
-    { underfined_torque, "undefined" },
-    { second_order_gravitational_torque, "secondOrderGravitational" },
-    { aerodynamic_torque, "aerodynamic" }
-};
+static std::map< AvailableTorque, std::string > torqueTypes = { { underfined_torque, "undefined" },
+                                                                { second_order_gravitational_torque, "secondOrderGravitational" },
+                                                                { aerodynamic_torque, "aerodynamic" } };
 
 //! `AvailableTorque`s not supported by `json_interface`.
 static std::vector< AvailableTorque > unsupportedTorqueTypes = { };
@@ -44,8 +41,7 @@ inline void from_json( const nlohmann::json& jsonObject, AvailableTorque& torque
     torqueType = json_interface::enumFromString( jsonObject, torqueTypes );
 }
 
-} // namespace basic_astrodynamics
-
+}  // namespace basic_astrodynamics
 
 namespace simulation_setup
 {
@@ -56,8 +52,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< TorqueSettings 
 //! Create a shared pointer to a `TorqueSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< TorqueSettings >& torqueSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_TORQUE_H
+#endif  // TUDAT_JSONINTERFACE_TORQUE_H

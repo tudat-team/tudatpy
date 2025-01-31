@@ -24,8 +24,9 @@ namespace observation_models
  * Object that computes atmospheric corrections (tropospheric or ionospheric), mapped by a pair (ground station, spacecraft)
  * and by the base observable type.
  */
-typedef std::map< std::pair< std::string, std::string >, std::map< observation_models::ObservableType,
-    std::shared_ptr< TabulatedMediaReferenceCorrectionManager > > > AtmosphericCorrectionPerStationAndSpacecraftType;
+typedef std::map< std::pair< std::string, std::string >,
+                  std::map< observation_models::ObservableType, std::shared_ptr< TabulatedMediaReferenceCorrectionManager > > >
+        AtmosphericCorrectionPerStationAndSpacecraftType;
 
 /*!
  * Creates the object to compute the media correction, given the information in a CSP command.
@@ -36,11 +37,10 @@ typedef std::map< std::pair< std::string, std::string >, std::map< observation_m
  * @param computationSpecifier Computation model specifier.
  * @return Object to compute DSN tabulated media correction.
  */
-std::shared_ptr< TabulatedMediaReferenceCorrection > createReferenceCorrection(
-        const double startTime,
-        const double endTime,
-        const std::vector< double >& coefficients,
-        const std::string& computationSpecifier );
+std::shared_ptr< TabulatedMediaReferenceCorrection > createReferenceCorrection( const double startTime,
+                                                                                const double endTime,
+                                                                                const std::vector< double >& coefficients,
+                                                                                const std::string& computationSpecifier );
 
 /*!
  * Creates the objects to compute the specified atmospheric corrections using the data in the provided CSP files.
@@ -112,9 +112,8 @@ AtmosphericCorrectionPerStationAndSpacecraftType extractDefaultTroposphericDryCo
  */
 AtmosphericCorrectionPerStationAndSpacecraftType extractDefaultTroposphericWetCorrection( );
 
+}  // namespace observation_models
 
-} // namespace observation_models
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif //TUDAT_CREATEATMOSPHERICLIGHTTIMECORRECTION_H
+#endif  // TUDAT_CREATEATMOSPHERICLIGHTTIMECORRECTION_H

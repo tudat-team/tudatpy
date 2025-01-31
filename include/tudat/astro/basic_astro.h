@@ -45,4 +45,4 @@
 #include "basic_astro/unifiedStateModelQuaternionElementConversions.h"
 #include "basic_astro/unitConversions.h"
 
-#endif // TUDAT_BASIC_ASTRO_H
+#endif  // TUDAT_BASIC_ASTRO_H

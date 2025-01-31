@@ -39,37 +39,27 @@ BOOST_AUTO_TEST_CASE( test_GravitationalParameters )
         const double expectedGravitationalParameter = 1.32712440018e20;
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER,
-                    expectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER, expectedGravitationalParameter, 1.0e-15 );
     }
 
     // Test if Mercury's gravitational parameter is defined correctly.
     {
         // Defined expected gravitational parameter, as derived from mass ratio given by
         // (JPL, 2012).
-        const double expectedGravitationalParameter =
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER
-                / 6023600.0;
+        const double expectedGravitationalParameter = celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER / 6023600.0;
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::MERCURY_GRAVITATIONAL_PARAMETER,
-                    expectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::MERCURY_GRAVITATIONAL_PARAMETER, expectedGravitationalParameter, 1.0e-15 );
     }
 
     // Test if Venus's gravitational parameter is defined correctly.
     {
         // Defined expected gravitational parameter, as derived from mass ratio given by
         // (JPL, 2012).
-        const double expectedGravitationalParameter =
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER
-                / 408523.71;
+        const double expectedGravitationalParameter = celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER / 408523.71;
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::VENUS_GRAVITATIONAL_PARAMETER,
-                    expectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::VENUS_GRAVITATIONAL_PARAMETER, expectedGravitationalParameter, 1.0e-15 );
     }
 
     // Test if Earth's gravitational parameter is defined correctly.
@@ -78,9 +68,7 @@ BOOST_AUTO_TEST_CASE( test_GravitationalParameters )
         const double exptectedGravitationalParameter = 3.986004418e14;
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER,
-                    exptectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER, exptectedGravitationalParameter, 1.0e-15 );
     }
 
     // Test if Moon's gravitational parameter is defined correctly.
@@ -88,97 +76,70 @@ BOOST_AUTO_TEST_CASE( test_GravitationalParameters )
         // Defined expected gravitational parameter, as derived from mass ratio given by
         // (JPL, 2012).
         const double expectedGravitationalParameter =
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER
-                / ( 328900.56 * ( 1.0 + 81.30059 ) );
+                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER / ( 328900.56 * ( 1.0 + 81.30059 ) );
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::MOON_GRAVITATIONAL_PARAMETER,
-                    expectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::MOON_GRAVITATIONAL_PARAMETER, expectedGravitationalParameter, 1.0e-15 );
     }
 
     // Test if Mars's gravitational parameter is defined correctly.
     {
         // Defined expected gravitational parameter, as derived from mass ratio given by
         // (JPL, 2012).
-        const double expectedGravitationalParameter =
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER
-                / 3098708.0;
+        const double expectedGravitationalParameter = celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER / 3098708.0;
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::MARS_GRAVITATIONAL_PARAMETER,
-                    expectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::MARS_GRAVITATIONAL_PARAMETER, expectedGravitationalParameter, 1.0e-15 );
     }
 
     // Test if Jupiter's gravitational parameter is defined correctly.
     {
         // Defined expected gravitational parameter, as derived from mass ratio given by
         // (JPL, 2012).
-        const double expectedGravitationalParameter =
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER
-                / 1047.3486;
+        const double expectedGravitationalParameter = celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER / 1047.3486;
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::JUPITER_GRAVITATIONAL_PARAMETER,
-                    expectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::JUPITER_GRAVITATIONAL_PARAMETER, expectedGravitationalParameter, 1.0e-15 );
     }
 
     // Test if Saturn's gravitational parameter is defined correctly.
     {
         // Defined expected gravitational parameter, as derived from mass ratio given by
         // (JPL, 2012).
-        const double expectedGravitationalParameter =
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER
-                / 3497.898;
+        const double expectedGravitationalParameter = celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER / 3497.898;
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::SATURN_GRAVITATIONAL_PARAMETER,
-                    expectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::SATURN_GRAVITATIONAL_PARAMETER, expectedGravitationalParameter, 1.0e-15 );
     }
 
     // Test if Uranus's gravitational parameter is defined correctly.
     {
         // Defined expected gravitational parameter, as derived from mass ratio given by
         // (JPL, 2012).
-        const double expectedGravitationalParameter =
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER
-                / 22902.98;
+        const double expectedGravitationalParameter = celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER / 22902.98;
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::URANUS_GRAVITATIONAL_PARAMETER,
-                    expectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::URANUS_GRAVITATIONAL_PARAMETER, expectedGravitationalParameter, 1.0e-15 );
     }
 
     // Test if Neptune's gravitational parameter is defined correctly.
     {
         // Defined expected gravitational parameter, as derived from mass ratio given by
         // (JPL, 2012).
-        const double expectedGravitationalParameter =
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER
-                / 19412.24;
+        const double expectedGravitationalParameter = celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER / 19412.24;
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::NEPTUNE_GRAVITATIONAL_PARAMETER,
-                    expectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::NEPTUNE_GRAVITATIONAL_PARAMETER, expectedGravitationalParameter, 1.0e-15 );
     }
 
     // Test if Pluto's gravitational parameter is defined correctly.
     {
         // Defined expected gravitational parameter, as derived from mass ratio given by
         // (JPL, 2012).
-        const double expectedGravitationalParameter =
-                celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER
-                / 1.35e8;
+        const double expectedGravitationalParameter = celestial_body_constants::SUN_GRAVITATIONAL_PARAMETER / 1.35e8;
 
         // Test that gravitational parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::PLUTO_GRAVITATIONAL_PARAMETER,
-                    expectedGravitationalParameter, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::PLUTO_GRAVITATIONAL_PARAMETER, expectedGravitationalParameter, 1.0e-15 );
     }
 }
 
@@ -191,10 +152,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsCoefficients )
         const double expectedJ2 = -0.484165143790815E-03;
 
         // Test that J2 parameter is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::EARTH_GEODESY_NORMALIZED_J2,
-                    expectedJ2, 1.0e-15 );
-
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::EARTH_GEODESY_NORMALIZED_J2, expectedJ2, 1.0e-15 );
     }
 }
 
@@ -207,9 +165,7 @@ BOOST_AUTO_TEST_CASE( test_Radii )
         const double exptectedEquatorialRadius = 6378136.6;
 
         // Test that radius is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::EARTH_EQUATORIAL_RADIUS,
-                    exptectedEquatorialRadius, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::EARTH_EQUATORIAL_RADIUS, exptectedEquatorialRadius, 1.0e-15 );
     }
 }
 
@@ -222,13 +178,11 @@ BOOST_AUTO_TEST_CASE( test_FlatteningFactors )
         const double exptectedFlatteningFactor = 298.25642;
 
         // Test that flattening factor is defined correctly.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    celestial_body_constants::EARTH_FLATTENING_FACTOR,
-                    exptectedFlatteningFactor, 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( celestial_body_constants::EARTH_FLATTENING_FACTOR, exptectedFlatteningFactor, 1.0e-15 );
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

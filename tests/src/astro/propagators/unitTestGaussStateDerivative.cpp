@@ -15,7 +15,6 @@
 #include <string>
 #include <thread>
 
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/simulation/simulation.h"
@@ -37,7 +36,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         // Test simulation for different central body cases
         //    for( unsigned int simulationCase = 1; simulationCase < 2; simulationCase++ )
         //    {
-        //Using declarations.
+        // Using declarations.
         using namespace tudat::interpolators;
         using namespace tudat::numerical_integrators;
         using namespace tudat::spice_interface;
@@ -46,8 +45,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         using namespace tudat::orbital_element_conversions;
         using namespace tudat::propagators;
 
-
-        //Load spice kernels.
+        // Load spice kernels.
         spice_interface::loadStandardSpiceKernels( );
 
         // Define bodies in simulation.
@@ -69,8 +67,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
         // Create bodies needed in simulation
         BodyListSettings bodySettings =
-                getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer , finalEphemerisTime + buffer,
-                                         "SSB", "J2000" );
+                getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer, "SSB", "J2000" );
 
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
@@ -120,47 +117,42 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
             centralBodyMap[ bodiesToPropagate[ i ] ] = centralBodies[ i ];
         }
 
-
         // Get initial states for bodies.
         Eigen::VectorXd systemInitialState = Eigen::VectorXd( bodiesToPropagate.size( ) * 6 );
-        for( unsigned int i = 0; i < numberOfNumericalBodies ; i++ )
+        for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
         {
-            systemInitialState.segment( i * 6 , 6 ) =
+            systemInitialState.segment( i * 6, 6 ) =
                     bodies.at( bodiesToPropagate[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
                     bodies.at( centralBodies[ i ] )->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
         }
 
         // Avoid degradation of performance in Kepler element conversions
         Eigen::Vector6d earthInitialKeplerElements =
-                convertCartesianToKeplerianElements(
-                    Eigen::Vector6d( systemInitialState.segment( 0, 6 ) ), bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
-                    bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) );
+                convertCartesianToKeplerianElements( Eigen::Vector6d( systemInitialState.segment( 0, 6 ) ),
+                                                     bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
+                                                             bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) );
 
         earthInitialKeplerElements( 2 ) = mathematical_constants::PI - earthInitialKeplerElements( 2 );
         earthInitialKeplerElements( 4 ) = earthInitialKeplerElements( 4 ) - 0.4;
         systemInitialState.segment( 0, 6 ) =
-                convertKeplerianToCartesianElements(
-                    earthInitialKeplerElements, bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
-                    bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) );
+                convertKeplerianToCartesianElements( earthInitialKeplerElements,
+                                                     bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
+                                                             bodies.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) );
 
         // Create acceleratiuon models.
-        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, centralBodyMap );
+        AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, centralBodyMap );
 
         // Create integrator settings.
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< IntegratorSettings< > >
-                ( rungeKutta4,
-                  initialEphemerisTime, 250.0 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                std::make_shared< IntegratorSettings<> >( rungeKutta4, initialEphemerisTime, 250.0 );
 
         // Create propagation settings (Cowell)
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
 
         // Propagate orbit with Cowell method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodies, integratorSettings, propagatorSettings, true, false, true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = initialEphemerisTime;
@@ -197,12 +189,15 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         }
 
         // Create propagation settings (Gauss)
-        propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, translationalPropagatorType );
+        propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                                 accelerationModelMap,
+                                                                                                 bodiesToPropagate,
+                                                                                                 systemInitialState,
+                                                                                                 finalEphemerisTime,
+                                                                                                 translationalPropagatorType );
 
         // Propagate orbit with Gauss method
-        SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, true );
+        SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Gauss integration at given times.
         currentTestTime = initialTestTime;
@@ -224,8 +219,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         std::map< double, Eigen::Matrix< double, 18, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
         for( unsigned int i = 0; i < gaussIntegrationResults.size( ); i++ )
         {
-
-            for( int j= 0; j< 3; j++ )
+            for( int j = 0; j < 3; j++ )
             {
                 BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.05 );
             }
@@ -248,7 +242,6 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
             for( int j = 9; j < 12; j++ )
             {
                 BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 1.0E-8 );
-
             }
 
             for( int j = 15; j < 18; j++ )
@@ -305,52 +298,34 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
 
             // Create body objects.
             BodyListSettings bodySettings =
-                    getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0,
-                                            "SSB", "J2000" );
+                    getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0, "SSB", "J2000" );
             for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
             {
                 bodySettings.at( bodiesToCreate.at( i ) )->ephemerisSettings->resetFrameOrientation( "J2000" );
                 bodySettings.at( bodiesToCreate.at( i ) )->rotationModelSettings->resetOriginalFrame( "J2000" );
             }
-            if ( simulationCase >= 4 )
+            if( simulationCase >= 4 )
             {
                 // Define cuboid polyhedron dimensions
-                const double w = 6378e3 / 2; // width
-                const double h = 6378e3 / 2; // height
-                const double l = 6378e3 / 2; // length
+                const double w = 6378e3 / 2;  // width
+                const double h = 6378e3 / 2;  // height
+                const double l = 6378e3 / 2;  // length
 
                 // Define cuboid
-                Eigen::MatrixXd verticesCoordinates(8,3);
-                verticesCoordinates <<
-                    0.0, 0.0, 0.0,
-                    l, 0.0, 0.0,
-                    0.0, w, 0.0,
-                    l, w, 0.0,
-                    0.0, 0.0, h,
-                    l, 0.0, h,
-                    0.0, w, h,
-                    l, w, h;
-                Eigen::MatrixXi verticesDefiningEachFacet(12,3);
-                verticesDefiningEachFacet <<
-                    2, 1, 0,
-                    1, 2, 3,
-                    4, 2, 0,
-                    2, 4, 6,
-                    1, 4, 0,
-                    4, 1, 5,
-                    6, 5, 7,
-                    5, 6, 4,
-                    3, 6, 7,
-                    6, 3, 2,
-                    5, 3, 7,
-                    3, 5, 1;
+                Eigen::MatrixXd verticesCoordinates( 8, 3 );
+                verticesCoordinates << 0.0, 0.0, 0.0, l, 0.0, 0.0, 0.0, w, 0.0, l, w, 0.0, 0.0, 0.0, h, l, 0.0, h, 0.0, w, h, l, w, h;
+                Eigen::MatrixXi verticesDefiningEachFacet( 12, 3 );
+                verticesDefiningEachFacet << 2, 1, 0, 1, 2, 3, 4, 2, 0, 2, 4, 6, 1, 4, 0, 4, 1, 5, 6, 5, 7, 5, 6, 4, 3, 6, 7, 6, 3, 2, 5, 3,
+                        7, 3, 5, 1;
 
                 verticesCoordinates = basic_astrodynamics::modifyPolyhedronCentroidPosition(
-                        verticesCoordinates, verticesDefiningEachFacet, Eigen::Vector3d::Zero() );
+                        verticesCoordinates, verticesDefiningEachFacet, Eigen::Vector3d::Zero( ) );
 
-                bodySettings.at( "Earth" )->gravityFieldSettings = polyhedronGravitySettingsFromMu(
-                    celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER, verticesCoordinates,
-                    verticesDefiningEachFacet, "IAU_Earth");
+                bodySettings.at( "Earth" )->gravityFieldSettings =
+                        polyhedronGravitySettingsFromMu( celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER,
+                                                         verticesCoordinates,
+                                                         verticesDefiningEachFacet,
+                                                         "IAU_Earth" );
             }
             SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
@@ -359,10 +334,10 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
             std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                     std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth" } );
-            bodies.at( "Vehicle" )->setRadiationPressureInterface(
-                        "Sun", createRadiationPressureInterface(
-                            vehicleRadiationPressureSettings, "Vehicle", bodies ) );
+                            "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth" } );
+            bodies.at( "Vehicle" )
+                    ->setRadiationPressureInterface(
+                            "Sun", createRadiationPressureInterface( vehicleRadiationPressureSettings, "Vehicle", bodies ) );
 
             // Define propagator settings variables.
             SelectedAccelerationMap accelerationMap;
@@ -375,15 +350,13 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             // Use only central gravity for Earth
             if( simulationCase < 2 )
             {
-                accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                 basic_astrodynamics::point_mass_gravity ) );
+                accelerationsOfVehicle[ "Earth" ].push_back(
+                        std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
             }
             // Use spherical harmonics for Earth
-            else if ( simulationCase < 4 )
+            else if( simulationCase < 4 )
             {
-                accelerationsOfVehicle[ "Earth" ].push_back(
-                            std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
-
+                accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
             }
             // Use polyhedron for Earth
             else
@@ -394,52 +367,48 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             // Use perturbations other than Earth gravity
             if( simulationCase % 2 == 0 )
             {
-                accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                               basic_astrodynamics::point_mass_gravity ) );
-                accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                basic_astrodynamics::point_mass_gravity ) );
-                accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                basic_astrodynamics::point_mass_gravity ) );
-                accelerationsOfVehicle[ "Venus" ].push_back( std::make_shared< AccelerationSettings >(
-                                                                 basic_astrodynamics::point_mass_gravity ) );
-                accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                               basic_astrodynamics::cannon_ball_radiation_pressure ) );
+                accelerationsOfVehicle[ "Sun" ].push_back(
+                        std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+                accelerationsOfVehicle[ "Moon" ].push_back(
+                        std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+                accelerationsOfVehicle[ "Mars" ].push_back(
+                        std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+                accelerationsOfVehicle[ "Venus" ].push_back(
+                        std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+                accelerationsOfVehicle[ "Sun" ].push_back(
+                        std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
             }
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             bodiesToPropagate.push_back( "Vehicle" );
             centralBodies.push_back( "Earth" );
-            basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                        bodies, accelerationMap, bodiesToPropagate, centralBodies );
+            basic_astrodynamics::AccelerationMap accelerationModelMap =
+                    createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
             // Set Keplerian elements for Vehicle.
             Eigen::Vector6d vehicleInitialStateInKeplerianElements;
             vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 8000.0E3;
             vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
             vehicleInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
-            vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-                    = unit_conversions::convertDegreesToRadians( 235.7 );
-            vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-                    = unit_conversions::convertDegreesToRadians( 23.4 );
+            vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+            vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
             vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
             double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-            const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
-                        vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
+            const Eigen::Vector6d vehicleInitialState =
+                    convertKeplerianToCartesianElements( vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
             // Define propagator settings (Cowell)
             std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                    std::make_shared< TranslationalStatePropagatorSettings< double > >
-                    ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch );
+                    std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                            centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch );
 
             // Define integrator settings.
             const double fixedStepSize = 5.0;
-            std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                    std::make_shared< IntegratorSettings< > >
-                    ( rungeKutta4, 0.0, fixedStepSize );
+            std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                    std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
             // Propagate orbit with Cowell method
-            SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                        bodies, integratorSettings, propagatorSettings, true, false, true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator2( bodies, integratorSettings, propagatorSettings, true, false, true );
 
             // Define ephemeris interrogation settings.
             double initialTestTime = simulationStartEpoch;
@@ -458,12 +427,15 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             }
 
             // Create propagation settings (Gauss)
-            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
-                    ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch, translationalPropagatorType );
+            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                                     accelerationModelMap,
+                                                                                                     bodiesToPropagate,
+                                                                                                     vehicleInitialState,
+                                                                                                     simulationEndEpoch,
+                                                                                                     translationalPropagatorType );
 
             // Propagate orbit with Gauss method
-            SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                        bodies, integratorSettings, propagatorSettings, true, false, true );
+            SingleArcDynamicsSimulator< double > dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, true );
 
             // Get resutls of Gauss integration at given times.
             currentTestTime = initialTestTime;
@@ -480,7 +452,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
             for( unsigned int i = 0; i < gaussIntegrationResults.size( ); i++ )
             {
-                for( int j= 0; j< 3; j++ )
+                for( int j = 0; j < 3; j++ )
                 {
                     BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second )( j ), 0.02 );
                 }
@@ -488,7 +460,6 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
                 for( int j = 3; j < 6; j++ )
                 {
                     BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second )( j ), 1.0E-5 );
-
                 }
                 gaussIterator++;
                 cowellIterator++;
@@ -498,7 +469,6 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
 }
 BOOST_AUTO_TEST_SUITE_END( )
 
+}  // namespace unit_tests
 
-}
-
-}
+}  // namespace tudat

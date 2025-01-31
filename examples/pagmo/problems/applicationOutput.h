@@ -10,16 +10,14 @@ namespace tudat_pagmo_applications
 {
 
 //! Get path for output directory.
-static inline std::string getOutputPath(
-        const std::string& extraDirectory = "" )
+static inline std::string getOutputPath( const std::string& extraDirectory = "" )
 {
     // Declare file path string assigned to filePath.
     // __FILE__ only gives the absolute path of the header file!
     std::string filePath_( __FILE__ );
 
     // Strip filename from temporary string and return root-path string.
-    std::string reducedPath = filePath_.substr( 0, filePath_.length( ) -
-                                std::string( "Problems/applicationOutput.h" ).length( ) );
+    std::string reducedPath = filePath_.substr( 0, filePath_.length( ) - std::string( "Problems/applicationOutput.h" ).length( ) );
     std::string outputPath = reducedPath + "SimulationOutput/";
     if( extraDirectory != "" )
     {
@@ -34,15 +32,14 @@ static inline std::string getOutputPath(
     return outputPath;
 }
 
-void createGridSearch(
-        pagmo::problem& problem,
-        const std::vector< std::vector< double > >& bounds,
-        const std::vector< int > numberOfPoints,
-        const std::string& fileName )
+void createGridSearch( pagmo::problem& problem,
+                       const std::vector< std::vector< double > >& bounds,
+                       const std::vector< int > numberOfPoints,
+                       const std::string& fileName )
 {
     if( bounds.at( 0 ).size( ) != 2 )
     {
-        std::cerr<<"Warning when plotting grid search, size of problem does not equal 2"<<std::endl;
+        std::cerr << "Warning when plotting grid search, size of problem does not equal 2" << std::endl;
     }
     Eigen::MatrixXd gridSearch = Eigen::MatrixXd( numberOfPoints.at( 0 ), numberOfPoints.at( 1 ) );
 
@@ -66,7 +63,7 @@ void createGridSearch(
 
     for( int i = 0; i < numberOfPoints.at( 0 ); i++ )
     {
-        std::cout<<"Grid search "<<i<<std::endl;
+        std::cout << "Grid search " << i << std::endl;
         for( int j = 0; j < numberOfPoints.at( 1 ); j++ )
         {
             decisionVector[ 0 ] = xDataPoints[ i ];
@@ -76,14 +73,13 @@ void createGridSearch(
         }
     }
 
-    tudat::input_output::writeMatrixToFile( gridSearch, fileName + ".dat" , 16, getOutputPath( ) );
-    tudat::input_output::writeMatrixToFile( tudat::utilities::convertStlVectorToEigenVector(
-                                                xDataPoints ), fileName + "_x_data.dat", 16, getOutputPath( ) );
-    tudat::input_output::writeMatrixToFile( tudat::utilities::convertStlVectorToEigenVector(
-                                                yDataPoints ), fileName + "_y_data.dat", 16, getOutputPath( ) );
-
+    tudat::input_output::writeMatrixToFile( gridSearch, fileName + ".dat", 16, getOutputPath( ) );
+    tudat::input_output::writeMatrixToFile(
+            tudat::utilities::convertStlVectorToEigenVector( xDataPoints ), fileName + "_x_data.dat", 16, getOutputPath( ) );
+    tudat::input_output::writeMatrixToFile(
+            tudat::utilities::convertStlVectorToEigenVector( yDataPoints ), fileName + "_y_data.dat", 16, getOutputPath( ) );
 }
 
-}
+}  // namespace tudat_pagmo_applications
 
-#endif // TUDAT_PAGMO_APPLICATIONOUTPUT_H
+#endif  // TUDAT_PAGMO_APPLICATIONOUTPUT_H

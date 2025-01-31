@@ -24,14 +24,13 @@ namespace tudat
 namespace unit_tests
 {
 
-
 // Function to create linearly spaced data.
 std::vector< double > linspace( double start, double end, int numberOfSamples )
 {
     double spacing = ( end - start ) / ( static_cast< double >( numberOfSamples - 1 ) );
 
-    std::vector< double > vector(0);
-    for( int i = 0 ; i < numberOfSamples ; i++ )
+    std::vector< double > vector( 0 );
+    for( int i = 0; i < numberOfSamples; i++ )
     {
         vector.push_back( start + static_cast< double >( i ) * spacing );
     }
@@ -65,18 +64,17 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
         std::vector< double > independentVariables = linspace( bounds[ 0 ], bounds[ 1 ], numberOfSamples );
 
         std::vector< double > dependentVariables;
-        for( unsigned int i = 0 ; i < independentVariables.size( ) ; i++ )
+        for( unsigned int i = 0; i < independentVariables.size( ); i++ )
         {
             dependentVariables.push_back( std::sin( independentVariables[ i ] ) );
         }
 
-        tudat::numerical_quadrature::TrapezoidNumericalQuadrature< double, double > integrator(
-                    independentVariables, dependentVariables );
+        tudat::numerical_quadrature::TrapezoidNumericalQuadrature< double, double > integrator( independentVariables, dependentVariables );
 
         double expectedIntegral = 2.0;
         double computedIntegralTrapezoid = integrator.getQuadrature( );
         double computedIntegralSimpson = tudat::numerical_quadrature::performExtendedSimpsonsQuadrature(
-                    independentVariables.at( 1 ) - independentVariables.at( 0 ), dependentVariables );
+                independentVariables.at( 1 ) - independentVariables.at( 0 ), dependentVariables );
 
         // Check if computed integral matches expected value.
         BOOST_CHECK_CLOSE_FRACTION( computedIntegralTrapezoid, expectedIntegral, tolerances.at( test ) );
@@ -97,7 +95,7 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
         independentVariables = linspace( bounds[ 0 ], bounds[ 1 ], numberOfSamples );
 
         dependentVariables.clear( );
-        for( unsigned int i = 0 ; i < independentVariables.size( ) ; i++ )
+        for( unsigned int i = 0; i < independentVariables.size( ); i++ )
         {
             dependentVariables.push_back( std::sin( independentVariables[ i ] ) );
         }
@@ -109,7 +107,6 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
         BOOST_CHECK_SMALL( computedIntegralTrapezoid - expectedIntegral, std::max( 5.0E-6, numberOfSamples * 5.0E-20 ) );
     }
 }
-
 
 //! Test if qudrature is computed correctly (exponential function).
 BOOST_AUTO_TEST_CASE( testIntegralExpFunction )
@@ -123,19 +120,18 @@ BOOST_AUTO_TEST_CASE( testIntegralExpFunction )
     std::vector< double > independentVariables = linspace( bounds[ 0 ], bounds[ 1 ], numberOfSamples );
 
     std::vector< double > dependentVariables( 0 );
-    for( unsigned int i = 0 ; i < independentVariables.size() ; i++ )
+    for( unsigned int i = 0; i < independentVariables.size( ); i++ )
     {
         dependentVariables.push_back( std::exp( independentVariables[ i ] ) );
     }
 
     // Create integrator
-    tudat::numerical_quadrature::TrapezoidNumericalQuadrature< double, double > integrator(
-                independentVariables, dependentVariables );
+    tudat::numerical_quadrature::TrapezoidNumericalQuadrature< double, double > integrator( independentVariables, dependentVariables );
 
     double expectedIntegral = std::exp( 2.0 ) - std::exp( 0.0 );
     double computedIntegralTrapezoid = integrator.getQuadrature( );
     double computedIntegralSimpson = tudat::numerical_quadrature::performExtendedSimpsonsQuadrature(
-                independentVariables.at( 1 ) - independentVariables.at( 0 ), dependentVariables );
+            independentVariables.at( 1 ) - independentVariables.at( 0 ), dependentVariables );
 
     // Check if computed sample mean matches expected value.
     BOOST_CHECK_CLOSE_FRACTION( computedIntegralTrapezoid, expectedIntegral, 1E-8 );
@@ -144,5 +140,5 @@ BOOST_AUTO_TEST_CASE( testIntegralExpFunction )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

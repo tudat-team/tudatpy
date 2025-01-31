@@ -14,7 +14,6 @@
 #include "tudat/math/basic/coordinateConversions.h"
 #include "tudat/interface/sofa/sofaTimeConversions.h"
 
-
 namespace tudat
 {
 
@@ -31,22 +30,17 @@ double getDeltaAtFromUtc( const double utcInJulianDays )
     // Get calendar date and check feasibility of input.
     if( iauJd2cal( basic_astrodynamics::JULIAN_DAY_ON_J2000, utcInJulianDays, &year, &month, &day, &fractionOfDay ) != 0 )
     {
-        throw std::runtime_error(  "Provided julian date too small to convert to calendar date" +
-                                   std::to_string( year ) + " " +
-                                   std::to_string( month ) + " " +
-                                   std::to_string( day ) );
+        throw std::runtime_error( "Provided julian date too small to convert to calendar date" + std::to_string( year ) + " " +
+                                  std::to_string( month ) + " " + std::to_string( day ) );
     }
-
 
     // Get number of leap seconds and check feasibility of calculation
     double deltaAt;
-    int deltaAtReturn = iauDat( year, month, day, fractionOfDay, &deltaAt);
+    int deltaAtReturn = iauDat( year, month, day, fractionOfDay, &deltaAt );
     if( deltaAtReturn != 0 )
     {
-        throw std::runtime_error(  "Provided caledar date cannot properly give Delta AT" +
-                                   std::to_string( year ) + " " +
-                                   std::to_string( month ) + " " +
-                                   std::to_string( day ) );
+        throw std::runtime_error( "Provided caledar date cannot properly give Delta AT" + std::to_string( year ) + " " +
+                                  std::to_string( month ) + " " + std::to_string( day ) );
     }
 
     return deltaAt;
@@ -62,12 +56,12 @@ double getDeltaAtFromTai( const double taiInJulianDays )
     // Get calendar date and check feasibility of input.
     if( iauJd2cal( basic_astrodynamics::JULIAN_DAY_ON_J2000, taiInJulianDays, &year, &month, &day, &fractionOfDay ) != 0 )
     {
-        throw std::runtime_error(  "Provided julian date too small to convert to calendar date" );
+        throw std::runtime_error( "Provided julian date too small to convert to calendar date" );
     }
 
     // Estimate number of leap seconds (by assuming TAI = UTC for Sofa input) and check feasibility of calculation
     double deltaAt;
-    int deltaAtReturn = iauDat( year, month, day, fractionOfDay, &deltaAt);
+    int deltaAtReturn = iauDat( year, month, day, fractionOfDay, &deltaAt );
     if( deltaAtReturn != 0 )
     {
         throw std::runtime_error( "Provided caledar date cannot properly give Delta AT" );
@@ -82,39 +76,45 @@ double getDeltaAtFromTai( const double taiInJulianDays )
         throw std::runtime_error( "Warning, Delta TAI calculation encountered error, iteration not yet implemented" );
     }
 
-
     return deltaAt;
 }
 
-
-//double convertUTCtoUT1( const double utc )
+// double convertUTCtoUT1( const double utc )
 //{
 //	return 0.0; // iauUtcut1()
-//}
+// }
 
 //! Function to calculate difference between TDB and TT
-double getTDBminusTT( const double tdbTime, const double universalTimeFractionOfDay, const double stationLongitude,
-                      const double distanceFromSpinAxis, const double distanceFromEquatorialPlane )
+double getTDBminusTT( const double tdbTime,
+                      const double universalTimeFractionOfDay,
+                      const double stationLongitude,
+                      const double distanceFromSpinAxis,
+                      const double distanceFromEquatorialPlane )
 {
-    return iauDtdb( basic_astrodynamics::JULIAN_DAY_ON_J2000, tdbTime / physical_constants::JULIAN_DAY,
-                    universalTimeFractionOfDay, stationLongitude,
-                    distanceFromSpinAxis / 1000.0, distanceFromEquatorialPlane / 1000.0 );
+    return iauDtdb( basic_astrodynamics::JULIAN_DAY_ON_J2000,
+                    tdbTime / physical_constants::JULIAN_DAY,
+                    universalTimeFractionOfDay,
+                    stationLongitude,
+                    distanceFromSpinAxis / 1000.0,
+                    distanceFromEquatorialPlane / 1000.0 );
 }
 
 //! Function to calculate difference between TDB and TT.
-double getTDBminusTT( const double tdbTime, const double universalTimeFractionOfDay,
-                      const Eigen::Vector3d& stationCartesianPosition )
+double getTDBminusTT( const double tdbTime, const double universalTimeFractionOfDay, const Eigen::Vector3d& stationCartesianPosition )
 {
-    double stationLongitude = std::atan2( stationCartesianPosition( 1 ),
-                                          stationCartesianPosition( 0 ) );
-    return getTDBminusTT( tdbTime, universalTimeFractionOfDay, stationLongitude,
+    double stationLongitude = std::atan2( stationCartesianPosition( 1 ), stationCartesianPosition( 0 ) );
+    return getTDBminusTT( tdbTime,
+                          universalTimeFractionOfDay,
+                          stationLongitude,
                           std::sqrt( stationCartesianPosition.x( ) * stationCartesianPosition.x( ) +
                                      stationCartesianPosition.y( ) * stationCartesianPosition.y( ) ),
                           stationCartesianPosition.z( ) );
 }
 
 //! Function to calculate difference between TDB and TT.
-double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongitude, const double distanceFromSpinAxis,
+double getTDBminusTT( const double ttOrTdbSinceJ2000,
+                      const double stationLongitude,
+                      const double distanceFromSpinAxis,
                       const double distanceFromEquatorialPlane )
 {
     // Calculate current TAI (approximately if input is in TDB)
@@ -122,27 +122,25 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongit
 
     // Calculate current UT1 (by assuming it equal to UTC)
     double ut1 = static_cast< double >( convertTAItoUTC< double >( tai ) );
-    double ut1FractionOfDay = std::fmod( ( ut1 / physical_constants::JULIAN_DAY ) -
-            static_cast< double >( std::floor( ut1 / physical_constants::JULIAN_DAY  ) ) + 0.5, 1.0 );
+    double ut1FractionOfDay = std::fmod(
+            ( ut1 / physical_constants::JULIAN_DAY ) - static_cast< double >( std::floor( ut1 / physical_constants::JULIAN_DAY ) ) + 0.5,
+            1.0 );
 
     // Calculate and return difference (introducing addition approximation if input is in TT, by assuming TDB is equal to TT)
-    return getTDBminusTT( ttOrTdbSinceJ2000, ut1FractionOfDay, stationLongitude, distanceFromSpinAxis,
-                          distanceFromEquatorialPlane );
+    return getTDBminusTT( ttOrTdbSinceJ2000, ut1FractionOfDay, stationLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
 }
 
 //! Function to calculate difference between TDB and TT.
 double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d& earthFixedPosition )
 {
-
     double siteLongitude = std::atan2( earthFixedPosition.y( ), earthFixedPosition.x( ) );
-    double distanceFromSpinAxis = std::sqrt( earthFixedPosition.x( ) * earthFixedPosition.x( ) +
-                                             earthFixedPosition.y( ) * earthFixedPosition.y( ) );
+    double distanceFromSpinAxis =
+            std::sqrt( earthFixedPosition.x( ) * earthFixedPosition.x( ) + earthFixedPosition.y( ) * earthFixedPosition.y( ) );
     double distanceFromEquatorialPlane = earthFixedPosition.z( );
 
     return getTDBminusTT( ttOrTdbSinceJ2000, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
 }
 
+}  // namespace sofa_interface
 
-} // namespace sofa_interfaces
-
-} // namespace tudat
+}  // namespace tudat

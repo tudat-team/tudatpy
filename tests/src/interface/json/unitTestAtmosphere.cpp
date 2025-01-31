@@ -20,17 +20,14 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_atmosphere )
 
 // Test 1: atmosphere models
 BOOST_AUTO_TEST_CASE( test_json_atmosphere_models )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "models" ),
-                            simulation_setup::atmosphereTypes,
-                            simulation_setup::unsupportedAtmosphereTypes );
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "models" ), simulation_setup::atmosphereTypes, simulation_setup::unsupportedAtmosphereTypes );
 }
 
 // Test 2: exponential atmosphere
@@ -49,12 +46,8 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_exponential )
     const double densityAtZeroAltitude = 1.0;
     const double specificGasConstant = 3.0;
     const double ratioOfSpecificHeats = -10.0;
-    const std::shared_ptr< AtmosphereSettings > manualSettings =
-            std::make_shared< ExponentialAtmosphereSettings >( densityScaleHeight,
-                                                               constantTemperature,
-                                                               densityAtZeroAltitude,
-                                                               specificGasConstant,
-                                                               ratioOfSpecificHeats );
+    const std::shared_ptr< AtmosphereSettings > manualSettings = std::make_shared< ExponentialAtmosphereSettings >(
+            densityScaleHeight, constantTemperature, densityAtZeroAltitude, specificGasConstant, ratioOfSpecificHeats );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -74,17 +67,19 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_tabulated )
     std::map< int, std::string > atmosphereTableFile;
     atmosphereTableFile[ 0 ] = "atmosphereTable.foo";
     std::vector< AtmosphereIndependentVariables > independentVariablesNames = { altitude_dependent_atmosphere, time_dependent_atmosphere };
-    std::vector< AtmosphereDependentVariables > dependentVariablesNames = { temperature_dependent_atmosphere,
-                                                                            gas_constant_dependent_atmosphere,
-                                                                            density_dependent_atmosphere,
-                                                                            pressure_dependent_atmosphere };
+    std::vector< AtmosphereDependentVariables > dependentVariablesNames = {
+        temperature_dependent_atmosphere, gas_constant_dependent_atmosphere, density_dependent_atmosphere, pressure_dependent_atmosphere
+    };
     const double specificGasConstant = 10.0;
     const double ratioOfSpecificHeats = 3.0;
     std::vector< interpolators::BoundaryInterpolationType > boundaryHandling = { interpolators::use_boundary_value,
                                                                                  interpolators::throw_exception_at_boundary };
-    const std::shared_ptr< AtmosphereSettings > manualSettings = std::make_shared< TabulatedAtmosphereSettings >(
-                atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
-                specificGasConstant, ratioOfSpecificHeats, boundaryHandling );
+    const std::shared_ptr< AtmosphereSettings > manualSettings = std::make_shared< TabulatedAtmosphereSettings >( atmosphereTableFile,
+                                                                                                                  independentVariablesNames,
+                                                                                                                  dependentVariablesNames,
+                                                                                                                  specificGasConstant,
+                                                                                                                  ratioOfSpecificHeats,
+                                                                                                                  boundaryHandling );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -101,8 +96,7 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_nrlmsise00 )
             parseJSONFile< std::shared_ptr< AtmosphereSettings > >( INPUT( "nrlmsise00" ) );
 
     // Create AtmosphereSettings manually
-    const std::shared_ptr< AtmosphereSettings > manualSettings =
-            std::make_shared< AtmosphereSettings >( nrlmsise00 );
+    const std::shared_ptr< AtmosphereSettings > manualSettings = std::make_shared< AtmosphereSettings >( nrlmsise00 );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -119,8 +113,7 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_nrlmsise00_custom )
             parseJSONFile< std::shared_ptr< AtmosphereSettings > >( INPUT( "nrlmsise00_custom" ) );
 
     // Create AtmosphereSettings manually
-    const std::shared_ptr< AtmosphereSettings > manualSettings =
-            std::make_shared< NRLMSISE00AtmosphereSettings >( "spaceWeatherFile.foo" );
+    const std::shared_ptr< AtmosphereSettings > manualSettings = std::make_shared< NRLMSISE00AtmosphereSettings >( "spaceWeatherFile.foo" );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -128,6 +121,6 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_nrlmsise00_custom )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

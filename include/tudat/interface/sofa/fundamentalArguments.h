@@ -11,10 +11,9 @@
 #ifndef TUDAT_SOFAFUNDAMENTALARGUMENTS_H
 #define TUDAT_SOFAFUNDAMENTALARGUMENTS_H
 
-extern "C"
-{
-    #include <sofa/sofa.h>
-    #include <sofa/sofam.h>
+extern "C" {
+#include <sofa/sofa.h>
+#include <sofa/sofam.h>
 }
 
 #include <vector>
@@ -36,13 +35,32 @@ namespace sofa_interface
  * \sa calculateDoodsonFundamentalArguments
  * \sa calculateDelaunayFundamentalArguments
  */
-static const Eigen::Matrix< double, 5, 5 > delaunayToDoodsonArguments =
-        ( Eigen::Matrix< double, 5, 5 >( ) <<
-           0.0,  0.0, 1.0,  0.0,  1.0,
-           0.0,  0.0, 1.0, -1.0,  1.0,
-          -1.0,  0.0, 1.0,  0.0,  1.0,
-           0.0,  0.0, 0.0,  0.0, -1.0,
-           0.0, -1.0, 1.0, -1.0,  1.0 ).finished( );
+static const Eigen::Matrix< double, 5, 5 > delaunayToDoodsonArguments = ( Eigen::Matrix< double, 5, 5 >( ) << 0.0,
+                                                                          0.0,
+                                                                          1.0,
+                                                                          0.0,
+                                                                          1.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          1.0,
+                                                                          -1.0,
+                                                                          1.0,
+                                                                          -1.0,
+                                                                          0.0,
+                                                                          1.0,
+                                                                          0.0,
+                                                                          1.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          -1.0,
+                                                                          0.0,
+                                                                          -1.0,
+                                                                          1.0,
+                                                                          -1.0,
+                                                                          1.0 )
+                                                                                .finished( );
 
 //! Matrix to convert delaunay arguments to 5 Doodson arguments (without GMST).
 /*!
@@ -50,13 +68,32 @@ static const Eigen::Matrix< double, 5, 5 > delaunayToDoodsonArguments =
  * \sa calculateDoodsonFundamentalArguments
  * \sa calculateDelaunayFundamentalArguments
  */
-static const Eigen::Matrix< double, 5, 5 > doodsonToDelaunayArguments =
-        ( Eigen::Matrix< double, 5, 5 >( ) <<
-          1.0,  0.0, -1.0,  0.0,  0.0,
-          0.0,  1.0,  0.0,  0.0, -1.0,
-          1.0,  0.0,  0.0,  1.0,  0.0,
-          1.0, -1.0,  0.0,  0.0,  0.0,
-          0.0,  0.0,  0.0, -1.0,  0.0 ).finished( );
+static const Eigen::Matrix< double, 5, 5 > doodsonToDelaunayArguments = ( Eigen::Matrix< double, 5, 5 >( ) << 1.0,
+                                                                          0.0,
+                                                                          -1.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          1.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          -1.0,
+                                                                          1.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          1.0,
+                                                                          0.0,
+                                                                          1.0,
+                                                                          -1.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          0.0,
+                                                                          -1.0,
+                                                                          0.0 )
+                                                                                .finished( );
 
 //! Function to calculate mean elongation of the Moon from the Sun
 /*!
@@ -105,8 +142,7 @@ double calculateLongitudeOfMoonsAscendingNode( const double julianCenturiesSince
  * \param tdbTime Time in TDB at which the arguments are to be calculated.
  * \return Delaunay fundamental arguments at the requested time.
  */
-Eigen::Matrix< double, 5, 1 > calculateDelaunayFundamentalArguments(
-        const double tdbTime );
+Eigen::Matrix< double, 5, 1 > calculateDelaunayFundamentalArguments( const double tdbTime );
 
 //! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
 /*!
@@ -119,8 +155,9 @@ Eigen::Matrix< double, 5, 1 > calculateDelaunayFundamentalArguments(
  * \param universalTime1 Time in UT1 at which the arguments are to be calculated, in seconds since J2000.
  * \return Delaunay fundamental arguments and (GMST + pi) at the requested time.
  */
-Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
-        const double tdbTime, const double terrestrialTime, const double universalTime1 );
+Eigen::Vector6d calculateDelaunayFundamentalArgumentsWithGmst( const double tdbTime,
+                                                               const double terrestrialTime,
+                                                               const double universalTime1 );
 
 //! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
 /*!
@@ -132,8 +169,7 @@ Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
  * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
  * \return Delaunay fundamental arguments and (GMST + pi) at the requested time.
  */
-Eigen::Vector6d  calculateApproximateDelaunayFundamentalArgumentsWithGmst(
-        const double tdbTime );
+Eigen::Vector6d calculateApproximateDelaunayFundamentalArgumentsWithGmst( const double tdbTime );
 
 //! Function to calculate the Doodson arguments at the requested time.
 /*!
@@ -145,8 +181,7 @@ Eigen::Vector6d  calculateApproximateDelaunayFundamentalArgumentsWithGmst(
  * \param universalTime1 Time in UT1 at which the arguments are to be calculated, in seconds since J2000.
  * \return Doodson arguments and at the requested time.
  */
-Eigen::Vector6d calculateDoodsonFundamentalArguments(
-        const double tdbTime, const double terrestrialTime, const double universalTime1 );
+Eigen::Vector6d calculateDoodsonFundamentalArguments( const double tdbTime, const double terrestrialTime, const double universalTime1 );
 
 //! Function to calculate the Doodson arguments at the requested time.
 /*!
@@ -160,8 +195,8 @@ Eigen::Vector6d calculateDoodsonFundamentalArguments(
  */
 Eigen::Vector6d calculateDoodsonFundamentalArguments( const double tdbTime );
 
-} // namespace sofa_interfaces
+}  // namespace sofa_interface
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_SOFAFUNDAMENTALARGUMENTS_H
+#endif  // TUDAT_SOFAFUNDAMENTALARGUMENTS_H

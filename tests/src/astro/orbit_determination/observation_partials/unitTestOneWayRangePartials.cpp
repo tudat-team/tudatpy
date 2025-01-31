@@ -48,12 +48,11 @@ using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
 
-BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials)
+BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials )
 
 //! Test partial derivatives of one-way range observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 {
-
     // Define and create ground stations.
     std::vector< std::pair< std::string, std::string > > groundStations;
     groundStations.resize( 2 );
@@ -75,20 +74,19 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    std::make_shared< observation_models::ObservationModelSettings >(
-                        observation_models::one_way_range, linkEnds,
-                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-         perturbingBodies ) ), bodies  );
+                        std::make_shared< observation_models::ObservationModelSettings >(
+                                observation_models::one_way_range,
+                                linkEnds,
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
+                        bodies );
 
         // Create parameter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodies, 1.1E7 );
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
-        testObservationPartials< 1 >(
-                    oneWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, true, true );
+        testObservationPartials< 1 >( oneWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, true, true );
     }
 
-    std::cout<<" **************************************************************************************** "<<std::endl;
+    std::cout << " **************************************************************************************** " << std::endl;
 
     // Test partials with real ephemerides (without test of position partials)
     {
@@ -105,24 +103,22 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    std::make_shared< observation_models::ObservationModelSettings >(
-                        observation_models::one_way_range, linkEnds,
-                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-         perturbingBodies ) ), bodies  );
+                        std::make_shared< observation_models::ObservationModelSettings >(
+                                observation_models::one_way_range,
+                                linkEnds,
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
+                        bodies );
 
         // Create parameter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodies, 1.1E7 );
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
-        testObservationPartials< 1 >(
-                    oneWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, false, true );
+        testObservationPartials< 1 >( oneWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, false, true );
     }
 
-    std::cout<<" **************************************************************************************** "<<std::endl;
+    std::cout << " **************************************************************************************** " << std::endl;
 
     // Test partials with constant rotational ephemerides (with test of rotation state partial)
     {
-
         // Create environment
         SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false, 1.0, true );
 
@@ -136,27 +132,22 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    std::make_shared< observation_models::ObservationModelSettings >(
-                        observation_models::one_way_range, linkEnds,
-                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-         perturbingBodies ) ), bodies  );
+                        std::make_shared< observation_models::ObservationModelSettings >(
+                                observation_models::one_way_range,
+                                linkEnds,
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
+                        bodies );
 
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodies, 1.1E7, false, true );
 
-        testObservationPartials< 1 >(
-                    oneWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, false, true );
+        testObservationPartials< 1 >( oneWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, false, true );
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
-
-
-
-
+}  // namespace tudat

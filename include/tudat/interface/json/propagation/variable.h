@@ -24,15 +24,12 @@ namespace propagators
 // VariableType
 
 //! Map of `VariableType`s string representations.
-static std::map< VariableType, std::string > variableTypes =
-{
-    { independentVariable, "independent" },
-    { cpuTimeVariable, "cpuTime" },
-    { stateVariable, "state" },
-    { dependentVariable, "dependent" },
-    { stateTransitionMatrix, "stateTransitionMatrix" },
-    { sensitivityMatrix, "sensitivityMatrix" }
-};
+static std::map< VariableType, std::string > variableTypes = { { independentVariable, "independent" },
+                                                               { cpuTimeVariable, "cpuTime" },
+                                                               { stateVariable, "state" },
+                                                               { dependentVariable, "dependent" },
+                                                               { stateTransitionMatrix, "stateTransitionMatrix" },
+                                                               { sensitivityMatrix, "sensitivityMatrix" } };
 
 //! `VariableType`s not supported by `json_interface`.
 static std::vector< VariableType > unsupportedVariableTypes = { };
@@ -49,12 +46,10 @@ inline void from_json( const nlohmann::json& jsonObject, VariableType& variableT
     variableType = json_interface::enumFromString( jsonObject, variableTypes );
 }
 
-
 // PropagationDependentVariables
 
 //! Map of `PropagationDependentVariables` string representations.
-static std::map< PropagationDependentVariables, std::string > dependentVariableTypes =
-{
+static std::map< PropagationDependentVariables, std::string > dependentVariableTypes = {
     { mach_number_dependent_variable, "machNumber" },
     { altitude_dependent_variable, "altitude" },
     { airspeed_dependent_variable, "airspeed" },
@@ -102,8 +97,7 @@ static std::map< PropagationDependentVariables, std::string > dependentVariableT
 };
 
 //! `PropagationDependentVariables` not supported by `json_interface`.
-static std::vector< PropagationDependentVariables > unsupportedDependentVariableTypes =
-{
+static std::vector< PropagationDependentVariables > unsupportedDependentVariableTypes = {
 
 };
 
@@ -119,7 +113,6 @@ inline void from_json( const nlohmann::json& jsonObject, PropagationDependentVar
     dependentVariable = json_interface::enumFromString( jsonObject, dependentVariableTypes );
 }
 
-
 // VariableSettings
 
 //! Create a `json` object from a shared pointer to a `VariableSettings` object.
@@ -128,19 +121,16 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< VariableSetting
 //! Create a shared pointer to a `VariableSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< VariableSettings >& variableSettings );
 
-
 // SingleDependentVariableSaveSettings
 
 //! Create a `json` object from a shared pointer to a `SingleDependentVariableSaveSettings` object.
-void to_json( nlohmann::json& jsonObject,
-              const std::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
 
 //! Create a shared pointer to a `SingleDependentVariableSaveSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject,
-                std::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_VARIABLE_H
+#endif  // TUDAT_JSONINTERFACE_VARIABLE_H

@@ -21,14 +21,12 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_simulationSinglePerturbedSatellite )
 
 BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
 {
-
     using namespace simulation_setup;
     using namespace propagators;
     using namespace numerical_integrators;
@@ -43,11 +41,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    JsonSimulationManager< > jsonSimulation( INPUT( "main" ) );
+    JsonSimulationManager<> jsonSimulation( INPUT( "main" ) );
     jsonSimulation.updateSettings( );
     jsonSimulation.runPropagation( );
-    std::map< double, Eigen::VectorXd > jsonResults =
-            jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +55,6 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE ENVIRONMENT AND VEHICLE       ////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -77,11 +73,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
 
     // Create body objects.
     const double interpolationStep = 300.0;
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodiesToCreate,
-                                    simulationStartEpoch - 10.0 * interpolationStep,
-                                    simulationEndEpoch + 10.0 * interpolationStep,
-                                    interpolationStep );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate,
+                                                            simulationStartEpoch - 10.0 * interpolationStep,
+                                                            simulationEndEpoch + 10.0 * interpolationStep,
+                                                            interpolationStep );
     for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
     {
         bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
@@ -102,11 +97,12 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     double aerodynamicCoefficient = 1.2;
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
-    bodies.at( "Asterix" )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
+    bodies.at( "Asterix" )
+            ->setAerodynamicCoefficientInterface(
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix", bodies ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -115,13 +111,12 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     occultingBodies.push_back( "Earth" );
     std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
             std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodies.at( "Asterix" )->setRadiationPressureInterface(
-                "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Asterix", bodies ) );
-
+    bodies.at( "Asterix" )
+            ->setRadiationPressureInterface( "Sun",
+                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Asterix", bodies ) );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
@@ -139,25 +134,20 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
     accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
-    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Venus" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::cannon_ball_radiation_pressure ) );
-    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::aerodynamic ) );
+    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Venus" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Sun" ].push_back(
+            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
 
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "Asterix" );
     centralBodies.push_back( "Earth" );
 
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            //////////////////////////////////////
@@ -173,29 +163,25 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = 2.4412;
 
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
-
+    const Eigen::Vector6d asterixInitialState =
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
 
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, 0.0, fixedStepSize );
-
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            //////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            std::make_shared< SingleArcDynamicsSimulator< > >( bodies, integratorSettings, propagatorSettings );
+    const std::shared_ptr< SingleArcDynamicsSimulator<> > dynamicsSimulator =
+            std::make_shared< SingleArcDynamicsSimulator<> >( bodies, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,8 +194,6 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     const double tolerance = 1.0E-10;
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
-
-
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,12 +211,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
-
 }
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

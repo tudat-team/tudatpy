@@ -3,7 +3,6 @@
 
 #include <string>
 
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/linearAlgebra.h"
@@ -37,8 +36,7 @@ using namespace unit_conversions;
 BOOST_AUTO_TEST_SUITE( test_hybrid_arc_dynamics )
 
 //! Reset Mats ephemeris to tabulated ephemeris from default settings
-void resetMarsEphemeris(
-        const SystemOfBodies& bodies, const double ephemerisStartTime, const double ephemerisEndTime )
+void resetMarsEphemeris( const SystemOfBodies& bodies, const double ephemerisStartTime, const double ephemerisEndTime )
 {
     std::shared_ptr< Ephemeris > marsEphemeris =
             createBodyEphemeris( getDefaultEphemerisSettings( "Mars", ephemerisStartTime, ephemerisEndTime ), "Mars" );
@@ -46,13 +44,13 @@ void resetMarsEphemeris(
     std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector6d > > defaultMarsStateInterpolator =
             std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( marsEphemeris )->getInterpolator( );
 
-    std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
-                bodies.at( "Mars" )->getEphemeris( ) )->resetInterpolator( defaultMarsStateInterpolator );
+    std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( bodies.at( "Mars" )->getEphemeris( ) )
+            ->resetInterpolator( defaultMarsStateInterpolator );
 }
 
 //! Test if hybrid-arc orbit propagation is done correctly (single-arc Mars w.r.t. SSB and multi-arc orbiter w.r.t. Mars)
 BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
-//int main( )
+// int main( )
 {
     // Run for 2 test cases:
     //  Case 1: small arc overlap, same integrator settings for single-/multi-arc
@@ -62,7 +60,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         int maximumTestCase = ( processResults == 0 ? 2 : 1 );
         for( int testCase = 0; testCase < maximumTestCase; testCase++ )
         {
-            //Load spice kernels.
+            // Load spice kernels.
             spice_interface::loadStandardSpiceKernels( );
 
             // Specify initial time
@@ -77,16 +75,15 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             bodyNames.push_back( "Mars" );
             bodyNames.push_back( "Jupiter" );
             bodyNames.push_back( "Earth" );
-            BodyListSettings bodySettings =
-                    getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+            BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
             SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
             // Create orbiter
             bodies.createEmptyBody( "Orbiter" );
             bodies.at( "Orbiter" )->setConstantBodyMass( 5.0E3 );
-            bodies.at( "Orbiter" )->setEphemeris( std::make_shared< MultiArcEphemeris >(
-                                                      std::map< double, std::shared_ptr< Ephemeris > >( ),
-                                                      "Mars", "ECLIPJ2000" ) );
+            bodies.at( "Orbiter" )
+                    ->setEphemeris( std::make_shared< MultiArcEphemeris >(
+                            std::map< double, std::shared_ptr< Ephemeris > >( ), "Mars", "ECLIPJ2000" ) );
 
             // Create and set radiation pressure settings
             double referenceAreaRadiation = 4.0;
@@ -95,27 +92,24 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             //        occultingBodies.push_back( "Earth" );
             std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
                     std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-            bodies.at( "Orbiter" )->setRadiationPressureInterface(
-                        "Sun", createRadiationPressureInterface(
-                            orbiterRadiationPressureSettings, "Orbiter", bodies ) );
+                            "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+            bodies.at( "Orbiter" )
+                    ->setRadiationPressureInterface(
+                            "Sun", createRadiationPressureInterface( orbiterRadiationPressureSettings, "Orbiter", bodies ) );
 
-            std::shared_ptr< IntegratorSettings< > > singleArcIntegratorSettings;
-            std::shared_ptr< IntegratorSettings< > > multiArcIntegratorSettings;
+            std::shared_ptr< IntegratorSettings<> > singleArcIntegratorSettings;
+            std::shared_ptr< IntegratorSettings<> > multiArcIntegratorSettings;
 
             if( testCase == 0 )
             {
                 singleArcIntegratorSettings = rungeKutta4Settings( 120.0 );
                 multiArcIntegratorSettings = rungeKutta4Settings( 120.0 );
             }
-            else if ( testCase == 1 )
+            else if( testCase == 1 )
             {
                 singleArcIntegratorSettings = rungeKutta4Settings( 120.0 );
                 multiArcIntegratorSettings = rungeKutta4Settings( 240.0 );
             }
-
-
-
 
             // Set accelerations for Mars
             SelectedAccelerationMap singleArcAccelerationMap;
@@ -129,16 +123,20 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             singleArcBodiesToIntegrate.push_back( "Mars" );
             singleArcCentralBodies.push_back( "SSB" );
 
-            AccelerationMap singleArcAccelerationModelMap = createAccelerationModelsMap(
-                        bodies, singleArcAccelerationMap, singleArcBodiesToIntegrate, singleArcCentralBodies );
+            AccelerationMap singleArcAccelerationModelMap =
+                    createAccelerationModelsMap( bodies, singleArcAccelerationMap, singleArcBodiesToIntegrate, singleArcCentralBodies );
 
             // Create single-arc propagator settings for Mars
-            Eigen::VectorXd singleArcInitialStates = getInitialStatesOfBodies(
-                        singleArcBodiesToIntegrate, singleArcCentralBodies, bodies, initialEphemerisTime );
-            std::shared_ptr< TranslationalStatePropagatorSettings< > > singleArcPropagatorSettings =
-                    std::make_shared< TranslationalStatePropagatorSettings< > >(
-                        singleArcCentralBodies, singleArcAccelerationModelMap, singleArcBodiesToIntegrate,
-                        singleArcInitialStates, initialEphemerisTime, singleArcIntegratorSettings, propagationTimeTerminationSettings( finalEphemerisTime ) );
+            Eigen::VectorXd singleArcInitialStates =
+                    getInitialStatesOfBodies( singleArcBodiesToIntegrate, singleArcCentralBodies, bodies, initialEphemerisTime );
+            std::shared_ptr< TranslationalStatePropagatorSettings<> > singleArcPropagatorSettings =
+                    std::make_shared< TranslationalStatePropagatorSettings<> >( singleArcCentralBodies,
+                                                                                singleArcAccelerationModelMap,
+                                                                                singleArcBodiesToIntegrate,
+                                                                                singleArcInitialStates,
+                                                                                initialEphemerisTime,
+                                                                                singleArcIntegratorSettings,
+                                                                                propagationTimeTerminationSettings( finalEphemerisTime ) );
 
             // Set accelerations for Orbiter
             SelectedAccelerationMap multiArcAccelerationMap;
@@ -153,8 +151,8 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             multiArcBodiesToIntegrate.push_back( "Orbiter" );
             multiArcCentralBodies.push_back( "Mars" );
 
-            AccelerationMap multiArcAccelerationModelMap = createAccelerationModelsMap(
-                        bodies, multiArcAccelerationMap, multiArcBodiesToIntegrate, multiArcCentralBodies );
+            AccelerationMap multiArcAccelerationModelMap =
+                    createAccelerationModelsMap( bodies, multiArcAccelerationMap, multiArcBodiesToIntegrate, multiArcCentralBodies );
 
             // Creater arc times for orbiter
             std::vector< double > integrationArcStarts, integrationArcEnds;
@@ -173,8 +171,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
 
                     currentStartTime = currentEndTime - arcOverlap;
                     currentEndTime = currentStartTime + arcDuration;
-                }
-                while( currentEndTime < integrationEndTime );
+                } while( currentEndTime < integrationEndTime );
             }
             else if( testCase == 1 )
             {
@@ -189,8 +186,7 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
 
                     currentEndTime = currentStartTime + timeBetweenArcs + arcDuration;
                     currentStartTime = currentStartTime + timeBetweenArcs;
-                }
-                while( currentEndTime < integrationEndTime );
+                } while( currentEndTime < integrationEndTime );
             }
 
             // Create list of multi-arc Orbiter initial states
@@ -199,59 +195,56 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             multiArcSystemInitialStates.resize( numberOfIntegrationArcs );
 
             // Define (quasi-arbitrary) arc Orbiter initial states
-            double marsGravitationalParameter =  bodies.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( );
+            double marsGravitationalParameter = bodies.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( );
             for( unsigned int j = 0; j < numberOfIntegrationArcs; j++ )
             {
                 Eigen::Vector6d orbiterInitialStateInKeplerianElements;
                 orbiterInitialStateInKeplerianElements( semiMajorAxisIndex ) = 4000.0E3;
                 orbiterInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
                 orbiterInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );
-                orbiterInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-                        = convertDegreesToRadians( 235.7 - j );
-                orbiterInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-                        = convertDegreesToRadians( 23.4 + j );
+                orbiterInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 235.7 - j );
+                orbiterInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 23.4 + j );
                 orbiterInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 + j * 10.0 );
 
                 // Convert state from Keplerian elements to Cartesian elements.
-                multiArcSystemInitialStates[ j ]  = convertKeplerianToCartesianElements(
-                            orbiterInitialStateInKeplerianElements,
-                            marsGravitationalParameter );;
+                multiArcSystemInitialStates[ j ] =
+                        convertKeplerianToCartesianElements( orbiterInitialStateInKeplerianElements, marsGravitationalParameter );
+                ;
             }
 
             // Create multi-arc propagator settings for Orbiter
             std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
             for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
             {
-                arcPropagationSettingsList.push_back(
-                            std::make_shared< TranslationalStatePropagatorSettings< double > >
-                            ( multiArcCentralBodies, multiArcAccelerationModelMap, multiArcBodiesToIntegrate,
-                              multiArcSystemInitialStates.at( i ), integrationArcStarts.at( i ), multiArcIntegratorSettings,
-                              propagationTimeTerminationSettings( integrationArcEnds.at( i ) ) ) );
+                arcPropagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        multiArcCentralBodies,
+                        multiArcAccelerationModelMap,
+                        multiArcBodiesToIntegrate,
+                        multiArcSystemInitialStates.at( i ),
+                        integrationArcStarts.at( i ),
+                        multiArcIntegratorSettings,
+                        propagationTimeTerminationSettings( integrationArcEnds.at( i ) ) ) );
             }
-            std::shared_ptr< MultiArcPropagatorSettings< > > multiArcPropagatorSettings =
-                    std::make_shared< MultiArcPropagatorSettings< > >( arcPropagationSettingsList );
-
-
+            std::shared_ptr< MultiArcPropagatorSettings<> > multiArcPropagatorSettings =
+                    std::make_shared< MultiArcPropagatorSettings<> >( arcPropagationSettingsList );
 
             // Perform separate single-arc propagation
             std::map< double, Eigen::VectorXd > singleArcSolution;
             {
-                SingleArcDynamicsSimulator< > singleArcDynamicsSimulator(
-                            bodies, singleArcPropagatorSettings );//, true, false, false );
+                SingleArcDynamicsSimulator<> singleArcDynamicsSimulator( bodies, singleArcPropagatorSettings );  //, true, false, false );
                 singleArcSolution = singleArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
             }
 
             // Perform separate multi-arc propagation
             std::vector< std::map< double, Eigen::VectorXd > > multiArcSolution;
             {
-                MultiArcDynamicsSimulator< > multiArcDynamicsSimulator(
-                            bodies, multiArcPropagatorSettings );//, true, false, false );
+                MultiArcDynamicsSimulator<> multiArcDynamicsSimulator( bodies, multiArcPropagatorSettings );  //, true, false, false );
                 multiArcSolution = multiArcDynamicsSimulator.getEquationsOfMotionNumericalSolution( );
             }
 
             // Create hybrid-arc settings
-            std::shared_ptr< HybridArcPropagatorSettings< > > hybridArcPropagatorSettings =
-                    std::make_shared< HybridArcPropagatorSettings< > >( singleArcPropagatorSettings, multiArcPropagatorSettings );
+            std::shared_ptr< HybridArcPropagatorSettings<> > hybridArcPropagatorSettings =
+                    std::make_shared< HybridArcPropagatorSettings<> >( singleArcPropagatorSettings, multiArcPropagatorSettings );
             bool setIntegratedResults = processResults > 0 ? true : false;
             bool clearNumericalSolution = processResults > 1 ? true : false;
             hybridArcPropagatorSettings->getOutputSettings( )->setIntegratedResult( setIntegratedResults );
@@ -269,8 +262,8 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
             std::map< double, Eigen::VectorXd > singleArcSolutionFromHybrid;
             std::vector< std::map< double, Eigen::VectorXd > > multiArcSolutionFromHybrid;
             {
-                HybridArcDynamicsSimulator< > hybridArcDynamicsSimulator(
-                            bodies,hybridArcPropagatorSettings );//, true, clearNumericalSolution, setIntegratedResults );
+                HybridArcDynamicsSimulator<> hybridArcDynamicsSimulator(
+                        bodies, hybridArcPropagatorSettings );  //, true, clearNumericalSolution, setIntegratedResults );
 
                 BOOST_CHECK_EQUAL( hybridArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ), setIntegratedResults );
                 BOOST_CHECK_EQUAL( singleArcPropagatorSettings->getOutputSettings( )->getSetIntegratedResult( ), setIntegratedResults );
@@ -279,39 +272,34 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
                     BOOST_CHECK_EQUAL( arcPropagationSettingsList.at( i )->getOutputSettings( )->getSetIntegratedResult( ), false );
                 }
 
-                singleArcSolutionFromHybrid = hybridArcDynamicsSimulator.getSingleArcDynamicsSimulator( )->
-                        getEquationsOfMotionNumericalSolution( );
-                multiArcSolutionFromHybrid = hybridArcDynamicsSimulator.getMultiArcDynamicsSimulator( )->
-                        getEquationsOfMotionNumericalSolution( );
+                singleArcSolutionFromHybrid =
+                        hybridArcDynamicsSimulator.getSingleArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+                multiArcSolutionFromHybrid =
+                        hybridArcDynamicsSimulator.getMultiArcDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
             }
-
 
             if( !clearNumericalSolution && !setIntegratedResults )
             {
                 // Compare separate propagation results with hybrid arc
                 BOOST_CHECK_EQUAL( singleArcSolutionFromHybrid.size( ), singleArcSolution.size( ) );
 
-
                 std::map< double, Eigen::VectorXd >::const_iterator singleArcSolutionFromHybridIterator =
                         singleArcSolutionFromHybrid.begin( );
-                std::map< double, Eigen::VectorXd >::const_iterator singleArcSolutionIterator =
-                        singleArcSolution.begin( );
+                std::map< double, Eigen::VectorXd >::const_iterator singleArcSolutionIterator = singleArcSolution.begin( );
 
                 for( unsigned int i = 0; i < singleArcSolution.size( ); i++ )
                 {
-                    BOOST_CHECK_CLOSE_FRACTION(
-                                singleArcSolutionFromHybridIterator->first, singleArcSolutionIterator->first,
-                                4.0 * std::numeric_limits< double >::epsilon( ) );
+                    BOOST_CHECK_CLOSE_FRACTION( singleArcSolutionFromHybridIterator->first,
+                                                singleArcSolutionIterator->first,
+                                                4.0 * std::numeric_limits< double >::epsilon( ) );
                     for( unsigned int j = 0; j < 3; j++ )
                     {
                         BOOST_CHECK_SMALL(
-                                    std::fabs(
-                                        singleArcSolutionFromHybridIterator->second( j ) -
-                                        singleArcSolutionIterator->second( j ) ), 1.0E-5 );
-                        BOOST_CHECK_SMALL(
-                                    std::fabs(
-                                        singleArcSolutionFromHybridIterator->second( j + 3 ) -
-                                        singleArcSolutionIterator->second( j + 3  ) ), 1.0E-11 );
+                                std::fabs( singleArcSolutionFromHybridIterator->second( j ) - singleArcSolutionIterator->second( j ) ),
+                                1.0E-5 );
+                        BOOST_CHECK_SMALL( std::fabs( singleArcSolutionFromHybridIterator->second( j + 3 ) -
+                                                      singleArcSolutionIterator->second( j + 3 ) ),
+                                           1.0E-11 );
                     }
                     singleArcSolutionFromHybridIterator++;
                     singleArcSolutionIterator++;
@@ -322,28 +310,24 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
                 {
                     BOOST_CHECK_EQUAL( multiArcSolutionFromHybrid.at( arc ).size( ), multiArcSolution.at( arc ).size( ) );
 
-
                     std::map< double, Eigen::VectorXd >::const_iterator currentArcSolutionFromHybridIterator =
                             multiArcSolutionFromHybrid.at( arc ).begin( );
-                    std::map< double, Eigen::VectorXd >::const_iterator currentArcSolutionIterator =
-                            multiArcSolution.at( arc ).begin( );
+                    std::map< double, Eigen::VectorXd >::const_iterator currentArcSolutionIterator = multiArcSolution.at( arc ).begin( );
 
                     for( unsigned int i = 0; i < multiArcSolution.at( arc ).size( ); i++ )
                     {
-                        BOOST_CHECK_CLOSE_FRACTION(
-                                    currentArcSolutionFromHybridIterator->first, currentArcSolutionIterator->first,
-                                    4.0 * std::numeric_limits< double >::epsilon( ) );
+                        BOOST_CHECK_CLOSE_FRACTION( currentArcSolutionFromHybridIterator->first,
+                                                    currentArcSolutionIterator->first,
+                                                    4.0 * std::numeric_limits< double >::epsilon( ) );
 
                         for( unsigned int j = 0; j < 3; j++ )
                         {
-                            BOOST_CHECK_SMALL(
-                                        std::fabs(
-                                            currentArcSolutionFromHybridIterator->second( j ) -
-                                            currentArcSolutionIterator->second( j ) ), 1.0E-5 );
-                            BOOST_CHECK_SMALL(
-                                        std::fabs(
-                                            currentArcSolutionFromHybridIterator->second( j + 3 ) -
-                                            currentArcSolutionIterator->second( j + 3  ) ), 1.0E-11 );
+                            BOOST_CHECK_SMALL( std::fabs( currentArcSolutionFromHybridIterator->second( j ) -
+                                                          currentArcSolutionIterator->second( j ) ),
+                                               1.0E-5 );
+                            BOOST_CHECK_SMALL( std::fabs( currentArcSolutionFromHybridIterator->second( j + 3 ) -
+                                                          currentArcSolutionIterator->second( j + 3 ) ),
+                                               1.0E-11 );
                         }
                         currentArcSolutionFromHybridIterator++;
                         currentArcSolutionIterator++;
@@ -361,6 +345,6 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

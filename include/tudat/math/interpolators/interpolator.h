@@ -29,8 +29,7 @@ namespace interpolators
  *  Enumeration for types of boundary interpolation methods, i.e., for when the independent variable requested for interpolation
  *  is outside the domain of the independent variables input in the interpolator constructor.
  */
-enum BoundaryInterpolationType
-{
+enum BoundaryInterpolationType {
     throw_exception_at_boundary = 0,
     use_boundary_value = 1,
     use_boundary_value_with_warning = 2,
@@ -56,7 +55,6 @@ template< typename IndependentVariableType, typename DependentVariableType >
 class Interpolator
 {
 public:
-
     //! Destructor.
     /*!
      * Destructor.
@@ -70,8 +68,7 @@ public:
      *      the value of the dependent variable is to be determined.
      *  \return Interpolated value of dependent variable.
      */
-    virtual DependentVariableType interpolate( const std::vector< IndependentVariableType >&
-                                               independentVariableValues ) = 0;
+    virtual DependentVariableType interpolate( const std::vector< IndependentVariableType >& independentVariableValues ) = 0;
 
     //! Function to return the number of independent variables of the interpolation.
     /*!
@@ -80,15 +77,14 @@ public:
      *  \return Number of independent variables of the interpolation.
      */
     virtual int getNumberOfDimensions( ) = 0;
-
 };
 
-//extern template class Interpolator< double, Eigen::VectorXd >;
-//extern template class Interpolator< double, Eigen::Vector6d >;
-//extern template class Interpolator< double, Eigen::MatrixXd >;
+// extern template class Interpolator< double, Eigen::VectorXd >;
+// extern template class Interpolator< double, Eigen::Vector6d >;
+// extern template class Interpolator< double, Eigen::MatrixXd >;
 
-} // namespace interpolators
+}  // namespace interpolators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_INTERPOLATOR_H
+#endif  // TUDAT_INTERPOLATOR_H

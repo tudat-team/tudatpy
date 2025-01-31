@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         const double earthGravitationalParameter = 3.986004415e14;
 
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        Eigen::Matrix< double, 6, 1 > keplerianElements ;
+        Eigen::Matrix< double, 6, 1 > keplerianElements;
         keplerianElements( semiMajorAxisIndex ) = 8000.0 * 1000.0;
         keplerianElements( eccentricityIndex ) = 0.23;
         keplerianElements( inclinationIndex ) = 20.6 / 180.0 * PI;
@@ -87,13 +87,11 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
 
         // Compute Cartesian elements.
         Eigen::Matrix< double, 6, 1 > computedCartesianElements;
-        computedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( keplerianElements,
-                                                     earthGravitationalParameter );
+        computedCartesianElements =
+                orbital_element_conversions::convertKeplerianToCartesianElements( keplerianElements, earthGravitationalParameter );
 
         // Check if computed Cartesian elements match the expected values.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements,
-                                           computedCartesianElements, 1.0e-15 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements, computedCartesianElements, 1.0e-15 );
     }
 
     // Case 2: Equatorial, circular orbit around Mars.
@@ -125,13 +123,11 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
 
         // Compute Cartesian elements.
         Eigen::Matrix< double, 6, 1 > computedCartesianElements;
-        computedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( keplerianElements,
-                                                     marsGravitationalParameter );
+        computedCartesianElements =
+                orbital_element_conversions::convertKeplerianToCartesianElements( keplerianElements, marsGravitationalParameter );
 
         // Check if computed Cartesian elements match the expected values.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements,
-                                           computedCartesianElements, 1.0e-15 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements, computedCartesianElements, 1.0e-15 );
     }
 
     // Case 3: Hyperbolic orbit around the Sun.
@@ -163,13 +159,11 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
 
         // Compute Cartesian elements.
         Eigen::Matrix< double, 6, 1 > computedCartesianElements;
-        computedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( keplerianElements,
-                                                     sunGravitationalParameter );
+        computedCartesianElements =
+                orbital_element_conversions::convertKeplerianToCartesianElements( keplerianElements, sunGravitationalParameter );
 
         // Check if computed Cartesian elements match the expected values.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements,
-                                           computedCartesianElements, 1.0e-15 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements, computedCartesianElements, 1.0e-15 );
     }
 
     // Case 4: Parabolic orbit around the Earth.
@@ -195,13 +189,11 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
 
         // Compute Cartesian elements.
         Eigen::Matrix< double, 6, 1 > computedCartesianElements;
-        computedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( keplerianElements,
-                                                     earthGravitationalParameter );
+        computedCartesianElements =
+                orbital_element_conversions::convertKeplerianToCartesianElements( keplerianElements, earthGravitationalParameter );
 
         // Check if computed escape veloicty matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedEscapeVelocity,
-                                    computedCartesianElements.segment( 3, 3 ).norm( ), 1.0e-4 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedEscapeVelocity, computedCartesianElements.segment( 3, 3 ).norm( ), 1.0e-4 );
     }
 }
 
@@ -238,13 +230,11 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversionBenchmark )
 
         // Compute Keplerian elements.
         Eigen::Matrix< double, 6, 1 > computedKeplerianElements;
-        computedKeplerianElements = orbital_element_conversions::
-                convertCartesianToKeplerianElements( cartesianElements,
-                                                     earthGravitationalParameter );
+        computedKeplerianElements =
+                orbital_element_conversions::convertCartesianToKeplerianElements( cartesianElements, earthGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements,
-                                           computedKeplerianElements, 1.0e-14 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements, computedKeplerianElements, 1.0e-14 );
     }
 
     // Case 2: Equatorial, circular orbit around Venus.
@@ -276,34 +266,28 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversionBenchmark )
 
         // Declare and compute converted Keplerian elements.
         Eigen::Matrix< double, 6, 1 > computedKeplerianElements;
-        computedKeplerianElements = orbital_element_conversions::
-                convertCartesianToKeplerianElements( cartesianElements,
-                                                     venusGravitationalParameter );
+        computedKeplerianElements =
+                orbital_element_conversions::convertCartesianToKeplerianElements( cartesianElements, venusGravitationalParameter );
 
         // Check if computed semi-major axis matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedKeplerianElements( semiMajorAxisIndex ),
-                                    computedKeplerianElements( semiMajorAxisIndex ), 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION(
+                expectedKeplerianElements( semiMajorAxisIndex ), computedKeplerianElements( semiMajorAxisIndex ), 1.0e-15 );
 
         // Check if computed eccentricity matches the expected value.
-        BOOST_CHECK_SMALL( computedKeplerianElements( eccentricityIndex ),
-                           std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( computedKeplerianElements( eccentricityIndex ), std::numeric_limits< double >::epsilon( ) );
 
         // Check if computed inclination matches the expected value.
-        BOOST_CHECK_SMALL( computedKeplerianElements( inclinationIndex ),
-                           std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( computedKeplerianElements( inclinationIndex ), std::numeric_limits< double >::epsilon( ) );
 
         // Check if computed argument of periapsis matches the expected value.
-        BOOST_CHECK_SMALL( std::fmod( computedKeplerianElements( argumentOfPeriapsisIndex ),
-                                      2.0 * PI ),
+        BOOST_CHECK_SMALL( std::fmod( computedKeplerianElements( argumentOfPeriapsisIndex ), 2.0 * PI ),
                            std::numeric_limits< double >::epsilon( ) );
 
         // Check if computed right ascension of ascending node matches the expected value.
-        BOOST_CHECK_SMALL( computedKeplerianElements( longitudeOfAscendingNodeIndex ),
-                           std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( computedKeplerianElements( longitudeOfAscendingNodeIndex ), std::numeric_limits< double >::epsilon( ) );
 
         // Check if computed true anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedKeplerianElements( trueAnomalyIndex ),
-                                    computedKeplerianElements( trueAnomalyIndex ), 1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedKeplerianElements( trueAnomalyIndex ), computedKeplerianElements( trueAnomalyIndex ), 1.0e-15 );
     }
 
     // Case 3: Hyperbolic orbit around the Sun.
@@ -335,13 +319,11 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversionBenchmark )
 
         // Compute Keplerian elements.
         Eigen::Matrix< double, 6, 1 > computedKeplerianElements;
-        computedKeplerianElements = orbital_element_conversions::
-                convertCartesianToKeplerianElements( cartesianElements,
-                                                     sunGravitationalParameter );
+        computedKeplerianElements =
+                orbital_element_conversions::convertCartesianToKeplerianElements( cartesianElements, sunGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements,
-                                           computedKeplerianElements, 1.0e-15 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements, computedKeplerianElements, 1.0e-15 );
     }
 
     // Case 4: Low-eccentricity, low-inclination orbit around Uranus.
@@ -379,42 +361,33 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversionBenchmark )
 
         // Compute Keplerian elements.
         Eigen::Matrix< double, 6, 1 > computedKeplerianElements;
-        computedKeplerianElements = orbital_element_conversions::
-                convertCartesianToKeplerianElements( cartesianElements,
-                                                     uranusGravitationalParameter );
+        computedKeplerianElements =
+                orbital_element_conversions::convertCartesianToKeplerianElements( cartesianElements, uranusGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
-        BOOST_CHECK_CLOSE_FRACTION( expectedKeplerianElements( semiMajorAxisIndex ),
-                                    computedKeplerianElements( semiMajorAxisIndex ),
-                                    1.0e-14 );
+        BOOST_CHECK_CLOSE_FRACTION(
+                expectedKeplerianElements( semiMajorAxisIndex ), computedKeplerianElements( semiMajorAxisIndex ), 1.0e-14 );
 
-        BOOST_CHECK_SMALL( std::fabs( expectedKeplerianElements( eccentricityIndex )
-                                      - computedKeplerianElements( eccentricityIndex ) ),
+        BOOST_CHECK_SMALL( std::fabs( expectedKeplerianElements( eccentricityIndex ) - computedKeplerianElements( eccentricityIndex ) ),
                            1.0e-15 );
 
-        BOOST_CHECK_SMALL( std::fabs( expectedKeplerianElements( inclinationIndex )
-                                      - computedKeplerianElements( inclinationIndex ) ),
+        BOOST_CHECK_SMALL( std::fabs( expectedKeplerianElements( inclinationIndex ) - computedKeplerianElements( inclinationIndex ) ),
                            1.0e-10 );
 
-        BOOST_CHECK_CLOSE_FRACTION( expectedKeplerianElements( argumentOfPeriapsisIndex ),
-                                    computedKeplerianElements( argumentOfPeriapsisIndex ),
-                                    1.0e-10 );
+        BOOST_CHECK_CLOSE_FRACTION(
+                expectedKeplerianElements( argumentOfPeriapsisIndex ), computedKeplerianElements( argumentOfPeriapsisIndex ), 1.0e-10 );
 
         BOOST_CHECK_CLOSE_FRACTION( expectedKeplerianElements( longitudeOfAscendingNodeIndex ),
                                     computedKeplerianElements( longitudeOfAscendingNodeIndex ),
                                     1.0e-14 );
 
-        BOOST_CHECK_CLOSE_FRACTION( expectedKeplerianElements( trueAnomalyIndex ),
-                                    computedKeplerianElements( trueAnomalyIndex ),
-                                    1.0e-6 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedKeplerianElements( trueAnomalyIndex ), computedKeplerianElements( trueAnomalyIndex ), 1.0e-6 );
     }
-
 }
 
 //! Test back and forth Kepler <-> Cartesian conversion for parabolic orbit
 template< typename ScalarType >
-void convertParabolicOrbitBackAndForth(
-        const ScalarType tolerance )
+void convertParabolicOrbitBackAndForth( const ScalarType tolerance )
 {
     // Using declarations.
     using namespace orbital_element_conversions;
@@ -424,120 +397,43 @@ void convertParabolicOrbitBackAndForth(
 
     // Set Keplerian elements [m,-,rad,rad,rad,rad].
     Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
-    keplerianElements( semiLatusRectumIndex ) = static_cast< ScalarType >(
-                2.0 * 6678140.0 );
+    keplerianElements( semiLatusRectumIndex ) = static_cast< ScalarType >( 2.0 * 6678140.0 );
     keplerianElements( eccentricityIndex ) = getFloatingInteger< ScalarType >( 1 );
-    keplerianElements( inclinationIndex ) = static_cast< ScalarType >(
-                45.0 / 180.0 * PI );
+    keplerianElements( inclinationIndex ) = static_cast< ScalarType >( 45.0 / 180.0 * PI );
     keplerianElements( argumentOfPeriapsisIndex ) = getFloatingInteger< ScalarType >( 0 );
     keplerianElements( longitudeOfAscendingNodeIndex ) = getFloatingInteger< ScalarType >( 0 );
     keplerianElements( trueAnomalyIndex ) = getFloatingInteger< ScalarType >( 0 );
 
     // Compute Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > computedCartesianElements =
-            convertKeplerianToCartesianElements< ScalarType >(
-                keplerianElements, earthGravitationalParameter );
+            convertKeplerianToCartesianElements< ScalarType >( keplerianElements, earthGravitationalParameter );
 
     // Recompute Keplerian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements =
-            convertCartesianToKeplerianElements< ScalarType >(
-                computedCartesianElements, earthGravitationalParameter );
+            convertCartesianToKeplerianElements< ScalarType >( computedCartesianElements, earthGravitationalParameter );
 
     // Check if recomputed Keplerian elements match the expected values.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keplerianElements,
-                                       recomputedKeplerianElements, tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keplerianElements, recomputedKeplerianElements, tolerance );
 
-    std::cout<<"Keplerian "<<std::setprecision( 16 )<<keplerianElements.transpose( )<<std::endl;
-    std::cout<<"Keplerian "<<recomputedKeplerianElements.transpose( )<<std::endl;
-    std::cout<<"Keplerian "<<( keplerianElements - recomputedKeplerianElements ).transpose( )<<std::endl;
+    std::cout << "Keplerian " << std::setprecision( 16 ) << keplerianElements.transpose( ) << std::endl;
+    std::cout << "Keplerian " << recomputedKeplerianElements.transpose( ) << std::endl;
+    std::cout << "Keplerian " << ( keplerianElements - recomputedKeplerianElements ).transpose( ) << std::endl;
     recomputedKeplerianElements( eccentricityIndex ) = getFloatingInteger< ScalarType >( 1 );
 
     // Convert recomputed Keplerian elements to Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
-            convertKeplerianToCartesianElements(
-                recomputedKeplerianElements, earthGravitationalParameter );
+            convertKeplerianToCartesianElements( recomputedKeplerianElements, earthGravitationalParameter );
 
     // Check that computed Cartesian elements match.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
 
-    std::cout<<"Cartesian "<<std::setprecision( 16 )<<computedCartesianElements.transpose( )<<std::endl;
-    std::cout<<"Cartesian "<<recomputedCartesianElements.transpose( )<<std::endl;
+    std::cout << "Cartesian " << std::setprecision( 16 ) << computedCartesianElements.transpose( ) << std::endl;
+    std::cout << "Cartesian " << recomputedCartesianElements.transpose( ) << std::endl;
 }
 
 //! Test back and forth Kepler <-> Cartesian conversion for circular equatorial orbit
 template< typename ScalarType >
-void convertCircularEquatorialOrbitBackAndForth(
-        const ScalarType tolerance )
-{
-    // Using declarations.
-    using namespace orbital_element_conversions;
-
-    // Earth gravitational parameter [m^3 s^-2].
-    const ScalarType earthGravitationalParameter = 3.9859383624e14;
-
-    // Set Keplerian elements.
-    Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
-    keplerianElements( semiMajorAxisIndex ) =
-            static_cast< ScalarType >( 8000.0 );
-    keplerianElements( eccentricityIndex ) = getFloatingInteger< ScalarType >( 0 );
-    keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >( 0 );
-    keplerianElements( argumentOfPeriapsisIndex ) =
-            static_cast< ScalarType >( 243.0 / 180.0 * PI );
-    keplerianElements( longitudeOfAscendingNodeIndex ) =
-            static_cast< ScalarType >( -79.6 / 180.0 * PI );
-    keplerianElements( trueAnomalyIndex ) =
-            static_cast< ScalarType >( 126.45 / 180.0 * PI );
-
-    // Convert Keplerian elements to Cartesian elements.
-    Eigen::Matrix< ScalarType, 6, 1 > computedCartesianElements;
-    computedCartesianElements = convertKeplerianToCartesianElements< ScalarType >(
-                keplerianElements, earthGravitationalParameter );
-
-    // Convert Cartesian elements back to Keplerian elements.
-    Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements;
-    recomputedKeplerianElements = convertCartesianToKeplerianElements< ScalarType >(
-                computedCartesianElements, earthGravitationalParameter );
-
-    // Check that recomputed Keplerian elements match the input values. (In this limit case,
-    // the argument of periapsis and longitude of ascending node are set to zero, and the
-    // true anomaly "absorbs" everything).
-    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( semiMajorAxisIndex ),
-                                recomputedKeplerianElements( semiMajorAxisIndex ),
-                                tolerance );
-
-    BOOST_CHECK_SMALL( recomputedKeplerianElements( eccentricityIndex ), tolerance );
-
-    BOOST_CHECK_SMALL( recomputedKeplerianElements( inclinationIndex ),
-                       std::numeric_limits< ScalarType >::epsilon( ) );
-
-    BOOST_CHECK_SMALL( recomputedKeplerianElements( argumentOfPeriapsisIndex ),
-                       std::numeric_limits< ScalarType >::epsilon( ) );
-
-    BOOST_CHECK_SMALL( recomputedKeplerianElements( longitudeOfAscendingNodeIndex ),
-                       std::numeric_limits< ScalarType >::epsilon( ) );
-
-    BOOST_CHECK_CLOSE_FRACTION( std::fmod(
-                                    keplerianElements( argumentOfPeriapsisIndex )
-                                    + keplerianElements( longitudeOfAscendingNodeIndex )
-                                    + keplerianElements( trueAnomalyIndex ), 2.0 * PI ),
-                                recomputedKeplerianElements( trueAnomalyIndex ),
-                                std::numeric_limits< ScalarType >::epsilon( ) );
-
-    // Convert recomputed Keplerian elements to Cartesian elements.
-    Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
-            convertKeplerianToCartesianElements(
-                recomputedKeplerianElements, earthGravitationalParameter );
-
-    // Check that computed Cartesian elements match.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
-}
-
-//! Test back and forth Kepler <-> Cartesian conversion for circular non-equatorial orbit
-template< typename ScalarType >
-void convertCircularNonEquatorialOrbitBackAndForth(
-        const ScalarType tolerance )
+void convertCircularEquatorialOrbitBackAndForth( const ScalarType tolerance )
 {
     // Using declarations.
     using namespace orbital_element_conversions;
@@ -548,65 +444,107 @@ void convertCircularNonEquatorialOrbitBackAndForth(
     // Set Keplerian elements.
     Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
     keplerianElements( semiMajorAxisIndex ) = static_cast< ScalarType >( 8000.0 );
-    keplerianElements( eccentricityIndex ) =  getFloatingInteger< ScalarType >( 0 );
-    keplerianElements( inclinationIndex ) = static_cast< ScalarType >( 176.11 / 180.0 * PI );
-    keplerianElements( argumentOfPeriapsisIndex ) =
-            static_cast< ScalarType >(  243.0 / 180.0 * PI );
-    keplerianElements( longitudeOfAscendingNodeIndex ) =
-            static_cast< ScalarType >( -79.6 / 180.0 * PI );
-    keplerianElements( trueAnomalyIndex ) =
-            static_cast< ScalarType >( 126.45 / 180.0 * PI );
+    keplerianElements( eccentricityIndex ) = getFloatingInteger< ScalarType >( 0 );
+    keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >( 0 );
+    keplerianElements( argumentOfPeriapsisIndex ) = static_cast< ScalarType >( 243.0 / 180.0 * PI );
+    keplerianElements( longitudeOfAscendingNodeIndex ) = static_cast< ScalarType >( -79.6 / 180.0 * PI );
+    keplerianElements( trueAnomalyIndex ) = static_cast< ScalarType >( 126.45 / 180.0 * PI );
 
     // Convert Keplerian elements to Cartesian elements.
-    Eigen::Matrix< ScalarType, 6, 1 > computedCartesianElements =
-            convertKeplerianToCartesianElements< ScalarType >(
-                keplerianElements, earthGravitationalParameter );
+    Eigen::Matrix< ScalarType, 6, 1 > computedCartesianElements;
+    computedCartesianElements = convertKeplerianToCartesianElements< ScalarType >( keplerianElements, earthGravitationalParameter );
 
     // Convert Cartesian elements back to Keplerian elements.
-    Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements =
-            convertCartesianToKeplerianElements< ScalarType >(
-                computedCartesianElements, earthGravitationalParameter );
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements;
+    recomputedKeplerianElements =
+            convertCartesianToKeplerianElements< ScalarType >( computedCartesianElements, earthGravitationalParameter );
 
     // Check that recomputed Keplerian elements match the input values. (In this limit case,
-    // the argument of periapsis is set to zero, and the true anomaly "absorbs" this).
-    BOOST_CHECK_CLOSE_FRACTION(
-                keplerianElements( semiMajorAxisIndex ),
-                recomputedKeplerianElements( semiMajorAxisIndex ), tolerance );
+    // the argument of periapsis and longitude of ascending node are set to zero, and the
+    // true anomaly "absorbs" everything).
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( semiMajorAxisIndex ), recomputedKeplerianElements( semiMajorAxisIndex ), tolerance );
 
     BOOST_CHECK_SMALL( recomputedKeplerianElements( eccentricityIndex ), tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION(
-                keplerianElements( inclinationIndex ),
-                recomputedKeplerianElements( inclinationIndex ), tolerance );
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( inclinationIndex ), std::numeric_limits< ScalarType >::epsilon( ) );
 
-    BOOST_CHECK_SMALL( recomputedKeplerianElements( argumentOfPeriapsisIndex ),
-                       std::numeric_limits< ScalarType >::epsilon( ) );
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( argumentOfPeriapsisIndex ), std::numeric_limits< ScalarType >::epsilon( ) );
 
-    BOOST_CHECK_CLOSE_FRACTION(
-                keplerianElements( longitudeOfAscendingNodeIndex ) +
-                getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( ),
-                recomputedKeplerianElements( longitudeOfAscendingNodeIndex ), tolerance );
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( longitudeOfAscendingNodeIndex ), std::numeric_limits< ScalarType >::epsilon( ) );
 
     BOOST_CHECK_CLOSE_FRACTION(
-                std::fmod( keplerianElements( argumentOfPeriapsisIndex )
-                           + keplerianElements( trueAnomalyIndex ),
-                           getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( ) ),
-                recomputedKeplerianElements( trueAnomalyIndex ), 10.0 * tolerance );
+            std::fmod( keplerianElements( argumentOfPeriapsisIndex ) + keplerianElements( longitudeOfAscendingNodeIndex ) +
+                               keplerianElements( trueAnomalyIndex ),
+                       2.0 * PI ),
+            recomputedKeplerianElements( trueAnomalyIndex ),
+            std::numeric_limits< ScalarType >::epsilon( ) );
 
     // Convert recomputed Keplerian elements to Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
-            convertKeplerianToCartesianElements< ScalarType >(
-                recomputedKeplerianElements, earthGravitationalParameter );
+            convertKeplerianToCartesianElements( recomputedKeplerianElements, earthGravitationalParameter );
 
     // Check that computed Cartesian elements match.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                computedCartesianElements, recomputedCartesianElements, ( 100.0 * tolerance ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+}
+
+//! Test back and forth Kepler <-> Cartesian conversion for circular non-equatorial orbit
+template< typename ScalarType >
+void convertCircularNonEquatorialOrbitBackAndForth( const ScalarType tolerance )
+{
+    // Using declarations.
+    using namespace orbital_element_conversions;
+
+    // Earth gravitational parameter [m^3 s^-2].
+    const ScalarType earthGravitationalParameter = 3.9859383624e14;
+
+    // Set Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
+    keplerianElements( semiMajorAxisIndex ) = static_cast< ScalarType >( 8000.0 );
+    keplerianElements( eccentricityIndex ) = getFloatingInteger< ScalarType >( 0 );
+    keplerianElements( inclinationIndex ) = static_cast< ScalarType >( 176.11 / 180.0 * PI );
+    keplerianElements( argumentOfPeriapsisIndex ) = static_cast< ScalarType >( 243.0 / 180.0 * PI );
+    keplerianElements( longitudeOfAscendingNodeIndex ) = static_cast< ScalarType >( -79.6 / 180.0 * PI );
+    keplerianElements( trueAnomalyIndex ) = static_cast< ScalarType >( 126.45 / 180.0 * PI );
+
+    // Convert Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > computedCartesianElements =
+            convertKeplerianToCartesianElements< ScalarType >( keplerianElements, earthGravitationalParameter );
+
+    // Convert Cartesian elements back to Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements =
+            convertCartesianToKeplerianElements< ScalarType >( computedCartesianElements, earthGravitationalParameter );
+
+    // Check that recomputed Keplerian elements match the input values. (In this limit case,
+    // the argument of periapsis is set to zero, and the true anomaly "absorbs" this).
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( semiMajorAxisIndex ), recomputedKeplerianElements( semiMajorAxisIndex ), tolerance );
+
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( eccentricityIndex ), tolerance );
+
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( inclinationIndex ), recomputedKeplerianElements( inclinationIndex ), tolerance );
+
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( argumentOfPeriapsisIndex ), std::numeric_limits< ScalarType >::epsilon( ) );
+
+    BOOST_CHECK_CLOSE_FRACTION(
+            keplerianElements( longitudeOfAscendingNodeIndex ) + getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( ),
+            recomputedKeplerianElements( longitudeOfAscendingNodeIndex ),
+            tolerance );
+
+    BOOST_CHECK_CLOSE_FRACTION( std::fmod( keplerianElements( argumentOfPeriapsisIndex ) + keplerianElements( trueAnomalyIndex ),
+                                           getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( ) ),
+                                recomputedKeplerianElements( trueAnomalyIndex ),
+                                10.0 * tolerance );
+
+    // Convert recomputed Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
+            convertKeplerianToCartesianElements< ScalarType >( recomputedKeplerianElements, earthGravitationalParameter );
+
+    // Check that computed Cartesian elements match.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedCartesianElements, recomputedCartesianElements, ( 100.0 * tolerance ) );
 }
 
 //! Test back and forth Kepler <-> Cartesian conversion for non-circular equatorial orbit
 template< typename ScalarType >
-void convertNonCircularEquatorialOrbitBackAndForth(
-        const ScalarType tolerance )
+void convertNonCircularEquatorialOrbitBackAndForth( const ScalarType tolerance )
 {
     // Using declarations.
     using namespace orbital_element_conversions;
@@ -620,8 +558,7 @@ void convertNonCircularEquatorialOrbitBackAndForth(
     keplerianElements( eccentricityIndex ) = static_cast< ScalarType >( 0.2 );
     keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >( 0 );
     keplerianElements( argumentOfPeriapsisIndex ) = static_cast< ScalarType >( 243.0 / 180.0 * PI );
-    keplerianElements( longitudeOfAscendingNodeIndex ) = static_cast< ScalarType >(
-                -79.6 / 180.0 * PI );
+    keplerianElements( longitudeOfAscendingNodeIndex ) = static_cast< ScalarType >( -79.6 / 180.0 * PI );
     keplerianElements( trueAnomalyIndex ) = static_cast< ScalarType >( 126.45 / 180.0 * PI );
 
     // Convert Keplerian elements to Cartesian elements.
@@ -630,49 +567,38 @@ void convertNonCircularEquatorialOrbitBackAndForth(
 
     // Convert Cartesian elements back to Keplerian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements =
-            convertCartesianToKeplerianElements(
-                computedCartesianElements, earthGravitationalParameter );
+            convertCartesianToKeplerianElements( computedCartesianElements, earthGravitationalParameter );
 
     // Check that recomputed Keplerian elements match the input values. (In this limit case,
     // the longitude of the ascending node is set to zero, and the argument of periapsis and
     // true anomaly "absorb" this).
-    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( semiMajorAxisIndex ),
-                                recomputedKeplerianElements( semiMajorAxisIndex ),
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( semiMajorAxisIndex ), recomputedKeplerianElements( semiMajorAxisIndex ), tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( eccentricityIndex ),
-                                recomputedKeplerianElements( eccentricityIndex ),
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( eccentricityIndex ), recomputedKeplerianElements( eccentricityIndex ), tolerance );
 
     BOOST_CHECK_CLOSE_FRACTION( keplerianElements( inclinationIndex ),
                                 recomputedKeplerianElements( inclinationIndex ),
                                 std::numeric_limits< ScalarType >::epsilon( ) );
 
-    BOOST_CHECK_SMALL( recomputedKeplerianElements( longitudeOfAscendingNodeIndex ),
-                       std::numeric_limits< ScalarType >::epsilon( ) );
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( longitudeOfAscendingNodeIndex ), std::numeric_limits< ScalarType >::epsilon( ) );
 
-    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( longitudeOfAscendingNodeIndex )
-                                + keplerianElements( argumentOfPeriapsisIndex )
-                                + keplerianElements( trueAnomalyIndex ),
-                                recomputedKeplerianElements( argumentOfPeriapsisIndex )
-                                + recomputedKeplerianElements( trueAnomalyIndex ),
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( longitudeOfAscendingNodeIndex ) + keplerianElements( argumentOfPeriapsisIndex ) +
+                                        keplerianElements( trueAnomalyIndex ),
+                                recomputedKeplerianElements( argumentOfPeriapsisIndex ) + recomputedKeplerianElements( trueAnomalyIndex ),
                                 std::numeric_limits< ScalarType >::epsilon( ) );
 
     // Convert recomputed Keplerian elements to Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements;
-    recomputedCartesianElements = orbital_element_conversions::
-            convertKeplerianToCartesianElements(
-                recomputedKeplerianElements, earthGravitationalParameter );
+    recomputedCartesianElements =
+            orbital_element_conversions::convertKeplerianToCartesianElements( recomputedKeplerianElements, earthGravitationalParameter );
 
     // Check that computed Cartesian elements match.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
 }
 
 //! Test back and forth Kepler <-> Cartesian conversion for non-circular non-equatorial orbit
 template< typename ScalarType >
-void convertNonCircularNonEquatorialOrbitBackAndForth(
-        const ScalarType tolerance )
+void convertNonCircularNonEquatorialOrbitBackAndForth( const ScalarType tolerance )
 {
     // Using declarations.
     using namespace orbital_element_conversions;
@@ -684,11 +610,9 @@ void convertNonCircularNonEquatorialOrbitBackAndForth(
     Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
     keplerianElements( semiMajorAxisIndex ) = static_cast< ScalarType >( 8000.0 );
     keplerianElements( eccentricityIndex ) = static_cast< ScalarType >( 0.2 );
-    keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >(
-                176.11 / 180.0 * PI );
+    keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >( 176.11 / 180.0 * PI );
     keplerianElements( argumentOfPeriapsisIndex ) = static_cast< ScalarType >( 243.0 / 180.0 * PI );
-    keplerianElements( longitudeOfAscendingNodeIndex ) = static_cast< ScalarType >(
-                -79.6 / 180.0 * PI );
+    keplerianElements( longitudeOfAscendingNodeIndex ) = static_cast< ScalarType >( -79.6 / 180.0 * PI );
     keplerianElements( trueAnomalyIndex ) = static_cast< ScalarType >( 126.45 / 180.0 * PI );
 
     // Convert Keplerian elements to Cartesian elements.
@@ -697,36 +621,30 @@ void convertNonCircularNonEquatorialOrbitBackAndForth(
 
     // Convert Cartesian elements back to Keplerian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements =
-            convertCartesianToKeplerianElements(
-                computedCartesianElements, earthGravitationalParameter );
+            convertCartesianToKeplerianElements( computedCartesianElements, earthGravitationalParameter );
 
     recomputedKeplerianElements( longitudeOfAscendingNodeIndex ) =
-            recomputedKeplerianElements( longitudeOfAscendingNodeIndex ) -
-            getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( );
+            recomputedKeplerianElements( longitudeOfAscendingNodeIndex ) - getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( );
 
     // Check that recomputed Keplerian elements match the input values. (In this limit case,
     // the longitude of the ascending node is set to zero, and the argument of periapsis and
     // true anomaly "absorb" this).
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                keplerianElements, recomputedKeplerianElements, ( tolerance ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keplerianElements, recomputedKeplerianElements, ( tolerance ) );
 
     // Convert recomputed Keplerian elements to Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements;
-    recomputedCartesianElements = orbital_element_conversions::
-            convertKeplerianToCartesianElements(
-                recomputedKeplerianElements, earthGravitationalParameter );
+    recomputedCartesianElements =
+            orbital_element_conversions::convertKeplerianToCartesianElements( recomputedKeplerianElements, earthGravitationalParameter );
 
     // Check that computed Cartesian elements match.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                computedCartesianElements, recomputedCartesianElements, ( 20.0 * tolerance ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedCartesianElements, recomputedCartesianElements, ( 20.0 * tolerance ) );
 }
 
 //! Test if conversion from Cartesian elements to Keplerian elements is working correctly, using
 //! back and forth conversion, for both double and long double precision.
 BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversionBackAndForth )
 {
-    double ratioOfPrecision = std::numeric_limits< long double >::epsilon( ) /
-            std::numeric_limits< double >::epsilon( );
+    double ratioOfPrecision = std::numeric_limits< long double >::epsilon( ) / std::numeric_limits< double >::epsilon( );
 
     // Case 1: Parabolic orbit around the Sun.
     // This test is based on converting Keplerian elements to Cartesian element and then
@@ -761,7 +679,6 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversionBackAndForth )
     {
         convertNonCircularEquatorialOrbitBackAndForth< double >( 1.0E-15 );
         convertNonCircularEquatorialOrbitBackAndForth< long double >( 1.0E-15L * ratioOfPrecision );
-
     }
 
     // Case 5: Converting to and fro between Keplerian and Cartesian elements for a
@@ -771,7 +688,6 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversionBackAndForth )
     {
         convertNonCircularNonEquatorialOrbitBackAndForth< double >( 5.0E-15 );
         convertNonCircularNonEquatorialOrbitBackAndForth< long double >( 5.0E-15L * ratioOfPrecision );
-
     }
 }
 
@@ -791,14 +707,12 @@ BOOST_AUTO_TEST_CASE( testTrueAnomalyToEccentricAnomalyConversion )
         const double expectedEllipticEccentricAnomaly = 1.290237398010989;
 
         // Compute elliptic eccentric anomaly.
-        const double computedEllipticEccentricAnomaly
-                = orbital_element_conversions::
-                convertTrueAnomalyToEllipticalEccentricAnomaly( trueAnomaly, eccentricity );
+        const double computedEllipticEccentricAnomaly =
+                orbital_element_conversions::convertTrueAnomalyToEllipticalEccentricAnomaly( trueAnomaly, eccentricity );
 
         // Check if computed elliptic eccentric anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticEccentricAnomaly,
-                                    computedEllipticEccentricAnomaly,
-                                    2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION(
+                expectedEllipticEccentricAnomaly, computedEllipticEccentricAnomaly, 2.0 * std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 2: Circular orbit.
@@ -814,14 +728,12 @@ BOOST_AUTO_TEST_CASE( testTrueAnomalyToEccentricAnomalyConversion )
         const double expectedEllipticEccentricAnomaly = 2.800031718974503;
 
         // Compute elliptic eccentric anomaly.
-        const double computedEllipticEccentricAnomaly
-                = orbital_element_conversions::
-                convertTrueAnomalyToEllipticalEccentricAnomaly( trueAnomaly, eccentricity );
+        const double computedEllipticEccentricAnomaly =
+                orbital_element_conversions::convertTrueAnomalyToEllipticalEccentricAnomaly( trueAnomaly, eccentricity );
 
         // Check if computed elliptic eccentric anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticEccentricAnomaly,
-                                    computedEllipticEccentricAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION(
+                expectedEllipticEccentricAnomaly, computedEllipticEccentricAnomaly, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 3: Circular orbit at periapsis.
@@ -837,14 +749,12 @@ BOOST_AUTO_TEST_CASE( testTrueAnomalyToEccentricAnomalyConversion )
         const double expectedEllipticEccentricAnomaly = 0.0;
 
         // Compute elliptic eccentric anomaly.
-        const double computedEllipticEccentricAnomaly
-                = orbital_element_conversions::
-                convertTrueAnomalyToEllipticalEccentricAnomaly( trueAnomaly, eccentricity );
+        const double computedEllipticEccentricAnomaly =
+                orbital_element_conversions::convertTrueAnomalyToEllipticalEccentricAnomaly( trueAnomaly, eccentricity );
 
         // Check if computed elliptic eccentric anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticEccentricAnomaly,
-                                    computedEllipticEccentricAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION(
+                expectedEllipticEccentricAnomaly, computedEllipticEccentricAnomaly, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 4: General hyperbolic orbit.
@@ -860,13 +770,11 @@ BOOST_AUTO_TEST_CASE( testTrueAnomalyToEccentricAnomalyConversion )
         const double expectedHyperbolicEccentricAnomaly = 0.3879;
 
         // Compute hyperbolic eccentric anomaly.
-        const double convertedHyperbolicEccentricAnomaly
-                = orbital_element_conversions
-                ::convertTrueAnomalyToHyperbolicEccentricAnomaly( trueAnomaly, eccentricity );
+        const double convertedHyperbolicEccentricAnomaly =
+                orbital_element_conversions ::convertTrueAnomalyToHyperbolicEccentricAnomaly( trueAnomaly, eccentricity );
 
         // Check if computed hyperbolic eccentric anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedHyperbolicEccentricAnomaly,
-                                    convertedHyperbolicEccentricAnomaly, 1.0e-5 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedHyperbolicEccentricAnomaly, convertedHyperbolicEccentricAnomaly, 1.0e-5 );
     }
 
     // Case 5: General elliptical orbit (test for wrapper function).
@@ -882,14 +790,12 @@ BOOST_AUTO_TEST_CASE( testTrueAnomalyToEccentricAnomalyConversion )
         const double expectedEllipticEccentricAnomaly = 1.290237398010989;
 
         // Compute elliptic eccentric anomaly.
-        const double computedEllipticEccentricAnomaly
-                = orbital_element_conversions::
-                convertTrueAnomalyToEccentricAnomaly( trueAnomaly, eccentricity );
+        const double computedEllipticEccentricAnomaly =
+                orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly( trueAnomaly, eccentricity );
 
         // Check if computed elliptic eccentric anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticEccentricAnomaly,
-                                    computedEllipticEccentricAnomaly,
-                                    2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION(
+                expectedEllipticEccentricAnomaly, computedEllipticEccentricAnomaly, 2.0 * std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 6: General hyperbolic orbit (test for wrapper function).
@@ -905,13 +811,11 @@ BOOST_AUTO_TEST_CASE( testTrueAnomalyToEccentricAnomalyConversion )
         const double expectedHyperbolicEccentricAnomaly = 0.3879;
 
         // Compute hyperbolic eccentric anomaly.
-        const double convertedHyperbolicEccentricAnomaly
-                = orbital_element_conversions
-                ::convertTrueAnomalyToEccentricAnomaly( trueAnomaly, eccentricity );
+        const double convertedHyperbolicEccentricAnomaly =
+                orbital_element_conversions ::convertTrueAnomalyToEccentricAnomaly( trueAnomaly, eccentricity );
 
         // Check if computed hyperbolic eccentric anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedHyperbolicEccentricAnomaly,
-                                    convertedHyperbolicEccentricAnomaly, 1.0e-5 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedHyperbolicEccentricAnomaly, convertedHyperbolicEccentricAnomaly, 1.0e-5 );
     }
 }
 
@@ -931,14 +835,12 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToTrueAnomalyConversion )
         const double expectedTrueAnomaly = 3.665218735816221;
 
         // Compute true anomaly, modulo 2*pi.
-        const double convertedTrueAnomaly
-                = orbital_element_conversions::
-                convertEllipticalEccentricAnomalyToTrueAnomaly( ellipticEccentricAnomaly,
-                                                                eccentricity ) + 2.0 * PI;
+        const double convertedTrueAnomaly =
+                orbital_element_conversions::convertEllipticalEccentricAnomalyToTrueAnomaly( ellipticEccentricAnomaly, eccentricity ) +
+                2.0 * PI;
 
         // Check if computed true anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedTrueAnomaly, convertedTrueAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( expectedTrueAnomaly, convertedTrueAnomaly, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 2: Circular orbit.
@@ -954,14 +856,12 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToTrueAnomalyConversion )
         const double expectedTrueAnomaly = 4.545884569744431;
 
         // Compute true anomaly.
-        const double convertedTrueAnomaly
-                = orbital_element_conversions::
-                convertEllipticalEccentricAnomalyToTrueAnomaly( ellipticEccentricAnomaly,
-                                                                eccentricity ) + 2.0 * PI;
+        const double convertedTrueAnomaly =
+                orbital_element_conversions::convertEllipticalEccentricAnomalyToTrueAnomaly( ellipticEccentricAnomaly, eccentricity ) +
+                2.0 * PI;
 
         // Check if computed true anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedTrueAnomaly, convertedTrueAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( expectedTrueAnomaly, convertedTrueAnomaly, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 3: Circular orbit at periapsis.
@@ -977,14 +877,11 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToTrueAnomalyConversion )
         const double expectedTrueAnomaly = 0.0;
 
         // Compute true anomaly.
-        const double convertedTrueAnomaly
-                = orbital_element_conversions::
-                convertEllipticalEccentricAnomalyToTrueAnomaly( ellipticEccentricAnomaly,
-                                                                eccentricity );
+        const double convertedTrueAnomaly =
+                orbital_element_conversions::convertEllipticalEccentricAnomalyToTrueAnomaly( ellipticEccentricAnomaly, eccentricity );
 
         // Check if computed true anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedTrueAnomaly, convertedTrueAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( expectedTrueAnomaly, convertedTrueAnomaly, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 4: General hyperbolic orbit.
@@ -1000,10 +897,8 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToTrueAnomalyConversion )
         const double expectedTrueAnomaly = 0.5291;
 
         // Compute true anomaly.
-        const double convertedTrueAnomaly
-                = orbital_element_conversions
-                ::convertHyperbolicEccentricAnomalyToTrueAnomaly(
-                    hyperbolicEccentricAnomaly, eccentricity );
+        const double convertedTrueAnomaly =
+                orbital_element_conversions ::convertHyperbolicEccentricAnomalyToTrueAnomaly( hyperbolicEccentricAnomaly, eccentricity );
 
         // Check if computed true anomaly matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedTrueAnomaly, convertedTrueAnomaly, 1.0e-5 );
@@ -1022,14 +917,11 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToTrueAnomalyConversion )
         const double expectedTrueAnomaly = 3.665218735816221;
 
         // Compute true anomaly, modulo 2*pi.
-        const double convertedTrueAnomaly
-                = orbital_element_conversions::
-                convertEccentricAnomalyToTrueAnomaly( ellipticEccentricAnomaly,
-                                                      eccentricity ) + 2.0 * PI;
+        const double convertedTrueAnomaly =
+                orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly( ellipticEccentricAnomaly, eccentricity ) + 2.0 * PI;
 
         // Check if computed true anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedTrueAnomaly, convertedTrueAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( expectedTrueAnomaly, convertedTrueAnomaly, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 6: General hyperbolic orbit (test for wrapper function).
@@ -1045,10 +937,8 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToTrueAnomalyConversion )
         const double expectedTrueAnomaly = 0.5291;
 
         // Compute true anomaly.
-        const double convertedTrueAnomaly
-                = orbital_element_conversions
-                ::convertEccentricAnomalyToTrueAnomaly(
-                    hyperbolicEccentricAnomaly, eccentricity );
+        const double convertedTrueAnomaly =
+                orbital_element_conversions ::convertEccentricAnomalyToTrueAnomaly( hyperbolicEccentricAnomaly, eccentricity );
 
         // Check if computed true anomaly matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedTrueAnomaly, convertedTrueAnomaly, 1.0e-5 );
@@ -1071,13 +961,11 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToMeanAnomalyConversion )
         const double expectedMeanAnomaly = 3.036459804491048;
 
         // Compute mean anomaly.
-        const double computedMeanAnomaly = orbital_element_conversions
-                ::convertEllipticalEccentricAnomalyToMeanAnomaly(
-                    ellipticalEccentricAnomaly, eccentricity );
+        const double computedMeanAnomaly =
+                orbital_element_conversions ::convertEllipticalEccentricAnomalyToMeanAnomaly( ellipticalEccentricAnomaly, eccentricity );
 
         // Check if computed mean anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomaly, computedMeanAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomaly, computedMeanAnomaly, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 2: Circular orbit.
@@ -1093,13 +981,11 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToMeanAnomalyConversion )
         const double expectedMeanAnomaly = 5.587148001484247;
 
         // Compute mean anomaly.
-        const double computedMeanAnomaly = orbital_element_conversions
-                ::convertEllipticalEccentricAnomalyToMeanAnomaly(
-                    ellipticalEccentricAnomaly, eccentricity );
+        const double computedMeanAnomaly =
+                orbital_element_conversions ::convertEllipticalEccentricAnomalyToMeanAnomaly( ellipticalEccentricAnomaly, eccentricity );
 
         // Check if computed mean anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomaly, computedMeanAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomaly, computedMeanAnomaly, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 3: Circular orbit at periapsis.
@@ -1115,13 +1001,11 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToMeanAnomalyConversion )
         const double expectedMeanAnomaly = 0.0;
 
         // Compute mean anomaly.
-        const double computedMeanAnomaly = orbital_element_conversions
-                ::convertEllipticalEccentricAnomalyToMeanAnomaly(
-                    ellipticalEccentricAnomaly, eccentricity );
+        const double computedMeanAnomaly =
+                orbital_element_conversions ::convertEllipticalEccentricAnomalyToMeanAnomaly( ellipticalEccentricAnomaly, eccentricity );
 
         // Check if computed mean anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomaly, computedMeanAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomaly, computedMeanAnomaly, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 4: General hyperbolic orbit.
@@ -1137,9 +1021,8 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToMeanAnomalyConversion )
         const double expectedMeanAnomaly = 235.4 / 180.0 * PI;
 
         // Compute mean anomaly.
-        const double computedMeanAnomaly = orbital_element_conversions
-                ::convertHyperbolicEccentricAnomalyToMeanAnomaly( hyperbolicEccentricAnomaly,
-                                                                  eccentricity );
+        const double computedMeanAnomaly =
+                orbital_element_conversions ::convertHyperbolicEccentricAnomalyToMeanAnomaly( hyperbolicEccentricAnomaly, eccentricity );
 
         // Check if computed mean anomaly matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomaly, computedMeanAnomaly, 1.0e-8 );
@@ -1158,13 +1041,11 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToMeanAnomalyConversion )
         const double expectedMeanAnomaly = 3.036459804491048;
 
         // Compute mean anomaly.
-        const double computedMeanAnomaly = orbital_element_conversions
-                ::convertEccentricAnomalyToMeanAnomaly(
-                    ellipticalEccentricAnomaly, eccentricity );
+        const double computedMeanAnomaly =
+                orbital_element_conversions ::convertEccentricAnomalyToMeanAnomaly( ellipticalEccentricAnomaly, eccentricity );
 
         // Check if computed mean anomaly matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomaly, computedMeanAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomaly, computedMeanAnomaly, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 6: General hyperbolic orbit.
@@ -1180,8 +1061,8 @@ BOOST_AUTO_TEST_CASE( testEccentricAnomalyToMeanAnomalyConversion )
         const double expectedMeanAnomaly = 235.4 / 180.0 * PI;
 
         // Compute mean anomaly.
-        const double computedMeanAnomaly = orbital_element_conversions
-                ::convertEccentricAnomalyToMeanAnomaly( hyperbolicEccentricAnomaly, eccentricity );
+        const double computedMeanAnomaly =
+                orbital_element_conversions ::convertEccentricAnomalyToMeanAnomaly( hyperbolicEccentricAnomaly, eccentricity );
 
         // Check if computed mean anomaly matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomaly, computedMeanAnomaly, 1.0e-8 );
@@ -1210,14 +1091,11 @@ BOOST_AUTO_TEST_CASE( testElapsedTimeToMeanAnomalyConversion )
         const double expectedEllipticalMeanAnomalyChange = 2.580579656848906 - 1.950567148859647;
 
         // Compute elliptical mean anomaly change [rad].
-        const double computedEllipticalMeanAnomalyChange
-                = orbital_element_conversions
-                ::convertElapsedTimeToEllipticalMeanAnomalyChange(
-                    elapsedTime, earthGravitationalParameter, semiMajorAxis );
+        const double computedEllipticalMeanAnomalyChange = orbital_element_conversions ::convertElapsedTimeToEllipticalMeanAnomalyChange(
+                elapsedTime, earthGravitationalParameter, semiMajorAxis );
 
         // Check if computed elliptical mean anomaly change matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticalMeanAnomalyChange,
-                                    computedEllipticalMeanAnomalyChange, 1.0e-14 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticalMeanAnomalyChange, computedEllipticalMeanAnomalyChange, 1.0e-14 );
     }
 
     // Case 2: Earth-orbiting satellite with no elapsed time.
@@ -1239,15 +1117,12 @@ BOOST_AUTO_TEST_CASE( testElapsedTimeToMeanAnomalyConversion )
         const double expectedEllipticalMeanAnomalyChange = 0.0;
 
         // Compute elliptical mean anomaly change [rad].
-        const double computedEllipticalMeanAnomalyChange
-                = orbital_element_conversions
-                ::convertElapsedTimeToEllipticalMeanAnomalyChange(
-                    elapsedTime, earthGravitationalParameter, semiMajorAxis );
+        const double computedEllipticalMeanAnomalyChange = orbital_element_conversions ::convertElapsedTimeToEllipticalMeanAnomalyChange(
+                elapsedTime, earthGravitationalParameter, semiMajorAxis );
 
         // Check if computed elliptical mean anomaly change matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticalMeanAnomalyChange,
-                                    computedEllipticalMeanAnomalyChange,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION(
+                expectedEllipticalMeanAnomalyChange, computedEllipticalMeanAnomalyChange, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 3: Hyperbolic orbit around the Sun.
@@ -1267,14 +1142,11 @@ BOOST_AUTO_TEST_CASE( testElapsedTimeToMeanAnomalyConversion )
         const double expectedMeanAnomalyChange = 2.495601869539691e3;
 
         // Compute mean anomaly change [rad].
-        const double computedMeanAnomalyChange
-                = orbital_element_conversions
-                ::convertElapsedTimeToHyperbolicMeanAnomalyChange(
-                    elapsedTime, sunGravitationalParameter, semiMajorAxis );
+        const double computedMeanAnomalyChange = orbital_element_conversions ::convertElapsedTimeToHyperbolicMeanAnomalyChange(
+                elapsedTime, sunGravitationalParameter, semiMajorAxis );
 
         // Check if computed mean anomaly change matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomalyChange, computedMeanAnomalyChange,
-                                    1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomalyChange, computedMeanAnomalyChange, 1.0e-15 );
     }
 
     // Case 4: Earth-orbiting satellite (test for wrapper function).
@@ -1296,14 +1168,11 @@ BOOST_AUTO_TEST_CASE( testElapsedTimeToMeanAnomalyConversion )
         const double expectedEllipticalMeanAnomalyChange = 2.580579656848906 - 1.950567148859647;
 
         // Compute elliptical mean anomaly change [rad].
-        const double computedEllipticalMeanAnomalyChange
-                = orbital_element_conversions
-                ::convertElapsedTimeToMeanAnomalyChange(
-                    elapsedTime, earthGravitationalParameter, semiMajorAxis );
+        const double computedEllipticalMeanAnomalyChange = orbital_element_conversions ::convertElapsedTimeToMeanAnomalyChange(
+                elapsedTime, earthGravitationalParameter, semiMajorAxis );
 
         // Check if computed elliptical mean anomaly change matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticalMeanAnomalyChange,
-                                    computedEllipticalMeanAnomalyChange, 1.0e-14 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticalMeanAnomalyChange, computedEllipticalMeanAnomalyChange, 1.0e-14 );
     }
 
     // Case 5: Hyperbolic orbit around the Sun (test for wrapper function).
@@ -1323,14 +1192,11 @@ BOOST_AUTO_TEST_CASE( testElapsedTimeToMeanAnomalyConversion )
         const double expectedMeanAnomalyChange = 2.495601869539691e3;
 
         // Compute mean anomaly change [rad].
-        const double computedMeanAnomalyChange
-                = orbital_element_conversions
-                ::convertElapsedTimeToMeanAnomalyChange(
-                    elapsedTime, sunGravitationalParameter, semiMajorAxis );
+        const double computedMeanAnomalyChange = orbital_element_conversions ::convertElapsedTimeToMeanAnomalyChange(
+                elapsedTime, sunGravitationalParameter, semiMajorAxis );
 
         // Check if computed mean anomaly change matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomalyChange, computedMeanAnomalyChange,
-                                    1.0e-15 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedMeanAnomalyChange, computedMeanAnomalyChange, 1.0e-15 );
     }
 }
 
@@ -1356,9 +1222,8 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyToElaspedTimeConversion )
         const double expectedElapsedTime = 17280.0;
 
         // Compute elapsed time [s].
-        const double computedElapsedTime = orbital_element_conversions
-                ::convertEllipticalMeanAnomalyChangeToElapsedTime(
-                    ellipticalMeanAnomalyChange, earthGravitationalParameter, semiMajorAxis );
+        const double computedElapsedTime = orbital_element_conversions ::convertEllipticalMeanAnomalyChangeToElapsedTime(
+                ellipticalMeanAnomalyChange, earthGravitationalParameter, semiMajorAxis );
 
         // Check if computed elapsed time matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedElapsedTime, computedElapsedTime, 1.0e-15 );
@@ -1383,13 +1248,11 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyToElaspedTimeConversion )
         const double expectedElapsedTime = 0.0;
 
         // Compute elapsed time [s].
-        const double computedElapsedTime = orbital_element_conversions
-                ::convertEllipticalMeanAnomalyChangeToElapsedTime(
-                    ellipticalMeanAnomalyChange, earthGravitationalParameter, semiMajorAxis );
+        const double computedElapsedTime = orbital_element_conversions ::convertEllipticalMeanAnomalyChangeToElapsedTime(
+                ellipticalMeanAnomalyChange, earthGravitationalParameter, semiMajorAxis );
 
         // Check if computed elapsed time matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedElapsedTime, computedElapsedTime,
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( expectedElapsedTime, computedElapsedTime, std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 3: Hyperbolic orbit around the Sun.
@@ -1409,9 +1272,8 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyToElaspedTimeConversion )
         const double expectedElapsedTime = 1000.0;
 
         // Compute elapsed time [s].
-        const double computedElapsedTime = orbital_element_conversions
-                ::convertHyperbolicMeanAnomalyChangeToElapsedTime(
-                    hyperbolicMeanAnomaly, sunGravitationalParameter, semiMajorAxis );
+        const double computedElapsedTime = orbital_element_conversions ::convertHyperbolicMeanAnomalyChangeToElapsedTime(
+                hyperbolicMeanAnomaly, sunGravitationalParameter, semiMajorAxis );
 
         // Check if computed elapsed time matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedElapsedTime, computedElapsedTime, 1.0e-15 );
@@ -1436,9 +1298,8 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyToElaspedTimeConversion )
         const double expectedElapsedTime = 17280.0;
 
         // Compute elapsed time [s].
-        const double computedElapsedTime = orbital_element_conversions
-                ::convertMeanAnomalyChangeToElapsedTime(
-                    ellipticalMeanAnomalyChange, earthGravitationalParameter, semiMajorAxis );
+        const double computedElapsedTime = orbital_element_conversions ::convertMeanAnomalyChangeToElapsedTime(
+                ellipticalMeanAnomalyChange, earthGravitationalParameter, semiMajorAxis );
 
         // Check if computed elapsed time matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedElapsedTime, computedElapsedTime, 1.0e-15 );
@@ -1461,9 +1322,8 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyToElaspedTimeConversion )
         const double expectedElapsedTime = 1000.0;
 
         // Compute elapsed time [s].
-        const double computedElapsedTime = orbital_element_conversions
-                ::convertMeanAnomalyChangeToElapsedTime(
-                    hyperbolicMeanAnomaly, sunGravitationalParameter, semiMajorAxis );
+        const double computedElapsedTime = orbital_element_conversions ::convertMeanAnomalyChangeToElapsedTime(
+                hyperbolicMeanAnomaly, sunGravitationalParameter, semiMajorAxis );
 
         // Check if computed elapsed time matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedElapsedTime, computedElapsedTime, 1.0e-15 );
@@ -1486,10 +1346,8 @@ BOOST_AUTO_TEST_CASE( testMeanMotionToSemiMajorAxisConversion )
         const double expectedSemiMajorAxis = 42164.0e3;
 
         // Compute semi-major axis [s].
-        const double computedSemiMajorAxis
-                = orbital_element_conversions
-                ::convertEllipticalMeanMotionToSemiMajorAxis( ellipticalMeanMotion,
-                                                              earthGravitationalParameter );
+        const double computedSemiMajorAxis = orbital_element_conversions ::convertEllipticalMeanMotionToSemiMajorAxis(
+                ellipticalMeanMotion, earthGravitationalParameter );
 
         // Check if computed semi-major axis matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedSemiMajorAxis, computedSemiMajorAxis, 1.0e-4 );
@@ -1508,10 +1366,8 @@ BOOST_AUTO_TEST_CASE( testMeanMotionToSemiMajorAxisConversion )
         const double expectedSemiMajorAxis = 20427.0e3;
 
         // Compute semi-major axis [m].
-        const double computedSemiMajorAxis
-                = orbital_element_conversions
-                ::convertEllipticalMeanMotionToSemiMajorAxis( ellipticalMeanMotion,
-                                                              marsGravitationalParameter );
+        const double computedSemiMajorAxis = orbital_element_conversions ::convertEllipticalMeanMotionToSemiMajorAxis(
+                ellipticalMeanMotion, marsGravitationalParameter );
 
         // Check if computed semi-major axis matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedSemiMajorAxis, computedSemiMajorAxis, 1.0e-4 );
@@ -1534,14 +1390,11 @@ BOOST_AUTO_TEST_CASE( testSemiMajorAxisToMeanMotionConversion )
         const double expectedEllipticalMeanMotion = 7.2921e-5;
 
         // Compute elliptical mean motion [rad/s].
-        const double computedEllipticalMeanMotion
-                = orbital_element_conversions
-                ::convertSemiMajorAxisToEllipticalMeanMotion( semiMajorAxis,
-                                                              earthGravitationalParameter );
+        const double computedEllipticalMeanMotion =
+                orbital_element_conversions ::convertSemiMajorAxisToEllipticalMeanMotion( semiMajorAxis, earthGravitationalParameter );
 
         // Check if computed elliptical mean motion matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticalMeanMotion,
-                                    computedEllipticalMeanMotion, 1.0e-3 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticalMeanMotion, computedEllipticalMeanMotion, 1.0e-3 );
     }
 
     // Case 2: Geostationary satellite around Mars.
@@ -1557,23 +1410,18 @@ BOOST_AUTO_TEST_CASE( testSemiMajorAxisToMeanMotionConversion )
         const double expectedEllipticalMeanMotion = 7.088218e-5;
 
         // Compute mean motion [rad/s].
-        const double computedEllipticalMeanMotion
-                = orbital_element_conversions
-                ::convertSemiMajorAxisToEllipticalMeanMotion( semiMajorAxis,
-                                                              marsGravitationalParameter );
+        const double computedEllipticalMeanMotion =
+                orbital_element_conversions ::convertSemiMajorAxisToEllipticalMeanMotion( semiMajorAxis, marsGravitationalParameter );
 
         // Check if computed elliptical mean motion matches the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticalMeanMotion,
-                                    computedEllipticalMeanMotion, 1.0e-4 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedEllipticalMeanMotion, computedEllipticalMeanMotion, 1.0e-4 );
     }
-
 }
 
 //! Test bug-fix to orbital element conversions for arguments of periapsis close to zero, pi or two pi.
 //! Thanks to Andreas Kleinschneider for finding the bug.
 BOOST_AUTO_TEST_CASE( test_ArgumentOfPeriapsisBugfix )
 {
-
     // Define previously offending states and gravitational parameters.
     Eigen::Vector6d centralBodyCartesianState;
     centralBodyCartesianState << -521142852074.35858154296875, 595141535550.8497314453125, 8056093690.3882598876953125,
@@ -1589,14 +1437,13 @@ BOOST_AUTO_TEST_CASE( test_ArgumentOfPeriapsisBugfix )
     double gravitationalParameterOfOrbitingBody = 5959916033410.404296875;
 
     // Convert to Keplerian state
-    Eigen::Vector6d keplerianState =
-            orbital_element_conversions::convertCartesianToKeplerianElements(
-                relativeCartesianState, gravitationalParameterOfCentralBody + gravitationalParameterOfOrbitingBody );
+    Eigen::Vector6d keplerianState = orbital_element_conversions::convertCartesianToKeplerianElements(
+            relativeCartesianState, gravitationalParameterOfCentralBody + gravitationalParameterOfOrbitingBody );
 
     // Check whether argument of periapsis is defined.
     BOOST_CHECK_EQUAL( ( keplerianState( orbital_element_conversions::argumentOfPeriapsisIndex ) ==
-                         keplerianState( orbital_element_conversions::argumentOfPeriapsisIndex ) ), true );
-
+                         keplerianState( orbital_element_conversions::argumentOfPeriapsisIndex ) ),
+                       true );
 }
 
 BOOST_AUTO_TEST_CASE( test_LongitudeOfNodeBugfix )
@@ -1606,25 +1453,20 @@ BOOST_AUTO_TEST_CASE( test_LongitudeOfNodeBugfix )
 
     // Define previously offending states and gravitational parameters.
     Eigen::Vector6d cartesianState;
-    cartesianState << 146378739288.0336,  -32851886854.1209, -14241055658.24648,  6603.183449760695,
-            26444.27948911581,  11463.63694918501;
+    cartesianState << 146378739288.0336, -32851886854.1209, -14241055658.24648, 6603.183449760695, 26444.27948911581, 11463.63694918501;
     double gravitationalParameterOfCentralBody = 1.327128386237518e+20;
 
     // Convert to Keplerian state
     Eigen::Vector6d keplerianState =
-            orbital_element_conversions::convertCartesianToKeplerianElements(
-                cartesianState, gravitationalParameterOfCentralBody );
+            orbital_element_conversions::convertCartesianToKeplerianElements( cartesianState, gravitationalParameterOfCentralBody );
 
     Eigen::Vector6d recomputedCartesianState =
-            orbital_element_conversions::convertKeplerianToCartesianElements(
-                keplerianState, gravitationalParameterOfCentralBody );
+            orbital_element_conversions::convertKeplerianToCartesianElements( keplerianState, gravitationalParameterOfCentralBody );
 
-    Eigen::Vector6d  recomputedKeplerianState =
-            orbital_element_conversions::convertCartesianToKeplerianElements(
-                recomputedCartesianState, gravitationalParameterOfCentralBody );
+    Eigen::Vector6d recomputedKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements(
+            recomputedCartesianState, gravitationalParameterOfCentralBody );
 
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianState,recomputedCartesianState, 1.0E-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cartesianState, recomputedCartesianState, 1.0E-10 );
     recomputedKeplerianState( 4 ) = basic_mathematics::computeModulo( recomputedKeplerianState( 4 ), 2.0 * mathematical_constants::PI );
     keplerianState( 4 ) = basic_mathematics::computeModulo( keplerianState( 4 ), 2.0 * mathematical_constants::PI );
     BOOST_CHECK_SMALL( std::fabs( recomputedKeplerianState( 4 ) - keplerianState( 4 ) ), 1.0E-10 );
@@ -1632,17 +1474,14 @@ BOOST_AUTO_TEST_CASE( test_LongitudeOfNodeBugfix )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keplerianState, recomputedKeplerianState, 1.0E-10 );
 }
 
-
 //! Test if conversion from eccentric anomaly to mean anomaly is working correctly.
 BOOST_AUTO_TEST_CASE( testMeanToTrueAnomalyConversion )
 {
     using namespace orbital_element_conversions;
     using namespace basic_mathematics;
 
-    std::vector< double > meanAnomalies =
-    { 1.0E-12, 1.0, mathematical_constants::PI, 5.0, 2.0 * mathematical_constants::PI - 1.0E-12 };
-    std::vector< double > eccentricities =
-    { 0.0, 0.1, 0.5, 0.9, 0.99, 0.99999999, 1.00000001, 1.001, 2.0, 5.0, 10.0 };
+    std::vector< double > meanAnomalies = { 1.0E-12, 1.0, mathematical_constants::PI, 5.0, 2.0 * mathematical_constants::PI - 1.0E-12 };
+    std::vector< double > eccentricities = { 0.0, 0.1, 0.5, 0.9, 0.99, 0.99999999, 1.00000001, 1.001, 2.0, 5.0, 10.0 };
     for( unsigned int i = 0; i < meanAnomalies.size( ); i++ )
     {
         for( unsigned int j = 0; j < eccentricities.size( ); j++ )
@@ -1677,5 +1516,5 @@ BOOST_AUTO_TEST_CASE( testMeanToTrueAnomalyConversion )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

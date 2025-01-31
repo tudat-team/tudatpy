@@ -25,26 +25,22 @@ namespace low_thrust_trajectories
 class SimsFlanaganModel
 {
 public:
-
     //! Constructor.
     SimsFlanaganModel( const Eigen::Vector6d& stateAtDeparture,
                        const Eigen::Vector6d& stateAtArrival,
                        const double centralBodyGravitationalParameter,
                        const double initialSpacecraftMass,
                        const double maximumThrust,
-                       const std::function< double ( const double ) > specificImpulseFunction,
+                       const std::function< double( const double ) > specificImpulseFunction,
                        const double timeOfFlight,
                        std::vector< Eigen::Vector3d >& throttles ):
         stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-        initialSpacecraftMass_( initialSpacecraftMass ),
-        maximumThrust_( maximumThrust ),
-        specificImpulseFunction_( specificImpulseFunction ), timeOfFlight_( timeOfFlight ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ), initialSpacecraftMass_( initialSpacecraftMass ),
+        maximumThrust_( maximumThrust ), specificImpulseFunction_( specificImpulseFunction ), timeOfFlight_( timeOfFlight ),
         throttles_( throttles )
     {
-
         // Retrieve number of segments from the size of the throttles vector.
-        numberSegments_ = throttles_.size();
+        numberSegments_ = throttles_.size( );
 
         // Calculate number of segments for both the forward propagation (from departure to match point)
         // and the backward propagation (from arrival to match point).
@@ -57,11 +53,11 @@ public:
         // Compute the times at the different nodes of the leg.
         segmentDurationForwardPropagation_ = timeAtMatchPoint_ / numberSegmentsForwardPropagation_;
         segmentDurationBackwardPropagation_ = timeAtMatchPoint_ / numberSegmentsBackwardPropagation_;
-        for ( int i = 0 ; i <= numberSegmentsForwardPropagation_ ; i++ )
+        for( int i = 0; i <= numberSegmentsForwardPropagation_; i++ )
         {
             timesAtNodes_.push_back( i * segmentDurationForwardPropagation_ );
         }
-        for ( int i = 1 ; i <= numberSegmentsBackwardPropagation_ ; i++ )
+        for( int i = 1; i <= numberSegmentsBackwardPropagation_; i++ )
         {
             timesAtNodes_.push_back( timeAtMatchPoint_ + i * segmentDurationBackwardPropagation_ );
         }
@@ -71,7 +67,6 @@ public:
         // Initialise value of the total deltaV.
         totalDeltaV_ = 0.0;
     }
-
 
     //! Default destructor.
     ~SimsFlanaganModel( ) { }
@@ -133,35 +128,46 @@ public:
     //! Return total deltaV required by the trajectory.
     double getTotalDeltaV( );
 
-    basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap(
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::string& bodyToPropagate,
-            const std::string& centralBody );
+    basic_astrodynamics::AccelerationMap getLowThrustTrajectoryAccelerationMap( const simulation_setup::SystemOfBodies& bodies,
+                                                                                const std::string& bodyToPropagate,
+                                                                                const std::string& centralBody );
 
     //! Propagate the trajectory to given time.
-    Eigen::Vector6d propagateTrajectoryForward(
-            double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
+    Eigen::Vector6d propagateTrajectoryForward( double initialTime,
+                                                double finalTime,
+                                                Eigen::Vector6d initialState,
+                                                double segmentDuration );
 
     //! Propagate the trajectory to given time.
-    Eigen::Vector6d propagateTrajectoryBackward( double initialTime, double finalTime, Eigen::Vector6d initialState, double segmentDuration );
+    Eigen::Vector6d propagateTrajectoryBackward( double initialTime,
+                                                 double finalTime,
+                                                 Eigen::Vector6d initialState,
+                                                 double segmentDuration );
 
     //! Propagate the trajectory to set of epochs (forward propagation).
-    std::map< double, Eigen::Vector6d > propagateTrajectoryForward(
-            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, double segmentDuration );
+    std::map< double, Eigen::Vector6d > propagateTrajectoryForward( std::vector< double > epochs,
+                                                                    std::map< double, Eigen::Vector6d >& propagatedTrajectory,
+                                                                    double segmentDuration );
 
     //! Propagate the trajectory to set of epochs (backward propagation).
-    std::map< double, Eigen::Vector6d > propagateTrajectoryBackward(
-            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory, double segmentDuration );
+    std::map< double, Eigen::Vector6d > propagateTrajectoryBackward( std::vector< double > epochs,
+                                                                     std::map< double, Eigen::Vector6d >& propagatedTrajectory,
+                                                                     double segmentDuration );
 
     //! Propagate the trajectory to set of epochs.
-    void propagateTrajectory(
-            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory );
+    void propagateTrajectory( std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
     //! Propagate the trajectory inside one segment.
-    Eigen::Vector6d propagateInsideForwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
+    Eigen::Vector6d propagateInsideForwardSegment( double initialTime,
+                                                   double finalTime,
+                                                   double segmentDuration,
+                                                   Eigen::Vector6d initialState );
 
     //! Propagate the trajectory inside one segment.
-    Eigen::Vector6d propagateInsideBackwardSegment( double initialTime, double finalTime, double segmentDuration, Eigen::Vector6d initialState );
+    Eigen::Vector6d propagateInsideBackwardSegment( double initialTime,
+                                                    double finalTime,
+                                                    double segmentDuration,
+                                                    Eigen::Vector6d initialState );
 
     void propagateMassToSegments( );
 
@@ -176,18 +182,15 @@ public:
     }
 
 protected:
-
     std::shared_ptr< simulation_setup::ThrustAccelerationSettings > getConstantThrustAccelerationSettingsPerSegment(
             unsigned int indexSegment );
 
-    basic_astrodynamics::AccelerationMap getAccelerationModelPerSegment(
-            const unsigned int indexSegment,
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::string& bodyToPropagate,
-            const std::string& centralBody );
+    basic_astrodynamics::AccelerationMap getAccelerationModelPerSegment( const unsigned int indexSegment,
+                                                                         const simulation_setup::SystemOfBodies& bodies,
+                                                                         const std::string& bodyToPropagate,
+                                                                         const std::string& centralBody );
 
 private:
-
     //! State vector of the vehicle at the leg departure.
     Eigen::Vector6d stateAtDeparture_;
 
@@ -203,7 +206,7 @@ private:
     double maximumThrust_;
 
     //! Specific impulse.
-    std::function< double ( const double ) > specificImpulseFunction_;
+    std::function< double( const double ) > specificImpulseFunction_;
 
     //! Number of segments into which the leg is subdivided.
     int numberSegments_;
@@ -215,7 +218,6 @@ private:
     std::vector< Eigen::Vector3d > throttles_;
 
     std::vector< double > segmentMasses_;
-
 
     //! Number of segments for the forward propagation from departure to match point.
     int numberSegmentsForwardPropagation_;
@@ -243,12 +245,9 @@ private:
 
     //! Vector containing the time associated to each node of the leg.
     std::vector< double > timesAtNodes_;
-
-
 };
 
+}  // namespace low_thrust_trajectories
+}  // namespace tudat
 
-} // namespace low_thrust_trajectories
-} // namespace tudat
-
-#endif // TUDAT_SIMS_FLANAGAN_MODEL_H
+#endif  // TUDAT_SIMS_FLANAGAN_MODEL_H

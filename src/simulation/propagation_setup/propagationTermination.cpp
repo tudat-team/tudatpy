@@ -34,13 +34,17 @@ bool FixedTimePropagationTerminationCondition::checkStopCondition( const double 
 }
 
 //! Function to check whether the propagation is to be be stopped
-bool FixedCPUTimePropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime, const Eigen::MatrixXd& state )
+bool FixedCPUTimePropagationTerminationCondition::checkStopCondition( const double time,
+                                                                      const double cpuTime,
+                                                                      const Eigen::MatrixXd& state )
 {
     return cpuTime >= cpuStopTime_;
 }
 
 //! Function to check whether the propagation is to be be stopped
-bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime, const Eigen::MatrixXd& state )
+bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( const double time,
+                                                                             const double cpuTime,
+                                                                             const Eigen::MatrixXd& state )
 {
     bool stopPropagation = false;
     double currentVariable = variableRetrievalFunction_( );
@@ -129,12 +133,14 @@ bool HybridPropagationTerminationCondition::iterateToExactTermination( )
 }
 
 //! Function to check whether the propagation is to be be stopped
-bool NonSequentialPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime, const Eigen::MatrixXd& state )
+bool NonSequentialPropagationTerminationCondition::checkStopCondition( const double time,
+                                                                       const double cpuTime,
+                                                                       const Eigen::MatrixXd& state )
 {
     // Check if single condition is fulfilled.
     bool stopPropagation = false;
-    if ( forwardPropagationTerminationCondition_->checkStopCondition( time, cpuTime, state ) ||
-    backwardPropagationTerminationCondition_->checkStopCondition( time, cpuTime, state ) )
+    if( forwardPropagationTerminationCondition_->checkStopCondition( time, cpuTime, state ) ||
+        backwardPropagationTerminationCondition_->checkStopCondition( time, cpuTime, state ) )
     {
         stopPropagation = true;
     }
@@ -142,7 +148,6 @@ bool NonSequentialPropagationTerminationCondition::checkStopCondition( const dou
     return stopPropagation;
 }
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
-
+}  // namespace tudat

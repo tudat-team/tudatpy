@@ -9,9 +9,7 @@
  *
  */
 
-
 #include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
-
 
 namespace tudat
 {
@@ -31,5 +29,5 @@ Eigen::Vector3d computeYarkovskyAcceleration( double yarkovskyParameter, const E
     return yarkovskyMagnitude * yarkovskyDirection;
 }
 
-} // namespace electromagnetism
-} // namespace tudat
+}  // namespace electromagnetism
+}  // namespace tudat

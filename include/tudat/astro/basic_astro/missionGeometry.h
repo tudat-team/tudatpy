@@ -95,8 +95,7 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
  *          to that of central body (i.e. Sun).
  * \return Radius of sphere of influence [m].
  */
-double computeSphereOfInfluence( const double distanceToCentralBody,
-                                 const double ratioOfOrbitingToCentralBodyMass );
+double computeSphereOfInfluence( const double distanceToCentralBody, const double ratioOfOrbitingToCentralBodyMass );
 
 //! Compute the radius of the sphere of influence.
 /*!
@@ -109,12 +108,10 @@ double computeSphereOfInfluence( const double distanceToCentralBody,
  * \param massCentralBody Mass of central body (i.e. Sun) [kg].
  * \return Radius of sphere of influence [m].
  */
-double computeSphereOfInfluence( const double distanceToCentralBody,
-                                 const double massOrbitingBody,
-                                 const double massCentralBody );
+double computeSphereOfInfluence( const double distanceToCentralBody, const double massOrbitingBody, const double massCentralBody );
 
-} // namespace mission_geometry
+}  // namespace mission_geometry
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_MISSION_GEOMETRY_H
+#endif  // TUDAT_MISSION_GEOMETRY_H

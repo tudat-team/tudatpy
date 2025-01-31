@@ -18,78 +18,69 @@ namespace tudat
 namespace gravitation
 {
 
- //! Compute gravitational acceleration.
-Eigen::Vector3d computeGravitationalAcceleration(
-        const double universalGravitationalConstant,
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double massOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
+//! Compute gravitational acceleration.
+Eigen::Vector3d computeGravitationalAcceleration( const double universalGravitationalConstant,
+                                                  const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                                  const double massOfBodyExertingAcceleration,
+                                                  const Eigen::Vector3d& positionOfBodyExertingAcceleration )
 {
-    return computeGravitationalAcceleration(
-                positionOfBodySubjectToAcceleration,
-                universalGravitationalConstant * massOfBodyExertingAcceleration,
-                positionOfBodyExertingAcceleration );
+    return computeGravitationalAcceleration( positionOfBodySubjectToAcceleration,
+                                             universalGravitationalConstant * massOfBodyExertingAcceleration,
+                                             positionOfBodyExertingAcceleration );
 }
 
 //! Compute gravitational acceleration.
-Eigen::Vector3d computeGravitationalAcceleration(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double gravitationalParameterOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
+Eigen::Vector3d computeGravitationalAcceleration( const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                                  const double gravitationalParameterOfBodyExertingAcceleration,
+                                                  const Eigen::Vector3d& positionOfBodyExertingAcceleration )
 {
     double distance = ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration ).norm( );
-    return -gravitationalParameterOfBodyExertingAcceleration
-            * ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration )
-            / ( distance * distance * distance );
+    return -gravitationalParameterOfBodyExertingAcceleration *
+            ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration ) / ( distance * distance * distance );
 }
 
 //! Compute gravitational force.
-Eigen::Vector3d computeGravitationalForce(
-        const double universalGravitationalParameter,
-        const double massOfBodySubjectToForce,
-        const Eigen::Vector3d& positionOfBodySubjectToForce,
-        const double massOfBodyExertingForce,
-        const Eigen::Vector3d& positionOfBodyExertingForce )
+Eigen::Vector3d computeGravitationalForce( const double universalGravitationalParameter,
+                                           const double massOfBodySubjectToForce,
+                                           const Eigen::Vector3d& positionOfBodySubjectToForce,
+                                           const double massOfBodyExertingForce,
+                                           const Eigen::Vector3d& positionOfBodyExertingForce )
 {
-    return massOfBodySubjectToForce * computeGravitationalAcceleration(
-                universalGravitationalParameter, positionOfBodySubjectToForce,
-                massOfBodyExertingForce, positionOfBodyExertingForce );
+    return massOfBodySubjectToForce *
+            computeGravitationalAcceleration(
+                    universalGravitationalParameter, positionOfBodySubjectToForce, massOfBodyExertingForce, positionOfBodyExertingForce );
 }
 
 //! Compute gravitational force.
-Eigen::Vector3d computeGravitationalForce(
-        const double massOfBodySubjectToForce,
-        const Eigen::Vector3d& positionOfBodySubjectToForce,
-        const double gravitationalParameterOfBodyExertingForce,
-        const Eigen::Vector3d& positionOfBodyExertingForce )
+Eigen::Vector3d computeGravitationalForce( const double massOfBodySubjectToForce,
+                                           const Eigen::Vector3d& positionOfBodySubjectToForce,
+                                           const double gravitationalParameterOfBodyExertingForce,
+                                           const Eigen::Vector3d& positionOfBodyExertingForce )
 {
-    return massOfBodySubjectToForce * computeGravitationalAcceleration(
-                positionOfBodySubjectToForce, gravitationalParameterOfBodyExertingForce,
-                positionOfBodyExertingForce );
+    return massOfBodySubjectToForce *
+            computeGravitationalAcceleration(
+                    positionOfBodySubjectToForce, gravitationalParameterOfBodyExertingForce, positionOfBodyExertingForce );
 }
 
 //! Compute gravitational potential.
-double computeGravitationalPotential(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double gravitationalParameterOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
+double computeGravitationalPotential( const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                      const double gravitationalParameterOfBodyExertingAcceleration,
+                                      const Eigen::Vector3d& positionOfBodyExertingAcceleration )
 {
     double distance = ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration ).norm( );
     return gravitationalParameterOfBodyExertingAcceleration / distance;
 }
 
 //! Compute gravitational potential.
-double computeGravitationalPotential(
-        const double universalGravitationalConstant,
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double massOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
+double computeGravitationalPotential( const double universalGravitationalConstant,
+                                      const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                      const double massOfBodyExertingAcceleration,
+                                      const Eigen::Vector3d& positionOfBodyExertingAcceleration )
 {
-    return computeGravitationalPotential(
-            positionOfBodySubjectToAcceleration,
-            universalGravitationalConstant * massOfBodyExertingAcceleration,
-            positionOfBodyExertingAcceleration );
+    return computeGravitationalPotential( positionOfBodySubjectToAcceleration,
+                                          universalGravitationalConstant * massOfBodyExertingAcceleration,
+                                          positionOfBodyExertingAcceleration );
 }
 
-} // namespace gravitation
-} // namespace tudat
+}  // namespace gravitation
+}  // namespace tudat

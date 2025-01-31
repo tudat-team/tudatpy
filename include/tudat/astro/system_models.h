@@ -14,4 +14,4 @@
 #include "system_models/engineModel.h"
 #include "system_models/vehicleSystems.h"
 
-#endif // TUDAT_SYSTEM_MODELS_H
+#endif  // TUDAT_SYSTEM_MODELS_H

@@ -51,10 +51,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalForce )
         Eigen::Vector3d positionOfBoy( 6.38e6, 0.0, 0.0 );
 
         // Compute gravitational force acting on boy [N].
-        Eigen::Vector3d gravitationalForceExertedOnBoy
-                = gravitation::computeGravitationalForce(
-                    massOfBoy, positionOfBoy,
-                    gravitationalParameterOfEarth, positionOfEarth );
+        Eigen::Vector3d gravitationalForceExertedOnBoy =
+                gravitation::computeGravitationalForce( massOfBoy, positionOfBoy, gravitationalParameterOfEarth, positionOfEarth );
 
         // Check if computed gravitational force matches expected value.
         BOOST_CHECK_CLOSE_FRACTION( 685.54, gravitationalForceExertedOnBoy.norm( ), 1.0e-3 );
@@ -79,18 +77,15 @@ BOOST_AUTO_TEST_CASE( testGravitationalForce )
         Eigen::Vector3d positionOfBody2( 0.0, -5.0, 0.0 );
 
         // Compute gravitational force acting on body1 [N].
-        Eigen::Vector3d gravitationalForceExertedOnBody1
-                = gravitation::computeGravitationalForce(
-                    universalGravitationalConstant, massOfBody1,
-                    positionOfBody1, massOfBody2, positionOfBody2 );
+        Eigen::Vector3d gravitationalForceExertedOnBody1 = gravitation::computeGravitationalForce(
+                universalGravitationalConstant, massOfBody1, positionOfBody1, massOfBody2, positionOfBody2 );
 
         // Check if computed gravitational force matches expected value.
-        BOOST_CHECK_CLOSE_FRACTION( 13345200.0e-11, gravitationalForceExertedOnBody1.norm( ),
-                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( 13345200.0e-11, gravitationalForceExertedOnBody1.norm( ), std::numeric_limits< double >::epsilon( ) );
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

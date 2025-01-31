@@ -39,7 +39,6 @@ namespace input_output
 class MissileDatcomReader
 {
 public:
-
     //! Class constructor, reads data file.
     /*!
      * Class constructor, reads data file to vector of doubles containing all data.
@@ -52,12 +51,13 @@ public:
      *  Gets the split and parsed data from the 004 file.
      *  \return Vector of doubles, which have been sequentially read from 004 file.
      */
-    std::vector< double > getMissileDatcomData( ){ return missileDatcomData_; }
+    std::vector< double > getMissileDatcomData( )
+    {
+        return missileDatcomData_;
+    }
 
 protected:
-
 private:
-
     //! Function to read the for004.dat file and return one long std::vector
     /*!
      * Function to read the for004.dat file and return one long std::vector
@@ -83,8 +83,7 @@ private:
      * \param separator the separator symbol
      * \param dataVector the std::vector with all the substd::strings.
      */
-    void split( const std::string& dataString, char separator,
-                std::vector< std::string >& dataVector );
+    void split( const std::string& dataString, char separator, std::vector< std::string >& dataVector );
 
     //! Read and store data.
     /*!
@@ -144,7 +143,7 @@ private:
 //! Typedef for shared-pointer to MissileDatcomReader object.
 typedef std::shared_ptr< MissileDatcomReader > MissileDatcomReaderPointer;
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_MISSILE_DATCOM_READER_H
+#endif  // TUDAT_MISSILE_DATCOM_READER_H

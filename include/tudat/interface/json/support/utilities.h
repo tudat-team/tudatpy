@@ -37,7 +37,7 @@ void split( const std::string& string, const char delimiter, const bool trimSpac
     std::stringstream stream;
     stream.str( string );
     std::string item;
-    while ( std::getline( stream, item, delimiter ) )
+    while( std::getline( stream, item, delimiter ) )
     {
         *( result++ ) = trimSpaces ? boost::trim_copy( item ) : item;
     }
@@ -65,7 +65,7 @@ inline std::vector< std::string > split( const std::string& string, const char d
 template< typename K, typename V >
 void reduceToLast( std::map< K, V > map )
 {
-    if ( map.size( ) > 0 )
+    if( map.size( ) > 0 )
     {
         map = { { ( --map.end( ) )->first, ( --map.end( ) )->second } };
     }
@@ -79,9 +79,9 @@ void reduceToLast( std::map< K, V > map )
 template< typename K, typename V >
 K getKeyWithValue( const std::map< K, V >& map, const V& value )
 {
-    for ( auto entry : map )
+    for( auto entry: map )
     {
-        if ( entry.second == value )
+        if( entry.second == value )
         {
             return entry.first;
         }
@@ -116,9 +116,9 @@ bool contains( const std::vector< T >& vector, const T& value )
 template< typename T >
 bool containsAnyOf( const std::vector< T >& vector, std::vector< T > values )
 {
-    for ( auto value : values )
+    for( auto value: values )
     {
-        if ( contains( vector, value ) )
+        if( contains( vector, value ) )
         {
             return true;
         }
@@ -133,9 +133,9 @@ bool containsAnyOf( const std::vector< T >& vector, std::vector< T > values )
 template< typename T >
 bool containsAllOf( const std::vector< T >& vector, std::vector< T > values )
 {
-    for ( auto value : values )
+    for( auto value: values )
     {
-        if ( ! contains( vector, value ) )
+        if( !contains( vector, value ) )
         {
             return false;
         }
@@ -147,11 +147,11 @@ bool containsAllOf( const std::vector< T >& vector, std::vector< T > values )
 /*!
  * @copybrief getMapKeys
  */
-template< template< typename ... > class MapType, typename KeyType, typename ValueType >
+template< template< typename... > class MapType, typename KeyType, typename ValueType >
 std::vector< KeyType > getMapKeys( const MapType< KeyType, ValueType >& map )
 {
     std::vector< KeyType > keys;
-    for ( auto entry : map )
+    for( auto entry: map )
     {
         keys.push_back( entry.first );
     }
@@ -162,11 +162,11 @@ std::vector< KeyType > getMapKeys( const MapType< KeyType, ValueType >& map )
 /*!
  * @copybrief getMapValues
  */
-template< template< typename ... > class MapType, typename KeyType, typename ValueType >
+template< template< typename... > class MapType, typename KeyType, typename ValueType >
 std::vector< ValueType > getMapValues( const MapType< KeyType, ValueType >& map )
 {
     std::vector< ValueType > values;
-    for ( auto entry : map )
+    for( auto entry: map )
     {
         values.push_back( entry.second );
     }
@@ -177,13 +177,13 @@ std::vector< ValueType > getMapValues( const MapType< KeyType, ValueType >& map 
 /*!
  * @copybrief getFlattenedMapValues
  */
-template< template< typename ... > class MapType, typename KeyType, typename ValueType >
+template< template< typename... > class MapType, typename KeyType, typename ValueType >
 std::vector< ValueType > getFlattenedMapValues( const MapType< KeyType, std::vector< ValueType > >& map )
 {
     std::vector< ValueType > values;
-    for ( auto entry : map )
+    for( auto entry: map )
     {
-        for ( const ValueType value : entry.second )
+        for( const ValueType value: entry.second )
         {
             values.push_back( value );
         }
@@ -195,18 +195,18 @@ std::vector< ValueType > getFlattenedMapValues( const MapType< KeyType, std::vec
 /*!
  * @copybrief url_encode Reference: https://stackoverflow.com/questions/154536/encode-decode-urls-in-c
  */
-inline std::string url_encode( const std::string &value )
+inline std::string url_encode( const std::string& value )
 {
     std::ostringstream escaped;
     escaped.fill( '0' );
     escaped << std::hex;
 
-    for ( std::string::const_iterator i = value.begin(), n = value.end(); i != n; ++i )
+    for( std::string::const_iterator i = value.begin( ), n = value.end( ); i != n; ++i )
     {
-        std::string::value_type c = (*i);
+        std::string::value_type c = ( *i );
 
         // Keep alphanumeric and other accepted characters intact
-        if ( isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~' )
+        if( isalnum( c ) || c == '-' || c == '_' || c == '.' || c == '~' )
         {
             escaped << c;
             continue;
@@ -222,9 +222,8 @@ inline std::string url_encode( const std::string &value )
     return escaped.str( );
 }
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_JSONINTERFACE_UTILITIES_H
+#endif  // TUDAT_JSONINTERFACE_UTILITIES_H

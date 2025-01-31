@@ -31,11 +31,9 @@ double computeEscapeOrCaptureDeltaV( const double gravitationalParameter,
     const double pericenterRadius = semiMajorAxis * ( 1.0 - eccentricity );
 
     // Calculate deltaV using Equation 18-28 of [Wakker, 2007].
-    return std::sqrt( 2.0 * gravitationalParameter / pericenterRadius +
-                      excessVelocity * excessVelocity ) -
-           std::sqrt( 2.0 * gravitationalParameter / pericenterRadius -
-                      gravitationalParameter / semiMajorAxis );
+    return std::sqrt( 2.0 * gravitationalParameter / pericenterRadius + excessVelocity * excessVelocity ) -
+            std::sqrt( 2.0 * gravitationalParameter / pericenterRadius - gravitationalParameter / semiMajorAxis );
 }
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat

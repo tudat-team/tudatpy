@@ -9,7 +9,6 @@
  *
  */
 
-
 #ifndef TUDAT_ROTATIONREPRESENTATIONS_H
 #define TUDAT_ROTATIONREPRESENTATIONS_H
 
@@ -22,8 +21,7 @@ namespace tudat
 namespace basic_mathematics
 {
 
-Eigen::Matrix< double, 4, 3 > calculateQuaternionWrtEulerAngle313Partial(
-        const Eigen::Quaterniond& quaternion );
+Eigen::Matrix< double, 4, 3 > calculateQuaternionWrtEulerAngle313Partial( const Eigen::Quaterniond& quaternion );
 
 //! Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion
 /*!
@@ -32,8 +30,7 @@ Eigen::Matrix< double, 4, 3 > calculateQuaternionWrtEulerAngle313Partial(
  * \param quaternion Quaternion defining rotation at which partials are to be evaluated
  * \return Partial derivative matrix of 3-1-3 Euler angles w.r.t. entries of associated quaternion
  */
-Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartial(
-        const Eigen::Quaterniond& quaternion );
+Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartial( const Eigen::Quaterniond& quaternion );
 
 //! Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion
 /*!
@@ -42,8 +39,7 @@ Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartial(
  * \param eulerAngles Euler angles (3-1-3) defining rotation at which partials are to be evaluated
  * \return Partial derivative matrix of 3-1-3 Euler angles w.r.t. entries of associated quaternion
  */
-Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartialFromEulerAngles(
-        const Eigen::Vector3d& eulerAngles );
+Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartialFromEulerAngles( const Eigen::Vector3d& eulerAngles );
 
 //! Get quaternion from associated 3-1-3 Euler angles
 /*!
@@ -52,8 +48,7 @@ Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartialFromEule
  * \param eulerAngles Euler angles for which the equivalent quaternion is to be computed.
  * \return Quaternion defining same rotation as Euler angles
  */
-Eigen::Quaterniond getQuaternionFrom313EulerAngles(
-        const Eigen::Vector3d& eulerAngles );
+Eigen::Quaterniond getQuaternionFrom313EulerAngles( const Eigen::Vector3d& eulerAngles );
 
 //! Get classical 1-3-2 Euler angles set from rotation matrix
 /*!
@@ -62,8 +57,7 @@ Eigen::Quaterniond getQuaternionFrom313EulerAngles(
  * \param rotationMatrix Rotation matrix for which the equivalent Euler angles are to be computed.
  * \return Euler angles x,y,z (about 1, 3 and 2 axes, respectively).
  */
-Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
-        const Eigen::Matrix3d& rotationMatrix );
+Eigen::Vector3d get132EulerAnglesFromRotationMatrix( const Eigen::Matrix3d& rotationMatrix );
 
 //! Get classical 3-1-3 Euler angles set from quaternion
 /*!
@@ -72,8 +66,7 @@ Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
  * \param quaternion Quaternion for which the equivalent Euler angles are to be computed.
  * \return Euler angles x,y,z (about 3, 1 and 3 axes, respectively).
  */
-Eigen::Vector3d get313EulerAnglesFromQuaternion(
-        const Eigen::Quaterniond& quaternion );
+Eigen::Vector3d get313EulerAnglesFromQuaternion( const Eigen::Quaterniond& quaternion );
 
 //! Get classical 3-1-3 Euler angles set from rotation matrix
 /*!
@@ -82,10 +75,9 @@ Eigen::Vector3d get313EulerAnglesFromQuaternion(
  * \param rotationMatrix Rotation matrix for which the equivalent Euler angles are to be computed.
  * \return Euler angles x,y,z (about 3, 1 and 3 axes, respectively).
  */
-Eigen::Vector3d get313EulerAnglesFromRotationMatrix(
-        const Eigen::Matrix3d& rotationMatrix );
-}
+Eigen::Vector3d get313EulerAnglesFromRotationMatrix( const Eigen::Matrix3d& rotationMatrix );
+}  // namespace basic_mathematics
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_ROTATIONREPRESENTATIONS_H
+#endif  // TUDAT_ROTATIONREPRESENTATIONS_H

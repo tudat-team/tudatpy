@@ -13,7 +13,6 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 
-
 // Tudat library namespace.
 namespace tudat
 {
@@ -21,11 +20,10 @@ namespace aerodynamics
 {
 
 //! Function to convert Eigen::VectorXd to std::vector<double>
-std::vector< double >  eigenToStlVector(
-        const Eigen::VectorXd& vector)
+std::vector< double > eigenToStlVector( const Eigen::VectorXd& vector )
 {
     std::vector< double > stdVector( vector.rows( ) );
-    for( int i = 0; i < vector.rows( ); i++)
+    for( int i = 0; i < vector.rows( ); i++ )
     {
         stdVector[ i ] = vector( i );
     }
@@ -33,19 +31,21 @@ std::vector< double >  eigenToStlVector(
 }
 
 //! NRLMSISE00Input function
-NRLMSISE00Input nrlmsiseInputFunction( const double altitude, const double longitude,
-                                       const double latitude, const double time,
+NRLMSISE00Input nrlmsiseInputFunction( const double altitude,
+                                       const double longitude,
+                                       const double latitude,
+                                       const double time,
                                        const tudat::input_output::solar_activity::SolarActivityDataMap& solarActivityMap,
                                        const bool adjustSolarTime,
-                                       const double localSolarTime ) {
+                                       const double localSolarTime )
+{
     using namespace tudat::input_output::solar_activity;
 
     // Declare input data class member
     NRLMSISE00Input nrlmsiseInputData;
 
     // Julian dates
-    double julianDate = tudat::basic_astrodynamics::convertSecondsSinceEpochToJulianDay(
-                time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    double julianDate = tudat::basic_astrodynamics::convertSecondsSinceEpochToJulianDay( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
     double julianDay = std::floor( julianDate - 0.5 ) + 0.5;
 
     // Check if solar activity is found for current day.
@@ -66,24 +66,21 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude, const double longi
         solarActivity = solarActivityMap.at( julianDay );
     }
 
-
     // Compute julian date at the first of januari
-    double julianDate1Jan = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(
-                solarActivity->year, 1, 1, 0, 0, 0.0 );
+    double julianDate1Jan = tudat::basic_astrodynamics::convertCalendarDateToJulianDay( solarActivity->year, 1, 1, 0, 0, 0.0 );
 
-    nrlmsiseInputData.year = solarActivity->year; // int
+    nrlmsiseInputData.year = solarActivity->year;  // int
     nrlmsiseInputData.dayOfTheYear = julianDay - julianDate1Jan + 1;
     nrlmsiseInputData.secondOfTheDay = time -
-            tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDay,
-                                                            tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDay, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     if( solarActivity->fluxQualifier == 1 )
-    { // requires adjustment
+    {  // requires adjustment
         nrlmsiseInputData.f107 = solarActivity->solarRadioFlux107Adjusted;
         nrlmsiseInputData.f107a = solarActivity->centered81DaySolarRadioFlux107Adjusted;
     }
     else
-    { // no adjustment required
+    {  // no adjustment required
         nrlmsiseInputData.f107 = solarActivity->solarRadioFlux107Observed;
         nrlmsiseInputData.f107a = solarActivity->centered81DaySolarRadioFlux107Observed;
     }
@@ -98,8 +95,8 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude, const double longi
     }
     else
     {
-        nrlmsiseInputData.localSolarTime = nrlmsiseInputData.secondOfTheDay / 3600.0
-                + longitude / ( tudat::mathematical_constants::PI / 12.0 );
+        nrlmsiseInputData.localSolarTime =
+                nrlmsiseInputData.secondOfTheDay / 3600.0 + longitude / ( tudat::mathematical_constants::PI / 12.0 );
     }
 
     return nrlmsiseInputData;

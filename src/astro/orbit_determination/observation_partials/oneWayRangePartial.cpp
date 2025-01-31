@@ -16,7 +16,6 @@ namespace tudat
 namespace observation_partials
 {
 
-
 //! Update the scaling object to the current times and states
 void OneWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                  const std::vector< double >& times,
@@ -30,25 +29,24 @@ void OneWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndSt
     // Compute scaling for receiver reference
     if( fixedLinkEnd == observation_models::receiver )
     {
-        referenceLightTimeCorrectionScaling_ = 1.0 / ( 1.0 - fixedLinkEndScalingFactor_.transpose( ).dot( linkEndStates[ 0 ].segment( 3, 3 ) ) /
-                physical_constants::SPEED_OF_LIGHT );
-        referenceScalingFactor_ =  fixedLinkEndScalingFactor_ * referenceLightTimeCorrectionScaling_;
+        referenceLightTimeCorrectionScaling_ = 1.0 /
+                ( 1.0 -
+                  fixedLinkEndScalingFactor_.transpose( ).dot( linkEndStates[ 0 ].segment( 3, 3 ) ) / physical_constants::SPEED_OF_LIGHT );
+        referenceScalingFactor_ = fixedLinkEndScalingFactor_ * referenceLightTimeCorrectionScaling_;
     }
 
     // Compute scaling for transmitter reference
     else if( fixedLinkEnd == observation_models::transmitter )
     {
-        referenceLightTimeCorrectionScaling_ =
-                1.0 / ( 1.0 - fixedLinkEndScalingFactor_.transpose( ).dot( linkEndStates[ 1 ].segment( 3, 3 ) ) /
-                physical_constants::SPEED_OF_LIGHT );
-        referenceScalingFactor_ =  fixedLinkEndScalingFactor_ * referenceLightTimeCorrectionScaling_;
+        referenceLightTimeCorrectionScaling_ = 1.0 /
+                ( 1.0 -
+                  fixedLinkEndScalingFactor_.transpose( ).dot( linkEndStates[ 1 ].segment( 3, 3 ) ) / physical_constants::SPEED_OF_LIGHT );
+        referenceScalingFactor_ = fixedLinkEndScalingFactor_ * referenceLightTimeCorrectionScaling_;
     }
-
 
     currentLinkEndType_ = fixedLinkEnd;
 }
 
+}  // namespace observation_partials
 
-}
-
-}
+}  // namespace tudat

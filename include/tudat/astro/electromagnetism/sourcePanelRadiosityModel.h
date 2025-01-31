@@ -19,7 +19,6 @@
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/electromagnetism/surfacePropertyDistribution.h"
 
-
 namespace tudat
 {
 namespace electromagnetism
@@ -40,7 +39,7 @@ namespace electromagnetism
 class SourcePanelRadiosityModel
 {
 public:
-    virtual ~SourcePanelRadiosityModel() = default;
+    virtual ~SourcePanelRadiosityModel( ) = default;
 
     /*!
      * Evaluate the irradiance [W/m²] at a certain position due to this panel.
@@ -49,10 +48,9 @@ public:
      *        centered in panel)
      * @return Irradiance due to this radiosity model for single panel
      */
-    virtual double evaluateIrradianceAtPosition(
-            double panelArea,
-            const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition) const = 0;
+    virtual double evaluateIrradianceAtPosition( double panelArea,
+                                                 const Eigen::Vector3d& panelSurfaceNormal,
+                                                 const Eigen::Vector3d& targetPosition ) const = 0;
 
     /*!
      * Update class members.
@@ -61,10 +59,7 @@ public:
      * @param panelLongitude Longitude of the panel this radiosity model belongs to
      * @param currentTime Current simulation time
      */
-    void updateMembers(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime);
+    void updateMembers( double panelLatitude, double panelLongitude, double currentTime );
 
     /*!
      * Clone this object. Surface property distributions, e.g., for albedo and
@@ -72,18 +67,15 @@ public:
      *
      * @return A clone of this object
      */
-    virtual std::unique_ptr<SourcePanelRadiosityModel> clone() const = 0;
+    virtual std::unique_ptr< SourcePanelRadiosityModel > clone( ) const = 0;
 
     /*!
      * Return whether the panel radiosity depends on an original source
      */
-    virtual bool dependsOnOriginalSource() = 0;
+    virtual bool dependsOnOriginalSource( ) = 0;
 
 protected:
-    virtual void updateMembers_(
-            const double panelLatitude,
-            const double panelLongitude,
-            const double currentTime) {};
+    virtual void updateMembers_( const double panelLatitude, const double panelLongitude, const double currentTime ) { };
 
     /*!
      * Whether the radiosity model is invariant with time. If yes, its members will not be updated even if the time
@@ -92,11 +84,11 @@ protected:
      *
      * @return Whether the radiosity model is invariant with time
      */
-    virtual bool isTimeInvariant() = 0;
+    virtual bool isTimeInvariant( ) = 0;
 
-    double currentTime_{TUDAT_NAN};
-    double panelLatitude_{TUDAT_NAN};
-    double panelLongitude_{TUDAT_NAN};
+    double currentTime_{ TUDAT_NAN };
+    double panelLatitude_{ TUDAT_NAN };
+    double panelLongitude_{ TUDAT_NAN };
 };
 
 /*!
@@ -106,7 +98,7 @@ protected:
 class InherentSourcePanelRadiosityModel : public SourcePanelRadiosityModel
 {
 public:
-    bool dependsOnOriginalSource() override
+    bool dependsOnOriginalSource( ) override
     {
         return false;
     }
@@ -121,16 +113,16 @@ class OriginalSourceDependentSourcePanelRadiosityModel : public SourcePanelRadio
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    explicit OriginalSourceDependentSourcePanelRadiosityModel(
-            const std::string& originalSourceName) :
-                originalSourceName_(originalSourceName) {}
+    explicit OriginalSourceDependentSourcePanelRadiosityModel( const std::string& originalSourceName ):
+        originalSourceName_( originalSourceName )
+    { }
 
-    bool dependsOnOriginalSource() override
+    bool dependsOnOriginalSource( ) override
     {
         return true;
     }
 
-    const std::string& getOriginalSourceName() const
+    const std::string& getOriginalSourceName( ) const
     {
         return originalSourceName_;
     }
@@ -143,10 +135,9 @@ public:
      * @param originalSourceToPanelDirection Unit vector from original source to panel center (can be approximated by
      *      panel center)
      */
-    void updateOriginalSourceProperties(
-            double originalSourceUnoccultedIrradiance,
-            double originalSourceOccultedIrradiance,
-            const Eigen::Vector3d& originalSourceToPanelDirection)
+    void updateOriginalSourceProperties( double originalSourceUnoccultedIrradiance,
+                                         double originalSourceOccultedIrradiance,
+                                         const Eigen::Vector3d& originalSourceToPanelDirection )
     {
         originalSourceOccultedIrradiance_ = originalSourceOccultedIrradiance;
         originalSourceUnoccultedIrradiance_ = originalSourceUnoccultedIrradiance;
@@ -154,10 +145,10 @@ public:
     }
 
 protected:
-    std::string originalSourceName_; // needed for environment updater setup
+    std::string originalSourceName_;  // needed for environment updater setup
 
-    double originalSourceUnoccultedIrradiance_{TUDAT_NAN};
-    double originalSourceOccultedIrradiance_{TUDAT_NAN};
+    double originalSourceUnoccultedIrradiance_{ TUDAT_NAN };
+    double originalSourceOccultedIrradiance_{ TUDAT_NAN };
     Eigen::Vector3d originalSourceToPanelDirection_;
 };
 
@@ -172,26 +163,24 @@ public:
      *
      * @param constantRadiosity Constant radiosity
      */
-    explicit ConstantSourcePanelRadiosityModel(const double constantRadiosity) :
-        constantRadiosity_(constantRadiosity) {}
+    explicit ConstantSourcePanelRadiosityModel( const double constantRadiosity ): constantRadiosity_( constantRadiosity ) { }
 
-    double evaluateIrradianceAtPosition(
-            double panelArea,
-            const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition) const override;
+    double evaluateIrradianceAtPosition( double panelArea,
+                                         const Eigen::Vector3d& panelSurfaceNormal,
+                                         const Eigen::Vector3d& targetPosition ) const override;
 
-    std::unique_ptr<SourcePanelRadiosityModel> clone() const override
+    std::unique_ptr< SourcePanelRadiosityModel > clone( ) const override
     {
-        return std::make_unique<ConstantSourcePanelRadiosityModel>(*this);
+        return std::make_unique< ConstantSourcePanelRadiosityModel >( *this );
     }
 
-    double getConstantRadiosity() const
+    double getConstantRadiosity( ) const
     {
         return constantRadiosity_;
     }
 
 private:
-    bool isTimeInvariant() override
+    bool isTimeInvariant( ) override
     {
         return true;
     }
@@ -210,33 +199,29 @@ public:
      *
      * @param radiosityFunction Function returning radiosity depending on latitude, longitude, and time
      */
-    explicit CustomInherentSourcePanelRadiosityModel(
-            const std::function<double(double, double, double)>& radiosityFunction) :
-        radiosityFunction_(radiosityFunction) {}
+    explicit CustomInherentSourcePanelRadiosityModel( const std::function< double( double, double, double ) >& radiosityFunction ):
+        radiosityFunction_( radiosityFunction )
+    { }
 
-    double evaluateIrradianceAtPosition(
-            double panelArea,
-            const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition) const override;
+    double evaluateIrradianceAtPosition( double panelArea,
+                                         const Eigen::Vector3d& panelSurfaceNormal,
+                                         const Eigen::Vector3d& targetPosition ) const override;
 
-    std::unique_ptr<SourcePanelRadiosityModel> clone() const override
+    std::unique_ptr< SourcePanelRadiosityModel > clone( ) const override
     {
-        return std::make_unique<CustomInherentSourcePanelRadiosityModel>(*this);
+        return std::make_unique< CustomInherentSourcePanelRadiosityModel >( *this );
     }
 
 private:
-    void updateMembers_(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) override;
+    void updateMembers_( double panelLatitude, double panelLongitude, double currentTime ) override;
 
-    bool isTimeInvariant() override
+    bool isTimeInvariant( ) override
     {
         return false;
     }
 
-    std::function<double(double, double, double)> radiosityFunction_;
-    double radiosity_{TUDAT_NAN};
+    std::function< double( double, double, double ) > radiosityFunction_;
+    double radiosity_{ TUDAT_NAN };
 };
 
 /*!
@@ -259,52 +244,44 @@ public:
      *
      * @param albedoDistribution Albedo distribution
      */
-    explicit AlbedoSourcePanelRadiosityModel(
-            const std::string& originalSourceName,
-            const std::shared_ptr<SurfacePropertyDistribution>& albedoDistribution) :
-            OriginalSourceDependentSourcePanelRadiosityModel(originalSourceName),
-            albedoDistribution_(albedoDistribution),
-            reflectionLaw_(std::make_shared<LambertianReflectionLaw>(TUDAT_NAN))
-    {}
+    explicit AlbedoSourcePanelRadiosityModel( const std::string& originalSourceName,
+                                              const std::shared_ptr< SurfacePropertyDistribution >& albedoDistribution ):
+        OriginalSourceDependentSourcePanelRadiosityModel( originalSourceName ), albedoDistribution_( albedoDistribution ),
+        reflectionLaw_( std::make_shared< LambertianReflectionLaw >( TUDAT_NAN ) )
+    { }
 
     // Copy constructor ensures that albedo distribution is shared but reflection law is unique per radiosity model
-    AlbedoSourcePanelRadiosityModel(
-            const AlbedoSourcePanelRadiosityModel& other)
-            : OriginalSourceDependentSourcePanelRadiosityModel(other),
-              albedoDistribution_(other.albedoDistribution_),
-              reflectionLaw_(std::make_shared<LambertianReflectionLaw>(*other.reflectionLaw_))
-    {}
+    AlbedoSourcePanelRadiosityModel( const AlbedoSourcePanelRadiosityModel& other ):
+        OriginalSourceDependentSourcePanelRadiosityModel( other ), albedoDistribution_( other.albedoDistribution_ ),
+        reflectionLaw_( std::make_shared< LambertianReflectionLaw >( *other.reflectionLaw_ ) )
+    { }
 
-    double evaluateIrradianceAtPosition(
-            double panelArea,
-            const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition) const override;
+    double evaluateIrradianceAtPosition( double panelArea,
+                                         const Eigen::Vector3d& panelSurfaceNormal,
+                                         const Eigen::Vector3d& targetPosition ) const override;
 
-    std::unique_ptr<SourcePanelRadiosityModel> clone() const override
+    std::unique_ptr< SourcePanelRadiosityModel > clone( ) const override
     {
-        return std::make_unique<AlbedoSourcePanelRadiosityModel>(*this);
+        return std::make_unique< AlbedoSourcePanelRadiosityModel >( *this );
     }
 
-    const std::shared_ptr<LambertianReflectionLaw>& getReflectionLaw() const
+    const std::shared_ptr< LambertianReflectionLaw >& getReflectionLaw( ) const
     {
         return reflectionLaw_;
     }
 
 private:
-    void updateMembers_(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) override;
+    void updateMembers_( double panelLatitude, double panelLongitude, double currentTime ) override;
 
-    bool isTimeInvariant() override
+    bool isTimeInvariant( ) override
     {
-        return albedoDistribution_->isTimeInvariant();
+        return albedoDistribution_->isTimeInvariant( );
     }
 
-    std::shared_ptr<SurfacePropertyDistribution> albedoDistribution_;
+    std::shared_ptr< SurfacePropertyDistribution > albedoDistribution_;
 
     // Reflection law governing reflection of original source radiation
-    std::shared_ptr<LambertianReflectionLaw> reflectionLaw_;
+    std::shared_ptr< LambertianReflectionLaw > reflectionLaw_;
 };
 
 /*!
@@ -323,41 +300,35 @@ public:
      *
      * @param emissivityDistribution Emissivity distribution
      */
-    explicit DelayedThermalSourcePanelRadiosityModel(
-            const std::string& originalSourceName,
-            const std::shared_ptr<SurfacePropertyDistribution>& emissivityDistribution) :
-            OriginalSourceDependentSourcePanelRadiosityModel(originalSourceName),
-            emissivityDistribution_(emissivityDistribution)
-    {}
+    explicit DelayedThermalSourcePanelRadiosityModel( const std::string& originalSourceName,
+                                                      const std::shared_ptr< SurfacePropertyDistribution >& emissivityDistribution ):
+        OriginalSourceDependentSourcePanelRadiosityModel( originalSourceName ), emissivityDistribution_( emissivityDistribution )
+    { }
 
-    double evaluateIrradianceAtPosition(
-            double panelArea,
-            const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition) const override;
+    double evaluateIrradianceAtPosition( double panelArea,
+                                         const Eigen::Vector3d& panelSurfaceNormal,
+                                         const Eigen::Vector3d& targetPosition ) const override;
 
-    std::unique_ptr<SourcePanelRadiosityModel> clone() const override
+    std::unique_ptr< SourcePanelRadiosityModel > clone( ) const override
     {
-        return std::make_unique<DelayedThermalSourcePanelRadiosityModel>(*this);
+        return std::make_unique< DelayedThermalSourcePanelRadiosityModel >( *this );
     }
 
-    double getEmissivity() const
+    double getEmissivity( ) const
     {
         return emissivity;
     }
 
 private:
-    void updateMembers_(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) override;
+    void updateMembers_( double panelLatitude, double panelLongitude, double currentTime ) override;
 
-    bool isTimeInvariant() override
+    bool isTimeInvariant( ) override
     {
-        return emissivityDistribution_->isTimeInvariant();
+        return emissivityDistribution_->isTimeInvariant( );
     }
 
-    std::shared_ptr<SurfacePropertyDistribution> emissivityDistribution_;
-    double emissivity{TUDAT_NAN};
+    std::shared_ptr< SurfacePropertyDistribution > emissivityDistribution_;
+    double emissivity{ TUDAT_NAN };
 };
 
 /*!
@@ -380,61 +351,53 @@ public:
      * @param maxTemperature Maximum surface temperature (at subsolar point) [K]
      * @param emissivityDistribution Emissivity distribution
      */
-    explicit AngleBasedThermalSourcePanelRadiosityModel(
-            const std::string& originalSourceName,
-            double minTemperature,
-            double maxTemperature,
-            const std::shared_ptr<SurfacePropertyDistribution>& emissivityDistribution) :
-            OriginalSourceDependentSourcePanelRadiosityModel(originalSourceName),
-            minTemperature_(minTemperature),
-            maxTemperature_(maxTemperature),
-            emissivityDistribution_(emissivityDistribution)
-    {}
+    explicit AngleBasedThermalSourcePanelRadiosityModel( const std::string& originalSourceName,
+                                                         double minTemperature,
+                                                         double maxTemperature,
+                                                         const std::shared_ptr< SurfacePropertyDistribution >& emissivityDistribution ):
+        OriginalSourceDependentSourcePanelRadiosityModel( originalSourceName ), minTemperature_( minTemperature ),
+        maxTemperature_( maxTemperature ), emissivityDistribution_( emissivityDistribution )
+    { }
 
-    double evaluateIrradianceAtPosition(
-            double panelArea,
-            const Eigen::Vector3d& panelSurfaceNormal,
-            const Eigen::Vector3d& targetPosition) const override;
+    double evaluateIrradianceAtPosition( double panelArea,
+                                         const Eigen::Vector3d& panelSurfaceNormal,
+                                         const Eigen::Vector3d& targetPosition ) const override;
 
-
-    std::unique_ptr<SourcePanelRadiosityModel> clone() const override
+    std::unique_ptr< SourcePanelRadiosityModel > clone( ) const override
     {
-        return std::make_unique<AngleBasedThermalSourcePanelRadiosityModel>(*this);
+        return std::make_unique< AngleBasedThermalSourcePanelRadiosityModel >( *this );
     }
 
-    double getMinTemperature() const
+    double getMinTemperature( ) const
     {
         return minTemperature_;
     }
 
-    double getMaxTemperature() const
+    double getMaxTemperature( ) const
     {
         return maxTemperature_;
     }
 
-    double getEmissivity() const
+    double getEmissivity( ) const
     {
         return emissivity;
     }
 
 private:
-    void updateMembers_(
-            double panelLatitude,
-            double panelLongitude,
-            double currentTime) override;
+    void updateMembers_( double panelLatitude, double panelLongitude, double currentTime ) override;
 
-    bool isTimeInvariant() override
+    bool isTimeInvariant( ) override
     {
-        return emissivityDistribution_->isTimeInvariant();
+        return emissivityDistribution_->isTimeInvariant( );
     }
 
     double minTemperature_;
     double maxTemperature_;
-    std::shared_ptr<SurfacePropertyDistribution> emissivityDistribution_;
-    double emissivity{TUDAT_NAN};
+    std::shared_ptr< SurfacePropertyDistribution > emissivityDistribution_;
+    double emissivity{ TUDAT_NAN };
 };
 
-} // tudat
-} // electromagnetism
+}  // namespace electromagnetism
+}  // namespace tudat
 
-#endif //TUDAT_SOURCEPANELRADIOSITYMODEL_H
+#endif  // TUDAT_SOURCEPANELRADIOSITYMODEL_H

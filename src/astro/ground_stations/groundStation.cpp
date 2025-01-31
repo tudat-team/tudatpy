@@ -10,14 +10,12 @@
 
 #include "tudat/astro/ground_stations/groundStation.h"
 
-
 namespace tudat
 {
 
 namespace ground_stations
 {
 
-
 }
 
-}
+}  // namespace tudat

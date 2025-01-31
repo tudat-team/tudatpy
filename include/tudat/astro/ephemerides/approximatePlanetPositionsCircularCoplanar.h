@@ -41,10 +41,8 @@ namespace ephemerides
 class ApproximateJplCircularCoplanarEphemeris : public ApproximateJplSolarSystemEphemerisBase
 {
 public:
-
-    using Ephemeris::getCartesianState;
     using Ephemeris::getCartesianLongState;
-
+    using Ephemeris::getCartesianState;
 
     //! Default constructor.
     /*!
@@ -55,11 +53,8 @@ public:
      * \param bodyName The body for which the position is approximated.
      * \param sunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
      */
-    ApproximateJplCircularCoplanarEphemeris(
-            const std::string bodyName,
-            const double sunGravitationalParameter = 1.32712440018e20 )
-        : ApproximateJplSolarSystemEphemerisBase( sunGravitationalParameter ),
-          constantOrbitalRadius_( -0.0 )
+    ApproximateJplCircularCoplanarEphemeris( const std::string bodyName, const double sunGravitationalParameter = 1.32712440018e20 ):
+        ApproximateJplSolarSystemEphemerisBase( sunGravitationalParameter ), constantOrbitalRadius_( -0.0 )
     {
         this->setPlanet( bodyName );
     }
@@ -70,13 +65,10 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Cartesian elements from ephemeris for circular and coplanar orbit.
      */
-    Eigen::Vector6d getCartesianState(
-            const double secondsSinceEpoch );
+    Eigen::Vector6d getCartesianState( const double secondsSinceEpoch );
 
 protected:
-
 private:
-
     //! Orbital radius.
     /*!
      * Constant orbital radius for circular orbit.
@@ -87,10 +79,9 @@ private:
 };
 
 //! Typedef for shared-pointer to ApproximateJplCircularCoplanarEphemeris object.
-typedef std::shared_ptr< ApproximateJplCircularCoplanarEphemeris >
-ApproximateSolarSystemEphemerisCircularCoplanarPointer;
+typedef std::shared_ptr< ApproximateJplCircularCoplanarEphemeris > ApproximateSolarSystemEphemerisCircularCoplanarPointer;
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat
 
-#endif // TUDAT_APPROXIMATE_PLANET_POSITIONS_CIRCULAR_COPLANAR_H
+#endif  // TUDAT_APPROXIMATE_PLANET_POSITIONS_CIRCULAR_COPLANAR_H

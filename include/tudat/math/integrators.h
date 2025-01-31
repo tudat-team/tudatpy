@@ -22,4 +22,4 @@
 #include "integrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "integrators/rungeKuttaFixedStepSizeIntegrator.h"
 
-#endif // TUDAT_INTEGRATORS_H
+#endif  // TUDAT_INTEGRATORS_H

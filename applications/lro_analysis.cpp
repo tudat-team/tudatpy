@@ -14,51 +14,48 @@ using namespace tudat::basic_mathematics;
 using namespace tudat::electromagnetism;
 using namespace tudat::physical_constants;
 
-
-void loadLROSpiceKernels();
-void analyzeSolarIrradiance();
-void analyzeIrradianceAtLRO();
-void analyzeVariationOfIrradianceWithSubsolarAngle();
-void analyzeVariationOfIrradianceWithNumberOfPanels();
-
+void loadLROSpiceKernels( );
+void analyzeSolarIrradiance( );
+void analyzeIrradianceAtLRO( );
+void analyzeVariationOfIrradianceWithSubsolarAngle( );
+void analyzeVariationOfIrradianceWithNumberOfPanels( );
 
 const auto simulationStart = "2010 JUN 26 06:00:00";
 const auto globalFrameOrigin = "Moon";
 const auto globalFrameOrientation = "ECLIPJ2000";
 
-
-int main()
+int main( )
 {
-   analyzeSolarIrradiance();
-//     analyzeIrradianceAtLRO();
-//    analyzeVariationOfIrradianceWithSubsolarAngle();
+    analyzeSolarIrradiance( );
+    //     analyzeIrradianceAtLRO();
+    //    analyzeVariationOfIrradianceWithSubsolarAngle();
 }
 
 // Analyze solar irradiance at Earth and Moon
 // Result: at simulation time, Earth is at apoapsis -> minimum solar irradiance
-void analyzeSolarIrradiance()
+void analyzeSolarIrradiance( )
 {
-    loadLROSpiceKernels();
+    loadLROSpiceKernels( );
 
-    auto simulationStartEpoch = spice_interface::convertDateStringToEphemerisTime(simulationStart);
+    auto simulationStartEpoch = spice_interface::convertDateStringToEphemerisTime( simulationStart );
 
     // Create planets
-    auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"}, globalFrameOrigin, globalFrameOrientation);
-    auto bodies = createSystemOfBodies(bodySettings);
-    setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
+    auto bodySettings = getDefaultBodySettings( { "Sun", "Earth", "Moon" }, globalFrameOrigin, globalFrameOrientation );
+    auto bodies = createSystemOfBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodies.getMap( ), globalFrameOrigin, globalFrameOrientation );
 
-    bodies.at("Sun")->setStateFromEphemeris(simulationStartEpoch);
-    bodies.at("Sun")->getRadiationSourceModel()->updateMembers(simulationStartEpoch);
-    bodies.at("Moon")->setStateFromEphemeris(simulationStartEpoch);
-    bodies.at("Earth")->setStateFromEphemeris(simulationStartEpoch);
+    bodies.at( "Sun" )->setStateFromEphemeris( simulationStartEpoch );
+    bodies.at( "Sun" )->getRadiationSourceModel( )->updateMembers( simulationStartEpoch );
+    bodies.at( "Moon" )->setStateFromEphemeris( simulationStartEpoch );
+    bodies.at( "Earth" )->setStateFromEphemeris( simulationStartEpoch );
 
     auto sunRadiationSourceModel =
-            std::dynamic_pointer_cast<IsotropicPointRadiationSourceModel>(bodies.at("Sun")->getRadiationSourceModel());
+            std::dynamic_pointer_cast< IsotropicPointRadiationSourceModel >( bodies.at( "Sun" )->getRadiationSourceModel( ) );
 
-    auto sunIrradianceAtEarth = sunRadiationSourceModel->evaluateIrradianceAtPosition(
-            bodies.at("Earth")->getPosition() - bodies.at("Sun")->getPosition());
-    auto sunIrradianceAtMoon = sunRadiationSourceModel->evaluateIrradianceAtPosition(
-            bodies.at("Moon")->getPosition() - bodies.at("Sun")->getPosition());
+    auto sunIrradianceAtEarth = sunRadiationSourceModel->evaluateIrradianceAtPosition( bodies.at( "Earth" )->getPosition( ) -
+                                                                                       bodies.at( "Sun" )->getPosition( ) );
+    auto sunIrradianceAtMoon = sunRadiationSourceModel->evaluateIrradianceAtPosition( bodies.at( "Moon" )->getPosition( ) -
+                                                                                      bodies.at( "Sun" )->getPosition( ) );
 
     std::cout << "Sun at Earth: " << sunIrradianceAtEarth << std::endl;
     std::cout << "Sun at Moon: " << sunIrradianceAtMoon << std::endl;
@@ -66,50 +63,46 @@ void analyzeSolarIrradiance()
 
 // Analyze lunar irradiance at LRO
 // Result: angle-based thermal radiation dominates by far
-void analyzeIrradianceAtLRO()
+void analyzeIrradianceAtLRO( )
 {
-    loadLROSpiceKernels();
+    loadLROSpiceKernels( );
 
-    auto simulationStartEpoch = spice_interface::convertDateStringToEphemerisTime(simulationStart);
+    auto simulationStartEpoch = spice_interface::convertDateStringToEphemerisTime( simulationStart );
 
-    for (auto& radiosityModel : std::vector<std::shared_ptr<PanelRadiosityModelSettings>>{
-            albedoPanelRadiosityModelSettings(0.12),
-            angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95),
-            delayedThermalPanelRadiosityModelSettings(0.95)
-    })
+    for( auto& radiosityModel:
+         std::vector< std::shared_ptr< PanelRadiosityModelSettings > >{ albedoPanelRadiosityModelSettings( 0.12 ),
+                                                                        angleBasedThermalPanelRadiosityModelSettings( 100, 375, 0.95 ),
+                                                                        delayedThermalPanelRadiosityModelSettings( 0.95 ) } )
     {
         // Create planets
-        auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"}, globalFrameOrigin, globalFrameOrientation);
-        bodySettings.at("Moon")->radiationSourceModelSettings =
-                extendedRadiationSourceModelSettings("Sun", {radiosityModel}, {6, 12, 18, 24, 30, 36});
+        auto bodySettings = getDefaultBodySettings( { "Sun", "Earth", "Moon" }, globalFrameOrigin, globalFrameOrientation );
+        bodySettings.at( "Moon" )->radiationSourceModelSettings =
+                extendedRadiationSourceModelSettings( "Sun", { radiosityModel }, { 6, 12, 18, 24, 30, 36 } );
 
-        auto bodies = createSystemOfBodies(bodySettings);
-        setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
+        auto bodies = createSystemOfBodies( bodySettings );
+        setGlobalFrameBodyEphemerides( bodies.getMap( ), globalFrameOrigin, globalFrameOrientation );
 
-        bodies.at("Sun")->setStateFromEphemeris(simulationStartEpoch);
-        bodies.at("Sun")->getRadiationSourceModel()->updateMembers(simulationStartEpoch);
-        bodies.at("Moon")->setStateFromEphemeris(simulationStartEpoch);
-        bodies.at("Moon")->getRadiationSourceModel()->updateMembers(simulationStartEpoch);
-        bodies.at("Earth")->setStateFromEphemeris(simulationStartEpoch);
+        bodies.at( "Sun" )->setStateFromEphemeris( simulationStartEpoch );
+        bodies.at( "Sun" )->getRadiationSourceModel( )->updateMembers( simulationStartEpoch );
+        bodies.at( "Moon" )->setStateFromEphemeris( simulationStartEpoch );
+        bodies.at( "Moon" )->getRadiationSourceModel( )->updateMembers( simulationStartEpoch );
+        bodies.at( "Earth" )->setStateFromEphemeris( simulationStartEpoch );
 
-        auto moonRadius = bodies.at("Moon")->getShapeModel()->getAverageRadius();
-        auto earthRadius = bodies.at("Earth")->getShapeModel()->getAverageRadius();
-        double moonEarthDistance = (bodies.at("Earth")->getPosition() - bodies.at("Moon")->getPosition()).norm();
+        auto moonRadius = bodies.at( "Moon" )->getShapeModel( )->getAverageRadius( );
+        auto earthRadius = bodies.at( "Earth" )->getShapeModel( )->getAverageRadius( );
+        double moonEarthDistance = ( bodies.at( "Earth" )->getPosition( ) - bodies.at( "Moon" )->getPosition( ) ).norm( );
 
-        auto moonRadiationSourceModel = bodies.at("Moon")->getRadiationSourceModel();
+        auto moonRadiationSourceModel = bodies.at( "Moon" )->getRadiationSourceModel( );
         auto sunRadiationSourceModel =
-                std::dynamic_pointer_cast<IsotropicPointRadiationSourceModel>(
-                        bodies.at("Sun")->getRadiationSourceModel());
+                std::dynamic_pointer_cast< IsotropicPointRadiationSourceModel >( bodies.at( "Sun" )->getRadiationSourceModel( ) );
 
-        auto sunIrradianceAtMoon = sunRadiationSourceModel->evaluateIrradianceAtPosition(
-                bodies.at("Moon")->getPosition() - bodies.at("Sun")->getPosition());
+        auto sunIrradianceAtMoon = sunRadiationSourceModel->evaluateIrradianceAtPosition( bodies.at( "Moon" )->getPosition( ) -
+                                                                                          bodies.at( "Sun" )->getPosition( ) );
 
         double theta = 20 / 180. * mathematical_constants::PI;
-        Eigen::Vector3d lroPosition = Eigen::Vector3d(cos(theta), sin(theta), 0) * (50e3 + moonRadius);
-        auto moonIrradianceAtLRO = moonRadiationSourceModel->evaluateTotalIrradianceAtPosition(
-                lroPosition,
-                sunIrradianceAtMoon,
-                -Eigen::Vector3d::UnitX());
+        Eigen::Vector3d lroPosition = Eigen::Vector3d( cos( theta ), sin( theta ), 0 ) * ( 50e3 + moonRadius );
+        auto moonIrradianceAtLRO =
+                moonRadiationSourceModel->evaluateTotalIrradianceAtPosition( lroPosition, sunIrradianceAtMoon, -Eigen::Vector3d::UnitX( ) );
 
         std::cout << "Moon at LRO: " << moonIrradianceAtLRO << std::endl;
     }
@@ -117,84 +110,85 @@ void analyzeIrradianceAtLRO()
 
 // Analyze how the subsolar angle (angle between Sun-Moon and LRO-Moon vectors) changes the received irradiance of LRO
 // Result: Falls of to 50% of maximum at 60°, and constant at minimum beyond 90° -> as expected
-void analyzeVariationOfIrradianceWithSubsolarAngle()
+void analyzeVariationOfIrradianceWithSubsolarAngle( )
 {
-    loadLROSpiceKernels();
+    loadLROSpiceKernels( );
 
-    auto simulationStartEpoch = spice_interface::convertDateStringToEphemerisTime(simulationStart);
+    auto simulationStartEpoch = spice_interface::convertDateStringToEphemerisTime( simulationStart );
 
     // Create planets
-    auto bodySettings = getDefaultBodySettings({"Sun", "Earth", "Moon"}, globalFrameOrigin, globalFrameOrientation);
-    bodySettings.at("Moon")->radiationSourceModelSettings =
-            extendedRadiationSourceModelSettings("Sun", {
-                albedoPanelRadiosityModelSettings(0.12),
-                angleBasedThermalPanelRadiosityModelSettings(100, 375, 0.95),
-//                delayedThermalPanelRadiosityModelSettings(0.95)
-                }, {6, 12, 18, 24, 30, 36});
+    auto bodySettings = getDefaultBodySettings( { "Sun", "Earth", "Moon" }, globalFrameOrigin, globalFrameOrientation );
+    bodySettings.at( "Moon" )->radiationSourceModelSettings = extendedRadiationSourceModelSettings(
+            "Sun",
+            {
+                    albedoPanelRadiosityModelSettings( 0.12 ), angleBasedThermalPanelRadiosityModelSettings( 100, 375, 0.95 ),
+                    //                delayedThermalPanelRadiosityModelSettings(0.95)
+            },
+            { 6, 12, 18, 24, 30, 36 } );
 
-    auto bodies = createSystemOfBodies(bodySettings);
-    setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
+    auto bodies = createSystemOfBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodies.getMap( ), globalFrameOrigin, globalFrameOrientation );
 
-    bodies.at("Sun")->setStateFromEphemeris(simulationStartEpoch);
-    bodies.at("Sun")->getRadiationSourceModel()->updateMembers(simulationStartEpoch);
-    bodies.at("Moon")->setStateFromEphemeris(simulationStartEpoch);
-    bodies.at("Moon")->getRadiationSourceModel()->updateMembers(simulationStartEpoch);
-    bodies.at("Earth")->setStateFromEphemeris(simulationStartEpoch);
+    bodies.at( "Sun" )->setStateFromEphemeris( simulationStartEpoch );
+    bodies.at( "Sun" )->getRadiationSourceModel( )->updateMembers( simulationStartEpoch );
+    bodies.at( "Moon" )->setStateFromEphemeris( simulationStartEpoch );
+    bodies.at( "Moon" )->getRadiationSourceModel( )->updateMembers( simulationStartEpoch );
+    bodies.at( "Earth" )->setStateFromEphemeris( simulationStartEpoch );
 
-    auto moonRadius = bodies.at("Moon")->getShapeModel()->getAverageRadius();
+    auto moonRadius = bodies.at( "Moon" )->getShapeModel( )->getAverageRadius( );
 
-    auto moonRadiationSourceModel = bodies.at("Moon")->getRadiationSourceModel();
+    auto moonRadiationSourceModel = bodies.at( "Moon" )->getRadiationSourceModel( );
     auto sunRadiationSourceModel =
-            std::dynamic_pointer_cast<IsotropicPointRadiationSourceModel>(bodies.at("Sun")->getRadiationSourceModel());
+            std::dynamic_pointer_cast< IsotropicPointRadiationSourceModel >( bodies.at( "Sun" )->getRadiationSourceModel( ) );
 
-    auto sunIrradianceAtMoon = sunRadiationSourceModel->evaluateIrradianceAtPosition(
-            bodies.at("Moon")->getPosition() - bodies.at("Sun")->getPosition());
+    auto sunIrradianceAtMoon = sunRadiationSourceModel->evaluateIrradianceAtPosition( bodies.at( "Moon" )->getPosition( ) -
+                                                                                      bodies.at( "Sun" )->getPosition( ) );
 
     // Move from 0° to 180° in steps of 5°
-    for (double theta = 0; theta <= mathematical_constants::PI; theta += mathematical_constants::PI / 36)
+    for( double theta = 0; theta <= mathematical_constants::PI; theta += mathematical_constants::PI / 36 )
     {
-        Eigen::Vector3d lroPosition = Eigen::Vector3d(cos(theta), sin(theta), 0) * (50e3 + moonRadius);
-        auto moonIrradianceAtLRO = moonRadiationSourceModel->evaluateTotalIrradianceAtPosition(
-                lroPosition,
-                sunIrradianceAtMoon,
-                -Eigen::Vector3d::UnitX());
+        Eigen::Vector3d lroPosition = Eigen::Vector3d( cos( theta ), sin( theta ), 0 ) * ( 50e3 + moonRadius );
+        auto moonIrradianceAtLRO =
+                moonRadiationSourceModel->evaluateTotalIrradianceAtPosition( lroPosition, sunIrradianceAtMoon, -Eigen::Vector3d::UnitX( ) );
 
         std::cout << "Moon at LRO: " << moonIrradianceAtLRO << "  " << theta * 180 / mathematical_constants::PI << std::endl;
     }
 }
 
 // Loads SPICE kernels for LRO
-void loadLROSpiceKernels()
+void loadLROSpiceKernels( )
 {
     using namespace tudat::spice_interface;
 
     std::string path = "/home/dominik/dev/tudat-bundle/spice/lro/data";
 
     // Leap seconds
-    loadSpiceKernelInTudat(path + "/lsk/naif0012.tls");
+    loadSpiceKernelInTudat( path + "/lsk/naif0012.tls" );
     // Planetary shapes
-    loadSpiceKernelInTudat(path + "/pck/pck00010.tpc");
+    loadSpiceKernelInTudat( path + "/pck/pck00010.tpc" );
     // Planetary gravitational parameters
-    loadSpiceKernelInTudat(path + "/pck/gm_de431.tpc");
+    loadSpiceKernelInTudat( path + "/pck/gm_de431.tpc" );
 
     // LRO spacecraft bus and instrument frames
-    loadSpiceKernelInTudat(path + "/fk/lro_frames_2012255_v02.tf");
+    loadSpiceKernelInTudat( path + "/fk/lro_frames_2012255_v02.tf" );
     // LRO spacecraft clock
-    loadSpiceKernelInTudat(path + "/sclk/lro_clkcor_2022075_v00.tsc");
+    loadSpiceKernelInTudat( path + "/sclk/lro_clkcor_2022075_v00.tsc" );
 
     // LRO ephemeris
-    for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(path + "/spk"), {})) {
-        if (entry.path().extension() == ".bsp")
+    for( auto& entry: boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/spk" ), { } ) )
+    {
+        if( entry.path( ).extension( ) == ".bsp" )
         {
-            loadSpiceKernelInTudat(entry.path().string());
+            loadSpiceKernelInTudat( entry.path( ).string( ) );
         }
     }
 
     // LRO orientation
-    for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(path + "/ck"), {})) {
-        if (entry.path().extension() == ".bc")
+    for( auto& entry: boost::make_iterator_range( boost::filesystem::directory_iterator( path + "/ck" ), { } ) )
+    {
+        if( entry.path( ).extension( ) == ".bc" )
         {
-            loadSpiceKernelInTudat(entry.path().string());
+            loadSpiceKernelInTudat( entry.path( ).string( ) );
         }
     }
 }

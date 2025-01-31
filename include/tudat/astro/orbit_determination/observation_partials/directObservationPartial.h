@@ -22,7 +22,7 @@ namespace observation_partials
 {
 
 template< int ObservationSize >
-class DirectObservationPartial: public ObservationPartial< ObservationSize >
+class DirectObservationPartial : public ObservationPartial< ObservationSize >
 {
 public:
     typedef std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > ObservationPartialReturnType;
@@ -42,24 +42,25 @@ public:
             const std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler,
             const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-            const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
-            lighTimeCorrectionPartials =
-            std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
+            const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lighTimeCorrectionPartials =
+                    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
         ObservationPartial< ObservationSize >( parameterIdentifier ), positionPartialScaler_( positionPartialScaler ),
         positionPartialList_( positionPartialList )
     {
         stateEntryIndices_ = observation_models::getSingleLinkStateEntryIndices( positionPartialScaler->getObservableType( ) );
 
-        std::pair< std::function< SingleLightTimePartialReturnType(
-                    const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >, bool > lightTimeCorrectionPartial;
+        std::pair< std::function< SingleLightTimePartialReturnType( const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
+                   bool >
+                lightTimeCorrectionPartial;
         std::pair< std::function< SingleLightTimeGradientPartialReturnType(
-            const std::vector< Eigen::Vector6d >&, const std::vector< double >&, const observation_models::LinkEndType ) >, bool > lightTimeCorrectionGradientPartial;
+                           const std::vector< Eigen::Vector6d >&, const std::vector< double >&, const observation_models::LinkEndType ) >,
+                   bool >
+                lightTimeCorrectionGradientPartial;
 
         // Create light time correction partial functions
         for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
         {
-            lightTimeCorrectionPartial = getLightTimeParameterPartialFunction(
-                        parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
+            lightTimeCorrectionPartial = getLightTimeParameterPartialFunction( parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
             if( lightTimeCorrectionPartial.second != 0 )
             {
                 lighTimeCorrectionPartialsFunctions_.push_back( lightTimeCorrectionPartial.first );
@@ -67,14 +68,14 @@ public:
 
             if( positionPartialScaler->useLightTimeGradientPartials( ) )
             {
-                lightTimeCorrectionGradientPartial = getLightTimeGradientParameterPartialFunction(
-                    parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
+                lightTimeCorrectionGradientPartial =
+                        getLightTimeGradientParameterPartialFunction( parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
                 if( lightTimeCorrectionGradientPartial.second != 0 )
                 {
                     lighTimeCorrectionGradientPartialsFunctions_.push_back( lightTimeCorrectionGradientPartial.first );
                 }
             }
-       }
+        }
     }
 
     //! Destructor.
@@ -97,7 +98,7 @@ public:
             const observation_models::LinkEndType linkEndOfFixedTime,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
+                    Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         if( linkEndOfFixedTime != positionPartialScaler_->getCurrentLinkEndType( ) )
         {
@@ -112,7 +113,7 @@ public:
         {
             int currentIndex = stateEntryIndices_.at( positionPartialIterator_->first );
 
-            currentState_  = states[ currentIndex ];
+            currentState_ = states[ currentIndex ];
             currentTime_ = times[ currentIndex ];
 
             if( !fixLinkEndTime_ )
@@ -120,22 +121,20 @@ public:
                 if( positionPartialScaler_->isVelocityScalingNonZero( ) )
                 {
                     // Scale position partials
-                    returnPartial.push_back(
-                                std::make_pair(
-                                    positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
-                                    ( positionPartialIterator_->second->calculatePartialOfPosition(
-                                          currentState_ , currentTime_ ) ) +
+                    returnPartial.push_back( std::make_pair(
+                            positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
+                                            ( positionPartialIterator_->second->calculatePartialOfPosition( currentState_,
+                                                                                                            currentTime_ ) ) +
                                     positionPartialScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
-                                    ( positionPartialIterator_->second->calculatePartialOfVelocity(
-                                          currentState_ , currentTime_ ) ), currentTime_ ) );
+                                            ( positionPartialIterator_->second->calculatePartialOfVelocity( currentState_, currentTime_ ) ),
+                            currentTime_ ) );
                 }
                 else
                 {
-                    returnPartial.push_back(
-                                std::make_pair(
-                                    positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
-                                    ( positionPartialIterator_->second->calculatePartialOfPosition(
-                                          currentState_ , currentTime_ ) ), currentTime_ ) );
+                    returnPartial.push_back( std::make_pair(
+                            positionPartialScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
+                                    ( positionPartialIterator_->second->calculatePartialOfPosition( currentState_, currentTime_ ) ),
+                            currentTime_ ) );
                 }
             }
             else
@@ -143,22 +142,20 @@ public:
                 if( positionPartialScaler_->isVelocityScalingNonZero( ) )
                 {
                     // Scale position partials
-                    returnPartial.push_back(
-                        std::make_pair(
+                    returnPartial.push_back( std::make_pair(
                             positionPartialScaler_->getFixedTimePositionScalingFactor( positionPartialIterator_->first ) *
-                            ( positionPartialIterator_->second->calculatePartialOfPosition(
-                                currentState_ , currentTime_ ) ) +
-                            positionPartialScaler_->getFixedTimeVelocityScalingFactor( positionPartialIterator_->first ) *
-                            ( positionPartialIterator_->second->calculatePartialOfVelocity(
-                                currentState_ , currentTime_ ) ), currentTime_ ) );
+                                            ( positionPartialIterator_->second->calculatePartialOfPosition( currentState_,
+                                                                                                            currentTime_ ) ) +
+                                    positionPartialScaler_->getFixedTimeVelocityScalingFactor( positionPartialIterator_->first ) *
+                                            ( positionPartialIterator_->second->calculatePartialOfVelocity( currentState_, currentTime_ ) ),
+                            currentTime_ ) );
                 }
                 else
                 {
-                    returnPartial.push_back(
-                        std::make_pair(
+                    returnPartial.push_back( std::make_pair(
                             positionPartialScaler_->getFixedTimePositionScalingFactor( positionPartialIterator_->first ) *
-                            ( positionPartialIterator_->second->calculatePartialOfPosition(
-                                currentState_ , currentTime_ ) ), currentTime_ ) );
+                                    ( positionPartialIterator_->second->calculatePartialOfPosition( currentState_, currentTime_ ) ),
+                            currentTime_ ) );
                 }
             }
         }
@@ -166,28 +163,27 @@ public:
         // Add scaled light-time correcion partials.
         for( unsigned int i = 0; i < lighTimeCorrectionPartialsFunctions_.size( ); i++ )
         {
-
             currentLinkTimeCorrectionPartial_ = lighTimeCorrectionPartialsFunctions_.at( i )( states, times );
-            returnPartial.push_back(
-                        std::make_pair( positionPartialScaler_->getLightTimePartialScalingFactor( ) *
-                                        physical_constants::SPEED_OF_LIGHT * currentLinkTimeCorrectionPartial_.first,
-                                        currentLinkTimeCorrectionPartial_.second ) );
+            returnPartial.push_back( std::make_pair( positionPartialScaler_->getLightTimePartialScalingFactor( ) *
+                                                             physical_constants::SPEED_OF_LIGHT * currentLinkTimeCorrectionPartial_.first,
+                                                     currentLinkTimeCorrectionPartial_.second ) );
         }
 
         // Add scaled light-time gradient correcion partials.
         for( unsigned int i = 0; i < lighTimeCorrectionGradientPartialsFunctions_.size( ); i++ )
         {
-            currentLinkTimeCorrectionGradientPartial_ = lighTimeCorrectionGradientPartialsFunctions_.at( i )( states, times, observation_models::transmitter );
+            currentLinkTimeCorrectionGradientPartial_ =
+                    lighTimeCorrectionGradientPartialsFunctions_.at( i )( states, times, observation_models::transmitter );
             returnPartial.push_back(
-                std::make_pair( positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::transmitter ) * physical_constants::SPEED_OF_LIGHT *
-                                currentLinkTimeCorrectionGradientPartial_.first,
-                                currentLinkTimeCorrectionGradientPartial_.second ) );
-            currentLinkTimeCorrectionGradientPartial_ = lighTimeCorrectionGradientPartialsFunctions_.at( i )( states, times, observation_models::receiver );
+                    std::make_pair( positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::transmitter ) *
+                                            physical_constants::SPEED_OF_LIGHT * currentLinkTimeCorrectionGradientPartial_.first,
+                                    currentLinkTimeCorrectionGradientPartial_.second ) );
+            currentLinkTimeCorrectionGradientPartial_ =
+                    lighTimeCorrectionGradientPartialsFunctions_.at( i )( states, times, observation_models::receiver );
             returnPartial.push_back(
-                std::make_pair( positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::receiver ) * physical_constants::SPEED_OF_LIGHT *
-                                currentLinkTimeCorrectionGradientPartial_.first,
-                                currentLinkTimeCorrectionGradientPartial_.second ) );
-
+                    std::make_pair( positionPartialScaler_->getLightTimeGradientPartialScalingFactor( observation_models::receiver ) *
+                                            physical_constants::SPEED_OF_LIGHT * currentLinkTimeCorrectionGradientPartial_.first,
+                                    currentLinkTimeCorrectionGradientPartial_.second ) );
         }
 
         if( useLinkIndependentPartials( ) )
@@ -198,7 +194,6 @@ public:
             {
                 returnPartial.push_back( additionalPartials.at( i ) );
             }
-
         }
 
         return returnPartial;
@@ -240,7 +235,6 @@ public:
     }
 
 protected:
-
     //! Scaling object used for mapping partials of positions to partials of observable
     std::shared_ptr< DirectPositionPartialScaling< ObservationSize > > positionPartialScaler_;
 
@@ -251,13 +245,13 @@ protected:
     std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
 
     //! List of light-time correction partial functions.
-    std::vector< std::function< SingleLightTimePartialReturnType(
-            const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
-    lighTimeCorrectionPartialsFunctions_;
+    std::vector< std::function< SingleLightTimePartialReturnType( const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
+            lighTimeCorrectionPartialsFunctions_;
 
-    std::vector< std::function< SingleLightTimeGradientPartialReturnType(
-        const std::vector< Eigen::Vector6d >&, const std::vector< double >&, const observation_models::LinkEndType ) > >
-        lighTimeCorrectionGradientPartialsFunctions_;
+    std::vector< std::function< SingleLightTimeGradientPartialReturnType( const std::vector< Eigen::Vector6d >&,
+                                                                          const std::vector< double >&,
+                                                                          const observation_models::LinkEndType ) > >
+            lighTimeCorrectionGradientPartialsFunctions_;
 
     //! List of light-time correction partial objects.
     std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
@@ -275,12 +269,10 @@ protected:
     std::map< observation_models::LinkEndType, int > stateEntryIndices_;
 
     bool fixLinkEndTime_ = false;
-
 };
 
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-}
-
-#endif // directObservationPartial_H
+#endif  // directObservationPartial_H

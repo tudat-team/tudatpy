@@ -21,9 +21,8 @@ namespace tudat
 namespace acceleration_partials
 {
 
-Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
-    const Eigen::Vector3d& relativePosition,
-    const double gravitationalParameter );
+Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody( const Eigen::Vector3d& relativePosition,
+                                                                                const double gravitationalParameter );
 
 //! Calculates partial derivative of point mass gravitational acceleration wrt the position of body undergoing acceleration.
 /*!
@@ -33,10 +32,9 @@ Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
  *  \param gravitationalParameter Gravitational parameter of gravitating body.
  *  \return Matrix with the Jacobian of the acceleration vector w.r.t. the position vector.
  */
-Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
-        const Eigen::Vector3d& acceleratedBodyPosition,
-        const Eigen::Vector3d& acceleratingBodyPosition,
-        const double gravitationalParameter );
+Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody( const Eigen::Vector3d& acceleratedBodyPosition,
+                                                                                const Eigen::Vector3d& acceleratingBodyPosition,
+                                                                                const double gravitationalParameter );
 
 //! Calculates partial derivative of point mass gravitational acceleration wrt gravitational parameter of the central body.
 /*!
@@ -46,8 +44,7 @@ Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
  *  \return Vector with the partial of the acceleration vector w.r.t. ational parameter of the central body.
  */
 Eigen::Vector3d computePartialOfCentralGravityWrtGravitationalParameter( const Eigen::Vector3d& acceleratedBodyPosition,
-                                                                         const Eigen::Vector3d& acceleratingBodyPosition);
-
+                                                                         const Eigen::Vector3d& acceleratingBodyPosition );
 
 //! Calculates partial derivative of point mass gravitational acceleration wrt gravitational parameter of the central body.
 /*!
@@ -59,12 +56,10 @@ Eigen::Vector3d computePartialOfCentralGravityWrtGravitationalParameter( const E
 Eigen::Vector3d computePartialOfCentralGravityWrtGravitationalParameter( const Eigen::Vector3d& gravitationalAcceleration,
                                                                          const double gravitationalParameter );
 
-
 //! Class to calculate the partials of the central gravitational acceleration w.r.t. parameters and states.
-class CentralGravitationPartial: public AccelerationPartial
+class CentralGravitationPartial : public AccelerationPartial
 {
 public:
-
     //! Default constructor.
     /*!
      *  Default constructor.
@@ -72,10 +67,9 @@ public:
      *  \param acceleratedBody Body undergoing acceleration.
      *  \param acceleratingBody Body exerting acceleration.
      */
-    CentralGravitationPartial(
-            const std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > gravitationalAcceleration,
-            const std::string acceleratedBody,
-            const std::string acceleratingBody );
+    CentralGravitationPartial( const std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > gravitationalAcceleration,
+                               const std::string acceleratedBody,
+                               const std::string acceleratingBody );
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -88,9 +82,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtPositionOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -114,7 +109,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -135,17 +132,17 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-                const std::pair< std::string, std::string >& stateReferencePoint,
-                const propagators::IntegratedStateType integratedStateType )
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType )
     {
         if( ( ( stateReferencePoint.first == acceleratingBody_ ||
-              ( stateReferencePoint.first == acceleratedBody_  && accelerationUsesMutualAttraction_ ) )
-              && integratedStateType == propagators::body_mass_state ) )
+                ( stateReferencePoint.first == acceleratedBody_ && accelerationUsesMutualAttraction_ ) ) &&
+              integratedStateType == propagators::body_mass_state ) )
         {
-            std::cout<<stateReferencePoint.first<<" "<<acceleratingBody_<<" "<<acceleratedBody_<<" "<<
-                       accelerationUsesMutualAttraction_<<std::endl;
-            std::cerr<<"Warning, dependency of central gravity on body masses (only on gravitational parameter) not yet implemented"<<std::endl;
+            std::cout << stateReferencePoint.first << " " << acceleratingBody_ << " " << acceleratedBody_ << " "
+                      << accelerationUsesMutualAttraction_ << std::endl;
+            std::cerr << "Warning, dependency of central gravity on body masses (only on gravitational parameter) not yet implemented"
+                      << std::endl;
         }
         return 0;
     }
@@ -157,8 +154,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -186,21 +183,18 @@ public:
 
         if( !( currentTime_ == currentTime ) )
         {
-             acceleratedBodyState_( currentAcceleratedBodyState_ );
-             centralBodyState_( currentCentralBodyState_ );
+            acceleratedBodyState_( currentAcceleratedBodyState_ );
+            centralBodyState_( currentCentralBodyState_ );
             currentGravitationalParameter_ = gravitationalParameterFunction_( );
 
             currentPartialWrtPosition_ = calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
-                        currentAcceleratedBodyState_,
-                        currentCentralBodyState_,
-                        currentGravitationalParameter_ );
+                    currentAcceleratedBodyState_, currentCentralBodyState_, currentGravitationalParameter_ );
 
             currentTime_ = currentTime;
         }
     }
 
 protected:
-
     //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
     /*!
      * Function to create a function returning the current partial w.r.t. a gravitational parameter.
@@ -246,11 +240,10 @@ protected:
 
     //! Function to update the gravitational acceleration model.
     std::function< void( const double ) > accelerationUpdateFunction_;
-
 };
 
-} // namespace acceleration_partials
+}  // namespace acceleration_partials
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CENTRALGRAVITYACCELERATIONPARTIALS_H
+#endif  // TUDAT_CENTRALGRAVITYACCELERATIONPARTIALS_H

@@ -58,7 +58,7 @@ constexpr static std::complex< double > COMPLEX_I = std::complex< double >( 0.0,
 #ifdef M_PI
 constexpr static double PI = M_PI;
 #else
-constexpr static double PI = 3.14159265358979323846; // 18 digits.
+constexpr static double PI = 3.14159265358979323846;  // 18 digits.
 #endif
 
 constexpr static long double LONG_PI = 3.14159265358979323846264338328L;
@@ -81,7 +81,7 @@ constexpr static long double LONG_PI = 3.14159265358979323846264338328L;
  * \param integer Integer to be represented as floating point value.
  * \return Integer in floating point representation.
  */
-template< typename ScalarType  >
+template< typename ScalarType >
 constexpr ScalarType getFloatingInteger( const int integer )
 {
     return static_cast< ScalarType >( integer );
@@ -97,7 +97,7 @@ constexpr ScalarType getFloatingInteger( const int integer )
  * \param denominator Denominator of rational number to be represented as floating point value.
  * \return Integer in floating point representation.
  */
-template< typename ScalarType  >
+template< typename ScalarType >
 constexpr ScalarType getFloatingFraction( const int numerator, const int denominator )
 {
     return static_cast< ScalarType >( numerator ) / static_cast< ScalarType >( denominator );
@@ -111,14 +111,14 @@ constexpr ScalarType getFloatingFraction( const int numerator, const int denomin
  * at compile time.
  * \return Pi in requested floating point representation.
  */
-template< typename ScalarType  >
+template< typename ScalarType >
 constexpr ScalarType getPi( )
 {
     return static_cast< ScalarType >( LONG_PI );
 }
 
-} // namespace mathematical_constants
+}  // namespace mathematical_constants
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_MATHEMATICAL_CONSTANTS_H
+#endif  // TUDAT_MATHEMATICAL_CONSTANTS_H

@@ -15,7 +15,6 @@
 
 #include "tudat/astro/ephemerides/ephemeris.h"
 
-
 namespace tudat
 {
 
@@ -26,7 +25,6 @@ namespace ephemerides
 class ConstantEphemeris : public Ephemeris
 {
 public:
-
     using Ephemeris::getCartesianState;
 
     //! Constructor of a constant Ephemeris object
@@ -39,8 +37,8 @@ public:
     ConstantEphemeris( const std::function< Eigen::Vector6d( ) > constantStateFunction,
                        const std::string& referenceFrameOrigin = "SSB",
                        const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
-        Ephemeris( referenceFrameOrigin, referenceFrameOrientation ),
-                constantStateFunction_( constantStateFunction ) { }
+        Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), constantStateFunction_( constantStateFunction )
+    { }
 
     //! Constructor of a constant Ephemeris object
     /*!
@@ -53,7 +51,9 @@ public:
                        const std::string& referenceFrameOrigin = "SSB",
                        const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
-        { constantStateFunction_ = [ = ]( ){ return constantState; }; }
+    {
+        constantStateFunction_ = [ = ]( ) { return constantState; };
+    }
 
     //! Get state from ephemeris.
     /*!
@@ -62,8 +62,7 @@ public:
               (not used in this derived class)
      * \return Constant state given by constantStateFunction_
      */
-    Eigen::Vector6d getCartesianState(
-            const double seconsSinceEpoch = 0.0 )
+    Eigen::Vector6d getCartesianState( const double seconsSinceEpoch = 0.0 )
     {
         return constantStateFunction_( );
     }
@@ -75,21 +74,19 @@ public:
      */
     void updateConstantState( const Eigen::Vector6d& newState )
     {
-        constantStateFunction_ = [ = ]( ){ return newState; };
+        constantStateFunction_ = [ = ]( ) { return newState; };
     }
 
 private:
-
     //! Time-independent state function.
     /*!
      *  Function that returns a constant cartesian state.
      */
     std::function< Eigen::Vector6d( ) > constantStateFunction_;
-
 };
 
-} // namespace ephemerides
+}  // namespace ephemerides
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CONSTANTEPHEMERIS_H
+#endif  // TUDAT_CONSTANTEPHEMERIS_H

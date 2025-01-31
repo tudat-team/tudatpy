@@ -15,7 +15,6 @@
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
-
 namespace tudat
 {
 
@@ -23,8 +22,7 @@ namespace statistics
 {
 
 //! Enum defining implemented continuous boost distributions
-enum ContinuousBoostStatisticalDistributions
-{
+enum ContinuousBoostStatisticalDistributions {
     uniform_boost_distribution = 0,
     normal_boost_distribution = 1,
     exponential_boost_distribution = 2,
@@ -64,9 +62,8 @@ template< typename IndependentVariableType >
 class ContinuousProbabilityDistribution
 {
 public:
-
     //! Destructor
-    virtual ~ContinuousProbabilityDistribution( ){ }
+    virtual ~ContinuousProbabilityDistribution( ) { }
 
     //! Function to evaluate pdf of distribution
     /*!
@@ -87,15 +84,14 @@ public:
 
 //! Derived class of ContinuousProbabilityDistribution that includes inverse cdf computation.
 template< typename IndependentVariableType >
-class InvertibleContinuousProbabilityDistribution: public ContinuousProbabilityDistribution< IndependentVariableType >
+class InvertibleContinuousProbabilityDistribution : public ContinuousProbabilityDistribution< IndependentVariableType >
 {
 public:
-
     using ContinuousProbabilityDistribution< IndependentVariableType >::evaluatePdf;
     using ContinuousProbabilityDistribution< IndependentVariableType >::evaluateCdf;
 
     //! Destructor
-    virtual ~InvertibleContinuousProbabilityDistribution( ){ }
+    virtual ~InvertibleContinuousProbabilityDistribution( ) { }
 
     //! Function to evaluate inverse cdf of distribution
     /*!
@@ -106,8 +102,8 @@ public:
     virtual double evaluateInverseCdf( const IndependentVariableType independentVariable ) = 0;
 };
 
-} // namespace statistics
+}  // namespace statistics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CONTINUOUSPROBABILITYDISTRIBUTIONS_H
+#endif  // TUDAT_CONTINUOUSPROBABILITYDISTRIBUTIONS_H

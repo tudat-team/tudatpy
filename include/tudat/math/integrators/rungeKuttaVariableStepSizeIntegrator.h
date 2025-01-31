@@ -16,9 +16,6 @@
 #ifndef TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 
-
-
-
 #include <functional>
 #include <memory>
 
@@ -48,39 +45,43 @@ namespace numerical_integrators
  *          either a float or double.
  * \sa NumericalIntegrator.
  */
-template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-          typename StateDerivativeType = StateType, typename TimeStepType = IndependentVariableType  >
-class RungeKuttaVariableStepSizeIntegrator :
-        public ReinitializableNumericalIntegrator<
-        IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
+template< typename IndependentVariableType = double,
+          typename StateType = Eigen::VectorXd,
+          typename StateDerivativeType = StateType,
+          typename TimeStepType = IndependentVariableType >
+class RungeKuttaVariableStepSizeIntegrator
+    : public ReinitializableNumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 public:
-
     //! Typedef to the function used to compute the new step size.
     /*!
      * Typedef to the function used to compute the new step size. This should be a pointer to a
      * function or a boost function.
      */
-    typedef std::function< std::pair< TimeStepType, bool >(
-            const TimeStepType, const std::pair< TimeStepType, TimeStepType >&, const TimeStepType,
-            const std::pair< TimeStepType, TimeStepType >&, const StateType&,
-            const StateType&, const StateType&, const StateType& ) > NewStepSizeFunction;
+    typedef std::function< std::pair< TimeStepType, bool >( const TimeStepType,
+                                                            const std::pair< TimeStepType, TimeStepType >&,
+                                                            const TimeStepType,
+                                                            const std::pair< TimeStepType, TimeStepType >&,
+                                                            const StateType&,
+                                                            const StateType&,
+                                                            const StateType&,
+                                                            const StateType& ) >
+            NewStepSizeFunction;
 
     //! Typedef of the base class.
     /*!
      * Typedef of the base class with all template parameters filled in.
      */
-    typedef numerical_integrators::ReinitializableNumericalIntegrator<
-    IndependentVariableType, StateType,
-    StateDerivativeType, TimeStepType > ReinitializableNumericalIntegratorBase;
+    typedef numerical_integrators::
+            ReinitializableNumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
+                    ReinitializableNumericalIntegratorBase;
 
     //! Typedef to the state derivative function.
     /*!
      * Typedef to the state derivative function inherited from the base class.
      * \sa NumericalIntegrator::StateDerivativeFunction.
      */
-    typedef typename ReinitializableNumericalIntegratorBase::NumericalIntegratorBase::
-    StateDerivativeFunction StateDerivativeFunction;
+    typedef typename ReinitializableNumericalIntegratorBase::NumericalIntegratorBase::StateDerivativeFunction StateDerivativeFunction;
 
     //! Exception that is thrown if the minimum step size is exceeded.
     /*!
@@ -113,40 +114,36 @@ public:
      *          RungeKuttaVariableStepSizeIntegrator::computeNewStepSize.
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
-    RungeKuttaVariableStepSizeIntegrator(
-            const RungeKuttaCoefficients& coefficients,
-            const StateDerivativeFunction& stateDerivativeFunction,
-            const IndependentVariableType intervalStart,
-            const StateType& initialState,
-            const IndependentVariableType minimumStepSize,
-            const IndependentVariableType maximumStepSize,
-            const TimeStepType& initialStepSize,
-            const StateType& relativeErrorTolerance,
-            const StateType& absoluteErrorTolerance,
-            const TimeStepType safetyFactorForNextStepSize = 0.8,
-            const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
-            const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1,
-            const bool exceptionIfMinimumStepExceeded = true ) :
-        ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
-        currentIndependentVariable_( intervalStart ),
-        currentState_( initialState ),
-        lastIndependentVariable_( intervalStart ),
-        coefficients_( coefficients ),
+    RungeKuttaVariableStepSizeIntegrator( const RungeKuttaCoefficients& coefficients,
+                                          const StateDerivativeFunction& stateDerivativeFunction,
+                                          const IndependentVariableType intervalStart,
+                                          const StateType& initialState,
+                                          const IndependentVariableType minimumStepSize,
+                                          const IndependentVariableType maximumStepSize,
+                                          const TimeStepType& initialStepSize,
+                                          const StateType& relativeErrorTolerance,
+                                          const StateType& absoluteErrorTolerance,
+                                          const TimeStepType safetyFactorForNextStepSize = 0.8,
+                                          const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
+                                          const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1,
+                                          const bool exceptionIfMinimumStepExceeded = true ):
+        ReinitializableNumericalIntegratorBase( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
+        currentState_( initialState ), lastIndependentVariable_( intervalStart ), coefficients_( coefficients ),
         minimumStepSize_( std::fabs( static_cast< double >( minimumStepSize ) ) ),
-        maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ),
-        stepSize_( initialStepSize ),
-        useStepSizeControl_( true )
+        maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ), stepSize_( initialStepSize ), useStepSizeControl_( true )
     {
         stepSizeController_ = std::make_shared< PerElementIntegratorStepSizeController< TimeStepType, StateType > >(
-            relativeErrorTolerance, absoluteErrorTolerance,
-            static_cast< double >( safetyFactorForNextStepSize ), coefficients_.lowerOrder + 1,
-            static_cast< double >( minimumFactorDecreaseForNextStepSize ),
-            static_cast< double >( maximumFactorIncreaseForNextStepSize ) );
+                relativeErrorTolerance,
+                absoluteErrorTolerance,
+                static_cast< double >( safetyFactorForNextStepSize ),
+                coefficients_.lowerOrder + 1,
+                static_cast< double >( minimumFactorDecreaseForNextStepSize ),
+                static_cast< double >( maximumFactorIncreaseForNextStepSize ) );
         stepSizeController_->initialize( initialState );
 
         std::shared_ptr< BasicIntegratorStepSizeValidator< TimeStepType > > stepSizeValidator =
-            std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_);
-        stepSizeValidator = std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_);
+                std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_ );
+        stepSizeValidator = std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_ );
         if( exceptionIfMinimumStepExceeded )
         {
             stepSizeValidator->resetMinimumIntegrationTimeStepHandling( throw_exception_below_minimum );
@@ -182,42 +179,35 @@ public:
      *          RungeKuttaVariableStepSizeIntegrator::computeNewStepSize.
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
-    RungeKuttaVariableStepSizeIntegrator(
-            const RungeKuttaCoefficients& coefficients,
-            const StateDerivativeFunction& stateDerivativeFunction,
-            const IndependentVariableType intervalStart,
-            const StateType& initialState,
-            const TimeStepType minimumStepSize,
-            const TimeStepType maximumStepSize,
-            const TimeStepType& initialStepSize,
-            const typename StateType::Scalar relativeErrorTolerance,
-            const typename StateType::Scalar absoluteErrorTolerance,
-            const TimeStepType safetyFactorForNextStepSize = 0.8,
-            const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
-            const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1,
-            const bool exceptionIfMinimumStepExceeded = true  ) :
-        ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
-        currentIndependentVariable_( intervalStart ),
-        currentState_( initialState ),
-        lastIndependentVariable_( intervalStart ),
-        coefficients_( coefficients ),
+    RungeKuttaVariableStepSizeIntegrator( const RungeKuttaCoefficients& coefficients,
+                                          const StateDerivativeFunction& stateDerivativeFunction,
+                                          const IndependentVariableType intervalStart,
+                                          const StateType& initialState,
+                                          const TimeStepType minimumStepSize,
+                                          const TimeStepType maximumStepSize,
+                                          const TimeStepType& initialStepSize,
+                                          const typename StateType::Scalar relativeErrorTolerance,
+                                          const typename StateType::Scalar absoluteErrorTolerance,
+                                          const TimeStepType safetyFactorForNextStepSize = 0.8,
+                                          const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
+                                          const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1,
+                                          const bool exceptionIfMinimumStepExceeded = true ):
+        ReinitializableNumericalIntegratorBase( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
+        currentState_( initialState ), lastIndependentVariable_( intervalStart ), coefficients_( coefficients ),
         minimumStepSize_( std::fabs( static_cast< double >( minimumStepSize ) ) ),
-        maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ),
-        stepSize_( initialStepSize ),
-        useStepSizeControl_( true )
+        maximumStepSize_( std::fabs( static_cast< double >( maximumStepSize ) ) ), stepSize_( initialStepSize ), useStepSizeControl_( true )
     {
         stepSizeController_ = std::make_shared< PerElementIntegratorStepSizeController< TimeStepType, StateType > >(
-            StateType::Constant( initialState.rows( ), initialState.cols( ),
-                                 std::fabs( relativeErrorTolerance ) ),
-            StateType::Constant( initialState.rows( ), initialState.cols( ),
-                                 std::fabs( absoluteErrorTolerance ) ),
-            static_cast< double >( safetyFactorForNextStepSize ), coefficients_.lowerOrder + 1,
-            static_cast< double >( minimumFactorDecreaseForNextStepSize ),
-            static_cast< double >( maximumFactorIncreaseForNextStepSize) );
+                StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( relativeErrorTolerance ) ),
+                StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( absoluteErrorTolerance ) ),
+                static_cast< double >( safetyFactorForNextStepSize ),
+                coefficients_.lowerOrder + 1,
+                static_cast< double >( minimumFactorDecreaseForNextStepSize ),
+                static_cast< double >( maximumFactorIncreaseForNextStepSize ) );
         stepSizeController_->initialize( initialState );
 
-        std::shared_ptr< BasicIntegratorStepSizeValidator< TimeStepType > >stepSizeValidator =
-            std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_);
+        std::shared_ptr< BasicIntegratorStepSizeValidator< TimeStepType > > stepSizeValidator =
+                std::make_shared< BasicIntegratorStepSizeValidator< TimeStepType > >( minimumStepSize_, maximumStepSize_ );
         if( exceptionIfMinimumStepExceeded )
         {
             stepSizeValidator->resetMinimumIntegrationTimeStepHandling( throw_exception_below_minimum );
@@ -231,26 +221,22 @@ public:
         // Raise error if a fixed step coefficient set is used with this variable step integrator.
         if( coefficients_.isFixedStepSize )
         {
-            throw std::runtime_error( "Error when creating variable step-size RK integrator, fixed step coefficients are used ("+ coefficients_.name +")." );
+            throw std::runtime_error( "Error when creating variable step-size RK integrator, fixed step coefficients are used (" +
+                                      coefficients_.name + ")." );
         }
     }
 
     RungeKuttaVariableStepSizeIntegrator(
-        const RungeKuttaCoefficients& coefficients,
-        const StateDerivativeFunction& stateDerivativeFunction,
-        const IndependentVariableType intervalStart,
-        const StateType& initialState,
-        const TimeStepType& initialStepSize,
-        const std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > stepSizeController,
-        const std::shared_ptr< IntegratorStepSizeValidator< TimeStepType > > stepSizeValidator ) :
-        ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
-        currentIndependentVariable_( intervalStart ),
-        currentState_( initialState ),
-        lastIndependentVariable_( intervalStart ),
-        coefficients_( coefficients ),
-        stepSize_( initialStepSize ),
-        stepSizeController_( stepSizeController ),
-        stepSizeValidator_( stepSizeValidator ),
+            const RungeKuttaCoefficients& coefficients,
+            const StateDerivativeFunction& stateDerivativeFunction,
+            const IndependentVariableType intervalStart,
+            const StateType& initialState,
+            const TimeStepType& initialStepSize,
+            const std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > stepSizeController,
+            const std::shared_ptr< IntegratorStepSizeValidator< TimeStepType > > stepSizeValidator ):
+        ReinitializableNumericalIntegratorBase( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
+        currentState_( initialState ), lastIndependentVariable_( intervalStart ), coefficients_( coefficients ),
+        stepSize_( initialStepSize ), stepSizeController_( stepSizeController ), stepSizeValidator_( stepSizeValidator ),
         useStepSizeControl_( true )
     {
         stepSizeController_->initialize( initialState );
@@ -258,7 +244,8 @@ public:
         // Raise error if a fixed step coefficient set is used with this variable step integrator.
         if( coefficients_.isFixedStepSize )
         {
-            throw std::runtime_error( "Error when creating variable step-size RK integrator, fixed step coefficients are used ("+ coefficients_.name +")." );
+            throw std::runtime_error( "Error when creating variable step-size RK integrator, fixed step coefficients are used (" +
+                                      coefficients_.name + ")." );
         }
     }
 
@@ -267,14 +254,20 @@ public:
      * Returns the step size of the next step.
      * \return Step size to be used for the next step.
      */
-    virtual TimeStepType getNextStepSize( ) const { return this->stepSize_; }
+    virtual TimeStepType getNextStepSize( ) const
+    {
+        return this->stepSize_;
+    }
 
     //! Get current state.
     /*!
      * Returns the current state of the integrator.
      * \return Current integrated state.
      */
-    virtual StateType getCurrentState( ) const { return this->currentState_; }
+    virtual StateType getCurrentState( ) const
+    {
+        return this->currentState_;
+    }
 
     //! Get current independent variable.
     /*!
@@ -316,7 +309,7 @@ public:
      */
     virtual bool rollbackToPreviousState( )
     {
-        if ( this->currentIndependentVariable_ == this->lastIndependentVariable_ )
+        if( this->currentIndependentVariable_ == this->lastIndependentVariable_ )
         {
             return false;
         }
@@ -359,7 +352,7 @@ public:
     void modifyCurrentState( const StateType& newState, const bool allowRollback = false )
     {
         currentState_ = newState;
-        if ( !allowRollback )
+        if( !allowRollback )
         {
             this->lastIndependentVariable_ = currentIndependentVariable_;
         }
@@ -372,12 +365,13 @@ public:
      * \param newTime The time to set the current time to.
      * \param allowRollback Boolean denoting whether roll-back should be allowed.
      */
-    void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime,
+    void modifyCurrentIntegrationVariables( const StateType& newState,
+                                            const IndependentVariableType newTime,
                                             const bool allowRollback = false )
     {
         currentState_ = newState;
         currentIndependentVariable_ = newTime;
-        if ( !allowRollback )
+        if( !allowRollback )
         {
             this->lastIndependentVariable_ = currentIndependentVariable_;
         }
@@ -398,8 +392,7 @@ public:
         return stepSizeController_;
     }
 
-    void setStepSizeController(
-        const std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > stepSizeController )
+    void setStepSizeController( const std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > stepSizeController )
     {
         stepSizeController_ = stepSizeController;
     }
@@ -410,7 +403,6 @@ public:
     }
 
 protected:
-
     //! Computes the next step size and validates the result.
     /*!
      * Computes the next step size based on a higher and lower order estimate, determines if the
@@ -423,7 +415,6 @@ protected:
     virtual bool computeNextStepSizeAndValidateResult( const StateType& lowerOrderEstimate,
                                                        const StateType& higherOrderEstimate,
                                                        const TimeStepType stepSize );
-
 
     //! Current independent variable.
     /*!
@@ -473,14 +464,11 @@ protected:
      */
     TimeStepType stepSize_;
 
-
     //! Vector of state derivatives.
     /*!
      * Vector of state derivatives, i.e. values of k_{i} in Runge-Kutta scheme.
      */
     std::vector< StateDerivativeType > currentStateDerivatives_;
-
-
 
     std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > stepSizeController_;
 
@@ -488,19 +476,17 @@ protected:
 
     //! Boolean denoting whether step size control is to be used
     bool useStepSizeControl_;
-
 };
 
-//extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-//extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
-//extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
-
+// extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+// extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+// extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 //! Perform a single integration step.
 template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 StateType
-RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
-::performIntegrationStep( const TimeStepType stepSize )
+RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::performIntegrationStep(
+        const TimeStepType stepSize )
 {
     if( !( stepSize == stepSize ) )
     {
@@ -515,60 +501,56 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
     StateType lowerOrderEstimate( this->currentState_ ), higherOrderEstimate( this->currentState_ );
 
     // Compute the k_i state derivatives per stage.
-    for ( int stage = 0; stage < this->coefficients_.cCoefficients.rows( ); stage++ )
+    for( int stage = 0; stage < this->coefficients_.cCoefficients.rows( ); stage++ )
     {
         // Compute the intermediate state to pass to the state derivative for this stage.
         StateType intermediateState( this->currentState_ );
 
         // Compute the intermediate state.
-        for ( int column = 0; column < stage; column++ )
+        for( int column = 0; column < stage; column++ )
         {
-            intermediateState += stepSize * this->coefficients_.aCoefficients( stage, column ) *
-                    currentStateDerivatives_[ column ];
+            intermediateState += stepSize * this->coefficients_.aCoefficients( stage, column ) * currentStateDerivatives_[ column ];
         }
 
         // Compute the state derivative.
-        const IndependentVariableType time = this->currentIndependentVariable_ +
-                this->coefficients_.cCoefficients( stage ) * stepSize;
+        const IndependentVariableType time = this->currentIndependentVariable_ + this->coefficients_.cCoefficients( stage ) * stepSize;
         currentStateDerivatives_.push_back( this->stateDerivativeFunction_( time, intermediateState ) );
 
         // Check if propagation should terminate because the propagation termination condition has been reached
         // while computing the intermediate state.
         // If so, return immediately the current state (not recomputed yet), which will be discarded.
-        if ( this->propagationTerminationFunction_( static_cast< double >( time ), TUDAT_NAN, intermediateState.template cast< double >( ) ) )
+        if( this->propagationTerminationFunction_(
+                    static_cast< double >( time ), TUDAT_NAN, intermediateState.template cast< double >( ) ) )
         {
             this->propagationTerminationConditionReachedDuringStep_ = true;
             return this->currentState_;
         }
 
         // Update the estimate.
-        lowerOrderEstimate += this->coefficients_.bCoefficients( 0, stage ) * stepSize *
-                currentStateDerivatives_[ stage ];
-        higherOrderEstimate += this->coefficients_.bCoefficients( 1, stage ) * stepSize *
-                currentStateDerivatives_[ stage ];
+        lowerOrderEstimate += this->coefficients_.bCoefficients( 0, stage ) * stepSize * currentStateDerivatives_[ stage ];
+        higherOrderEstimate += this->coefficients_.bCoefficients( 1, stage ) * stepSize * currentStateDerivatives_[ stage ];
     }
 
     // Determine if the error was within bounds and compute a new step size.
-    if ( computeNextStepSizeAndValidateResult( lowerOrderEstimate,
-                                               higherOrderEstimate, stepSize ) )
+    if( computeNextStepSizeAndValidateResult( lowerOrderEstimate, higherOrderEstimate, stepSize ) )
     {
         // Accept the current step.
         this->lastIndependentVariable_ = this->currentIndependentVariable_;
         this->lastState_ = this->currentState_;
         this->currentIndependentVariable_ += stepSize;
 
-        switch ( this->coefficients_.orderEstimateToIntegrate )
+        switch( this->coefficients_.orderEstimateToIntegrate )
         {
-        case RungeKuttaCoefficients::lower:
-            this->currentState_ = lowerOrderEstimate;
-            return this->currentState_;
+            case RungeKuttaCoefficients::lower:
+                this->currentState_ = lowerOrderEstimate;
+                return this->currentState_;
 
-        case RungeKuttaCoefficients::higher:
-            this->currentState_ = higherOrderEstimate;
-            return this->currentState_;
+            case RungeKuttaCoefficients::higher:
+                this->currentState_ = higherOrderEstimate;
+                return this->currentState_;
 
-        default: // The default case will never occur because OrderEstimateToIntegrate is an enum.
-            throw std::runtime_error( "Order estimate to integrate is invalid." );
+            default:  // The default case will never occur because OrderEstimateToIntegrate is an enum.
+                throw std::runtime_error( "Order estimate to integrate is invalid." );
         }
     }
     else
@@ -580,21 +562,18 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 
 //! Compute the next step size and validate the result.
 template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
-bool
-RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
-::computeNextStepSizeAndValidateResult(
-        const StateType& lowerOrderEstimate,
-        const StateType& higherOrderEstimate,
-        const TimeStepType stepSize )
+bool RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::
+        computeNextStepSizeAndValidateResult( const StateType& lowerOrderEstimate,
+                                              const StateType& higherOrderEstimate,
+                                              const TimeStepType stepSize )
 {
     if( useStepSizeControl_ )
     {
         // Compute new step size using new step size function, which also returns whether the
         // relative error is within bounds or not.
-        std::pair< TimeStepType, bool > recommendedNewStepSizePair = stepSizeController_->computeNewStepSize(
-            lowerOrderEstimate, higherOrderEstimate, stepSize );
-        std::pair< TimeStepType, bool > validatedNewStepSizePair = stepSizeValidator_->validateStep(
-            recommendedNewStepSizePair, stepSize );
+        std::pair< TimeStepType, bool > recommendedNewStepSizePair =
+                stepSizeController_->computeNewStepSize( lowerOrderEstimate, higherOrderEstimate, stepSize );
+        std::pair< TimeStepType, bool > validatedNewStepSizePair = stepSizeValidator_->validateStep( recommendedNewStepSizePair, stepSize );
 
         this->stepSize_ = validatedNewStepSizePair.first;
         return validatedNewStepSizePair.second;
@@ -612,24 +591,21 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
  * if the minimum step size is exceeded.
  */
 template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
-class RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType,
-        StateDerivativeType, TimeStepType >::MinimumStepSizeExceededError : public std::runtime_error
+class RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::
+        MinimumStepSizeExceededError : public std::runtime_error
 {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor, initializes the parent runtime_error.
      * \param minimumStepSize_ The minimum step size allowed by the integrator.
      * \param requestedStepSize_ The new calculated step size.
      */
-    MinimumStepSizeExceededError( TimeStepType minimumStepSize_,
-                                  TimeStepType requestedStepSize_ ) :
-        std::runtime_error( "Minimum step size exceeded." ),
-        minimumStepSize( minimumStepSize_ ), requestedStepSize( requestedStepSize_ )
+    MinimumStepSizeExceededError( TimeStepType minimumStepSize_, TimeStepType requestedStepSize_ ):
+        std::runtime_error( "Minimum step size exceeded." ), minimumStepSize( minimumStepSize_ ), requestedStepSize( requestedStepSize_ )
     { }
 
-    ~MinimumStepSizeExceededError( ){ }
+    ~MinimumStepSizeExceededError( ) { }
 
     //! The minimum step size allowed by the integrator.
     /*!
@@ -644,9 +620,7 @@ public:
     TimeStepType requestedStepSize;
 
 protected:
-
 private:
-
 };
 
 //! Typedef of variable-step size Runge-Kutta integrator (state/state derivative = VectorXd,
@@ -655,14 +629,13 @@ private:
  * Typedef of a variable-step size Runge-Kutta integrator with VectorXds as state and state
  * derivative and double as independent variable.
  */
-typedef RungeKuttaVariableStepSizeIntegrator< > RungeKuttaVariableStepSizeIntegratorXd;
+typedef RungeKuttaVariableStepSizeIntegrator<> RungeKuttaVariableStepSizeIntegratorXd;
 
 //! Typedef for shared-pointer to RungeKuttaVariableStepSizeIntegratorXd object.
-typedef std::shared_ptr< RungeKuttaVariableStepSizeIntegratorXd >
-RungeKuttaVariableStepSizeIntegratorXdPointer;
+typedef std::shared_ptr< RungeKuttaVariableStepSizeIntegratorXd > RungeKuttaVariableStepSizeIntegratorXdPointer;
 
-} // namespace numerical_integrators
+}  // namespace numerical_integrators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
+#endif  // TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H

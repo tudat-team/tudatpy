@@ -48,21 +48,16 @@ namespace observation_partials
  * all NWayRangePartials in link end.
  */
 template< typename ParameterType, typename TimeType >
-std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > >
-createNWayRangePartials(
-        const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > >
-                observationModel,
+std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > createNWayRangePartials(
+        const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > >
-                parametersToEstimate,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const bool isPartialForDifferencedObservable )
 {
     using namespace observation_models;
 
-    std::shared_ptr< observation_models::NWayRangeObservationModel< ParameterType, TimeType > >
-            nWayRangeObservationModel = std::dynamic_pointer_cast<
-                    observation_models::NWayRangeObservationModel< ParameterType, TimeType > >(
-                    observationModel );
+    std::shared_ptr< observation_models::NWayRangeObservationModel< ParameterType, TimeType > > nWayRangeObservationModel =
+            std::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ParameterType, TimeType > >( observationModel );
     if( nWayRangeObservationModel == nullptr )
     {
         throw std::runtime_error(
@@ -76,9 +71,7 @@ createNWayRangePartials(
     SingleLinkObservationPartialList nWayRangePartialList;
 
     // Define list of constituent one-way partials.
-    typedef std::map< int,
-                      std::pair< SingleLinkObservationPartialList,
-                                 std::shared_ptr< PositionPartialScaling > > >
+    typedef std::map< int, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > >
             OneWayRangePartialList;
     OneWayRangePartialList constituentOneWayRangePartials;
 
@@ -87,63 +80,51 @@ createNWayRangePartials(
     int numberOfLinkEnds = nWayRangeLinkEnds.size( );
 
     // Iterate over all links in the n-way range observable
-    std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >
-            currentLightTimeCorrections;
+    std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > currentLightTimeCorrections;
     for( int i = 0; i < numberOfLinkEnds - 1; i++ )
     {
         currentLightTimeCorrections.clear( );
-        currentLightTimeCorrections = nWayRangeObservationModel->getLightTimeCalculators( )
-                                              .at( i )
-                                              ->getLightTimeCorrection( );
+        currentLightTimeCorrections = nWayRangeObservationModel->getLightTimeCalculators( ).at( i )->getLightTimeCorrection( );
 
         // Define links for current one-way range link
         currentLinkEnds.clear( );
-        currentLinkEnds[ observation_models::transmitter ] = nWayRangeLinkEnds.at(
-                observation_models::getNWayLinkEnumFromIndex( i, numberOfLinkEnds ) );
-        currentLinkEnds[ observation_models::receiver ] = nWayRangeLinkEnds.at(
-                observation_models::getNWayLinkEnumFromIndex( i + 1, numberOfLinkEnds ) );
+        currentLinkEnds[ observation_models::transmitter ] =
+                nWayRangeLinkEnds.at( observation_models::getNWayLinkEnumFromIndex( i, numberOfLinkEnds ) );
+        currentLinkEnds[ observation_models::receiver ] =
+                nWayRangeLinkEnds.at( observation_models::getNWayLinkEnumFromIndex( i + 1, numberOfLinkEnds ) );
 
         // Create onw-way range partials for current link
-        constituentOneWayRangePartials[ i ] =
-                createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
-                        std::make_shared< OneWayRangeObservationModel< ParameterType, TimeType > >(
-                                currentLinkEnds,
-                                nWayRangeObservationModel->getLightTimeCalculators( ).at( i ) ),
-                        bodies,
-                        parametersToEstimate,
-                        false,
-                        true );
+        constituentOneWayRangePartials[ i ] = createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
+                std::make_shared< OneWayRangeObservationModel< ParameterType, TimeType > >(
+                        currentLinkEnds, nWayRangeObservationModel->getLightTimeCalculators( ).at( i ) ),
+                bodies,
+                parametersToEstimate,
+                false,
+                true );
     }
 
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link
     // index) opne-way range partials
     std::map< int, std::shared_ptr< OneWayRangeScaling > > oneWayRangeScalers;
-    std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > >
-            sortedOneWayRangePartials;
-    std::map< std::pair< int, int >, estimatable_parameters::EstimatebleParameterIdentifier >
-            parameterIdList;
-    for( OneWayRangePartialList::iterator oneWayPartialIterator =
-                 constituentOneWayRangePartials.begin( );
+    std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > > sortedOneWayRangePartials;
+    std::map< std::pair< int, int >, estimatable_parameters::EstimatebleParameterIdentifier > parameterIdList;
+    for( OneWayRangePartialList::iterator oneWayPartialIterator = constituentOneWayRangePartials.begin( );
          oneWayPartialIterator != constituentOneWayRangePartials.end( );
          oneWayPartialIterator++ )
     {
         // Retrieve one-way range paritals
         oneWayRangeScalers[ oneWayPartialIterator->first ] =
-                std::dynamic_pointer_cast< OneWayRangeScaling >(
-                        oneWayPartialIterator->second.second );
+                std::dynamic_pointer_cast< OneWayRangeScaling >( oneWayPartialIterator->second.second );
 
         // Iterate over all one-way range partials of current link
-        for( SingleLinkObservationPartialList::iterator parameterIterator =
-                     oneWayPartialIterator->second.first.begin( );
+        for( SingleLinkObservationPartialList::iterator parameterIterator = oneWayPartialIterator->second.first.begin( );
              parameterIterator != oneWayPartialIterator->second.first.end( );
              parameterIterator++ )
         {
-            sortedOneWayRangePartials[ parameterIterator->first ][ oneWayPartialIterator->first ] =
-                    parameterIterator->second;
+            sortedOneWayRangePartials[ parameterIterator->first ][ oneWayPartialIterator->first ] = parameterIterator->second;
             if( parameterIdList.count( parameterIterator->first ) == 0 )
             {
-                parameterIdList[ parameterIterator->first ] =
-                        parameterIterator->second->getParameterIdentifier( );
+                parameterIdList[ parameterIterator->first ] = parameterIterator->second->getParameterIdentifier( );
             }
 
             //            else if( parameterIdList.at( parameterIterator->first ) !=
@@ -160,49 +141,38 @@ createNWayRangePartials(
             std::make_shared< NWayRangeScaling >( oneWayRangeScalers, static_cast< int >( nWayRangeLinkEnds.size( ) ) );
 
     // Create n-way range partial object
-    for( std::map< std::pair< int, int >,
-                   std::map< int, std::shared_ptr< ObservationPartial< 1 > > > >::iterator
-                 sortedPartialIterator = sortedOneWayRangePartials.begin( );
+    for( std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > >::iterator sortedPartialIterator =
+                 sortedOneWayRangePartials.begin( );
          sortedPartialIterator != sortedOneWayRangePartials.end( );
          sortedPartialIterator++ )
     {
         nWayRangePartialList[ sortedPartialIterator->first ] = std::make_shared< NWayRangePartial >(
-                nWayRangeScaler,
-                sortedPartialIterator->second,
-                parameterIdList.at( sortedPartialIterator->first ),
-                numberOfLinkEnds );
+                nWayRangeScaler, sortedPartialIterator->second, parameterIdList.at( sortedPartialIterator->first ), numberOfLinkEnds );
     }
 
-    std::map< int,
-              std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
-            vectorParametersToEstimate = parametersToEstimate->getVectorParameters( );
-    for( std::map< int,
-                   std::shared_ptr< estimatable_parameters::EstimatableParameter<
-                           Eigen::VectorXd > > >::iterator parameterIterator =
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParametersToEstimate =
+            parametersToEstimate->getVectorParameters( );
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator parameterIterator =
                  vectorParametersToEstimate.begin( );
          parameterIterator != vectorParametersToEstimate.end( );
          parameterIterator++ )
     {
         std::shared_ptr< ObservationPartial< 1 > > currentNWayRangePartial;
-        if( isParameterObservationLinkProperty(
-                    parameterIterator->second->getParameterName( ).first ) &&
-            !isParameterObservationLinkTimeProperty(
-                    parameterIterator->second->getParameterName( ).first ) &&
+        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) &&
+            !isParameterObservationLinkTimeProperty( parameterIterator->second->getParameterName( ).first ) &&
             !isPartialForDifferencedObservable )
         {
-            currentNWayRangePartial =
-                    createObservationPartialWrtLinkProperty< 1 >( nWayRangeLinkEnds,
-                                                                  observation_models::n_way_range,
-                                                                  parameterIterator->second,
-                                                                  bodies );
+            currentNWayRangePartial = createObservationPartialWrtLinkProperty< 1 >(
+                    nWayRangeLinkEnds, observation_models::n_way_range, parameterIterator->second, bodies );
         }
 
         // Check if partial is non-nullptr
         if( currentNWayRangePartial != nullptr )
         {
             // Add partial to the list.
-            std::pair< double, double > currentPair = std::pair< double, double >(
-                static_cast< double >( parameterIterator->first ),  static_cast< double >( parameterIterator->second->getParameterSize( ) ) );
+            std::pair< double, double > currentPair =
+                    std::pair< double, double >( static_cast< double >( parameterIterator->first ),
+                                                 static_cast< double >( parameterIterator->second->getParameterSize( ) ) );
             nWayRangePartialList[ currentPair ] = currentNWayRangePartial;
         }
     }

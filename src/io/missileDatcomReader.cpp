@@ -29,7 +29,7 @@ namespace input_output
 {
 
 //! Default constructor.
-MissileDatcomReader::MissileDatcomReader ( const std::string& fileNameAndPath ) : dataFile_( )
+MissileDatcomReader::MissileDatcomReader( const std::string& fileNameAndPath ): dataFile_( )
 {
     readFor004( fileNameAndPath );
 }
@@ -45,17 +45,17 @@ void MissileDatcomReader::readFor004( const std::string& fileNameAndPath )
     missileDatcomDataContainer_ = containerOfDataFromFile_;
 
     // Loop through all the strings stored in the container.
-    for ( iteratorContainerOfData_ = missileDatcomDataContainer_.begin( ); iteratorContainerOfData_
-          != missileDatcomDataContainer_.end( ); iteratorContainerOfData_++ )
+    for( iteratorContainerOfData_ = missileDatcomDataContainer_.begin( ); iteratorContainerOfData_ != missileDatcomDataContainer_.end( );
+         iteratorContainerOfData_++ )
     {
         // Empty the dataVector such that it can be reused.
         dataVector_.clear( );
 
         // Split the long string with muliple entries into a vector of small strings.
-        split( iteratorContainerOfData_->second,' ' ,dataVector_ );
+        split( iteratorContainerOfData_->second, ' ', dataVector_ );
 
         // Convert Strings to doubles and place in the result vector.
-        for ( unsigned int iteratorInt_ = 0; iteratorInt_ < dataVector_.size( ); iteratorInt_++ )
+        for( unsigned int iteratorInt_ = 0; iteratorInt_ < dataVector_.size( ); iteratorInt_++ )
         {
             missileDatcomData_.push_back( stringToDouble( dataVector_[ iteratorInt_ ] ) );
         }
@@ -72,15 +72,14 @@ void MissileDatcomReader::openFile( const std::string& fileNameAndPath )
 
     // Check if file could be opened. Throw exception with error message if file could not be
     // opened.
-    if ( !dataFile_ )
+    if( !dataFile_ )
     {
-        throw std::runtime_error(  "Data file could not be opened." + fileNameAndPath );
+        throw std::runtime_error( "Data file could not be opened." + fileNameAndPath );
     }
 }
 
 //! Function to split a string consisting of line of entries in smaller strings.
-void MissileDatcomReader::split( const std::string& dataString, char separator,
-                                 std::vector< std::string >& dataVector )
+void MissileDatcomReader::split( const std::string& dataString, char separator, std::vector< std::string >& dataVector )
 {
     std::string::size_type i = 0;
     std::string::size_type j = dataString.find( separator );
@@ -88,20 +87,20 @@ void MissileDatcomReader::split( const std::string& dataString, char separator,
     // Loop over the whole string and place characters into new string until the separator is
     // found. Then start with a new string at the next entry in the vector. Until the end of the
     // original string is reached.
-    while ( j != std::string::npos )
+    while( j != std::string::npos )
     {
         // to prevent placements of empty entries if multiple seperators after eachother are placed.
-        if ( !dataString.substr( i, j-i ).empty() )
+        if( !dataString.substr( i, j - i ).empty( ) )
         {
-            dataVector.push_back( dataString.substr( i, j-i ) );
+            dataVector.push_back( dataString.substr( i, j - i ) );
         }
 
         i = ++j;
         j = dataString.find( separator, j );
 
-        if ( j == std::string::npos )
+        if( j == std::string::npos )
         {
-            dataVector.push_back( dataString.substr(i, dataString.length( ) ) );
+            dataVector.push_back( dataString.substr( i, dataString.length( ) ) );
         }
     }
 }
@@ -123,8 +122,8 @@ void MissileDatcomReader::readAndStoreData( const std::string& skipKeyword )
 
         // Check if string doesn't start with set starting character, if string
         // is not empty, and if the skip keyword is not in the string.
-        if ( ( ( !skipKeyword.empty( ) && stringOfData.find( skipKeyword ) == std::string::npos )
-               || ( skipKeyword.empty( ) ) ) && !stringOfData.empty( ) )
+        if( ( ( !skipKeyword.empty( ) && stringOfData.find( skipKeyword ) == std::string::npos ) || ( skipKeyword.empty( ) ) ) &&
+            !stringOfData.empty( ) )
         {
             // Store string in container.
             containerOfDataFromFile_[ lineCounter ] = stringOfData;
@@ -143,10 +142,10 @@ double MissileDatcomReader::stringToDouble( std::string const& inputString )
 
     // Remove leading or trailing spaces
     std::string inputStringNoSpaces = inputString;
-    boost::algorithm::trim(inputStringNoSpaces);
+    boost::algorithm::trim( inputStringNoSpaces );
 
     // Return NaN if the string represent Not a Number
-    if (inputStringNoSpaces == "NaN")
+    if( inputStringNoSpaces == "NaN" )
     {
         return TUDAT_NAN;
     }
@@ -155,10 +154,10 @@ double MissileDatcomReader::stringToDouble( std::string const& inputString )
     double value;
 
     // Convert string to double and trow exception if this is not possible.
-    if ( !( iStringStream >> value ) ) throw std::runtime_error( "invalid double" );
+    if( !( iStringStream >> value ) ) throw std::runtime_error( "invalid double" );
 
     return value;
 }
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat

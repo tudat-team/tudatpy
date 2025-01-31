@@ -64,42 +64,35 @@ BOOST_AUTO_TEST_CASE( testHyperbolicCase )
 
     // Time conversions.
     const double timeOfFlightInDaysHyperbola = 100.0;
-    const double timeOfFlightHyperbola = convertJulianDaysToSeconds(
-            timeOfFlightInDaysHyperbola );
+    const double timeOfFlightHyperbola = convertJulianDaysToSeconds( timeOfFlightInDaysHyperbola );
 
     // Central body gravitational parameter.
     const double earthGravitationalParameter = 398600.4418e9;
 
     // The starting point is twice as far as L1 and L2, which is not really
     // realistic, but it is not about the case, but about the verification.
-    const Eigen::Vector3d positionAtDepartureHyperbola( convertAstronomicalUnitsToMeters( 0.02 ),
-                                                        0.0, 0.0 ),
+    const Eigen::Vector3d positionAtDepartureHyperbola( convertAstronomicalUnitsToMeters( 0.02 ), 0.0, 0.0 ),
             positionAtArrivalHyperbola( 0.0, convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
 
     // Compute Lambert targeting algorithms.
     mission_segments::LambertTargeterIzzo lambertTargeterHyperbola(
-               positionAtDepartureHyperbola, positionAtArrivalHyperbola, timeOfFlightHyperbola,
-               earthGravitationalParameter );
+            positionAtDepartureHyperbola, positionAtArrivalHyperbola, timeOfFlightHyperbola, earthGravitationalParameter );
 
     // Create local vectors for position and velocity.
     const Eigen::Vector3d positionDepartureHyperbola = positionAtDepartureHyperbola;
-    const Eigen::Vector3d velocityDepartureHyperbola =
-            lambertTargeterHyperbola.getInertialVelocityAtDeparture( );
+    const Eigen::Vector3d velocityDepartureHyperbola = lambertTargeterHyperbola.getInertialVelocityAtDeparture( );
 
     // Test if the computed semi-major axis corresponds to the expected value within the specified
     // tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getSemiMajorAxis( ),
-                                expectedValueOfSemiMajorAxisHyperbola,
-                                toleranceSemiMajorAxisHyperbola );
+    BOOST_CHECK_CLOSE_FRACTION(
+            lambertTargeterHyperbola.getSemiMajorAxis( ), expectedValueOfSemiMajorAxisHyperbola, toleranceSemiMajorAxisHyperbola );
 
     // Test if the computed transverse and radial velocity components corresponds to the
     // expected values within the specified tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getRadialVelocityAtDeparture( ),
-                                expectedValueOfRadialSpeedAtDepartureHyperbola,
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getRadialVelocityAtArrival( ),
-                                expectedValueOfRadialSpeedAtArrivalHyperbola,
-                                toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            lambertTargeterHyperbola.getRadialVelocityAtDeparture( ), expectedValueOfRadialSpeedAtDepartureHyperbola, toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            lambertTargeterHyperbola.getRadialVelocityAtArrival( ), expectedValueOfRadialSpeedAtArrivalHyperbola, toleranceVelocity );
     BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getTransverseVelocityAtDeparture( ),
                                 expectedValueOfTransverseSpeedAtDepartureHyperbola,
                                 toleranceVelocity );
@@ -108,27 +101,20 @@ BOOST_AUTO_TEST_CASE( testHyperbolicCase )
                                 toleranceVelocity );
 
     // Check that velocities match expected values within the defined tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ),
-                                lambertTargeterHyperbola.getInertialVelocityAtDeparture( ).x( ),
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ),
-                                lambertTargeterHyperbola.getInertialVelocityAtDeparture( ).y( ),
-                                toleranceVelocity );
-    BOOST_CHECK_SMALL( lambertTargeterHyperbola.getInertialVelocityAtDeparture( ).z( ),
-                       toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ),
-                                lambertTargeterHyperbola.getInertialVelocityAtArrival( ).x( ),
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ),
-                                lambertTargeterHyperbola.getInertialVelocityAtArrival( ).y( ),
-                                toleranceVelocity );
-    BOOST_CHECK_SMALL( lambertTargeterHyperbola.getInertialVelocityAtArrival( ).z( ),
-                       toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedInertialVelocityAtDeparture.x( ), lambertTargeterHyperbola.getInertialVelocityAtDeparture( ).x( ), toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedInertialVelocityAtDeparture.y( ), lambertTargeterHyperbola.getInertialVelocityAtDeparture( ).y( ), toleranceVelocity );
+    BOOST_CHECK_SMALL( lambertTargeterHyperbola.getInertialVelocityAtDeparture( ).z( ), toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedInertialVelocityAtArrival.x( ), lambertTargeterHyperbola.getInertialVelocityAtArrival( ).x( ), toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedInertialVelocityAtArrival.y( ), lambertTargeterHyperbola.getInertialVelocityAtArrival( ).y( ), toleranceVelocity );
+    BOOST_CHECK_SMALL( lambertTargeterHyperbola.getInertialVelocityAtArrival( ).z( ), toleranceVelocity );
 
     // Test if the computed solution is anti-clockwise, if the z-component of the angular momentum
     // (h = r \times v) is positive.
-    BOOST_CHECK_GT( positionDepartureHyperbola.cross( velocityDepartureHyperbola ).z( ),
-                    std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_GT( positionDepartureHyperbola.cross( velocityDepartureHyperbola ).z( ), std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Test elliptical case.
@@ -164,61 +150,48 @@ BOOST_AUTO_TEST_CASE( testEllipticalCase )
 
     // Compute Lambert targeting algorithms.
     mission_segments::LambertTargeterIzzo lambertTargeterEllipse(
-                positionAtDepartureEllipse, positionAtArrivalEllipse, timeOfFlightEllipse,
-                earthGravitationalParameter );
+            positionAtDepartureEllipse, positionAtArrivalEllipse, timeOfFlightEllipse, earthGravitationalParameter );
 
     // Create local vectors for position and velocity.
     const Eigen::Vector3d positionDepartureEllipse = positionAtDepartureEllipse;
-    const Eigen::Vector3d velocityDepartureEllipse =
-            lambertTargeterEllipse.getInertialVelocityAtDeparture( );
+    const Eigen::Vector3d velocityDepartureEllipse = lambertTargeterEllipse.getInertialVelocityAtDeparture( );
 
     // Test if the computed semi-major axis corresponds to the expected value within the specified
     // tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getSemiMajorAxis( ),
-                                expectedValueOfSemiMajorAxisEllipse,
-                                toleranceSemiMajorAxisEllipse );
+    BOOST_CHECK_CLOSE_FRACTION(
+            lambertTargeterEllipse.getSemiMajorAxis( ), expectedValueOfSemiMajorAxisEllipse, toleranceSemiMajorAxisEllipse );
 
     // Test if the computed transverse and radial velocity components corresponds to the
     // expected values within the specified tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getRadialVelocityAtDeparture( ),
-                                expectedValueOfRadialSpeedAtDepartureEllipse,
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getRadialVelocityAtArrival( ),
-                                expectedValueOfRadialSpeedAtArrivalEllipse,
-                                toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            lambertTargeterEllipse.getRadialVelocityAtDeparture( ), expectedValueOfRadialSpeedAtDepartureEllipse, toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            lambertTargeterEllipse.getRadialVelocityAtArrival( ), expectedValueOfRadialSpeedAtArrivalEllipse, toleranceVelocity );
     BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getTransverseVelocityAtDeparture( ),
                                 expectedValueOfTransverseSpeedAtDepartureEllipse,
                                 toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getTransverseVelocityAtArrival( ),
-                                expectedValueOfTransverseSpeedAtArrivalEllipse,
-                                toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            lambertTargeterEllipse.getTransverseVelocityAtArrival( ), expectedValueOfTransverseSpeedAtArrivalEllipse, toleranceVelocity );
 
     // Check that velocities match expected values within the defined tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ),
-                                lambertTargeterEllipse.getInertialVelocityAtDeparture( ).x( ),
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ),
-                                lambertTargeterEllipse.getInertialVelocityAtDeparture( ).y( ),
-                                toleranceVelocity );
-    BOOST_CHECK_SMALL( lambertTargeterEllipse.getInertialVelocityAtDeparture( ).z( ),
-                       toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ),
-                                lambertTargeterEllipse.getInertialVelocityAtArrival( ).x( ),
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ),
-                                lambertTargeterEllipse.getInertialVelocityAtArrival( ).y( ),
-                                toleranceVelocity );
-    BOOST_CHECK_SMALL( lambertTargeterEllipse.getInertialVelocityAtArrival( ).z( ),
-                       toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedInertialVelocityAtDeparture.x( ), lambertTargeterEllipse.getInertialVelocityAtDeparture( ).x( ), toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedInertialVelocityAtDeparture.y( ), lambertTargeterEllipse.getInertialVelocityAtDeparture( ).y( ), toleranceVelocity );
+    BOOST_CHECK_SMALL( lambertTargeterEllipse.getInertialVelocityAtDeparture( ).z( ), toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedInertialVelocityAtArrival.x( ), lambertTargeterEllipse.getInertialVelocityAtArrival( ).x( ), toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedInertialVelocityAtArrival.y( ), lambertTargeterEllipse.getInertialVelocityAtArrival( ).y( ), toleranceVelocity );
+    BOOST_CHECK_SMALL( lambertTargeterEllipse.getInertialVelocityAtArrival( ).z( ), toleranceVelocity );
 
     // Test if the computed solution is anti-clockwise, if the z-component of the angular momentum
     // (h = r \times v) is positive.
-    BOOST_CHECK_GT( positionDepartureEllipse.cross( velocityDepartureEllipse ).z( ),
-                    std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_GT( positionDepartureEllipse.cross( velocityDepartureEllipse ).z( ), std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Test retrograde Earth-Mars transfer.
-BOOST_AUTO_TEST_CASE ( testRetrograde )
+BOOST_AUTO_TEST_CASE( testRetrograde )
 {
     // Set tolerance.
     const double tolerance = 1.0e-9;
@@ -227,8 +200,7 @@ BOOST_AUTO_TEST_CASE ( testRetrograde )
     /* Values taken from http://ccar.colorado.edu/~rla/lambert_j2000.html for JDi = 2456036 and
      * JDf = 2456336.
      */
-    const Eigen::Vector3d positionAtDeparture( -131798187443.90068, -72114797019.4148,
-                                               2343782.3918863535 ),
+    const Eigen::Vector3d positionAtDeparture( -131798187443.90068, -72114797019.4148, 2343782.3918863535 ),
             positionAtArrival( 202564770723.92966, -42405023055.01754, -5861543784.413235 );
 
     // Set time-of-flight, coherent with initial and final positions.
@@ -238,18 +210,15 @@ BOOST_AUTO_TEST_CASE ( testRetrograde )
     const double solarGravitationalParameter = 1.32712428e20;
 
     // Set expected values for inertial velocities. Values obtained with keptoolbox.
-    const Eigen::Vector3d expectedInitialVelocity( -14157.8507230353, 28751.266655828,
-                                                   1395.46037631136 ),
+    const Eigen::Vector3d expectedInitialVelocity( -14157.8507230353, 28751.266655828, 1395.46037631136 ),
             expectedFinalVelocity( -6609.91626743654, -22363.5220239692, -716.519714631494 );
 
     // Compute Lambert solution.
     mission_segments::LambertTargeterIzzo lambertTargeterRetrograde(
-                positionAtDeparture, positionAtArrival,
-                timeOfFlight, solarGravitationalParameter, true );
+            positionAtDeparture, positionAtArrival, timeOfFlight, solarGravitationalParameter, true );
 
     // Retrieve inertial velocities.
-    const Eigen::Vector3d initialVelocity =
-            lambertTargeterRetrograde.getInertialVelocityAtDeparture( );
+    const Eigen::Vector3d initialVelocity = lambertTargeterRetrograde.getInertialVelocityAtDeparture( );
     const Eigen::Vector3d finalVelocity = lambertTargeterRetrograde.getInertialVelocityAtArrival( );
 
     // Check that velocities match expected values within the defined tolerance.
@@ -258,7 +227,7 @@ BOOST_AUTO_TEST_CASE ( testRetrograde )
 }
 
 //! Test near-pi, circular, coplanar, Earth-Mars transfer.
-BOOST_AUTO_TEST_CASE ( testNearPi )
+BOOST_AUTO_TEST_CASE( testNearPi )
 {
     // Set tolerance.
     const double tolerance = 1.0e-6;
@@ -271,18 +240,14 @@ BOOST_AUTO_TEST_CASE ( testNearPi )
 
     // Set Keplerian elements at departure and arrival.
     Eigen::Matrix< double, 6, 1 > keplerianStateAtDeparture, keplerianStateAtArrival;
-    keplerianStateAtDeparture << convertAstronomicalUnitsToMeters( 1.0 ), 0.0,
-            0.0, 0.0, 0.0, 0.0;
-    keplerianStateAtArrival << convertAstronomicalUnitsToMeters( 1.5 ), 0.0, 0.0,
-            0.0, 0.0, convertDegreesToRadians( 179.999 );
+    keplerianStateAtDeparture << convertAstronomicalUnitsToMeters( 1.0 ), 0.0, 0.0, 0.0, 0.0, 0.0;
+    keplerianStateAtArrival << convertAstronomicalUnitsToMeters( 1.5 ), 0.0, 0.0, 0.0, 0.0, convertDegreesToRadians( 179.999 );
 
     //  Convert to Cartesian elements.
     const Eigen::Matrix< double, 6, 1 > cartesianStateAtDeparture =
-            orbital_element_conversions::convertKeplerianToCartesianElements(
-                keplerianStateAtDeparture, solarGravitationalParameter );
+            orbital_element_conversions::convertKeplerianToCartesianElements( keplerianStateAtDeparture, solarGravitationalParameter );
     const Eigen::Matrix< double, 6, 1 > cartesianStateAtArrival =
-            orbital_element_conversions::convertKeplerianToCartesianElements(
-                keplerianStateAtArrival, solarGravitationalParameter );
+            orbital_element_conversions::convertKeplerianToCartesianElements( keplerianStateAtArrival, solarGravitationalParameter );
 
     // Extract positions at departure and arrival.
     const Eigen::Vector3d positionAtDeparture = cartesianStateAtDeparture.head( 3 );
@@ -294,11 +259,10 @@ BOOST_AUTO_TEST_CASE ( testNearPi )
 
     // Compute Lambert solution.
     mission_segments::LambertTargeterIzzo lambertTargeterRetrograde(
-                positionAtDeparture, positionAtArrival, timeOfFlight, solarGravitationalParameter );
+            positionAtDeparture, positionAtArrival, timeOfFlight, solarGravitationalParameter );
 
     // Retrieve inertial velocities.
-    const Eigen::Vector3d initialVelocity =
-            lambertTargeterRetrograde.getInertialVelocityAtDeparture( );
+    const Eigen::Vector3d initialVelocity = lambertTargeterRetrograde.getInertialVelocityAtDeparture( );
     const Eigen::Vector3d finalVelocity = lambertTargeterRetrograde.getInertialVelocityAtArrival( );
 
     // Check that velocities match expected values within the defined tolerance.
@@ -313,5 +277,5 @@ BOOST_AUTO_TEST_CASE ( testNearPi )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

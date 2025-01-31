@@ -28,7 +28,6 @@ namespace ephemerides
 class SimpleRotationalEphemeris : public RotationalEphemeris
 {
 public:
-
     //! Constructor from initial rotational state.
     /*!
      * Constructor from initial rotational state that is empty because all member variables are
@@ -44,14 +43,12 @@ public:
                                const double rotationRate,
                                const double initialSecondsSinceEpoch,
                                const std::string& baseFrameOrientation = "",
-                               const std::string& targetFrameOrientation = "" )
-        : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
-          rotationRate_( rotationRate ),
-          initialRotationToTargetFrame_( initialRotationToTargetFrame ),
-          initialSecondsSinceEpoch_( initialSecondsSinceEpoch )
+                               const std::string& targetFrameOrientation = "" ):
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), rotationRate_( rotationRate ),
+        initialRotationToTargetFrame_( initialRotationToTargetFrame ), initialSecondsSinceEpoch_( initialSecondsSinceEpoch )
     {
         initialEulerAngles_ = reference_frames::calculateInertialToPlanetFixedRotationAnglesFromMatrix(
-                    Eigen::Matrix3d( initialRotationToTargetFrame_ ) );
+                Eigen::Matrix3d( initialRotationToTargetFrame_ ) );
     }
 
     //! Constructor from rotation state angles.
@@ -74,13 +71,12 @@ public:
                                const double rotationRate,
                                const double initialSecondsSinceEpoch,
                                const std::string& baseFrameOrientation = "",
-                               const std::string& targetFrameOrientation = ""  )
-        : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
-          rotationRate_( rotationRate ),
-          initialRotationToTargetFrame_(
-              reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(
-                  poleDeclination, poleRightAscension, primeMeridianOfDate ) ),
-          initialSecondsSinceEpoch_( initialSecondsSinceEpoch )
+                               const std::string& targetFrameOrientation = "" ):
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), rotationRate_( rotationRate ),
+        initialRotationToTargetFrame_( reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion( poleDeclination,
+                                                                                                                   poleRightAscension,
+                                                                                                                   primeMeridianOfDate ) ),
+        initialSecondsSinceEpoch_( initialSecondsSinceEpoch )
     {
         // Set vector of euler angles
         initialEulerAngles_.x( ) = poleRightAscension;
@@ -89,7 +85,7 @@ public:
     }
 
     //! Destructor
-    ~SimpleRotationalEphemeris( ){ }
+    ~SimpleRotationalEphemeris( ) { }
 
     //! Calculate rotation quaternion from target frame to base frame.
     /*!
@@ -98,8 +94,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Rotation quaternion computed.
      */
-    Eigen::Quaterniond getRotationToBaseFrame(
-            const double secondsSinceEpoch )
+    Eigen::Quaterniond getRotationToBaseFrame( const double secondsSinceEpoch )
     {
         return getRotationToTargetFrame( secondsSinceEpoch ).inverse( );
     }
@@ -110,8 +105,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Rotation quaternion computed.
      */
-    Eigen::Quaterniond getRotationToTargetFrame(
-            const double secondsSinceEpoch );
+    Eigen::Quaterniond getRotationToTargetFrame( const double secondsSinceEpoch );
 
     //! Function to calculate the derivative of the rotation matrix from target frame to original
     //! frame.
@@ -122,11 +116,9 @@ public:
      *  \return Derivative of rotation from target (typically local) to original (typically global)
      *          frame at specified time.
      */
-    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
-            const double secondsSinceEpoch )
+    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double secondsSinceEpoch )
     {
-        return getDerivativeOfRotationToTargetFrame( secondsSinceEpoch ).
-                transpose( );
+        return getDerivativeOfRotationToTargetFrame( secondsSinceEpoch ).transpose( );
     }
 
     //! Function to calculate the derivative of the rotation matrix from original frame to target
@@ -138,36 +130,47 @@ public:
      *  \return Derivative of rotation from original (typically global) to target (typically local)
      *          frame at specified time.
      */
-    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
-            const double secondsSinceEpoch );
+    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double secondsSinceEpoch );
 
     //! Get rotation from target to base frame at initial time.
     /*!
      * Returns rotation from target to base frame at initial time.
      * \return Rotation quaternion at initial time.
      */
-    Eigen::Quaterniond getInitialRotationToTargetFrame( ) { return initialRotationToTargetFrame_; }
+    Eigen::Quaterniond getInitialRotationToTargetFrame( )
+    {
+        return initialRotationToTargetFrame_;
+    }
 
     //! Get seconds since epoch at which initialRotationToTargetFrame_ is valid.
     /*!
      * Returns seconds since epoch at which initialRotationToTargetFrame_ is valid.
      * \return Seconds since Julian day epoch [s].
      */
-    double getInitialSecondsSinceEpoch( ) { return initialSecondsSinceEpoch_; }
+    double getInitialSecondsSinceEpoch( )
+    {
+        return initialSecondsSinceEpoch_;
+    }
 
     //! Get rotation rate of body.
     /*!
      * Returns rotation rate of body.
      * \return Rotation rate [rad/s].
      */
-    double getRotationRate( ) { return rotationRate_; }
+    double getRotationRate( )
+    {
+        return rotationRate_;
+    }
 
     //! Function to reset the rotation rate of the body.
     /*!
      * Function to reset the rotation rate of the body.
      * \param rotationRate New rotation rate [rad/s].
      */
-    void resetRotationRate( const double rotationRate ) { rotationRate_ = rotationRate; }
+    void resetRotationRate( const double rotationRate )
+    {
+        rotationRate_ = rotationRate;
+    }
 
     //! Function to get vector of euler angles at initialSecondsSinceEpoch_
     /*!
@@ -187,12 +190,9 @@ public:
      *  \param rightAscension New right ascension of north pole.
      *  \param declination New declination of north pole.
      */
-    void resetInitialPoleRightAscensionAndDeclination( const double rightAscension,
-                                                       const double declination );
-
+    void resetInitialPoleRightAscensionAndDeclination( const double rightAscension, const double declination );
 
 private:
-
     //! Rotation rate of body (about local z-axis).
     /*!
      * Rotation rate of body (about local z-axis).
@@ -211,7 +211,6 @@ private:
      */
     double initialSecondsSinceEpoch_;
 
-
     //! Initial Euler angles describing the rotational state of the body at initialSecondsSinceEpoch_
     /*!
      *  Initial Euler angles describing the rotational state of the body at initialSecondsSinceEpoch_. Order of the vector
@@ -220,7 +219,7 @@ private:
     Eigen::Vector3d initialEulerAngles_;
 };
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat
 
-#endif // TUDAT_SIMPLE_ROTATIONAL_EPHEMERIS_H
+#endif  // TUDAT_SIMPLE_ROTATIONAL_EPHEMERIS_H

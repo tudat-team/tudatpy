@@ -35,7 +35,6 @@ using namespace tudat::unit_conversions;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat;
 
-
 namespace tudat
 {
 namespace unit_tests
@@ -56,35 +55,47 @@ BOOST_AUTO_TEST_CASE( test_TopocentricVectorToAzEl )
     // Define Earth shape model (sphere)
     std::shared_ptr< SphericalBodyShapeModel > bodyShape = std::make_shared< SphericalBodyShapeModel >( 6.371E6 );
     // Create pointing angles calculator
-    std::shared_ptr< GroundStationState > stationState = std::make_shared< GroundStationState >(
-                Eigen::Vector3d::Zero(), coordinate_conversions::cartesian_position, bodyShape );
+    std::shared_ptr< GroundStationState > stationState =
+            std::make_shared< GroundStationState >( Eigen::Vector3d::Zero( ), coordinate_conversions::cartesian_position, bodyShape );
     std::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = std::make_shared< PointingAnglesCalculator >(
-                [ & ]( const double ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
-                std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
+            [ & ]( const double ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+            std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
 
     // Case 1
     topocentricVector = ( Eigen::Vector3d( ) << 69282032.302755102515, 0, 39999999.999999992549 ).finished( );
     expectedAzimuth = 90.0 * degreesToRadians;
     expectedElevation = 30.0 * degreesToRadians;
 
-    BOOST_CHECK_CLOSE_FRACTION( expectedAzimuth, pointAnglesCalculator->calculateAzimuthAngle( topocentricVector ), 3.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( expectedElevation, pointAnglesCalculator->calculateElevationAngle( topocentricVector ), 3.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( expectedAzimuth,
+                                pointAnglesCalculator->calculateAzimuthAngle( topocentricVector ),
+                                3.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( expectedElevation,
+                                pointAnglesCalculator->calculateElevationAngle( topocentricVector ),
+                                3.0 * std::numeric_limits< double >::epsilon( ) );
 
     // Case 2
     topocentricVector = ( Eigen::Vector3d( ) << 7806858.1854810388759, 74277294.019097447395, 28669435.963624030352 ).finished( );
     expectedAzimuth = 6.0 * degreesToRadians;
     expectedElevation = 21.0 * degreesToRadians;
 
-    BOOST_CHECK_CLOSE_FRACTION( expectedAzimuth, pointAnglesCalculator->calculateAzimuthAngle( topocentricVector ), 3.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( expectedElevation, pointAnglesCalculator->calculateElevationAngle( topocentricVector ), 3.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( expectedAzimuth,
+                                pointAnglesCalculator->calculateAzimuthAngle( topocentricVector ),
+                                3.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( expectedElevation,
+                                pointAnglesCalculator->calculateElevationAngle( topocentricVector ),
+                                3.0 * std::numeric_limits< double >::epsilon( ) );
 
     // Case 1
     topocentricVector = ( Eigen::Vector3d( ) << -37054487.969432726502, -51001127.313443794847, -49252918.02605265379 ).finished( );
     expectedAzimuth = ( 216.0 - 360.0 ) * degreesToRadians;
     expectedElevation = -38.0 * degreesToRadians;
 
-    BOOST_CHECK_CLOSE_FRACTION( expectedAzimuth, pointAnglesCalculator->calculateAzimuthAngle( topocentricVector ), 3.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( expectedElevation, pointAnglesCalculator->calculateElevationAngle( topocentricVector ), 3.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( expectedAzimuth,
+                                pointAnglesCalculator->calculateAzimuthAngle( topocentricVector ),
+                                3.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( expectedElevation,
+                                pointAnglesCalculator->calculateElevationAngle( topocentricVector ),
+                                3.0 * std::numeric_limits< double >::epsilon( ) );
 }
 
 BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
@@ -94,8 +105,8 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
 
     // Define test ground station point.
     double stationAltitude = 0.0;
-    double stationLatitude = convertDegreesToRadians( 0.0 ); //lat;
-    double stationLongitude = convertDegreesToRadians( 0.0 ); //lon;
+    double stationLatitude = convertDegreesToRadians( 0.0 );   // lat;
+    double stationLongitude = convertDegreesToRadians( 0.0 );  // lon;
 
     double degreesToRadians = unit_conversions::convertDegreesToRadians( 1.0 );
 
@@ -103,11 +114,12 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
     {
         // Create ground station properties
         std::shared_ptr< GroundStationState > stationState = std::make_shared< GroundStationState >(
-                    ( Eigen::Vector3d( ) << stationAltitude, stationLatitude, stationLongitude ).finished( ),
-                    coordinate_conversions::geodetic_position, bodyShape );
+                ( Eigen::Vector3d( ) << stationAltitude, stationLatitude, stationLongitude ).finished( ),
+                coordinate_conversions::geodetic_position,
+                bodyShape );
         std::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = std::make_shared< PointingAnglesCalculator >(
-                    [ & ]( const double ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
-                    std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
+                [ & ]( const double ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+                std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
 
         // Define state of viewed point
         double testLatitude = 30.0 * degreesToRadians;
@@ -123,29 +135,24 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
         double expectedAzimuth = 0.0 * degreesToRadians;
         double expectedElevation = 60.0 * degreesToRadians;
 
-        std::cout<<testElevation / degreesToRadians<<" "<<testAzimuth / degreesToRadians<<std::endl;
+        std::cout << testElevation / degreesToRadians << " " << testAzimuth / degreesToRadians << std::endl;
 
         BOOST_CHECK_SMALL( std::fabs( expectedAzimuth - testAzimuth ), 1.0E-12 );
         BOOST_CHECK_SMALL( std::fabs( expectedElevation - testElevation ), 1.0E-12 );
     }
 }
 
-
 BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculatorHorizons )
 {
     loadStandardSpiceKernels( );
 
     // Set observation time
-    DateTime observationDateTime = DateTime(
-        2023, 12, 30, 0, 47, 0.0L );
-    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeConverter =
-        earth_orientation::createDefaultTimeConverter( );
+    DateTime observationDateTime = DateTime( 2023, 12, 30, 0, 47, 0.0L );
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeConverter = earth_orientation::createDefaultTimeConverter( );
     double observationTime = timeConverter->getCurrentTime( utc_scale, tdb_scale, observationDateTime.epoch< double >( ) );
-
 
     std::string globalFrameOrientation = "J2000";
     std::string globalFrameOrigin = "Earth";
-
 
     // Create bodies
     std::vector< std::string > bodiesToCreate = { "Earth", "Jupiter" };
@@ -153,45 +160,47 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculatorHorizons )
     bodySettings.at( "Earth" )->rotationModelSettings = gcrsToItrsRotationModelSettings( basic_astrodynamics::iau_2006, "J2000" );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-
     // Create ground station
     double stationAltitude = 6378.0E3;
-    double stationLatitude = convertDegreesToRadians( 60.0 ); //lat;
-    double stationLongitude = convertDegreesToRadians( 0.0 ); //lon;
+    double stationLatitude = convertDegreesToRadians( 60.0 );  // lat;
+    double stationLongitude = convertDegreesToRadians( 0.0 );  // lon;
 
     std::pair< std::string, std::string > station = std::pair< std::string, std::string >( "Earth", "Station" );
-    createGroundStation( bodies.at( "Earth" ), "Station", ( Eigen::Vector3d( ) << stationAltitude, stationLatitude, stationLongitude ).finished( ),
+    createGroundStation( bodies.at( "Earth" ),
+                         "Station",
+                         ( Eigen::Vector3d( ) << stationAltitude, stationLatitude, stationLongitude ).finished( ),
                          coordinate_conversions::spherical_position );
 
     // Retrieve pointing angle calculator
     std::shared_ptr< PointingAnglesCalculator > pointingAngleCalculator =
-        bodies.at( "Earth" )->getGroundStation( "Station" )->getPointingAnglesCalculator( );
-
+            bodies.at( "Earth" )->getGroundStation( "Station" )->getPointingAnglesCalculator( );
 
     // Get inertial ground station state function
     std::function< Eigen::Vector6d( const double ) > groundStationStateFunction =
-        getLinkEndCompleteEphemerisFunction( std::make_pair< std::string, std::string >( "Earth", "Station" ), bodies );
+            getLinkEndCompleteEphemerisFunction( std::make_pair< std::string, std::string >( "Earth", "Station" ), bodies );
     std::function< Eigen::Vector6d( const double ) > targetFunction =
-        getLinkEndCompleteEphemerisFunction( std::make_pair< std::string, std::string >( "Jupiter", "" ), bodies );
+            getLinkEndCompleteEphemerisFunction( std::make_pair< std::string, std::string >( "Jupiter", "" ), bodies );
 
     Eigen::Vector6d jupiterState = targetFunction( observationTime );
     Eigen::Vector6d groundStationState = groundStationStateFunction( observationTime );
     Eigen::Vector6d relativeState = jupiterState - groundStationState;
 
-
     double horizonsElevationInDegrees = 17.443175;
-    BOOST_CHECK_SMALL( horizonsElevationInDegrees - convertRadiansToDegrees(
-        pointingAngleCalculator->calculateElevationAngleFromInertialVector( relativeState.segment(0, 3), observationTime ) ), 5.0E-3 );
+    BOOST_CHECK_SMALL( horizonsElevationInDegrees -
+                               convertRadiansToDegrees( pointingAngleCalculator->calculateElevationAngleFromInertialVector(
+                                       relativeState.segment( 0, 3 ), observationTime ) ),
+                       5.0E-3 );
 
     double horizonsAzimuthInDegrees = 264.303204;
-    BOOST_CHECK_SMALL( horizonsAzimuthInDegrees - ( convertRadiansToDegrees(
-        pointingAngleCalculator->calculateAzimuthAngleFromInertialVector( relativeState.segment(0, 3), observationTime ) ) +360.0 ), 5.0E-3 );
-
-
+    BOOST_CHECK_SMALL( horizonsAzimuthInDegrees -
+                               ( convertRadiansToDegrees( pointingAngleCalculator->calculateAzimuthAngleFromInertialVector(
+                                         relativeState.segment( 0, 3 ), observationTime ) ) +
+                                 360.0 ),
+                       5.0E-3 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

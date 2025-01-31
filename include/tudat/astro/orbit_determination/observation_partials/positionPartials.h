@@ -47,9 +47,7 @@ Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyPosition( );
  *  \param rotationMatrixToInertialFrame Rotation matrix from body-fixed to inertial frame.
  *  \return Partial of position of a point on a body wrt its body-fixed position
  */
-Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyFixedPointPosition(
-        const Eigen::Matrix3d& rotationMatrixToInertialFrame );
-
+Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyFixedPointPosition( const Eigen::Matrix3d& rotationMatrixToInertialFrame );
 
 //! Base class for calculating the partial of an inertial position wrt a parameter.
 /*!
@@ -62,11 +60,10 @@ Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyFixedPointPosition(
 class CartesianStatePartial
 {
 public:
-
-    CartesianStatePartial( ){ }
+    CartesianStatePartial( ) { }
 
     //! Destructor.
-    virtual ~CartesianStatePartial( ){ }
+    virtual ~CartesianStatePartial( ) { }
 
     //! Pure virtual base class function for determining partial at current time and body state.
     /*!
@@ -76,19 +73,16 @@ public:
      *  \param time Current time
      *  \return Partial of point position wrt parameter (with specific parameter determined by derived class implementation).
      */
-    virtual Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition(
-            const Eigen::Vector6d& state, const double time ) = 0;
+    virtual Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time ) = 0;
 
-    virtual Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity(
-            const Eigen::Vector6d& state, const double time ) = 0;
+    virtual Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity( const Eigen::Vector6d& state, const double time ) = 0;
 };
 
 //! Class to compute the partial derivative of the Cartesian state of a body w.r.t. to inertial three-dimensional
 //! position of this body
-class CartesianStatePartialWrtCartesianState: public CartesianStatePartial
+class CartesianStatePartialWrtCartesianState : public CartesianStatePartial
 {
 public:
-
     //! Constructor
     CartesianStatePartialWrtCartesianState( )
     {
@@ -99,11 +93,10 @@ public:
         velocityPartial_.setZero( );
         velocityPartial_.block( 0, 0, 3, 3 ) = Eigen::Matrix3d::Zero( );
         velocityPartial_.block( 0, 3, 3, 3 ) = Eigen::Matrix3d::Identity( );
-
     }
 
     //! Destructor
-    ~CartesianStatePartialWrtCartesianState( ){ }
+    ~CartesianStatePartialWrtCartesianState( ) { }
 
     //! Function for determining partial of position at current time and body state.
     /*!
@@ -112,9 +105,7 @@ public:
      *  \param time Current time
      *  \return Partial of point state wrt position
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition(
-            const Eigen::Vector6d& state,
-            const double time )
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time )
     {
         return positionPartial_;
     }
@@ -125,29 +116,24 @@ public:
      *  \param time Current time
      *  \return Partial of point state wrt velocity
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity(
-                const Eigen::Vector6d& state, const double time )
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity( const Eigen::Vector6d& state, const double time )
     {
         return velocityPartial_;
     }
-private:
 
+private:
     //! Partial of current state w.r.t. position
     Eigen::Matrix< double, 3, 6 > positionPartial_;
 
     //! Partial of current state w.r.t. velocity
     Eigen::Matrix< double, 3, 6 > velocityPartial_;
-
 };
-
-
 
 //! Class to compute the partial derivative of the Cartesian state of a body w.r.t. to a property of a rotation
 //! matrix to/from a body-fixed frame.
-class CartesianStatePartialWrtRotationMatrixParameter: public CartesianStatePartial
+class CartesianStatePartialWrtRotationMatrixParameter : public CartesianStatePartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -155,14 +141,13 @@ public:
      * \param positionFunctionInLocalFrame Function returning the body-fixed position of the point at which the partial
      * is to be computed.
      */
-    CartesianStatePartialWrtRotationMatrixParameter(
-            const std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject,
-            const std::function< Eigen::Vector3d( const double ) > positionFunctionInLocalFrame ):
-        rotationMatrixPartialObject_( rotationMatrixPartialObject ),
-        positionFunctionInLocalFrame_( positionFunctionInLocalFrame ){ }
+    CartesianStatePartialWrtRotationMatrixParameter( const std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject,
+                                                     const std::function< Eigen::Vector3d( const double ) > positionFunctionInLocalFrame ):
+        rotationMatrixPartialObject_( rotationMatrixPartialObject ), positionFunctionInLocalFrame_( positionFunctionInLocalFrame )
+    { }
 
     //! Destructor
-    ~CartesianStatePartialWrtRotationMatrixParameter( ){ }
+    ~CartesianStatePartialWrtRotationMatrixParameter( ) { }
 
     //! Function for determining partial of position at current time and body state.
     /*!
@@ -171,12 +156,9 @@ public:
      *  \param time Current time
      *  \return Partial of point state wrt rotation property
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition(
-            const Eigen::Vector6d& state,
-            const double time )
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time )
     {
-        return rotationMatrixPartialObject_->calculatePartialOfInertialPositionWrtParameter(
-                    time, positionFunctionInLocalFrame_( time ) );
+        return rotationMatrixPartialObject_->calculatePartialOfInertialPositionWrtParameter( time, positionFunctionInLocalFrame_( time ) );
     }
 
     //! Function for determining partial of velocity at current time and body state.
@@ -186,15 +168,12 @@ public:
      *  \param time Current time
      *  \return Partial of point state wrt rotation property
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity(
-            const Eigen::Vector6d& state,
-            const double time )
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity( const Eigen::Vector6d& state, const double time )
     {
         return rotationMatrixPartialObject_->calculatePartialOfInertialVelocityWrtParameter( time, positionFunctionInLocalFrame_( time ) );
     }
 
 private:
-
     //! Object to compute the associated partial of a rotation matrix
     std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject_;
 
@@ -204,20 +183,20 @@ private:
 
 //! Class to compute the partial derivative of the inertial Cartesian state of a point on a body w.r.t. the constant
 //! body-fixed position of that point.
-class CartesianPartialWrtBodyFixedPosition: public CartesianStatePartial
+class CartesianPartialWrtBodyFixedPosition : public CartesianStatePartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param bodyRotationModel Rotation model for body.
      */
     CartesianPartialWrtBodyFixedPosition( const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel ):
-        bodyRotationModel_( bodyRotationModel ){ }
+        bodyRotationModel_( bodyRotationModel )
+    { }
 
     //! Destructor
-    ~CartesianPartialWrtBodyFixedPosition( ){ }
+    ~CartesianPartialWrtBodyFixedPosition( ) { }
 
     //! Function for determining partial of position at current time and body state.
     /*!
@@ -226,9 +205,7 @@ public:
      *  \param time Current time
      *  \return Partial of point state wrt body-fixed position.
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition(
-            const Eigen::Vector6d& state,
-            const double time )
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition( const Eigen::Vector6d& state, const double time )
     {
         return Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) );
     }
@@ -240,15 +217,12 @@ public:
      *  \param time Current time
      *  \return Partial of point state wrt body-fixed position.
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity(
-            const Eigen::Vector6d& state,
-            const double time )
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity( const Eigen::Vector6d& state, const double time )
     {
         return bodyRotationModel_->getDerivativeOfRotationToBaseFrame( time );
     }
 
 private:
-
     //! Rotation model for body.
     std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
 };
@@ -259,15 +233,13 @@ private:
  *  is trivial for non-relativistic reference frames, it is included in the architecture pending future implementation
  *  of more rigorous reference frames.
  */
-class PositionObservationScaling: public DirectPositionPartialScaling< 3 >
+class PositionObservationScaling : public DirectPositionPartialScaling< 3 >
 {
 public:
-
-    PositionObservationScaling( ):
-        DirectPositionPartialScaling< 3 >( observation_models::position_observable ){ }
+    PositionObservationScaling( ): DirectPositionPartialScaling< 3 >( observation_models::position_observable ) { }
 
     //! Destructor
-    ~PositionObservationScaling( ){ }
+    ~PositionObservationScaling( ) { }
 
     //! Update the scaling object to the current times and states (no functionality needed).
     /*!
@@ -281,7 +253,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation ){ }
+                 const Eigen::VectorXd currentObservation )
+    { }
 
     //! Function to retrieve the scaling factor for specific link end
     /*!
@@ -289,18 +262,15 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 3, 3 > getPositionScalingFactor(
-            const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 3, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return Eigen::Matrix3d::Identity( );
     }
 
-    Eigen::Matrix< double, 3, 3 > getFixedTimePositionScalingFactor(
-        const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 3, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return getPositionScalingFactor( linkEndType );
     }
-
 
     virtual Eigen::Matrix< double, 3, 1 > getLightTimePartialScalingFactor( )
     {
@@ -313,24 +283,21 @@ public:
     }
 
 private:
-
 };
 
 //! Derived class for scaling three-dimensional position partial to relative position observable partial
 /*!
-*  Derived class for scaling three-dimensional position partial to relative position observable partial. Although the implementation
-*  is trivial for non-relativistic reference frames, it is included in the architecture pending future implementation
-*  of more rigorous reference frames.
-*/
-class RelativePositionObservationScaling: public DirectPositionPartialScaling< 3 >
+ *  Derived class for scaling three-dimensional position partial to relative position observable partial. Although the implementation
+ *  is trivial for non-relativistic reference frames, it is included in the architecture pending future implementation
+ *  of more rigorous reference frames.
+ */
+class RelativePositionObservationScaling : public DirectPositionPartialScaling< 3 >
 {
 public:
-
-    RelativePositionObservationScaling( ):
-            DirectPositionPartialScaling< 3 >( observation_models::relative_position_observable ){ }
+    RelativePositionObservationScaling( ): DirectPositionPartialScaling< 3 >( observation_models::relative_position_observable ) { }
 
     //! Destructor
-    ~RelativePositionObservationScaling( ){ }
+    ~RelativePositionObservationScaling( ) { }
 
     //! Update the scaling object to the current times and states (no functionality needed).
     /*!
@@ -355,26 +322,24 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 3, 3 > getPositionScalingFactor(
-            const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 3, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
-        if ( linkEndType == observation_models::observed_body )
+        if( linkEndType == observation_models::observed_body )
         {
             return Eigen::Matrix3d::Identity( );
         }
-        else if ( linkEndType == observation_models::observer )
+        else if( linkEndType == observation_models::observer )
         {
             return -Eigen::Matrix3d::Identity( );
         }
         else
         {
-            throw std::runtime_error( "Error when getting relative position scaling factor, did not recognize reference link end " + observation_models::getLinkEndTypeString(
-                linkEndType ) );
+            throw std::runtime_error( "Error when getting relative position scaling factor, did not recognize reference link end " +
+                                      observation_models::getLinkEndTypeString( linkEndType ) );
         }
     }
 
-    Eigen::Matrix< double, 3, 3 > getFixedTimePositionScalingFactor(
-        const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 3, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return getPositionScalingFactor( linkEndType );
     }
@@ -390,13 +355,9 @@ public:
     }
 
 private:
-
     //! Fixed link end for last computation of update() function.
     observation_models::LinkEndType currentLinkEndType_;
-
 };
-
-
 
 //! Derived class for scaling three-dimensional velocity partial to velocity observable partial
 /*!
@@ -404,15 +365,13 @@ private:
  *  is trivial for non-relativistic reference frames, it is included in teh architecture pending future implementation
  *  of more rigorous reference frames.
  */
-class VelocityObservationScaling: public DirectPositionPartialScaling< 3 >
+class VelocityObservationScaling : public DirectPositionPartialScaling< 3 >
 {
 public:
-
-    VelocityObservationScaling( ):
-        DirectPositionPartialScaling< 3 >( observation_models::velocity_observable ){ }
+    VelocityObservationScaling( ): DirectPositionPartialScaling< 3 >( observation_models::velocity_observable ) { }
 
     //! Destructor
-    ~VelocityObservationScaling( ){ }
+    ~VelocityObservationScaling( ) { }
 
     //! Update the scaling object to the current times and states (no functionality needed).
     /*!
@@ -426,7 +385,8 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation ){ }
+                 const Eigen::VectorXd currentObservation )
+    { }
 
     //! Function to retrieve the scaling factor for specific link end
     /*!
@@ -434,26 +394,22 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Velocity partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 3, 3 > getPositionScalingFactor(
-            const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 3, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return Eigen::Matrix3d::Zero( );
     }
 
-    Eigen::Matrix< double, 3, 3 > getFixedTimePositionScalingFactor(
-        const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 3, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return getPositionScalingFactor( linkEndType );
     }
 
-    Eigen::Matrix< double, 3, 3 > getVelocityScalingFactor(
-            const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 3, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return Eigen::Matrix3d::Identity( );
     }
 
-    Eigen::Matrix< double, 3, 3 > getFixedTimeVelocityScalingFactor(
-        const observation_models::LinkEndType linkEndType )
+    Eigen::Matrix< double, 3, 3 > getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         return getVelocityScalingFactor( linkEndType );
     }
@@ -474,13 +430,10 @@ public:
     }
 
 private:
-
 };
 
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-}
-
-
-#endif // TUDAT_POSITIONPARTIALS_H
+#endif  // TUDAT_POSITIONPARTIALS_H

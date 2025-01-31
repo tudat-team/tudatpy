@@ -21,20 +21,17 @@ namespace estimatable_parameters
 {
 
 //! Class used to estimate PPN parameter gamma
-class PPNParameterGamma: public EstimatableParameter< double >
+class PPNParameterGamma : public EstimatableParameter< double >
 {
-
 public:
-
     //! Constuctor
     /*!
      * Constuctor
      * \param ppnParameterSet Object used to store PPN parameters
      */
-    PPNParameterGamma( const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet
-                       = relativity::ppnParameterSet ):
-        EstimatableParameter< double >( ppn_parameter_gamma, "global_metric" ),
-      ppnParameterSet_( ppnParameterSet ){ }
+    PPNParameterGamma( const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = relativity::ppnParameterSet ):
+        EstimatableParameter< double >( ppn_parameter_gamma, "global_metric" ), ppnParameterSet_( ppnParameterSet )
+    { }
 
     //! Destructor
     ~PPNParameterGamma( ) { }
@@ -70,29 +67,23 @@ public:
     }
 
 protected:
-
 private:
-
     //! Object used to store PPN parameters
     std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet_;
-
 };
 
 //! Class used to estimate PPN parameter beta
-class PPNParameterBeta: public EstimatableParameter< double >
+class PPNParameterBeta : public EstimatableParameter< double >
 {
-
 public:
-
     //! Constuctor
     /*!
      * Constuctor
      * \param ppnParameterSet Object used to store PPN parameters
      */
-    PPNParameterBeta( const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet
-                      = relativity::ppnParameterSet  ):
-        EstimatableParameter< double >( ppn_parameter_beta, "global_metric" ),
-      ppnParameterSet_( ppnParameterSet ){ }
+    PPNParameterBeta( const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet = relativity::ppnParameterSet ):
+        EstimatableParameter< double >( ppn_parameter_beta, "global_metric" ), ppnParameterSet_( ppnParameterSet )
+    { }
 
     //! Destructor
     ~PPNParameterBeta( ) { }
@@ -128,16 +119,13 @@ public:
     }
 
 protected:
-
 private:
-
     //! Object used to store PPN parameters
     std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet_;
-
 };
 
-}
+}  // namespace estimatable_parameters
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_PPNPARAMETERS_H
+#endif  // TUDAT_PPNPARAMETERS_H

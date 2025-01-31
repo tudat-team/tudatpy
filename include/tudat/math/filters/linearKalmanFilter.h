@@ -29,10 +29,9 @@ namespace filters
  *  \tparam DependentVariableType Type of dependent variable. Default is double.
  */
 template< typename IndependentVariableType = double, typename DependentVariableType = double >
-class LinearKalmanFilter: public KalmanFilterBase< IndependentVariableType, DependentVariableType >
+class LinearKalmanFilter : public KalmanFilterBase< IndependentVariableType, DependentVariableType >
 {
 public:
-
     //! Inherit typedefs from base class.
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentVector DependentVector;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
@@ -68,18 +67,23 @@ public:
                         const IndependentVariableType initialTime,
                         const DependentVector& initialStateVector,
                         const DependentMatrix& initialCovarianceMatrix,
-                        const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
-        KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
-                                                                            filteringStepSize, initialTime, initialStateVector,
-                                                                            initialCovarianceMatrix, integratorSettings ),
+                        const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ):
+        KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty,
+                                                                            measurementUncertainty,
+                                                                            filteringStepSize,
+                                                                            initialTime,
+                                                                            initialStateVector,
+                                                                            initialCovarianceMatrix,
+                                                                            integratorSettings ),
         stateTransitionMatrixFunction_( stateTransitionMatrixFunction ), controlMatrixFunction_( controlMatrixFunction ),
         measurementMatrixFunction_( measurementMatrixFunction )
     {
         // Temporary block of integration
-        if ( integratorSettings != nullptr )
+        if( integratorSettings != nullptr )
         {
-            throw std::runtime_error( "Error in linear Kalman filter. propagation of the state is "
-                                      "not currently supported." );
+            throw std::runtime_error(
+                    "Error in linear Kalman filter. propagation of the state is "
+                    "not currently supported." );
         }
     }
 
@@ -108,16 +112,21 @@ public:
                         const IndependentVariableType initialTime,
                         const DependentVector& initialStateVector,
                         const DependentMatrix& initialCovarianceMatrix,
-                        const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
-        LinearKalmanFilter( [ = ]( ){ return stateTransitionMatrix; },
-                            [ = ]( ){ return controlMatrix; },
-                            [ = ]( ){ return measurementMatrix; },
-                            systemUncertainty, measurementUncertainty, filteringStepSize, initialTime, initialStateVector,
-                            initialCovarianceMatrix, integratorSettings )
+                        const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ):
+        LinearKalmanFilter( [ = ]( ) { return stateTransitionMatrix; },
+                            [ = ]( ) { return controlMatrix; },
+                            [ = ]( ) { return measurementMatrix; },
+                            systemUncertainty,
+                            measurementUncertainty,
+                            filteringStepSize,
+                            initialTime,
+                            initialStateVector,
+                            initialCovarianceMatrix,
+                            integratorSettings )
     { }
 
     //! Destructor.
-    ~LinearKalmanFilter( ){ }
+    ~LinearKalmanFilter( ) { }
 
     //! Function to update the filter with the new step data.
     /*!
@@ -133,13 +142,14 @@ public:
         // Prediction step
         DependentVector aPrioriStateEstimate = this->predictState( );
         DependentVector measurementEstimate = this->measurementFunction_( this->currentTime_, aPrioriStateEstimate );
-        DependentMatrix aPrioriCovarianceEstimate = currentSystemMatrix * this->aPosterioriCovarianceEstimate_ *
-                currentSystemMatrix.transpose( ) + this->systemUncertainty_;
+        DependentMatrix aPrioriCovarianceEstimate =
+                currentSystemMatrix * this->aPosterioriCovarianceEstimate_ * currentSystemMatrix.transpose( ) + this->systemUncertainty_;
 
         // Compute Kalman gain
-        DependentMatrix kalmanGain = aPrioriCovarianceEstimate * currentMeasurementMatrix.transpose( ) * (
-                    currentMeasurementMatrix * aPrioriCovarianceEstimate * currentMeasurementMatrix.transpose( ) +
-                    this->measurementUncertainty_ ).inverse( );
+        DependentMatrix kalmanGain = aPrioriCovarianceEstimate * currentMeasurementMatrix.transpose( ) *
+                ( currentMeasurementMatrix * aPrioriCovarianceEstimate * currentMeasurementMatrix.transpose( ) +
+                  this->measurementUncertainty_ )
+                        .inverse( );
 
         // Correction step
         this->currentTime_ += this->filteringStepSize_;
@@ -148,7 +158,6 @@ public:
     }
 
 private:
-
     //! Function to create the function that defines the system model.
     /*!
      *  Function to create the function that defines the system model. The output of this function is then bound
@@ -157,8 +166,7 @@ private:
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated state.
      */
-    DependentVector createSystemFunction( const IndependentVariableType currentTime,
-                                          const DependentVector& currentStateVector )
+    DependentVector createSystemFunction( const IndependentVariableType currentTime, const DependentVector& currentStateVector )
     {
         return stateTransitionMatrixFunction_( currentTime, currentStateVector ) * currentStateVector;
     }
@@ -171,8 +179,7 @@ private:
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated measurement.
      */
-    DependentVector createMeasurementFunction( const IndependentVariableType currentTime,
-                                               const DependentVector& currentStateVector )
+    DependentVector createMeasurementFunction( const IndependentVariableType currentTime, const DependentVector& currentStateVector )
     {
         return measurementMatrixFunction_( currentTime, currentStateVector ) * currentStateVector;
     }
@@ -197,17 +204,16 @@ private:
      *  the state vector.
      */
     MatrixFunction measurementMatrixFunction_;
-
 };
 
 //! Typedef for a filter with double data type.
-typedef LinearKalmanFilter< > LinearKalmanFilterDouble;
+typedef LinearKalmanFilter<> LinearKalmanFilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
 typedef std::shared_ptr< LinearKalmanFilterDouble > LinearKalmanFilterDoublePointer;
 
-} // namespace filters
+}  // namespace filters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_LINEAR_KALMAN_FILTER_H
+#endif  // TUDAT_LINEAR_KALMAN_FILTER_H

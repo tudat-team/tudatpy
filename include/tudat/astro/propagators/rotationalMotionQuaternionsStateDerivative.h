@@ -61,10 +61,9 @@ Eigen::Vector4d calculateQuaternionDerivative( const Eigen::Vector4d& currentQua
  *  single body
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class RotationalMotionQuaternionsStateDerivative: public RotationalMotionStateDerivative< StateScalarType, TimeType >
+class RotationalMotionQuaternionsStateDerivative : public RotationalMotionStateDerivative< StateScalarType, TimeType >
 {
 public:
-
     using SingleStateTypeDerivative< StateScalarType, TimeType >::postProcessState;
 
     //! Constructor.
@@ -82,14 +81,16 @@ public:
             const std::vector< std::string >& bodiesToPropagate,
             std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
             std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
-            std::vector< std::function< Eigen::Matrix3d( ) > >( ) ):
-        RotationalMotionStateDerivative< StateScalarType, TimeType >(
-            torqueModelsPerBody, quaternions, bodiesToPropagate, bodyInertiaTensorFunctions,
-            bodyInertiaTensorTimeDerivativeFunctions )
+                    std::vector< std::function< Eigen::Matrix3d( ) > >( ) ):
+        RotationalMotionStateDerivative< StateScalarType, TimeType >( torqueModelsPerBody,
+                                                                      quaternions,
+                                                                      bodiesToPropagate,
+                                                                      bodyInertiaTensorFunctions,
+                                                                      bodyInertiaTensorTimeDerivativeFunctions )
     { }
 
     //! Destructor
-    ~RotationalMotionQuaternionsStateDerivative( ){ }
+    ~RotationalMotionQuaternionsStateDerivative( ) { }
 
     //! Calculates the state derivative of the rotational motion of the system.
     /*!
@@ -101,10 +102,9 @@ public:
      *  \param stateDerivative Current state derivative (quaternion rate + angular acceleration) of system of bodies
      *  integrated numerically (returned by reference).
      */
-    void calculateSystemStateDerivative(
-            const TimeType time,
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
+    void calculateSystemStateDerivative( const TimeType time,
+                                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+                                         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         stateDerivative = Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( stateOfSystemToBeIntegrated.rows( ), 1 );
         std::vector< Eigen::Vector3d > torquesActingOnBodies = this->sumTorquesPerBody( );
@@ -114,13 +114,16 @@ public:
             Eigen::Matrix< StateScalarType, 4, 1 > currentQuaternions = stateOfSystemToBeIntegrated.block( i * 7, 0, 4, 1 );
             Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( i * 7 + 4, 0, 3, 1 );
 
-            stateDerivative.block( i * 7, 0, 4, 1 ) = calculateQuaternionDerivative(
-                        currentQuaternions.template cast< double >( ), currentBodyFixedRotationRate.template cast< double >( ) ).
-                    template cast< StateScalarType >( );
-            stateDerivative.block( i * 7 + 4, 0, 3, 1 ) = evaluateRotationalEquationsOfMotion(
-                        this->bodyInertiaTensorFunctions_.at( i )( ), torquesActingOnBodies.at( i ),
-                        currentBodyFixedRotationRate.template cast< double >( ),
-                        this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
+            stateDerivative.block( i * 7, 0, 4, 1 ) =
+                    calculateQuaternionDerivative( currentQuaternions.template cast< double >( ),
+                                                   currentBodyFixedRotationRate.template cast< double >( ) )
+                            .template cast< StateScalarType >( );
+            stateDerivative.block( i * 7 + 4, 0, 3, 1 ) =
+                    evaluateRotationalEquationsOfMotion( this->bodyInertiaTensorFunctions_.at( i )( ),
+                                                         torquesActingOnBodies.at( i ),
+                                                         currentBodyFixedRotationRate.template cast< double >( ),
+                                                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) )
+                            .template cast< StateScalarType >( );
         }
     }
 
@@ -133,7 +136,8 @@ public:
      * \return State (outputSolution), converted to the 'propagator-specific form' (which is equal to outputSolution).
      */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution,
+            const TimeType& time )
     {
         return outputSolution;
     }
@@ -148,9 +152,9 @@ public:
      * \param currentLocalSolution State (internalSolution), converted to the 'conventional form',
      * which is equal to outputSolution for this class (returned by reference).
      */
-    void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentLocalSolution )
+    void convertToOutputSolution( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
+                                  const TimeType& time,
+                                  Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentLocalSolution )
     {
         currentLocalSolution = internalSolution;
     }
@@ -173,7 +177,7 @@ public:
             // Normalize quaternions
             quaternionsVector = unprocessedState.block( i * 7, 0, 4, 1 );
             quaternionsMagnitude = quaternionsVector.norm( );
-            if ( std::fabs( quaternionsMagnitude - 1.0 ) >= tolerance )
+            if( std::fabs( quaternionsMagnitude - 1.0 ) >= tolerance )
             {
                 // Normalize
                 quaternionsVector /= quaternionsMagnitude;
@@ -195,14 +199,12 @@ public:
     }
 
 private:
-
 };
 
+// extern template class RotationalMotionQuaternionsStateDerivative< double, double >;
 
-//extern template class RotationalMotionQuaternionsStateDerivative< double, double >;
+}  // namespace propagators
 
-} // namespace propagators
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_ROTATIONAL_MOTION_QUATERNIONS_STATE_DERIVATIVE_H
+#endif  // TUDAT_ROTATIONAL_MOTION_QUATERNIONS_STATE_DERIVATIVE_H

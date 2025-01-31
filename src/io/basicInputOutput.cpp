@@ -26,9 +26,7 @@ namespace input_output
 {
 
 //! Print floating-point number in formatted scientific notation.
-std::string printInFormattedScientificNotation( const double floatingPointNumber,
-                                                const int basePrecision,
-                                                const int exponentWidth )
+std::string printInFormattedScientificNotation( const double floatingPointNumber, const int basePrecision, const int exponentWidth )
 {
     // Declare string representation of the floating-point number.
     std::string floatingPointNumberString;
@@ -36,11 +34,7 @@ std::string printInFormattedScientificNotation( const double floatingPointNumber
     // Extract the decimal part (base) of the floating-point number with specified precision.
     // Default precision is numeric_limits< double >::digits10.
     std::stringstream buffer;
-    buffer << std::scientific
-           << std::setprecision( basePrecision )
-           << std::uppercase
-           << floatingPointNumber
-           << std::endl;
+    buffer << std::scientific << std::setprecision( basePrecision ) << std::uppercase << floatingPointNumber << std::endl;
 
     // Write base to string.
     buffer >> floatingPointNumberString;
@@ -55,19 +49,17 @@ std::string printInFormattedScientificNotation( const double floatingPointNumber
     bool isExponentPositive = true;
 
     // Check if the exponent is present.
-    if ( exponentLocation != std::string::npos )
+    if( exponentLocation != std::string::npos )
     {
         // Extract the exponent to the buffer.
-        buffer << floatingPointNumberString.substr( exponentLocation + 1,
-                                                    floatingPointNumberString.length( )
-                                                    - exponentLocation - 1 )
+        buffer << floatingPointNumberString.substr( exponentLocation + 1, floatingPointNumberString.length( ) - exponentLocation - 1 )
                << std::endl;
 
         // Write the exponent part from the buffer.
         buffer >> exponent;
 
         // Check if the exponent is negative.
-        if ( exponent < 0 )
+        if( exponent < 0 )
         {
             // If it is negative, set the flag to false, and switch signs of the exponent.
             isExponentPositive = false;
@@ -78,11 +70,8 @@ std::string printInFormattedScientificNotation( const double floatingPointNumber
     // Extract the exponent with a fixed field width.
     // Default width is 2.
     std::stringstream outputStream;
-    outputStream << floatingPointNumberString.substr( 0, exponentLocation + 1 )
-                 << ( isExponentPositive ? '+' : '-' )
-                 << std::setw( exponentWidth )
-                 << std::setfill( '0' )
-                 << exponent;
+    outputStream << floatingPointNumberString.substr( 0, exponentLocation + 1 ) << ( isExponentPositive ? '+' : '-' )
+                 << std::setw( exponentWidth ) << std::setfill( '0' ) << exponent;
 
     // Declare output string and write bu ffer output to the string.
     std::string outputString;
@@ -93,22 +82,22 @@ std::string printInFormattedScientificNotation( const double floatingPointNumber
 }
 
 //! Lists all files in directory.
-std::vector< boost::filesystem::path > listAllFilesInDirectory(
-    const boost::filesystem::path& directory, const bool isRecurseIntoSubdirectories )
+std::vector< boost::filesystem::path > listAllFilesInDirectory( const boost::filesystem::path& directory,
+                                                                const bool isRecurseIntoSubdirectories )
 {
     // Declare local variables.
-    std::vector < boost::filesystem::path > listOfFileNamesWithPath_;
+    std::vector< boost::filesystem::path > listOfFileNamesWithPath_;
 
-    if ( boost::filesystem::exists( directory ) )
+    if( boost::filesystem::exists( directory ) )
     {
         boost::filesystem::directory_iterator iteratorPastEndOfDirectory_;
 
-        for ( boost::filesystem::directory_iterator directoryIterator_( directory );
-              directoryIterator_ != iteratorPastEndOfDirectory_ ; ++directoryIterator_ )
+        for( boost::filesystem::directory_iterator directoryIterator_( directory ); directoryIterator_ != iteratorPastEndOfDirectory_;
+             ++directoryIterator_ )
         {
-            if ( boost::filesystem::is_directory( *directoryIterator_ ) )
+            if( boost::filesystem::is_directory( *directoryIterator_ ) )
             {
-                if ( isRecurseIntoSubdirectories )
+                if( isRecurseIntoSubdirectories )
                 {
                     listAllFilesInDirectory( *directoryIterator_ );
                 }
@@ -125,42 +114,38 @@ std::vector< boost::filesystem::path > listAllFilesInDirectory(
     return listOfFileNamesWithPath_;
 }
 
-void writeIdMapToTextFile(
-        const std::map<std::pair<int, int>, std::string>& idMap,
-        const std::string& outputFilename,
-        const boost::filesystem::path& outputDirectory,
-        const std::string& delimiter)
+void writeIdMapToTextFile( const std::map< std::pair< int, int >, std::string >& idMap,
+                           const std::string& outputFilename,
+                           const boost::filesystem::path& outputDirectory,
+                           const std::string& delimiter )
 {
-// Check if output directory exists; create it if it doesn't.
-    if (!boost::filesystem::exists(outputDirectory)) {
-        boost::filesystem::create_directories(outputDirectory);
+    // Check if output directory exists; create it if it doesn't.
+    if( !boost::filesystem::exists( outputDirectory ) )
+    {
+        boost::filesystem::create_directories( outputDirectory );
     }
 
     // Open output file.
-    std::string outputDirectoryAndFilename =
-            outputDirectory.string() + "/" + outputFilename;
-    std::ofstream outputFile_(outputDirectoryAndFilename.c_str());
+    std::string outputDirectoryAndFilename = outputDirectory.string( ) + "/" + outputFilename;
+    std::ofstream outputFile_( outputDirectoryAndFilename.c_str( ) );
 
     // Write file header to file.
-    outputFile_ << "StartIndex" << delimiter
-                << "Size" << delimiter
-                << "ID" << std::endl;
+    outputFile_ << "StartIndex" << delimiter << "Size" << delimiter << "ID" << std::endl;
 
     // Loop over map of propagation history.
-    for (auto const& row : idMap) {
+    for( auto const& row: idMap )
+    {
         auto startIndex = row.first.first;
         auto size = row.first.second;
         auto id = row.second;
 
         // Print map data to output file.
-        outputFile_ << startIndex << delimiter
-                    << size << delimiter
-                    << id << std::endl;
+        outputFile_ << startIndex << delimiter << size << delimiter << id << std::endl;
     }
 
     // Close output file.
-    outputFile_.close();
+    outputFile_.close( );
 }
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat

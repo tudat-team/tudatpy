@@ -30,11 +30,9 @@ namespace gravitation
  *  (i.e. not only the variations) as a function of time when the constant coefficient contribution
  *  (i.e. not from a GravityFieldVariations) is zero for all degrees and orders.
  */
-class TabulatedGravityFieldVariations: public GravityFieldVariations
+class TabulatedGravityFieldVariations : public GravityFieldVariations
 {
-
 public:
-
     //! Class constructor
     /*!
      *  Class constructor, takes the maps of variations, as well as the minimum degree and order
@@ -50,13 +48,13 @@ public:
      *  \param interpolatorType Type of interpolator to use for calculating coefficients at any
      *  time between tabulated times.
      */
-    TabulatedGravityFieldVariations(
-            const std::map< double, Eigen::MatrixXd >& cosineCoefficientCorrections,
-            const std::map< double, Eigen::MatrixXd >& sineCoefficientCorrections,
-            const int minimumDegree, const int minimumOrder,
-            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorType =
-            std::make_shared< interpolators::InterpolatorSettings >(
-                interpolators::linear_interpolator, interpolators::huntingAlgorithm ) );
+    TabulatedGravityFieldVariations( const std::map< double, Eigen::MatrixXd >& cosineCoefficientCorrections,
+                                     const std::map< double, Eigen::MatrixXd >& sineCoefficientCorrections,
+                                     const int minimumDegree,
+                                     const int minimumOrder,
+                                     const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorType =
+                                             std::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator,
+                                                                                                      interpolators::huntingAlgorithm ) );
 
     //! Function to (re)set the tabulated spherical harmonic coefficients.
     /*!
@@ -67,9 +65,8 @@ public:
      *  \param sineCoefficientCorrections Map of sine coefficient variations,
      *  with associated times as map key.
      */
-    void resetCoefficientInterpolator(
-            const std::map< double, Eigen::MatrixXd >& cosineCoefficientCorrections,
-            const std::map< double, Eigen::MatrixXd >& sineCoefficientCorrections );
+    void resetCoefficientInterpolator( const std::map< double, Eigen::MatrixXd >& cosineCoefficientCorrections,
+                                       const std::map< double, Eigen::MatrixXd >& sineCoefficientCorrections );
 
     //! Function for calculating corrections by interpolating tabulated corrections.
     /*!
@@ -79,8 +76,7 @@ public:
      *  block positions in total matrices defined by
      *  minimumDegree_, minimumOrder_, numberOfDegrees_, numberOfOrders_;
      */
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections(
-            const double time );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
 
     //! Function to return map of cosine coefficient variations, with associated times as map key.
     /*!
@@ -114,7 +110,6 @@ public:
     }
 
 private:
-
     //! Type of interpolator to use for calculating coefficients at any time.
     std::shared_ptr< interpolators::InterpolatorSettings > interpolatorType_;
 
@@ -131,13 +126,11 @@ private:
      *  at discrete times. The coefficients are interpolated concurrently and then split to reduce
      *  the number of calls to the interpolator.
      */
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
-    variationInterpolator_;
-
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > variationInterpolator_;
 };
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_TABULATEDGRAVITYFIELDVARIATIONS_H
+#endif  // TUDAT_TABULATEDGRAVITYFIELDVARIATIONS_H

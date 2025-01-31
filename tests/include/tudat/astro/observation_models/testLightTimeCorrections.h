@@ -81,7 +81,7 @@ double getPositionDifferenceLightTimeCorrection(
     return 1.0E-12 * ( transmitterState - receiverState ).x( );
 }
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat
 
-#endif // TUDAT_TEST_LIGHT_TIME_CORRECTIONS_H
+#endif  // TUDAT_TEST_LIGHT_TIME_CORRECTIONS_H

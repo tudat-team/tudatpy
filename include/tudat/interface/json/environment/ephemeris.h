@@ -25,22 +25,16 @@ namespace simulation_setup
 {
 
 //! Map of `EphemerisType`s string representations.
-static std::map< EphemerisType, std::string > ephemerisTypes =
-{
-    { approximate_planet_positions, "approximatePlanetPositions" },
-    { direct_spice_ephemeris, "directSpice" },
-    { tabulated_ephemeris, "tabulated" },
-    { interpolated_spice, "interpolatedSpice" },
-    { constant_ephemeris, "constant" },
-    { kepler_ephemeris, "kepler" },
-    { custom_ephemeris, "custom" }
-};
+static std::map< EphemerisType, std::string > ephemerisTypes = { { approximate_planet_positions, "approximatePlanetPositions" },
+                                                                 { direct_spice_ephemeris, "directSpice" },
+                                                                 { tabulated_ephemeris, "tabulated" },
+                                                                 { interpolated_spice, "interpolatedSpice" },
+                                                                 { constant_ephemeris, "constant" },
+                                                                 { kepler_ephemeris, "kepler" },
+                                                                 { custom_ephemeris, "custom" } };
 
 //! `EphemerisType` not supported by `json_interface`.
-static std::vector< EphemerisType > unsupportedEphemerisTypes =
-{
-    custom_ephemeris
-};
+static std::vector< EphemerisType > unsupportedEphemerisTypes = { custom_ephemeris };
 
 //! Convert `EphemerisType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const EphemerisType& ephemerisType )
@@ -60,8 +54,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< EphemerisSettin
 //! Create a shared pointer to a `EphemerisSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< EphemerisSettings >& ephemerisSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_EPHEMERIS_H
+#endif  // TUDAT_JSONINTERFACE_EPHEMERIS_H

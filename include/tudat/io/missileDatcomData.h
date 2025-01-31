@@ -36,34 +36,19 @@ namespace input_output
 class MissileDatcomData
 {
 public:
-
     //! Enum of static coefficients.
     /*!
      * Enum of static coefficients available via Missile Datcom output. See documentation
      * for details.
      */
-    enum StaticCoefficientNames
-    {
-        cn = 0,
-        cm = 1,
-        ca = 2,
-        cy = 3,
-        cln = 4,
-        cll = 5,
-        cna = 6,
-        cma = 7,
-        cyb = 8,
-        cnb = 9,
-        clb = 10
-    };
+    enum StaticCoefficientNames { cn = 0, cm = 1, ca = 2, cy = 3, cln = 4, cll = 5, cna = 6, cma = 7, cyb = 8, cnb = 9, clb = 10 };
 
     //! Enum of dynamic coefficients.
     /*!
      * Enum of dynamic coefficients available via Missile Datcom output. See documentation
      * for details.
      */
-    enum DynamicCoefficientNames
-    {
+    enum DynamicCoefficientNames {
         cnq = 0,
         cmq = 1,
         caq = 2,
@@ -102,8 +87,7 @@ public:
      * \param coefficientIndex The index of the coefficient.
      * \return The value of the coefficient.
      */
-    double getStaticCoefficient( int machIndex, int angleOfAttackIndex,
-                                 StaticCoefficientNames coefficientIndex );
+    double getStaticCoefficient( int machIndex, int angleOfAttackIndex, StaticCoefficientNames coefficientIndex );
 
     //! Access the dynamic coefficient database.
     /*!
@@ -113,36 +97,47 @@ public:
      * \param coefficientIndex The index of the coefficient.
      * \return Dynamic coefficient value.
      */
-    double getDynamicCoefficient( int machIndex, int angleOfAttackIndex,
-                                  DynamicCoefficientNames coefficientIndex );
+    double getDynamicCoefficient( int machIndex, int angleOfAttackIndex, DynamicCoefficientNames coefficientIndex );
 
     //! Retrieve the angle of attacks.
     /*!
      * Retrieve the vector with the different angle of attacks.
      * \return The vector with the different angles of attack.
      */
-    std::vector< double > getAngleOfAttacks( ) { return angleOfAttack_; }
+    std::vector< double > getAngleOfAttacks( )
+    {
+        return angleOfAttack_;
+    }
 
     //! Retrieve the Mach numbers.
     /*!
      * Retrieve the vector with the different angle of attacks.
      * \return The vector with the different angles of attack.
      */
-    std::vector< double > getMachNumbers( ) {return machNumber_; }
+    std::vector< double > getMachNumbers( )
+    {
+        return machNumber_;
+    }
 
     //! Retrieve the side slip angle.
     /*!
      * Retrieve the vector with the different side slip angles.
      * \return The vector with the different side slip angles.
      */
-    double getSideSlipAngle( ) { return sideslipAngle_; }
+    double getSideSlipAngle( )
+    {
+        return sideslipAngle_;
+    }
 
     //! Retrieve the Reynolds Numbers.
     /*!
      * Retrieve the vector with the different Reynolds Numbers.
      * \return The vector with the different Reynolds Numbers.
      */
-    std::vector< double > getReynoldsNumbers( ) { return reynoldsNumbers_; }
+    std::vector< double > getReynoldsNumbers( )
+    {
+        return reynoldsNumbers_;
+    }
 
     //! Write the database to space-separated files.
     /*!
@@ -153,10 +148,9 @@ public:
      * \param exponentWidth Number of digits used to represent the exponent of the output
      *         floating-point numbers in scientific notation.
      */
-    void writeAllCoefficientsToFiles(
-            const std::string& fileNameBase,
-            const int basePrecision = std::numeric_limits< double >::digits10,
-            const int exponentWidth = 2 );
+    void writeAllCoefficientsToFiles( const std::string& fileNameBase,
+                                      const int basePrecision = std::numeric_limits< double >::digits10,
+                                      const int exponentWidth = 2 );
 
     //! Write the force and moment coefficients to tudat aerodynamic coefficients input files.
     /*!
@@ -166,18 +160,16 @@ public:
      * \param exponentWidth Number of digits used to represent the exponent of the output
      *         floating-point numbers in scientific notation.
      */
-    void writeForceAndMomentCoefficientsToFiles(
-            const std::string& fileNameBase,
-            const int basePrecision = std::numeric_limits< double >::digits10,
-            const int exponentWidth = 2 );
+    void writeForceAndMomentCoefficientsToFiles( const std::string& fileNameBase,
+                                                 const int basePrecision = std::numeric_limits< double >::digits10,
+                                                 const int exponentWidth = 2 );
 
-private:    
-
+private:
     //! Convert the MissileDatcomData.
     /*!
      * Converts the MissileDatcomData to usable data by categorizing the output
      * into various the coefficients and flight conditions.
-     * \param datcomData Vector of data read from Missile Datcom output file that is to be 
+     * \param datcomData Vector of data read from Missile Datcom output file that is to be
      *          converted to usable data.
      */
     void convertDatcomData( const std::vector< double >& datcomData );
@@ -187,7 +179,7 @@ private:
      * The first index is the Mach number, the second index is the angle of attack.
      * Third index are the coefficients.
      * \see StaticCoefficientNames.
-     */    
+     */
     double staticCoefficients_[ 20 ][ 20 ][ 11 ];
 
     //! Sorted data array with the dynamic coefficients.
@@ -235,7 +227,7 @@ private:
 //! Typedef for shared-pointer to MissileDatcomData object.
 typedef std::shared_ptr< MissileDatcomData > MissileDatcomDataPointer;
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_MISSILE_DATCOM_DATA_H
+#endif  // TUDAT_MISSILE_DATCOM_DATA_H

@@ -15,9 +15,6 @@
 #include <map>
 #include <Eigen/Core>
 
-
-
-
 #include <boost/assign/list_of.hpp>
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
@@ -39,9 +36,8 @@ namespace acceleration_partials
  *  Derived classes implement derivative-calculating models for specific torque models, so that the calculation
  *  of all partials of a single type torque model is encompassed in a single derived class.
  */
-class TorquePartial: public orbit_determination::StateDerivativePartial
+class TorquePartial : public orbit_determination::StateDerivativePartial
 {
-
 public:
     //! Base class constructor.
     /*!
@@ -51,10 +47,12 @@ public:
      *  \param bodyExertingTorque Body exerting torque.
      *  \param torqueType Type of torque w.r.t. which partial is taken.
      */
-    TorquePartial( const std::string& bodyUndergoingTorque, const std::string& bodyExertingTorque,
+    TorquePartial( const std::string& bodyUndergoingTorque,
+                   const std::string& bodyExertingTorque,
                    const basic_astrodynamics::AvailableTorque torqueType ):
         StateDerivativePartial( propagators::translational_state, std::make_pair( bodyUndergoingTorque, "" ) ),
-        bodyUndergoingTorque_( bodyUndergoingTorque ), bodyExertingTorque_( bodyExertingTorque ),torqueType_( torqueType ) { }
+        bodyUndergoingTorque_( bodyUndergoingTorque ), bodyExertingTorque_( bodyExertingTorque ), torqueType_( torqueType )
+    { }
 
     //! Virtual destructor.
     virtual ~TorquePartial( ) { }
@@ -81,66 +79,70 @@ public:
      * \param integratedStateType Type of propagated state.
      * \return Pair with function, returning partial derivative, and number of columns in partial vector,
      */
-    std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
-    getDerivativeFunctionWrtStateOfIntegratedBody(
+    std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > getDerivativeFunctionWrtStateOfIntegratedBody(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {
         // Initialize to empty function; 0 parameter size.
-        std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
-                partialFunction = std::make_pair( std::function< void( Eigen::Block< Eigen::MatrixXd > ) >( ), 0 );
+        std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
+                std::make_pair( std::function< void( Eigen::Block< Eigen::MatrixXd > ) >( ), 0 );
 
         // Check if state dependency exists
         switch( integratedStateType )
         {
-        case propagators::rotational_state:
-        {
-            // Check if reference id is consistent.
-            if( stateReferencePoint.second != "" )
-            {
-                throw std::runtime_error( "Error when getting state derivative partial torque model, cannot have reference point on body for dynamics" );
+            case propagators::rotational_state: {
+                // Check if reference id is consistent.
+                if( stateReferencePoint.second != "" )
+                {
+                    throw std::runtime_error(
+                            "Error when getting state derivative partial torque model, cannot have reference point on body for dynamics" );
+                }
+                // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
+                else if( stateReferencePoint.first == bodyUndergoingTorque_ )
+                {
+                    partialFunction = std::make_pair(
+                            std::bind( &TorquePartial::wrtRotationalStateOfAcceleratedBody, this, std::placeholders::_1 ), 7 );
+                }
+                else if( stateReferencePoint.first == bodyExertingTorque_ )
+                {
+                    partialFunction = std::make_pair(
+                            std::bind( &TorquePartial::wrtRotationalStateOfAcceleratingBody, this, std::placeholders::_1 ), 7 );
+                }
+                else if( isTorquePartialWrtAdditionalBodyNonNull( stateReferencePoint.first ) )
+                {
+                    partialFunction = std::make_pair( std::bind( &TorquePartial::wrtRotationalStateOfAdditionalBody,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 stateReferencePoint.first ),
+                                                      3 );
+                }
+                break;
             }
-            // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
-            else if( stateReferencePoint.first == bodyUndergoingTorque_ )
-            {
-                partialFunction = std::make_pair( std::bind( &TorquePartial::wrtRotationalStateOfAcceleratedBody, this, std::placeholders::_1 ), 7 );
+            case propagators::translational_state: {
+                // Check if reference id is consistent.
+                if( stateReferencePoint.second != "" )
+                {
+                    throw std::runtime_error( "Error when getting torque partial, cannot have reference point on body for body mass" );
+                }
+                else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
+                {
+                    partialFunction = std::make_pair( std::bind( &TorquePartial::wrtNonRotationalStateOfAdditionalBody,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 stateReferencePoint,
+                                                                 integratedStateType ),
+                                                      1 );
+                }
             }
-            else if( stateReferencePoint.first == bodyExertingTorque_ )
-            {
-                partialFunction = std::make_pair( std::bind( &TorquePartial::wrtRotationalStateOfAcceleratingBody, this, std::placeholders::_1 ), 7 );
+            case propagators::custom_state: {
+                break;
             }
-            else if( isTorquePartialWrtAdditionalBodyNonNull( stateReferencePoint.first ) )
-            {
-                partialFunction = std::make_pair( std::bind( &TorquePartial::wrtRotationalStateOfAdditionalBody,
-                                                               this, std::placeholders::_1, stateReferencePoint.first ), 3 );
-            }
-            break;
+            default:
+                std::string errorMessage = "Error when getting state derivative partial torque model, dynamics type " +
+                        std::to_string( integratedStateType ) + "not recognized";
+                throw std::runtime_error( errorMessage );
+                break;
         }
-        case propagators::translational_state:
-        {
-            // Check if reference id is consistent.
-            if( stateReferencePoint.second != "" )
-            {
-                throw std::runtime_error( "Error when getting torque partial, cannot have reference point on body for body mass" );
-            }
-            else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
-            {
-                partialFunction = std::make_pair( std::bind( &TorquePartial::wrtNonRotationalStateOfAdditionalBody,
-                                                               this, std::placeholders::_1, stateReferencePoint, integratedStateType ), 1 );
-            }
-        }
-        case propagators::custom_state:
-        {
-            break;
-        }
-        default:
-            std::string errorMessage =
-                    "Error when getting state derivative partial torque model, dynamics type " +
-                    std::to_string( integratedStateType ) + "not recognized" ;
-            throw std::runtime_error( errorMessage );
-            break;
-        }
-
 
         return partialFunction;
     }
@@ -155,9 +157,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtOrientationOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ) = 0;
+    virtual void wrtOrientationOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                  const bool addContribution = 1,
+                                                  const int startRow = 0,
+                                                  const int startColumn = 0 ) = 0;
 
     //! Function for calculating the partial of the torque w.r.t. the angular velocity of the accelerated body.
     /*!
@@ -169,9 +172,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtRotationalVelocityOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
+    virtual void wrtRotationalVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                         const bool addContribution = 1,
+                                                         const int startRow = 0,
+                                                         const int startColumn = 3 )
     { }
 
     //! Function for calculating the partial of the torque w.r.t. the rotational state of the body undergoing torque.
@@ -197,9 +201,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtOrientationOfAcceleratingBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    virtual void wrtOrientationOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                   const bool addContribution = 1,
+                                                   const int startRow = 0,
+                                                   const int startColumn = 0 )
     { }
 
     //! Function for calculating the partial of the torque w.r.t. the angular velocity of the body exerting torque.
@@ -212,9 +217,11 @@ public:
      *  \param partialMatrix Block of partial derivatives of torque w.r.t. angular velocity of body
      *  exerting torque where current partial is to be added.
      */
-    virtual void wrtRotationalVelocityOfAcceleratingBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 ){ }
+    virtual void wrtRotationalVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                          const bool addContribution = 1,
+                                                          const int startRow = 0,
+                                                          const int startColumn = 3 )
+    { }
 
     //! Function for calculating the partial of the torque w.r.t. the Cartesian state of the body exerting torque.
     /*!
@@ -240,9 +247,12 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtOrientationOfAdditionalBody(
-            const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
+    virtual void wrtOrientationOfAdditionalBody( const std::string& bodyName,
+                                                 Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                 const bool addContribution = 1,
+                                                 const int startRow = 0,
+                                                 const int startColumn = 0 )
+    { }
 
     //! Function for calculating the partial of the torque w.r.t. the angular velocity of the third body.
     /*!
@@ -256,9 +266,12 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtRotationalVelocityOfAdditionalBody(
-            const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 ){ }
+    virtual void wrtRotationalVelocityOfAdditionalBody( const std::string& bodyName,
+                                                        Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                        const bool addContribution = 1,
+                                                        const int startRow = 0,
+                                                        const int startColumn = 3 )
+    { }
 
     //! Function for calculating the partial of the torque w.r.t. the Cartesian state of the third body.
     /*!
@@ -283,10 +296,10 @@ public:
      *  \param stateReferencePoint Reference point id of propagated state
      *  \param integratedStateType Type of propagated state for which partial is to be computed.
      */
-    virtual void wrtNonRotationalStateOfAdditionalBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType ){ }
+    virtual void wrtNonRotationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                        const std::pair< std::string, std::string >& stateReferencePoint,
+                                                        const propagators::IntegratedStateType integratedStateType )
+    { }
 
     //! Function to check whether the partial derivative w.r.t. the rotational state of a third body is non-zero.
     /*!
@@ -305,14 +318,20 @@ public:
      *  Function to retrieve the name of the body undergoing torque.
      *  \return Name of the body undergoing torque.
      */
-    std::string getBodyUndergoingTorque( ) { return bodyUndergoingTorque_; }
+    std::string getBodyUndergoingTorque( )
+    {
+        return bodyUndergoingTorque_;
+    }
 
     //! Function to retrieve the name of the body exerting torque.
     /*!
      *  Function to retrieve the name of the body exerting torque.
      *  \return Name of the body exerting torque.
      */
-    std::string getBodyExertingTorque( ) { return bodyExertingTorque_; }
+    std::string getBodyExertingTorque( )
+    {
+        return bodyExertingTorque_;
+    }
 
     //! Function to retrieve the type of torque w.r.t. which partial is taken..
     /*!
@@ -324,7 +343,7 @@ public:
         return torqueType_;
     }
 
-protected:    
+protected:
     //! Name of the body undergoing torque.
     std::string bodyUndergoingTorque_;
 
@@ -335,9 +354,8 @@ protected:
     basic_astrodynamics::AvailableTorque torqueType_;
 };
 
+}  // namespace acceleration_partials
 
-} // namespace acceleration_partials
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_TORQUE_PARTIAL_H
+#endif  // TUDAT_TORQUE_PARTIAL_H

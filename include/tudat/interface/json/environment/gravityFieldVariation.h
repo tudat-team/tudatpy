@@ -22,16 +22,11 @@ namespace gravitation
 {
 
 //! Map of `BodyDeformationTypes` string representations.
-static std::map< BodyDeformationTypes, std::string > bodyDeformationTypes =
-{
-    { basic_solid_body, "basicSolidBody" },
-    { tabulated_variation, "tabulatedVariation" }
-};
+static std::map< BodyDeformationTypes, std::string > bodyDeformationTypes = { { basic_solid_body, "basicSolidBody" },
+                                                                              { tabulated_variation, "tabulatedVariation" } };
 
 //! `BodyDeformationTypes` not supported by `json_interface`.
-static std::vector< BodyDeformationTypes > unsupportedBodyDeformationTypes =
-{
-};
+static std::vector< BodyDeformationTypes > unsupportedBodyDeformationTypes = { };
 
 //! Convert `BodyDeformationTypes` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const BodyDeformationTypes& bodyDeformationType )
@@ -45,7 +40,7 @@ inline void from_json( const nlohmann::json& jsonObject, BodyDeformationTypes& b
     bodyDeformationType = json_interface::enumFromString( jsonObject, bodyDeformationTypes );
 }
 
-} // namespace gravitation
+}  // namespace gravitation
 
 namespace simulation_setup
 {
@@ -56,8 +51,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GravityFieldVar
 //! Create a shared pointer to a `GravityFieldVariationSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GravityFieldVariationSettings >& variationSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_GRAVITYFIELDVARIATION_H
+#endif  // TUDAT_JSONINTERFACE_GRAVITYFIELDVARIATION_H

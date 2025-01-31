@@ -29,21 +29,19 @@ namespace propagators
  * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
  * \return Time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame
  */
-Eigen::Vector4d calculateModifiedRodriguesParametersDerivative(
-        const Eigen::Vector4d& currentModiefiedRodriguesParametersToBaseFrame,
-        const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
+Eigen::Vector4d calculateModifiedRodriguesParametersDerivative( const Eigen::Vector4d& currentModiefiedRodriguesParametersToBaseFrame,
+                                                                const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
- *  Class for computing the state derivative for rotational dynamics of N bodies, using modified Rodrigues parameters from body-fixed to inertial
- *  frame (in modified Rodrigues parameters format) and angular velocity-vector of body expressed in body-fixed frame as the rotational state of a
- *  single body
+ *  Class for computing the state derivative for rotational dynamics of N bodies, using modified Rodrigues parameters from body-fixed to
+ * inertial frame (in modified Rodrigues parameters format) and angular velocity-vector of body expressed in body-fixed frame as the
+ * rotational state of a single body
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class RotationalMotionModifiedRodriguesParametersStateDerivative: public RotationalMotionStateDerivative< StateScalarType, TimeType >
+class RotationalMotionModifiedRodriguesParametersStateDerivative : public RotationalMotionStateDerivative< StateScalarType, TimeType >
 {
 public:
-
     using SingleStateTypeDerivative< StateScalarType, TimeType >::postProcessState;
 
     //! Constructor.
@@ -61,14 +59,16 @@ public:
             const std::vector< std::string >& bodiesToPropagate,
             std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
             std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
-            std::vector< std::function< Eigen::Matrix3d( ) > >( ) ):
-        RotationalMotionStateDerivative< StateScalarType, TimeType >(
-            torqueModelsPerBody, modified_rodrigues_parameters, bodiesToPropagate, bodyInertiaTensorFunctions,
-            bodyInertiaTensorTimeDerivativeFunctions )
+                    std::vector< std::function< Eigen::Matrix3d( ) > >( ) ):
+        RotationalMotionStateDerivative< StateScalarType, TimeType >( torqueModelsPerBody,
+                                                                      modified_rodrigues_parameters,
+                                                                      bodiesToPropagate,
+                                                                      bodyInertiaTensorFunctions,
+                                                                      bodyInertiaTensorTimeDerivativeFunctions )
     { }
 
     //! Destructor
-    ~RotationalMotionModifiedRodriguesParametersStateDerivative( ){ }
+    ~RotationalMotionModifiedRodriguesParametersStateDerivative( ) { }
 
     //! Calculates the state derivative of the rotational motion of the system.
     /*!
@@ -80,10 +80,9 @@ public:
      *  \param stateDerivative Current state derivative (modified Rodrigues parameters rate + angular acceleration) of
      *  system of bodies integrated numerically (returned by reference).
      */
-    void calculateSystemStateDerivative(
-            const TimeType time,
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
+    void calculateSystemStateDerivative( const TimeType time,
+                                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+                                         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         stateDerivative = Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( stateOfSystemToBeIntegrated.rows( ), 1 );
         std::vector< Eigen::Vector3d > torquesActingOnBodies = this->sumTorquesPerBody( );
@@ -93,14 +92,16 @@ public:
             Eigen::Matrix< StateScalarType, 4, 1 > currentModifiedRodriguesParameters = stateOfSystemToBeIntegrated.block( i * 7, 0, 4, 1 );
             Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( i * 7 + 4, 0, 3, 1 );
 
-            stateDerivative.block( i * 7, 0, 4, 1 ) = calculateModifiedRodriguesParametersDerivative(
-                        currentModifiedRodriguesParameters.template cast< double >( ),
-                        currentBodyFixedRotationRate.template cast< double >( ) ).
-                    template cast< StateScalarType >( );
-            stateDerivative.block( i * 7 + 4, 0, 3, 1 ) = evaluateRotationalEquationsOfMotion(
-                        this->bodyInertiaTensorFunctions_.at( i )( ), torquesActingOnBodies.at( i ),
-                        currentBodyFixedRotationRate.template cast< double >( ),
-                        this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
+            stateDerivative.block( i * 7, 0, 4, 1 ) =
+                    calculateModifiedRodriguesParametersDerivative( currentModifiedRodriguesParameters.template cast< double >( ),
+                                                                    currentBodyFixedRotationRate.template cast< double >( ) )
+                            .template cast< StateScalarType >( );
+            stateDerivative.block( i * 7 + 4, 0, 3, 1 ) =
+                    evaluateRotationalEquationsOfMotion( this->bodyInertiaTensorFunctions_.at( i )( ),
+                                                         torquesActingOnBodies.at( i ),
+                                                         currentBodyFixedRotationRate.template cast< double >( ),
+                                                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) )
+                            .template cast< StateScalarType >( );
         }
     }
 
@@ -112,7 +113,8 @@ public:
      * \return State (outputSolution), converted to the 'propagator-specific form'.
      */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution,
+            const TimeType& time )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( this->getPropagatedStateSize( ) );
@@ -120,10 +122,10 @@ public:
         // Convert state to modified Rodrigues parameters for each body
         for( unsigned int i = 0; i < this->bodiesToPropagate_.size( ); i++ )
         {
-            currentState.segment( i * 7, 4 ) =
-                    orbital_element_conversions::convertQuaternionsToModifiedRodriguesParameterElements(
-                        outputSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
-            currentState.segment( i * 7 + 4, 3 ) = outputSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
+            currentState.segment( i * 7, 4 ) = orbital_element_conversions::convertQuaternionsToModifiedRodriguesParameterElements(
+                                                       outputSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) )
+                                                       .template cast< StateScalarType >( );
+            currentState.segment( i * 7 + 4, 3 ) = outputSolution.block( i * 7 + 4, 0, 3, 1 );  // rotational velocity is the same
         }
 
         return currentState;
@@ -136,17 +138,19 @@ public:
      * \param time Current time at which the state is valid (not used in this class).
      * \param currentLocalSolution State (internalSolution), converted to the 'conventional form' (returned by reference).
      */
-    void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentLocalSolution )
+    void convertToOutputSolution( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
+                                  const TimeType& time,
+                                  Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentLocalSolution )
     {
         // Convert state to quaternions for each body
         for( unsigned int i = 0; i < this->bodiesToPropagate_.size( ); i++ )
         {
             currentLocalSolution.block( i * 7, 0, 4, 1 ) =
                     orbital_element_conversions::convertModifiedRodriguesParametersToQuaternionElements(
-                        internalSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
-            currentLocalSolution.block( i * 7 + 4, 0, 3, 1 ) = internalSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
+                            internalSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) )
+                            .template cast< StateScalarType >( );
+            currentLocalSolution.block( i * 7 + 4, 0, 3, 1 ) =
+                    internalSolution.block( i * 7 + 4, 0, 3, 1 );  // rotational velocity is the same
         }
     }
 
@@ -167,15 +171,14 @@ public:
             // Convert to/from shadow modifed Rodrigues parameters (SMRP) (transformation is the same either way)
             modifiedRodriguesParametersVector = unprocessedState.block( i * 7, 0, 3, 1 );
             modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
-            if ( modifiedRodriguesParametersMagnitude >= 1.0 )
+            if( modifiedRodriguesParametersMagnitude >= 1.0 )
             {
                 // Invert flag
-                unprocessedState.block( i * 7 + 3, 0, 1, 1 ) = ( unprocessedState.block( i * 7 + 3, 0, 1, 1 ) -
-                                                             Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
+                unprocessedState.block( i * 7 + 3, 0, 1, 1 ) =
+                        ( unprocessedState.block( i * 7 + 3, 0, 1, 1 ) - Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
 
                 // Convert to MRP/SMRP
-                modifiedRodriguesParametersVector /= - modifiedRodriguesParametersMagnitude *
-                        modifiedRodriguesParametersMagnitude;
+                modifiedRodriguesParametersVector /= -modifiedRodriguesParametersMagnitude * modifiedRodriguesParametersMagnitude;
 
                 // Replace MRP with SMPR, or vice-versa
                 unprocessedState.block( i * 7, 0, 3, 1 ) = modifiedRodriguesParametersVector;
@@ -194,13 +197,12 @@ public:
     }
 
 private:
-
 };
 
-//extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
+// extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_ROTATIONAL_MOTION_MODIFIED_RODRIGUES_PARAMETERS_STATE_DERIVATIVE_H
+#endif  // TUDAT_ROTATIONAL_MOTION_MODIFIED_RODRIGUES_PARAMETERS_STATE_DERIVATIVE_H

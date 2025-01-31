@@ -9,8 +9,6 @@
  *
  */
 
-
-
 #include "tudat/io/fieldValue.h"
 
 namespace tudat
@@ -19,9 +17,8 @@ namespace input_output
 {
 
 //! Create a FieldValue containing type, string content and transformation of field.
-FieldValue::FieldValue( const FieldType& fieldType, const std::string& fieldContent,
-                        const std::shared_ptr< FieldTransform > transformer )
-    : type( fieldType ), rawField( fieldContent ), transform ( transformer )
+FieldValue::FieldValue( const FieldType& fieldType, const std::string& fieldContent, const std::shared_ptr< FieldTransform > transformer ):
+    type( fieldType ), rawField( fieldContent ), transform( transformer )
 { }
 
 //! Get transformed field content.
@@ -32,7 +29,10 @@ const std::string& FieldValue::getTransformed( )
 }
 
 //! Get raw field content.
-const std::string& FieldValue::getRaw( ) { return rawField; }
+const std::string& FieldValue::getRaw( )
+{
+    return rawField;
+}
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat

@@ -18,7 +18,6 @@
 
 #include <string>
 
-
 #include <memory>
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -52,12 +51,10 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform1 )
     const double expectedValue = 39.0724;
 
     // Transform test string.
-    std::shared_ptr< std::string > returnedValue =
-            testLinearFieldTransform1.transform( testString );
+    std::shared_ptr< std::string > returnedValue = testLinearFieldTransform1.transform( testString );
 
     // Check that returned and expected strings are identical.
-    BOOST_CHECK_CLOSE_FRACTION( std::stod( *returnedValue ), expectedValue,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( std::stod( *returnedValue ), expectedValue, tolerance );
 }
 
 //! Test the linear transformation functionality with no slope (a=0).
@@ -79,12 +76,10 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform2 )
     const double expectedValue = 36.0;
 
     // Transform test string.
-    std::shared_ptr< std::string > returnedValue =
-            testLinearFieldTransform2.transform( testString );
+    std::shared_ptr< std::string > returnedValue = testLinearFieldTransform2.transform( testString );
 
     // Check that returned and expected strings are identical.
-    BOOST_CHECK_CLOSE_FRACTION( std::stod( *returnedValue ), expectedValue,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( std::stod( *returnedValue ), expectedValue, tolerance );
 }
 
 //! Test the linear transformation functionality with no intercept (b=0).
@@ -106,12 +101,10 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform3 )
     const double expectedValue = -86.0272;
 
     // Transform test string.
-    std::shared_ptr< std::string > returnedValue =
-            testLinearFieldTransform3.transform( testString );
+    std::shared_ptr< std::string > returnedValue = testLinearFieldTransform3.transform( testString );
 
     // Check that returned and expected strings are identical.
-    BOOST_CHECK_CLOSE_FRACTION( std::stod( *returnedValue ), expectedValue,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( std::stod( *returnedValue ), expectedValue, tolerance );
 }
 
 //! Test the linear transformation functionality with no slope nor intercept (a=b=0).
@@ -130,8 +123,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform4 )
     LinearFieldTransform testLinearFieldTransform4( 0.0, 0.0 );
 
     // Transform test string.
-    std::shared_ptr< std::string > returnedValue =
-            testLinearFieldTransform4.transform( testString );
+    std::shared_ptr< std::string > returnedValue = testLinearFieldTransform4.transform( testString );
 
     // Check that returned and expected strings are identical.
     BOOST_CHECK_SMALL( std::stod( *returnedValue ), tolerance );
@@ -140,5 +132,5 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform4 )
 // Close Boost test suite.
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

@@ -33,20 +33,20 @@ namespace mission_segments
 //! Izzo Lambert targeting algorithm class (multiple revolution).
 /*!
  * Solves the multi revolution (input parameter) Lambert problem using Izzo's algorithms, i.e., the
- * two point boundary value problem of what kind of unperturbed Keplerian orbit connects two 
- * positions in a certain time of flight. 
+ * two point boundary value problem of what kind of unperturbed Keplerian orbit connects two
+ * positions in a certain time of flight.
  *
- * This class uses lazy evaluation, solving the algorithm is postponed until the function call 
+ * This class uses lazy evaluation, solving the algorithm is postponed until the function call
  * relying on the computations.
  *
  * The algorithm used is the same algorithms as the zero revolution base
  * class (Izzo's method): only the computation of the time of flight (based on Battin's x-variable)
  * now includes the number of revolutions. The branch is required for specifying the neighborhood
  * of the two roots of the problem. Furthermore, the non-dimensionalized parameters are stored
- * internally and reused for new calculations of new solutions for the same object. 
+ * internally and reused for new calculations of new solutions for the same object.
  *
  * \throws std::runtime_error For negative time of flight and gravitational parameter values.
- *              Also, the number of revolutions is checked for feasibility: no negative values 
+ *              Also, the number of revolutions is checked for feasibility: no negative values
  *              are allowed and is checked against an automatic computation of the maximum number
  *              of revolutions.
  * \throws basic_mathematics::ConvergenceException When the internal rootfinding algorithm
@@ -55,7 +55,6 @@ namespace mission_segments
 class MultiRevolutionLambertTargeterIzzo : public ZeroRevolutionLambertTargeterIzzo
 {
 public:
-
     // Ensure that correctly aligned pointers are generated (Eigen, 2013).
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -91,17 +90,16 @@ public:
                                         const bool aIsRightBranch = false,
                                         const bool aIsRetrograde = false,
                                         const double aConvergenceTolerance = 1e-9,
-                                        const int aMaximumNumberOfIterations = 50 )
-        : ZeroRevolutionLambertTargeterIzzo( aCartesianPositionAtDeparture,
-                                             aCartesianPositionAtArrival,
-                                             aTimeOfFlight,
-                                             aGravitationalParameter,
-                                             aIsRetrograde,
-                                             aConvergenceTolerance,
-                                             aMaximumNumberOfIterations ),
-          numberOfRevolutions( aNumberOfRevolutions ),
-          isRightBranch( aIsRightBranch ),
-          maximumNumberOfRevolutions( NO_MAXIMUM_REVOLUTIONS ) // Signifies it's not calculated yet
+                                        const int aMaximumNumberOfIterations = 50 ):
+        ZeroRevolutionLambertTargeterIzzo( aCartesianPositionAtDeparture,
+                                           aCartesianPositionAtArrival,
+                                           aTimeOfFlight,
+                                           aGravitationalParameter,
+                                           aIsRetrograde,
+                                           aConvergenceTolerance,
+                                           aMaximumNumberOfIterations ),
+        numberOfRevolutions( aNumberOfRevolutions ), isRightBranch( aIsRightBranch ),
+        maximumNumberOfRevolutions( NO_MAXIMUM_REVOLUTIONS )  // Signifies it's not calculated yet
     { }
 
     //! Flag indicating that the maximum number of revolutions has not yet been calculated!
@@ -118,8 +116,7 @@ public:
      * \param aNumberOfRevolutions Number of revolutions for the alternative solution.          [-]
      * \param aIsRightBranch A boolean flag to indicate retrograde motion.                      [-]
      */
-    void computeForRevolutionsAndBranch( const int aNumberOfRevolutions,
-                                         const bool aIsRightBranch );
+    void computeForRevolutionsAndBranch( const int aNumberOfRevolutions, const bool aIsRightBranch );
 
     //! Get maximum number of revolutions calculated.
     /*!
@@ -129,7 +126,6 @@ public:
     int getMaximumNumberOfRevolutions( );
 
 protected:
-
     //! Sanity check number of revolutions.
     /*!
      * Computes (if not done before) the maximum number of revolutions possible and checks whether
@@ -194,7 +190,7 @@ protected:
 private:
 };
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat
 
-#endif // TUDAT_MULTI_REVOLUTION_LAMBERT_TARGETER_IZZO_H
+#endif  // TUDAT_MULTI_REVOLUTION_LAMBERT_TARGETER_IZZO_H

@@ -39,11 +39,9 @@ namespace circular_restricted_three_body_problem
  * \param secondaryGravitationalParameter Gravitational parameter of secondary body.
  * \return Dimensionless mass parameter.
  */
-inline double computeMassParameter( const double primaryGravitationalParameter,
-                                    const double secondaryGravitationalParameter )
+inline double computeMassParameter( const double primaryGravitationalParameter, const double secondaryGravitationalParameter )
 {
-    return secondaryGravitationalParameter
-            / ( primaryGravitationalParameter + secondaryGravitationalParameter );
+    return secondaryGravitationalParameter / ( primaryGravitationalParameter + secondaryGravitationalParameter );
 }
 
 //! Libration point class.
@@ -52,19 +50,15 @@ inline double computeMassParameter( const double primaryGravitationalParameter,
  */
 class LibrationPoint
 {
-
 public:
-
     //! Lagrange libration points.
     enum LagrangeLibrationPoints { l1, l2, l3, l4, l5 };
 
     //! Default constructor.
     LibrationPoint( const double aPrimaryGravitationalParameter,
                     const double aSecondaryGravitationalParameter,
-                    const root_finders::RootFinderPointer aRootFinder )
-        : massParameter( computeMassParameter( aPrimaryGravitationalParameter,
-                                               aSecondaryGravitationalParameter ) ),
-          rootFinder( aRootFinder )
+                    const root_finders::RootFinderPointer aRootFinder ):
+        massParameter( computeMassParameter( aPrimaryGravitationalParameter, aSecondaryGravitationalParameter ) ), rootFinder( aRootFinder )
     { }
 
     //! Default constructor.
@@ -74,10 +68,8 @@ public:
      * \param aRootFinder Shared pointer to the rootfinder which is used for finding the L1, L2 and
      * L3 libration points. The rootfinder contains termination conditions inside.
      */
-    LibrationPoint( const double aMassParameter,
-                    const root_finders::RootFinderPointer aRootFinder )
-        : massParameter( aMassParameter ),
-          rootFinder( aRootFinder )
+    LibrationPoint( const double aMassParameter, const root_finders::RootFinderPointer aRootFinder ):
+        massParameter( aMassParameter ), rootFinder( aRootFinder )
     { }
 
     //! Get dimensionless mass parameter.
@@ -86,7 +78,10 @@ public:
      * parameters of the primary and secondary bodies.
      * \return Dimensionless mass parameter.
      */
-    double getMassParameter( ) { return massParameter; }
+    double getMassParameter( )
+    {
+        return massParameter;
+    }
 
     //! Get location of Lagrange libration point.
     /*!
@@ -109,13 +104,11 @@ public:
     void computeLocationOfLibrationPoint( LagrangeLibrationPoints lagrangeLibrationPoint );
 
 protected:
-
 private:
-
     //! Dimensionless mass parameter.
     /*!
-    * Dimensionless mass parameter of the smaller of the massive bodies in the CRTBP.
-    */
+     * Dimensionless mass parameter of the smaller of the massive bodies in the CRTBP.
+     */
     const double massParameter;
 
     //! Shared pointer to the rootfinder.
@@ -139,9 +132,8 @@ private:
      */
     double computeL1LocationFunction( const double xLocationEstimate )
     {
-        return xLocationEstimate -
-                ( 1.0 - massParameter ) / std::pow( massParameter + xLocationEstimate, 2.0 )
-                + massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 2.0 );
+        return xLocationEstimate - ( 1.0 - massParameter ) / std::pow( massParameter + xLocationEstimate, 2.0 ) +
+                massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 2.0 );
     }
 
     //! Compute derivative of equation of motion for location of L1 libration point.
@@ -153,9 +145,8 @@ private:
      */
     double computeL1FirstDerivativeLocationFunction( const double xLocationEstimate )
     {
-        return 1.0 + 2.0 * ( 1.0 - massParameter )
-                / std::pow( massParameter + xLocationEstimate, 3.0 )
-                + 2.0 * massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 3.0 );
+        return 1.0 + 2.0 * ( 1.0 - massParameter ) / std::pow( massParameter + xLocationEstimate, 3.0 ) +
+                2.0 * massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 3.0 );
     }
 
     //! Compute equation of motion for location of L2 libration point.
@@ -167,9 +158,8 @@ private:
      */
     double computeL2LocationFunction( const double xLocationEstimate )
     {
-        return xLocationEstimate
-                - ( 1.0 - massParameter ) / std::pow( massParameter + xLocationEstimate, 2.0 )
-                - massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 2.0 );
+        return xLocationEstimate - ( 1.0 - massParameter ) / std::pow( massParameter + xLocationEstimate, 2.0 ) -
+                massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 2.0 );
     }
 
     //! Compute derivative of equation of motion for location of L2 libration point.
@@ -181,9 +171,8 @@ private:
      */
     double computeL2FirstDerivativeLocationFunction( const double xLocationEstimate )
     {
-        return 1.0 + 2.0 * ( 1.0 - massParameter )
-                / std::pow( massParameter + xLocationEstimate, 3.0 )
-                - 2.0 * massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 3.0 );
+        return 1.0 + 2.0 * ( 1.0 - massParameter ) / std::pow( massParameter + xLocationEstimate, 3.0 ) -
+                2.0 * massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 3.0 );
     }
 
     //! Compute equation of motion for location of L3 libration point.
@@ -195,9 +184,8 @@ private:
      */
     double computeL3LocationFunction( const double xLocationEstimate )
     {
-        return xLocationEstimate
-                + ( 1.0 - massParameter ) / std::pow( massParameter + xLocationEstimate, 2.0 )
-                - massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 2.0 );
+        return xLocationEstimate + ( 1.0 - massParameter ) / std::pow( massParameter + xLocationEstimate, 2.0 ) -
+                massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 2.0 );
     }
 
     //! Compute derivative of equation of motion for location of L3 libration point.
@@ -209,16 +197,15 @@ private:
      */
     double computeL3FirstDerivativeLocationFunction( const double xLocationEstimate )
     {
-        return 1.0 - 2.0 * ( 1.0 - massParameter )
-                / std::pow( massParameter + xLocationEstimate, 3.0 )
-                -2.0 * massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 3.0 );
+        return 1.0 - 2.0 * ( 1.0 - massParameter ) / std::pow( massParameter + xLocationEstimate, 3.0 ) -
+                2.0 * massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 3.0 );
     }
 };
 
 // Typedef for shared-pointer to LibrationPoint object.
 typedef std::shared_ptr< LibrationPoint > LibrationPointPointer;
 
-} // namespace circular_restricted_three_body_problem
-} // namespace tudat
+}  // namespace circular_restricted_three_body_problem
+}  // namespace tudat
 
-#endif // TUDAT_LIBRATION_POINT_H
+#endif  // TUDAT_LIBRATION_POINT_H

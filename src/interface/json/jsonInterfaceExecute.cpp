@@ -14,8 +14,7 @@
 
 void printHelp( )
 {
-    std::cout <<
-                 "Usage:\n"
+    std::cout << "Usage:\n"
                  "\n"
                  "tudat [options] [path]\n"
                  "\n"
@@ -29,31 +28,27 @@ void printHelp( )
 }
 
 //! Execute propagation of orbit of Asterix around the Earth.
-int main( int argumentCount, char* arguments[ ] )
+int main( int argumentCount, char* arguments[] )
 {
     int currentOption;
     int optionCount = 0;
     const char* const shortOptions = "h";
-    const option longOptions[ ] =
-    {
-        { "help", no_argument, nullptr, 'h' },
-        { nullptr, 0, nullptr, 0 }
-    };
+    const option longOptions[] = { { "help", no_argument, nullptr, 'h' }, { nullptr, 0, nullptr, 0 } };
 
-    while ( ( currentOption = getopt_long( argumentCount, arguments, shortOptions, longOptions, nullptr ) ) != -1 )
+    while( ( currentOption = getopt_long( argumentCount, arguments, shortOptions, longOptions, nullptr ) ) != -1 )
     {
-        switch ( currentOption )
+        switch( currentOption )
         {
-        case 'h':
-        case '?':
-        default:
-            printHelp( );
+            case 'h':
+            case '?':
+            default:
+                printHelp( );
         }
         optionCount++;
     }
 
     const int nonOptionArgumentCount = argumentCount - optionCount - 1;
-    if ( nonOptionArgumentCount > 1 )
+    if( nonOptionArgumentCount > 1 )
     {
         printHelp( );
     }
@@ -64,7 +59,7 @@ int main( int argumentCount, char* arguments[ ] )
     // full_path = boost::filesystem::system_complete( boost::filesystem::path( arguments[ 0 ] ) );
     // std::cout << full_path << std::endl;
 
-    tudat::json_interface::JsonSimulationManager< > jsonSimulationManager( inputPath );
+    tudat::json_interface::JsonSimulationManager<> jsonSimulationManager( inputPath );
     jsonSimulationManager.updateSettings( );
     jsonSimulationManager.runPropagation( );
     jsonSimulationManager.exportResults( );

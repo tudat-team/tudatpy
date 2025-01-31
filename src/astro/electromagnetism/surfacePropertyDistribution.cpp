@@ -13,61 +13,57 @@
 #include "tudat/math/basic/legendrePolynomials.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
-
 namespace tudat
 {
 namespace electromagnetism
 {
 
-void SurfacePropertyDistribution::updateMembers(const double currentTime)
+void SurfacePropertyDistribution::updateMembers( const double currentTime )
 {
-    if(currentTime_ != currentTime)
+    if( currentTime_ != currentTime )
     {
         currentTime_ = currentTime;
-        updateMembers_(currentTime);
+        updateMembers_( currentTime );
     }
 }
 
-double SphericalHarmonicsSurfacePropertyDistribution::getValue(
-        double latitude,
-        double longitude)
+double SphericalHarmonicsSurfacePropertyDistribution::getValue( double latitude, double longitude )
 {
-    sphericalHarmonicsCache_.update(TUDAT_NAN, sin(latitude), longitude, TUDAT_NAN);
+    sphericalHarmonicsCache_.update( TUDAT_NAN, sin( latitude ), longitude, TUDAT_NAN );
 
     double value = 0;
     for( int degree = 0; degree <= maximumDegree_; degree++ )
     {
         for( int order = 0; order <= degree; order++ )
         {
-            const double legendrePolynomial = legendreCache_->getLegendrePolynomial(degree, order);
-            value += legendrePolynomial * (
-                    cosineCoefficients_(degree, order) * sphericalHarmonicsCache_.getCosineOfMultipleLongitude(order) +
-                    sineCoefficients_(degree, order) * sphericalHarmonicsCache_.getSineOfMultipleLongitude(order)
-            );
+            const double legendrePolynomial = legendreCache_->getLegendrePolynomial( degree, order );
+            value += legendrePolynomial *
+                    ( cosineCoefficients_( degree, order ) * sphericalHarmonicsCache_.getCosineOfMultipleLongitude( order ) +
+                      sineCoefficients_( degree, order ) * sphericalHarmonicsCache_.getSineOfMultipleLongitude( order ) );
         }
     }
 
     return value;
 }
 
-double SecondDegreeZonalPeriodicSurfacePropertyDistribution::getValue(double latitude) const
+double SecondDegreeZonalPeriodicSurfacePropertyDistribution::getValue( double latitude ) const
 {
-    const auto sinOfLatitude = sin(latitude);
+    const auto sinOfLatitude = sin( latitude );
 
     // Compute first-degree and second-degree zonal Legendre polynomials
     const double P1 = sinOfLatitude;
-    const double P2 = (3 * sinOfLatitude * sinOfLatitude - 1) / 2;
+    const double P2 = ( 3 * sinOfLatitude * sinOfLatitude - 1 ) / 2;
 
     const double value = a0 + a1 * P1 + a2 * P2;
 
     return value;
 }
 
-void SecondDegreeZonalPeriodicSurfacePropertyDistribution::updateMembers_(const double currentTime)
+void SecondDegreeZonalPeriodicSurfacePropertyDistribution::updateMembers_( const double currentTime )
 {
-    const double daysSinceReferenceEpoch = (currentTime - referenceEpoch) / physical_constants::JULIAN_DAY;
-    a1 = c0 + c1 * cos(angularFrequency * daysSinceReferenceEpoch) + c2 * sin(angularFrequency * daysSinceReferenceEpoch);
+    const double daysSinceReferenceEpoch = ( currentTime - referenceEpoch ) / physical_constants::JULIAN_DAY;
+    a1 = c0 + c1 * cos( angularFrequency * daysSinceReferenceEpoch ) + c2 * sin( angularFrequency * daysSinceReferenceEpoch );
 }
 
-} // tudat
-} // electromagnetism
+}  // namespace electromagnetism
+}  // namespace tudat

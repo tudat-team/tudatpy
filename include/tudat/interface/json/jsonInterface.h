@@ -30,28 +30,17 @@ namespace tudat
 namespace json_interface
 {
 
-enum JsonSimulationTypes
-{
-    equations_of_motion_propagation,
-    variational_equations_propagation,
-    state_estimation
-};
-
+enum JsonSimulationTypes { equations_of_motion_propagation, variational_equations_propagation, state_estimation };
 
 //! Map of `ObservableType` string representations.
-static std::map< JsonSimulationTypes, std::string > simulationTypes =
-{
-    { equations_of_motion_propagation, "EoM" },
-    { variational_equations_propagation, "Variational" },
-    { state_estimation, "Estimation" }
-};
+static std::map< JsonSimulationTypes, std::string > simulationTypes = { { equations_of_motion_propagation, "EoM" },
+                                                                        { variational_equations_propagation, "Variational" },
+                                                                        { state_estimation, "Estimation" } };
 
 //! Map of `ObservableType` string representations.
-static std::map< std::string, JsonSimulationTypes > simulationTypesInverse =
-{
-    { "EoM", equations_of_motion_propagation },
-    { "Variational", variational_equations_propagation },
-    { "Estimation", state_estimation }
+static std::map< std::string, JsonSimulationTypes > simulationTypesInverse = { { "EoM", equations_of_motion_propagation },
+                                                                               { "Variational", variational_equations_propagation },
+                                                                               { "Estimation", state_estimation }
 
 };
 
@@ -71,7 +60,6 @@ inline void from_json( const nlohmann::json& jsonObject, JsonSimulationTypes& si
 template< typename TimeType = double, typename StateScalarType = double >
 class JsonSimulationManager
 {
-
 public:
     //! Constructor from JSON file.
     /*!
@@ -80,10 +68,9 @@ public:
      * \param initialClockTime Initial clock time from which the cumulative CPU time during the propagation will be
      * computed. Default is the moment at which the constructor was called.
      */
-    JsonSimulationManager(
-            const std::string& inputFilePath,
-            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
-        : initialClockTime_( initialClockTime )
+    JsonSimulationManager( const std::string& inputFilePath,
+                           const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
+        initialClockTime_( initialClockTime )
     {
         resetInputFile( inputFilePath );
     }
@@ -95,15 +82,14 @@ public:
      * \param initialClockTime Initial clock time from which the cumulative CPU time during the propagation will be
      * computed. Default is the moment at which the constructor was called.
      */
-    JsonSimulationManager(
-            const nlohmann::json& jsonObject,
-            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
-        : initialClockTime_( initialClockTime )
+    JsonSimulationManager( const nlohmann::json& jsonObject,
+                           const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
+        initialClockTime_( initialClockTime )
     {
         resetJsonObject( jsonObject );
     }
 
-    virtual ~JsonSimulationManager( ){ }
+    virtual ~JsonSimulationManager( ) { }
 
     //! Reset the root JSON input file.
     /*!
@@ -138,19 +124,21 @@ public:
         // Clear global variable keeping track of the keys that have been accessed
         clearAccessHistory( );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "parse: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "parse: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
 
-        simulationType_ =
-                simulationTypesInverse.at( getValue< std::string >( jsonObject_, Keys::simulationType, "EoM" ) );
+        simulationType_ = simulationTypesInverse.at( getValue< std::string >( jsonObject_, Keys::simulationType, "EoM" ) );
 
         resetIntegratorSettings( );
         resetSpice( );
-        resetBodies( );              // must be called after resetIntegratorSettings and resetSpice
+        resetBodies( );  // must be called after resetIntegratorSettings and resetSpice
         resetExportSettings( );
         resetPropagatorSettings( );  // must be called after resetBodies and resetExportSettings
         resetApplicationOptions( );
@@ -177,21 +165,24 @@ public:
         // Check if any keys in jsonObject_ haven't been used
         checkUnusedKeys( jsonObject_, applicationOptions_->unusedKey_ );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "checkUnusedKeys: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "checkUnusedKeys: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
 
         // Export full settings JSON file if requested
-        if ( ! applicationOptions_->fullSettingsFile_.empty( ) )
+        if( !applicationOptions_->fullSettingsFile_.empty( ) )
         {
             exportAsJson( applicationOptions_->fullSettingsFile_ );
         }
 
         // Print message on propagation start if requested
-        if ( applicationOptions_->notifyOnPropagationStart_ )
+        if( applicationOptions_->notifyOnPropagationStart_ )
         {
             std::cout << "Propagation of file " << inputFilePath_ << " started." << std::endl;
         }
@@ -199,24 +190,25 @@ public:
         runJsonSimulation( );
 
         // Print message on propagation termination if requested
-        if ( applicationOptions_->notifyOnPropagationTermination_ )
+        if( applicationOptions_->notifyOnPropagationTermination_ )
         {
-            if ( dynamicsSimulator_->integrationCompletedSuccessfully( ) )
+            if( dynamicsSimulator_->integrationCompletedSuccessfully( ) )
             {
-                std::cout << "SUCCESS: propagation of file " << inputFilePath_ << " terminated with no errors."
-                          << std::endl;
+                std::cout << "SUCCESS: propagation of file " << inputFilePath_ << " terminated with no errors." << std::endl;
             }
             else
             {
-                std::cout << "FAILURE: propagation of file " << inputFilePath_ << " terminated with errors."
-                          << std::endl;
+                std::cout << "FAILURE: propagation of file " << inputFilePath_ << " terminated with errors." << std::endl;
             }
         }
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "run: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "run: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
@@ -227,23 +219,25 @@ public:
      */
     virtual void exportResults( )
     {
-        if ( applicationOptions_->tagOutputFilesIfPropagationFails_ &&
-             !dynamicsSimulator_->integrationCompletedSuccessfully( ) )
+        if( applicationOptions_->tagOutputFilesIfPropagationFails_ && !dynamicsSimulator_->integrationCompletedSuccessfully( ) )
         {
             // Add header "FAILURE" to output files
-            for ( std::shared_ptr< ExportSettings >& exportSettings : exportSettingsVector_ )
+            for( std::shared_ptr< ExportSettings >& exportSettings: exportSettingsVector_ )
             {
                 exportSettings->header_ = "FAILURE\n" + exportSettings->header_;
             }
         }
 
-        exportResultsOfDynamicsSimulator( dynamicsSimulator_, exportSettingsVector_,
-                                          !( simulationType_ == equations_of_motion_propagation ) );
+        exportResultsOfDynamicsSimulator(
+                dynamicsSimulator_, exportSettingsVector_, !( simulationType_ == equations_of_motion_propagation ) );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "exportResults: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "exportResults: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
@@ -252,7 +246,6 @@ public:
     {
         dynamicsSimulator_->integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
     }
-
 
     //! Export `this` as a `json` object.
     /*!
@@ -274,7 +267,7 @@ public:
      */
     void exportAsJson( const boost::filesystem::path& exportPath, const unsigned int tabSize = 2 )
     {
-        if ( ! boost::filesystem::exists( exportPath.parent_path( ) ) )
+        if( !boost::filesystem::exists( exportPath.parent_path( ) ) )
         {
             boost::filesystem::create_directories( exportPath.parent_path( ) );
         }
@@ -313,7 +306,7 @@ public:
         return valueAt( jsonObject_, KeyPath( key ) );
     }
 
-    nlohmann::json& operator[] ( const std::string& key )
+    nlohmann::json& operator[]( const std::string& key )
     {
         return valueAt( jsonObject_, key, true );
     }
@@ -321,14 +314,13 @@ public:
     //! Get simulation start epoch.
     TimeType getStartEpoch( ) const
     {
-        if ( integratorSettings_ )
+        if( integratorSettings_ )
         {
             return integratorSettings_->initialTime_;
         }
         else
         {
-            return getValue< TimeType >( jsonObject_, { Keys::initialEpoch,
-                                                        Keys::integrator / Keys::Integrator::initialTime } );
+            return getValue< TimeType >( jsonObject_, { Keys::initialEpoch, Keys::integrator / Keys::Integrator::initialTime } );
         }
     }
 
@@ -336,7 +328,7 @@ public:
     TimeType getEndEpoch( ) const
     {
         TimeType endEpoch = getTerminationEpoch< TimeType >( propagatorSettings_->getTerminationSettings( ) );
-        if ( ! isNaN( endEpoch ) )
+        if( !isNaN( endEpoch ) )
         {
             return endEpoch;
         }
@@ -424,9 +416,7 @@ public:
         return dynamicsSimulator_;
     }
 
-
 protected:
-
     bool profiling = false;
 
     //! Reset integratorSettings_ from the current jsonObject_.
@@ -437,10 +427,13 @@ protected:
     {
         updateFromJSON( this->integratorSettings_, jsonObject_, Keys::integrator );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetIntegratorSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetIntegratorSettings: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
@@ -456,10 +449,13 @@ protected:
         updateFromJSONIfDefined( spiceSettings_, jsonObject_, Keys::spice );
         loadSpiceKernels( spiceSettings_ );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetSpice: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetSpice: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
@@ -472,13 +468,16 @@ protected:
     {
         globalFrameOrigin_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrigin, "SSB" );
         globalFrameOrientation_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrientation, "ECLIPJ2000" );
-        updateBodiesFromJSON( jsonObject_, bodies_, bodySettingsMap_, globalFrameOrigin_, globalFrameOrientation_,
-                              spiceSettings_, integratorSettings_ );
+        updateBodiesFromJSON(
+                jsonObject_, bodies_, bodySettingsMap_, globalFrameOrigin_, globalFrameOrientation_, spiceSettings_, integratorSettings_ );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetBodies: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetBodies: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
@@ -492,10 +491,13 @@ protected:
         exportSettingsVector_.clear( );
         updateFromJSONIfDefined( exportSettingsVector_, jsonObject_, Keys::xport );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetExportSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetExportSettings: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
@@ -506,43 +508,54 @@ protected:
      * Tries to infer the initial states from the body ephemeris if not provided.
      * Creates the integrated state models using bodies_
      */
-    virtual void
-    resetPropagatorSettings( )
+    virtual void resetPropagatorSettings( )
     {
         // Update jsonObject_ by determining initial states if not provided directly to the propagator settings:
         // * By obtaining the initial states from body properties (and transforming to Cartesian if necessary)
         // * By infering initial states from body ephemeris
         determineInitialStates< TimeType, StateScalarType >( jsonObject_, bodies_, integratorSettings_ );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetPropagatorSettings@determineInitialStates: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetPropagatorSettings@determineInitialStates: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
 
         // Update propagatorSettings_ from jsonObject_
         updateFromJSON( propagatorSettings_, jsonObject_ );
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetExportSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetExportSettings: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetPropagatorSettings@updateFromJSON: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetPropagatorSettings@updateFromJSON: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
 
         // Create integrated state models (acceleration, mass-rate, rotational models)
         propagatorSettings_->resetIntegratedStateModels( bodies_ );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetPropagatorSettings@resetIntegratedStateModels: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetPropagatorSettings@resetIntegratedStateModels: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
 
@@ -552,13 +565,17 @@ protected:
         {
             printOutputVariables = getValue< bool >( jsonObject_, "printVariableTypes", false );
         }
-        catch( std::runtime_error const& ){ }
+        catch( std::runtime_error const& )
+        { }
         resetDependentVariableSaveSettings< StateScalarType >( propagatorSettings_, exportSettingsVector_, printOutputVariables );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetPropagatorSettings@resetDependentVariableSaveSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetPropagatorSettings@resetDependentVariableSaveSettings: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
@@ -572,10 +589,13 @@ protected:
         applicationOptions_ = std::make_shared< ApplicationOptions >( );
         updateFromJSONIfDefined( applicationOptions_, jsonObject_, Keys::options );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetApplicationOptions: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetApplicationOptions: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
@@ -586,14 +606,16 @@ protected:
      */
     virtual void resetDynamicsSimulator( )
     {
-        dynamicsSimulator_ =
-                std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodies_, integratorSettings_, propagatorSettings_, false, false, false, false, initialClockTime_ );
+        dynamicsSimulator_ = std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                bodies_, integratorSettings_, propagatorSettings_, false, false, false, false, initialClockTime_ );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetDynamicsSimulator: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetDynamicsSimulator: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
@@ -647,17 +669,16 @@ protected:
 
     //! JSON object with the current settings.
     nlohmann::json jsonObject_;
-
 };
 
-//extern template class JsonSimulationManager< double, double >;
+// extern template class JsonSimulationManager< double, double >;
 
 //! Function to create a `json` object from a Simulation object.
 template< typename TimeType, typename StateScalarType >
 void to_json( nlohmann::json& jsonObject,
               const std::shared_ptr< JsonSimulationManager< TimeType, StateScalarType > >& jsonSimulationManager )
 {
-    if ( ! jsonSimulationManager )
+    if( !jsonSimulationManager )
     {
         return;
     }
@@ -680,12 +701,13 @@ void to_json( nlohmann::json& jsonObject,
     jsonObject[ Keys::options ] = jsonSimulationManager->getApplicationOptions( );
 
     // propagation + termination + options.statePrintInterval
-    propagators::to_json( jsonObject, std::dynamic_pointer_cast<
-                          propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >( jsonSimulationManager->getPropagatorSettings( ) ) );
+    propagators::to_json( jsonObject,
+                          std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType, TimeType > >(
+                                  jsonSimulationManager->getPropagatorSettings( ) ) );
 }
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_H
+#endif  // TUDAT_JSONINTERFACE_H

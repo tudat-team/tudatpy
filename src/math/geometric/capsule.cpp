@@ -18,7 +18,6 @@
 #include <cmath>
 #include <iostream>
 
-
 #include <memory>
 
 #include <Eigen/Core>
@@ -42,9 +41,9 @@ Capsule::Capsule( const double noseRadius,
                   const double rearAngle,
                   const double sideRadius )
 {
-    using std::sin;
-    using std::cos;
     using mathematical_constants::PI;
+    using std::cos;
+    using std::sin;
 
     // Call set functions for number of single and composite surface geometries
     // with predetermined values.
@@ -59,18 +58,16 @@ Capsule::Capsule( const double noseRadius,
     sideRadius_ = sideRadius;
 
     // Determine and set extent of spherical nose part.
-    double noseSphereAngle_ = asin( ( middleRadius_ - sideRadius_ )
-                                    / ( noseRadius_ - sideRadius_ ) );
+    double noseSphereAngle_ = asin( ( middleRadius_ - sideRadius_ ) / ( noseRadius_ - sideRadius_ ) );
 
     // Create nose sphere.
-    std::shared_ptr< SphereSegment > noseSphere_ = std::make_shared< SphereSegment >(
-                noseRadius_, 0, 2 * PI, 0, noseSphereAngle_ );
+    std::shared_ptr< SphereSegment > noseSphere_ = std::make_shared< SphereSegment >( noseRadius_, 0, 2 * PI, 0, noseSphereAngle_ );
 
     // Declare translation vector.
     Eigen::VectorXd translationVector_ = Eigen::VectorXd( 3 );
     translationVector_( 2 ) = 0.0;
     translationVector_( 1 ) = 0.0;
-    translationVector_( 0 ) = - noseRadius_ * cos( noseSphereAngle_ );
+    translationVector_( 0 ) = -noseRadius_ * cos( noseSphereAngle_ );
 
     // Set nose translation vector.
     noseSphere_->setOffset( translationVector_ );
@@ -78,19 +75,16 @@ Capsule::Capsule( const double noseRadius,
     // Set noseSphere_ in singleSurfaceList_.
     setSingleSurfaceGeometry( noseSphere_, 0 );
 
-    //Calculate noseSphere volume
-    double noseSphereHeight_ = noseRadius_ * (1.0 - cos( noseSphereAngle_ ));
-    double noseSphereVolume_ = (PI / 3.0) * pow(noseSphereHeight_, 2.0) * (
-                3.0 * noseRadius - noseSphereHeight_ );
+    // Calculate noseSphere volume
+    double noseSphereHeight_ = noseRadius_ * ( 1.0 - cos( noseSphereAngle_ ) );
+    double noseSphereVolume_ = ( PI / 3.0 ) * pow( noseSphereHeight_, 2.0 ) * ( 3.0 * noseRadius - noseSphereHeight_ );
 
     // Create rear cone, fully revolved.
-    std::shared_ptr< ConicalFrustum > cone_ = std::make_shared< ConicalFrustum >(
-                rearAngle_, middleRadius_ - sideRadius_ * ( 1.0 - cos( rearAngle_ ) ),
-                rearLength_ );
+    std::shared_ptr< ConicalFrustum > cone_ =
+            std::make_shared< ConicalFrustum >( rearAngle_, middleRadius_ - sideRadius_ * ( 1.0 - cos( rearAngle_ ) ), rearLength_ );
 
     // Set translation vector of cone.
-    translationVector_( 0 ) = -sideRadius_ * ( sin( PI / 2.0 - noseSphereAngle_ )
-                                               + sin ( -rearAngle_ ) );
+    translationVector_( 0 ) = -sideRadius_ * ( sin( PI / 2.0 - noseSphereAngle_ ) + sin( -rearAngle_ ) );
     cone_->setOffset( translationVector_ );
 
     // Set cone in singleSurfaceList_.
@@ -104,57 +98,50 @@ Capsule::Capsule( const double noseRadius,
 
     // Calculate volume of cone.
     double fullConeLength_ = rearLength_ + endRadius_ / tan( -rearAngle_ );
-    double coneVolume_ = (PI / 3.0) *
-            ( pow(startRadius_, 2.0) * fullConeLength_ -
-              pow(endRadius_, 2.0) * ( fullConeLength_ - rearLength_ ));
+    double coneVolume_ =
+            ( PI / 3.0 ) * ( pow( startRadius_, 2.0 ) * fullConeLength_ - pow( endRadius_, 2.0 ) * ( fullConeLength_ - rearLength_ ) );
 
     // Calculate rear sphere radius.
     double rearNoseRadius_ = endRadius_ / cos( -rearAngle_ );
 
     // Create rear sphere ( "end cap" ), fully revolved.
-    std::shared_ptr< SphereSegment > rearSphere_ = std::make_shared< SphereSegment >(
-                rearNoseRadius_, 0.0, 2.0 * PI, PI / 2.0 - rearAngle_, PI );
+    std::shared_ptr< SphereSegment > rearSphere_ =
+            std::make_shared< SphereSegment >( rearNoseRadius_, 0.0, 2.0 * PI, PI / 2.0 - rearAngle_, PI );
 
     // Set translation vector of rear sphere.
-    translationVector_( 0 ) =  ( rearNoseRadius_ * sin( -rearAngle_ ) ) - rearLength_
-            - ( sideRadius_ * ( sin( PI / 2.0 - noseSphereAngle_ ) + sin ( -rearAngle_ ) ) );
+    translationVector_( 0 ) = ( rearNoseRadius_ * sin( -rearAngle_ ) ) - rearLength_ -
+            ( sideRadius_ * ( sin( PI / 2.0 - noseSphereAngle_ ) + sin( -rearAngle_ ) ) );
     rearSphere_->setOffset( translationVector_ );
     setSingleSurfaceGeometry( rearSphere_, 2 );
 
     // Calcualte volume of rear sphere
-    double rearSphereHeight_ = rearNoseRadius_ * ( 1.0 - cos( (PI / 2.0) + rearAngle));
-    double rearSphereVolume_ = (PI / 3.0 ) * pow( rearSphereHeight_, 2.0 ) * (
-                3.0 * rearNoseRadius_ - rearSphereHeight_);
-
+    double rearSphereHeight_ = rearNoseRadius_ * ( 1.0 - cos( ( PI / 2.0 ) + rearAngle ) );
+    double rearSphereVolume_ = ( PI / 3.0 ) * pow( rearSphereHeight_, 2.0 ) * ( 3.0 * rearNoseRadius_ - rearSphereHeight_ );
 
     // Create torus section of capsule.
     double torusMajorRadius_ = ( noseRadius_ - sideRadius_ ) * sin( noseSphereAngle_ );
-    std::shared_ptr< Torus > torus_ = std::make_shared< Torus >(
-       torusMajorRadius_, sideRadius_, 0.0, 2.0 * PI, PI / 2.0 - noseSphereAngle_, rearAngle_ );
+    std::shared_ptr< Torus > torus_ =
+            std::make_shared< Torus >( torusMajorRadius_, sideRadius_, 0.0, 2.0 * PI, PI / 2.0 - noseSphereAngle_, rearAngle_ );
 
-    //Calculate torus volume
+    // Calculate torus volume
     double minimumDiskRadius_ = middleRadius_ - sideRadius_;
     double integrationLowerLimit_ = -1.0 * sideRadius_ * cos( noseSphereAngle_ );
     double integrationUpperLimit_ = sideRadius_ * sin( -rearAngle_ );
-    double torusVolume_ = PI * (
-            pow( minimumDiskRadius_, 2.0 ) * (integrationUpperLimit_ - integrationLowerLimit_ )
-            + minimumDiskRadius_ * pow( sideRadius_, 2.0 ) * (
-                (asin( integrationUpperLimit_ / sideRadius_) + 0.5* sin( 2* asin(integrationUpperLimit_ / sideRadius_)))
-                - (asin( integrationLowerLimit_ / sideRadius_) + 0.5* sin( 2* asin(integrationLowerLimit_ / sideRadius_)))
-                )
-            + pow( sideRadius_, 2.0 ) * ( integrationUpperLimit_ - integrationLowerLimit_ )
-            - (pow( integrationUpperLimit_, 3.0 ) - pow( integrationLowerLimit_, 3.0 )) / 3.0
-                );
+    double torusVolume_ = PI *
+            ( pow( minimumDiskRadius_, 2.0 ) * ( integrationUpperLimit_ - integrationLowerLimit_ ) +
+              minimumDiskRadius_ * pow( sideRadius_, 2.0 ) *
+                      ( ( asin( integrationUpperLimit_ / sideRadius_ ) + 0.5 * sin( 2 * asin( integrationUpperLimit_ / sideRadius_ ) ) ) -
+                        ( asin( integrationLowerLimit_ / sideRadius_ ) + 0.5 * sin( 2 * asin( integrationLowerLimit_ / sideRadius_ ) ) ) ) +
+              pow( sideRadius_, 2.0 ) * ( integrationUpperLimit_ - integrationLowerLimit_ ) -
+              ( pow( integrationUpperLimit_, 3.0 ) - pow( integrationLowerLimit_, 3.0 ) ) / 3.0 );
 
-
-    //Calculate total capsule volume
+    // Calculate total capsule volume
     capsuleVolume_ = noseSphereVolume_ + coneVolume_ + rearSphereVolume_ + torusVolume_;
 
-    //Calculate total capsule length
-    totalLength_ = noseSphereHeight_ - integrationLowerLimit_ + integrationUpperLimit_ +
-            rearLength_ + rearSphereHeight_;
+    // Calculate total capsule length
+    totalLength_ = noseSphereHeight_ - integrationLowerLimit_ + integrationUpperLimit_ + rearLength_ + rearSphereHeight_;
 
-    //Calculate frontal area
+    // Calculate frontal area
     frontalArea_ = PI * pow( middleRadius_, 2.0 );
 
     // Set translation vector of rear sphere.
@@ -177,14 +164,14 @@ Capsule::Capsule( const double noseRadius,
     rotationMatrix( 2, 2 ) = cos( angle_ );
 
     // Set rotation matrix for single surface geometries.
-    for ( unsigned i = 0; i < numberOfSingleSurfaceGeometries_ ; i++ )
+    for( unsigned i = 0; i < numberOfSingleSurfaceGeometries_; i++ )
     {
         singleSurfaceGeometryList_[ i ]->setRotationMatrix( rotationMatrix );
     }
 }
 
 //! Overload ostream to print class information.
-std::ostream &operator << ( std::ostream &stream, Capsule& capsule )
+std::ostream &operator<<( std::ostream &stream, Capsule &capsule )
 {
     stream << "This is a capsule." << std::endl;
     stream << "The defining parameters are: " << std::endl
@@ -197,5 +184,5 @@ std::ostream &operator << ( std::ostream &stream, Capsule& capsule )
     return stream;
 }
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat

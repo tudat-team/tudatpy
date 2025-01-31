@@ -34,4 +34,4 @@
 #include "ephemerides/tabulatedRotationalEphemeris.h"
 #include "ephemerides/tleEphemeris.h"
 
-#endif // TUDAT_EPHEMERIDES_H
+#endif  // TUDAT_EPHEMERIDES_H

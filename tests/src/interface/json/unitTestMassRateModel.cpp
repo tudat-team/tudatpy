@@ -20,17 +20,14 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_massRateModel )
 
 // Test 1: mass rate types
 BOOST_AUTO_TEST_CASE( test_json_massRateModel_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
-                            basic_astrodynamics::massRateTypes,
-                            basic_astrodynamics::unsupportedMassRateType );
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ), basic_astrodynamics::massRateTypes, basic_astrodynamics::unsupportedMassRateType );
 }
 
 // Test 2: from thrust mass rate model
@@ -56,6 +53,6 @@ BOOST_AUTO_TEST_CASE( test_json_massRateModel_fromThrust )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

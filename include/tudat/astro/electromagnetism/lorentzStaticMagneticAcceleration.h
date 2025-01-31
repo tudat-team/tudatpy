@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
- *   
+ *
  *
  */
 
@@ -35,13 +35,12 @@ namespace electromagnetism
  * \return Lorentz acceleration due to static magnetic field.                                                    [N]
  * \sa computeLorentzForceDueToStaticMagneticField.
  */
-Eigen::Vector3d computeLorentzAccelerationDueToStaticMagneticField(
-        const Eigen::Vector3d& velocityOfBodySubjectToAcceleration,
-        const Eigen::Vector3d& localMagneticField,
-        const double chargeOfBodySubjectToAcceleration,
-        const double massOfBodySubjectToAcceleration );
+Eigen::Vector3d computeLorentzAccelerationDueToStaticMagneticField( const Eigen::Vector3d& velocityOfBodySubjectToAcceleration,
+                                                                    const Eigen::Vector3d& localMagneticField,
+                                                                    const double chargeOfBodySubjectToAcceleration,
+                                                                    const double massOfBodySubjectToAcceleration );
 
-} // namespace electromagnetism
-} // namespace tudat
+}  // namespace electromagnetism
+}  // namespace tudat
 
-#endif // TUDAT_LORENTZ_STATIC_MAGNETIC_ACCELERATION_H
+#endif  // TUDAT_LORENTZ_STATIC_MAGNETIC_ACCELERATION_H

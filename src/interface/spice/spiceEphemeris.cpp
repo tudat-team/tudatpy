@@ -28,52 +28,47 @@ SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
                                 const bool correctForLightTimeAberration,
                                 const bool convergeLighTimeAberration,
                                 const std::string& referenceFrameName,
-                                const double referenceJulianDay )
-    : Ephemeris( observerBodyName, referenceFrameName ),
-      targetBodyName_( targetBodyName )
+                                const double referenceJulianDay ):
+    Ephemeris( observerBodyName, referenceFrameName ), targetBodyName_( targetBodyName )
 {
     referenceDayOffSet_ = ( referenceJulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
 
     // Check consistency of input.
-    if ( correctForLightTimeAberration == 0 && convergeLighTimeAberration == 1 )
+    if( correctForLightTimeAberration == 0 && convergeLighTimeAberration == 1 )
     {
-        throw std::runtime_error(
-                    "Error, requested multiple iterations for light time correction, but not light time correction itself." );
+        throw std::runtime_error( "Error, requested multiple iterations for light time correction, but not light time correction itself." );
     }
 
-    if ( correctForLightTimeAberration == 0 && correctForStellarAberration ==  1 )
+    if( correctForLightTimeAberration == 0 && correctForStellarAberration == 1 )
     {
-
-        throw std::runtime_error(
-                    "Error, requested stellar aberration, but not light-time correction, this is not supprted by spice." );
+        throw std::runtime_error( "Error, requested stellar aberration, but not light-time correction, this is not supprted by spice." );
     }
 
     // Set aberration corrections variable.
     aberrationCorrections_ = "";
-    if ( correctForLightTimeAberration && !convergeLighTimeAberration )
+    if( correctForLightTimeAberration && !convergeLighTimeAberration )
     {
         aberrationCorrections_.append( "LT" );
     }
 
-    else if ( correctForLightTimeAberration && convergeLighTimeAberration )
+    else if( correctForLightTimeAberration && convergeLighTimeAberration )
     {
         aberrationCorrections_.append( "CN" );
     }
 
-    else if ( !correctForLightTimeAberration && !correctForStellarAberration )
+    else if( !correctForLightTimeAberration && !correctForStellarAberration )
     {
         aberrationCorrections_.append( "NONE" );
     }
 
-    if ( correctForLightTimeAberration && correctForStellarAberration )
+    if( correctForLightTimeAberration && correctForStellarAberration )
     {
         aberrationCorrections_.append( " +S" );
     }
 }
 
 //! Get Cartesian state from ephemeris.
-Eigen::Vector6d SpiceEphemeris::getCartesianState(
-        const double secondsSinceEpoch )
+Eigen::Vector6d SpiceEphemeris::getCartesianState( const double secondsSinceEpoch )
 {
     using namespace basic_astrodynamics;
 
@@ -84,13 +79,14 @@ Eigen::Vector6d SpiceEphemeris::getCartesianState(
     const double ephemerisTime = secondsSinceEpoch;
 
     // Retrieve Cartesian state from spice.
-    const Eigen::Vector6d cartesianStateAtEpoch =
-            spice_interface::getBodyCartesianStateAtEpoch(
-                targetBodyName_, referenceFrameOrigin_, referenceFrameOrientation_,
-                aberrationCorrections_, ephemerisTime + referenceDayOffSet_ );
+    const Eigen::Vector6d cartesianStateAtEpoch = spice_interface::getBodyCartesianStateAtEpoch( targetBodyName_,
+                                                                                                 referenceFrameOrigin_,
+                                                                                                 referenceFrameOrientation_,
+                                                                                                 aberrationCorrections_,
+                                                                                                 ephemerisTime + referenceDayOffSet_ );
 
     return cartesianStateAtEpoch;
 }
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat

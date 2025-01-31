@@ -24,8 +24,7 @@ namespace propulsion
  * \param specificImpulse Specific impulse (normalized with g0 from physical_constants namespace)
  * \return Total engine thrust
  */
-double computeThrustFromSpecificImpulse(
-         const double propellantMassRate, const double specificImpulse );
+double computeThrustFromSpecificImpulse( const double propellantMassRate, const double specificImpulse );
 
 //! Function to compute propellant mass rate from engine thrust and specific impulse
 /*!
@@ -34,13 +33,10 @@ double computeThrustFromSpecificImpulse(
  * \param specificImpulse Specific impulse (normalized with g0 from physical_constants namespace)
  * \return Propellant mass rate
  */
-double computePropellantMassRateFromSpecificImpulse(
-         const double thrustMagnitude, const double specificImpulse );
+double computePropellantMassRateFromSpecificImpulse( const double thrustMagnitude, const double specificImpulse );
 
+}  // namespace propulsion
 
-} // namespace propulsion
+}  // namespace tudat
 
-} // namespace tudat
-
-
-#endif // TUDAT_THRUSTFUNCTIONS_H
+#endif  // TUDAT_THRUSTFUNCTIONS_H

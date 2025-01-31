@@ -83,8 +83,7 @@ Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& leftHandVector );
  * \param vector1 Second vector.
  * \return Cosine of angle between vectors.
  */
-double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0,
-                                           const Eigen::VectorXd& vector1 );
+double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0, const Eigen::VectorXd& vector1 );
 
 //! Compute angle between two vectors.
 /*!
@@ -93,8 +92,7 @@ double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0,
  * \param vector1 Second vector.
  * \return Angle between vectors.
  */
-double computeAngleBetweenVectors( const Eigen::VectorXd& vector0,
-                                   const Eigen::VectorXd& vector1 );
+double computeAngleBetweenVectors( const Eigen::VectorXd& vector0, const Eigen::VectorXd& vector1 );
 
 //! Computes the difference between two 3d vectors.
 /*!
@@ -105,9 +103,8 @@ double computeAngleBetweenVectors( const Eigen::VectorXd& vector0,
  * \return Difference between vectors
  */
 template< int VectorSize >
-Eigen::Matrix< double, VectorSize, 1 > computeVectorDifference(
-        const Eigen::Matrix< double, VectorSize, 1 >& vector0,
-        const Eigen::Matrix< double, VectorSize, 1 >& vector1 )
+Eigen::Matrix< double, VectorSize, 1 > computeVectorDifference( const Eigen::Matrix< double, VectorSize, 1 >& vector0,
+                                                                const Eigen::Matrix< double, VectorSize, 1 >& vector1 )
 {
     return ( vector0 - vector1 );
 }
@@ -119,8 +116,7 @@ Eigen::Matrix< double, VectorSize, 1 > computeVectorDifference(
  * \param vector1 Second vector.
  * \return Norm of difference between vectors
  */
-double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
-                                      const Eigen::Vector3d& vector1 );
+double computeNormOfVectorDifference( const Eigen::Vector3d& vector0, const Eigen::Vector3d& vector1 );
 
 //! Computes the norm of a 3d vector
 /*!
@@ -147,7 +143,7 @@ double getVectorNormFromFunction( const std::function< Eigen::Vector3d( ) > vect
 static inline void flipMatrixRows( Eigen::MatrixXd& matrixToFlip )
 {
     // Loop through each row.
-    for ( int i = 0; i < static_cast< int >( matrixToFlip.rows( ) / 2 ); i++ )
+    for( int i = 0; i < static_cast< int >( matrixToFlip.rows( ) / 2 ); i++ )
     {
         // Save top row in a temporary matrix.
         const Eigen::MatrixXd temporaryRow = matrixToFlip.row( i );
@@ -160,12 +156,9 @@ static inline void flipMatrixRows( Eigen::MatrixXd& matrixToFlip )
     }
 }
 
-Eigen::Vector3d evaluateSecondBlockInStateVector(
-        const std::function< Eigen::Vector6d( const double ) > stateFunction,
-        const double time );
+Eigen::Vector3d evaluateSecondBlockInStateVector( const std::function< Eigen::Vector6d( const double ) > stateFunction, const double time );
 
-double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
-                                      const Eigen::Vector3d& vector1 );
+double computeNormOfVectorDifference( const Eigen::Vector3d& vector0, const Eigen::Vector3d& vector1 );
 
 //! Function to calculate the jacobian of a normalized vector, from the jacobian of the unnormalized vector.
 /*!
@@ -176,9 +169,8 @@ double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
  *  \param unnormalizedVector Unnormalized vector wrt which partialOfUnnormalizedVector is taken
  *  \return The jacobian of the normalized vector.
  */
-Eigen::Matrix3d calculatePartialOfNormalizedVector(
-        const Eigen::Matrix3d& partialOfUnnormalizedVector,
-        const Eigen::Vector3d& unnormalizedVector );
+Eigen::Matrix3d calculatePartialOfNormalizedVector( const Eigen::Matrix3d& partialOfUnnormalizedVector,
+                                                    const Eigen::Vector3d& unnormalizedVector );
 
 //! Function to check whether an Eigen Matrix has any NaN entries
 /*!
@@ -219,13 +211,11 @@ double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector );
  * \param quaternionVector Rotation quaternion in vector format
  * \param partialDerivatives List of required partial derivatives (returned by reference)
  */
-void computePartialDerivativeOfRotationMatrixWrtQuaternion(
-        const Eigen::Vector4d quaternionVector,
-        std::vector< Eigen::Matrix3d >& partialDerivatives );
+void computePartialDerivativeOfRotationMatrixWrtQuaternion( const Eigen::Vector4d quaternionVector,
+                                                            std::vector< Eigen::Matrix3d >& partialDerivatives );
 
+}  // namespace linear_algebra
 
-} // namespace linear_algebra
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_LINEAR_ALGEBRA_H
+#endif  // TUDAT_LINEAR_ALGEBRA_H

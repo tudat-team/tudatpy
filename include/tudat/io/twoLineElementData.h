@@ -45,10 +45,8 @@ namespace input_output
  * object, according to the above format definition.
  * See reference for explanation of the variables.
  */
-struct TwoLineElementData
-{
+struct TwoLineElementData {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor.
@@ -289,18 +287,16 @@ public:
      * \param twoLineElementData TLE data to print.
      * \return Stream handler.
      */
-    friend std::ostream& operator << ( std::ostream& stream,
-                                     TwoLineElementData& twoLineElementData );
+    friend std::ostream& operator<<( std::ostream& stream, TwoLineElementData& twoLineElementData );
 
 protected:
-
 private:
 };
 
 //! Typedef for shared-pointer to TwoLineElementData object.
 typedef std::shared_ptr< TwoLineElementData > TwoLineElementDataPointer;
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_TWO_LINE_ELEMENT_DATA_H
+#endif  // TUDAT_TWO_LINE_ELEMENT_DATA_H

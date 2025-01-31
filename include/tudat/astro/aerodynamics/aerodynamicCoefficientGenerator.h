@@ -49,10 +49,9 @@ void informUserOnSavedCoefficient( std::vector< unsigned int > coefficientIndice
  * and data points of independent variables. Coefficients are stored in a multi_array of pointers.
  */
 template< unsigned int NumberOfIndependentVariables, unsigned int NumberOfCoefficients = 6 >
-class AerodynamicCoefficientGenerator: public AerodynamicCoefficientInterface
+class AerodynamicCoefficientGenerator : public AerodynamicCoefficientInterface
 {
 public:
-
     //! Default base class constructor.
     /*!
      *  Default base class constructor, sets independent variable data points and aerodynamics
@@ -78,18 +77,19 @@ public:
      *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction (default true).
      */
-    AerodynamicCoefficientGenerator(
-            const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
-            const double referenceLength,
-            const double referenceArea,
-            const Eigen::Vector3d& momentReferencePoint,
-            const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames,
-            const AerodynamicCoefficientFrames forceCoefficientsFrame = negative_aerodynamic_frame_coefficients,
-            const AerodynamicCoefficientFrames momentCoefficientsFrame = body_fixed_frame_coefficients ) :
-        AerodynamicCoefficientInterface(
-            referenceLength, referenceArea, momentReferencePoint,
-            independentVariableNames, forceCoefficientsFrame,
-            momentCoefficientsFrame ),
+    AerodynamicCoefficientGenerator( const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
+                                     const double referenceLength,
+                                     const double referenceArea,
+                                     const Eigen::Vector3d& momentReferencePoint,
+                                     const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+                                     const AerodynamicCoefficientFrames forceCoefficientsFrame = negative_aerodynamic_frame_coefficients,
+                                     const AerodynamicCoefficientFrames momentCoefficientsFrame = body_fixed_frame_coefficients ):
+        AerodynamicCoefficientInterface( referenceLength,
+                                         referenceArea,
+                                         momentReferencePoint,
+                                         independentVariableNames,
+                                         forceCoefficientsFrame,
+                                         momentCoefficientsFrame ),
         dataPointsOfIndependentVariables_( dataPointsOfIndependentVariables )
     {
         // Check that the size of dataPointsOfIndependentVariables matches the template parameter.
@@ -101,8 +101,7 @@ public:
         boost::array< int, NumberOfIndependentVariables > numberOfPointsPerIndependentVariables;
         for( unsigned int i = 0; i < NumberOfIndependentVariables; i++ )
         {
-            numberOfPointsPerIndependentVariables[ i ] = dataPointsOfIndependentVariables_[ i ].
-                    size( );
+            numberOfPointsPerIndependentVariables[ i ] = dataPointsOfIndependentVariables_[ i ].size( );
         }
 
         aerodynamicCoefficients_.resize( numberOfPointsPerIndependentVariables );
@@ -121,7 +120,7 @@ public:
      */
     int getNumberOfValuesOfIndependentVariable( const int independentVariable ) const
     {
-        return dataPointsOfIndependentVariables_ [ independentVariable ].size( );
+        return dataPointsOfIndependentVariables_[ independentVariable ].size( );
     }
 
     //! Get a value of an independent variable.
@@ -153,8 +152,7 @@ public:
      *  Function to return the complete set of aerodynamic coefficients that have been calculated.
      *  \return Complete set of aerodynamic coefficients that have been calculated.
      */
-    boost::multi_array< Eigen::Matrix< double, NumberOfCoefficients, 1 >,
-    NumberOfIndependentVariables > getAerodynamicCoefficientsTables( )
+    boost::multi_array< Eigen::Matrix< double, NumberOfCoefficients, 1 >, NumberOfIndependentVariables > getAerodynamicCoefficientsTables( )
     {
         return aerodynamicCoefficients_;
     }
@@ -182,10 +180,8 @@ public:
         informUserOnSavedCoefficient( utilities::createVectorFromMapKeys( fileNamesMap ) );
 
         // Write coefficients to file
-        input_output::MultiArrayFileWriter< NumberOfIndependentVariables,
-                NumberOfCoefficients >::writeMultiArrayAndIndependentVariablesToFiles( fileNamesMap,
-                                                                                       dataPointsOfIndependentVariables_,
-                                                                                       aerodynamicCoefficients_ );
+        input_output::MultiArrayFileWriter< NumberOfIndependentVariables, NumberOfCoefficients >::
+                writeMultiArrayAndIndependentVariablesToFiles( fileNamesMap, dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
     }
 
     //! Save aerodynamic coefficients to a single file.
@@ -197,22 +193,22 @@ public:
     void saveAerodynamicCoefficientsTables( const std::string& fileName,
                                             const std::vector< unsigned int > coefficientIndices = { 0, 1, 2, 3, 4, 5 } )
     {
-        if ( NumberOfIndependentVariables == 1 )
+        if( NumberOfIndependentVariables == 1 )
         {
             // Inform user on which variable is being saved
             informUserOnSavedCoefficient( coefficientIndices );
 
             // Write coefficients to file
-            input_output::MultiArrayFileWriter< 1, NumberOfCoefficients >::
-                    writeMultiArrayAndIndependentVariablesToFiles( fileName, coefficientIndices,
-                                                                   dataPointsOfIndependentVariables_,
-                                                                   aerodynamicCoefficients_ );
+            input_output::MultiArrayFileWriter< 1, NumberOfCoefficients >::writeMultiArrayAndIndependentVariablesToFiles(
+                    fileName, coefficientIndices, dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
         }
         else
         {
-            throw std::runtime_error( "Error in aerodynamic coefficient generator. The saveAerodynamicCoefficientsTables with "
-                                      "single file path can only be used in case only one independent variable is used. "
-                                      "Number of independent variables: " + std::to_string( NumberOfIndependentVariables ) );
+            throw std::runtime_error(
+                    "Error in aerodynamic coefficient generator. The saveAerodynamicCoefficientsTables with "
+                    "single file path can only be used in case only one independent variable is used. "
+                    "Number of independent variables: " +
+                    std::to_string( NumberOfIndependentVariables ) );
         }
     }
 
@@ -227,27 +223,21 @@ public:
      *  determination implemented by derived class
      *  \param currentTime Time to which coefficients are to be updated (not used in this derived class).
      */
-    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables,
-                                            const double currentTime = TUDAT_NAN )
+    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables, const double currentTime = TUDAT_NAN )
     {
         // Check if the correct number of aerodynamic coefficients is provided.
         if( independentVariables.size( ) != numberOfIndependentVariables_ )
         {
-            std::string errorMessage =
-                    "Error in AerodynamicCoefficientGenerator, number of input variables is inconsistent " +
-                    std::to_string( independentVariables.size( ) ) + ", " +
-                    std::to_string( numberOfIndependentVariables_ );
+            std::string errorMessage = "Error in AerodynamicCoefficientGenerator, number of input variables is inconsistent " +
+                    std::to_string( independentVariables.size( ) ) + ", " + std::to_string( numberOfIndependentVariables_ );
             throw std::runtime_error( errorMessage );
         }
 
         // Update current coefficients.
-        Eigen::Vector6d currentCoefficients = coefficientInterpolator_->interpolate(
-                    independentVariables );
-
+        Eigen::Vector6d currentCoefficients = coefficientInterpolator_->interpolate( independentVariables );
 
         currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
         currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
-
     }
 
     void clearBaseData( )
@@ -264,11 +254,9 @@ public:
             dataPointsOfIndependentVariables_.at( i ).clear( );
         }
         dataPointsOfIndependentVariables_.clear( );
-
     }
 
 protected:
-
     //! Generate aerodynamic coefficients.
     /*!
      * Virtual function to generate aerodynamic coefficients for the list of independent variables
@@ -282,9 +270,8 @@ protected:
     {
         // Create interpolator for coefficients.
         coefficientInterpolator_ =
-                std::make_shared< interpolators::MultiLinearInterpolator< double,
-                Eigen::Vector6d, NumberOfIndependentVariables > >
-                ( dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
+                std::make_shared< interpolators::MultiLinearInterpolator< double, Eigen::Vector6d, NumberOfIndependentVariables > >(
+                        dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
     }
 
     //! N-dimensional array containing all computed aerodynamic coefficients.
@@ -294,8 +281,7 @@ protected:
      *  defined by dataPointsOfIndependentVariables_ and the physical meaning of which are defined
      *  by independentVariableNames_
      */
-    boost::multi_array< Eigen::Matrix< double, NumberOfCoefficients, 1 >,
-    NumberOfIndependentVariables > aerodynamicCoefficients_;
+    boost::multi_array< Eigen::Matrix< double, NumberOfCoefficients, 1 >, NumberOfIndependentVariables > aerodynamicCoefficients_;
 
     //! Data points of the independent variables at which the coefficients are calculated.
     /*!
@@ -308,12 +294,11 @@ protected:
 
     //! Interpolator producing continuous aerodynamic coefficients from the discrete calculations
     //! contained in aerodynamicCoefficients_.
-    std::shared_ptr< interpolators::Interpolator< double, Eigen::Vector6d > >
-    coefficientInterpolator_;
+    std::shared_ptr< interpolators::Interpolator< double, Eigen::Vector6d > > coefficientInterpolator_;
 };
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_AERODYNAMIC_COEFFICIENT_GENERATOR_H
+#endif  // TUDAT_AERODYNAMIC_COEFFICIENT_GENERATOR_H

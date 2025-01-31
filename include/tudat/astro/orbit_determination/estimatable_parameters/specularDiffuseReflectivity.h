@@ -11,9 +11,6 @@
 #ifndef TUDAT_SPECULARREFLECTIVITY_H
 #define TUDAT_SPECULARREFLECTIVITY_H
 
-
-
-
 #include <cmath>
 
 #include <Eigen/Core>
@@ -29,48 +26,46 @@ namespace estimatable_parameters
 {
 
 //! Interface class for the estimation of a specular reflectivity coefficient per group of panels
-class SpecularDiffuseReflectivityParameter: public EstimatableParameter< double >
+class SpecularDiffuseReflectivityParameter : public EstimatableParameter< double >
 {
-    public:
-        //! Constructor.
-        /*!
-        * ConstructorSpecularReflectivity
-        * \param radiationPressureInterface Object containing the radiation pressure coefficient to be estimated.
-        * \param associatedBody Name of body containing the radiationPressureInterface object
-        * \param panelTypeID Name of panel group for which to estimate the coefficient
-        */
-        SpecularDiffuseReflectivityParameter(
-                const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels,
-                const std::string& associatedBody,
-                const std::string& panelTypeId,
-                const EstimatebleParametersEnum parameterType );
+public:
+    //! Constructor.
+    /*!
+     * ConstructorSpecularReflectivity
+     * \param radiationPressureInterface Object containing the radiation pressure coefficient to be estimated.
+     * \param associatedBody Name of body containing the radiationPressureInterface object
+     * \param panelTypeID Name of panel group for which to estimate the coefficient
+     */
+    SpecularDiffuseReflectivityParameter( const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels,
+                                          const std::string& associatedBody,
+                                          const std::string& panelTypeId,
+                                          const EstimatebleParametersEnum parameterType );
 
-        //! Destructor.
-        ~SpecularDiffuseReflectivityParameter( ) { }
+    //! Destructor.
+    ~SpecularDiffuseReflectivityParameter( ) { }
 
-        double normalizeValue( );
+    double normalizeValue( );
 
-        double getParameterValue( );
+    double getParameterValue( );
 
-        void setParameterValue( double parameterValue );
+    void setParameterValue( double parameterValue );
 
-        int getParameterSize( ){ return 1; }
+    int getParameterSize( )
+    {
+        return 1;
+    }
 
-    protected:
+protected:
+private:
+    std::vector< double > getPanelReflectivities( );
 
-    private:
+    std::vector< std::shared_ptr< electromagnetism::SpecularDiffuseMixReflectionLaw > > reflectionLaws_;
 
-        std::vector< double > getPanelReflectivities( );
-
-        std::vector< std::shared_ptr< electromagnetism::SpecularDiffuseMixReflectionLaw > > reflectionLaws_;
-
-        std::string panelTypeId_;
-
+    std::string panelTypeId_;
 };
 
+}  // namespace estimatable_parameters
 
-} // namespace estimatable_parameters
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_SPECULARREFLECTIVITY_H
+#endif  // TUDAT_SPECULARREFLECTIVITY_H

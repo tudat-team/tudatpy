@@ -15,9 +15,6 @@
 #include <utility>
 #include <limits>
 
-
-
-
 #include <tudat/astro/basic_astro/physicalConstants.h>
 #include <tudat/basics/testMacros.h>
 #include <tudat/math/basic/mathematicalConstants.h>
@@ -49,10 +46,8 @@ namespace shape_based_methods
 {
 
 //! Test function for a new low-thrust trajectory class in Tudat
-struct FixedTimeHodographicShapingOptimisationProblem
-{
-
-    FixedTimeHodographicShapingOptimisationProblem( ){ }
+struct FixedTimeHodographicShapingOptimisationProblem {
+    FixedTimeHodographicShapingOptimisationProblem( ) { }
 
     FixedTimeHodographicShapingOptimisationProblem(
             const Eigen::Vector6d& initialState,
@@ -64,40 +59,34 @@ struct FixedTimeHodographicShapingOptimisationProblem
             const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
             const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& axialVelocityFunctionComponents,
             const std::vector< std::vector< double > >& freeCoefficientsBounds ):
-        initialState_( initialState ),
-        finalState_( finalState ),
-        timeOfFlight_( timeOfFlight ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-        numberOfRevolutions_( numberOfRevolutions ),
+        initialState_( initialState ), finalState_( finalState ), timeOfFlight_( timeOfFlight ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ), numberOfRevolutions_( numberOfRevolutions ),
         radialVelocityFunctionComponents_( radialVelocityFunctionComponents ),
         normalVelocityFunctionComponents_( normalVelocityFunctionComponents ),
-        axialVelocityFunctionComponents_( axialVelocityFunctionComponents ),
-        problemBounds_( freeCoefficientsBounds )
-    {  }
+        axialVelocityFunctionComponents_( axialVelocityFunctionComponents ), problemBounds_( freeCoefficientsBounds )
+    { }
 
     // Calculates the fitness
-    std::vector< double > fitness( const std::vector< double > &x ) const;
+    std::vector< double > fitness( const std::vector< double >& x ) const;
 
-    std::pair< std::vector< double >, std::vector< double > > get_bounds() const
+    std::pair< std::vector< double >, std::vector< double > > get_bounds( ) const
     {
         return { problemBounds_[ 0 ], problemBounds_[ 1 ] };
     }
 
-    template <typename Archive>
-    void serialize(Archive &ar)
+    template< typename Archive >
+    void serialize( Archive& ar )
     {
-        ar(problemBounds_);
+        ar( problemBounds_ );
     }
 
-    vector_double::size_type get_nobj() const
+    vector_double::size_type get_nobj( ) const
     {
         return 1u;
     }
 
 protected:
-
 private:
-
     Eigen::Vector6d initialState_;
 
     Eigen::Vector6d finalState_;
@@ -115,59 +104,49 @@ private:
     const std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > axialVelocityFunctionComponents_;
 
     const std::vector< std::vector< double > > problemBounds_;
-
 };
 
-
 //! Test function for a new low-thrust trajectory class in Tudat
-struct HodographicShapingOptimisationProblem
-{
+struct HodographicShapingOptimisationProblem {
     typedef std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > BaseFunctionVector;
 
-    HodographicShapingOptimisationProblem( ){ }
+    HodographicShapingOptimisationProblem( ) { }
 
-    HodographicShapingOptimisationProblem(
-            const std::function< Eigen::Vector6d( const double ) >& initialStateFunction,
-            const std::function< Eigen::Vector6d( const double ) >& finalStateFunction,
-            const double centralBodyGravitationalParameter,
-            const int numberOfRevolutions,
-            const std::function< std::vector< BaseFunctionVector >( const double ) > basisFunctionsFunction,
-            const std::vector< std::vector< double > >& freeCoefficientsBounds,
-            const bool minimizeMaximumThrust = false,
-            const double initialMass = TUDAT_NAN ):
-        initialStateFunction_( initialStateFunction ),
-        finalStateFunction_( finalStateFunction ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-        numberOfRevolutions_( numberOfRevolutions ),
-        basisFunctionsFunction_( basisFunctionsFunction ),
-        problemBounds_( freeCoefficientsBounds ),
-        minimizeMaximumThrust_( minimizeMaximumThrust ),
-        initialMass_( initialMass )
-    {  }
+    HodographicShapingOptimisationProblem( const std::function< Eigen::Vector6d( const double ) >& initialStateFunction,
+                                           const std::function< Eigen::Vector6d( const double ) >& finalStateFunction,
+                                           const double centralBodyGravitationalParameter,
+                                           const int numberOfRevolutions,
+                                           const std::function< std::vector< BaseFunctionVector >( const double ) > basisFunctionsFunction,
+                                           const std::vector< std::vector< double > >& freeCoefficientsBounds,
+                                           const bool minimizeMaximumThrust = false,
+                                           const double initialMass = TUDAT_NAN ):
+        initialStateFunction_( initialStateFunction ), finalStateFunction_( finalStateFunction ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ), numberOfRevolutions_( numberOfRevolutions ),
+        basisFunctionsFunction_( basisFunctionsFunction ), problemBounds_( freeCoefficientsBounds ),
+        minimizeMaximumThrust_( minimizeMaximumThrust ), initialMass_( initialMass )
+    { }
 
     // Calculates the fitness
-    std::vector< double > fitness( const std::vector< double > &x ) const;
+    std::vector< double > fitness( const std::vector< double >& x ) const;
 
-    std::pair< std::vector< double >, std::vector< double > > get_bounds() const
+    std::pair< std::vector< double >, std::vector< double > > get_bounds( ) const
     {
         return { problemBounds_[ 0 ], problemBounds_[ 1 ] };
     }
 
-    template <typename Archive>
-    void serialize(Archive &ar)
+    template< typename Archive >
+    void serialize( Archive& ar )
     {
-        ar(problemBounds_);
+        ar( problemBounds_ );
     }
 
-    vector_double::size_type get_nobj() const
+    vector_double::size_type get_nobj( ) const
     {
         return minimizeMaximumThrust_ ? 2u : 1u;
     }
 
 protected:
-
 private:
-
     const std::function< Eigen::Vector6d( const double ) > initialStateFunction_;
 
     const std::function< Eigen::Vector6d( const double ) > finalStateFunction_;
@@ -183,10 +162,9 @@ private:
     bool minimizeMaximumThrust_;
 
     double initialMass_;
-
 };
 
-} // namespace shape_based_methods
-} // namespace tudat
+}  // namespace shape_based_methods
+}  // namespace tudat
 
-#endif // TUDAT_HODOGRAPHIC_SHAPING_OPTIMISATION_SETUP_H
+#endif  // TUDAT_HODOGRAPHIC_SHAPING_OPTIMISATION_SETUP_H

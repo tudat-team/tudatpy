@@ -18,16 +18,14 @@ namespace propagators
 {
 
 //! Function to extend existing list of required environment update types
-void addEnvironmentUpdates( std::map< propagators::EnvironmentModelsToUpdate,
-                            std::vector< std::string > >& environmentUpdateList,
-                            const std::map< propagators::EnvironmentModelsToUpdate,
-                            std::vector< std::string > > updatesToAdd )
+void addEnvironmentUpdates( std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentUpdateList,
+                            const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > updatesToAdd )
 {
     // Iterate over all environment update types.
-    for( std::map< propagators::EnvironmentModelsToUpdate,
-             std::vector< std::string > >::const_iterator
-         environmentUpdateIterator = updatesToAdd.begin( );
-         environmentUpdateIterator != updatesToAdd.end( ); environmentUpdateIterator++ )
+    for( std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >::const_iterator environmentUpdateIterator =
+                 updatesToAdd.begin( );
+         environmentUpdateIterator != updatesToAdd.end( );
+         environmentUpdateIterator++ )
     {
         bool addCurrentUpdate = 0;
 
@@ -53,15 +51,12 @@ void addEnvironmentUpdates( std::map< propagators::EnvironmentModelsToUpdate,
             // Add update type if required.
             if( addCurrentUpdate )
             {
-                environmentUpdateList[ environmentUpdateIterator->first ].push_back(
-                            environmentUpdateIterator->second.at( i ) );
+                environmentUpdateList[ environmentUpdateIterator->first ].push_back( environmentUpdateIterator->second.at( i ) );
             }
         }
     }
 }
 
+}  // namespace propagators
 
-}
-
-}
-
+}  // namespace tudat

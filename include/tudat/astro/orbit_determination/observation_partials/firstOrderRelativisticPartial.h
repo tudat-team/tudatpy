@@ -27,8 +27,8 @@ namespace observation_partials
  * \param bodyGravitationalParameter Value of gravitational parameter
  * \return Partial derivative of 1st order relativistic correction w.r.t. gravitational parameter.
  */
-double getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtSingleGravitationalParameter(
-        const double singleBodyLightTimeCorrection, const double bodyGravitationalParameter );
+double getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtSingleGravitationalParameter( const double singleBodyLightTimeCorrection,
+                                                                                             const double bodyGravitationalParameter );
 
 //! Function to compute partial derivative of 1st order relativistic correction w.r.t. PPN parameter gamma.
 /*!
@@ -37,14 +37,13 @@ double getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtSingleGravitation
  * \param ppnParameterGamma Value of PPN parameter gamma.
  * \return Partial derivative of 1st order relativistic correction w.r.t. PPN parameter gamma.
  */
-double getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtPpnParameterGamma(
-        const double totalLightTimeCorrection, const double ppnParameterGamma );
+double getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtPpnParameterGamma( const double totalLightTimeCorrection,
+                                                                                  const double ppnParameterGamma );
 
 //! Class for computing the partial derivatives of 1st-order relativistic light-time correction.
-class FirstOrderRelativisticLightTimeCorrectionPartial: public LightTimeCorrectionPartial
+class FirstOrderRelativisticLightTimeCorrectionPartial : public LightTimeCorrectionPartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -52,16 +51,14 @@ public:
      */
     FirstOrderRelativisticLightTimeCorrectionPartial(
             const std::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > correctionCalculator ):
-        LightTimeCorrectionPartial( observation_models::first_order_relativistic ),
-        correctionCalculator_( correctionCalculator )
+        LightTimeCorrectionPartial( observation_models::first_order_relativistic ), correctionCalculator_( correctionCalculator )
     {
         perturbingBodies_ = correctionCalculator_->getPerturbingBodyNames( );
-        perturbingBodyGravitationalParameterFunctions_ =
-                correctionCalculator_->getPerturbingBodyGravitationalParameterFunctions( );
+        perturbingBodyGravitationalParameterFunctions_ = correctionCalculator_->getPerturbingBodyGravitationalParameterFunctions( );
     }
 
     //! Destructor.
-    ~FirstOrderRelativisticLightTimeCorrectionPartial( ){ }
+    ~FirstOrderRelativisticLightTimeCorrectionPartial( ) { }
 
     //! Function to compute partial derivative of 1st order relativistic correction w.r.t. gravitational parameter.
     /*!
@@ -72,9 +69,9 @@ public:
      * be computed. NOTE: this index must be smaller than the number of bodies perturbing the light-time.
      * \return Partial derivative of 1st order relativistic correction w.r.t. gravitational parameter.
      */
-    SingleOneWayRangePartialReturnType wrtBodyGravitationalParameter(
-            const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times,
-            const int bodyIndex )
+    SingleOneWayRangePartialReturnType wrtBodyGravitationalParameter( const std::vector< Eigen::Vector6d >& states,
+                                                                      const std::vector< double >& times,
+                                                                      const int bodyIndex )
     {
         if( !( static_cast< int >( perturbingBodies_.size( ) ) > bodyIndex ) )
         {
@@ -82,11 +79,10 @@ public:
         }
 
         double partialValue = getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtSingleGravitationalParameter(
-                    correctionCalculator_->getCurrentLightTimeCorrectionComponent( bodyIndex ),
-                    perturbingBodyGravitationalParameterFunctions_.at( bodyIndex )( ) );
-        return std::make_pair(
-                    ( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 1 ) << partialValue ).finished( ),
-                    ( times[ 0 ] + times[ 1 ] ) / 2.0 );
+                correctionCalculator_->getCurrentLightTimeCorrectionComponent( bodyIndex ),
+                perturbingBodyGravitationalParameterFunctions_.at( bodyIndex )( ) );
+        return std::make_pair( ( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 1 ) << partialValue ).finished( ),
+                               ( times[ 0 ] + times[ 1 ] ) / 2.0 );
     }
 
     //! Function to compute partial derivative of 1st order relativistic correction w.r.t. PPN parameter gamma.
@@ -96,23 +92,22 @@ public:
      * \param times Times of link ends for observation for which partial is to be computed
      * \return Partial derivative of 1st order relativistic correction w.r.t. PPN parameter gamma.
      */
-    SingleOneWayRangePartialReturnType wrtPpnParameterGamma(
-            const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times )
+    SingleOneWayRangePartialReturnType wrtPpnParameterGamma( const std::vector< Eigen::Vector6d >& states,
+                                                             const std::vector< double >& times )
     {
         double partialValue = getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtPpnParameterGamma(
-                    correctionCalculator_->getCurrentTotalLightTimeCorrection( ),
-                    correctionCalculator_->getPpnParameterGammaFunction_( )( ) );
-        return std::make_pair(
-                    ( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 1 ) << partialValue ).finished( ),
-                    ( times[ 0 ] + times[ 1 ] ) / 2.0 );
+                correctionCalculator_->getCurrentTotalLightTimeCorrection( ), correctionCalculator_->getPpnParameterGammaFunction_( )( ) );
+        return std::make_pair( ( Eigen::Matrix< double, 1, Eigen::Dynamic >( 1, 1 ) << partialValue ).finished( ),
+                               ( times[ 0 ] + times[ 1 ] ) / 2.0 );
     }
 
-    SingleOneWayRangeGradientPartialReturnType gradientWrtPpnParameterGamma(
-        const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times, const observation_models::LinkEndType gradientLinkEnd )
+    SingleOneWayRangeGradientPartialReturnType gradientWrtPpnParameterGamma( const std::vector< Eigen::Vector6d >& states,
+                                                                             const std::vector< double >& times,
+                                                                             const observation_models::LinkEndType gradientLinkEnd )
     {
         return std::make_pair( correctionCalculator_->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-            states.at( 0 ), states.at( 1 ), times.at( 0 ), times.at( 1 ), gradientLinkEnd ) /
-            ( correctionCalculator_->getPpnParameterGammaFunction_( )( ) + 1.0 ),
+                                       states.at( 0 ), states.at( 1 ), times.at( 0 ), times.at( 1 ), gradientLinkEnd ) /
+                                       ( correctionCalculator_->getPpnParameterGammaFunction_( )( ) + 1.0 ),
                                gradientLinkEnd == observation_models::receiver ? times.at( 1 ) : times.at( 0 ) );
     }
 
@@ -126,9 +121,7 @@ public:
         return perturbingBodies_;
     }
 
-
 protected:
-
     //! Object used to compute light-time correction.
     std::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > correctionCalculator_;
 
@@ -137,11 +130,10 @@ protected:
 
     //! Set of functions returning the gravitational parameters of the gravitating bodies.
     std::vector< std::function< double( ) > > perturbingBodyGravitationalParameterFunctions_;
-
 };
 
-}
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-#endif // FIRSTORDERRELATIVISTICLIGHTTIMECORRECTIONPARTIAL_H
+#endif  // FIRSTORDERRELATIVISTICLIGHTTIMECORRECTIONPARTIAL_H

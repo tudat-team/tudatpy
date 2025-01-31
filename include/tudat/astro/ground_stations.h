@@ -16,4 +16,4 @@
 #include "ground_stations/pointingAnglesCalculator.h"
 #include "ground_stations/transmittingFrequencies.h"
 
-#endif // TUDAT_GROUND_STATIONS_H
+#endif  // TUDAT_GROUND_STATIONS_H
