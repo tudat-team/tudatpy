@@ -26,6 +26,7 @@
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 // namespace py = pybind11;
 // namespace tba = tudat::basic_astrodynamics;
@@ -799,6 +800,24 @@ void expose_environment( py::module &m )
                 tgs::StationFrequencyInterpolator >( m, "ConstantFrequencyInterpolator" )
             .def( py::init< double >( ), py::arg( "frequency" ) );
 
+    py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
+                std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
+                tgs::StationFrequencyInterpolator >(
+            m, "PiecewiseLinearFrequencyInterpolator", get_docstring( "PiecewiseLinearFrequencyInterpolator" ).c_str( ) )
+            .def( py::init< const std::vector< TIME_TYPE > &,
+                            const std::vector< TIME_TYPE > &,
+                            const std::vector< double > &,
+                            const std::vector< double > & >( ),
+                  py::arg( "start_times" ),
+                  py::arg( "end_times" ),
+                  py::arg( "ramp_rates" ),
+                  py::arg( "start_frequencies" ),
+                  get_docstring( "PiecewiseLinearFrequencyInterpolator.constructor" ).c_str( ) )
+            .def( "get_start_times", &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes )
+            .def( "get_end_times", &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes )
+            .def( "get_ramp_rates", &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates )
+            .def( "get_start_frequencies", &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies );
+
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator" )
             .def( "calculate_elevation_angle",
                   py::overload_cast< const Eigen::Vector3d &, const double >(
@@ -814,6 +833,25 @@ void expose_environment( py::module &m )
                   &tgs::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame,
                   py::arg( "inertial_vector" ),
                   py::arg( "time" ) );
+
+    m.def(
+            "get_approximate_dsn_ground_station_positions",
+            []( ) -> py::dict {
+                // Call the C++ function
+                std::map< std::string, Eigen::Vector3d > stationPositions =
+                        tudat::simulation_setup::getApproximateDsnGroundStationPositions( );
+
+                // Convert the std::map to a Python dict
+                py::dict pythonDict;
+                for( const auto &entry: stationPositions )
+                {
+                    // entry.first is the station name, entry.second is the Eigen::Vector3d
+                    pythonDict[ entry.first.c_str( ) ] = entry.second;
+                }
+
+                return pythonDict;
+            },
+            "Returns a dictionary mapping DSN station names (str) to approximate positions (Eigen::Vector3d)." );
 
     /*!
      **************   BODY OBJECTS AND ASSOCIATED FUNCTIONALITY  ******************
