@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef{{name | upper } } _H;
-#define{{name | upper } } _H;
+#ifndef{ { name | upper } } _H;
+#define{ { name | upper } } _H;
 
 #endif  //{{ name | upper }}_H;

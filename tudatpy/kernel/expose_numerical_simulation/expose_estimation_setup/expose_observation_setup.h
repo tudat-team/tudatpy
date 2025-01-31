@@ -19,17 +19,20 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace estimation_setup {
-            namespace observation {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace estimation_setup
+{
+namespace observation
+{
 
-                void expose_observation_setup(py::module &m);
+void expose_observation_setup( py::module &m );
 
-            }  // namespace observation
-        }      // namespace estimation_setup
-    }          // namespace numerical_simulation
+}  // namespace observation
+}  // namespace estimation_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
-
 
 #endif  // TUDATPY_EXPOSE_OBSERVATIONS_SETUP_H

@@ -19,16 +19,20 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace shape_deformation {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace shape_deformation
+{
 
-                void expose_shape_deformation_setup(py::module &m);
+void expose_shape_deformation_setup( py::module &m );
 
-            }  // namespace shape_deformation
-        }      // namespace environment_setup
-    }          // namespace numerical_simulation
+}  // namespace shape_deformation
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
 
 #endif  // TUDATPY_EXPOSE_SHAPE_DEFORMATION_SETUP_H

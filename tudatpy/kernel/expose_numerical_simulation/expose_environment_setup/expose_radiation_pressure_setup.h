@@ -15,16 +15,20 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace radiation_pressure {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace radiation_pressure
+{
 
-                void expose_radiation_pressure_setup(py::module &m);
+void expose_radiation_pressure_setup( py::module &m );
 
-            }  // namespace radiation_pressure
-        }      // namespace environment_setup
-    }          // namespace numerical_simulation
+}  // namespace radiation_pressure
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
 
 #endif  // TUDATPY_EXPOSE_RADIATION_PRESSURE_SETUP_H
