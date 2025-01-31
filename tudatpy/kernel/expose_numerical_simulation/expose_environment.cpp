@@ -52,6 +52,7 @@ namespace tss = tudat::simulation_setup;
 namespace ti = tudat::interpolators;
 namespace tsm = tudat::system_models;
 namespace tom = tudat::observation_models;
+namespace tem = tudat::electromagnetism;
 
 
 namespace tudat {
@@ -2326,6 +2327,19 @@ numpy.ndarray[numpy.float64[6, 1]]
                     m, "GravityFieldVariationModel");
 
                 /*!
+                 **************   RADIATION MODELS  ******************
+                 */
+                py::class_<tem::RadiationPressureTargetModel,
+                           std::shared_ptr< tem::RadiationPressureTargetModel > >(
+                    m, "RadiationPressureTargetModel" );
+
+                py::class_<tem::CannonballRadiationPressureTargetModel,
+                    std::shared_ptr<tem::CannonballRadiationPressureTargetModel>,
+                    tem::RadiationPressureTargetModel>(m, "CannonballRadiationPressureTargetModel")
+                    .def_property( "radiation_pressure_coefficient",
+                    &tem::CannonballRadiationPressureTargetModel::getCoefficient,
+                    &tem::CannonballRadiationPressureTargetModel::resetCoefficient );
+                /*!
                  **************   SHAPE MODELS  ******************
                  */
 
@@ -2907,6 +2921,8 @@ numpy.ndarray[numpy.float64[6, 1]]
 
        :type: RigidBodyProperties
     )doc")
+                    .def_property("radiation_pressure_source_models", &tss::Body::getRadiationPressureTargetModels,
+                                  &tss::Body::setRadiationPressureTargetModels )
                     .def_property_readonly(
                         "gravitational_parameter",
                         &tss::Body::getGravitationalParameter, R"doc(
