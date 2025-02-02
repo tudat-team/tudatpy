@@ -185,7 +185,7 @@ numpy.ndarray
                             TIME_TYPE, STATE_SCALAR_TYPE>::initialState_,
                         R"doc(
 
-        Initital state produced by the damping algorithm, for which the signature of the proper mode should be
+        Initial state produced by the damping algorithm, for which the signature of the proper mode should be
         removed (or at least, substantially reduced). Note that this initial state corresponds to the *full* state vector
         that is provided to the ``get_damped_proper_mode_initial_rotational_state`` function (e.g. is size 7
         for rotational dynamics of a single body, size 13 for coupled orbital-rotational dynamics of a single body, etc.)
@@ -249,7 +249,7 @@ Specifically, the algorithm works as follows:
 The state after the final backwards propagation to :math:`t_{0}` is provided as output by this function, to be
 used as damped initial state. The output from this function also provides the user access to the full state history
 and dependent variable history of the forward and backward propagations, to allow a user to track and validate
-the pgress of the algorithm.
+the progress of the algorithm.
 
 The damping torque :math:`\Gamma` is defined as follows:
 
@@ -441,7 +441,7 @@ numpy.ndarray
 
         Base class for objects that store all results of a numerical propagation.
 
-        Base class for objects that store all results of a numerical propagation. Derived class are implemented for single-, multi- and hybrid-arc propagation of botj dynamics and variational equations
+        Base class for objects that store all results of a numerical propagation. Derived class are implemented for single-, multi- and hybrid-arc propagation of both dynamics and variational equations
 
 
 
