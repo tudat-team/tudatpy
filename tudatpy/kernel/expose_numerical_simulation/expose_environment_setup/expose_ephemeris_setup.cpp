@@ -901,9 +901,11 @@ First, we extract the existing ephemeris. Then, we define new tabulated ephemeri
 
 Function for creating ephemeris model settings for an SGP4-propagated TLE.
 
-Function for creating ephemeris model settings for an SGP4-propagated two-line element (TLE). Our implementation uses the ``evsgp4_c`` function of the SPICE library
-to perform the SGP4 propagation, and the :func:`~tudatpy.astro.element_conversion.teme_to_j2000 ` function to rotate the resulting state from teh TEME frame to the J2000 frame
+Function for creating ephemeris model settings for an SGP4-propagated two-line element (TLE). Our implementation uses the `evsgp4_c`_ function of the SPICE library
+to perform the SGP4 propagation, and the :func:`~tudatpy.astro.element_conversion.teme_to_j2000` function to rotate the resulting state from the TEME frame to the J2000 frame
 (and, if required for this ephemeris model, a subsequent different inertial frame).
+
+.. _`evsgp4_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/evsgp4_c.html
 
 Parameters
 ----------
