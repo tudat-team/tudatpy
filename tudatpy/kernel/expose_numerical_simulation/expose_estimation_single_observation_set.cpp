@@ -306,7 +306,7 @@ namespace tudatpy {
 
         **read-only**
 
-        Dictionary of observations sorted by time. Created by making a dictionaty with ``observation_times`` as keys and  ``list_of_observations`` as values
+        Dictionary of observations sorted by time. Created by making a dictionary with ``observation_times`` as keys and  ``list_of_observations`` as values
 
         :type: dict[ float, numpy.ndarray[numpy.float64[m, 1]] ]
      )doc")
