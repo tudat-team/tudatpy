@@ -99,7 +99,7 @@ namespace tudatpy {
         .. math::
            \Delta \mathbf{C}_{M} = (\mathbf{r}_{ref}-\mathbf{r}_{com})\times \Delta \mathbf{C}_{F}
 
-        where :math:`(\mathbf{r}_{ref}-\mathbf{r}_{com})` is the vector from the center of mass to the moment reference point, and :math:`\mathbf{C}_{F}` and :math:`\mathbf{C}_{M}` is the vector of forc and moment coefficients. Note that, if the force and moment coefficients afre defined in different frames, the relevant frame conversions are automatically performed.
+        where :math:`(\mathbf{r}_{ref}-\mathbf{r}_{com})` is the vector from the center of mass to the moment reference point, and :math:`\mathbf{C}_{F}` and :math:`\mathbf{C}_{M}` is the vector of force and moment coefficients. Note that, if the force and moment coefficients are defined in different frames, the relevant frame conversions are automatically performed.
         By default, his boolean is set to false, implicitly assuming that the moment coefficients are provided w.r.t. the (constant) center of mass.
 
 
@@ -1111,7 +1111,7 @@ This scaling function essentially adds noise to the CD and CL following as a sin
 Function for creating control surface aerodynamic model settings from custom coefficients.
 
 Function for settings object, defining control surface aerodynamic interface model via a custom force and moment coefficient function
-(function of independent variable). This function is essentically the control-surface equivalent of the
+(function of independent variable). This function is essentially the control-surface equivalent of the
 :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_and_moment_coefficients` function for body coefficient settings.
 
 
@@ -1179,7 +1179,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 Function for creating control surface aerodynamic model settings from tabulated coefficients from files.
 
 Function for settings object, defining control surface aerodynamic interface model via user-defined, tabulated aerodynamic force and moment coefficients
-(tabulated w.r.t. independent variable), obtained from data files.. This function is essentically the control-surface equivalent of the
+(tabulated w.r.t. independent variable), obtained from data files.. This function is essentially the control-surface equivalent of the
 :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.tabulated_from_files` function for body coefficient settings.
 
 Returns

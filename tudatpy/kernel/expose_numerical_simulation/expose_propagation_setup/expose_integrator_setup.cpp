@@ -974,7 +974,7 @@ Creates the settings for the variable time-step Bulirsch-Stoer integrator.
 
 Function to create settings for the variable time-step Bulirsch-Stoer integrator. This integrator
 works by performing the same (typically very large) step multiple times, using an ever increasing number of substeps.
-Each substep is performed using the modified midpoint method. The succesive integrations from :math:`t_{i}` to :math:`t_{i}+\Delta t`
+Each substep is performed using the modified midpoint method. The successive integrations from :math:`t_{i}` to :math:`t_{i}+\Delta t`
 are (in principle) done using ever increasing accuracy, as the size of the substep decreases. This integrator works
 by extrapolating the behaviour to a substep length of 0 (e.g. an infinite number of substeps), at which the solution should be perfect.
 The number of substeps on the :math:`i^{t}` iteration are done using the number of substeps defined by  entry :math:`i` of the
