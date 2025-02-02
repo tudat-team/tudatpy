@@ -615,7 +615,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 Function to load a custom spherical harmonics gravity field settings from a file.
 
 Function to load a custom spherical harmonics gravity field settings from a file. The file should contain **fully normalized** spherical harmonic coefficients.
-The associated gravitational paramerer and reference radius should be given in m^3/s^2 and m, respectively. The file format should be the same as that used for the files
+The associated gravitational parameter and reference radius should be given in m^3/s^2 and m, respectively. The file format should be the same as that used for the files
 in the directories `here <https://github.com/tudat-team/tudat-resources/tree/master/resource/gravity_models>`_. Specifically, the file should contain
 
 - The first line should be a series of text blocks (typically numerical data). Two of these blocks (by default the first and second one) should be the gravitational parameter and reference radius, respectively. The text block should be separated by spaces, tabs and/or commas
