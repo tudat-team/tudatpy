@@ -130,7 +130,7 @@ root_function_tolerance : float, default = nan
 maximum_iteration : int, default = 1000
     Maximum number of iterations :math:`N`
 maximum_iteration_handling : MaximumIterationHandling, default = throw_exception
-    Algorithm behaviour if maximum number of iterations :math:`N` is reache
+    Algorithm behaviour if maximum number of iterations :math:`N` is reached
 Returns
 -------
 RootFinderSettings
@@ -174,7 +174,7 @@ root_function_tolerance : float, default = nan
 maximum_iteration : int, default = 1000
     Maximum number of iterations :math:`N`
 maximum_iteration_handling : MaximumIterationHandling, default = throw_exception
-    Algorithm behaviour if maximum number of iterations :math:`N` is reache
+    Algorithm behaviour if maximum number of iterations :math:`N` is reached
 Returns
 -------
 RootFinderSettings
@@ -219,7 +219,7 @@ root_function_tolerance : float, default = nan
 maximum_iteration : int, default = 1000
     Maximum number of iterations :math:`N`
 maximum_iteration_handling : MaximumIterationHandling, default = throw_exception
-    Algorithm behaviour if maximum number of iterations :math:`N` is reache
+    Algorithm behaviour if maximum number of iterations :math:`N` is reached
 Returns
 -------
 RootFinderSettings
@@ -262,7 +262,7 @@ root_function_tolerance : float, default = nan
 maximum_iteration : int, default = 1000
     Maximum number of iterations :math:`N`
 maximum_iteration_handling : MaximumIterationHandling, default = throw_exception
-    Algorithm behaviour if maximum number of iterations :math:`N` is reache
+    Algorithm behaviour if maximum number of iterations :math:`N` is reached
 Returns
 -------
 RootFinderSettings

@@ -980,7 +980,7 @@ Function to create a time-scale converter object with default settings. In parti
 
 * Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1b of IERS Conventions 2010
 * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.2a and 8.2b of the IERS Conventions 2010
-* Linear interpolation (correcting for discontunities during days with leap seconds) of daily corrections for UTC-UT1 from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
+* Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for UTC-UT1 from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
 
 See :class:`~TimeScaleConverter` for specific functionality and options for time-scale conversions.
 
@@ -1002,8 +1002,8 @@ TimeScaleConverter
 
         Class to convert between different time scales (TAI, TT, TDB, UTC, UT1)
 
-        Class to convert between different time scales (TAI, TT, TDB, UTC, UT1), as per algorithms described in (for instance) IERS 2010 Convertions and USNO circular no. 179.
-        The algoroithms used for the conversion are (where there is any choice in models):
+        Class to convert between different time scales (TAI, TT, TDB, UTC, UT1), as per algorithms described in (for instance) IERS 2010 Conventions and USNO circular no. 179.
+        The algorithms used for the conversion are (where there is any choice in models):
 
          * Conversion between TDB and TT uses the SOFA function ``iauDtdb`` function (equivalently to :func:`TT_to_TDB` and :func:`TDB_to_TT`)
          * Conversion between UTC and UT1 applies (semi-)diurnal and daily measured variations depending on settings during object creation (typically as per :func:`~default_time_scale_converter`)
