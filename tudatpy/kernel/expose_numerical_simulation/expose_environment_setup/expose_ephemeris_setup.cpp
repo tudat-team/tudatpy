@@ -895,8 +895,8 @@ First, we extract the existing ephemeris. Then, we define new tabulated ephemeri
 
                     m.def("sgp4", &tss::directTleEphemerisSettingsFromTleLines,
                           py::arg("tle_line_1"), py::arg("tle_line_2"),
-                          py::arg("frame_origin") = "SSB",
-                          py::arg("frame_orientation") = "ECLIPJ2000",
+                          py::arg("frame_origin") = "Earth",
+                          py::arg("frame_orientation") = "J2000",
                           R"doc(
 
 Function for creating ephemeris model settings for an SGP4-propagated TLE.
