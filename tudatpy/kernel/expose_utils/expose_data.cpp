@@ -18,17 +18,24 @@ namespace py = pybind11;
 
 using namespace tudat::utils::data;
 
-namespace tudatpy {
-    namespace utils {
-        namespace data {
+namespace tudatpy
+{
+namespace utils
+{
+namespace data
+{
 
-            void expose_data(py::module &m) {
-                m.def("download_file", &download_file, py::arg("remote_url"),
-                      py::arg("cache") = "true", py::arg("verbosity ") = 1,
-                      py::arg("try_unzip ") = true,
-                      py::arg("prefix ") = py::none());
-            }
+void expose_data( py::module &m )
+{
+    m.def( "download_file",
+           &download_file,
+           py::arg( "remote_url" ),
+           py::arg( "cache" ) = "true",
+           py::arg( "verbosity " ) = 1,
+           py::arg( "try_unzip " ) = true,
+           py::arg( "prefix " ) = py::none( ) );
+}
 
-        }  // namespace data
-    }      // namespace utils
+}  // namespace data
+}  // namespace utils
 }  // namespace tudatpy

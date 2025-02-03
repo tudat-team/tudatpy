@@ -35,17 +35,20 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace propagation_setup {
-            namespace thrust {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace propagation_setup
+{
+namespace thrust
+{
 
-                void expose_thrust_setup(py::module &m);
+void expose_thrust_setup( py::module &m );
 
-            }  // namespace thrust
-        }      // namespace propagation_setup
-    }          // namespace numerical_simulation
+}  // namespace thrust
+}  // namespace propagation_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
-
 
 #endif  // TUDATPY_EXPOSE_THRUST_SETUP_H
