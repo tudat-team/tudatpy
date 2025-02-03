@@ -863,7 +863,7 @@ Examples
 Function for creating convergence settings for solving the light-time equation.
 
 Function for creating convergence settings for solving the light-time equation. Computing the light time
-:math:`s=t_{R}-t_{T}` between two receiver :math:`R` and transmiter :math:`T` requires the iterative
+:math:`s=t_{R}-t_{T}` between two receiver :math:`R` and transmitter :math:`T` requires the iterative
 solution of the following equation:
 
 .. math::
@@ -886,7 +886,7 @@ maximum_number_of_iterations : int, default = 50
     the behaviour of the algorithm is defined by the ``failure_handling`` input.
 
 absolute_tolerance : float, default = nan
-    Difference in :math:`t_{R}-t_{T}` between two consecutive iterataions below which the algorithm is considered to be converged. Default value is nan, which means the default value is taken.
+    Difference in :math:`t_{R}-t_{T}` between two consecutive iterations below which the algorithm is considered to be converged. Default value is nan, which means the default value is taken.
     The default value depends on the time representation used (1 ps for float; 1 fs for Time class)
 
 failure_handling : LightTimeFailureHandling, default = accept_without_warning
@@ -1660,7 +1660,7 @@ Returns
 
 Function for creating settings for an n-way averaged Doppler observable.
 
-Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
+Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implementation is
 analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
 the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
@@ -1754,7 +1754,7 @@ Returns
 
 Function for creating settings for an n-way averaged Doppler observable.
 
-Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
+Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implementation is
 analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
 the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
