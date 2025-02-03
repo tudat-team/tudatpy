@@ -25,10 +25,9 @@ namespace acceleration_partials
 {
 
 //! Class to compute the partial derivatives of the inertial torque w.r.t. states and parameters
-class InertialTorquePartial: public TorquePartial
+class InertialTorquePartial : public TorquePartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -38,19 +37,18 @@ public:
      * \param bodyGravitationalParameterFunction Function returning body gravitational parameter
      * \param acceleratedBody Name of body undergoing torque
      */
-    InertialTorquePartial(
-            const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
-            const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
-            const std::function< double( ) > inertiaTensorNormalizationFunction,
-            const std::function< double( ) > bodyGravitationalParameterFunction,
-            const std::string acceleratedBody ):
+    InertialTorquePartial( const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
+                           const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
+                           const std::function< double( ) > inertiaTensorNormalizationFunction,
+                           const std::function< double( ) > bodyGravitationalParameterFunction,
+                           const std::string acceleratedBody ):
         TorquePartial( acceleratedBody, acceleratedBody, basic_astrodynamics::torque_free ),
-        angularVelocityFunction_( angularVelocityFunction ),
-        inertiaTensorFunction_( inertiaTensorFunction ),
+        angularVelocityFunction_( angularVelocityFunction ), inertiaTensorFunction_( inertiaTensorFunction ),
         getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ),
-        bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction ){ }
+        bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction )
+    { }
 
-    ~InertialTorquePartial( ){ }
+    ~InertialTorquePartial( ) { }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!
@@ -59,8 +57,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -82,9 +80,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtOrientationOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtOrientationOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                          const bool addContribution = 1,
+                                          const int startRow = 0,
+                                          const int startColumn = 0 )
     { }
 
     //! Function for calculating the partial of the torque w.r.t. the angular velocity of the accelerated body.
@@ -97,9 +96,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtRotationalVelocityOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
+    void wrtRotationalVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                 const bool addContribution = 1,
+                                                 const int startRow = 0,
+                                                 const int startColumn = 3 )
     {
         if( addContribution )
         {
@@ -121,8 +121,7 @@ public:
         if( !( currentTime_ == currentTime ) )
         {
             currentAngularVelocityVector_ = angularVelocityFunction_( );
-            currentAngularVelocityCrossProductMatrix_ = linear_algebra::getCrossProductMatrix(
-                        currentAngularVelocityVector_ );
+            currentAngularVelocityCrossProductMatrix_ = linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ );
 
             currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
             currentGravitationalParameter_ = bodyGravitationalParameterFunction_( );
@@ -137,22 +136,19 @@ public:
     }
 
 protected:
-
     //! Function to compute partial of torque w.r.t. mean moment of inertia
     /*!
      * Function to compute partial of torque w.r.t. mean moment of inertia
      * \param momentOfInertiaPartial Computed partial of torque w.r.t. mean moment of inertia (returned by reference)
      */
-    void wrtMeanMomentOfInertia(
-            Eigen::MatrixXd& momentOfInertiaPartial );
+    void wrtMeanMomentOfInertia( Eigen::MatrixXd& momentOfInertiaPartial );
 
     //! Function to compute partial of torque w.r.t. gravitational parameter
     /*!
      * Function to compute partial of torque w.r.t. gravitational parameter
      * \param gravitationalParameterPartial Computed partial of torque w.r.t. gravitational parameter (returned by reference)
      */
-    void wrtGravitationalParameter(
-            Eigen::MatrixXd& gravitationalParameterPartial );
+    void wrtGravitationalParameter( Eigen::MatrixXd& gravitationalParameterPartial );
 
     //! Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients
     /*!
@@ -163,9 +159,10 @@ protected:
      * \param c21Index for degree=2,order=1 coefficient
      * \param c22Index for degree=2,order=2 coefficient
      */
-    void wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
-            Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
-            const int c20Index, const int c21Index, const int c22Index );
+    void wrtCosineSphericalHarmonicCoefficientsOfCentralBody( Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
+                                                              const int c20Index,
+                                                              const int c21Index,
+                                                              const int c22Index );
 
     //! Function to compute partial of torque w.r.t. spherical harmonic sine coefficients
     /*!
@@ -175,9 +172,9 @@ protected:
      * \param s21Index for degree=2,order=1 coefficient
      * \param s22Index for degree=2,order=2 coefficient)
      */
-    void wrtSineSphericalHarmonicCoefficientsOfCentralBody(
-            Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
-            const int s21Index, const int s22Index );
+    void wrtSineSphericalHarmonicCoefficientsOfCentralBody( Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
+                                                            const int s21Index,
+                                                            const int s22Index );
 
     //! Function returning body angular velocity vector in body fixed frame.
     std::function< Eigen::Vector3d( ) > angularVelocityFunction_;
@@ -211,11 +208,10 @@ protected:
 
     //! Current gravitational parameter
     double currentGravitationalParameter_;
-
 };
 
-} // namespace acceleration_partials
+}  // namespace acceleration_partials
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_INERTIALTORQUEPARTIALS_H
+#endif  // TUDAT_INERTIALTORQUEPARTIALS_H

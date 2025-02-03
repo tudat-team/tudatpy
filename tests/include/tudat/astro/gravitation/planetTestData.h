@@ -55,10 +55,8 @@ enum Planets { mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptu
  * This structure contains test data for a given planet. The data is used for unit testing of
  * Tudat's gravitational acceleration computation free functions.
  */
-struct PlanetTestData
-{
+struct PlanetTestData {
 public:
-
     //! Definition of useful typedefs.
     typedef std::vector< Eigen::Vector3d > VectorOfVector3ds;
     typedef std::map< int, double > KeyIntValueDoubleMap;
@@ -70,25 +68,16 @@ public:
                     const double anEquatorialRadius,
                     const KeyIntValueDoubleMap& someZonalCoefficients,
                     const std::vector< Eigen::Vector3d >& positionsOfBodyExertingAcceleration,
-                    const std::vector< Eigen::Vector3d >& positionsOfBodySubjectToAcceleration )
-        : planetName( aPlanetName ),
-          gravitationalParameter( aGravitationalParameter ),
-          equatorialRadius( anEquatorialRadius ),
-          zonalCoefficients( someZonalCoefficients ),
-          body1Positions( positionsOfBodyExertingAcceleration  ),
-          body2Positions( positionsOfBodySubjectToAcceleration  ),
-          expectedAcceleration( IndexedVector3d( ) )
+                    const std::vector< Eigen::Vector3d >& positionsOfBodySubjectToAcceleration ):
+        planetName( aPlanetName ), gravitationalParameter( aGravitationalParameter ), equatorialRadius( anEquatorialRadius ),
+        zonalCoefficients( someZonalCoefficients ), body1Positions( positionsOfBodyExertingAcceleration ),
+        body2Positions( positionsOfBodySubjectToAcceleration ), expectedAcceleration( IndexedVector3d( ) )
     { }
 
     //! Empty constructor.
-    PlanetTestData( )
-        : planetName( "" ),
-          gravitationalParameter( TUDAT_NAN ),
-          equatorialRadius( TUDAT_NAN ),
-          zonalCoefficients( KeyIntValueDoubleMap( ) ),
-          body1Positions( VectorOfVector3ds( ) ),
-          body2Positions( VectorOfVector3ds( ) ),
-          expectedAcceleration( IndexedVector3d( ) )
+    PlanetTestData( ):
+        planetName( "" ), gravitationalParameter( TUDAT_NAN ), equatorialRadius( TUDAT_NAN ), zonalCoefficients( KeyIntValueDoubleMap( ) ),
+        body1Positions( VectorOfVector3ds( ) ), body2Positions( VectorOfVector3ds( ) ), expectedAcceleration( IndexedVector3d( ) )
     { }
 
     //! Planet name.
@@ -144,7 +133,6 @@ public:
     IndexedVector3d expectedAcceleration;
 
 protected:
-
 private:
 };
 
@@ -248,8 +236,7 @@ PlanetTestData getEarthMelmanTestData( );
  */
 PlanetTestData getEarthRonseTestData( );
 
+}  // namespace unit_tests
+}  // namespace tudat
 
-} // namespace unit_tests
-} // namespace tudat
-
-#endif // TUDAT_PLANET_TEST_DATA_H
+#endif  // TUDAT_PLANET_TEST_DATA_H

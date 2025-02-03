@@ -30,12 +30,12 @@ void informUserOnSavedCoefficient( std::vector< unsigned int > coefficientIndice
     coefficientNames.push_back( "Z-Moment" );
 
     // Inform user on which variable is being saved
-    for ( unsigned int index: coefficientIndices )
+    for( unsigned int index: coefficientIndices )
     {
         std::cout << "Saving " + coefficientNames.at( index ) << " aerodynamic coefficient." << std::endl;
     }
 }
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat

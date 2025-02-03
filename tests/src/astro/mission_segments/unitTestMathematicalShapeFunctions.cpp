@@ -16,9 +16,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
-
-
 #include <boost/lambda/lambda.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -28,8 +25,6 @@
 
 #include "tudat/astro/mission_segments/improvedInversePolynomialWall.h"
 #include "tudat/astro/mission_segments/oscillatingFunctionNovak.h"
-
-
 
 namespace tudat
 {
@@ -58,10 +53,10 @@ BOOST_AUTO_TEST_CASE( ImprovedInversePolynomialWall )
     //*********************************************************************************************
 
     // Case specific changes.
-    inversePolynomialParameters.first = Eigen::Vector3d::Zero(  );
-    inversePolynomialParameters.second = Eigen::Vector3d::Zero(  );
+    inversePolynomialParameters.first = Eigen::Vector3d::Zero( );
+    inversePolynomialParameters.second = Eigen::Vector3d::Zero( );
     timeDepParameter = 0.0;
-    inversePolynomialParameters.first( 1 ) = 1.0; // b
+    inversePolynomialParameters.first( 1 ) = 1.0;  // b
 
     // Expected results.
     double expectedFunctionValue = 1.0;
@@ -70,85 +65,67 @@ BOOST_AUTO_TEST_CASE( ImprovedInversePolynomialWall )
     double expectedThirdDerivative = 0.0;
 
     // Initialize mathematical function.
-    mission_segments::ImprovedInversePolynomialWall myFunctionCase1(
-                [ & ]( ){ return timeDepParameter; } ,
-                [ & ]( ){ return inversePolynomialParameters; } );
+    mission_segments::ImprovedInversePolynomialWall myFunctionCase1( [ & ]( ) { return timeDepParameter; },
+                                                                     [ & ]( ) { return inversePolynomialParameters; } );
 
     // Calculate function value and derivatives.
     double functionValue = myFunctionCase1.evaluate( azimuthalAngle );
-    double firstDerivative = myFunctionCase1.computeDerivative( 1 , azimuthalAngle );
-    double secondDerivative = myFunctionCase1.computeDerivative( 2 , azimuthalAngle );
-    double thirdDerivative = myFunctionCase1.computeDerivative( 3 , azimuthalAngle );
+    double firstDerivative = myFunctionCase1.computeDerivative( 1, azimuthalAngle );
+    double secondDerivative = myFunctionCase1.computeDerivative( 2, azimuthalAngle );
+    double thirdDerivative = myFunctionCase1.computeDerivative( 3, azimuthalAngle );
 
     // Test if the computed values correspond to the expected values, within the specified
     // tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( functionValue,
-                                expectedFunctionValue,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( functionValue, expectedFunctionValue, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( firstDerivative,
-                                expectedFirstDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( firstDerivative, expectedFirstDerivative, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( secondDerivative,
-                                expectedSecondDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( secondDerivative, expectedSecondDerivative, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( thirdDerivative,
-                                expectedThirdDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( thirdDerivative, expectedThirdDerivative, tolerance );
 
     //*********************************************************************************************
     // CASE 2: c = 0.0, polar angle = 0.0, all other parameters 1.0
     //*********************************************************************************************
 
     // Case-specific changes.
-    inversePolynomialParameters.first = Eigen::Vector3d::Ones(  );
-    inversePolynomialParameters.second = Eigen::Vector3d::Ones(  );
+    inversePolynomialParameters.first = Eigen::Vector3d::Ones( );
+    inversePolynomialParameters.second = Eigen::Vector3d::Ones( );
     timeDepParameter = 1.0;
-    inversePolynomialParameters.first( 2 ) = 0.0; // c
+    inversePolynomialParameters.first( 2 ) = 0.0;  // c
 
     // Expected results.
     expectedFunctionValue = 1.0 / 2.0;
     expectedFirstDerivative = 0.0;
     expectedSecondDerivative = 1.0 / 4.0;
-    expectedThirdDerivative = - 6.0 / 4.0;
+    expectedThirdDerivative = -6.0 / 4.0;
 
     // Initialize mathematical function.
-    mission_segments::ImprovedInversePolynomialWall myFunctionCase2(
-                [ & ]( ){ return timeDepParameter; } ,
-                [ & ]( ){ return inversePolynomialParameters; } );
+    mission_segments::ImprovedInversePolynomialWall myFunctionCase2( [ & ]( ) { return timeDepParameter; },
+                                                                     [ & ]( ) { return inversePolynomialParameters; } );
 
     // Calculate function value and derivatives.
     functionValue = myFunctionCase2.evaluate( azimuthalAngle );
-    firstDerivative = myFunctionCase2.computeDerivative( 1 , azimuthalAngle );
-    secondDerivative = myFunctionCase2.computeDerivative( 2 , azimuthalAngle );
-    thirdDerivative = myFunctionCase2.computeDerivative( 3 , azimuthalAngle );
+    firstDerivative = myFunctionCase2.computeDerivative( 1, azimuthalAngle );
+    secondDerivative = myFunctionCase2.computeDerivative( 2, azimuthalAngle );
+    thirdDerivative = myFunctionCase2.computeDerivative( 3, azimuthalAngle );
 
     // Test if the computed values correspond to the expected values, within the specified
     // tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( functionValue,
-                                expectedFunctionValue,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( functionValue, expectedFunctionValue, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( firstDerivative,
-                                expectedFirstDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( firstDerivative, expectedFirstDerivative, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( secondDerivative,
-                                expectedSecondDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( secondDerivative, expectedSecondDerivative, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( thirdDerivative,
-                                expectedThirdDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( thirdDerivative, expectedThirdDerivative, tolerance );
 
     //*********************************************************************************************
     // CASE 3: c = pi - 1.0, polar angle = 1.0, all other parameters 1.0
     //*********************************************************************************************
 
     // Case-specific changes.
-    inversePolynomialParameters.first( 2 ) = PI - 1.0; // c
+    inversePolynomialParameters.first( 2 ) = PI - 1.0;  // c
     azimuthalAngle = 1.0;
 
     // Expected results.
@@ -158,33 +135,24 @@ BOOST_AUTO_TEST_CASE( ImprovedInversePolynomialWall )
     expectedThirdDerivative = -267.0 / 8.0;
 
     // Initialize mathematical function.
-    mission_segments::ImprovedInversePolynomialWall myFunctionCase3(
-                [ & ]( ){ return timeDepParameter; } ,
-                [ & ]( ){ return inversePolynomialParameters; } );
+    mission_segments::ImprovedInversePolynomialWall myFunctionCase3( [ & ]( ) { return timeDepParameter; },
+                                                                     [ & ]( ) { return inversePolynomialParameters; } );
 
     // Calculate function value and derivatives.
     functionValue = myFunctionCase3.evaluate( azimuthalAngle );
-    firstDerivative = myFunctionCase3.computeDerivative( 1 , azimuthalAngle );
-    secondDerivative = myFunctionCase3.computeDerivative( 2 , azimuthalAngle );
-    thirdDerivative = myFunctionCase3.computeDerivative( 3 , azimuthalAngle );
+    firstDerivative = myFunctionCase3.computeDerivative( 1, azimuthalAngle );
+    secondDerivative = myFunctionCase3.computeDerivative( 2, azimuthalAngle );
+    thirdDerivative = myFunctionCase3.computeDerivative( 3, azimuthalAngle );
 
     // Test if the computed values correspond to the expected values, within the specified
     // tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( functionValue,
-                                expectedFunctionValue,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( functionValue, expectedFunctionValue, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( firstDerivative,
-                                expectedFirstDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( firstDerivative, expectedFirstDerivative, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( secondDerivative,
-                                expectedSecondDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( secondDerivative, expectedSecondDerivative, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( thirdDerivative,
-                                expectedThirdDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( thirdDerivative, expectedThirdDerivative, tolerance );
 }
 
 //! Test case: oscillating function.
@@ -198,49 +166,40 @@ BOOST_AUTO_TEST_CASE( OscillatingFunctionNovak )
     double azimuthalAngle = 0.0;
 
     // Error tolerance.
-    const double tolerance = std::numeric_limits< double >::epsilon(  );
+    const double tolerance = std::numeric_limits< double >::epsilon( );
 
     //*********************************************************************************************
     // CASE 1: theta = 0.0, all parameters = 1.0
     //*********************************************************************************************
 
     // Case specific changes.
-    oscillatingFunctionParameters.first = Eigen::Vector2d::Ones(  );
-    oscillatingFunctionParameters.second = Eigen::Vector2d::Ones(  );
+    oscillatingFunctionParameters.first = Eigen::Vector2d::Ones( );
+    oscillatingFunctionParameters.second = Eigen::Vector2d::Ones( );
 
     // Expected results.
     double expectedFunctionValue = 1.0;
     double expectedFirstDerivative = 2.0;
     double expectedSecondDerivative = 1.0;
-    double expectedThirdDerivative = - 4.0;
+    double expectedThirdDerivative = -4.0;
 
     // Initialize mathematical function.
-    mission_segments::OscillatingFunctionNovak myFunctionCase1(
-                [ & ]( ){ return oscillatingFunctionParameters; } );
+    mission_segments::OscillatingFunctionNovak myFunctionCase1( [ & ]( ) { return oscillatingFunctionParameters; } );
 
     // Calculate function value and derivatives.
     double functionValue = myFunctionCase1.evaluate( azimuthalAngle );
-    double firstDerivative = myFunctionCase1.computeDerivative( 1 , azimuthalAngle );
-    double secondDerivative = myFunctionCase1.computeDerivative( 2 , azimuthalAngle );
-    double thirdDerivative = myFunctionCase1.computeDerivative( 3 , azimuthalAngle );
+    double firstDerivative = myFunctionCase1.computeDerivative( 1, azimuthalAngle );
+    double secondDerivative = myFunctionCase1.computeDerivative( 2, azimuthalAngle );
+    double thirdDerivative = myFunctionCase1.computeDerivative( 3, azimuthalAngle );
 
     // Test if the computed values correspond to the expected values, within the specified
     // tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( functionValue,
-                                expectedFunctionValue,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( functionValue, expectedFunctionValue, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( firstDerivative,
-                                expectedFirstDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( firstDerivative, expectedFirstDerivative, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( secondDerivative,
-                                expectedSecondDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( secondDerivative, expectedSecondDerivative, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( thirdDerivative,
-                                expectedThirdDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( thirdDerivative, expectedThirdDerivative, tolerance );
 
     //*********************************************************************************************
     // CASE 2: theta = pi/2, all parameters = 1.0
@@ -265,36 +224,26 @@ BOOST_AUTO_TEST_CASE( OscillatingFunctionNovak )
 
     // The exact value of the third derivative, due to the introduced error. This vaue is checked
     // separately.
-    double exactThirdDerivative =
-            -2.0 + PI / 2.0 - 1.0 * ( 4.0 + PI / 2.0 ) * std::cos( PI / 2.0 );
+    double exactThirdDerivative = -2.0 + PI / 2.0 - 1.0 * ( 4.0 + PI / 2.0 ) * std::cos( PI / 2.0 );
 
     // Initialize mathematical function.
-    mission_segments::OscillatingFunctionNovak myFunctionCase2(
-                [ & ]( ){ return oscillatingFunctionParameters; } );
+    mission_segments::OscillatingFunctionNovak myFunctionCase2( [ & ]( ) { return oscillatingFunctionParameters; } );
 
     // Calculate function value and derivatives.
     functionValue = myFunctionCase2.evaluate( azimuthalAngle );
-    firstDerivative = myFunctionCase2.computeDerivative( 1 , azimuthalAngle );
-    secondDerivative = myFunctionCase2.computeDerivative( 2 , azimuthalAngle );
-    thirdDerivative = myFunctionCase2.computeDerivative( 3 , azimuthalAngle );
+    firstDerivative = myFunctionCase2.computeDerivative( 1, azimuthalAngle );
+    secondDerivative = myFunctionCase2.computeDerivative( 2, azimuthalAngle );
+    thirdDerivative = myFunctionCase2.computeDerivative( 3, azimuthalAngle );
 
     // Test if the computed values correspond to the expected values, within the specified
     // tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( functionValue,
-                                expectedFunctionValue,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( functionValue, expectedFunctionValue, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( firstDerivative,
-                                expectedFirstDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( firstDerivative, expectedFirstDerivative, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( secondDerivative,
-                                expectedSecondDerivative,
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( secondDerivative, expectedSecondDerivative, tolerance );
 
-    BOOST_CHECK_CLOSE_FRACTION( thirdDerivative,
-                                expectedThirdDerivative,
-                                toleranceThirdDerivative );
+    BOOST_CHECK_CLOSE_FRACTION( thirdDerivative, expectedThirdDerivative, toleranceThirdDerivative );
 
     BOOST_CHECK_EQUAL( thirdDerivative, exactThirdDerivative );
 }
@@ -305,22 +254,20 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
     // Initialize parameters of the mathematical functions.
     // Inverse polynomial parameters.
     std::pair< Eigen::Vector3d, Eigen::Vector3d > inversePolynomialParameters;
-    inversePolynomialParameters.first.Zero();
-    inversePolynomialParameters.second.Zero();
+    inversePolynomialParameters.first.Zero( );
+    inversePolynomialParameters.second.Zero( );
     double timeDepParameter = 0.0;
 
     // Oscillating function parameters.
     std::pair< Eigen::Vector2d, Eigen::Vector2d > OscillatingShapeParameters;
-    OscillatingShapeParameters.first.Zero(  );
-    OscillatingShapeParameters.second.Zero(  );
+    OscillatingShapeParameters.first.Zero( );
+    OscillatingShapeParameters.second.Zero( );
 
     // Initialize mathematical functions.
-    mission_segments::ImprovedInversePolynomialWall myInversePolynomial(
-                [ & ]( ){ return timeDepParameter ; },
-                [ & ]( ){ return inversePolynomialParameters; } );
+    mission_segments::ImprovedInversePolynomialWall myInversePolynomial( [ & ]( ) { return timeDepParameter; },
+                                                                         [ & ]( ) { return inversePolynomialParameters; } );
 
-    mission_segments::OscillatingFunctionNovak myOscillatingFunction(
-                [ & ]( ){ return OscillatingShapeParameters; } );
+    mission_segments::OscillatingFunctionNovak myOscillatingFunction( [ & ]( ) { return OscillatingShapeParameters; } );
 
     // Set flags.
     bool isFourthDerivativeInversePolynomial = true;
@@ -333,7 +280,7 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
     try
     {
         // Calculate the fourth derivative of the inverse polynomial function.
-        myInversePolynomial.computeDerivative( 4 , 0.0 );
+        myInversePolynomial.computeDerivative( 4, 0.0 );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -351,7 +298,7 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
     try
     {
         // Calculate the definite integral of the inverse polynomial function.
-        myInversePolynomial.computeDefiniteIntegral( 1 , 0.0 , 1.0 );
+        myInversePolynomial.computeDefiniteIntegral( 1, 0.0, 1.0 );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -369,7 +316,7 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
     try
     {
         // Calculate the fourth derivative of the oscillating function.
-        myOscillatingFunction.computeDerivative( 4 , 0.0 );
+        myOscillatingFunction.computeDerivative( 4, 0.0 );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -387,7 +334,7 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
     try
     {
         // Calculate the definite integral of the oscillating function.
-        myOscillatingFunction.computeDefiniteIntegral( 1 , 0.0 , 1.0 );
+        myOscillatingFunction.computeDefiniteIntegral( 1, 0.0, 1.0 );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -403,5 +350,5 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

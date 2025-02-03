@@ -56,27 +56,25 @@ namespace observation_partials
  * TwoWayDopplerPartials in link end.
  */
 template< typename ParameterType, typename TimeType >
-std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > >
-createTwoWayDopplerPartials(
-        const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > >
-                observationModel,
+std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > createTwoWayDopplerPartials(
+        const std::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > observationModel,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const bool isPartialForDifferencedObservable = false,
         const bool isFrequencyBasedObservable = false )
-{    
-    std::shared_ptr< observation_models::TwoWayDopplerObservationModel< ParameterType, TimeType > >  twoWayObservationModel;
+{
+    std::shared_ptr< observation_models::TwoWayDopplerObservationModel< ParameterType, TimeType > > twoWayObservationModel;
     if( observationModel->getObservableType( ) == observation_models::two_way_doppler )
     {
-        twoWayObservationModel =
-            std::dynamic_pointer_cast<observation_models::TwoWayDopplerObservationModel<ParameterType, TimeType> >(
+        twoWayObservationModel = std::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel< ParameterType, TimeType > >(
                 observationModel );
     }
     else if( observationModel->getObservableType( ) == observation_models::doppler_measured_frequency )
     {
         twoWayObservationModel =
-            std::dynamic_pointer_cast<observation_models::DopplerMeasuredFrequencyObservationModel<ParameterType, TimeType> >(
-                observationModel )->getTwoWayDopplerModel( );
+                std::dynamic_pointer_cast< observation_models::DopplerMeasuredFrequencyObservationModel< ParameterType, TimeType > >(
+                        observationModel )
+                        ->getTwoWayDopplerModel( );
     }
     else
     {
@@ -84,24 +82,27 @@ createTwoWayDopplerPartials(
     }
     observation_models::LinkEnds twoWayDopplerLinkEnds = twoWayObservationModel->getLinkEnds( );
 
-    std::function< double(
-        const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
-        const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > scalingFactorFunction = nullptr;
+    std::function< double( const observation_models::LinkEndType,
+                           const std::vector< Eigen::Vector6d >&,
+                           const std::vector< double >&,
+                           const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
+            scalingFactorFunction = nullptr;
 
     if( observationModel->getObservableType( ) == observation_models::doppler_measured_frequency )
     {
-        const std::function< double ( std::vector< observation_models::FrequencyBands >, double ) > receivedFrequencyFunction =
-            createLinkFrequencyFunction(
-                bodies, twoWayDopplerLinkEnds, observation_models::retransmitter, observation_models::receiver );
-        scalingFactorFunction = std::bind( observation_models::getMeasuredFrequencyDopplerScalingFactor, receivedFrequencyFunction,
-                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
-                   std::placeholders::_4 );
+        const std::function< double( std::vector< observation_models::FrequencyBands >, double ) > receivedFrequencyFunction =
+                createLinkFrequencyFunction(
+                        bodies, twoWayDopplerLinkEnds, observation_models::retransmitter, observation_models::receiver );
+        scalingFactorFunction = std::bind( observation_models::getMeasuredFrequencyDopplerScalingFactor,
+                                           receivedFrequencyFunction,
+                                           std::placeholders::_1,
+                                           std::placeholders::_2,
+                                           std::placeholders::_3,
+                                           std::placeholders::_4 );
     }
 
     // Define list of constituent one-way partials.
-    typedef std::vector< std::pair< SingleLinkObservationPartialList,
-                                    std::shared_ptr< PositionPartialScaling > > >
-            OneWayPartialList;
+    typedef std::vector< std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > > OneWayPartialList;
     OneWayPartialList constituentOneWayDopplerPartials;
     OneWayPartialList constituentOneWayRangePartials;
 
@@ -109,70 +110,54 @@ createTwoWayDopplerPartials(
     observation_models::LinkEnds currentLinkEnds;
 
     // Iterate over all links in the two-way Doppler observable
-    std::vector< std::function< double( const double, const observation_models::LinkEndType ) > >
-            oneWayDopplerModels;
-    std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >
-            currentLightTimeCorrections;
+    std::vector< std::function< double( const double, const observation_models::LinkEndType ) > > oneWayDopplerModels;
+    std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > currentLightTimeCorrections;
     for( int i = 0; i < numberOfLinkEnds - 1; i++ )
     {
         if( i == 0 )
         {
-            currentLightTimeCorrections = twoWayObservationModel->getUplinkDopplerCalculator( )
-                                                  ->getLightTimeCalculator( )
-                                                  ->getLightTimeCorrection( );
+            currentLightTimeCorrections =
+                    twoWayObservationModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( );
         }
         else
         {
-            currentLightTimeCorrections = twoWayObservationModel->getDownlinkDopplerCalculator( )
-                                                  ->getLightTimeCalculator( )
-                                                  ->getLightTimeCorrection( );
+            currentLightTimeCorrections =
+                    twoWayObservationModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( );
         }
 
         // Define links for current one-way Doppler link
         currentLinkEnds.clear( );
         currentLinkEnds[ observation_models::transmitter ] =
                 twoWayDopplerLinkEnds.at( observation_models::getNWayLinkEnumFromIndex( i, 3 ) );
-        currentLinkEnds[ observation_models::receiver ] = twoWayDopplerLinkEnds.at(
-                observation_models::getNWayLinkEnumFromIndex( i + 1, 3 ) );
+        currentLinkEnds[ observation_models::receiver ] =
+                twoWayDopplerLinkEnds.at( observation_models::getNWayLinkEnumFromIndex( i + 1, 3 ) );
 
-        std::shared_ptr<
-                observation_models::OneWayDopplerObservationModel< ParameterType, TimeType > >
-                currentDopplerModel;
+        std::shared_ptr< observation_models::OneWayDopplerObservationModel< ParameterType, TimeType > > currentDopplerModel;
         if( i == 0 )
         {
             oneWayDopplerModels.push_back(
-                    observation_models::
-                            getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel<
-                                    ParameterType,
-                                    TimeType >(
-                                    twoWayObservationModel->getUplinkDopplerCalculator( ) ) );
+                    observation_models::getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel< ParameterType, TimeType >(
+                            twoWayObservationModel->getUplinkDopplerCalculator( ) ) );
             currentDopplerModel = twoWayObservationModel->getUplinkDopplerCalculator( );
         }
         else if( i == 1 )
         {
             oneWayDopplerModels.push_back(
-                    observation_models::
-                            getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel<
-                                    ParameterType,
-                                    TimeType >(
-                                    twoWayObservationModel->getDownlinkDopplerCalculator( ) ) );
+                    observation_models::getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel< ParameterType, TimeType >(
+                            twoWayObservationModel->getDownlinkDopplerCalculator( ) ) );
             currentDopplerModel = twoWayObservationModel->getDownlinkDopplerCalculator( );
         }
 
         // Create one-way Doppler partials for current link
-        constituentOneWayDopplerPartials.push_back(
-                createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
-                        currentDopplerModel, bodies, parametersToEstimate, false ) );
+        constituentOneWayDopplerPartials.push_back( createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
+                currentDopplerModel, bodies, parametersToEstimate, false ) );
 
-        constituentOneWayRangePartials.push_back(
-                createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
-                        std::make_shared<
-                                observation_models::OneWayRangeObservationModel< ParameterType,
-                                                                                 TimeType > >(
-                                currentLinkEnds, currentDopplerModel->getLightTimeCalculator( ) ),
-                        bodies,
-                        parametersToEstimate,
-                        false ) );
+        constituentOneWayRangePartials.push_back( createSingleLinkObservationPartials< ParameterType, 1, TimeType >(
+                std::make_shared< observation_models::OneWayRangeObservationModel< ParameterType, TimeType > >(
+                        currentLinkEnds, currentDopplerModel->getLightTimeCalculator( ) ),
+                bodies,
+                parametersToEstimate,
+                false ) );
     }
 
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link
@@ -180,36 +165,28 @@ createTwoWayDopplerPartials(
     std::vector< std::shared_ptr< OneWayDopplerScaling > > oneWayDopplerScalers;
     std::vector< std::shared_ptr< OneWayRangeScaling > > oneWayRangeScalings;
 
-    std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > >
-            sortedOneWayDopplerPartials;
-    std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > >
-            sortedOneWayRangePartials;
+    std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > > sortedOneWayDopplerPartials;
+    std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > > sortedOneWayRangePartials;
 
-    std::map< std::pair< int, int >, estimatable_parameters::EstimatebleParameterIdentifier >
-            parameterIdList;
+    std::map< std::pair< int, int >, estimatable_parameters::EstimatebleParameterIdentifier > parameterIdList;
     for( unsigned int i = 0; i < constituentOneWayDopplerPartials.size( ); i++ )
     {
         // Retrieve one-way Doppler paritals
-        oneWayDopplerScalers.push_back( std::dynamic_pointer_cast< OneWayDopplerScaling >(
-                constituentOneWayDopplerPartials.at( i ).second ) );
-        oneWayRangeScalings.push_back( std::dynamic_pointer_cast< OneWayRangeScaling >(
-                constituentOneWayRangePartials.at( i ).second ) );
+        oneWayDopplerScalers.push_back(
+                std::dynamic_pointer_cast< OneWayDopplerScaling >( constituentOneWayDopplerPartials.at( i ).second ) );
+        oneWayRangeScalings.push_back( std::dynamic_pointer_cast< OneWayRangeScaling >( constituentOneWayRangePartials.at( i ).second ) );
 
         // Iterate over all one-way Doppler partials of current link
-        for( SingleLinkObservationPartialList::iterator parameterIterator =
-                     constituentOneWayDopplerPartials.at( i ).first.begin( );
+        for( SingleLinkObservationPartialList::iterator parameterIterator = constituentOneWayDopplerPartials.at( i ).first.begin( );
              parameterIterator != constituentOneWayDopplerPartials.at( i ).first.end( );
              parameterIterator++ )
         {
-            sortedOneWayDopplerPartials[ parameterIterator->first ][ i ] =
-                    parameterIterator->second;
+            sortedOneWayDopplerPartials[ parameterIterator->first ][ i ] = parameterIterator->second;
             if( parameterIdList.count( parameterIterator->first ) == 0 )
             {
-                parameterIdList[ parameterIterator->first ] =
-                        parameterIterator->second->getParameterIdentifier( );
+                parameterIdList[ parameterIterator->first ] = parameterIterator->second->getParameterIdentifier( );
             }
-            else if( parameterIdList.at( parameterIterator->first ) !=
-                     parameterIterator->second->getParameterIdentifier( ) )
+            else if( parameterIdList.at( parameterIterator->first ) != parameterIterator->second->getParameterIdentifier( ) )
             {
                 throw std::runtime_error(
                         "Error when making two way Doppler partial, parameter indices in Doppler "
@@ -218,19 +195,16 @@ createTwoWayDopplerPartials(
         }
 
         // Iterate over all one-way range partials of current link
-        for( SingleLinkObservationPartialList::iterator parameterIterator =
-                     constituentOneWayRangePartials.at( i ).first.begin( );
+        for( SingleLinkObservationPartialList::iterator parameterIterator = constituentOneWayRangePartials.at( i ).first.begin( );
              parameterIterator != constituentOneWayRangePartials.at( i ).first.end( );
              parameterIterator++ )
         {
             sortedOneWayRangePartials[ parameterIterator->first ][ i ] = parameterIterator->second;
             if( parameterIdList.count( parameterIterator->first ) == 0 )
             {
-                parameterIdList[ parameterIterator->first ] =
-                        parameterIterator->second->getParameterIdentifier( );
+                parameterIdList[ parameterIterator->first ] = parameterIterator->second->getParameterIdentifier( );
             }
-            else if( parameterIdList.at( parameterIterator->first ) !=
-                     parameterIterator->second->getParameterIdentifier( ) )
+            else if( parameterIdList.at( parameterIterator->first ) != parameterIterator->second->getParameterIdentifier( ) )
             {
                 throw std::runtime_error(
                         "Error when making two way Doppler partial, parameter indices in range are "
@@ -240,27 +214,22 @@ createTwoWayDopplerPartials(
     }
 
     // Create two-way Doppler scaling object
-    std::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler =
-            std::make_shared< TwoWayDopplerScaling >(
-                    oneWayDopplerScalers,
-                    oneWayRangeScalings,
-                    oneWayDopplerModels,
-                    twoWayObservationModel->getNormalizeWithSpeedOfLight( )
-                            ? 1.0
-                            : physical_constants::SPEED_OF_LIGHT );
+    std::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler = std::make_shared< TwoWayDopplerScaling >(
+            oneWayDopplerScalers,
+            oneWayRangeScalings,
+            oneWayDopplerModels,
+            twoWayObservationModel->getNormalizeWithSpeedOfLight( ) ? 1.0 : physical_constants::SPEED_OF_LIGHT );
 
     // Define return partial list
     SingleLinkObservationPartialList twoWayDopplerPartialList;
 
     // Create two-way Doppler partial objects
-    for( std::map< std::pair< int, int >,
-                   std::map< int, std::shared_ptr< ObservationPartial< 1 > > > >::iterator
-                 sortedPartialIterator = sortedOneWayDopplerPartials.begin( );
+    for( std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > >::iterator sortedPartialIterator =
+                 sortedOneWayDopplerPartials.begin( );
          sortedPartialIterator != sortedOneWayDopplerPartials.end( );
          sortedPartialIterator++ )
     {
-        std::map< int, std::shared_ptr< ObservationPartial< 1 > > > currentDopplerPartialList =
-                sortedPartialIterator->second;
+        std::map< int, std::shared_ptr< ObservationPartial< 1 > > > currentDopplerPartialList = sortedPartialIterator->second;
         std::map< int, std::shared_ptr< ObservationPartial< 1 > > > currentRangePartialList;
         if( sortedOneWayRangePartials.count( sortedPartialIterator->first ) != 0 )
         {
@@ -268,22 +237,24 @@ createTwoWayDopplerPartials(
         }
 
         twoWayDopplerPartialList[ sortedPartialIterator->first ] =
-                std::make_shared< TwoWayDopplerPartial >(
-                        twoWayDopplerScaler,
-                        currentDopplerPartialList,
-                        currentRangePartialList,
-                        parameterIdList.at( sortedPartialIterator->first ),
-                        numberOfLinkEnds );
+                std::make_shared< TwoWayDopplerPartial >( twoWayDopplerScaler,
+                                                          currentDopplerPartialList,
+                                                          currentRangePartialList,
+                                                          parameterIdList.at( sortedPartialIterator->first ),
+                                                          numberOfLinkEnds );
 
-        twoWayDopplerPartialList[ sortedPartialIterator->first ] = std::make_shared< TwoWayDopplerPartial >(
-                    twoWayDopplerScaler, currentDopplerPartialList, currentRangePartialList,
-                    parameterIdList.at( sortedPartialIterator->first ), numberOfLinkEnds, scalingFactorFunction );
+        twoWayDopplerPartialList[ sortedPartialIterator->first ] =
+                std::make_shared< TwoWayDopplerPartial >( twoWayDopplerScaler,
+                                                          currentDopplerPartialList,
+                                                          currentRangePartialList,
+                                                          parameterIdList.at( sortedPartialIterator->first ),
+                                                          numberOfLinkEnds,
+                                                          scalingFactorFunction );
     }
 
     // Create two-way Doppler partial objects that only have range dependencies.
-    for( std::map< std::pair< int, int >,
-                   std::map< int, std::shared_ptr< ObservationPartial< 1 > > > >::iterator
-                 sortedPartialIterator = sortedOneWayRangePartials.begin( );
+    for( std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > >::iterator sortedPartialIterator =
+                 sortedOneWayRangePartials.begin( );
          sortedPartialIterator != sortedOneWayRangePartials.end( );
          sortedPartialIterator++ )
     {
@@ -293,33 +264,32 @@ createTwoWayDopplerPartials(
 
             std::map< int, std::shared_ptr< ObservationPartial< 1 > > > currentRangePartialList = sortedPartialIterator->second;
 
-            twoWayDopplerPartialList[ sortedPartialIterator->first ] = std::make_shared< TwoWayDopplerPartial >(
-                        twoWayDopplerScaler, currentDopplerPartialList, currentRangePartialList,
-                        parameterIdList.at( sortedPartialIterator->first ), numberOfLinkEnds, scalingFactorFunction );
+            twoWayDopplerPartialList[ sortedPartialIterator->first ] =
+                    std::make_shared< TwoWayDopplerPartial >( twoWayDopplerScaler,
+                                                              currentDopplerPartialList,
+                                                              currentRangePartialList,
+                                                              parameterIdList.at( sortedPartialIterator->first ),
+                                                              numberOfLinkEnds,
+                                                              scalingFactorFunction );
         }
     }
 
     // Create two-way Doppler partials
-    std::map< int,
-              std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
-            vectorParametersToEstimate = parametersToEstimate->getVectorParameters( );
-    for( std::map< int,
-                   std::shared_ptr< estimatable_parameters::EstimatableParameter<
-                           Eigen::VectorXd > > >::iterator parameterIterator =
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParametersToEstimate =
+            parametersToEstimate->getVectorParameters( );
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator parameterIterator =
                  vectorParametersToEstimate.begin( );
          parameterIterator != vectorParametersToEstimate.end( );
          parameterIterator++ )
     {
         std::shared_ptr< ObservationPartial< 1 > > currentTwoWayDopplerPartial;
-        if( isParameterObservationLinkProperty(
-                    parameterIterator->second->getParameterName( ).first ) )
+        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) )
         {
-            currentTwoWayDopplerPartial = createObservationPartialWrtLinkProperty< 1 >(
-                    twoWayDopplerLinkEnds,
-                    observation_models::two_way_doppler,
-                    parameterIterator->second,
-                    bodies,
-                    isPartialForDifferencedObservable );
+            currentTwoWayDopplerPartial = createObservationPartialWrtLinkProperty< 1 >( twoWayDopplerLinkEnds,
+                                                                                        observation_models::two_way_doppler,
+                                                                                        parameterIterator->second,
+                                                                                        bodies,
+                                                                                        isPartialForDifferencedObservable );
         }
 
         // Check if partial is non-nullptr (i.e. whether dependency exists between current doppler
@@ -327,8 +297,9 @@ createTwoWayDopplerPartials(
         if( currentTwoWayDopplerPartial != nullptr )
         {
             // Add partial to the list.
-            std::pair< double, double > currentPair = std::pair< double, double >(
-                static_cast< double >( parameterIterator->first ), static_cast< double >( parameterIterator->second->getParameterSize( ) ) );
+            std::pair< double, double > currentPair =
+                    std::pair< double, double >( static_cast< double >( parameterIterator->first ),
+                                                 static_cast< double >( parameterIterator->second->getParameterSize( ) ) );
             twoWayDopplerPartialList[ currentPair ] = currentTwoWayDopplerPartial;
         }
     }

@@ -8,15 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
-
-
-
-
 
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/interface/spice/spiceInterface.h"
@@ -36,58 +31,52 @@ using namespace tudat::orbital_element_conversions;
 using namespace tudat::basic_mathematics;
 using namespace tudat::unit_conversions;
 
-double computeLenseThirringPericenterPrecession(
-        const double gravitationalParameter,
-        const double angularMomentum,
-        const double semiMajorAxis,
-        const double eccentricity,
-        const double inclination )
+double computeLenseThirringPericenterPrecession( const double gravitationalParameter,
+                                                 const double angularMomentum,
+                                                 const double semiMajorAxis,
+                                                 const double eccentricity,
+                                                 const double inclination )
 {
-    return - 6.0 * gravitationalParameter * angularMomentum * std::cos(inclination  ) /
+    return -6.0 * gravitationalParameter * angularMomentum * std::cos( inclination ) /
             ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * semiMajorAxis * semiMajorAxis * semiMajorAxis *
               std::pow( 1.0 - eccentricity * eccentricity, 1.5 ) );
 }
 
-double computeLenseThirringNodePrecession(
-        const double gravitationalParameter,
-        const double angularMomentum,
-        const double semiMajorAxis,
-        const double eccentricity )
+double computeLenseThirringNodePrecession( const double gravitationalParameter,
+                                           const double angularMomentum,
+                                           const double semiMajorAxis,
+                                           const double eccentricity )
 {
     return 2.0 * gravitationalParameter * angularMomentum /
             ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * semiMajorAxis * semiMajorAxis * semiMajorAxis *
               std::pow( 1.0 - eccentricity * eccentricity, 1.5 ) );
 }
 
-double computeSchwarzschildPericenterPrecession(
-        const double gravitationalParameter,
-        const double semiMajorAxis,
-        const double eccentricity )
+double computeSchwarzschildPericenterPrecession( const double gravitationalParameter,
+                                                 const double semiMajorAxis,
+                                                 const double eccentricity )
 {
     return 3.0 * std::pow( gravitationalParameter, 1.5 ) /
-            ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * std::pow(
-                  semiMajorAxis, 2.5 ) *( 1.0 - eccentricity * eccentricity ) );
+            ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * std::pow( semiMajorAxis, 2.5 ) *
+              ( 1.0 - eccentricity * eccentricity ) );
 }
 
-double computeDeSitterPericenterPrecession( const double meanDistanceEarthToSun,
-                                            const double meanEccentricity )
+double computeDeSitterPericenterPrecession( const double meanDistanceEarthToSun, const double meanEccentricity )
 {
-    return 1.5 * 1.327124E20 / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * meanDistanceEarthToSun ) * 2.0 * mathematical_constants::PI /
-            ( physical_constants::JULIAN_YEAR ) * std::sqrt( 1.0 - meanEccentricity * meanEccentricity );
+    return 1.5 * 1.327124E20 / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * meanDistanceEarthToSun ) * 2.0 *
+            mathematical_constants::PI / (physical_constants::JULIAN_YEAR)*std::sqrt( 1.0 - meanEccentricity * meanEccentricity );
 }
 
 BOOST_AUTO_TEST_SUITE( test_relativistic_acceleration_corrections )
 
-void testControlPropagation(
-        Eigen::Vector6d asterixInitialStateInKeplerianElements,
-        std::vector< std::map< double, double > > elementMaps,
-        double earthGravitationalParameter )
+void testControlPropagation( Eigen::Vector6d asterixInitialStateInKeplerianElements,
+                             std::vector< std::map< double, double > > elementMaps,
+                             double earthGravitationalParameter )
 {
     std::vector< double > polynomialPowers = { 0, 1 };
     for( unsigned elementIndex = 0; elementIndex < 5; elementIndex++ )
     {
-        std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit(
-                    elementMaps[ elementIndex ], polynomialPowers );
+        std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit( elementMaps[ elementIndex ], polynomialPowers );
         BOOST_CHECK_CLOSE_FRACTION( asterixInitialStateInKeplerianElements( elementIndex ), fitOutput.at( 0 ), 1.0E-10 );
         if( elementIndex == 1 )
         {
@@ -100,26 +89,26 @@ void testControlPropagation(
     }
 }
 
-void testLenseThirringPropagation(
-        Eigen::Vector6d asterixInitialStateInKeplerianElements,
-        std::vector< std::map< double, double > > elementMaps,
-        double earthGravitationalParameter )
+void testLenseThirringPropagation( Eigen::Vector6d asterixInitialStateInKeplerianElements,
+                                   std::vector< std::map< double, double > > elementMaps,
+                                   double earthGravitationalParameter )
 {
     double theoreticalLenseThirringPericenterPrecession =
-            computeLenseThirringPericenterPrecession(
-                earthGravitationalParameter, 1.0E9,  asterixInitialStateInKeplerianElements( semiMajorAxisIndex ),
-                asterixInitialStateInKeplerianElements( eccentricityIndex ),
-                asterixInitialStateInKeplerianElements( inclinationIndex ) );
+            computeLenseThirringPericenterPrecession( earthGravitationalParameter,
+                                                      1.0E9,
+                                                      asterixInitialStateInKeplerianElements( semiMajorAxisIndex ),
+                                                      asterixInitialStateInKeplerianElements( eccentricityIndex ),
+                                                      asterixInitialStateInKeplerianElements( inclinationIndex ) );
     double theoreticalLenseThirringNodePrecession =
-            computeLenseThirringNodePrecession(
-                earthGravitationalParameter, 1.0E9,  asterixInitialStateInKeplerianElements( semiMajorAxisIndex ),
-                asterixInitialStateInKeplerianElements( eccentricityIndex ) );
+            computeLenseThirringNodePrecession( earthGravitationalParameter,
+                                                1.0E9,
+                                                asterixInitialStateInKeplerianElements( semiMajorAxisIndex ),
+                                                asterixInitialStateInKeplerianElements( eccentricityIndex ) );
 
     std::vector< double > polynomialPowers = { 0, 1 };
     for( unsigned elementIndex = 0; elementIndex < 5; elementIndex++ )
     {
-        std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit(
-                    elementMaps[ elementIndex ], polynomialPowers );
+        std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit( elementMaps[ elementIndex ], polynomialPowers );
         BOOST_CHECK_CLOSE_FRACTION( asterixInitialStateInKeplerianElements( elementIndex ), fitOutput.at( 0 ), 1.0E-10 );
         if( elementIndex == 1 )
         {
@@ -140,21 +129,19 @@ void testLenseThirringPropagation(
     }
 }
 
-void testSchwarzschildPropagation(
-        Eigen::Vector6d asterixInitialStateInKeplerianElements,
-        std::vector< std::map< double, double > > elementMaps,
-        double earthGravitationalParameter )
+void testSchwarzschildPropagation( Eigen::Vector6d asterixInitialStateInKeplerianElements,
+                                   std::vector< std::map< double, double > > elementMaps,
+                                   double earthGravitationalParameter )
 {
     double theoreticalSchwarzschildPericenterPrecession =
-            computeSchwarzschildPericenterPrecession(
-                earthGravitationalParameter, asterixInitialStateInKeplerianElements( semiMajorAxisIndex ),
-                asterixInitialStateInKeplerianElements( eccentricityIndex ) );
+            computeSchwarzschildPericenterPrecession( earthGravitationalParameter,
+                                                      asterixInitialStateInKeplerianElements( semiMajorAxisIndex ),
+                                                      asterixInitialStateInKeplerianElements( eccentricityIndex ) );
 
     std::vector< double > polynomialPowers = { 0, 1 };
     for( unsigned elementIndex = 0; elementIndex < 5; elementIndex++ )
     {
-        std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit(
-                    elementMaps[ elementIndex ], polynomialPowers );
+        std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit( elementMaps[ elementIndex ], polynomialPowers );
         if( elementIndex != 1 )
         {
             BOOST_CHECK_CLOSE_FRACTION( asterixInitialStateInKeplerianElements( elementIndex ), fitOutput.at( 0 ), 1.0E-8 );
@@ -178,17 +165,15 @@ void testSchwarzschildPropagation(
     }
 }
 
-void testDeSitterPropagation(
-        Eigen::Vector6d asterixInitialStateInKeplerianElements,
-        std::vector< std::map< double, double > > elementMaps,
-        double meanDistanceEarthToSun,
-        double meanEarthEccentricity )
+void testDeSitterPropagation( Eigen::Vector6d asterixInitialStateInKeplerianElements,
+                              std::vector< std::map< double, double > > elementMaps,
+                              double meanDistanceEarthToSun,
+                              double meanEarthEccentricity )
 {
     std::vector< double > polynomialPowers = { 0, 1 };
     for( unsigned elementIndex = 0; elementIndex < 5; elementIndex++ )
     {
-        std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit(
-                    elementMaps[ elementIndex ], polynomialPowers );
+        std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit( elementMaps[ elementIndex ], polynomialPowers );
         if( elementIndex != 4 )
         {
             BOOST_CHECK_CLOSE_FRACTION( asterixInitialStateInKeplerianElements( elementIndex ), fitOutput.at( 0 ), 1.0E-10 );
@@ -203,8 +188,8 @@ void testDeSitterPropagation(
         }
         else if( elementIndex == 4 )
         {
-           BOOST_CHECK_CLOSE_FRACTION( fitOutput.at( 1 ), computeDeSitterPericenterPrecession(
-                                           meanDistanceEarthToSun, meanEarthEccentricity  ), 2.5E-2 );
+            BOOST_CHECK_CLOSE_FRACTION(
+                    fitOutput.at( 1 ), computeDeSitterPericenterPrecession( meanDistanceEarthToSun, meanEarthEccentricity ), 2.5E-2 );
         }
         else
         {
@@ -220,23 +205,18 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
     // Set simulation end epoch.
     const double simulationEndEpoch = 0.25 * tudat::physical_constants::JULIAN_YEAR;
 
-
     // Create body objects.
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Earth" );
     bodiesToCreate.push_back( "Sun" );
 
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodiesToCreate );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate );
 
     // Create Earth object
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Create spacecraft object.
     bodies.createEmptyBody( "Asterix" );
-
-    
-    
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -254,30 +234,27 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
 
         // Define propagation settings.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                         basic_astrodynamics::point_mass_gravity ) );
+        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
         if( testCase == 1 )
         {
             accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< RelativisticAccelerationCorrectionSettings >(
-                                                             false, true, false, "", 1.0E9 * Eigen::Vector3d::UnitZ( ) ) );
+                    false, true, false, "", 1.0E9 * Eigen::Vector3d::UnitZ( ) ) );
         }
         if( testCase == 2 )
         {
-            accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< RelativisticAccelerationCorrectionSettings >(
-                                                             true, false, false ) );
+            accelerationsOfAsterix[ "Earth" ].push_back(
+                    std::make_shared< RelativisticAccelerationCorrectionSettings >( true, false, false ) );
         }
         if( testCase == 3 )
         {
-            accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< RelativisticAccelerationCorrectionSettings >(
-                                                             false, false, true, "Sun" ) );
+            accelerationsOfAsterix[ "Earth" ].push_back(
+                    std::make_shared< RelativisticAccelerationCorrectionSettings >( false, false, true, "Sun" ) );
         }
         accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
 
         // Create acceleration models and propagation settings.
-        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
-
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -292,36 +269,29 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 5000.0E3;
         asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.2;
         asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 65.3 );
-        asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-                = convertDegreesToRadians( 235.7 );
-        asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-                = convertDegreesToRadians( 23.4 );
+        asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 235.7 );
+        asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 23.4 );
         asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
 
         // Convert Asterix state from Keplerian elements to Cartesian elements.
         double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-        Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
-                    asterixInitialStateInKeplerianElements,
-                    earthGravitationalParameter );
+        Eigen::VectorXd systemInitialState =
+                convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, encke );
-
+                std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                        centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, encke );
 
         // Create numerical integrator.
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( 0.0, 10.0,
-                  rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings<> >(
+                0.0, 10.0, rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > keplerianIntegrationResult;
 
@@ -338,13 +308,13 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         Eigen::Vector6d earthCartesianState;
 
         for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integrationResult.begin( );
-             stateIterator != integrationResult.end( ); stateIterator++ )
+             stateIterator != integrationResult.end( );
+             stateIterator++ )
         {
             // Retrieve current Cartesian state (convert to Moon-centered frame if needed)
             currentCartesianState = stateIterator->second;
             keplerianIntegrationResult[ stateIterator->first ] =
-                    convertCartesianToKeplerianElements(
-                        currentCartesianState, earthGravitationalParameter );
+                    convertCartesianToKeplerianElements( currentCartesianState, earthGravitationalParameter );
             for( unsigned elementIndex = 0; elementIndex < 6; elementIndex++ )
             {
                 elementMaps[ elementIndex ][ stateIterator->first ] = keplerianIntegrationResult[ stateIterator->first ]( elementIndex );
@@ -352,10 +322,10 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
 
             if( testCase == 3 )
             {
-                earthCartesianState = spice_interface:: getBodyCartesianStateAtEpoch(
-                            "Earth", "Sun", "ECLIPJ2000", "None", stateIterator->first );
-                earthKeplerianState  = convertCartesianToKeplerianElements(
-                            earthCartesianState, spice_interface::getBodyGravitationalParameter( "Sun" ) );
+                earthCartesianState =
+                        spice_interface::getBodyCartesianStateAtEpoch( "Earth", "Sun", "ECLIPJ2000", "None", stateIterator->first );
+                earthKeplerianState =
+                        convertCartesianToKeplerianElements( earthCartesianState, spice_interface::getBodyGravitationalParameter( "Sun" ) );
 
                 earthSemiMajorAxes.push_back( earthKeplerianState( 0 ) );
                 earthEccentricities.push_back( earthKeplerianState( 1 ) );
@@ -378,15 +348,16 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         }
         else if( testCase == 3 )
         {
-            testDeSitterPropagation(
-                        asterixInitialStateInKeplerianElements, elementMaps, statistics::computeSampleMean( solarDistances ),
-                        statistics::computeSampleMean( earthEccentricities ) );
+            testDeSitterPropagation( asterixInitialStateInKeplerianElements,
+                                     elementMaps,
+                                     statistics::computeSampleMean( solarDistances ),
+                                     statistics::computeSampleMean( earthEccentricities ) );
         }
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

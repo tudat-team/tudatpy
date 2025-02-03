@@ -22,4 +22,4 @@
 #include "mission_segments/oscillatingFunctionNovak.h"
 #include "mission_segments/zeroRevolutionLambertTargeterIzzo.h"
 
-#endif // TUDAT_MISSION_SEGMENTS_H
+#endif  // TUDAT_MISSION_SEGMENTS_H

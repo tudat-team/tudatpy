@@ -16,13 +16,11 @@
 
 #include <limits>
 
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
-
 
 namespace tudat
 {
@@ -30,7 +28,7 @@ namespace unit_tests
 {
 BOOST_AUTO_TEST_SUITE( test_arcwise_environment )
 
-//Using declarations.
+// Using declarations.
 using namespace tudat::observation_models;
 using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
@@ -46,11 +44,10 @@ using namespace tudat::coordinate_conversions;
 using namespace tudat::ground_stations;
 using namespace tudat::observation_models;
 
-
 //! Unit test to check if tidal time lag parameters are estimated correctly
 BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 {
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation
@@ -63,8 +60,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     double finalEphemerisTime = initialEphemerisTime + 1.0 * 86400.0;
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
@@ -75,12 +71,14 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     double aerodynamicCoefficient = 1.2;
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.01, 0.1 ).finished( ),
-                negative_aerodynamic_frame_coefficients );
+                    referenceArea,
+                    aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.01, 0.1 ).finished( ),
+                    negative_aerodynamic_frame_coefficients );
 
     // Create and set aerodynamic coefficients object
-    bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
+    bodies.at( "Vehicle" )
+            ->setAerodynamicCoefficientInterface(
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -89,12 +87,12 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     occultingBodies.push_back( "Earth" );
     std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
             std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
-    bodies.at( "Vehicle" )->setRadiationPressureInterface(
-                "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Vehicle", bodies ) );
+    bodies.at( "Vehicle" )
+            ->setRadiationPressureInterface( "Sun",
+                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -103,12 +101,10 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::cannon_ball_radiation_pressure ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::aerodynamic ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+    accelerationsOfVehicle[ "Sun" ].push_back(
+            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -118,8 +114,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     centralBodies.push_back( "Earth" );
 
     // Create acceleration models
-    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -137,32 +132,32 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     // Set (perturbed) initial state.
-    Eigen::Matrix< double, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+    Eigen::Matrix< double, 6, 1 > systemInitialState =
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create propagator settings
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    dependentVariables.push_back(
-                std::make_shared< SingleDependentVariableSaveSettings >(
-                    aerodynamic_force_coefficients_dependent_variable, "Vehicle", "Earth" ) );
-    dependentVariables.push_back(
-                std::make_shared< SingleDependentVariableSaveSettings >(
-                    radiation_pressure_coefficient_dependent_variable, "Vehicle", "Sun" ) );
-
+    dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+            aerodynamic_force_coefficients_dependent_variable, "Vehicle", "Earth" ) );
+    dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+            radiation_pressure_coefficient_dependent_variable, "Vehicle", "Sun" ) );
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                double( initialEphemerisTime ), 90.0,
-                CoefficientSets::rungeKuttaFehlberg78,
-                90.0, 90.0, 1.0, 1.0 );
+                    double( initialEphemerisTime ), 90.0, CoefficientSets::rungeKuttaFehlberg78, 90.0, 90.0, 1.0, 1.0 );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
-                std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
-                cowell, dependentVariables);
-
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
+                    cowell,
+                    dependentVariables );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE OBSERVATION SETTINGS            ////////////////////////////////////////////
@@ -170,7 +165,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     LinkDefinition linkEnds;
     linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
-    std::vector< std::shared_ptr< ObservationModelSettings > >  observationSettingsList;
+    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,12 +176,12 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
 
-    std::vector< double > arcStartTimeList =
-    { initialEphemerisTime, initialEphemerisTime + 0.33 * 86400.0, initialEphemerisTime + 0.66 * 86400.0 };
+    std::vector< double > arcStartTimeList = { initialEphemerisTime,
+                                               initialEphemerisTime + 0.33 * 86400.0,
+                                               initialEphemerisTime + 0.66 * 86400.0 };
+    parameterNames.push_back( std::make_shared< ArcWiseDragCoefficientEstimatableParameterSettings >( "Vehicle", arcStartTimeList ) );
     parameterNames.push_back(
-                std::make_shared< ArcWiseDragCoefficientEstimatableParameterSettings >( "Vehicle", arcStartTimeList ) );
-    parameterNames.push_back(
-                std::make_shared< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >( "Vehicle", arcStartTimeList ) );
+            std::make_shared< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >( "Vehicle", arcStartTimeList ) );
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
@@ -209,18 +204,16 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
 
     // Create orbit determination object (propagate orbit, create observation models)
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
-            OrbitDeterminationManager< double, double >(
-                bodies, parametersToEstimate, observationSettingsList,
-                propagatorSettings );
+            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
 
-    std::map< double, Eigen::VectorXd > dependentVariableData =
-            orbitDeterminationManager.getVariationalEquationsSolver( )->getDynamicsSimulatorBase(
-                )->getDependentVariableNumericalSolutionBase( )[ 0 ];
+    std::map< double, Eigen::VectorXd > dependentVariableData = orbitDeterminationManager.getVariationalEquationsSolver( )
+                                                                        ->getDynamicsSimulatorBase( )
+                                                                        ->getDependentVariableNumericalSolutionBase( )[ 0 ];
 
     // Test whether arc-wise coefficients are correctly used.
     double testDragCoefficient = 0.0;
     double testRadiationPressureCoefficient = 0.0;
-    for( auto variableIterator : dependentVariableData )
+    for( auto variableIterator: dependentVariableData )
     {
         double currentTime = variableIterator.first;
 
@@ -244,7 +237,6 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
         BOOST_CHECK_EQUAL( aerodynamicCoefficient * -0.01, variableIterator.second( 1 ) );
         BOOST_CHECK_EQUAL( aerodynamicCoefficient * 0.1, variableIterator.second( 2 ) );
         BOOST_CHECK_EQUAL( testRadiationPressureCoefficient, variableIterator.second( 3 ) );
-
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -255,7 +247,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     double observationTimeStart = initialEphemerisTime + 1000.0;
 
     // Define time between two observations
-    double  observationInterval = 30.0;
+    double observationInterval = 30.0;
 
     // Simulate observations for 3 days
     std::vector< double > baseTimeList;
@@ -269,12 +261,11 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     // Create measureement simulation input
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
     measurementSimulationInput.push_back(
-                std::make_shared< TabulatedObservationSimulationSettings< > >(
-                    position_observable, linkEnds, baseTimeList, observed_body ) );
+            std::make_shared< TabulatedObservationSimulationSettings<> >( position_observable, linkEnds, baseTimeList, observed_body ) );
 
     // Simulate observations
-    std::shared_ptr< ObservationCollection< > > observationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
+            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     ////////////////////////////////////////////
@@ -290,18 +281,14 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     initialParameterEstimate += parameterPerturbation;
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
-
     // Define estimation input
     std::shared_ptr< EstimationInput< double, double > > estimationInput =
-            std::make_shared< EstimationInput< double, double > >(
-                observationsAndTimes );
+            std::make_shared< EstimationInput< double, double > >( observationsAndTimes );
     estimationInput->defineEstimationSettings( true, true, false, true );
-    estimationInput->setConvergenceChecker(
-                std::make_shared< EstimationConvergenceChecker >( 4 ) );
+    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 4 ) );
 
     // Perform estimation
-    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters(
-                estimationInput );
+    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
     Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_ - truthParameters;
 
     for( int i = 0; i < 3; i++ )
@@ -310,14 +297,11 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
         BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i + 3 ) ), 1.0E-4 );
         BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i + 6 ) ), 1.0E-5 );
         BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i + 9 ) ), 1.0E-4 );
-
-
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

@@ -26,13 +26,11 @@ namespace electromagnetism
  */
 inline double computeBlackbodyRadiationIntensity( const double bodyTemperature )
 {
-    return physical_constants::STEFAN_BOLTZMANN_CONSTANT *
-            bodyTemperature * bodyTemperature * bodyTemperature * bodyTemperature;
+    return physical_constants::STEFAN_BOLTZMANN_CONSTANT * bodyTemperature * bodyTemperature * bodyTemperature * bodyTemperature;
 }
 
-} // namespace electromagnetism
+}  // namespace electromagnetism
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_BASICELECTROMAGNETISM_H
+#endif  // TUDAT_BASICELECTROMAGNETISM_H

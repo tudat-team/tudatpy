@@ -16,10 +16,8 @@ namespace tudat
 namespace simulation_setup
 {
 
-
 //! Function to create a mass rate model
-std::shared_ptr< basic_astrodynamics::MassRateModel >
-createMassRateModel(
+std::shared_ptr< basic_astrodynamics::MassRateModel > createMassRateModel(
         const std::string& bodyWithMassRate,
         const std::shared_ptr< MassRateModelSettings > massRateModelSettings,
         const SystemOfBodies& bodies,
@@ -30,139 +28,130 @@ createMassRateModel(
     // Check type of mass rate model.
     switch( massRateModelSettings->massRateType_ )
     {
-    case basic_astrodynamics::custom_mass_rate_model:
-    {
-        // Check input consistency
-        std::shared_ptr< CustomMassRateSettings > customMassRateModelSettings =
-                std::dynamic_pointer_cast< CustomMassRateSettings >(massRateModelSettings );
-        if( customMassRateModelSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when making cusom mass rate model, input is inconsistent" );
-        }
-        else
-        {
-            massRateModel = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                        customMassRateModelSettings->massRateFunction_ );
-        }
-        break;
-    }
-    case basic_astrodynamics::from_thrust_mass_rate_model:
-    {
-        // Check input consistency
-        std::shared_ptr< FromThrustMassRateSettings > fromThrustMassModelSettings =
-                std::dynamic_pointer_cast< FromThrustMassRateSettings >(massRateModelSettings );
-        if( fromThrustMassModelSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when making from-engine mass rate model, input is inconsistent" );
-        }
-        else
-        {
-            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >
-                    thrustAccelerations;
-            if( accelerationModels.count( bodyWithMassRate ) != 0 )
+        case basic_astrodynamics::custom_mass_rate_model: {
+            // Check input consistency
+            std::shared_ptr< CustomMassRateSettings > customMassRateModelSettings =
+                    std::dynamic_pointer_cast< CustomMassRateSettings >( massRateModelSettings );
+            if( customMassRateModelSettings == nullptr )
             {
-                if( accelerationModels.at( bodyWithMassRate ).count( bodyWithMassRate ) != 0 )
-                {
-                    thrustAccelerations = basic_astrodynamics::getAccelerationModelsOfType(
-                                accelerationModels.at( bodyWithMassRate ).at( bodyWithMassRate ),
-                                basic_astrodynamics::thrust_acceleration );
-                }
-            }
-
-            if( thrustAccelerations.size( ) == 0 )
-            {
-                throw std::runtime_error(
-                            "Error when making from-thrust mass-rate model for body " + bodyWithMassRate + ", no thrust model is found for this body" );
-            }
-
-            std::vector< std::shared_ptr< propulsion::ThrustAcceleration > >
-                    explicitThrustAccelerations;
-
-            if( fromThrustMassModelSettings->useAllThrustModels_ == 0 )
-            {
-                std::vector< std::string > requiredThrustSources = fromThrustMassModelSettings->associatedThrustSource_;
-                // Retrieve thrust models with the correct id (should be 1)
-
-                for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
-                {
-                    std::vector< std::string > thrustSourcesInAcceleration =
-                            std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                thrustAccelerations.at( i ) )->getAssociatedThrustSources( );
-
-                    bool doSourcesMatch = true;
-
-                    for( unsigned int j = 0; j < thrustSourcesInAcceleration.size( ); j++ )
-                    {
-                        if( std::find( requiredThrustSources.begin( ), requiredThrustSources.end( ), thrustSourcesInAcceleration.at( j ) ) ==
-                                requiredThrustSources.end( ) )
-                        {
-                            doSourcesMatch = false;
-                        }
-                    }
-                    if( doSourcesMatch )
-                    {
-                        explicitThrustAccelerations.push_back( std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                                         thrustAccelerations.at( i ) ) );
-
-                        for( unsigned int j = 0; j < thrustSourcesInAcceleration.size( ); j++ )
-                        {
-                            requiredThrustSources.erase(
-                                        std::remove(requiredThrustSources.begin( ), requiredThrustSources.end( ),
-                                                    thrustSourcesInAcceleration.at( j ) ),
-                                        requiredThrustSources.end( ) );
-
-                        }
-                    }
-                }
+                throw std::runtime_error( "Error when making cusom mass rate model, input is inconsistent" );
             }
             else
             {
-                // Combine all thrust models into list
-                for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
-                {
-                    explicitThrustAccelerations.push_back( std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                                               thrustAccelerations.at( i ) ) );
-                }
+                massRateModel =
+                        std::make_shared< basic_astrodynamics::CustomMassRateModel >( customMassRateModelSettings->massRateFunction_ );
             }
-
-            // Create mass rate model
-            massRateModel = std::make_shared< propulsion::FromThrustMassRateModel >(
-                        explicitThrustAccelerations );
+            break;
         }
-        break;
-    }
-    default:
-        throw std::runtime_error( "Error when making mass rate model, type not recognized" );
+        case basic_astrodynamics::from_thrust_mass_rate_model: {
+            // Check input consistency
+            std::shared_ptr< FromThrustMassRateSettings > fromThrustMassModelSettings =
+                    std::dynamic_pointer_cast< FromThrustMassRateSettings >( massRateModelSettings );
+            if( fromThrustMassModelSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when making from-engine mass rate model, input is inconsistent" );
+            }
+            else
+            {
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > thrustAccelerations;
+                if( accelerationModels.count( bodyWithMassRate ) != 0 )
+                {
+                    if( accelerationModels.at( bodyWithMassRate ).count( bodyWithMassRate ) != 0 )
+                    {
+                        thrustAccelerations = basic_astrodynamics::getAccelerationModelsOfType(
+                                accelerationModels.at( bodyWithMassRate ).at( bodyWithMassRate ),
+                                basic_astrodynamics::thrust_acceleration );
+                    }
+                }
 
+                if( thrustAccelerations.size( ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making from-thrust mass-rate model for body " + bodyWithMassRate +
+                                              ", no thrust model is found for this body" );
+                }
+
+                std::vector< std::shared_ptr< propulsion::ThrustAcceleration > > explicitThrustAccelerations;
+
+                if( fromThrustMassModelSettings->useAllThrustModels_ == 0 )
+                {
+                    std::vector< std::string > requiredThrustSources = fromThrustMassModelSettings->associatedThrustSource_;
+                    // Retrieve thrust models with the correct id (should be 1)
+
+                    for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
+                    {
+                        std::vector< std::string > thrustSourcesInAcceleration =
+                                std::dynamic_pointer_cast< propulsion::ThrustAcceleration >( thrustAccelerations.at( i ) )
+                                        ->getAssociatedThrustSources( );
+
+                        bool doSourcesMatch = true;
+
+                        for( unsigned int j = 0; j < thrustSourcesInAcceleration.size( ); j++ )
+                        {
+                            if( std::find( requiredThrustSources.begin( ),
+                                           requiredThrustSources.end( ),
+                                           thrustSourcesInAcceleration.at( j ) ) == requiredThrustSources.end( ) )
+                            {
+                                doSourcesMatch = false;
+                            }
+                        }
+                        if( doSourcesMatch )
+                        {
+                            explicitThrustAccelerations.push_back(
+                                    std::dynamic_pointer_cast< propulsion::ThrustAcceleration >( thrustAccelerations.at( i ) ) );
+
+                            for( unsigned int j = 0; j < thrustSourcesInAcceleration.size( ); j++ )
+                            {
+                                requiredThrustSources.erase( std::remove( requiredThrustSources.begin( ),
+                                                                          requiredThrustSources.end( ),
+                                                                          thrustSourcesInAcceleration.at( j ) ),
+                                                             requiredThrustSources.end( ) );
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Combine all thrust models into list
+                    for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
+                    {
+                        explicitThrustAccelerations.push_back(
+                                std::dynamic_pointer_cast< propulsion::ThrustAcceleration >( thrustAccelerations.at( i ) ) );
+                    }
+                }
+
+                // Create mass rate model
+                massRateModel = std::make_shared< propulsion::FromThrustMassRateModel >( explicitThrustAccelerations );
+            }
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when making mass rate model, type not recognized" );
     }
     return massRateModel;
 }
 
-
 //! Function to create a list of mass rate models for a list of bodies.
-basic_astrodynamics::MassRateModelMap createMassRateModelsMap(
-        const SystemOfBodies& bodies,
-        const SelectedMassRateModelMap& massRateModelSettings,
-        const basic_astrodynamics::AccelerationMap& accelerationModels )
+basic_astrodynamics::MassRateModelMap createMassRateModelsMap( const SystemOfBodies& bodies,
+                                                               const SelectedMassRateModelMap& massRateModelSettings,
+                                                               const basic_astrodynamics::AccelerationMap& accelerationModels )
 {
     // Iterate over all bodies
     std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels;
     for( std::map< std::string, std::vector< std::shared_ptr< MassRateModelSettings > > >::const_iterator settingsIterator =
-         massRateModelSettings.begin( ); settingsIterator != massRateModelSettings.end( ); settingsIterator++)
+                 massRateModelSettings.begin( );
+         settingsIterator != massRateModelSettings.end( );
+         settingsIterator++ )
     {
         // Iterate over all mass model settings for current body.
         for( unsigned int i = 0; i < settingsIterator->second.size( ); i++ )
         {
             massRateModels[ settingsIterator->first ].push_back(
-                        createMassRateModel( settingsIterator->first, settingsIterator->second.at( i ), bodies,
-                                             accelerationModels ) );
+                    createMassRateModel( settingsIterator->first, settingsIterator->second.at( i ), bodies, accelerationModels ) );
         }
     }
     return massRateModels;
-
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
-
+}  // namespace tudat

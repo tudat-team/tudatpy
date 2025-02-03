@@ -25,51 +25,50 @@ double computeEquilibiumWallTemperature( const std::function< double( const doub
                                          const double adiabaticWallTemperature )
 {
     // Create the object that contains the function who's root needs to be found.
-    std::shared_ptr< EquilibriumTemperatureFunction > equilibriumTemperatureFunction
-            = std::make_shared< EquilibriumTemperatureFunction >(
-                heatTransferFunction, wallEmmisivity, adiabaticWallTemperature  );
+    std::shared_ptr< EquilibriumTemperatureFunction > equilibriumTemperatureFunction =
+            std::make_shared< EquilibriumTemperatureFunction >( heatTransferFunction, wallEmmisivity, adiabaticWallTemperature );
 
     // Compute wall temperature, first try secant method, use bisection as backup if secany unsuccesfull.
     double wallTemperature = TUDAT_NAN;
     try
     {
-        root_finders::SecantRootFinder< >::TerminationFunction terminationConditionFunction =
-                std::bind( &root_finders::RootRelativeToleranceTerminationCondition< double >::
-                             checkTerminationCondition,
-                             std::make_shared< root_finders::
-                             RootRelativeToleranceTerminationCondition< double > >(
-                                 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
-        root_finders::SecantRootFinder< > secant( terminationConditionFunction );
-        wallTemperature = secant.execute(
-                    equilibriumTemperatureFunction, equilibriumTemperatureFunction->getInitialGuess( ) );
+        root_finders::SecantRootFinder<>::TerminationFunction terminationConditionFunction =
+                std::bind( &root_finders::RootRelativeToleranceTerminationCondition< double >::checkTerminationCondition,
+                           std::make_shared< root_finders::RootRelativeToleranceTerminationCondition< double > >( ),
+                           std::placeholders::_1,
+                           std::placeholders::_2,
+                           std::placeholders::_3,
+                           std::placeholders::_4,
+                           std::placeholders::_5 );
+        root_finders::SecantRootFinder<> secant( terminationConditionFunction );
+        wallTemperature = secant.execute( equilibriumTemperatureFunction, equilibriumTemperatureFunction->getInitialGuess( ) );
     }
     catch( std::runtime_error const& )
 
     {
         try
         {
-        root_finders::Bisection< >::TerminationFunction terminationConditionFunction =
-                std::bind( &root_finders::RootRelativeToleranceTerminationCondition< double >::
-                             checkTerminationCondition,
-                             std::make_shared< root_finders::
-                             RootRelativeToleranceTerminationCondition< double > >(
-                                 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
-        root_finders::Bisection< > bisection( terminationConditionFunction );
-        wallTemperature = bisection.execute(
-                    equilibriumTemperatureFunction, equilibriumTemperatureFunction->getInitialGuess( ) );
+            root_finders::Bisection<>::TerminationFunction terminationConditionFunction =
+                    std::bind( &root_finders::RootRelativeToleranceTerminationCondition< double >::checkTerminationCondition,
+                               std::make_shared< root_finders::RootRelativeToleranceTerminationCondition< double > >( ),
+                               std::placeholders::_1,
+                               std::placeholders::_2,
+                               std::placeholders::_3,
+                               std::placeholders::_4,
+                               std::placeholders::_5 );
+            root_finders::Bisection<> bisection( terminationConditionFunction );
+            wallTemperature = bisection.execute( equilibriumTemperatureFunction, equilibriumTemperatureFunction->getInitialGuess( ) );
         }
         catch( std::runtime_error const& )
 
         {
             throw std::runtime_error( "Error, could not find equilibrium wall temperature" );
         }
-
     }
 
     return wallTemperature;
 }
 
-} //namespace_aerodynamics
+}  // namespace aerodynamics
 
-} //namespace_tudat
-
+}  // namespace tudat

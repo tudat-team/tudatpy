@@ -8,22 +8,22 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-//#define BOOST_TEST_DYN_LINK
-//#define BOOST_TEST_MAIN
+// #define BOOST_TEST_DYN_LINK
+// #define BOOST_TEST_MAIN
 
 #include <limits>
 #include <boost/test/unit_test.hpp>
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
 //
-//namespace tudat
+// namespace tudat
 //{
-//namespace unit_tests
+// namespace unit_tests
 //{
 //
-//BOOST_AUTO_TEST_SUITE( test_estimation_time_bias )
+// BOOST_AUTO_TEST_SUITE( test_estimation_time_bias )
 //
-//BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
+// BOOST_AUTO_TEST_CASE( test_EstimationTimeBias )
 int main( )
 {
     using namespace tudat;
@@ -31,7 +31,7 @@ int main( )
     const int numberOfDaysOfData = 1;
     int numberOfIterations = 10;
 
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation
@@ -59,9 +59,9 @@ int main( )
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
-    bodies.at( "Vehicle" )->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-            std::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
-
+    bodies.at( "Vehicle" )
+            ->setEphemeris( std::make_shared< TabulatedCartesianEphemeris<> >(
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
     // Create ground station
     createGroundStation( bodies.at( "Earth" ), "Station", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
@@ -93,13 +93,13 @@ int main( )
     Eigen::Vector6d initialState = convertKeplerianToCartesianElements( initialKeplerianState, earthGravitationalParameter );
 
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
-            total_acceleration_dependent_variable, "Vehicle" ) );
+    dependentVariables.push_back(
+            std::make_shared< SingleDependentVariableSaveSettings >( total_acceleration_dependent_variable, "Vehicle" ) );
 
     // Create propagator settings
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double, double > >
-                    ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialState, finalTime, cowell, dependentVariables );
+            std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
+                    centralBodies, accelerationModelMap, bodiesToIntegrate, initialState, finalTime, cowell, dependentVariables );
 
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
@@ -117,22 +117,23 @@ int main( )
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
     linkEndsPerObservable[ one_way_doppler ] = std::vector< LinkEnds >( { stationReceiverLinkEnds, stationTransmitterLinkEnds } );
 
-    for ( unsigned int testCase = 0 ; testCase < 1 ; testCase++ )
+    for( unsigned int testCase = 0; testCase < 1; testCase++ )
     {
         bool multiArcBiases = testCase;
 
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-        parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >( "Vehicle", initialState, "Earth" ) );
-        if ( !multiArcBiases )
+        parameterNames.push_back(
+                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >( "Vehicle", initialState, "Earth" ) );
+        if( !multiArcBiases )
         {
             parameterNames.push_back( std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
                     linkEndsPerObservable.at( one_way_doppler ).at( 0 ), one_way_doppler, receiver ) );
-//            parameterNames.push_back( std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
-//                    linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, receiver ) );
-//            parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-//                    linkEndsPerObservable.at( one_way_doppler ).at( 0 ), one_way_doppler, true ) );
-//            parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-//                    linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, true ) );
+            //            parameterNames.push_back( std::make_shared< ConstantTimeBiasEstimatableParameterSettings >(
+            //                    linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, receiver ) );
+            //            parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+            //                    linkEndsPerObservable.at( one_way_doppler ).at( 0 ), one_way_doppler, true ) );
+            //            parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+            //                    linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, true ) );
         }
         else
         {
@@ -152,7 +153,7 @@ int main( )
         printEstimatableParameterEntries( parametersToEstimate );
 
         std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-        for( auto linkEndIterator : linkEndsPerObservable )
+        for( auto linkEndIterator: linkEndsPerObservable )
         {
             ObservableType currentObservable = linkEndIterator.first;
 
@@ -160,7 +161,7 @@ int main( )
             for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
             {
                 std::shared_ptr< ObservationBiasSettings > biasSettings;
-                if ( !multiArcBiases )
+                if( !multiArcBiases )
                 {
                     std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
                     biasSettingsList.push_back( std::make_shared< ConstantTimeBiasSettings >( 0.0, receiver ) );
@@ -171,7 +172,8 @@ int main( )
                 {
                     std::vector< std::shared_ptr< ObservationBiasSettings > > biasSettingsList;
                     biasSettingsList.push_back( std::make_shared< ArcWiseTimeBiasSettings >( arcs, timeBiasesPerArc, receiver ) );
-                    biasSettingsList.push_back( std::make_shared< ArcWiseConstantObservationBiasSettings >( arcs, biasesPerArc, receiver, true ) );
+                    biasSettingsList.push_back(
+                            std::make_shared< ArcWiseConstantObservationBiasSettings >( arcs, biasesPerArc, receiver, true ) );
                     biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
                 }
                 observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
@@ -185,7 +187,7 @@ int main( )
 
         std::vector< double > baseTimeList;
         double observationInterval = 600.0;
-        if ( !multiArcBiases )
+        if( !multiArcBiases )
         {
             for( unsigned int j = 0; j < 100; j++ )
             {
@@ -194,7 +196,7 @@ int main( )
         }
         else
         {
-            for ( unsigned int i = 0 ; i < arcs.size( ) ; i++ )
+            for( unsigned int i = 0; i < arcs.size( ); i++ )
             {
                 for( unsigned int j = 0; j < 40; j++ )
                 {
@@ -204,12 +206,12 @@ int main( )
         }
 
         std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-        for ( auto linkEndIterator : linkEndsPerObservable )
+        for( auto linkEndIterator: linkEndsPerObservable )
         {
             ObservableType currentObservable = linkEndIterator.first;
 
             std::vector< LinkEnds > currentLinkEndsList = linkEndIterator.second;
-            for ( unsigned int i = 0; i < currentLinkEndsList.size( ) ; i++ )
+            for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
             {
                 measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
                         currentObservable, currentLinkEndsList.at( i ), baseTimeList, receiver ) );
@@ -225,11 +227,13 @@ int main( )
         simulatedObservations->setConstantWeightPerObservable( weightPerObservationParser );
 
         // Perturb parameter estimate
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate = parametersToEstimate->template getFullParameterValues< double >( );
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
+                parametersToEstimate->template getFullParameterValues< double >( );
         Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-        Eigen::Matrix< double, Eigen::Dynamic, 1 > parameterPerturbation = Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( truthParameters.rows( ) );
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > parameterPerturbation =
+                Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( truthParameters.rows( ) );
 
-        for ( unsigned int i = 6 ; i < initialParameterEstimate.size( ) ; i++ )
+        for( unsigned int i = 6; i < initialParameterEstimate.size( ); i++ )
         {
             parameterPerturbation[ i ] = 20.0;
         }
@@ -237,14 +241,15 @@ int main( )
         parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
         Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( truthParameters.size( ), truthParameters.size( ) );
-        for ( int i = 0 ; i < 3 ; i++ )
+        for( int i = 0; i < 3; i++ )
         {
             inverseOfAprioriCovariance( i, i ) = 1.0 / ( 1.0e-3 * 1.0e-3 );
-            inverseOfAprioriCovariance( i+3, i+3 ) = 1.0 / ( 1.0e-6 * 1.0e-6 );
+            inverseOfAprioriCovariance( i + 3, i + 3 ) = 1.0 / ( 1.0e-6 * 1.0e-6 );
         }
 
         // Define estimation input
-        std::shared_ptr< EstimationInput< double, double  > > estimationInput = std::make_shared< EstimationInput< double, double > >( simulatedObservations, inverseOfAprioriCovariance );
+        std::shared_ptr< EstimationInput< double, double > > estimationInput =
+                std::make_shared< EstimationInput< double, double > >( simulatedObservations, inverseOfAprioriCovariance );
         estimationInput->defineEstimationSettings( true, false, true, true, false );
         estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
@@ -256,45 +261,45 @@ int main( )
 
         std::cout << "true parameters: " << truthParameters.transpose( ) << "\n\n";
         std::cout << "estimationError: " << estimationError.transpose( ) << "\n\n";
-//
-//        for ( unsigned int i = 0 ; i < 3 ; i++ )
-//        {
-//            BOOST_CHECK_SMALL( std::fabs( estimationError[ i ] ), 1.0e-3 );
-//            BOOST_CHECK_SMALL( std::fabs( estimationError[ i+3 ] ), 1.0e-6 );
-//        }
-//
-//
-//        if ( !multiArcBiases )
-//        {
-//            // Check estimated time biases
-//            for ( unsigned int i = 6 ; i < 8 ; i++ )
-//            {
-//                BOOST_CHECK_SMALL( std::fabs( estimationError[ i ] ), 1.0e-5 );
-//            }
-//            // Check absolute biases
-//            for ( unsigned int i = 8 ; i < 10 ; i++ )
-//            {
-//                BOOST_CHECK_SMALL( std::fabs( estimationError[ i ] ), 1.0e-6 );
-//            }
-//        }
-//        else
-//        {
-//            // Check estimated time biases
-//            for ( unsigned int i = 6 ; i < 6+2*arcs.size( ) ; i++ )
-//            {
-//                BOOST_CHECK_SMALL( std::fabs( estimationError[ i ] ), 1.0e-4 );
-//            }
-//            // Check absolute biases
-//            for ( unsigned int i = 6+2*arcs.size( ) ; i < 6+4*arcs.size( ) ; i++ )
-//            {
-//                BOOST_CHECK_SMALL( std::fabs( estimationError[ i ] ), 1.0e-5 );
-//            }
-//        }
+        //
+        //        for ( unsigned int i = 0 ; i < 3 ; i++ )
+        //        {
+        //            BOOST_CHECK_SMALL( std::fabs( estimationError[ i ] ), 1.0e-3 );
+        //            BOOST_CHECK_SMALL( std::fabs( estimationError[ i+3 ] ), 1.0e-6 );
+        //        }
+        //
+        //
+        //        if ( !multiArcBiases )
+        //        {
+        //            // Check estimated time biases
+        //            for ( unsigned int i = 6 ; i < 8 ; i++ )
+        //            {
+        //                BOOST_CHECK_SMALL( std::fabs( estimationError[ i ] ), 1.0e-5 );
+        //            }
+        //            // Check absolute biases
+        //            for ( unsigned int i = 8 ; i < 10 ; i++ )
+        //            {
+        //                BOOST_CHECK_SMALL( std::fabs( estimationError[ i ] ), 1.0e-6 );
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // Check estimated time biases
+        //            for ( unsigned int i = 6 ; i < 6+2*arcs.size( ) ; i++ )
+        //            {
+        //                BOOST_CHECK_SMALL( std::fabs( estimationError[ i ] ), 1.0e-4 );
+        //            }
+        //            // Check absolute biases
+        //            for ( unsigned int i = 6+2*arcs.size( ) ; i < 6+4*arcs.size( ) ; i++ )
+        //            {
+        //                BOOST_CHECK_SMALL( std::fabs( estimationError[ i ] ), 1.0e-5 );
+        //            }
+        //        }
     }
 }
 //
 //
-//BOOST_AUTO_TEST_SUITE_END( )
+// BOOST_AUTO_TEST_SUITE_END( )
 //
 //}
 //

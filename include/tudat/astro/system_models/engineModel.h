@@ -33,7 +33,6 @@ namespace system_models
 class EngineModel
 {
 public:
-
     //! Constructor
     /*!
      *  Constructor
@@ -45,15 +44,12 @@ public:
             const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
             const std::string engineName,
             const std::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection =
-                []( const double ){ return Eigen::Vector3d::UnitX( ); } ):
-       thrustMagnitudeWrapper_( thrustMagnitudeWrapper ),
-       engineName_( engineName ),
-       bodyFixedThrustDirection_( bodyFixedThrustDirection )
+                    []( const double ) { return Eigen::Vector3d::UnitX( ); } ):
+        thrustMagnitudeWrapper_( thrustMagnitudeWrapper ), engineName_( engineName ), bodyFixedThrustDirection_( bodyFixedThrustDirection )
     { }
 
     //! Destructor.
-    virtual ~EngineModel( ){ }
-
+    virtual ~EngineModel( ) { }
 
     //! Pure virtual function to update the engine model to the current time
     /*!
@@ -67,7 +63,6 @@ public:
         currentBodyFixedThrustDirection_ = bodyFixedThrustDirection_( currentTime ).normalized( );
     }
 
-
     //! Function to retrive the magnitude of the current engine thrust
     /*!
      *  Function to retrive the magnitude of the current engine thrust, which was set by the last call to the
@@ -78,7 +73,6 @@ public:
     {
         return thrustMagnitudeWrapper_->getCurrentThrustForceMagnitude( currentMass );
     }
-
 
     double getCurrentThrustAcceleration( const double currentMass = TUDAT_NAN )
     {
@@ -121,9 +115,7 @@ public:
         return thrustMagnitudeWrapper_;
     }
 
-
 protected:
-
     std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper_;
 
     const std::string engineName_;
@@ -131,13 +123,10 @@ protected:
     std::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection_;
 
     Eigen::Vector3d currentBodyFixedThrustDirection_;
-
-
 };
 
+}  // namespace system_models
 
-} // namespace system_models
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_ENGINEMODEL_H
+#endif  // TUDAT_ENGINEMODEL_H

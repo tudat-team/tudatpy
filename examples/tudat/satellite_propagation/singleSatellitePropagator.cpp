@@ -40,8 +40,7 @@ int main( )
     // Create body objects.
     std::vector< std::string > bodiesToCreate{ "Earth" };
     BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "SSB", "ECLIPJ2000" );
-    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
-						Eigen::Vector6d::Zero( ) );
+    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ) );
 
     // Create Earth object
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
@@ -60,13 +59,12 @@ int main( )
 
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
 
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -81,36 +79,32 @@ int main( )
     asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );
-    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) =
-            convertDegreesToRadians( 235.7 );
-    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) =
-            convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
     // Convert Asterix state from Keplerian elements to Cartesian elements.
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements,
-                earthGravitationalParameter );
+    Eigen::VectorXd systemInitialState =
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Create propagator settings.
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch );
 
     // Create numerical integrator settings.
     double simulationStartEpoch = 0.0;
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,18 +115,17 @@ int main( )
 
     Eigen::VectorXd finalIntegratedState = ( --integrationResult.end( ) )->second;
     // Print the position (in km) and the velocity (in km/s) at t = 0.
-    std::cout << "Single Earth-Orbiting Satellite Example." << std::endl <<
-                 "The initial position vector of Asterix is [km]:" << std::endl <<
-                 systemInitialState.segment( 0, 3 ) / 1E3 << std::endl <<
-                 "The initial velocity vector of Asterix is [km/s]:" << std::endl <<
-                 systemInitialState.segment( 3, 3 ) / 1E3 << std::endl;
+    std::cout << "Single Earth-Orbiting Satellite Example." << std::endl
+              << "The initial position vector of Asterix is [km]:" << std::endl
+              << systemInitialState.segment( 0, 3 ) / 1E3 << std::endl
+              << "The initial velocity vector of Asterix is [km/s]:" << std::endl
+              << systemInitialState.segment( 3, 3 ) / 1E3 << std::endl;
 
     // Print the position (in km) and the velocity (in km/s) at t = 86400.
-    std::cout << "After " << simulationEndEpoch <<
-                 " seconds, the position vector of Asterix is [km]:" << std::endl <<
-                 finalIntegratedState.segment( 0, 3 ) / 1E3 << std::endl <<
-                 "And the velocity vector of Asterix is [km/s]:" << std::endl <<
-                 finalIntegratedState.segment( 3, 3 ) / 1E3 << std::endl;
+    std::cout << "After " << simulationEndEpoch << " seconds, the position vector of Asterix is [km]:" << std::endl
+              << finalIntegratedState.segment( 0, 3 ) / 1E3 << std::endl
+              << "And the velocity vector of Asterix is [km/s]:" << std::endl
+              << finalIntegratedState.segment( 3, 3 ) / 1E3 << std::endl;
 
     // Write satellite propagation history to file.
     input_output::writeDataMapToTextFile( integrationResult,

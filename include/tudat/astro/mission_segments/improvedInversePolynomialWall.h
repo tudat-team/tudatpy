@@ -33,7 +33,6 @@
 
 #include <functional>
 
-
 #include <Eigen/Core>
 
 #include "tudat/math/basic/function.h"
@@ -62,10 +61,9 @@ namespace mission_segments
  * external manipulation of their values.
  *
  */
-class ImprovedInversePolynomialWall : public basic_mathematics::Function< >
+class ImprovedInversePolynomialWall : public basic_mathematics::Function<>
 {
 public:
-
     //! Default constructor with immediate definition of parameters.
     /*!
      * Default constructor with immediate definition of parameters through std::functions.
@@ -84,17 +82,16 @@ public:
      *      aSetOfBoundaryParameters.second( 1 ) = f
      *      aSetOfBoundaryParameters.second( 2 ) = g
      */
-    ImprovedInversePolynomialWall( const std::function< double(  ) > aTimeDependentParameter,
-                                   const std::function< std::pair< Eigen::Vector3d ,
-                                   Eigen::Vector3d >(  ) > aSetOfBoundaryParameters ) :
-        timeDependentParameter_( aTimeDependentParameter ),
-        boundaryParameters_( aSetOfBoundaryParameters ){  }
+    ImprovedInversePolynomialWall( const std::function< double( ) > aTimeDependentParameter,
+                                   const std::function< std::pair< Eigen::Vector3d, Eigen::Vector3d >( ) > aSetOfBoundaryParameters ):
+        timeDependentParameter_( aTimeDependentParameter ), boundaryParameters_( aSetOfBoundaryParameters )
+    { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~ImprovedInversePolynomialWall(  ){  }
+    ~ImprovedInversePolynomialWall( ) { }
 
     //! Evaluate the function value for a given (in-plane) azimuthal angle.
     /*!
@@ -197,19 +194,15 @@ public:
      *
      * \throws std::runtime_error when this function is used.
      */
-    double computeDefiniteIntegral( const unsigned int order,
-                                    const double lowerBound,
-                                    const double upperBound );
+    double computeDefiniteIntegral( const unsigned int order, const double lowerBound, const double upperBound );
 
 protected:
-
 private:
-
     //! The time-dependent parameter.
     /*!
      * The time-dependent parameter, which is used to satisfy a required time-of-flight.
      */
-    std::function< double(  ) > timeDependentParameter_;
+    std::function< double( ) > timeDependentParameter_;
 
     //! The parameters of the function, related to the boundary conditions.
     /*!
@@ -230,13 +223,13 @@ private:
      * boundaryParameters_.second( 1 ) = f
      * boundaryParameters_.second( 2 ) = g
      */
-    std::function< std::pair< Eigen::Vector3d , Eigen::Vector3d >(  ) > boundaryParameters_;
+    std::function< std::pair< Eigen::Vector3d, Eigen::Vector3d >( ) > boundaryParameters_;
 };
 
 //! Typedef for shared-pointer to ImprovedInversePolynomialWall object.
 typedef std::shared_ptr< ImprovedInversePolynomialWall > ImprovedInversePolynomialWallPointer;
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat
 
-#endif // TUDAT_IMPROVED_INVERSE_POLYNOMIAL_WALL_H
+#endif  // TUDAT_IMPROVED_INVERSE_POLYNOMIAL_WALL_H

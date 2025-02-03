@@ -26,9 +26,8 @@ namespace shape_based_methods
 class CompositeFunctionSphericalShaping
 {
 public:
-
     //! Constructor.
-    CompositeFunctionSphericalShaping( ){ }
+    CompositeFunctionSphericalShaping( ) { }
 
     //! Default destructor.
     /*!
@@ -40,12 +39,12 @@ public:
     /*!
      * Returns coefficients of composite function.
      */
-    Eigen::VectorXd getCompositeFunctionCoefficients()
+    Eigen::VectorXd getCompositeFunctionCoefficients( )
     {
         return compositeFunctionCoefficients_;
     }
 
-    std::vector< std::shared_ptr< BaseFunctionSphericalShaping > > getCompositeComponents()
+    std::vector< std::shared_ptr< BaseFunctionSphericalShaping > > getCompositeComponents( )
     {
         return compositeFunctionComponents_;
     }
@@ -61,8 +60,6 @@ public:
      */
     void resetCompositeFunctionCoefficients( const Eigen::VectorXd& compositeFunctionCoefficients );
 
-
-
     double evaluateCompositeFunction( const double independentVariable );
 
     double evaluateCompositeFunctionFirstDerivative( const double independentVariable );
@@ -71,23 +68,16 @@ public:
 
     double evaluateCompositeFunctionThirdDerivative( const double independentVariable );
 
-    double getComponentFunctionCurrentValue(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionCurrentValue( const int componentIndex, const double currentTime );
 
-    double getComponentFunctionFirstDerivative(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionFirstDerivative( const int componentIndex, const double currentTime );
 
-    double getComponentFunctionSecondDerivative(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionSecondDerivative( const int componentIndex, const double currentTime );
 
-    double getComponentFunctionThirdDerivative(
-        const int componentIndex, const double currentTime );
-
+    double getComponentFunctionThirdDerivative( const int componentIndex, const double currentTime );
 
 protected:
-
 private:
-
     std::vector< std::shared_ptr< BaseFunctionSphericalShaping > > compositeFunctionComponents_;
 
     //! Vector of coefficients.
@@ -95,16 +85,14 @@ private:
      * VectorXd containing coefficients corresponding to components of the composite function.
      */
     Eigen::VectorXd compositeFunctionCoefficients_;
-
 };
 
 class CompositeRadialFunctionSphericalShaping : public CompositeFunctionSphericalShaping
 {
 public:
-
     //! Constructor.
-    CompositeRadialFunctionSphericalShaping( const Eigen::VectorXd& compositeFunctionCoefficients ){
-
+    CompositeRadialFunctionSphericalShaping( const Eigen::VectorXd& compositeFunctionCoefficients )
+    {
         compositeFunctionCoefficients_ = compositeFunctionCoefficients;
 
         std::vector< std::shared_ptr< BaseFunctionSphericalShaping > > compositeFunctionComponents;
@@ -116,9 +104,7 @@ public:
         compositeFunctionComponents.push_back( createBaseFunctionSphericalShaping( sineSphericalShaping ) );
         compositeFunctionComponents.push_back( createBaseFunctionSphericalShaping( powerSineSphericalShaping ) );
         compositeFunctionComponents_ = compositeFunctionComponents;
-
     }
-
 
     //! Default destructor.
     /*!
@@ -130,7 +116,7 @@ public:
     /*!
      * Returns coefficients of composite function.
      */
-    Eigen::VectorXd getCompositeFunctionCoefficients()
+    Eigen::VectorXd getCompositeFunctionCoefficients( )
     {
         return compositeFunctionCoefficients_;
     }
@@ -139,8 +125,7 @@ public:
     /*!
      * Resets the coefficients of the composite function.
      */
-    void resetCompositeFunctionCoefficients(
-            const Eigen::VectorXd& compositeFunctionCoefficients );
+    void resetCompositeFunctionCoefficients( const Eigen::VectorXd& compositeFunctionCoefficients );
 
     double evaluateCompositeFunction( const double independentVariable );
 
@@ -150,41 +135,31 @@ public:
 
     double evaluateCompositeFunctionThirdDerivative( const double independentVariable );
 
-    double getComponentFunctionCurrentValue(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionCurrentValue( const int componentIndex, const double currentTime );
 
-    double getComponentFunctionFirstDerivative(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionFirstDerivative( const int componentIndex, const double currentTime );
 
-    double getComponentFunctionSecondDerivative(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionSecondDerivative( const int componentIndex, const double currentTime );
 
-    double getComponentFunctionThirdDerivative(
-        const int componentIndex, const double currentTime );
-
+    double getComponentFunctionThirdDerivative( const int componentIndex, const double currentTime );
 
 protected:
-
 private:
-
-    std::vector<  std::shared_ptr< BaseFunctionSphericalShaping > > compositeFunctionComponents_;
+    std::vector< std::shared_ptr< BaseFunctionSphericalShaping > > compositeFunctionComponents_;
 
     //! Vector of coefficients.
     /*!
      * VectorXd containing coefficients corresponding to components of the composite function.
      */
     Eigen::VectorXd compositeFunctionCoefficients_;
-
 };
-
 
 class CompositeElevationFunctionSphericalShaping : public CompositeFunctionSphericalShaping
 {
 public:
-
     //! Constructor.
-    CompositeElevationFunctionSphericalShaping( const Eigen::VectorXd& compositeFunctionCoefficients ){
-
+    CompositeElevationFunctionSphericalShaping( const Eigen::VectorXd& compositeFunctionCoefficients )
+    {
         compositeFunctionCoefficients_ = compositeFunctionCoefficients;
 
         std::vector< std::shared_ptr< BaseFunctionSphericalShaping > > compositeFunctionComponents;
@@ -193,9 +168,7 @@ public:
         compositeFunctionComponents.push_back( createBaseFunctionSphericalShaping( sineSphericalShaping ) );
         compositeFunctionComponents.push_back( createBaseFunctionSphericalShaping( powerSineSphericalShaping ) );
         compositeFunctionComponents_ = compositeFunctionComponents;
-
     }
-
 
     //! Default destructor.
     /*!
@@ -207,7 +180,7 @@ public:
     /*!
      * Returns coefficients of composite function.
      */
-    Eigen::VectorXd getCompositeFunctionCoefficients()
+    Eigen::VectorXd getCompositeFunctionCoefficients( )
     {
         return compositeFunctionCoefficients_;
     }
@@ -216,8 +189,7 @@ public:
     /*!
      * Resets the coefficients of the composite function.
      */
-    void resetCompositeFunctionCoefficients(
-            const Eigen::VectorXd& compositeFunctionCoefficients );
+    void resetCompositeFunctionCoefficients( const Eigen::VectorXd& compositeFunctionCoefficients );
 
     double evaluateCompositeFunction( const double independentVariable );
 
@@ -227,35 +199,26 @@ public:
 
     double evaluateCompositeFunctionThirdDerivative( const double independentVariable );
 
-    double getComponentFunctionCurrentValue(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionCurrentValue( const int componentIndex, const double currentTime );
 
-    double getComponentFunctionFirstDerivative(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionFirstDerivative( const int componentIndex, const double currentTime );
 
-    double getComponentFunctionSecondDerivative(
-        const int componentIndex, const double currentTime );
+    double getComponentFunctionSecondDerivative( const int componentIndex, const double currentTime );
 
-    double getComponentFunctionThirdDerivative(
-        const int componentIndex, const double currentTime );
-
+    double getComponentFunctionThirdDerivative( const int componentIndex, const double currentTime );
 
 protected:
-
 private:
-
-    std::vector<  std::shared_ptr< BaseFunctionSphericalShaping > > compositeFunctionComponents_;
+    std::vector< std::shared_ptr< BaseFunctionSphericalShaping > > compositeFunctionComponents_;
 
     //! Vector of coefficients.
     /*!
      * VectorXd containing coefficients corresponding to components of the composite function.
      */
     Eigen::VectorXd compositeFunctionCoefficients_;
-
 };
 
+}  // namespace shape_based_methods
+}  // namespace tudat
 
-} // namespace shape_based_methods
-} // namespace tudat
-
-#endif // TUDAT_COMPOSITE_FUNCTION_SPHERICAL_SHAPING_H
+#endif  // TUDAT_COMPOSITE_FUNCTION_SPHERICAL_SHAPING_H

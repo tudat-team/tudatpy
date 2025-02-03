@@ -38,11 +38,10 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_runge_kutta_coefficients )
 
-using numerical_integrators::RungeKuttaCoefficients;
 using numerical_integrators::CoefficientSets;
+using numerical_integrators::RungeKuttaCoefficients;
 
-void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet,
-                                    const double tolerance )
+void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet, const double tolerance )
 {
     // Declare coefficient set.
     RungeKuttaCoefficients coefficients;
@@ -50,25 +49,22 @@ void checkValidityOfCoefficientSet( const CoefficientSets& coefficientSet,
 
     // Check that the sum of the b-coefficients for both the integrated order and the
     // error-checking order is one.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                Eigen::VectorXd::Constant( 2, 1.0 ),
-                coefficients.bCoefficients.rowwise( ).sum( ), tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( Eigen::VectorXd::Constant( 2, 1.0 ), coefficients.bCoefficients.rowwise( ).sum( ), tolerance );
 
     // Check that the first c-coefficient is zero.
     BOOST_CHECK_SMALL( coefficients.cCoefficients( 0 ), tolerance );
 
     // Check that the c-coefficient/a-coefficient relation holds.
-    for ( int i = 1; i < coefficients.cCoefficients.size( ); i++ )
+    for( int i = 1; i < coefficients.cCoefficients.size( ); i++ )
     {
-        if ( std::fabs( coefficients.cCoefficients( i ) ) < tolerance )
+        if( std::fabs( coefficients.cCoefficients( i ) ) < tolerance )
         {
             BOOST_CHECK_SMALL( coefficients.aCoefficients.row( i ).sum( ), tolerance );
         }
 
         else
         {
-            BOOST_CHECK_CLOSE_FRACTION( coefficients.cCoefficients( i ),
-                                        coefficients.aCoefficients.row( i ).sum( ), tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( coefficients.cCoefficients( i ), coefficients.aCoefficients.row( i ).sum( ), tolerance );
         }
     }
 }
@@ -101,5 +97,5 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceCoefficients )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

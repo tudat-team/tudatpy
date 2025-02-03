@@ -17,7 +17,8 @@ namespace aerodynamics
 {
 
 //! Compute the aerodynamic moment in same reference frame as input coefficients.
-Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, const double referenceArea,
+Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure,
+                                          const double referenceArea,
                                           const double referenceLength,
                                           const Eigen::Vector3d& momentCoefficients )
 {
@@ -25,7 +26,8 @@ Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, const do
 }
 
 //! Compute the aerodynamic moment in same reference frame as input coefficients.
-Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, const double referenceArea,
+Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure,
+                                          const double referenceArea,
                                           const Eigen::Vector3d& referenceLengths,
                                           const Eigen::Vector3d& momentCoefficients )
 {
@@ -33,9 +35,7 @@ Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, const do
 }
 
 //! Calculates the aerodynamic moment in same reference frame as input coefficients.
-Eigen::Vector3d computeAerodynamicMoment(
-        const double dynamicPressure,
-        AerodynamicCoefficientInterfacePointer coefficientInterface )
+Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, AerodynamicCoefficientInterfacePointer coefficientInterface )
 {
     return computeAerodynamicMoment( dynamicPressure,
                                      coefficientInterface->getReferenceArea( ),
@@ -43,6 +43,5 @@ Eigen::Vector3d computeAerodynamicMoment(
                                      coefficientInterface->getCurrentMomentCoefficients( ) );
 }
 
-
-} // namespace aerodynamics
-} // namespace tudat
+}  // namespace aerodynamics
+}  // namespace tudat

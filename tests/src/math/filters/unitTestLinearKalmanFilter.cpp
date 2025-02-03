@@ -80,18 +80,21 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
     measurementUncertainty[ 0 ] = 0.5;
 
     // Create linear Kalman filter object
-    KalmanFilterDoublePointer linearFilter = std::make_shared< LinearKalmanFilterDouble >(
-                [ & ]( const double, const Eigen::Vector3d& ){ return stateTransitionMatrix; },
-                [ & ]( const double, const Eigen::Vector3d& ){ return controlMatrix; },
-                [ & ]( const double, const Eigen::Vector3d& ){ return measurementMatrix; },
-                systemUncertainty, measurementUncertainty, timeStep,
-                initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix );
+    KalmanFilterDoublePointer linearFilter =
+            std::make_shared< LinearKalmanFilterDouble >( [ & ]( const double, const Eigen::Vector3d& ) { return stateTransitionMatrix; },
+                                                          [ & ]( const double, const Eigen::Vector3d& ) { return controlMatrix; },
+                                                          [ & ]( const double, const Eigen::Vector3d& ) { return measurementMatrix; },
+                                                          systemUncertainty,
+                                                          measurementUncertainty,
+                                                          timeStep,
+                                                          initialTime,
+                                                          initialEstimatedStateVector,
+                                                          initialEstimatedStateCovarianceMatrix );
 
     // Load noise from file
-    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
-                                                                    "/lkfSystemNoise1.dat" );
-    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) +
-                                                                         "/lkfMeasurementNoise1.dat" );
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) + "/lkfSystemNoise1.dat" );
+    Eigen::MatrixXd measurementNoise =
+            input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) + "/lkfMeasurementNoise1.dat" );
 
     // Loop over each time step
     const bool showProgress = false;
@@ -102,11 +105,10 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
     std::map< double, Eigen::Vector3d > actualStateVectorHistory;
     std::map< double, Eigen::Vector1d > measurementVectorHistory;
     actualStateVectorHistory[ initialTime ] = initialStateVector;
-    for ( unsigned int i = 0; i < numberOfTimeSteps; i++ )
+    for( unsigned int i = 0; i < numberOfTimeSteps; i++ )
     {
         // Compute actual values and perturb them
-        currentStateVector = stateTransitionMatrix * currentStateVector + controlMatrix * currentControlVector +
-                systemNoise.col( i );
+        currentStateVector = stateTransitionMatrix * currentStateVector + controlMatrix * currentControlVector + systemNoise.col( i );
         currentMeasurementVector = measurementMatrix * currentStateVector + measurementNoise.col( i );
 
         // Update filter
@@ -118,7 +120,7 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
         measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Print progress
-        if ( showProgress )
+        if( showProgress )
         {
             std::cout << "Time: " << currentTime << std::endl
                       << "Measurement: " << currentMeasurementVector.transpose( ) << std::endl
@@ -129,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
     // Check that final state is as expected
     Eigen::Vector3d expectedFinalState;
     expectedFinalState << -7.415393533447765, -12.421405468923618, -8.9114310345206711;
-    for ( unsigned int i = 0; i < expectedFinalState.rows( ); i++ )
+    for( unsigned int i = 0; i < expectedFinalState.rows( ); i++ )
     {
         BOOST_CHECK_SMALL( linearFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ], 1.0e-10 );
     }
@@ -137,6 +139,6 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

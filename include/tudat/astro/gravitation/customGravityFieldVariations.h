@@ -22,25 +22,18 @@ namespace gravitation
 {
 
 //! Class for variations in spherical harmonic coefficients, directly provided as a function
-class CustomGravityFieldVariations: public GravityFieldVariations
+class CustomGravityFieldVariations : public GravityFieldVariations
 {
-
 public:
+    CustomGravityFieldVariations( std::function< double, std::pair< Eigen::MatrixXd >( const double ) > customCorrectionFunction,
+                                  const int minimumDegree,
+                                  const int minimumOrder ):
+        GravityFieldVariations( minimumDegree, minimumOrder, -1, -1 ), customCorrectionFunction_( customCorrectionFunction )
+    { }
 
-
-    CustomGravityFieldVariations(
-            std::function< double, std::pair< Eigen::MatrixXd >( const double ) > customCorrectionFunction,
-            const int minimumDegree, const int minimumOrder ):
-    GravityFieldVariations( minimumDegree, minimumOrder, -1, -1 ),
-    customCorrectionFunction_( customCorrectionFunction ){ }
-
-
-
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections(
-            const double time )
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time )
     {
-        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > currentCorrections =
-                customCorrectionFunction_( time );
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > currentCorrections = customCorrectionFunction_( time );
         if( numberOfDegrees_ == -1 || numberOfOrders_ == -1 )
         {
             maximumDegree_ = minimumDegree_ + currentCorrections.first.rows( ) - 1;
@@ -53,15 +46,12 @@ public:
         return currentCorrections;
     }
 
-
 private:
-
     std::function< double, std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( const double ) > customCorrectionFunction_;
-
 };
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CUSTOMGRAVITYFIELDVARIATIONS_H
+#endif  // TUDAT_CUSTOMGRAVITYFIELDVARIATIONS_H

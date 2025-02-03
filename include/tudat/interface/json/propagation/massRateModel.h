@@ -22,19 +22,12 @@ namespace basic_astrodynamics
 {
 
 //! Map of `AvailableMassRateModels` string representations.
-static std::map< AvailableMassRateModels, std::string > massRateTypes =
-{
-    { undefined_mass_rate_model, "undefined" },
-    { custom_mass_rate_model, "custom" },
-    { from_thrust_mass_rate_model, "fromThrust" }
-};
+static std::map< AvailableMassRateModels, std::string > massRateTypes = { { undefined_mass_rate_model, "undefined" },
+                                                                          { custom_mass_rate_model, "custom" },
+                                                                          { from_thrust_mass_rate_model, "fromThrust" } };
 
 //! `AvailableMassRateModels` not supported by `json_interface`.
-static std::vector< AvailableMassRateModels > unsupportedMassRateType =
-{
-    undefined_mass_rate_model,
-    custom_mass_rate_model
-};
+static std::vector< AvailableMassRateModels > unsupportedMassRateType = { undefined_mass_rate_model, custom_mass_rate_model };
 
 //! Convert `AvailableMassRateModels` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AvailableMassRateModels& massRateType )
@@ -48,8 +41,7 @@ inline void from_json( const nlohmann::json& jsonObject, AvailableMassRateModels
     massRateType = json_interface::enumFromString( jsonObject, massRateTypes );
 }
 
-} // namespace basic_astrodynamics
-
+}  // namespace basic_astrodynamics
 
 namespace simulation_setup
 {
@@ -60,8 +52,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< MassRateModelSe
 //! Create a shared pointer to a `MassRateModelSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< MassRateModelSettings >& massRateModelSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_MASSRATEMODEL_H
+#endif  // TUDAT_JSONINTERFACE_MASSRATEMODEL_H

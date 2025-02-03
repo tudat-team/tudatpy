@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  */
-//RP-OLD
+// RP-OLD
 
 #ifndef TUDAT_RADIATIONPRESSUREINTERFACE_H
 #define TUDAT_RADIATIONPRESSUREINTERFACE_H
@@ -37,9 +37,9 @@ namespace electromagnetism
  *  the current radiation pressure is calculated based on the source power and geometry. The
  *  current implementation is limited to a cannonball model.
  */
-class RadiationPressureInterface{
+class RadiationPressureInterface
+{
 public:
-
     //! Constructor.
     /*!
      *  Class construtor for radiation pressure interface.
@@ -55,56 +55,43 @@ public:
      *  \param occultingBodyRadii List of radii of the bodies causing occultations (default none).
      *  \param sourceRadius Radius of the source body (used for occultation calculations) (default 0).
      */
-    RadiationPressureInterface(
-            const std::function< double( ) > sourcePower,
-            const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
-            const std::function< Eigen::Vector3d( ) > targetPositionFunction,
-            const double radiationPressureCoefficient,
-            const double area,
-            const std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions =
-            std::vector< std::function< Eigen::Vector3d( ) > >( ),
-            const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
-            const double sourceRadius = 0.0,
-            const std::vector< std::string > occultingBodies = std::vector< std::string >( ) ):
-        sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ),
-        targetPositionFunction_( targetPositionFunction ),
+    RadiationPressureInterface( const std::function< double( ) > sourcePower,
+                                const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
+                                const std::function< Eigen::Vector3d( ) > targetPositionFunction,
+                                const double radiationPressureCoefficient,
+                                const double area,
+                                const std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions =
+                                        std::vector< std::function< Eigen::Vector3d( ) > >( ),
+                                const std::vector< double > occultingBodyRadii = std::vector< double >( ),
+                                const double sourceRadius = 0.0,
+                                const std::vector< std::string > occultingBodies = std::vector< std::string >( ) ):
+        sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ), targetPositionFunction_( targetPositionFunction ),
         radiationPressureCoefficient_( radiationPressureCoefficient ),
-        radiationPressureCoefficientFunction_( [ = ]( const double ){ return radiationPressureCoefficient; } ),
-        area_( area ),
-        occultingBodyPositions_( occultingBodyPositions ),
-        occultingBodyRadii_( occultingBodyRadii ),
-        sourceRadius_( sourceRadius ),
-        occultingBodies_( occultingBodies ),
-        currentRadiationPressure_( TUDAT_NAN ),
-        currentSolarVector_( Eigen::Vector3d::Zero( ) ),
-        currentTime_( TUDAT_NAN ){ }
+        radiationPressureCoefficientFunction_( [ = ]( const double ) { return radiationPressureCoefficient; } ), area_( area ),
+        occultingBodyPositions_( occultingBodyPositions ), occultingBodyRadii_( occultingBodyRadii ), sourceRadius_( sourceRadius ),
+        occultingBodies_( occultingBodies ), currentRadiationPressure_( TUDAT_NAN ), currentSolarVector_( Eigen::Vector3d::Zero( ) ),
+        currentTime_( TUDAT_NAN )
+    { }
 
-    RadiationPressureInterface(
-            const std::function< double( ) > sourcePower,
-            const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
-            const std::function< Eigen::Vector3d( ) > targetPositionFunction,
-            std::function< double( const double ) > radiationPressureCoefficientFunction,
-            const double area,
-            const std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions =
-            std::vector< std::function< Eigen::Vector3d( ) > >( ),
-            const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
-            const double sourceRadius = 0.0,
-            const std::vector< std::string > occultingBodies = std::vector< std::string >( )  ):
-        sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ),
-        targetPositionFunction_( targetPositionFunction ),
-        radiationPressureCoefficient_( TUDAT_NAN ),
-        radiationPressureCoefficientFunction_( radiationPressureCoefficientFunction ),
-        area_( area ),
-        occultingBodyPositions_( occultingBodyPositions ),
-        occultingBodyRadii_( occultingBodyRadii ),
-        sourceRadius_( sourceRadius ),
-        occultingBodies_( occultingBodies ),
-        currentRadiationPressure_( TUDAT_NAN ),
-        currentSolarVector_( Eigen::Vector3d::Zero( ) ),
-        currentTime_( TUDAT_NAN ){ }
+    RadiationPressureInterface( const std::function< double( ) > sourcePower,
+                                const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
+                                const std::function< Eigen::Vector3d( ) > targetPositionFunction,
+                                std::function< double( const double ) > radiationPressureCoefficientFunction,
+                                const double area,
+                                const std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions =
+                                        std::vector< std::function< Eigen::Vector3d( ) > >( ),
+                                const std::vector< double > occultingBodyRadii = std::vector< double >( ),
+                                const double sourceRadius = 0.0,
+                                const std::vector< std::string > occultingBodies = std::vector< std::string >( ) ):
+        sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ), targetPositionFunction_( targetPositionFunction ),
+        radiationPressureCoefficient_( TUDAT_NAN ), radiationPressureCoefficientFunction_( radiationPressureCoefficientFunction ),
+        area_( area ), occultingBodyPositions_( occultingBodyPositions ), occultingBodyRadii_( occultingBodyRadii ),
+        sourceRadius_( sourceRadius ), occultingBodies_( occultingBodies ), currentRadiationPressure_( TUDAT_NAN ),
+        currentSolarVector_( Eigen::Vector3d::Zero( ) ), currentTime_( TUDAT_NAN )
+    { }
 
     //! Destructor
-    virtual ~RadiationPressureInterface( ){ }
+    virtual ~RadiationPressureInterface( ) { }
 
     //! Function to return the function returning the current position of the source body.
     /*!
@@ -154,7 +141,7 @@ public:
     void resetRadiationPressureCoefficient( const double radiationPressureCoefficient )
     {
         radiationPressureCoefficient_ = radiationPressureCoefficient;
-        radiationPressureCoefficientFunction_ = [ = ]( const double ){ return radiationPressureCoefficient; };
+        radiationPressureCoefficientFunction_ = [ = ]( const double ) { return radiationPressureCoefficient; };
     }
 
     //! Function to reset the function to obtain the radiation pressure coefficient of the target body.
@@ -162,8 +149,7 @@ public:
      *  Function to reset the function to obtain the radiation pressure coefficient of the target body.
      *  \param radiationPressureCoefficientFunction New function to obtain the radiation pressure coefficient of the target body.
      */
-    void resetRadiationPressureCoefficientFunction(
-            const std::function< double( const double ) > radiationPressureCoefficientFunction )
+    void resetRadiationPressureCoefficientFunction( const std::function< double( const double ) > radiationPressureCoefficientFunction )
     {
         radiationPressureCoefficientFunction_ = radiationPressureCoefficientFunction;
     }
@@ -218,10 +204,7 @@ public:
         return occultingBodies_;
     }
 
-
-
 protected:
-
     //! Function returning the current total power (in W) emitted by the source body.
     std::function< double( ) > sourcePower_;
 
@@ -251,7 +234,6 @@ protected:
 
     std::vector< std::string > occultingBodies_;
 
-
     //! Current radiation pressure due to source at target (in N/m^2).
     double currentRadiationPressure_;
 
@@ -262,8 +244,8 @@ protected:
     double currentTime_;
 };
 
-} // namespace electromagnetism
+}  // namespace electromagnetism
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_RADIATIONPRESSUREINTERFACE_H
+#endif  // TUDAT_RADIATIONPRESSUREINTERFACE_H

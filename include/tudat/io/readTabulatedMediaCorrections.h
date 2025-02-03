@@ -27,21 +27,17 @@ namespace input_output
 class CspCommand
 {
 public:
-    CspCommand ( )
-    { }
+    CspCommand( ) { }
 
-    virtual ~CspCommand ( )
-    { }
+    virtual ~CspCommand( ) { }
 
 private:
-
 };
 
 // Representation of a CSP command with information about atmospheric corrections, according to TRK-2-23
-class AtmosphericCorrectionCspCommand: public CspCommand
+class AtmosphericCorrectionCspCommand : public CspCommand
 {
 public:
-
     /*!
      * Constructor. Parses a CSP command, saving its information.
      * @param cspCommand Vector with CSP command elements and respective values.
@@ -51,10 +47,7 @@ public:
     /*!
      * Constructor.
      */
-    AtmosphericCorrectionCspCommand( ):
-        sourceSpecifier_( "" ),
-        sourceId_( 0 )
-    { }
+    AtmosphericCorrectionCspCommand( ): sourceSpecifier_( "" ), sourceId_( 0 ) { }
 
     // CSP identifier of the model. Can take the values DRY NUPART (dry part of troposphere), WET NUPART (wet part of troposphere)
     // or CHPART (ionosphere).
@@ -92,21 +85,18 @@ public:
     double convertTime( std::string yearMonthDay, std::string hoursMinutesSeconds );
 
 private:
-
 };
 
 // Control Statement Processor (CSP) file.
 class CspRawFile
 {
 public:
-
     /*!
      * Constructor. Reads file and parses the CSP commands it contains.
      *
      * @param cspFile File name.
      */
-    CspRawFile( const std::string& cspFile ):
-        fileName_( cspFile )
+    CspRawFile( const std::string& cspFile ): fileName_( cspFile )
     {
         // Read CSP commands. Each command saved as one string
         std::vector< std::string > cspCommandsVector = readCspCommandsFile( fileName_ );
@@ -120,8 +110,7 @@ public:
      *
      * @param cspCommandsVector Vector of CSP commands.
      */
-    CspRawFile( const std::vector< std::string >& cspCommandsVector ):
-        fileName_( "" )
+    CspRawFile( const std::vector< std::string >& cspCommandsVector ): fileName_( "" )
     {
         // Parse commands
         parseCspCommands( cspCommandsVector );
@@ -132,10 +121,7 @@ public:
      *
      * @param cspCommands Vector of parsed CSP commands.
      */
-    CspRawFile( const std::vector< std::shared_ptr< CspCommand > >& cspCommands ):
-        fileName_( "" ),
-        cspCommands_( cspCommands )
-    { }
+    CspRawFile( const std::vector< std::shared_ptr< CspCommand > >& cspCommands ): fileName_( "" ), cspCommands_( cspCommands ) { }
 
     // Returns the name of the file.
     std::string getFileName( )
@@ -150,7 +136,6 @@ public:
     }
 
 private:
-
     /*!
      * Reads CSP commands file, placing each command into a string.
      *
@@ -198,8 +183,7 @@ std::vector< observation_models::ObservableType > getBaseObservableTypes( const 
  * @param rawCspData2 CSP file.
  * @return
  */
-bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspData1,
-                                         std::shared_ptr< CspRawFile > rawCspData2 );
+bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspData1, std::shared_ptr< CspRawFile > rawCspData2 );
 
 /*!
  * Returns the name of the data source.
@@ -213,11 +197,10 @@ bool compareAtmosphericCspFileStartDate( std::shared_ptr< CspRawFile > rawCspDat
  * @param quasarNamePerQuasarId Map with the name associated with each quasar ID
  * @return Name of the source
  */
-std::string getSourceName(
-        const std::string& sourceSpecifier,
-        const int sourceId,
-        const std::map< int, std::string >& spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
-        const std::map< int, std::string >& quasarNamePerQuasarId = std::map< int, std::string >( ) );
+std::string getSourceName( const std::string& sourceSpecifier,
+                           const int sourceId,
+                           const std::map< int, std::string >& spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
+                           const std::map< int, std::string >& quasarNamePerQuasarId = std::map< int, std::string >( ) );
 
 /*!
  * Returns a CSP commands file corresponding to the DSN default tropospheric seasonal model, according to Estefan and
@@ -226,8 +209,8 @@ std::string getSourceName(
  */
 std::shared_ptr< CspRawFile > getDsnDefaultTroposphericSeasonalModelCspFile( );
 
-} // namespace input_output
+}  // namespace input_output
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif //TUDAT_READTABULATEDMEDIACORRECTIONS_H
+#endif  // TUDAT_READTABULATEDMEDIACORRECTIONS_H

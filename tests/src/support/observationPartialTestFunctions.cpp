@@ -34,14 +34,14 @@ using namespace tudat::estimatable_parameters;
 
 //! Function to create environment for general observation partial tests.
 SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std::string > > groundStations,
-                               const double initialEphemerisTime,
-                               const double finalEphemerisTime,
-                               const double stateEvaluationTime,
-                               const bool useConstantEphemerides,
-                               const double gravitationalParameterScaling,
-                               const bool useConstantRotationalEphemeris )
+                                 const double initialEphemerisTime,
+                                 const double finalEphemerisTime,
+                                 const double stateEvaluationTime,
+                                 const bool useConstantEphemerides,
+                                 const double gravitationalParameterScaling,
+                                 const bool useConstantRotationalEphemeris )
 {
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Create bodies.
@@ -51,25 +51,21 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
     bodies.createEmptyBody( "Moon" );
     bodies.createEmptyBody( "Sun" );
 
-    bodies.at( "Earth" )->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
-                                           spice_interface::getAverageRadius( "Earth" ) ) );
-    bodies.at( "Mars" )->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
-                                          spice_interface::getAverageRadius( "Mars" ) ) );
+    bodies.at( "Earth" )->setShapeModel(
+            std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >( spice_interface::getAverageRadius( "Earth" ) ) );
+    bodies.at( "Mars" )->setShapeModel(
+            std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >( spice_interface::getAverageRadius( "Mars" ) ) );
 
     if( useConstantEphemerides )
     {
         Eigen::Vector6d bodyState = Eigen::Vector6d::Zero( );
-        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
-                    "Earth", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
+        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch( "Earth", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodies.at( "Earth" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
-        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
-                    "Mars", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
+        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch( "Mars", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodies.at( "Mars" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
-        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
-                    "Moon", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
+        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch( "Moon", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodies.at( "Moon" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
-        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
-                    "Sun", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
+        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch( "Sun", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodies.at( "Sun" )->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
     }
     else
@@ -80,34 +76,33 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
         bodies.at( "Sun" )->setEphemeris( std::make_shared< SpiceEphemeris >( "Sun", "SSB", false, false ) );
     }
 
-    ( bodies.at( "Sun" ) )->setGravityFieldModel(
-                std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Sun" ) ) );
-    ( bodies.at( "Moon" ) )->setGravityFieldModel(
-                std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Moon" ) ) );
-    ( bodies.at( "Mars" ) )->setGravityFieldModel(
-                std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) *
-                                                         gravitationalParameterScaling ) );
-    ( bodies.at( "Earth" ) )->setGravityFieldModel(
-                std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) *
-                                                         gravitationalParameterScaling ) );
+    ( bodies.at( "Sun" ) )->setGravityFieldModel( std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Sun" ) ) );
+    ( bodies.at( "Moon" ) )->setGravityFieldModel( std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Moon" ) ) );
+    ( bodies.at( "Mars" ) )
+            ->setGravityFieldModel(
+                    std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) * gravitationalParameterScaling ) );
+    ( bodies.at( "Earth" ) )
+            ->setGravityFieldModel(
+                    std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) * gravitationalParameterScaling ) );
 
-
-    ( bodies.at( "Earth" ) )->setRotationalEphemeris(
-                createRotationModel(
+    ( bodies.at( "Earth" ) )
+            ->setRotationalEphemeris( createRotationModel(
                     std::make_shared< SimpleRotationModelSettings >(
-                        "ECLIPJ2000", "IAU_Earth",
-                        spice_interface::computeRotationQuaternionBetweenFrames(
-                            "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
-                        initialEphemerisTime, 2.0 * mathematical_constants::PI /
-                        physical_constants::JULIAN_DAY ), "Earth" ) );
+                            "ECLIPJ2000",
+                            "IAU_Earth",
+                            spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+                            initialEphemerisTime,
+                            2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY ),
+                    "Earth" ) );
 
     std::shared_ptr< ephemerides::RotationalEphemeris > marsRotationModel = createRotationModel(
-                std::make_shared< SimpleRotationModelSettings >(
-                    "ECLIPJ2000", "IAU_Mars",
-                    spice_interface::computeRotationQuaternionBetweenFrames(
-                        "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
-                    initialEphemerisTime, 2.0 * mathematical_constants::PI /
-                    ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) ), "Mars" );
+            std::make_shared< SimpleRotationModelSettings >(
+                    "ECLIPJ2000",
+                    "IAU_Mars",
+                    spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
+                    initialEphemerisTime,
+                    2.0 * mathematical_constants::PI / ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) ),
+            "Mars" );
 
     if( !useConstantRotationalEphemeris )
     {
@@ -115,25 +110,21 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
     }
     else
     {
-        bodies.at( "Mars" )->setRotationalEphemeris(
-                    std::make_shared< ephemerides::ConstantRotationalEphemeris >(
-                        marsRotationModel->getRotationStateVector( 0.0 ), "ECLIPJ2000", "IAU_Mars" ) );
+        bodies.at( "Mars" )->setRotationalEphemeris( std::make_shared< ephemerides::ConstantRotationalEphemeris >(
+                marsRotationModel->getRotationStateVector( 0.0 ), "ECLIPJ2000", "IAU_Mars" ) );
     }
 
     // Create DSN stations
     std::vector< std::shared_ptr< GroundStationSettings > > dsnSettings = getDsnStationSettings( );
-    for ( unsigned int i = 0; i < dsnSettings.size( ); ++i )
+    for( unsigned int i = 0; i < dsnSettings.size( ); ++i )
     {
         createGroundStation( bodies.at( "Earth" ), dsnSettings.at( i ) );
     }
 
     // Define and create ground stations.
     std::map< std::pair< std::string, std::string >, Eigen::Vector3d > groundStationsToCreate;
-    groundStationsToCreate[ std::make_pair( "Earth", "Graz" ) ] =
-            ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( );
-    groundStationsToCreate[ std::make_pair( "Mars", "MSL" ) ] =
-            ( Eigen::Vector3d( ) << -2.5E5, 3.2E6, -2.65E4 ).finished( );
-
+    groundStationsToCreate[ std::make_pair( "Earth", "Graz" ) ] = ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( );
+    groundStationsToCreate[ std::make_pair( "Mars", "MSL" ) ] = ( Eigen::Vector3d( ) << -2.5E5, 3.2E6, -2.65E4 ).finished( );
 
     createGroundStations( bodies, groundStationsToCreate );
 
@@ -141,10 +132,10 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
 }
 
 //! Function to create estimated parameters for general observation partial tests.
-std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
-        const SystemOfBodies& bodies, const double initialTime,
-        const bool useEquivalencePrincipleParameter,
-        const bool useRotationalStateAsParameter )
+std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters( const SystemOfBodies& bodies,
+                                                                                  const double initialTime,
+                                                                                  const bool useEquivalencePrincipleParameter,
+                                                                                  const bool useRotationalStateAsParameter )
 {
     std::vector< std::shared_ptr< EstimatableParameter< double > > > estimatableDoubleParameters;
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatableVectorParameters;
@@ -152,19 +143,13 @@ std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters
     if( !useRotationalStateAsParameter )
     {
         std::shared_ptr< RotationRate > earthRotationRate = std::make_shared< RotationRate >(
-                    std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
-                        bodies.at( "Earth" )->getRotationalEphemeris( ) ), "Earth" );
+                std::dynamic_pointer_cast< SimpleRotationalEphemeris >( bodies.at( "Earth" )->getRotationalEphemeris( ) ), "Earth" );
         std::shared_ptr< RotationRate > marsRotationRate = std::make_shared< RotationRate >(
-                    std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
-                        bodies.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
-        std::shared_ptr< ConstantRotationalOrientation > earthRotationOrientation =
-                std::make_shared< ConstantRotationalOrientation >(
-                    std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
-                        bodies.at( "Earth" )->getRotationalEphemeris( ) ), "Earth" );
-        std::shared_ptr< ConstantRotationalOrientation > marsRotationOrientation =
-                std::make_shared< ConstantRotationalOrientation >(
-                    std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
-                        bodies.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
+                std::dynamic_pointer_cast< SimpleRotationalEphemeris >( bodies.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
+        std::shared_ptr< ConstantRotationalOrientation > earthRotationOrientation = std::make_shared< ConstantRotationalOrientation >(
+                std::dynamic_pointer_cast< SimpleRotationalEphemeris >( bodies.at( "Earth" )->getRotationalEphemeris( ) ), "Earth" );
+        std::shared_ptr< ConstantRotationalOrientation > marsRotationOrientation = std::make_shared< ConstantRotationalOrientation >(
+                std::dynamic_pointer_cast< SimpleRotationalEphemeris >( bodies.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
 
         estimatableDoubleParameters.push_back( earthRotationRate );
         estimatableDoubleParameters.push_back( marsRotationRate );
@@ -185,38 +170,34 @@ std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters
     }
 
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatedInitialStateParameters;
-    estimatedInitialStateParameters.push_back(
-                std::make_shared< InitialTranslationalStateParameter< double > >(
-                    "Earth", propagators::getInitialStateOfBody(
-                        "Earth", "SSB", bodies, initialTime ) ) );
-    estimatedInitialStateParameters.push_back(
-                std::make_shared< InitialTranslationalStateParameter< double > >(
-                    "Mars", propagators::getInitialStateOfBody(
-                        "Mars", "SSB", bodies, initialTime ) ) );
+    estimatedInitialStateParameters.push_back( std::make_shared< InitialTranslationalStateParameter< double > >(
+            "Earth", propagators::getInitialStateOfBody( "Earth", "SSB", bodies, initialTime ) ) );
+    estimatedInitialStateParameters.push_back( std::make_shared< InitialTranslationalStateParameter< double > >(
+            "Mars", propagators::getInitialStateOfBody( "Mars", "SSB", bodies, initialTime ) ) );
     if( useRotationalStateAsParameter )
     {
-        estimatedInitialStateParameters.push_back(
-                    std::make_shared< InitialRotationalStateParameter< double > >(
-                        "Mars", propagators::getInitialRotationalStateOfBody(
-                            "Mars", "ECLIPJ2000", bodies, initialTime ),
-                        std::bind( &simulation_setup::Body::getBodyInertiaTensor, bodies.at( "Mars" ) ) ) );
+        estimatedInitialStateParameters.push_back( std::make_shared< InitialRotationalStateParameter< double > >(
+                "Mars",
+                propagators::getInitialRotationalStateOfBody( "Mars", "ECLIPJ2000", bodies, initialTime ),
+                std::bind( &simulation_setup::Body::getBodyInertiaTensor, bodies.at( "Mars" ) ) ) );
     }
 
     return std::make_shared< EstimatableParameterSet< double > >(
-                estimatableDoubleParameters,
-                estimatableVectorParameters,
-                estimatedInitialStateParameters );
+            estimatableDoubleParameters, estimatableVectorParameters, estimatedInitialStateParameters );
 }
 
 //! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
-        const std::string& bodyName, const SystemOfBodies& bodies, const Eigen::Vector3d& bodyPositionVariation,
-        const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
+        const std::string& bodyName,
+        const SystemOfBodies& bodies,
+        const Eigen::Vector3d& bodyPositionVariation,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction,
+        const double observationTime,
         const int observableSize )
 {
     // Calculate numerical partials w.r.t. body state.
-    std::shared_ptr< ConstantEphemeris > bodyEphemeris = std::dynamic_pointer_cast< ConstantEphemeris >(
-                bodies.at( bodyName )->getEphemeris( ) );
+    std::shared_ptr< ConstantEphemeris > bodyEphemeris =
+            std::dynamic_pointer_cast< ConstantEphemeris >( bodies.at( bodyName )->getEphemeris( ) );
     Eigen::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianState( 0.0 );
     Eigen::Vector6d perturbedBodyState;
 
@@ -236,8 +217,8 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
         bodies.at( bodyName )->recomputeStateOnNextCall( );
         Eigen::VectorXd downPerturbedObservation = observationFunction( observationTime );
 
-        numericalPartialWrtBodyPosition.block( 0, i, observableSize, 1  ) = ( upPerturbedObservation - downPerturbedObservation ) /
-                ( 2.0 * bodyPositionVariation( i ) );
+        numericalPartialWrtBodyPosition.block( 0, i, observableSize, 1 ) =
+                ( upPerturbedObservation - downPerturbedObservation ) / ( 2.0 * bodyPositionVariation( i ) );
     }
     bodyEphemeris->updateConstantState( bodyUnperturbedState );
     bodies.at( bodyName )->recomputeStateOnNextCall( );
@@ -246,13 +227,14 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
 }
 
 //! Function to compute numerical partials w.r.t. constant body orientation for general observation partial tests.
-Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
-        const std::string& bodyName, const SystemOfBodies& bodies, const Eigen::Vector4d& bodyQuaternionVariation,
-        const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
-        const int observableSize,
-        std::vector< Eigen::Vector4d >& appliedQuaternionPerturbation )
+Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation( const std::string& bodyName,
+                                                             const SystemOfBodies& bodies,
+                                                             const Eigen::Vector4d& bodyQuaternionVariation,
+                                                             const std::function< Eigen::VectorXd( const double ) > observationFunction,
+                                                             const double observationTime,
+                                                             const int observableSize,
+                                                             std::vector< Eigen::Vector4d >& appliedQuaternionPerturbation )
 {
-
     Eigen::VectorXd nominalObservation = observationFunction( observationTime );
     appliedQuaternionPerturbation.resize( 4 );
     for( int i = 0; i < 4; i++ )
@@ -261,8 +243,7 @@ Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
     }
 
     std::shared_ptr< ephemerides::ConstantRotationalEphemeris > rotationalEphemeris =
-            std::dynamic_pointer_cast< ephemerides::ConstantRotationalEphemeris >(
-                bodies.at( bodyName )->getRotationalEphemeris( ) );
+            std::dynamic_pointer_cast< ephemerides::ConstantRotationalEphemeris >( bodies.at( bodyName )->getRotationalEphemeris( ) );
 
     Eigen::Vector7d bodyUnperturbedState = rotationalEphemeris->getRotationStateVector( observationTime );
     Eigen::Vector7d perturbedBodyState;
@@ -276,8 +257,7 @@ Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
 
         perturbedBodyState( 0 ) = ( bodyUnperturbedState( 0 ) > 0 ? 1.0 : -1.0 ) *
                 std::sqrt( 1.0 - std::pow( perturbedBodyState.segment( 1, 3 ).norm( ), 2 ) );
-        appliedQuaternionPerturbation[ i ] = perturbedBodyState.segment( 0, 4 ).normalized( ) -
-                bodyUnperturbedState.segment( 0, 4 );
+        appliedQuaternionPerturbation[ i ] = perturbedBodyState.segment( 0, 4 ).normalized( ) - bodyUnperturbedState.segment( 0, 4 );
 
         rotationalEphemeris->updateConstantState( perturbedBodyState );
         bodies.at( bodyName )->recomputeStateOnNextCall( );
@@ -285,8 +265,7 @@ Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
 
         upPerturbedObservation -= nominalObservation;
 
-        numericalChangeDueToQuaternionChange.block( 0, i, observableSize, 1  ) = upPerturbedObservation;
-
+        numericalChangeDueToQuaternionChange.block( 0, i, observableSize, 1 ) = upPerturbedObservation;
     }
 
     rotationalEphemeris->updateConstantState( bodyUnperturbedState );
@@ -298,8 +277,11 @@ Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
 
 //! Function to compute numerical partials w.r.t. constant body angular velocity for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyAngularVelocityVector(
-        const std::string& bodyName, const SystemOfBodies& bodies, const Eigen::Vector3d& bodyRotationVariation,
-        const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
+        const std::string& bodyName,
+        const SystemOfBodies& bodies,
+        const Eigen::Vector3d& bodyRotationVariation,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction,
+        const double observationTime,
         const int observableSize )
 {
     // Calculate numerical partials w.r.t. body state.
@@ -322,8 +304,8 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyAngula
         bodies.at( bodyName )->recomputeStateOnNextCall( );
         Eigen::VectorXd downPerturbedObservation = observationFunction( observationTime );
 
-        numericalPartialWrtBodyAngularVelocity.block( 0, i, observableSize, 1  ) = ( upPerturbedObservation - downPerturbedObservation ) /
-                ( 2.0 * bodyRotationVariation( i ) );
+        numericalPartialWrtBodyAngularVelocity.block( 0, i, observableSize, 1 ) =
+                ( upPerturbedObservation - downPerturbedObservation ) / ( 2.0 * bodyRotationVariation( i ) );
     }
     bodies.at( bodyName )->setCurrentRotationalStateToLocalFrame( bodyUnperturbedState );
     bodies.at( bodyName )->recomputeStateOnNextCall( );
@@ -333,13 +315,16 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyAngula
 
 //! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyVelocity(
-        const std::string& bodyName, const SystemOfBodies& bodies, const Eigen::Vector3d& bodyVelocityVariation,
-        const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
+        const std::string& bodyName,
+        const SystemOfBodies& bodies,
+        const Eigen::Vector3d& bodyVelocityVariation,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction,
+        const double observationTime,
         const int observableSize )
 {
     // Calculate numerical partials w.r.t. body state.
-    std::shared_ptr< ConstantEphemeris > bodyEphemeris = std::dynamic_pointer_cast< ConstantEphemeris >(
-                bodies.at( bodyName )->getEphemeris( ) );
+    std::shared_ptr< ConstantEphemeris > bodyEphemeris =
+            std::dynamic_pointer_cast< ConstantEphemeris >( bodies.at( bodyName )->getEphemeris( ) );
     Eigen::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianState( 0.0 );
     Eigen::Vector6d perturbedBodyState;
 
@@ -359,15 +344,14 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyVeloci
         bodies.at( bodyName )->recomputeStateOnNextCall( );
         Eigen::VectorXd downPerturbedObservation = observationFunction( observationTime );
 
-        numericalPartialWrtBodyPosition.block( 0, i, observableSize, 1  ) = ( upPerturbedObservation - downPerturbedObservation ) /
-                ( 2.0 * bodyVelocityVariation( i ) );
+        numericalPartialWrtBodyPosition.block( 0, i, observableSize, 1 ) =
+                ( upPerturbedObservation - downPerturbedObservation ) / ( 2.0 * bodyVelocityVariation( i ) );
     }
     bodyEphemeris->updateConstantState( bodyUnperturbedState );
     bodies.at( bodyName )->recomputeStateOnNextCall( );
 
     return numericalPartialWrtBodyPosition;
 }
-
 
 //! Function to compute numerical partials w.r.t. double parameters for general observation partial tests.
 std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(
@@ -382,8 +366,7 @@ std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(
     for( unsigned int i = 0; i < doubleParameters.size( ); i++ )
     {
         partialVector.push_back( calculateNumericalObservationParameterPartial(
-                                     doubleParameters.at( i ), parameterPerturbations.at( i ), observationFunction,
-                                     observationTime, updateFunctions.at( i ) ) );
+                doubleParameters.at( i ), parameterPerturbations.at( i ), observationFunction, observationTime, updateFunctions.at( i ) ) );
     }
 
     return partialVector;
@@ -401,8 +384,7 @@ std::vector< Eigen::MatrixXd > calculateNumericalPartialsWrtVectorParameters(
     for( unsigned int i = 0; i < vectorParameters.size( ); i++ )
     {
         partialVector.push_back( calculateNumericalObservationParameterPartial(
-                                     vectorParameters.at( i ), parameterPerturbations.at( i ), observationFunction,
-                                     observationTime, updateFunctions.at( i ) ) );
+                vectorParameters.at( i ), parameterPerturbations.at( i ), observationFunction, observationTime, updateFunctions.at( i ) ) );
     }
 
     return partialVector;
@@ -420,21 +402,19 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     std::vector< int > currentPartialTimeIndices;
 
     std::vector< std::string > bodiesWithTranslationalState =
-            estimatable_parameters::getListOfBodiesToEstimate(
-                estimatedParameters ).at( propagators::translational_state );
+            estimatable_parameters::getListOfBodiesToEstimate( estimatedParameters ).at( propagators::translational_state );
 
     for( unsigned int i = 0; i < bodiesWithTranslationalState.size( ); i++ )
     {
         currentPartialTimes.clear( );
         LinkEnds currentLinkEnds = linkEnds.linkEnds_;
-        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
-             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( ); linkEndIterator != currentLinkEnds.end( );
+             linkEndIterator++ )
         {
             if( linkEndIterator->second.bodyName_ == bodiesWithTranslationalState.at( i ) )
             {
                 currentPartialTimeIndices =
                         getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
-
 
                 for( unsigned int j = 0; j < currentPartialTimeIndices.size( ); j++ )
                 {
@@ -451,7 +431,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         if( ( observableType == observation_models::n_way_differenced_range && i == 1 ) ||
             ( observableType == observation_models::dsn_n_way_averaged_doppler && i == 0 ) )
         {
-            iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
+            iter_swap( currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2 );
         }
         partialTimes.push_back( currentPartialTimes );
     }
@@ -459,16 +439,16 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     std::vector< std::string > bodiesWithRotationalState;
     if( estimatable_parameters::getListOfBodiesToEstimate( estimatedParameters ).count( propagators::rotational_state ) > 0 )
     {
-        bodiesWithRotationalState = estimatable_parameters::getListOfBodiesToEstimate(
-                    estimatedParameters ).at( propagators::rotational_state );
+        bodiesWithRotationalState =
+                estimatable_parameters::getListOfBodiesToEstimate( estimatedParameters ).at( propagators::rotational_state );
     }
 
     for( unsigned int i = 0; i < bodiesWithRotationalState.size( ); i++ )
     {
         currentPartialTimes.clear( );
         LinkEnds currentLinkEnds = linkEnds.linkEnds_;
-        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
-             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( ); linkEndIterator != currentLinkEnds.end( );
+             linkEndIterator++ )
         {
             if( linkEndIterator->second.bodyName_ == bodiesWithRotationalState.at( i ) )
             {
@@ -484,22 +464,20 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         partialTimes.push_back( currentPartialTimes );
     }
 
-
     bool checkStationId;
     bool addContribution;
     for( unsigned int i = 0; i < estimatedParameters->getEstimatedDoubleParameters( ).size( ); i++ )
     {
         checkStationId = 0;
-        LinkEndId currentAssociatedLinkEndid =
-                estimatedParameters->getEstimatedDoubleParameters( ).at( i )->getParameterName( ).second;
+        LinkEndId currentAssociatedLinkEndid = estimatedParameters->getEstimatedDoubleParameters( ).at( i )->getParameterName( ).second;
         if( currentAssociatedLinkEndid.stationName_ != "" )
         {
             checkStationId = 1;
         }
         currentPartialTimes.clear( );
         LinkEnds currentLinkEnds = linkEnds.linkEnds_;
-        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
-             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( ); linkEndIterator != currentLinkEnds.end( );
+             linkEndIterator++ )
         {
             if( linkEndIterator->second.bodyName_ == currentAssociatedLinkEndid.bodyName_ )
             {
@@ -533,7 +511,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         if( ( observableType == observation_models::n_way_differenced_range && i == 1 ) ||
             ( observableType == observation_models::dsn_n_way_averaged_doppler && i == 0 ) )
         {
-            iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
+            iter_swap( currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2 );
         }
 
         partialTimes.push_back( currentPartialTimes );
@@ -542,16 +520,15 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     for( unsigned int i = 0; i < estimatedParameters->getEstimatedVectorParameters( ).size( ); i++ )
     {
         checkStationId = 0;
-        LinkEndId currentAssociatedLinkEndid =
-                estimatedParameters->getEstimatedVectorParameters( ).at( i )->getParameterName( ).second;
+        LinkEndId currentAssociatedLinkEndid = estimatedParameters->getEstimatedVectorParameters( ).at( i )->getParameterName( ).second;
         if( currentAssociatedLinkEndid.stationName_ != "" )
         {
             checkStationId = 1;
         }
         currentPartialTimes.clear( );
         LinkEnds currentLinkEnds = linkEnds.linkEnds_;
-        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( );
-             linkEndIterator != currentLinkEnds.end( ); linkEndIterator++ )
+        for( LinkEnds::const_iterator linkEndIterator = currentLinkEnds.begin( ); linkEndIterator != currentLinkEnds.end( );
+             linkEndIterator++ )
         {
             if( linkEndIterator->second.bodyName_ == currentAssociatedLinkEndid.bodyName_ )
             {
@@ -585,7 +562,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         if( ( observableType == observation_models::n_way_differenced_range && i == 1 ) ||
             ( observableType == observation_models::dsn_n_way_averaged_doppler && i == 0 ) )
         {
-            iter_swap(currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2);
+            iter_swap( currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2 );
         }
 
         partialTimes.push_back( currentPartialTimes );
@@ -594,7 +571,6 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     return partialTimes;
 }
 
+}  // namespace unit_tests
 
-}
-
-}
+}  // namespace tudat

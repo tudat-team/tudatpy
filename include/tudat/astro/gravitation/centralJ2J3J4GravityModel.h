@@ -63,12 +63,11 @@ namespace gravitation
  *          (body2) [m].
  * \return Gravitational acceleration exerted on body1 due to J4-effect [m s^-2].
  */
-Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double gravitationalParameterOfBodyExertingAcceleration,
-        const double equatorialRadiusOfBodyExertingAcceleration,
-        const double j4CoefficientOfGravityField,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration );
+Eigen::Vector3d computeGravitationalAccelerationDueToJ4( const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                                         const double gravitationalParameterOfBodyExertingAcceleration,
+                                                         const double equatorialRadiusOfBodyExertingAcceleration,
+                                                         const double j4CoefficientOfGravityField,
+                                                         const Eigen::Vector3d& positionOfBodyExertingAcceleration );
 
 //! Compute gravitational acceleration zonal sum.
 /*!
@@ -103,29 +102,25 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
  *          (body2) [m].
  * \return Total gravitational acceleration exerted on body1 due to given zonal terms [m s^-2].
  */
-Eigen::Vector3d computeGravitationalAccelerationZonalSum(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double gravitationalParameterOfBodyExertingAcceleration,
-        const double equatorialRadiusOfBodyExertingAcceleration,
-        const std::map< int, double > zonalCoefficientsOfGravityField,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration );
+Eigen::Vector3d computeGravitationalAccelerationZonalSum( const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                                          const double gravitationalParameterOfBodyExertingAcceleration,
+                                                          const double equatorialRadiusOfBodyExertingAcceleration,
+                                                          const std::map< int, double > zonalCoefficientsOfGravityField,
+                                                          const Eigen::Vector3d& positionOfBodyExertingAcceleration );
 
 //! Central + J2 + J3 + J4 gravitational acceleration model class.
 /*!
  * This class implements a gravitational acceleration model that includes the central, J2, J3, and
  * J4 (unnormalized coefficient of general spherical harmonics expansion) terms.
  */
-class CentralJ2J3J4GravitationalAccelerationModel
-        : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >,
-        public SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d >
+class CentralJ2J3J4GravitationalAccelerationModel : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >,
+                                                    public SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d >
 {
 private:
-
     //! Typedef for base class.
     typedef SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d > Base;
 
 public:
-
     //! Constructor taking position-functions for bodies, and constant parameters of spherical
     //! harmonics expansion.
     /*!
@@ -155,15 +150,10 @@ public:
             const double aJ2GravityCoefficient,
             const double aJ3GravityCoefficient,
             const double aJ4GravityCoefficient,
-            const StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( ){ return Eigen::Vector3d::Zero( ); } )
-        : Base( positionOfBodySubjectToAccelerationFunction,
-                aGravitationalParameter,
-                positionOfBodyExertingAccelerationFunction, false ),
-          equatorialRadius( anEquatorialRadius ),
-          j2GravityCoefficient( aJ2GravityCoefficient ),
-          j3GravityCoefficient( aJ3GravityCoefficient ),
-          j4GravityCoefficient( aJ4GravityCoefficient )
+            const StateFunction positionOfBodyExertingAccelerationFunction = []( ) { return Eigen::Vector3d::Zero( ); } ):
+        Base( positionOfBodySubjectToAccelerationFunction, aGravitationalParameter, positionOfBodyExertingAccelerationFunction, false ),
+        equatorialRadius( anEquatorialRadius ), j2GravityCoefficient( aJ2GravityCoefficient ),
+        j3GravityCoefficient( aJ3GravityCoefficient ), j4GravityCoefficient( aJ4GravityCoefficient )
     {
         this->updateMembers( );
     }
@@ -194,7 +184,6 @@ public:
     }
 
 protected:
-
     //! Equatorial radius [m].
     /*!
      * Equatorial radius of unnormalized spherical harmonics gravity field representation [m].
@@ -223,10 +212,9 @@ private:
 };
 
 //! Typedef for shared-pointer to CentralJ2J3J4GravitationalAccelerationModel.
-typedef std::shared_ptr< CentralJ2J3J4GravitationalAccelerationModel >
-CentralJ2J3J4GravitationalAccelerationModelPointer;
+typedef std::shared_ptr< CentralJ2J3J4GravitationalAccelerationModel > CentralJ2J3J4GravitationalAccelerationModelPointer;
 
-} // namespace gravitation
-} // namespace tudat
+}  // namespace gravitation
+}  // namespace tudat
 
-#endif // TUDAT_CENTRAL_J2_J3_J4_GRAVITY_MODEL_H
+#endif  // TUDAT_CENTRAL_J2_J3_J4_GRAVITY_MODEL_H

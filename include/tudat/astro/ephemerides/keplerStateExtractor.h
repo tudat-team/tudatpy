@@ -33,7 +33,6 @@ namespace ephemerides
 class KeplerStateExtractor : public input_output::Extractor< Eigen::Vector6d >
 {
 public:
-
     //! Extract the Keplerian Elements.
     /*!
      * Returns a KeplerianElements object containing the orbital parameters found in the input data
@@ -48,14 +47,13 @@ public:
     std::shared_ptr< Eigen::Vector6d > extract( ParsedDataLineMapPtr dataLineMap );
 
 protected:
-
 private:
 };
 
 //! Typedef for shared-pointer to KeplerStateExtractor object.
 typedef std::shared_ptr< KeplerStateExtractor > KeplerStateExtractorPointer;
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat
 
-#endif // TUDAT_KEPLER_STATE_EXTRACTOR_H
+#endif  // TUDAT_KEPLER_STATE_EXTRACTOR_H

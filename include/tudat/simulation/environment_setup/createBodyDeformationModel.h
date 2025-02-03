@@ -18,13 +18,11 @@
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 
-
 namespace tudat
 {
 
 namespace simulation_setup
 {
-
 
 std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEarthIers2010DeformationModel(
         const std::shared_ptr< ephemerides::Ephemeris > earthEphemeris,
@@ -34,39 +32,48 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
         const std::function< double( ) > gravitionalParametersOfEarth,
         const std::function< double( ) > gravitionalParametersOfMoon,
         const std::function< double( ) > gravitionalParametersOfSun,
-        const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction =
-        [](const double time){return sofa_interface::calculateDoodsonFundamentalArguments( time ); } );
-
+        const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
+            return sofa_interface::calculateDoodsonFundamentalArguments( time );
+        } );
 
 class BodyDeformationSettings
 {
 public:
-    BodyDeformationSettings(
-            const gravitation::BodyDeformationTypes bodyDeformationType ):bodyDeformationType_( bodyDeformationType ){ }
+    BodyDeformationSettings( const gravitation::BodyDeformationTypes bodyDeformationType ): bodyDeformationType_( bodyDeformationType ) { }
 
-    virtual ~BodyDeformationSettings( ){ }
+    virtual ~BodyDeformationSettings( ) { }
 
-    gravitation::BodyDeformationTypes getBodyDeformationType( ){ return bodyDeformationType_; }
+    gravitation::BodyDeformationTypes getBodyDeformationType( )
+    {
+        return bodyDeformationType_;
+    }
 
 protected:
     gravitation::BodyDeformationTypes bodyDeformationType_;
 };
 
-class BasicSolidBodyDeformationSettings: public BodyDeformationSettings
+class BasicSolidBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
     BasicSolidBodyDeformationSettings( const std::vector< std::string > deformingBodies,
                                        const std::map< int, std::pair< double, double > > displacementLoveNumbers,
                                        const double bodyReferenceRadius = TUDAT_NAN ):
-        BodyDeformationSettings( gravitation::basic_solid_body ),
-        deformingBodies_( deformingBodies ),
-        displacementLoveNumbers_( displacementLoveNumbers ),
-        bodyReferenceRadius_( bodyReferenceRadius )
+        BodyDeformationSettings( gravitation::basic_solid_body ), deformingBodies_( deformingBodies ),
+        displacementLoveNumbers_( displacementLoveNumbers ), bodyReferenceRadius_( bodyReferenceRadius )
     { }
 
-    std::vector< std::string > getDeformingBodies( ){ return deformingBodies_;}
-    std::map< int, std::pair< double, double > > getDisplacementLoveNumbers( ){ return displacementLoveNumbers_; }
-    double getBodyReferenceRadius( ){ return bodyReferenceRadius_; }
+    std::vector< std::string > getDeformingBodies( )
+    {
+        return deformingBodies_;
+    }
+    std::map< int, std::pair< double, double > > getDisplacementLoveNumbers( )
+    {
+        return displacementLoveNumbers_;
+    }
+    double getBodyReferenceRadius( )
+    {
+        return bodyReferenceRadius_;
+    }
 
 protected:
     std::vector< std::string > deformingBodies_;
@@ -74,30 +81,31 @@ protected:
     double bodyReferenceRadius_;
 };
 
-class OceanTideBodyDeformationSettings: public BodyDeformationSettings
+class OceanTideBodyDeformationSettings : public BodyDeformationSettings
 {
 public:
-    OceanTideBodyDeformationSettings( const std::vector<std::string> blqFiles ):
-        BodyDeformationSettings( gravitation::ocean_tide ),
-        blqFiles_( blqFiles ){ }
+    OceanTideBodyDeformationSettings( const std::vector< std::string > blqFiles ):
+        BodyDeformationSettings( gravitation::ocean_tide ), blqFiles_( blqFiles )
+    { }
 
-    std::vector<std::string> getBlqFiles( ){ return blqFiles_; }
+    std::vector< std::string > getBlqFiles( )
+    {
+        return blqFiles_;
+    }
 
 protected:
-
-    std::vector<std::string> blqFiles_;
+    std::vector< std::string > blqFiles_;
 };
 
-inline std::shared_ptr< BasicSolidBodyDeformationSettings > basicTidalBodyShapeDeformation (
+inline std::shared_ptr< BasicSolidBodyDeformationSettings > basicTidalBodyShapeDeformation(
         const std::vector< std::string > deformingBodies,
         const std::map< int, std::pair< double, double > > displacementLoveNumbers,
         const double bodyReferenceRadius = TUDAT_NAN )
 {
-    return std::make_shared< BasicSolidBodyDeformationSettings >(
-                deformingBodies, displacementLoveNumbers, bodyReferenceRadius );
+    return std::make_shared< BasicSolidBodyDeformationSettings >( deformingBodies, displacementLoveNumbers, bodyReferenceRadius );
 }
 
-inline std::shared_ptr< BasicSolidBodyDeformationSettings > degreeTwoBasicTidalBodyShapeDeformation (
+inline std::shared_ptr< BasicSolidBodyDeformationSettings > degreeTwoBasicTidalBodyShapeDeformation(
         const std::vector< std::string > deformingBodies,
         const double loveNumber,
         const double shidaNumber,
@@ -105,8 +113,7 @@ inline std::shared_ptr< BasicSolidBodyDeformationSettings > degreeTwoBasicTidalB
 {
     std::map< int, std::pair< double, double > > displacementLoveNumbers;
     displacementLoveNumbers[ 2 ] = std::make_pair( loveNumber, shidaNumber );
-    return std::make_shared< BasicSolidBodyDeformationSettings >(
-                deformingBodies, displacementLoveNumbers, bodyReferenceRadius );
+    return std::make_shared< BasicSolidBodyDeformationSettings >( deformingBodies, displacementLoveNumbers, bodyReferenceRadius );
 }
 
 inline std::shared_ptr< BodyDeformationSettings > iers2010TidalBodyShapeDeformation( )
@@ -114,7 +121,7 @@ inline std::shared_ptr< BodyDeformationSettings > iers2010TidalBodyShapeDeformat
     return std::make_shared< BodyDeformationSettings >( gravitation::iers_2010 );
 }
 
-inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformation( const std::vector<std::string> blqFiles )
+inline std::shared_ptr< BodyDeformationSettings > oceanTideBodyShapeDeformation( const std::vector< std::string > blqFiles )
 {
     return std::make_shared< OceanTideBodyDeformationSettings >( blqFiles );
 }
@@ -129,8 +136,8 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
         const std::string body,
         const SystemOfBodies& bodyMap );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CREATEBODYDEFORMATIONMODEL_H
+#endif  // TUDAT_CREATEBODYDEFORMATIONMODEL_H

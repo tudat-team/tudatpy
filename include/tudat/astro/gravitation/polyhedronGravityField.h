@@ -38,7 +38,6 @@ namespace gravitation
 class PolyhedronGravityCache
 {
 public:
-
     /*! Constructor.
      *
      * Constructor.
@@ -49,15 +48,13 @@ public:
      * @param verticesDefiningEachEdge Matrix with the indices (0 indexed) of the vertices defining each facet. Each
      * row contains 2 indices.
      */
-    PolyhedronGravityCache(
-            const Eigen::MatrixXd& verticesCoordinates,
-            const Eigen::MatrixXi& verticesDefiningEachFacet,
-            const Eigen::MatrixXi& verticesDefiningEachEdge)
-            : verticesCoordinates_( verticesCoordinates ),
-              verticesDefiningEachFacet_( verticesDefiningEachFacet ),
-              verticesDefiningEachEdge_( verticesDefiningEachEdge )
+    PolyhedronGravityCache( const Eigen::MatrixXd& verticesCoordinates,
+                            const Eigen::MatrixXi& verticesDefiningEachFacet,
+                            const Eigen::MatrixXi& verticesDefiningEachEdge ):
+        verticesCoordinates_( verticesCoordinates ), verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+        verticesDefiningEachEdge_( verticesDefiningEachEdge )
     {
-        currentBodyFixedPosition_ = (Eigen::Vector3d() << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN).finished();
+        currentBodyFixedPosition_ = ( Eigen::Vector3d( ) << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
     }
 
     /*! Update cached variables to current state.
@@ -72,30 +69,33 @@ public:
      * Function to retrieve the coordinates of the polyhedron vertices wrt field point.
      * @return Coordinates of the polyhedron vertices wrt field point.
      */
-    Eigen::MatrixXd& getVerticesCoordinatesRelativeToFieldPoint ( )
-    { return currentVerticesCoordinatesRelativeToFieldPoint_; }
+    Eigen::MatrixXd& getVerticesCoordinatesRelativeToFieldPoint( )
+    {
+        return currentVerticesCoordinatesRelativeToFieldPoint_;
+    }
 
     /*! Function to retrieve the vector of per-facet factors.
      *
      * Function to retrieve the vector of per-facet factors.
      * @return Per-facet factors.
      */
-    Eigen::VectorXd& getPerFacetFactor ( )
-    { return currentPerFacetFactor_; }
+    Eigen::VectorXd& getPerFacetFactor( )
+    {
+        return currentPerFacetFactor_;
+    }
 
     /*! Function to retrieve the vector of per-edge factors.
      *
      * Function to retrieve the vector of per-edge factors.
      * @return Per-edge factors.
      */
-    Eigen::VectorXd& getPerEdgeFactor ( )
-    { return currentPerEdgeFactor_; }
-
+    Eigen::VectorXd& getPerEdgeFactor( )
+    {
+        return currentPerEdgeFactor_;
+    }
 
 protected:
-
 private:
-
     // Current body fixed position.
     Eigen::Vector3d currentBodyFixedPosition_;
 
@@ -118,12 +118,10 @@ private:
     Eigen::VectorXd currentPerEdgeFactor_;
 };
 
-
 //! Class to represent the gravity field of a constant density polyhedron.
-class PolyhedronGravityField: public GravityFieldModel
+class PolyhedronGravityField : public GravityFieldModel
 {
 public:
-
     /*! Constructor.
      *
      * Constructor.
@@ -135,40 +133,36 @@ public:
      * @param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class;
      * default empty)
      */
-    PolyhedronGravityField(
-            const double gravitationalParameter,
-            const Eigen::MatrixXd& verticesCoordinates,
-            const Eigen::MatrixXi& verticesDefiningEachFacet,
-            const std::string& fixedReferenceFrame = "",
-            const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) )
-        : GravityFieldModel(gravitationalParameter, updateInertiaTensor),
-        gravitationalParameter_( gravitationalParameter ),
-        verticesCoordinates_( verticesCoordinates ),
-        verticesDefiningEachFacet_( verticesDefiningEachFacet ),
+    PolyhedronGravityField( const double gravitationalParameter,
+                            const Eigen::MatrixXd& verticesCoordinates,
+                            const Eigen::MatrixXi& verticesDefiningEachFacet,
+                            const std::string& fixedReferenceFrame = "",
+                            const std::function< void( ) > updateInertiaTensor = std::function< void( ) >( ) ):
+        GravityFieldModel( gravitationalParameter, updateInertiaTensor ), gravitationalParameter_( gravitationalParameter ),
+        verticesCoordinates_( verticesCoordinates ), verticesDefiningEachFacet_( verticesDefiningEachFacet ),
         fixedReferenceFrame_( fixedReferenceFrame )
     {
         // Check if provided arguments are valid
-        basic_mathematics::checkValidityOfPolyhedronSettings(verticesCoordinates, verticesDefiningEachFacet);
+        basic_mathematics::checkValidityOfPolyhedronSettings( verticesCoordinates, verticesDefiningEachFacet );
 
         // Compute volume
         volume_ = basic_astrodynamics::computePolyhedronVolume( verticesCoordinates, verticesDefiningEachFacet );
         density_ = gravitationalParameter_ / physical_constants::GRAVITATIONAL_CONSTANT / volume_;
 
         // Compute edges in polyhedron
-        computeVerticesAndFacetsDefiningEachEdge();
+        computeVerticesAndFacetsDefiningEachEdge( );
 
         // Compute facet dyads
-        computeFacetNormalsAndDyads();
+        computeFacetNormalsAndDyads( );
 
         // Compute edge dyads
-        computeEdgeDyads();
+        computeEdgeDyads( );
 
         // Create cache object
-        polyhedronGravityCache_ = std::make_shared< PolyhedronGravityCache >(
-                verticesCoordinates_, verticesDefiningEachFacet_, verticesDefiningEachEdge_);
+        polyhedronGravityCache_ =
+                std::make_shared< PolyhedronGravityCache >( verticesCoordinates_, verticesDefiningEachFacet_, verticesDefiningEachEdge_ );
 
-        inertiaTensor_ = basic_astrodynamics::computePolyhedronInertiaTensor(
-                verticesCoordinates_, verticesDefiningEachFacet_, density_ );
+        inertiaTensor_ = basic_astrodynamics::computePolyhedronInertiaTensor( verticesCoordinates_, verticesDefiningEachFacet_, density_ );
     }
 
     /*! Function to calculate the gravitational potential.
@@ -179,17 +173,17 @@ public:
      */
     virtual double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
-        polyhedronGravityCache_->update(bodyFixedPosition);
+        polyhedronGravityCache_->update( bodyFixedPosition );
 
         return basic_mathematics::calculatePolyhedronGravitationalPotential(
                 gravitationalParameter_ / volume_,
-                polyhedronGravityCache_->getVerticesCoordinatesRelativeToFieldPoint(),
+                polyhedronGravityCache_->getVerticesCoordinatesRelativeToFieldPoint( ),
                 verticesDefiningEachFacet_,
                 verticesDefiningEachEdge_,
                 facetDyads_,
                 edgeDyads_,
-                polyhedronGravityCache_->getPerFacetFactor(),
-                polyhedronGravityCache_->getPerEdgeFactor() );
+                polyhedronGravityCache_->getPerFacetFactor( ),
+                polyhedronGravityCache_->getPerEdgeFactor( ) );
     }
 
     /*! Function to calculate the gradient of the gravitational potential (i.e. the acceleration).
@@ -200,17 +194,17 @@ public:
      */
     virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
-        polyhedronGravityCache_->update(bodyFixedPosition);
+        polyhedronGravityCache_->update( bodyFixedPosition );
 
         return basic_mathematics::calculatePolyhedronGradientOfGravitationalPotential(
                 gravitationalParameter_ / volume_,
-                polyhedronGravityCache_->getVerticesCoordinatesRelativeToFieldPoint(),
+                polyhedronGravityCache_->getVerticesCoordinatesRelativeToFieldPoint( ),
                 verticesDefiningEachFacet_,
                 verticesDefiningEachEdge_,
                 facetDyads_,
                 edgeDyads_,
-                polyhedronGravityCache_->getPerFacetFactor(),
-                polyhedronGravityCache_->getPerEdgeFactor() );
+                polyhedronGravityCache_->getPerFacetFactor( ),
+                polyhedronGravityCache_->getPerEdgeFactor( ) );
     }
 
     /*! Function to calculate the hessian matrix of the gravitational potential.
@@ -221,14 +215,13 @@ public:
      */
     Eigen::Matrix3d getHessianOfPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
-        polyhedronGravityCache_->update(bodyFixedPosition);
+        polyhedronGravityCache_->update( bodyFixedPosition );
 
-        return basic_mathematics::calculatePolyhedronHessianOfGravitationalPotential(
-                gravitationalParameter_ / volume_,
-                facetDyads_,
-                edgeDyads_,
-                polyhedronGravityCache_->getPerFacetFactor(),
-                polyhedronGravityCache_->getPerEdgeFactor() );
+        return basic_mathematics::calculatePolyhedronHessianOfGravitationalPotential( gravitationalParameter_ / volume_,
+                                                                                      facetDyads_,
+                                                                                      edgeDyads_,
+                                                                                      polyhedronGravityCache_->getPerFacetFactor( ),
+                                                                                      polyhedronGravityCache_->getPerEdgeFactor( ) );
     }
 
     /*! Function to calculate the laplacian of the gravitational potential.
@@ -239,40 +232,53 @@ public:
      */
     virtual double getLaplacianOfPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
-        polyhedronGravityCache_->update(bodyFixedPosition);
+        polyhedronGravityCache_->update( bodyFixedPosition );
 
-        return basic_mathematics::calculatePolyhedronLaplacianOfGravitationalPotential(
-                gravitationalParameter_ / volume_,
-                polyhedronGravityCache_->getPerFacetFactor() );
+        return basic_mathematics::calculatePolyhedronLaplacianOfGravitationalPotential( gravitationalParameter_ / volume_,
+                                                                                        polyhedronGravityCache_->getPerFacetFactor( ) );
     }
 
     //! Function to retrieve the identifier for the body-fixed reference frame.
     std::string getFixedReferenceFrame( )
-    { return fixedReferenceFrame_; }
+    {
+        return fixedReferenceFrame_;
+    }
 
     //! Function to return the volume
     double getVolume( )
-    { return volume_; }
+    {
+        return volume_;
+    }
 
     //! Function to return the vertices coordinates.
     const Eigen::MatrixXd& getVerticesCoordinates( )
-    { return verticesCoordinates_; }
+    {
+        return verticesCoordinates_;
+    }
 
     //! Function to return the vertices defining each facet.
     const Eigen::MatrixXi& getVerticesDefiningEachFacet( )
-    { return verticesDefiningEachFacet_; }
+    {
+        return verticesDefiningEachFacet_;
+    }
 
     //! Function to return the vertices defining each edge.
     const Eigen::MatrixXi& getVerticesDefiningEachEdge( )
-    { return verticesDefiningEachEdge_; }
+    {
+        return verticesDefiningEachEdge_;
+    }
 
     //! Function to return the facet dyads.
     const std::vector< Eigen::MatrixXd >& getFacetDyads( )
-    { return facetDyads_; }
+    {
+        return facetDyads_;
+    }
 
     //! Function to return the edge dyads.
     const std::vector< Eigen::MatrixXd >& getEdgeDyads( )
-    { return edgeDyads_; }
+    {
+        return edgeDyads_;
+    }
 
     virtual Eigen::Matrix3d getInertiaTensor( )
     {
@@ -280,9 +286,7 @@ public:
     }
 
 protected:
-
 private:
-
     /*! Function to compute the vertices and facets defining each edge.
      *
      * Function to compute the vertices and facets defining each edge, according to Werner and Scheeres (1997).
@@ -291,7 +295,7 @@ private:
      * is a matrix with the index (0 based) of the facets defining each edge (one row per edge, 2 columns). The function
      * saves the two computed matrices into member variables of the class.
      */
-    void computeVerticesAndFacetsDefiningEachEdge ( );
+    void computeVerticesAndFacetsDefiningEachEdge( );
 
     /*! Function to compute the facet normals and facet dyads.
      *
@@ -300,7 +304,7 @@ private:
      * vector being the normal to one facet. Computes a vector of facet dyads, each member of the vector being the ´
      * dyad associated with one facet. The function saves the two computed vectors into member variables of the class.
      */
-    void computeFacetNormalsAndDyads ( );
+    void computeFacetNormalsAndDyads( );
 
     /*! Function to compute the edge dyads.
      *
@@ -308,7 +312,7 @@ private:
      * each member of the vector being the dyad associated with one edge. The function saves the computed vector
      * into a member variable of the class.
      */
-    void computeEdgeDyads ( );
+    void computeEdgeDyads( );
 
     //! Gravitational parameter of the polyhedron.
     double gravitationalParameter_;
@@ -346,11 +350,10 @@ private:
 
     //! Identifier for body-fixed reference frame
     std::string fixedReferenceFrame_;
-
 };
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif //TUDAT_POLYHEDRONGRAVITYFIELD_H
+#endif  // TUDAT_POLYHEDRONGRAVITYFIELD_H

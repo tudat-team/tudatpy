@@ -1,5 +1,5 @@
 
-#include<tudat/astro/propagators/propagateCovariance.h>
+#include <tudat/astro/propagators/propagateCovariance.h>
 
 namespace tudat
 {
@@ -16,7 +16,7 @@ void getFullVariationalEquationsSolutionHistory(
     for( unsigned int i = 0; i < evaluationTimes.size( ); i++ )
     {
         fullVariationalEquationsSolutionHistory[ evaluationTimes.at( i ) ] =
-                stateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTimes.at( i ), false  );
+                stateTransitionInterface->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTimes.at( i ), false );
     }
 }
 
@@ -36,30 +36,25 @@ void getFullVariationalEquationsSolutionHistory(
         currentTime += timeStep;
     }
 
-    getFullVariationalEquationsSolutionHistory(
-                fullVariationalEquationsSolutionHistory, stateTransitionInterface, evaluationTimes );
+    getFullVariationalEquationsSolutionHistory( fullVariationalEquationsSolutionHistory, stateTransitionInterface, evaluationTimes );
 }
 
 //! Function to propagate full covariance at the initial time to state covariance at later times
-void propagateCovariance(
-        std::map< double, Eigen::MatrixXd >& propagatedCovariance,
-        const Eigen::MatrixXd& initialCovariance,
-        const std::map< double, Eigen::MatrixXd >& fullVariationalEquationsSolutionHistory )
+void propagateCovariance( std::map< double, Eigen::MatrixXd >& propagatedCovariance,
+                          const Eigen::MatrixXd& initialCovariance,
+                          const std::map< double, Eigen::MatrixXd >& fullVariationalEquationsSolutionHistory )
 {
-    for( auto resultIterator : fullVariationalEquationsSolutionHistory )
+    for( auto resultIterator: fullVariationalEquationsSolutionHistory )
     {
-        propagatedCovariance[ resultIterator.first ] =
-                resultIterator.second * initialCovariance *
-                resultIterator.second.transpose( );
+        propagatedCovariance[ resultIterator.first ] = resultIterator.second * initialCovariance * resultIterator.second.transpose( );
     }
 }
 
 //! Function to propagate full covariance at the initial time to state covariance at later times
-void propagateCovariance(
-        std::map< double, Eigen::MatrixXd >& propagatedCovariance,
-        const Eigen::MatrixXd& initialCovariance,
-        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const std::vector< double > evaluationTimes )
+void propagateCovariance( std::map< double, Eigen::MatrixXd >& propagatedCovariance,
+                          const Eigen::MatrixXd& initialCovariance,
+                          const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+                          const std::vector< double > evaluationTimes )
 {
     if( initialCovariance.rows( ) != stateTransitionInterface->getFullParameterVectorSize( ) )
     {
@@ -67,8 +62,7 @@ void propagateCovariance(
     }
 
     std::map< double, Eigen::MatrixXd > fullVariationalEquationsSolutionHistory;
-    getFullVariationalEquationsSolutionHistory(
-                fullVariationalEquationsSolutionHistory, stateTransitionInterface, evaluationTimes );
+    getFullVariationalEquationsSolutionHistory( fullVariationalEquationsSolutionHistory, stateTransitionInterface, evaluationTimes );
     propagateCovariance( propagatedCovariance, initialCovariance, fullVariationalEquationsSolutionHistory );
 }
 
@@ -78,19 +72,17 @@ std::map< double, Eigen::MatrixXd > propagateCovariance(
         const std::vector< double > evaluationTimes )
 {
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
-    propagateCovariance(
-                propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
+    propagateCovariance( propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
     return propagatedCovariance;
 }
 
 //! Function to propagate full covariance at the initial time to state covariance at later times
-void propagateCovariance(
-        std::map< double, Eigen::MatrixXd >& propagatedCovariance,
-        const Eigen::MatrixXd& initialCovariance,
-        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const double timeStep,
-        const double initialTime,
-        const double finalTime )
+void propagateCovariance( std::map< double, Eigen::MatrixXd >& propagatedCovariance,
+                          const Eigen::MatrixXd& initialCovariance,
+                          const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+                          const double timeStep,
+                          const double initialTime,
+                          const double finalTime )
 {
     std::vector< double > evaluationTimes;
     double currentTime = initialTime;
@@ -101,14 +93,12 @@ void propagateCovariance(
     }
 
     propagateCovariance( propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
-
 }
 
-Eigen::MatrixXd convertCovarianceToFrame(
-        const Eigen::MatrixXd inputCovariance,
-        const Eigen::VectorXd inertialCartesianRelativeState,
-        const reference_frames::SatelliteReferenceFrames inputFrame,
-        const reference_frames::SatelliteReferenceFrames outputFrame )
+Eigen::MatrixXd convertCovarianceToFrame( const Eigen::MatrixXd inputCovariance,
+                                          const Eigen::VectorXd inertialCartesianRelativeState,
+                                          const reference_frames::SatelliteReferenceFrames inputFrame,
+                                          const reference_frames::SatelliteReferenceFrames outputFrame )
 {
     Eigen::MatrixXd outputCovariance;
     if( inertialCartesianRelativeState.rows( ) % 6 != 0 )
@@ -118,22 +108,21 @@ Eigen::MatrixXd convertCovarianceToFrame(
     else if( ( inputCovariance.rows( ) != inertialCartesianRelativeState.rows( ) ) ||
              ( inputCovariance.cols( ) != inertialCartesianRelativeState.rows( ) ) )
     {
-        throw std::runtime_error( "Error when converting Cartesian state covariance to alternative frame, state and covariance size don't match" );
+        throw std::runtime_error(
+                "Error when converting Cartesian state covariance to alternative frame, state and covariance size don't match" );
     }
     else
     {
         int numberOfBodes = inertialCartesianRelativeState.rows( ) / 6;
-        Eigen::MatrixXd covarianceTransformation =
-                Eigen::MatrixXd::Zero( 6 * numberOfBodes, 6 * numberOfBodes );
+        Eigen::MatrixXd covarianceTransformation = Eigen::MatrixXd::Zero( 6 * numberOfBodes, 6 * numberOfBodes );
         for( int i = 0; i < numberOfBodes; i++ )
         {
             Eigen::Matrix3d rotationMatrix = reference_frames::getRotationBetweenSatelliteFrames(
-                        inertialCartesianRelativeState.segment( i * 6, 6 ), inputFrame, outputFrame );
+                    inertialCartesianRelativeState.segment( i * 6, 6 ), inputFrame, outputFrame );
             covarianceTransformation.block( 6 * i, 6 * i, 3, 3 ) = rotationMatrix;
             covarianceTransformation.block( 6 * i + 3, 6 * i + 3, 3, 3 ) = rotationMatrix;
         }
         outputCovariance = covarianceTransformation * inputCovariance * covarianceTransformation.transpose( );
-
     }
     return outputCovariance;
 }
@@ -159,9 +148,8 @@ std::map< double, Eigen::MatrixXd > convertCovarianceHistoryToFrame(
         {
             throw std::runtime_error( "Error when converting covariance history, input times are not consistent for state and covariance" );
         }
-        outputCovariances[ covarianceIterator->first ] = convertCovarianceToFrame(
-                    covarianceIterator->second, stateIterator->second,
-                    inputFrame, outputFrame );
+        outputCovariances[ covarianceIterator->first ] =
+                convertCovarianceToFrame( covarianceIterator->second, stateIterator->second, inputFrame, outputFrame );
         covarianceIterator++;
         stateIterator++;
     }
@@ -169,29 +157,24 @@ std::map< double, Eigen::MatrixXd > convertCovarianceHistoryToFrame(
     return outputCovariances;
 }
 
-
-void convertCovarianceHistoryToFormalErrorHistory(
-        std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
-        std::map< double, Eigen::MatrixXd >& propagatedCovariance )
+void convertCovarianceHistoryToFormalErrorHistory( std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
+                                                   std::map< double, Eigen::MatrixXd >& propagatedCovariance )
 {
     propagatedFormalErrors.clear( );
-    for( auto covarianceIterator : propagatedCovariance )
+    for( auto covarianceIterator: propagatedCovariance )
     {
-        propagatedFormalErrors[ covarianceIterator.first ] =
-                Eigen::VectorXd( covarianceIterator.second.diagonal( ).array( ).sqrt( ) );
+        propagatedFormalErrors[ covarianceIterator.first ] = Eigen::VectorXd( covarianceIterator.second.diagonal( ).array( ).sqrt( ) );
     }
 }
 
 //! Function to propagate full covariance at the initial time to state formal errors at later times
-void propagateFormalErrors(
-        std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
-        const Eigen::MatrixXd& initialCovariance,
-        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const std::vector< double > evaluationTimes )
+void propagateFormalErrors( std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
+                            const Eigen::MatrixXd& initialCovariance,
+                            const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+                            const std::vector< double > evaluationTimes )
 {
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
-    propagateCovariance(
-                propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
+    propagateCovariance( propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
     convertCovarianceHistoryToFormalErrorHistory( propagatedFormalErrors, propagatedCovariance );
 }
 
@@ -207,26 +190,22 @@ std::map< double, Eigen::VectorXd > propagateFormalErrors(
 }
 
 //! Function to propagate full covariance at the initial time to state formal errors at later times
-void propagateFormalErrors(
-        std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
-        const Eigen::MatrixXd& initialCovariance,
-        const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
-        const double timeStep,
-        const double initialTime,
-        const double finalTime )
+void propagateFormalErrors( std::map< double, Eigen::VectorXd >& propagatedFormalErrors,
+                            const Eigen::MatrixXd& initialCovariance,
+                            const std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+                            const double timeStep,
+                            const double initialTime,
+                            const double finalTime )
 {
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
-    propagateCovariance(
-                propagatedCovariance, initialCovariance, stateTransitionInterface, timeStep, initialTime, finalTime );
+    propagateCovariance( propagatedCovariance, initialCovariance, stateTransitionInterface, timeStep, initialTime, finalTime );
 
-    for( auto covarianceIterator : propagatedCovariance )
+    for( auto covarianceIterator: propagatedCovariance )
     {
-        propagatedFormalErrors[ covarianceIterator.first ] =
-                Eigen::VectorXd( covarianceIterator.second.diagonal( ).array( ).sqrt( ) );
+        propagatedFormalErrors[ covarianceIterator.first ] = Eigen::VectorXd( covarianceIterator.second.diagonal( ).array( ).sqrt( ) );
     }
 }
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
-
+}  // namespace tudat

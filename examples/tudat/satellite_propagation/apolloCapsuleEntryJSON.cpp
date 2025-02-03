@@ -13,13 +13,13 @@
 #include <tudat/astro/aerodynamics/tests/testApolloCapsuleCoefficients.h>
 #include <tudat/io/applicationOutput.h>
 
-class ApolloJsonSimulationManager : public tudat::json_interface::JsonSimulationManager< >
+class ApolloJsonSimulationManager : public tudat::json_interface::JsonSimulationManager<>
 {
 public:
     // Inherit constructor.
-    using JsonSimulationManager< >::JsonSimulationManager;
+    using JsonSimulationManager<>::JsonSimulationManager;
 
-    ~ApolloJsonSimulationManager( ){ }
+    ~ApolloJsonSimulationManager( ) { }
 
 protected:
     // Override resetBodies method
@@ -52,8 +52,9 @@ protected:
 
         // Define constant 30 degree angle of attack
         double constantAngleOfAttack = 30.0 * tudat::mathematical_constants::PI / 180.0;
-        getBody( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->
-                setOrientationAngleFunctions( [ = ]( ){ return constantAngleOfAttack; } );
+        getBody( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions( [ = ]( ) {
+            return constantAngleOfAttack;
+        } );
     }
 };
 
@@ -61,7 +62,7 @@ protected:
 int main( )
 {
     const std::string cppFilePath( __FILE__ );
-    const std::string cppFolder = cppFilePath.substr( 0, cppFilePath.find_last_of("/\\") + 1 );
+    const std::string cppFolder = cppFilePath.substr( 0, cppFilePath.find_last_of( "/\\" ) + 1 );
 
     ApolloJsonSimulationManager jsonSimulationManager( cppFolder + "apolloCapsuleEntry.json" );
 

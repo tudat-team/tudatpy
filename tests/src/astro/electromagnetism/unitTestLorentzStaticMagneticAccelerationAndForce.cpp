@@ -11,10 +11,10 @@
  *    Hackworth, M. Magnetic Fields and Magnetic Forces,
  *          http://www2.cose.isu.edu/~hackmart/Magnetic%20Fields_engphys.pdf, last accessed: 20th
  *          January, 2014.
- *    Khan, S. Magnetism 3 Whats happens when a speeding proton goes through a magnetic field, 
+ *    Khan, S. Magnetism 3 Whats happens when a speeding proton goes through a magnetic field,
  *          https://www.khanacademy.org/science/physics/electricity-and-magnetism/v/magnetism-3,
  *          2013, last accessed: 16th January, 2014.
- *    Learning About Electronics Magnetic Force Calculator, 
+ *    Learning About Electronics Magnetic Force Calculator,
  *          http://www.learningaboutelectronics.com/Articles/Magnetic-force-calculator.php#answer1,
  *          last accessed: 20th January, 2014.
  *
@@ -48,11 +48,10 @@ BOOST_AUTO_TEST_CASE( testStaticMagneticForceKhanAcademy )
 {
     // Benchmark data is obtained using online video (Khan, 2013).
 
-    // Tests approximate force on a proton due to a static uniform magnetic field. 
+    // Tests approximate force on a proton due to a static uniform magnetic field.
 
     // Set expected static magnetic force [N].
-    const Eigen::Vector3d expectedStaticMagneticForce 
-                = Eigen::Vector3d( 0.0, -4.80653199e-12, 0.0 );
+    const Eigen::Vector3d expectedStaticMagneticForce = Eigen::Vector3d( 0.0, -4.80653199e-12, 0.0 );
 
     // Set velocity of accelerated body [m/s].
     const Eigen::Vector3d velocityOfBodySubjectToAcceleration = Eigen::Vector3d( 6.0e7, 0.0, 0.0 );
@@ -64,24 +63,17 @@ BOOST_AUTO_TEST_CASE( testStaticMagneticForceKhanAcademy )
     const double chargeOfBodySubjectToAcceleration = 1.60217733e-19;
 
     // Compute static magnetic force [N].
-    const Eigen::Vector3d computedStaticMagneticForce
-                = electromagnetism::computeLorentzForceDueToStaticMagneticField(
-                    velocityOfBodySubjectToAcceleration,
-                    localMagneticField,
-                    chargeOfBodySubjectToAcceleration );
+    const Eigen::Vector3d computedStaticMagneticForce = electromagnetism::computeLorentzForceDueToStaticMagneticField(
+            velocityOfBodySubjectToAcceleration, localMagneticField, chargeOfBodySubjectToAcceleration );
 
     // Compare computed and expected static magnetic force vectors.
-    BOOST_CHECK_SMALL( computedStaticMagneticForce.x( ),
-                       std::numeric_limits< double >::min( ) );
+    BOOST_CHECK_SMALL( computedStaticMagneticForce.x( ), std::numeric_limits< double >::min( ) );
 
-    BOOST_CHECK_CLOSE_FRACTION( computedStaticMagneticForce.y( ),
-                                expectedStaticMagneticForce.y( ),
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            computedStaticMagneticForce.y( ), expectedStaticMagneticForce.y( ), std::numeric_limits< double >::epsilon( ) );
 
-    BOOST_CHECK_SMALL( computedStaticMagneticForce.z( ),
-                       std::numeric_limits< double >::min( ) );
+    BOOST_CHECK_SMALL( computedStaticMagneticForce.z( ), std::numeric_limits< double >::min( ) );
 }
-
 
 //! Test implementation of static magnetic force model.
 BOOST_AUTO_TEST_CASE( testStaticMagneticForceArbitraryCharge )
@@ -103,16 +95,12 @@ BOOST_AUTO_TEST_CASE( testStaticMagneticForceArbitraryCharge )
     const double chargeOfBodySubjectToAcceleration = 2.0;
 
     // Compute static magnetic force [N].
-    const Eigen::Vector3d computedStaticMagneticForce
-                = electromagnetism::computeLorentzForceDueToStaticMagneticField(
-                    velocityOfBodySubjectToAcceleration,
-                    localMagneticField,
-                    chargeOfBodySubjectToAcceleration );
+    const Eigen::Vector3d computedStaticMagneticForce = electromagnetism::computeLorentzForceDueToStaticMagneticField(
+            velocityOfBodySubjectToAcceleration, localMagneticField, chargeOfBodySubjectToAcceleration );
 
     // Compare computed and expected static magnetic force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedStaticMagneticForce,
-                                       expectedStaticMagneticForce,
-                                       std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            computedStaticMagneticForce, expectedStaticMagneticForce, std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Test implementation of static magnetic force model.
@@ -134,16 +122,12 @@ BOOST_AUTO_TEST_CASE( testStaticMagneticForceHackworth )
     const double chargeOfBodySubjectToAcceleration = -1.0;
 
     // Compute static magnetic force [N].
-    const Eigen::Vector3d computedStaticMagneticForce
-                = electromagnetism::computeLorentzForceDueToStaticMagneticField(
-                    velocityOfBodySubjectToAcceleration,
-                    localMagneticField,
-                    chargeOfBodySubjectToAcceleration );
+    const Eigen::Vector3d computedStaticMagneticForce = electromagnetism::computeLorentzForceDueToStaticMagneticField(
+            velocityOfBodySubjectToAcceleration, localMagneticField, chargeOfBodySubjectToAcceleration );
 
     // Compare computed and expected static magnetic force vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedStaticMagneticForce,
-                                       expectedStaticMagneticForce,
-                                       std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            computedStaticMagneticForce, expectedStaticMagneticForce, std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Test implementation of static magnetic acceleration model.
@@ -151,11 +135,10 @@ BOOST_AUTO_TEST_CASE( testStaticMagneticAccelerationKhanAcademy )
 {
     // Benchmark data is obtained using online video (Khan, 2013).
 
-    // Tests approximate force on a proton due to a static uniform magnetic field. 
+    // Tests approximate force on a proton due to a static uniform magnetic field.
 
     // Set expected static magnetic force [N].
-    const Eigen::Vector3d expectedStaticMagneticAcceleration =
-            Eigen::Vector3d( 0.0, -2.8736514e15, 0.0 );
+    const Eigen::Vector3d expectedStaticMagneticAcceleration = Eigen::Vector3d( 0.0, -2.8736514e15, 0.0 );
 
     // Set velocity of accelerated body [m/s].
     const Eigen::Vector3d velocityOfBodySubjectToAcceleration = Eigen::Vector3d( 6.0e7, 0.0, 0.0 );
@@ -170,23 +153,15 @@ BOOST_AUTO_TEST_CASE( testStaticMagneticAccelerationKhanAcademy )
     const double massOfBodySubjectToAcceleration = 1.67262178e-27;
 
     // Compute static magnetic acceleration [N].
-    const Eigen::Vector3d computedStaticMagneticAcceleration
-                = electromagnetism::computeLorentzAccelerationDueToStaticMagneticField(
-                    velocityOfBodySubjectToAcceleration,
-                    localMagneticField,
-                    chargeOfBodySubjectToAcceleration,
-                    massOfBodySubjectToAcceleration );
+    const Eigen::Vector3d computedStaticMagneticAcceleration = electromagnetism::computeLorentzAccelerationDueToStaticMagneticField(
+            velocityOfBodySubjectToAcceleration, localMagneticField, chargeOfBodySubjectToAcceleration, massOfBodySubjectToAcceleration );
 
     // Compare computed and expected static magnetic acceleration vectors.
-    BOOST_CHECK_SMALL( computedStaticMagneticAcceleration.x( ),
-                       std::numeric_limits< double >::min( ) );
+    BOOST_CHECK_SMALL( computedStaticMagneticAcceleration.x( ), std::numeric_limits< double >::min( ) );
 
-    BOOST_CHECK_CLOSE_FRACTION( computedStaticMagneticAcceleration.y( ),
-                                expectedStaticMagneticAcceleration.y( ),
-                                1.0e-7 );
+    BOOST_CHECK_CLOSE_FRACTION( computedStaticMagneticAcceleration.y( ), expectedStaticMagneticAcceleration.y( ), 1.0e-7 );
 
-    BOOST_CHECK_SMALL( computedStaticMagneticAcceleration.z( ),
-                       std::numeric_limits< double >::min( ) );
+    BOOST_CHECK_SMALL( computedStaticMagneticAcceleration.z( ), std::numeric_limits< double >::min( ) );
 }
 
 //! Test implementation of static magnetic acceleration model.
@@ -197,8 +172,7 @@ BOOST_AUTO_TEST_CASE( testStaticMagneticAccelerationArbitraryCharge )
     // Tests force using arbitrary values for parameters.
 
     // Set expected static magnetic force [N].
-    const Eigen::Vector3d expectedStaticMagneticAcceleration 
-                = Eigen::Vector3d( 43.6, -34.4, 0.8 );
+    const Eigen::Vector3d expectedStaticMagneticAcceleration = Eigen::Vector3d( 43.6, -34.4, 0.8 );
 
     // Set velocity of accelerated body [m/s].
     const Eigen::Vector3d velocityOfBodySubjectToAcceleration = Eigen::Vector3d( 4.0, 5.0, -3.0 );
@@ -213,23 +187,15 @@ BOOST_AUTO_TEST_CASE( testStaticMagneticAccelerationArbitraryCharge )
     const double massOfBodySubjectToAcceleration = 5.0;
 
     // Compute static magnetic acceleration [N].
-    const Eigen::Vector3d computedStaticMagneticAcceleration
-                = electromagnetism::computeLorentzAccelerationDueToStaticMagneticField(
-                    velocityOfBodySubjectToAcceleration,
-                    localMagneticField,
-                    chargeOfBodySubjectToAcceleration,
-                    massOfBodySubjectToAcceleration );
+    const Eigen::Vector3d computedStaticMagneticAcceleration = electromagnetism::computeLorentzAccelerationDueToStaticMagneticField(
+            velocityOfBodySubjectToAcceleration, localMagneticField, chargeOfBodySubjectToAcceleration, massOfBodySubjectToAcceleration );
 
     // Compare computed and expected static magnetic acceleration vectors.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedStaticMagneticAcceleration,
-                                       expectedStaticMagneticAcceleration,
-                                       std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            computedStaticMagneticAcceleration, expectedStaticMagneticAcceleration, std::numeric_limits< double >::epsilon( ) );
 }
-
-
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

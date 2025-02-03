@@ -17,8 +17,6 @@
 
 #include <iostream>
 
-
-
 #include "tudat/math/basic/mathematicalConstants.h"
 
 #include "tudat/math/interpolators/oneDimensionalInterpolator.h"
@@ -33,8 +31,7 @@ namespace interpolators
 {
 
 //! Enum defining the manner in which to handle the edges of the Lagrange interpolator
-enum LagrangeInterpolatorBoundaryHandling
-{
+enum LagrangeInterpolatorBoundaryHandling {
     lagrange_cubic_spline_boundary_interpolation = 0,
     lagrange_cubic_spline_boundary_interpolation_with_warning = 1,
     lagrange_boundary_nan_interpolation = 2,
@@ -51,13 +48,12 @@ enum LagrangeInterpolatorBoundaryHandling
  *  See e.g. http://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html for
  *  mathematical details.
  */
-template< typename IndependentVariableType, typename DependentVariableType,
+template< typename IndependentVariableType,
+          typename DependentVariableType,
           typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
-class LagrangeInterpolator : public OneDimensionalInterpolator< IndependentVariableType,
-        DependentVariableType >
+class LagrangeInterpolator : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
 public:
-
     //! Using statements to prevent having to put 'this' everywhere in the code.
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
@@ -91,10 +87,9 @@ public:
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue ),
+                    std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                    IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
     {
         if( numberOfStages_ % 2 != 0 )
@@ -110,11 +105,12 @@ public:
         // Check if data is in ascending order
         if( !std::is_sorted( independentValues_.begin( ), independentValues_.end( ) ) )
         {
-            throw std::runtime_error( "Error when making lagrange interpolator, input vector with independent variables should be in ascending order" );
+            throw std::runtime_error(
+                    "Error when making lagrange interpolator, input vector with independent variables should be in ascending order" );
         }
 
         // Verify that the initialization variables are not empty.
-        if ( numberOfIndependentValues_ == 0 || dependentValues_.size( ) == 0 )
+        if( numberOfIndependentValues_ == 0 || dependentValues_.size( ) == 0 )
         {
             throw std::runtime_error( "Error: Vectors used in the Lagrange interpolator initialization are empty." );
         }
@@ -129,8 +125,7 @@ public:
         zeroEntry_ = dependentValues_[ 0 ] - dependentValues_[ 0 ];
         if( zeroEntry_ != zeroEntry_ )
         {
-            throw std::runtime_error(
-                        "Error: Lagrange interpolator cannot identify zero entry." );
+            throw std::runtime_error( "Error: Lagrange interpolator cannot identify zero entry." );
         }
 
         // Create lookup scheme from independent variable values.
@@ -170,10 +165,9 @@ public:
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue ),
+                    std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                    IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
     {
         if( numberOfStages_ % 2 != 0 )
@@ -183,8 +177,7 @@ public:
 
         if( dataMap.size( ) < static_cast< unsigned int >( numberOfStages_ ) )
         {
-            throw std::runtime_error( "Error when creating Lagrange interpolator, input is of size " +
-                                      std::to_string( dataMap.size( ) ) +
+            throw std::runtime_error( "Error when creating Lagrange interpolator, input is of size " + std::to_string( dataMap.size( ) ) +
                                       ". This is smaller than the number of points needed for interpolator, which is " +
                                       std::to_string( numberOfStages_ ) );
         }
@@ -192,15 +185,15 @@ public:
         numberOfIndependentValues_ = static_cast< int >( dataMap.size( ) );
 
         // Verify that the initialization variables are not empty.
-        if ( dataMap.size( ) == 0 )
+        if( dataMap.size( ) == 0 )
         {
-            throw std::runtime_error(
-                        "The vectors used in the lagrange interpolator initialization are empty" );
+            throw std::runtime_error( "The vectors used in the lagrange interpolator initialization are empty" );
         }
 
         // Fill data vectors with data from map.
-        for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
-             mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
+        for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator mapIterator = dataMap.begin( );
+             mapIterator != dataMap.end( );
+             mapIterator++ )
         {
             independentValues_.push_back( std::move( mapIterator->first ) );
             dependentValues_.push_back( std::move( mapIterator->second ) );
@@ -210,15 +203,14 @@ public:
         zeroEntry_ = dependentValues_[ 0 ] - dependentValues_[ 0 ];
         if( zeroEntry_ != zeroEntry_ )
         {
-            throw std::runtime_error(
-                        "Error: Lagrange interpolator cannot identify zero entry." );
+            throw std::runtime_error( "Error: Lagrange interpolator cannot identify zero entry." );
         }
 
         // Create lookup scheme from independent variable data points.
         this->makeLookupScheme( selectedLookupScheme );
 
         // Calculate denominators for each interval, to prevent recalculations dueint each
-        //interpolation call.
+        // interpolation call.
         initializeDenominators( );
         initializeBoundaryInterpolators( selectedLookupScheme );
 
@@ -226,7 +218,7 @@ public:
     }
 
     //! Destructor.
-    ~LagrangeInterpolator( ){ }
+    ~LagrangeInterpolator( ) { }
 
     // Using statement to prevent compiler warning.
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::interpolate;
@@ -256,8 +248,7 @@ public:
 
         // Determine the lower entry in the table corresponding to the target independent variable
         // value.
-        int lowerEntry = lookUpScheme_->findNearestLowerNeighbour(
-                    targetIndependentVariableValue );
+        int lowerEntry = lookUpScheme_->findNearestLowerNeighbour( targetIndependentVariableValue );
 
         // Check if requested interval is inside region in which centered lagrange interpolation
         // can be used.
@@ -272,8 +263,7 @@ public:
         else
         {
             // Initialize repeated numerator to 1
-            ScalarType repeatedNumerator =
-                    mathematical_constants::getFloatingInteger< ScalarType >( 1 );
+            ScalarType repeatedNumerator = mathematical_constants::getFloatingInteger< ScalarType >( 1 );
 
             // Check if requested independent variable is equal to data point
             if( independentValues_[ lowerEntry ] == targetIndependentVariableValue )
@@ -297,21 +287,18 @@ public:
                 {
                     j = i + lowerEntry - offsetEntries_;
                     independentVariableDifferenceCache[ i ] =
-                            static_cast< ScalarType >(
-                                targetIndependentVariableValue - independentValues_[ j ] );
+                            static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] );
 
                     repeatedNumerator *= independentVariableDifferenceCache[ i ];
-
                 }
 
                 // Evaluate interpolating polynomial at requested data point.
                 for( int i = 0; i < numberOfStages_; i++ )
                 {
                     j = i + lowerEntry - offsetEntries_;
-                    interpolatedValue += dependentValues_[ j ]  *
+                    interpolatedValue += dependentValues_[ j ] *
                             ( repeatedNumerator /
-                              ( independentVariableDifferenceCache[ i ] *
-                                denominators[ lowerEntry ][ j - lowerEntry + offsetEntries_ ] ) );
+                              ( independentVariableDifferenceCache[ i ] * denominators[ lowerEntry ][ j - lowerEntry + offsetEntries_ ] ) );
                 }
             }
         }
@@ -329,46 +316,47 @@ public:
         return numberOfStages_;
     }
 
-    InterpolatorTypes getInterpolatorType( ){ return lagrange_interpolator; }
+    InterpolatorTypes getInterpolatorType( )
+    {
+        return lagrange_interpolator;
+    }
 
     LagrangeInterpolatorBoundaryHandling getLagrangeBoundaryHandling( )
     {
         return lagrangeBoundaryHandling_;
     }
 
-
 protected:
-
 private:
-
     DependentVariableType performLagrangeBoundaryInterpolation(
-        const std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > boundaryInterpolator,
-        const IndependentVariableType& targetIndependentVariableValue )
+            const std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > boundaryInterpolator,
+            const IndependentVariableType& targetIndependentVariableValue )
     {
         DependentVariableType interpolatedValue;
         switch( lagrangeBoundaryHandling_ )
         {
-        case lagrange_cubic_spline_boundary_interpolation_with_warning:
-            std::cerr<<"Warning, calling Lagrange interpolator near boundary (at "<<targetIndependentVariableValue<<" ), using cubic-spline interpolation"<<std::endl;
-            interpolatedValue = boundaryInterpolator->interpolate( targetIndependentVariableValue );
-            break;
-        case lagrange_cubic_spline_boundary_interpolation:
-            interpolatedValue = boundaryInterpolator->interpolate( targetIndependentVariableValue );
-            break;
-        case lagrange_boundary_nan_interpolation_with_warning:
-            std::cerr<<"Warning, calling Lagrange interpolator near boundary (at "<<targetIndependentVariableValue<<" ), returning NaN"<<std::endl;
-            interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
-            break;
-        case lagrange_boundary_nan_interpolation:
-            interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
-            break;
-        case lagrange_no_boundary_interpolation:
-            throw std::runtime_error( "Error: Lagrange interpolator called outside permitted bounds, at " + std::to_string(
-                static_cast< double >( targetIndependentVariableValue ) ) );
-            break;
-        default:
-            throw std::runtime_error( "Error when handling Lagrange boundary case, option not implemented" );
-
+            case lagrange_cubic_spline_boundary_interpolation_with_warning:
+                std::cerr << "Warning, calling Lagrange interpolator near boundary (at " << targetIndependentVariableValue
+                          << " ), using cubic-spline interpolation" << std::endl;
+                interpolatedValue = boundaryInterpolator->interpolate( targetIndependentVariableValue );
+                break;
+            case lagrange_cubic_spline_boundary_interpolation:
+                interpolatedValue = boundaryInterpolator->interpolate( targetIndependentVariableValue );
+                break;
+            case lagrange_boundary_nan_interpolation_with_warning:
+                std::cerr << "Warning, calling Lagrange interpolator near boundary (at " << targetIndependentVariableValue
+                          << " ), returning NaN" << std::endl;
+                interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
+                break;
+            case lagrange_boundary_nan_interpolation:
+                interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
+                break;
+            case lagrange_no_boundary_interpolation:
+                throw std::runtime_error( "Error: Lagrange interpolator called outside permitted bounds, at " +
+                                          std::to_string( static_cast< double >( targetIndependentVariableValue ) ) );
+                break;
+            default:
+                throw std::runtime_error( "Error when handling Lagrange boundary case, option not implemented" );
         }
         return interpolatedValue;
     }
@@ -384,13 +372,11 @@ private:
         // Check validity of requested number of stages"
         if( numberOfStages_ % 2 != 0 )
         {
-            throw std::runtime_error(
-                        "Error, Lagrange interp. only implemented for even number of stages." );
+            throw std::runtime_error( "Error, Lagrange interp. only implemented for even number of stages." );
         }
         if( numberOfStages_ < 2 )
         {
-            throw std::runtime_error(
-                        "Error, Lagrange interplator number of stages must be greater than 2." );
+            throw std::runtime_error( "Error, Lagrange interplator number of stages must be greater than 2." );
         }
 
         // Determine offset from boundary of interpolation interval where interpolant is valid.
@@ -399,7 +385,7 @@ private:
         // Iterate over all intervals and calculate denominators
         int currentIterationStart;
         denominators.resize( numberOfIndependentValues_ );
-        for( int i = offsetEntries_; i < numberOfIndependentValues_ - offsetEntries_ - 1 ; i++ )
+        for( int i = offsetEntries_; i < numberOfIndependentValues_ - offsetEntries_ - 1; i++ )
         {
             // Determine start index in independent variables for current polynomial
             currentIterationStart = i - offsetEntries_;
@@ -409,16 +395,14 @@ private:
             // Calculate all denominators for single interval.
             for( int j = 0; j < numberOfStages_; j++ )
             {
-                denominators[ i ][ j ] =
-                        mathematical_constants::getFloatingInteger< ScalarType >( 1 );
+                denominators[ i ][ j ] = mathematical_constants::getFloatingInteger< ScalarType >( 1 );
 
                 for( int k = 0; k < numberOfStages_; k++ )
                 {
                     if( k != j )
                     {
-                        denominators[ i ][ j ] *= static_cast< ScalarType >(
-                                    independentValues_[ j + currentIterationStart ] -
-                                independentValues_[ k + currentIterationStart ] );
+                        denominators[ i ][ j ] *= static_cast< ScalarType >( independentValues_[ j + currentIterationStart ] -
+                                                                             independentValues_[ k + currentIterationStart ] );
                     }
                 }
             }
@@ -436,12 +420,11 @@ private:
      *  lagrangeBoundaryHandling_ variable.
      *  \param selectedLookupScheme Selected lookup scheme does something.
      */
-    void initializeBoundaryInterpolators(
-            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
+    void initializeBoundaryInterpolators( const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
     {
         // Create interpolators
-        if( lagrangeBoundaryHandling_ == lagrange_cubic_spline_boundary_interpolation  ||
-            lagrangeBoundaryHandling_ == lagrange_cubic_spline_boundary_interpolation_with_warning)
+        if( lagrangeBoundaryHandling_ == lagrange_cubic_spline_boundary_interpolation ||
+            lagrangeBoundaryHandling_ == lagrange_cubic_spline_boundary_interpolation_with_warning )
         {
             // Ensure sufficient data points for spline.
             int cubicSplineInputSize = offsetEntries_;
@@ -453,7 +436,8 @@ private:
             if( dependentValues_.size( ) < static_cast< unsigned int >( cubicSplineInputSize ) )
             {
                 throw std::runtime_error( "Error when creating Lagrange interpolator, input is of size " +
-                                          std::to_string( dependentValues_.size( ) ) + ", which is too small co create cubic boundary interpolator" );
+                                          std::to_string( dependentValues_.size( ) ) +
+                                          ", which is too small co create cubic boundary interpolator" );
             }
 
             // Set input maps for interpolators
@@ -463,17 +447,16 @@ private:
                 startMap[ independentValues_.at( i ) ] = dependentValues_.at( i );
             }
             std::map< IndependentVariableType, DependentVariableType > endMap;
-            for( int i = numberOfIndependentValues_ - cubicSplineInputSize - 1;
-                 i < numberOfIndependentValues_; i++ )
+            for( int i = numberOfIndependentValues_ - cubicSplineInputSize - 1; i < numberOfIndependentValues_; i++ )
             {
                 endMap[ independentValues_.at( i ) ] = dependentValues_.at( i );
             }
 
             // Create cubic spline interpolators
-            beginInterpolator_ = std::make_shared< CubicSplineInterpolator
-                    < IndependentVariableType, DependentVariableType, ScalarType > >( startMap );
-            endInterpolator_ = std::make_shared< CubicSplineInterpolator
-                    < IndependentVariableType, DependentVariableType, ScalarType > >( endMap );
+            beginInterpolator_ =
+                    std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >( startMap );
+            endInterpolator_ =
+                    std::make_shared< CubicSplineInterpolator< IndependentVariableType, DependentVariableType, ScalarType > >( endMap );
         }
     }
 
@@ -504,12 +487,10 @@ private:
     std::vector< ScalarType > independentVariableDifferenceCache;
 
     //! Interpolator to be used at beginning of domain.
-    std::shared_ptr< OneDimensionalInterpolator
-    < IndependentVariableType, DependentVariableType > > beginInterpolator_;
+    std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > beginInterpolator_;
 
     //! Interpolator to be used at end of domain.
-    std::shared_ptr< OneDimensionalInterpolator
-    < IndependentVariableType, DependentVariableType > > endInterpolator_;
+    std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > endInterpolator_;
 
     //! Size of (in)dependent variable vector
     int numberOfIndependentValues_;
@@ -520,18 +501,17 @@ private:
      *  \sa initializeBoundaryInterpolators
      */
     LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling_;
-
 };
 
-//extern template class LagrangeInterpolator< double, Eigen::VectorXd >;
-//extern template class LagrangeInterpolator< double, Eigen::Vector6d >;
-//extern template class LagrangeInterpolator< double, Eigen::MatrixXd >;
+// extern template class LagrangeInterpolator< double, Eigen::VectorXd >;
+// extern template class LagrangeInterpolator< double, Eigen::Vector6d >;
+// extern template class LagrangeInterpolator< double, Eigen::MatrixXd >;
 
 //! Typedef for LagrangeInterpolator with double as both its dependent and independent data type.
 typedef LagrangeInterpolator< double, double > LagrangeInterpolatorDouble;
 
-} // namespace interpolators
+}  // namespace interpolators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_LAGRANGEINTERPOLATOR_H
+#endif  // TUDAT_LAGRANGEINTERPOLATOR_H

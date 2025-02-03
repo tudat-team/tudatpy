@@ -23,12 +23,9 @@ namespace json_interface
 // ExceptionResponseType
 
 //! Map of `ExceptionResponseType` string representations.
-static std::map< ExceptionResponseType, std::string > exceptionResponseTypes =
-{
-    { continueSilently, "continueSilently" },
-    { printWarning, "printWarning" },
-    { throwError, "throwError" }
-};
+static std::map< ExceptionResponseType, std::string > exceptionResponseTypes = { { continueSilently, "continueSilently" },
+                                                                                 { printWarning, "printWarning" },
+                                                                                 { throwError, "throwError" } };
 
 //! Convert `ExceptionResponseType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const ExceptionResponseType& exceptionResponseType )
@@ -41,7 +38,6 @@ inline void from_json( const nlohmann::json& jsonObject, ExceptionResponseType& 
 {
     exceptionResponseType = json_interface::enumFromString( jsonObject, exceptionResponseTypes );
 }
-
 
 // ApplicationOptions
 
@@ -79,8 +75,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ApplicationOpti
 //! Create a shared pointer to a `ApplicationOptions` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ApplicationOptions >& spiceSettings );
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_OPTIONS_H
+#endif  // TUDAT_JSONINTERFACE_OPTIONS_H

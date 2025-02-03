@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
-
 #include "tudat/astro/propagators/stateTransitionMatrixInterface.h"
 
 namespace tudat
@@ -20,10 +18,8 @@ namespace propagators
 
 //! Function to reset the state transition and sensitivity matrix interpolators
 void SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrixInterpolators(
-        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
-        stateTransitionMatrixInterpolator,
-        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
-        sensitivityMatrixInterpolator,
+        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > stateTransitionMatrixInterpolator,
+        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > sensitivityMatrixInterpolator,
         const std::vector< std::pair< int, int > >& statePartialAdditionIndices )
 {
     stateTransitionMatrixInterpolator_ = stateTransitionMatrixInterpolator;
@@ -31,7 +27,7 @@ void SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrix
 
     // Re-order state partial addition indices to match ephemeris update order (inverted in variational equations object)
     statePartialAdditionIndices_.clear( );
-    for ( int i = statePartialAdditionIndices.size( ) - 1; i >= 0 ; i-- )
+    for( int i = statePartialAdditionIndices.size( ) - 1; i >= 0; i-- )
     {
         statePartialAdditionIndices_.push_back( statePartialAdditionIndices[ i ] );
     }
@@ -45,7 +41,6 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 {
     combinedStateTransitionMatrix_.setZero( );
 
-
     // Set Phi and S matrices.
     combinedStateTransitionMatrix_.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
             stateTransitionMatrixInterpolator_->interpolate( evaluationTime );
@@ -56,7 +51,7 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                 sensitivityMatrixInterpolator_->interpolate( evaluationTime );
     }
 
-    if ( addCentralBodyDependency )
+    if( addCentralBodyDependency )
     {
         for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
         {
@@ -70,7 +65,6 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     return combinedStateTransitionMatrix_;
 }
 
-}
+}  // namespace propagators
 
-}
-
+}  // namespace tudat

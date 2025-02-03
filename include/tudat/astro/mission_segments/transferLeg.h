@@ -23,8 +23,6 @@
 #ifndef TUDAT_TRANSFER_LEG_H
 #define TUDAT_TRANSFER_LEG_H
 
-
-
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/keplerPropagator.h"
@@ -37,9 +35,7 @@ namespace tudat
 namespace mission_segments
 {
 
-
-enum TransferLegTypes
-{
+enum TransferLegTypes {
     unpowered_unperturbed_leg,
     dsm_position_based_leg,
     dsm_velocity_based_leg,
@@ -47,20 +43,13 @@ enum TransferLegTypes
     spherical_shaping_low_thrust_leg
 };
 
-struct TrajectoryManeuver
-{
+struct TrajectoryManeuver {
 public:
+    TrajectoryManeuver( const Eigen::Vector3d position, const double velocityChange, const double time ):
+        position_( position ), velocityChange_( velocityChange ), time_( time )
+    { }
 
-    TrajectoryManeuver(
-            const Eigen::Vector3d position,
-            const double velocityChange,
-            const double time ):
-    position_( position ), velocityChange_( velocityChange ), time_( time ){ }
-
-    TrajectoryManeuver( ):
-        position_( Eigen::Vector3d::Constant( TUDAT_NAN ) ),
-        velocityChange_( TUDAT_NAN ),
-        time_( TUDAT_NAN ){ }
+    TrajectoryManeuver( ): position_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), velocityChange_( TUDAT_NAN ), time_( TUDAT_NAN ) { }
 
     Eigen::Vector3d getPosition( )
     {
@@ -76,6 +65,7 @@ public:
     {
         return time_;
     }
+
 private:
     Eigen::Vector3d position_;
 
@@ -87,12 +77,11 @@ private:
 class TransferLeg
 {
 public:
-    TransferLeg(
-            const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
-            const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const TransferLegTypes legType );
+    TransferLeg( const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
+                 const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
+                 const TransferLegTypes legType );
 
-    virtual ~TransferLeg( ){ }
+    virtual ~TransferLeg( ) { }
 
     void updateLegParameters( const Eigen::VectorXd legParameters );
 
@@ -120,13 +109,16 @@ public:
     }
 
     double getLegDepartureTime( )
-    { return departureTime_; }
+    {
+        return departureTime_;
+    }
 
     double getLegArrivalTime( )
-    { return arrivalTime_; }
+    {
+        return arrivalTime_;
+    }
 
-    virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
-                                          const double time ) = 0;
+    virtual void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory, const double time ) = 0;
 
     Eigen::Vector6d getStateAlongTrajectory( const double time )
     {
@@ -135,8 +127,7 @@ public:
         return stateAlongTrajectory;
     }
 
-    void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
-                                   const std::vector< double >& times )
+    void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory, const std::vector< double >& times )
     {
         statesAlongTrajectory.clear( );
         Eigen::Vector6d currentStateAlongTrajectory;
@@ -147,8 +138,7 @@ public:
         }
     }
 
-    void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory,
-                                   const int numberOfDataPoints )
+    void getStatesAlongTrajectory( std::map< double, Eigen::Vector6d >& statesAlongTrajectory, const int numberOfDataPoints )
     {
         statesAlongTrajectory.clear( );
         std::vector< double > times = utilities::linspace( departureTime_, arrivalTime_, numberOfDataPoints );
@@ -156,14 +146,13 @@ public:
     }
 
     //! Get single value of inertial cartesian thrust acceleration.
-    virtual void getThrustAccelerationAlongTrajectory ( Eigen::Vector3d& thrustAccelerationAlongTrajectory,
-                                                        const double time )
+    virtual void getThrustAccelerationAlongTrajectory( Eigen::Vector3d& thrustAccelerationAlongTrajectory, const double time )
     {
-        thrustAccelerationAlongTrajectory = ( Eigen::Vector3d() << 0.0, 0.0, 0.0 ).finished();
+        thrustAccelerationAlongTrajectory = ( Eigen::Vector3d( ) << 0.0, 0.0, 0.0 ).finished( );
     }
 
     //! Get single value of cartesian thrust acceleration.
-    Eigen::Vector3d getThrustAccelerationAlongTrajectory ( const double time )
+    Eigen::Vector3d getThrustAccelerationAlongTrajectory( const double time )
     {
         Eigen::Vector3d thrustAccelerationAlongTrajectory;
         getThrustAccelerationAlongTrajectory( thrustAccelerationAlongTrajectory, time );
@@ -171,34 +160,31 @@ public:
     }
 
     //! Get inertial cartesian thrust acceleration along transfer leg.
-    void getThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
-                                               const std::vector< double >& times )
+    void getThrustAccelerationsAlongTrajectory( std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
+                                                const std::vector< double >& times )
     {
         thrustAccelerationsAlongTrajectory.clear( );
         Eigen::Vector3d currentThrustAccelerationAlongTrajectory;
         for( unsigned int i = 0; i < times.size( ); i++ )
         {
-            getThrustAccelerationAlongTrajectory(currentThrustAccelerationAlongTrajectory, times.at(i));
-            thrustAccelerationsAlongTrajectory[ times.at(i ) ] = currentThrustAccelerationAlongTrajectory;
+            getThrustAccelerationAlongTrajectory( currentThrustAccelerationAlongTrajectory, times.at( i ) );
+            thrustAccelerationsAlongTrajectory[ times.at( i ) ] = currentThrustAccelerationAlongTrajectory;
         }
     }
 
     //! Get inertial cartesian thrust acceleration along transfer leg.
-    void getThrustAccelerationsAlongTrajectory(std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
-                                               const int numberOfDataPoints )
+    void getThrustAccelerationsAlongTrajectory( std::map< double, Eigen::Vector3d >& thrustAccelerationsAlongTrajectory,
+                                                const int numberOfDataPoints )
     {
         thrustAccelerationsAlongTrajectory.clear( );
         std::vector< double > times = utilities::linspace( departureTime_, arrivalTime_, numberOfDataPoints );
-        getThrustAccelerationsAlongTrajectory(thrustAccelerationsAlongTrajectory, times);
+        getThrustAccelerationsAlongTrajectory( thrustAccelerationsAlongTrajectory, times );
     }
 
 protected:
-
     virtual void computeTransfer( ) = 0;
 
-    void updateDepartureAndArrivalBodies(
-            const double departureTime,
-            const double arrivalTime );
+    void updateDepartureAndArrivalBodies( const double departureTime, const double arrivalTime );
 
     std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris_;
     std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris_;
@@ -216,7 +202,6 @@ protected:
     Eigen::Vector3d arrivalVelocity_;
 
     double legTotalDeltaV_;
-
 };
 
 class UnpoweredUnperturbedTransferLeg : public TransferLeg
@@ -224,18 +209,15 @@ class UnpoweredUnperturbedTransferLeg : public TransferLeg
 public:
     using TransferLeg::getStateAlongTrajectory;
 
-    UnpoweredUnperturbedTransferLeg(
-            const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
-            const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const double centralBodyGravitationalParameter );
+    UnpoweredUnperturbedTransferLeg( const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
+                                     const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
+                                     const double centralBodyGravitationalParameter );
 
-    virtual ~UnpoweredUnperturbedTransferLeg( ){ }
+    virtual ~UnpoweredUnperturbedTransferLeg( ) { }
 
-    void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
-                                  const double time );
+    void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory, const double time );
 
 protected:
-
     void computeTransfer( );
 
     double centralBodyGravitationalParameter_;
@@ -243,24 +225,20 @@ protected:
     Eigen::Vector6d constantKeplerianState_;
 };
 
-
-
 class DsmTransferLeg : public TransferLeg
 {
 public:
-
-    DsmTransferLeg(
-            const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
-            const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const TransferLegTypes legType,
-            const double centralBodyGravitationalParameter ):
+    DsmTransferLeg( const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
+                    const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
+                    const TransferLegTypes legType,
+                    const double centralBodyGravitationalParameter ):
         TransferLeg( departureBodyEphemeris, arrivalBodyEphemeris, legType ),
-    centralBodyGravitationalParameter_( centralBodyGravitationalParameter){ }
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter )
+    { }
 
-    virtual ~DsmTransferLeg( ){ }
+    virtual ~DsmTransferLeg( ) { }
 
-    void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory,
-                                  const double time );
+    void getStateAlongTrajectory( Eigen::Vector6d& stateAlongTrajectory, const double time );
 
     double getDsmTime( )
     {
@@ -290,7 +268,6 @@ public:
     }
 
 protected:
-
     void calculateKeplerianElements( );
 
     double centralBodyGravitationalParameter_;
@@ -301,27 +278,23 @@ protected:
 
     Eigen::Vector6d constantKeplerianStateBeforeDsm_;
     Eigen::Vector6d constantKeplerianStateAfterDsm_;
-
 };
-
 
 class DsmPositionBasedTransferLeg : public DsmTransferLeg
 {
 public:
     using TransferLeg::getStateAlongTrajectory;
 
-    DsmPositionBasedTransferLeg(
-            const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
-            const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const double centralBodyGravitationalParameter );
+    DsmPositionBasedTransferLeg( const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
+                                 const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
+                                 const double centralBodyGravitationalParameter );
 
-    virtual ~DsmPositionBasedTransferLeg( ){ }
+    virtual ~DsmPositionBasedTransferLeg( ) { }
 
 protected:
-
     void computeTransfer( );
 
-//    void calculateDsmLocation( );
+    //    void calculateDsmLocation( );
 
     double dsmTimeOfFlightFraction_;
     double dimensionlessRadiusDsm_;
@@ -334,27 +307,23 @@ class DsmVelocityBasedTransferLeg : public DsmTransferLeg
 public:
     using TransferLeg::getStateAlongTrajectory;
 
-    DsmVelocityBasedTransferLeg(
-            const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
-            const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
-            const double centralBodyGravitationalParameter,
-            const std::function< Eigen::Vector3d( ) > departureVelocityFunction );
+    DsmVelocityBasedTransferLeg( const std::shared_ptr< ephemerides::Ephemeris > departureBodyEphemeris,
+                                 const std::shared_ptr< ephemerides::Ephemeris > arrivalBodyEphemeris,
+                                 const double centralBodyGravitationalParameter,
+                                 const std::function< Eigen::Vector3d( ) > departureVelocityFunction );
 
-    virtual ~DsmVelocityBasedTransferLeg( ){ }
+    virtual ~DsmVelocityBasedTransferLeg( ) { }
 
 protected:
-
     void computeTransfer( );
 
     std::function< Eigen::Vector3d( ) > departureVelocityFunction_;
 
     double dsmTimeOfFlightFraction_;
-
 };
 
+}  // namespace mission_segments
 
-} // namespace mission_segments
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_TRANSFER_LEG_H
+#endif  // TUDAT_TRANSFER_LEG_H

@@ -15,7 +15,6 @@
 
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 
-
 namespace tudat
 {
 
@@ -26,7 +25,6 @@ namespace ephemerides
 class ConstantRotationalEphemeris : public RotationalEphemeris
 {
 public:
-
     //! Constructor of a constant Ephemeris object
     /*!
      *  Constructor
@@ -48,11 +46,9 @@ public:
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation )
     {
         Eigen::Vector7d constantState = Eigen::Vector7d::Zero( );
-        constantState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
-                    constantRotationToGlobalFrame );
+        constantState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( constantRotationToGlobalFrame );
         updateConstantState( constantState );
     }
-
 
     //! Get rotation quaternion from target frame to base frame.
     /*!
@@ -108,21 +104,17 @@ public:
         constantState_ = newState;
 
         Eigen::Quaterniond currentRotationToGlobalFrame =
-                 Eigen::Quaterniond( constantState_( 0 ),
-                                     constantState_( 1 ),
-                                     constantState_( 2 ),
-                                     constantState_( 3 ) );
-         currentRotationToGlobalFrame.normalize( );
+                Eigen::Quaterniond( constantState_( 0 ), constantState_( 1 ), constantState_( 2 ), constantState_( 3 ) );
+        currentRotationToGlobalFrame.normalize( );
 
-         currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
+        currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
 
-         Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
-         currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
-                     constantState_.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
+        Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
+        currentRotationToLocalFrameDerivative_ =
+                linear_algebra::getCrossProductMatrix( constantState_.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
     }
 
 private:
-
     //! Constant rotational state vector
     Eigen::Vector7d constantState_;
 
@@ -131,12 +123,10 @@ private:
 
     //! Current derivative of rotation matrix to local frame
     Eigen::Matrix3d currentRotationToLocalFrameDerivative_;
-
-
 };
 
-} // namespace ephemerides
+}  // namespace ephemerides
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CONSTANTROTATIONALEPHEMERIS_H
+#endif  // TUDAT_CONSTANTROTATIONALEPHEMERIS_H

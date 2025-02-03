@@ -84,82 +84,82 @@ int getPlanetIndex( const std::string& bodyName )
 void ApproximateJplSolarSystemEphemerisBase::setPlanet( const std::string& bodyName )
 {
     // Check if ephemeris data has been loaded, and reload data if not.
-    if ( containerOfDataFromEphemerisFile_.size( ) == 0 )
+    if( containerOfDataFromEphemerisFile_.size( ) == 0 )
     {
         reloadData( );
     }
 
     int bodyIndex = getPlanetIndex( bodyName );
-    switch ( bodyIndex )
+    switch( bodyIndex )
     {
-    case 1:
+        case 1:
 
-        parseEphemerisLineData_( 18 );
-        planetGravitationalParameter_ = celestial_body_constants::MERCURY_GRAVITATIONAL_PARAMETER;
-        break;
+            parseEphemerisLineData_( 18 );
+            planetGravitationalParameter_ = celestial_body_constants::MERCURY_GRAVITATIONAL_PARAMETER;
+            break;
 
-    case 2:
+        case 2:
 
-        parseEphemerisLineData_( 20 );
-        planetGravitationalParameter_ = celestial_body_constants::VENUS_GRAVITATIONAL_PARAMETER;
-        break;
+            parseEphemerisLineData_( 20 );
+            planetGravitationalParameter_ = celestial_body_constants::VENUS_GRAVITATIONAL_PARAMETER;
+            break;
 
-    case 3:
+        case 3:
 
-        parseEphemerisLineData_( 22 );
-        planetGravitationalParameter_ = celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER +
-                celestial_body_constants::MOON_GRAVITATIONAL_PARAMETER;
-        break;
+            parseEphemerisLineData_( 22 );
+            planetGravitationalParameter_ =
+                    celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER + celestial_body_constants::MOON_GRAVITATIONAL_PARAMETER;
+            break;
 
-    case 4:
+        case 4:
 
-        parseEphemerisLineData_( 24 );
-        planetGravitationalParameter_ = celestial_body_constants::MARS_GRAVITATIONAL_PARAMETER;
-        break;
+            parseEphemerisLineData_( 24 );
+            planetGravitationalParameter_ = celestial_body_constants::MARS_GRAVITATIONAL_PARAMETER;
+            break;
 
-    case 5:
+        case 5:
 
-        parseEphemerisLineData_( 26 );
-        parseExtraTermsEphemerisLineData_( 48 );
-        planetGravitationalParameter_ = celestial_body_constants::JUPITER_GRAVITATIONAL_PARAMETER;
+            parseEphemerisLineData_( 26 );
+            parseExtraTermsEphemerisLineData_( 48 );
+            planetGravitationalParameter_ = celestial_body_constants::JUPITER_GRAVITATIONAL_PARAMETER;
 
-        break;
+            break;
 
-    case 6:
+        case 6:
 
-        parseEphemerisLineData_( 28 );
-        parseExtraTermsEphemerisLineData_( 49 );
-        planetGravitationalParameter_ = celestial_body_constants::SATURN_GRAVITATIONAL_PARAMETER;
+            parseEphemerisLineData_( 28 );
+            parseExtraTermsEphemerisLineData_( 49 );
+            planetGravitationalParameter_ = celestial_body_constants::SATURN_GRAVITATIONAL_PARAMETER;
 
-        break;
+            break;
 
-    case 7:
+        case 7:
 
-        parseEphemerisLineData_( 30 );
-        parseExtraTermsEphemerisLineData_( 50 );
-        planetGravitationalParameter_ = celestial_body_constants::URANUS_GRAVITATIONAL_PARAMETER;
+            parseEphemerisLineData_( 30 );
+            parseExtraTermsEphemerisLineData_( 50 );
+            planetGravitationalParameter_ = celestial_body_constants::URANUS_GRAVITATIONAL_PARAMETER;
 
-        break;
+            break;
 
-    case 8:
+        case 8:
 
-        parseEphemerisLineData_( 32 );
-        parseExtraTermsEphemerisLineData_( 51 );
-        planetGravitationalParameter_ = celestial_body_constants::NEPTUNE_GRAVITATIONAL_PARAMETER;
+            parseEphemerisLineData_( 32 );
+            parseExtraTermsEphemerisLineData_( 51 );
+            planetGravitationalParameter_ = celestial_body_constants::NEPTUNE_GRAVITATIONAL_PARAMETER;
 
-        break;
+            break;
 
-    case 9:
+        case 9:
 
-        parseEphemerisLineData_( 34 );
-        parseExtraTermsEphemerisLineData_( 52 );
-        planetGravitationalParameter_ = celestial_body_constants::PLUTO_GRAVITATIONAL_PARAMETER;
+            parseEphemerisLineData_( 34 );
+            parseExtraTermsEphemerisLineData_( 52 );
+            planetGravitationalParameter_ = celestial_body_constants::PLUTO_GRAVITATIONAL_PARAMETER;
 
-        break;
+            break;
 
-    default:
-        throw std::runtime_error( "Error, did not recognize planet index " + std::to_string( bodyIndex ) );
-        break;
+        default:
+            throw std::runtime_error( "Error, did not recognize planet index " + std::to_string( bodyIndex ) );
+            break;
     }
 }
 
@@ -177,7 +177,7 @@ void ApproximateJplSolarSystemEphemerisBase::parseEphemerisLineData_( const unsi
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.planetName_;
 
     // Check if the line number corresponds to that for "EM Bary".
-    if ( firstLineNumber == 22 )
+    if( firstLineNumber == 22 )
     {
         std::string earthMoonBarycenter_;
 
@@ -202,15 +202,12 @@ void ApproximateJplSolarSystemEphemerisBase::parseEphemerisLineData_( const unsi
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.rateOfChangeOfEccentricity_;
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.rateOfChangeOfInclination_;
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.rateOfChangeOfMeanLongitude_;
-    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_
-            .rateOfChangeOfLongitudeOfPerihelion_;
-    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_
-            .rateOfChangeOfLongitudeOfAscendingNode_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.rateOfChangeOfLongitudeOfPerihelion_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.rateOfChangeOfLongitudeOfAscendingNode_;
 }
 
 //! Parse line data for extra terms for ephemeris.
-void ApproximateJplSolarSystemEphemerisBase::parseExtraTermsEphemerisLineData_(
-        const unsigned int& lineNumber )
+void ApproximateJplSolarSystemEphemerisBase::parseExtraTermsEphemerisLineData_( const unsigned int& lineNumber )
 {
     // Clear stringstream.
     ephemerisLineData_.clear( );
@@ -233,19 +230,18 @@ void ApproximateJplSolarSystemEphemerisBase::reloadData( )
 
     // Open ephemeris file.
     std::ifstream ephemerisFile_( filePath_.c_str( ) );
-    if ( ephemerisFile_.fail( ) )
+    if( ephemerisFile_.fail( ) )
     {
-        throw std::runtime_error(
-                    "Data file could not be opened:" + filePath_ );
+        throw std::runtime_error( "Data file could not be opened:" + filePath_ );
     }
 
     // Read the file into a container.
-    for ( int line = 1; line < 53; line++ )
+    for( int line = 1; line < 53; line++ )
     {
         std::string lineData;
         getline( ephemerisFile_, lineData );
-        containerOfDataFromEphemerisFile_[line] = lineData;
-        if ( ephemerisFile_.fail( ) )
+        containerOfDataFromEphemerisFile_[ line ] = lineData;
+        if( ephemerisFile_.fail( ) )
         {
             break;
         }
@@ -255,5 +251,5 @@ void ApproximateJplSolarSystemEphemerisBase::reloadData( )
     ephemerisFile_.close( );
 }
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat

@@ -13,8 +13,6 @@
 
 #include <algorithm>
 
-
-
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/astro/observation_models/observationManager.h"
@@ -32,14 +30,15 @@ namespace simulation_setup
 {
 
 template< typename ObservationScalarType >
-void checkObservationResidualDiscontinuities(
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
-        const std::pair< int, int > observableStartAndSize,
-        const observation_models::ObservableType observableType )
+void checkObservationResidualDiscontinuities( Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
+                                              const std::pair< int, int > observableStartAndSize,
+                                              const observation_models::ObservableType observableType )
 {
-    if( observableType == observation_models::angular_position || observableType == observation_models::euler_angle_313_observable || observableType == observation_models::relative_angular_position )
+    if( observableType == observation_models::angular_position || observableType == observation_models::euler_angle_313_observable ||
+        observableType == observation_models::relative_angular_position )
     {
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsBlock = residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 );
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residualsBlock =
+                residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 );
         for( int i = 1; i < residualsBlock.rows( ); i++ )
         {
             if( std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) > 6.0 )
@@ -55,65 +54,66 @@ void checkObservationResidualDiscontinuities(
             }
             else if( std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) > 3.0 )
             {
-                std::cerr<<"Warning, detected jump in observation residual of size "<<std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) )<<
-                         " for observable type "<<observableType<<std::endl;
+                std::cerr << "Warning, detected jump in observation residual of size "
+                          << std::fabs( residualsBlock( i, 0 ) - residualsBlock( i - 1, 0 ) ) << " for observable type " << observableType
+                          << std::endl;
             }
         }
         residuals.block( observableStartAndSize.first, 0, observableStartAndSize.second, 1 ) = residualsBlock;
     }
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double,
-    typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateResiduals(
-    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
-    const std::map< observation_models::ObservableType,
-        std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulator,
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
+        const std::map< observation_models::ObservableType,
+                        std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
+                observationSimulator,
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
     residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( observationsCollection->getTotalObservableSize( ), 1 );
 
-    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets
-        sortedObservations = observationsCollection->getObservationsSets( );
+    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations =
+            observationsCollection->getObservationsSets( );
 
     // Iterate over all observable types in observationsAndTimes
-    for( auto observablesIterator : sortedObservations )
+    for( auto observablesIterator: sortedObservations )
     {
         observation_models::ObservableType currentObservableType = observablesIterator.first;
 
         // Iterate over all link ends for current observable type in observationsAndTimes
-        for( auto dataIterator : observablesIterator.second )
+        for( auto dataIterator: observablesIterator.second )
         {
             observation_models::LinkEnds currentLinkEnds = dataIterator.first;
             for( unsigned int i = 0; i < dataIterator.second.size( ); i++ )
             {
                 std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > currentObservations =
-                    dataIterator.second.at( i );
-                std::pair< int, int > observationIndices = observationsCollection->getObservationSetStartAndSize( ).at(
-                    currentObservableType ).at( currentLinkEnds ).at( i );
+                        dataIterator.second.at( i );
+                std::pair< int, int > observationIndices =
+                        observationsCollection->getObservationSetStartAndSize( ).at( currentObservableType ).at( currentLinkEnds ).at( i );
 
                 // Compute estimated ranges and range partials from current parameter estimate.
                 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
-                observationSimulator.at( currentObservableType )->
-                    computeObservations(
-                    currentObservations->getObservationTimes( ), currentLinkEnds,
-                    currentObservations->getReferenceLinkEnd( ),
-                    currentObservations->getAncilliarySettings( ),
-                    observationsVector );
+                observationSimulator.at( currentObservableType )
+                        ->computeObservations( currentObservations->getObservationTimes( ),
+                                               currentLinkEnds,
+                                               currentObservations->getReferenceLinkEnd( ),
+                                               currentObservations->getAncilliarySettings( ),
+                                               observationsVector );
 
                 residuals.block( observationIndices.first, 0, observationIndices.second, 1 ) =
                         ( currentObservations->getObservationsVector( ) - observationsVector );
-
             }
         }
 
-        std::pair< int, int > observableStartAndSize = observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
+        std::pair< int, int > observableStartAndSize =
+                observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
 
-        checkObservationResidualDiscontinuities< ObservationScalarType >(
-            residuals, observableStartAndSize, currentObservableType );
+        checkObservationResidualDiscontinuities< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
     }
 }
-
 
 //! Function to calculate the observation partials matrix and residuals
 /*!
@@ -126,22 +126,25 @@ void calculateResiduals(
  *  \param residualsAndPartials Pair of residuals of computed w.r.t. input observable values and partials of
  *  observables w.r.t. parameter vector (return by reference).
  */
-template< typename ObservationScalarType = double, typename TimeType = double,
-    typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateDesignMatrixAndResiduals(
-    std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
-    const std::map< observation_models::ObservableType,
-        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >& observationManagers,
-    const int totalNumberParameters,
-    const int totalObservationSize,
-    Eigen::MatrixXd& designMatrix,
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
-    const bool calculateResiduals = true,
-    const bool calculatePartials = true )
+        std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
+        const std::map< observation_models::ObservableType,
+                        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
+                observationManagers,
+        const int totalNumberParameters,
+        const int totalObservationSize,
+        Eigen::MatrixXd& designMatrix,
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals,
+        const bool calculateResiduals = true,
+        const bool calculatePartials = true )
 {
     if( calculatePartials && totalNumberParameters <= 0 )
     {
-        throw std::runtime_error( "Error when computing observation partials; number of parameters is 0 or smaller: " + std::to_string( totalNumberParameters ) );
+        throw std::runtime_error( "Error when computing observation partials; number of parameters is 0 or smaller: " +
+                                  std::to_string( totalNumberParameters ) );
     }
 
     // Initialize return data.
@@ -155,51 +158,53 @@ void calculateDesignMatrixAndResiduals(
         residuals = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalObservationSize, 1 );
     }
 
-    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets
-        sortedObservations = observationsCollection->getObservationsSets( );
+    typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations =
+            observationsCollection->getObservationsSets( );
 
     // Iterate over all observable types in observationsAndTimes
-    for( auto observableIt : sortedObservations )
+    for( auto observableIt: sortedObservations )
     {
         observation_models::ObservableType currentObservableType = observableIt.first;
 
         // Iterate over all link ends for current observable type in observationsAndTimes
-        for( auto linkEndIt : observableIt.second )
+        for( auto linkEndIt: observableIt.second )
         {
             observation_models::LinkEnds currentLinkEnds = linkEndIt.first;
             for( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
             {
-                std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > currentObservations = linkEndIt.second.at( i );
-                std::pair< int, int > observationIndices = observationsCollection->getObservationSetStartAndSize( ).at(
-                    currentObservableType ).at( currentLinkEnds ).at( i );
+                std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > currentObservations =
+                        linkEndIt.second.at( i );
+                std::pair< int, int > observationIndices =
+                        observationsCollection->getObservationSetStartAndSize( ).at( currentObservableType ).at( currentLinkEnds ).at( i );
 
-//                std::cout<<"Current size "<<currentObservations->getObservationTimes( ).size( )<<
-//                " "<<currentObservations->getObservations( ).size( )<<" "<<observationIndices.first<<" "<<observationIndices.second<<std::endl;
+                //                std::cout<<"Current size "<<currentObservations->getObservationTimes( ).size( )<<
+                //                " "<<currentObservations->getObservations( ).size( )<<" "<<observationIndices.first<<"
+                //                "<<observationIndices.second<<std::endl;
                 if( observationIndices.second > 0 )
                 {
                     // Compute estimated ranges and range partials from current parameter estimate.
                     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > observationsVector;
                     Eigen::MatrixXd partialsMatrix;
-                    observationManagers.at( currentObservableType )->
-                            computeObservationsWithPartials(
-                            currentObservations->getObservationTimes( ),
-                            currentLinkEnds,
-                            currentObservations->getReferenceLinkEnd( ),
-                            currentObservations->getAncilliarySettings( ),
-                            observationsVector,
-                            partialsMatrix,
-                            calculateResiduals,
-                            calculatePartials );
+                    observationManagers.at( currentObservableType )
+                            ->computeObservationsWithPartials( currentObservations->getObservationTimes( ),
+                                                               currentLinkEnds,
+                                                               currentObservations->getReferenceLinkEnd( ),
+                                                               currentObservations->getAncilliarySettings( ),
+                                                               observationsVector,
+                                                               partialsMatrix,
+                                                               calculateResiduals,
+                                                               calculatePartials );
 
                     if( calculatePartials )
                     {
-//                        std::cout<<designMatrix.rows( )<<" "<<designMatrix.cols( )<<std::endl;
-//                        std::cout<<observationIndices.first<<" "<<0<<" "<<observationIndices.second<<" "<<totalNumberParameters<<std::endl;
-//                        std::cout<<partialsMatrix.rows( )<<" "<<partialsMatrix.cols( )<<std::endl<<std::endl;
+                        //                        std::cout<<designMatrix.rows( )<<" "<<designMatrix.cols( )<<std::endl;
+                        //                        std::cout<<observationIndices.first<<" "<<0<<" "<<observationIndices.second<<"
+                        //                        "<<totalNumberParameters<<std::endl; std::cout<<partialsMatrix.rows( )<<"
+                        //                        "<<partialsMatrix.cols( )<<std::endl<<std::endl;
 
                         // Set current observation partials in matrix of all partials
-                        designMatrix.block( observationIndices.first, 0, observationIndices.second,
-                                            totalNumberParameters ) = partialsMatrix;
+                        designMatrix.block( observationIndices.first, 0, observationIndices.second, totalNumberParameters ) =
+                                partialsMatrix;
                     }
 
                     // Compute residuals for current link ends and observable type.
@@ -215,42 +220,50 @@ void calculateDesignMatrixAndResiduals(
 
         if( calculateResiduals )
         {
-            std::pair< int, int > observableStartAndSize = observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
+            std::pair< int, int > observableStartAndSize =
+                    observationsCollection->getObservationTypeStartAndSize( ).at( currentObservableType );
             checkObservationResidualDiscontinuities< ObservationScalarType >( residuals, observableStartAndSize, currentObservableType );
         }
     }
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double,
-    typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateDesignMatrix(
-    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
-    const std::map< observation_models::ObservableType,
-        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >& observationManagers,
-    const int totalNumberParameters,
-    const int totalObservationSize,
-    Eigen::MatrixXd& designMatrix )
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
+        const std::map< observation_models::ObservableType,
+                        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
+                observationManagers,
+        const int totalNumberParameters,
+        const int totalObservationSize,
+        Eigen::MatrixXd& designMatrix )
 {
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > dummyVector;
-    calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
-        observationsCollection, observationManagers, totalNumberParameters, totalObservationSize, designMatrix, dummyVector, false, true );
-
+    calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( observationsCollection,
+                                                                          observationManagers,
+                                                                          totalNumberParameters,
+                                                                          totalObservationSize,
+                                                                          designMatrix,
+                                                                          dummyVector,
+                                                                          false,
+                                                                          true );
 }
 
-
-template< typename ObservationScalarType = double, typename TimeType = double,
-    typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 void calculateResiduals(
-    const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
-    const std::map< observation_models::ObservableType,
-        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >& observationManagers,
-    const int totalObservationSize,
-    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
+        const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > observationsCollection,
+        const std::map< observation_models::ObservableType,
+                        std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >&
+                observationManagers,
+        const int totalObservationSize,
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& residuals )
 {
     Eigen::VectorXd dummyMatrix;
     calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
-        observationsCollection, observationManagers, 0, totalObservationSize, dummyMatrix, residuals, true, false );
-
+            observationsCollection, observationManagers, 0, totalObservationSize, dummyMatrix, residuals, true, false );
 }
 
 //! Top-level class for performing orbit determination.
@@ -260,12 +273,12 @@ void calculateResiduals(
  *  estimation itself is performed by providing measurement data and related metadata (as EstimationInput) to the estimateParameters
  *  function.
  */
-template< typename ObservationScalarType = double, typename TimeType = double,
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 class OrbitDeterminationManager
 {
 public:
-
     //! Typedef for vector of observations.
     typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
 
@@ -279,7 +292,8 @@ public:
     //    //! Typedef for complete set of observations data, as used in orbit determination
     //    typedef std::map< observation_models::ObservableType, SingleObservableEstimationInputType > EstimationInputType;
 
-    //    //! Typedef for complete set of observations data in alternative form, as used in orbit determination, convertible to EstimationInputType
+    //    //! Typedef for complete set of observations data in alternative form, as used in orbit determination, convertible to
+    //    EstimationInputType
     //    //! by convertEstimationInput function.
     //    typedef std::map< observation_models::ObservableType,
     //    std::map< observation_models::LinkEnds, std::pair< std::map< TimeType, ObservationScalarType >,
@@ -293,48 +307,54 @@ public:
     {
         std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
                 utilities::cloneDuplicatePointers( integratorSettings );
-        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) !=
+            nullptr )
         {
             std::shared_ptr< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > > multiArcPropagatorSettings =
-                    std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings );
+                    std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >(
+                            propagatorSettings );
 
-            std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
-                            parametersToEstimate, ( integratorIndexOffset == 0 ) );
+            std::vector< double > arcStartTimes =
+                    estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, ( integratorIndexOffset == 0 ) );
             if( multiArcPropagatorSettings->getSingleArcSettings( ).size( ) != arcStartTimes.size( ) )
             {
-                throw std::runtime_error( "Error when processing deprecated integrator/propagator settings in estimation; inconsistent number of arcs" );
+                throw std::runtime_error(
+                        "Error when processing deprecated integrator/propagator settings in estimation; inconsistent number of arcs" );
             }
             for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
             {
                 multiArcPropagatorSettings->getSingleArcSettings( ).at( i )->resetInitialTime( arcStartTimes.at( i ) );
             }
         }
-        else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >(
+                         propagatorSettings ) != nullptr )
         {
             independentIntegratorSettingsList = preprocessDeprecatedIntegratorSettings(
-                        parametersToEstimate, integratorSettings,
-                        std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings )->getMultiArcPropagatorSettings( ),
-                        1 );
+                    parametersToEstimate,
+                    integratorSettings,
+                    std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >(
+                            propagatorSettings )
+                            ->getMultiArcPropagatorSettings( ),
+                    1 );
         }
         return independentIntegratorSettingsList;
     }
 
     OrbitDeterminationManager(
-            const SystemOfBodies &bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate,
+            const SystemOfBodies& bodies,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
             const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
             const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const bool propagateOnCreation = true ):
-        parametersToEstimate_( parametersToEstimate )
+            const bool propagateOnCreation = true ): parametersToEstimate_( parametersToEstimate )
     {
-
         std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > processedIntegratorSettings =
                 preprocessDeprecatedIntegratorSettings( parametersToEstimate, integratorSettings, propagatorSettings );
         initializeOrbitDeterminationManager(
-                    bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings( processedIntegratorSettings, propagatorSettings ),
-                    propagateOnCreation );
+                bodies,
+                observationSettingsList,
+                propagators::validateDeprecatePropagatorSettings( processedIntegratorSettings, propagatorSettings ),
+                propagateOnCreation );
     }
 
     //! Constructor
@@ -351,82 +371,78 @@ public:
      *  true)
      */
     OrbitDeterminationManager(
-            const SystemOfBodies &bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate,
+            const SystemOfBodies& bodies,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
             const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const bool propagateOnCreation = true ):
-        parametersToEstimate_( parametersToEstimate ),
-        bodies_( bodies )
+            const bool propagateOnCreation = true ): parametersToEstimate_( parametersToEstimate ), bodies_( bodies )
     {
         std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > processedIntegratorSettings;
-        if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< ObservationScalarType, TimeType > >(
+                    propagatorSettings ) != nullptr )
         {
             processedIntegratorSettings = { integratorSettings };
         }
-        else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >(
+                         propagatorSettings ) != nullptr )
         {
-            int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
-                        parametersToEstimate, true ).size( );
+            int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, true ).size( );
             std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > unprocessedIntegratorSettings =
-                    std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >(
-                        numberOfArcs, integratorSettings );
+                    std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >( numberOfArcs,
+                                                                                                             integratorSettings );
             processedIntegratorSettings =
                     preprocessDeprecatedIntegratorSettings( parametersToEstimate, unprocessedIntegratorSettings, propagatorSettings );
         }
-        else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
+        else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< ObservationScalarType, TimeType > >(
+                         propagatorSettings ) != nullptr )
         {
-            int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
-                        parametersToEstimate, false ).size( );
+            int numberOfArcs = estimatable_parameters::getMultiArcStateEstimationArcStartTimes( parametersToEstimate, false ).size( );
             std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > unprocessedIntegratorSettings =
-                    std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >(
-                        numberOfArcs + 1, integratorSettings );
+                    std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >( numberOfArcs + 1,
+                                                                                                             integratorSettings );
             processedIntegratorSettings =
                     preprocessDeprecatedIntegratorSettings( parametersToEstimate, unprocessedIntegratorSettings, propagatorSettings );
         }
 
         initializeOrbitDeterminationManager(
-                    bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings(
-                        processedIntegratorSettings, propagatorSettings ),
-                    propagateOnCreation );
+                bodies,
+                observationSettingsList,
+                propagators::validateDeprecatePropagatorSettings( processedIntegratorSettings, propagatorSettings ),
+                propagateOnCreation );
     }
-//        parametersToEstimate_( parametersToEstimate )
-//    {
-//        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
-//                { integratorSettings };
-//        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >( propagatorSettings ) != nullptr )
-//        {
-//            std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
-//                        parametersToEstimate, true );
-//            std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList(
-//                        arcStartTimes.size( ), integratorSettings);
-//            independentIntegratorSettingsList = utilities::deepcopyDuplicatePointers( integratorSettingsList );
+    //        parametersToEstimate_( parametersToEstimate )
+    //    {
+    //        std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > independentIntegratorSettingsList =
+    //                { integratorSettings };
+    //        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType, TimeType > >(
+    //        propagatorSettings ) != nullptr )
+    //        {
+    //            std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
+    //                        parametersToEstimate, true );
+    //            std::vector<std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettingsList(
+    //                        arcStartTimes.size( ), integratorSettings);
+    //            independentIntegratorSettingsList = utilities::deepcopyDuplicatePointers( integratorSettingsList );
 
-//            for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
-//            {
-//                independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );
-//            }
-//        }
-//        propagatorSettings =
+    //            for( unsigned int i = 0; i < independentIntegratorSettingsList.size( ); i++ )
+    //            {
+    //                independentIntegratorSettingsList.at( i )->initialTime_ = arcStartTimes.at( i );
+    //            }
+    //        }
+    //        propagatorSettings =
 
-//        initializeOrbitDeterminationManager( bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings( integratorSettings, propagatorSettings ),
-//                                             propagateOnCreation );
-//    }
-
-
-
+    //        initializeOrbitDeterminationManager( bodies, observationSettingsList, propagators::validateDeprecatePropagatorSettings(
+    //        integratorSettings, propagatorSettings ),
+    //                                             propagateOnCreation );
+    //    }
 
     OrbitDeterminationManager(
-            const SystemOfBodies &bodies,
-            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
-            parametersToEstimate,
+            const SystemOfBodies& bodies,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
             const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true ):
-        parametersToEstimate_( parametersToEstimate ),
-        considerParameters_( parametersToEstimate_->getConsiderParameters( ) ),
+        parametersToEstimate_( parametersToEstimate ), considerParameters_( parametersToEstimate_->getConsiderParameters( ) ),
         bodies_( bodies )
     {
         initializeOrbitDeterminationManager( bodies, observationSettingsList, propagatorSettings, propagateOnCreation );
@@ -442,7 +458,6 @@ public:
         return bodies_;
     }
 
-
     //! Function to retrieve map of all observation managers
     /*!
      *  Function to retrieve map of all observation managers. A single observation manager can simulate observations and
@@ -450,7 +465,7 @@ public:
      *  \return Map of observation managers for all observable types involved in current orbit determination.
      */
     std::map< observation_models::ObservableType,
-    std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
+              std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
     getObservationManagers( ) const
     {
         return observationManagers_;
@@ -466,11 +481,13 @@ public:
     std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
     getObservationSimulators( ) const
     {
-        std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+        std::vector< std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
+                observationSimulators;
 
         for( typename std::map< observation_models::ObservableType,
-             std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::const_iterator
-             managerIterator = observationManagers_.begin( ); managerIterator != observationManagers_.end( );
+                                std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::
+                     const_iterator managerIterator = observationManagers_.begin( );
+             managerIterator != observationManagers_.end( );
              managerIterator++ )
         {
             observationSimulators.push_back( managerIterator->second->getObservationSimulator( ) );
@@ -479,28 +496,25 @@ public:
         return observationSimulators;
     }
 
-    Eigen::MatrixXd normalizeAprioriCovariance(
-            const Eigen::MatrixXd& inverseAPrioriCovariance,
-            const Eigen::VectorXd& normalizationValues )
+    Eigen::MatrixXd normalizeAprioriCovariance( const Eigen::MatrixXd& inverseAPrioriCovariance,
+                                                const Eigen::VectorXd& normalizationValues )
     {
         int numberOfEstimatedParameters = inverseAPrioriCovariance.rows( );
-        Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = Eigen::MatrixXd::Zero(
-                    numberOfEstimatedParameters, numberOfEstimatedParameters );
+        Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix =
+                Eigen::MatrixXd::Zero( numberOfEstimatedParameters, numberOfEstimatedParameters );
 
         for( int j = 0; j < numberOfEstimatedParameters; j++ )
         {
             for( int k = 0; k < numberOfEstimatedParameters; k++ )
             {
-                normalizedInverseAprioriCovarianceMatrix( j, k ) = inverseAPrioriCovariance( j, k ) /
-                        ( normalizationValues( j ) * normalizationValues( k ) );
+                normalizedInverseAprioriCovarianceMatrix( j, k ) =
+                        inverseAPrioriCovariance( j, k ) / ( normalizationValues( j ) * normalizationValues( k ) );
             }
         }
         return normalizedInverseAprioriCovarianceMatrix;
     }
 
-    Eigen::MatrixXd normalizeCovariance(
-            const Eigen::MatrixXd& covariance,
-            const Eigen::VectorXd& normalizationFactors )
+    Eigen::MatrixXd normalizeCovariance( const Eigen::MatrixXd& covariance, const Eigen::VectorXd& normalizationFactors )
     {
         int numberParameters = covariance.rows( );
         Eigen::MatrixXd normalizedCovariance = Eigen::MatrixXd::Zero( numberParameters, numberParameters );
@@ -576,40 +590,46 @@ public:
         return normalizationTerms;
     }
 
-//    void saveResultsFromCurrentIteration(
-//            std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > >& dynamicsHistoryPerIteration )
-//    {
-//        if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_) != nullptr )
-//        {
+    //    void saveResultsFromCurrentIteration(
+    //            std::vector< std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > >&
+    //            dynamicsHistoryPerIteration )
+    //    {
+    //        if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(
+    //        variationalEquationsSolver_) != nullptr )
+    //        {
 
-//            std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
-//                    std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(  variationalEquationsSolver_);
+    //            std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > > hybridArcSolver =
+    //                    std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(
+    //                    variationalEquationsSolver_);
 
-//            std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > currentDynamicsSolution;
-//            std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > currentDependentVariableSolution;
+    //            std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > currentDynamicsSolution;
+    //            std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > >
+    //            currentDependentVariableSolution;
 
-//            currentDynamicsSolution = hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolutionBase( );
-//            currentDependentVariableSolution = hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulator( )->getDependentVariableNumericalSolutionBase( );
+    //            currentDynamicsSolution = hybridArcSolver->getSingleArcSolver( )->getDynamicsSimulator(
+    //            )->getEquationsOfMotionNumericalSolutionBase( ); currentDependentVariableSolution = hybridArcSolver->getSingleArcSolver(
+    //            )->getDynamicsSimulator( )->getDependentVariableNumericalSolutionBase( );
 
-//            auto multiArcDynamicsSolution =
-//                    hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( );
-//            auto multiArcDependentVariableSolution =
-//                    hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( );
-//            currentDynamicsSolution.insert( currentDynamicsSolution.end( ), multiArcDynamicsSolution.begin( ), multiArcDynamicsSolution.end( ) );
-//            currentDependentVariableSolution.insert( currentDependentVariableSolution.end( ), multiArcDependentVariableSolution.begin( ), multiArcDependentVariableSolution.end( ) );
+    //            auto multiArcDynamicsSolution =
+    //                    hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( );
+    //            auto multiArcDependentVariableSolution =
+    //                    hybridArcSolver->getMultiArcSolver( )->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( );
+    //            currentDynamicsSolution.insert( currentDynamicsSolution.end( ), multiArcDynamicsSolution.begin( ),
+    //            multiArcDynamicsSolution.end( ) ); currentDependentVariableSolution.insert( currentDependentVariableSolution.end( ),
+    //            multiArcDependentVariableSolution.begin( ), multiArcDependentVariableSolution.end( ) );
 
-//            dynamicsHistoryPerIteration.push_back( currentDynamicsSolution );
-//            dependentVariableHistoryPerIteration.push_back( currentDependentVariableSolution );
-//        }
-//        else
-//        {
-//            dynamicsHistoryPerIteration.push_back(
-//                        variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ));
-//            dependentVariableHistoryPerIteration.push_back(
-//                        variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ));
+    //            dynamicsHistoryPerIteration.push_back( currentDynamicsSolution );
+    //            dependentVariableHistoryPerIteration.push_back( currentDependentVariableSolution );
+    //        }
+    //        else
+    //        {
+    //            dynamicsHistoryPerIteration.push_back(
+    //                        variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ));
+    //            dependentVariableHistoryPerIteration.push_back(
+    //                        variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ));
 
-//        }
-//    }
+    //        }
+    //    }
 
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > computeCovariance(
             const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
@@ -622,7 +642,7 @@ public:
         ParameterVectorType fullParameterEstimate;
         fullParameterEstimate.resize( totalNumberParameters_ );
         fullParameterEstimate.segment( 0, numberEstimatedParameters_ ) = parameterValues;
-        if ( considerParametersIncluded_ )
+        if( considerParametersIncluded_ )
         {
             fullParameterEstimate.segment( numberEstimatedParameters_, numberConsiderParameters_ ) = considerParametersValues_;
         }
@@ -630,11 +650,12 @@ public:
         // Compute design matrices (estimated and consider), and residuals (empty for covariance analysis)
         bool exceptionDuringPropagation = false;
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
-        std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > designMatricesAndResiduals =
-                performPreEstimationSteps( estimationInput, fullParameterEstimate, false, 0, exceptionDuringPropagation, simulationResults );
+        std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+                designMatricesAndResiduals = performPreEstimationSteps(
+                        estimationInput, fullParameterEstimate, false, 0, exceptionDuringPropagation, simulationResults );
         Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
         Eigen::MatrixXd designMatrixConsiderParameters;
-        if ( considerParametersIncluded_ )
+        if( considerParametersIncluded_ )
         {
             designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
         }
@@ -651,7 +672,7 @@ public:
         // Normalise partials w.r.t. consider parameters and consider covariance
         Eigen::VectorXd considerNormalizationTerms;
         Eigen::MatrixXd normalizedConsiderCovariance;
-        if ( considerParametersIncluded_ )
+        if( considerParametersIncluded_ )
         {
             considerNormalizationTerms = normalizeDesignMatrix( designMatrixConsiderParameters );
             normalizedConsiderCovariance = normalizeCovariance( estimationInput->getConsiderCovariance( ), considerNormalizationTerms );
@@ -662,7 +683,6 @@ public:
             normalizedConsiderCovariance = Eigen::MatrixXd::Zero( 0, 0 );
         }
 
-
         // Retrieve constraints
         Eigen::MatrixXd constraintStateMultiplier;
         Eigen::VectorXd constraintRightHandSide;
@@ -672,15 +692,21 @@ public:
         Eigen::MatrixXd inverseNormalizedCovariance = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
                 designMatrixEstimatedParameters.block( 0, 0, designMatrixEstimatedParameters.rows( ), numberEstimatedParameters_ ),
                 estimationInput->getWeightsMatrixDiagonals( ),
-                normalizedInverseAprioriCovarianceMatrix, constraintStateMultiplier, constraintRightHandSide, estimationInput->getLimitConditionNumberForWarning( ) );
+                normalizedInverseAprioriCovarianceMatrix,
+                constraintStateMultiplier,
+                constraintRightHandSide,
+                estimationInput->getLimitConditionNumberForWarning( ) );
 
         // Compute contribution consider parameters
         Eigen::MatrixXd covarianceContributionConsiderParameters;
-        if ( considerParametersIncluded_ )
+        if( considerParametersIncluded_ )
         {
-            covarianceContributionConsiderParameters = linear_algebra::calculateConsiderParametersCovarianceContribution(
-                    inverseNormalizedCovariance.inverse( ), designMatrixEstimatedParameters, estimationInput->getWeightsMatrixDiagonals( ),
-                    designMatrixConsiderParameters, normalizedConsiderCovariance );
+            covarianceContributionConsiderParameters =
+                    linear_algebra::calculateConsiderParametersCovarianceContribution( inverseNormalizedCovariance.inverse( ),
+                                                                                       designMatrixEstimatedParameters,
+                                                                                       estimationInput->getWeightsMatrixDiagonals( ),
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderCovariance );
         }
         else
         {
@@ -690,9 +716,14 @@ public:
         // Create covariance output object
         std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > estimationOutput =
                 std::make_shared< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >(
-                     designMatrixEstimatedParameters, estimationInput->getWeightsMatrixDiagonals( ), normalizationTerms,
-                    inverseNormalizedCovariance, designMatrixConsiderParameters, considerNormalizationTerms, covarianceContributionConsiderParameters,
-                    exceptionDuringPropagation );
+                        designMatrixEstimatedParameters,
+                        estimationInput->getWeightsMatrixDiagonals( ),
+                        normalizationTerms,
+                        inverseNormalizedCovariance,
+                        designMatrixConsiderParameters,
+                        considerNormalizationTerms,
+                        covarianceContributionConsiderParameters,
+                        exceptionDuringPropagation );
 
         return estimationOutput;
     }
@@ -719,26 +750,30 @@ public:
         if( estimationInput->getWeightsMatrixDiagonals( ).rows( ) != totalNumberOfObservations )
         {
             throw std::runtime_error( "Error when estimating parameters, size of weights diagonal (" +
-                std::to_string( estimationInput->getWeightsMatrixDiagonals( ).rows( ) ) + ") is not compatible with number of observations (" +
-                std::to_string( totalNumberOfObservations ) + ")" );
+                                      std::to_string( estimationInput->getWeightsMatrixDiagonals( ).rows( ) ) +
+                                      ") is not compatible with number of observations (" + std::to_string( totalNumberOfObservations ) +
+                                      ")" );
         }
         // Declare variables to be returned (i.e. results from best iteration)
         double bestResidual = TUDAT_NAN;
         ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
         Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
         Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
-        Eigen::MatrixXd bestDesignMatrixEstimatedParameters = Eigen::MatrixXd::Constant( totalNumberOfObservations, totalNumberParameters_, TUDAT_NAN );
+        Eigen::MatrixXd bestDesignMatrixEstimatedParameters =
+                Eigen::MatrixXd::Constant( totalNumberOfObservations, totalNumberParameters_, TUDAT_NAN );
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
-        Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
-
+        Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix =
+                Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
 
         Eigen::VectorXd bestConsiderTransformationData;
         Eigen::MatrixXd bestDesignMatrixConsiderParameters, bestConsiderCovarianceContribution;
-        if ( considerParametersIncluded_ )
+        if( considerParametersIncluded_ )
         {
             bestConsiderTransformationData = Eigen::VectorXd::Constant( numberConsiderParameters_, TUDAT_NAN );
-            bestDesignMatrixConsiderParameters = Eigen::MatrixXd::Constant( totalNumberOfObservations, numberConsiderParameters_, TUDAT_NAN );
-            bestConsiderCovarianceContribution = Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
+            bestDesignMatrixConsiderParameters =
+                    Eigen::MatrixXd::Constant( totalNumberOfObservations, numberConsiderParameters_, TUDAT_NAN );
+            bestConsiderCovarianceContribution =
+                    Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
         }
         else
         {
@@ -770,19 +805,24 @@ public:
         {
             oldParameterEstimate = newParameterEstimate;
             newFullParameterEstimate.segment( 0, numberEstimatedParameters_ ) = newParameterEstimate;
-            if ( considerParametersIncluded_ )
+            if( considerParametersIncluded_ )
             {
                 newFullParameterEstimate.segment( numberEstimatedParameters_, numberConsiderParameters_ ) = considerParametersValues_;
             }
 
             // Compute design matrices (for estimated and consider parameters) and residuals.
             std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
-            std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > designMatricesAndResiduals =
-                    performPreEstimationSteps( estimationInput, newFullParameterEstimate, true, numberOfIterations, exceptionDuringPropagation, simulationResults );
+            std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+                    designMatricesAndResiduals = performPreEstimationSteps( estimationInput,
+                                                                            newFullParameterEstimate,
+                                                                            true,
+                                                                            numberOfIterations,
+                                                                            exceptionDuringPropagation,
+                                                                            simulationResults );
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals = designMatricesAndResiduals.second;
             Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
             Eigen::MatrixXd designMatrixConsiderParameters;
-            if ( considerParametersIncluded_ )
+            if( considerParametersIncluded_ )
             {
                 designMatrixConsiderParameters = designMatricesAndResiduals.first.second;
             }
@@ -805,11 +845,12 @@ public:
             // Normalise partials w.r.t. consider parameters, consider covariance and parameters deviations
             Eigen::VectorXd normalizationTermsConsider, normalizedConsiderParametersDeviation;
             Eigen::MatrixXd normalizedConsiderCovariance;
-            if ( considerParametersIncluded_ )
+            if( considerParametersIncluded_ )
             {
                 normalizationTermsConsider = normalizeDesignMatrix( designMatrixConsiderParameters );
                 normalizedConsiderCovariance = normalizeCovariance( estimationInput->getConsiderCovariance( ), normalizationTermsConsider );
-                normalizedConsiderParametersDeviation = estimationInput->considerParametersDeviations_.cwiseProduct( normalizationTermsConsider );
+                normalizedConsiderParametersDeviation =
+                        estimationInput->considerParametersDeviations_.cwiseProduct( normalizationTermsConsider );
             }
             else
             {
@@ -833,10 +874,16 @@ public:
                     conditionNumberCheck = TUDAT_NAN;
                 }
                 // Perform LSQ inversion
-                leastSquaresOutput = std::move( linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix(
-                        designMatrixEstimatedParameters, residuals.template cast< double >( ), estimationInput->getWeightsMatrixDiagonals( ),
-                        normalizedInverseAprioriCovarianceMatrix, conditionNumberCheck, constraintStateMultiplier, constraintRightHandSide,
-                        designMatrixConsiderParameters, normalizedConsiderParametersDeviation ) );
+                leastSquaresOutput = std::move(
+                        linear_algebra::performLeastSquaresAdjustmentFromDesignMatrix( designMatrixEstimatedParameters,
+                                                                                       residuals.template cast< double >( ),
+                                                                                       estimationInput->getWeightsMatrixDiagonals( ),
+                                                                                       normalizedInverseAprioriCovarianceMatrix,
+                                                                                       conditionNumberCheck,
+                                                                                       constraintStateMultiplier,
+                                                                                       constraintRightHandSide,
+                                                                                       designMatrixConsiderParameters,
+                                                                                       normalizedConsiderParametersDeviation ) );
 
                 if( constraintStateMultiplier.rows( ) > 0 )
                 {
@@ -845,22 +892,27 @@ public:
             }
             catch( std::runtime_error& error )
             {
-                std::cerr<<"Error when solving normal equations during parameter estimation: "<<std::endl<<error.what( )<<
-                           std::endl<<"Terminating estimation"<<std::endl;
+                std::cerr << "Error when solving normal equations during parameter estimation: " << std::endl
+                          << error.what( ) << std::endl
+                          << "Terminating estimation" << std::endl;
                 exceptionDuringInversion = true;
                 break;
             }
 
             ParameterVectorType parameterAddition =
-                    ( leastSquaresOutput.first.cwiseQuotient( normalizationTerms.segment( 0, numberEstimatedParameters_ ) ) ).template cast< ObservationScalarType >( );
+                    ( leastSquaresOutput.first.cwiseQuotient( normalizationTerms.segment( 0, numberEstimatedParameters_ ) ) )
+                            .template cast< ObservationScalarType >( );
 
             // Compute contribution consider parameters
             Eigen::MatrixXd covarianceContributionConsiderParameters;
-            if ( considerParametersIncluded_ )
+            if( considerParametersIncluded_ )
             {
-                covarianceContributionConsiderParameters = linear_algebra::calculateConsiderParametersCovarianceContribution(
-                        ( leastSquaresOutput.second ).inverse( ), designMatrixEstimatedParameters, estimationInput->getWeightsMatrixDiagonals( ),
-                        designMatrixConsiderParameters, normalizedConsiderCovariance );
+                covarianceContributionConsiderParameters =
+                        linear_algebra::calculateConsiderParametersCovarianceContribution( ( leastSquaresOutput.second ).inverse( ),
+                                                                                           designMatrixEstimatedParameters,
+                                                                                           estimationInput->getWeightsMatrixDiagonals( ),
+                                                                                           designMatrixConsiderParameters,
+                                                                                           normalizedConsiderCovariance );
             }
             else
             {
@@ -874,7 +926,7 @@ public:
             if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
             {
                 residualHistory.push_back( residuals.template cast< double >( ) );
-                if ( numberOfIterations == 0 )
+                if( numberOfIterations == 0 )
                 {
                     parameterHistory.push_back( oldParameterEstimate );
                 }
@@ -895,7 +947,7 @@ public:
                 if( estimationInput->getSaveDesignMatrix( ) )
                 {
                     bestDesignMatrixEstimatedParameters = std::move( designMatrixEstimatedParameters );
-                    if ( considerParametersIncluded_ )
+                    if( considerParametersIncluded_ )
                     {
                         bestDesignMatrixConsiderParameters = std::move( designMatrixConsiderParameters );
                     }
@@ -905,13 +957,12 @@ public:
                 bestInverseNormalizedCovarianceMatrix = std::move( leastSquaresOutput.second );
                 bestIteration = numberOfIterations;
 
-                if ( considerParametersIncluded_ )
+                if( considerParametersIncluded_ )
                 {
                     bestConsiderTransformationData = std::move( normalizationTermsConsider );
                     bestConsiderCovarianceContribution = covarianceContributionConsiderParameters;
                 }
             }
-
 
             // Increment number of iterations
             numberOfIterations++;
@@ -919,7 +970,7 @@ public:
             // Check for convergence
             bool applyParameterCorrection = true;
             bool terminateLoop = false;
-            if(  estimationInput->getConvergenceChecker( )->isEstimationConverged( numberOfIterations, rmsResidualHistory ) )
+            if( estimationInput->getConvergenceChecker( )->isEstimationConverged( numberOfIterations, rmsResidualHistory ) )
             {
                 terminateLoop = true;
                 applyParameterCorrection = estimationInput->applyFinalParameterCorrection_;
@@ -929,15 +980,15 @@ public:
             {
                 // Update value of parameter vector
                 newParameterEstimate = oldParameterEstimate + parameterAddition;
-                parametersToEstimate_->template resetParameterValues<ObservationScalarType>( newParameterEstimate );
-                newParameterEstimate = parametersToEstimate_->template getFullParameterValues<ObservationScalarType>( );
+                parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
+                newParameterEstimate = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
-                if ( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
+                if( estimationInput->getSaveResidualsAndParametersFromEachIteration( ) )
                 {
                     parameterHistory.push_back( newParameterEstimate );
                 }
 
-                if ( estimationInput->getPrintOutput( ) )
+                if( estimationInput->getPrintOutput( ) )
                 {
                     std::cout << "Parameter update" << parameterAddition.transpose( ) << std::endl;
                 }
@@ -956,11 +1007,21 @@ public:
 
         // Create estimation output object
         std::shared_ptr< EstimationOutput< ObservationScalarType, TimeType > > estimationOutput =
-                std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >(
-                    bestParameterEstimate, bestResiduals, bestDesignMatrixEstimatedParameters, bestWeightsMatrixDiagonal,
-                    bestTransformationData, bestInverseNormalizedCovarianceMatrix, bestResidual, bestIteration,
-                    residualHistory, parameterHistory, bestDesignMatrixConsiderParameters, bestConsiderTransformationData,
-                    bestConsiderCovarianceContribution, exceptionDuringInversion, exceptionDuringPropagation );
+                std::make_shared< EstimationOutput< ObservationScalarType, TimeType > >( bestParameterEstimate,
+                                                                                         bestResiduals,
+                                                                                         bestDesignMatrixEstimatedParameters,
+                                                                                         bestWeightsMatrixDiagonal,
+                                                                                         bestTransformationData,
+                                                                                         bestInverseNormalizedCovarianceMatrix,
+                                                                                         bestResidual,
+                                                                                         bestIteration,
+                                                                                         residualHistory,
+                                                                                         parameterHistory,
+                                                                                         bestDesignMatrixConsiderParameters,
+                                                                                         bestConsiderTransformationData,
+                                                                                         bestConsiderCovarianceContribution,
+                                                                                         exceptionDuringInversion,
+                                                                                         exceptionDuringPropagation );
 
         if( estimationInput->getSaveStateHistoryForEachIteration( ) )
         {
@@ -970,20 +1031,19 @@ public:
         return estimationOutput;
     }
 
-
     template< int ObservationSize >
     void computePartialsAndObservations(
-        const observation_models::LinkEnds& linkEnds,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkEndType referenceLinkEnd,
-        const std::vector< TimeType >& times,
-        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
-        Eigen::MatrixXd& partials )
+            const observation_models::LinkEnds& linkEnds,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+            const observation_models::ObservableType observableType,
+            const observation_models::LinkEndType referenceLinkEnd,
+            const std::vector< TimeType >& times,
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
+            Eigen::MatrixXd& partials )
     {
         std::shared_ptr< observation_models::ObservationManager< ObservationSize, ObservationScalarType, TimeType > > observationManager =
-            std::dynamic_pointer_cast< observation_models::ObservationManager< ObservationSize, ObservationScalarType, TimeType > >( observationManagers_.at(
-            observableType ) );
+                std::dynamic_pointer_cast< observation_models::ObservationManager< ObservationSize, ObservationScalarType, TimeType > >(
+                        observationManagers_.at( observableType ) );
 
         // Extract observation model
         std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel =
@@ -991,8 +1051,7 @@ public:
 
         // Compute analytical partials
         observationManager->computeObservationsWithPartials(
-            times, linkEnds, referenceLinkEnd, ancilliarySettings, observationsVector, partials, true, true );
-
+                times, linkEnds, referenceLinkEnd, ancilliarySettings, observationsVector, partials, true, true );
     }
     //! Function to reset the current parameter estimate.
     /*!
@@ -1008,14 +1067,15 @@ public:
         }
         else
         {
-            parametersToEstimate_->template resetParameterValues< ObservationScalarType>( newParameterEstimate );
+            parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
         }
         currentParameterEstimate_ = newParameterEstimate;
     }
 
     //    //! Function to convert from one representation of all measurement data to the other
     //    /*!
-    //     *  Function to convert from one representation of all measurement data (AlternativeEstimationInputType) to the other (EstimationInputType).
+    //     *  Function to convert from one representation of all measurement data (AlternativeEstimationInputType) to the other
+    //     (EstimationInputType).
     //     *  In the former, the vector of times and vector of associated observations are stored separately.  In the latter, they are
     //     *  stored as a map with time as key and observation as value.
     //     *  \param alternativeEstimationInput Original representation of measurement data
@@ -1031,10 +1091,12 @@ public:
     //             inputIterator != alternativeEstimationInput.end( ); inputIterator++ )
     //        {
     //            // Declare data structure for converted measurement data at single observable type.
-    //            std::map< observation_models::LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > singleTypeObservations;
+    //            std::map< observation_models::LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >,
+    //            observation_models::LinkEndType > > > singleTypeObservations;
 
     //            // Iterate over all link ends in current observable types
-    //            for( typename std::map< observation_models::LinkEnds, std::pair< std::map< TimeType, ObservationScalarType >, observation_models::LinkEndType > >::const_iterator stationIterator =
+    //            for( typename std::map< observation_models::LinkEnds, std::pair< std::map< TimeType, ObservationScalarType >,
+    //            observation_models::LinkEndType > >::const_iterator stationIterator =
     //                 inputIterator->second.begin( ); stationIterator != inputIterator->second.end( ); stationIterator++ )
     //            {
     //                // Initialize vector of observation times.
@@ -1046,7 +1108,8 @@ public:
 
     //                // Iterate over all observations in input map, and split time and observation.
     //                int counter = 0;
-    //                for( typename std::map< TimeType, ObservationScalarType >::const_iterator singleDataSetIterator = stationIterator->second.first.begin( );
+    //                for( typename std::map< TimeType, ObservationScalarType >::const_iterator singleDataSetIterator =
+    //                stationIterator->second.first.begin( );
     //                     singleDataSetIterator != stationIterator->second.first.end( ); singleDataSetIterator++ )
     //                {
     //                    times[ counter ] = singleDataSetIterator->first;
@@ -1055,7 +1118,8 @@ public:
     //                }
 
     //                // Set converted data for current link nends and observable.
-    //                singleTypeObservations[ stationIterator->first ] = std::make_pair( observations, std::make_pair( times, stationIterator->second.second ) );
+    //                singleTypeObservations[ stationIterator->first ] = std::make_pair( observations, std::make_pair( times,
+    //                stationIterator->second.second ) );
     //            }
 
     //            // Set converted data for current observable.
@@ -1069,8 +1133,7 @@ public:
      *  Function to retrieve the object to numerical integrate and update the variational equations and equations of motion
      *  \return Object to numerical integrate and update the variational equations and equations of motion
      */
-    std::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >
-    getVariationalEquationsSolver( ) const
+    std::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > > getVariationalEquationsSolver( ) const
     {
         return variationalEquationsSolver_;
     }
@@ -1088,9 +1151,8 @@ public:
         // Check if manager exists for requested observable type.
         if( observationManagers_.count( observableType ) == 0 )
         {
-            throw std::runtime_error(
-                        "Error when retrieving observation manager of type " + std::to_string(
-                            observableType ) + ", manager not found" );
+            throw std::runtime_error( "Error when retrieving observation manager of type " + std::to_string( observableType ) +
+                                      ", manager not found" );
         }
 
         return observationManagers_.at( observableType );
@@ -1112,14 +1174,12 @@ public:
      *  equations/dynamics.
      *  \return Object used to propagate/process the numerical solution of the variational equations/dynamics.
      */
-    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
-    getStateTransitionAndSensitivityMatrixInterface( )
+    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > getStateTransitionAndSensitivityMatrixInterface( )
     {
         return stateTransitionAndSensitivityMatrixInterface_;
     }
 
 protected:
-
     //! Function called by either constructor to initialize the object.
     /*!
      *  Function called by either constructor to initialize the object.
@@ -1133,7 +1193,7 @@ protected:
      *  true)
      */
     void initializeOrbitDeterminationManager(
-            const SystemOfBodies &bodies,
+            const SystemOfBodies& bodies,
             const std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >& observationSettingsList,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true )
@@ -1145,7 +1205,7 @@ protected:
 
         // Detect whether consider parameters are included
         considerParametersIncluded_ = false;
-        if ( considerParameters_ != nullptr )
+        if( considerParameters_ != nullptr )
         {
             considerParametersIncluded_ = true;
         }
@@ -1158,7 +1218,7 @@ protected:
         totalNumberParameters_ = fullParameters_->getParameterSetSize( );
         numberEstimatedParameters_ = parametersToEstimate_->getParameterSetSize( );
         numberConsiderParameters_ = 0;
-        if ( considerParameters_ != nullptr )
+        if( considerParameters_ != nullptr )
         {
             numberConsiderParameters_ = considerParameters_->getParameterSetSize( );
         }
@@ -1188,8 +1248,9 @@ protected:
         }
         else if( propagatorSettings == nullptr )
         {
-            stateTransitionAndSensitivityMatrixInterface_ = createStateTransitionAndSensitivityMatrixInterface< ObservationScalarType, TimeType >(
-                        propagatorSettings, fullParameters_, 0, totalNumberParameters_ );
+            stateTransitionAndSensitivityMatrixInterface_ =
+                    createStateTransitionAndSensitivityMatrixInterface< ObservationScalarType, TimeType >(
+                            propagatorSettings, fullParameters_, 0, totalNumberParameters_ );
         }
         else
         {
@@ -1197,102 +1258,116 @@ protected:
         }
 
         // TODO correct this when moving dependent variable interface into results object
-        if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >( variationalEquationsSolver_ ) == nullptr )
+        if( std::dynamic_pointer_cast< propagators::HybridArcVariationalEquationsSolver< ObservationScalarType, TimeType > >(
+                    variationalEquationsSolver_ ) == nullptr )
         {
             dependentVariablesInterface_ = variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariablesInterface( );
         }
 
-
         // Iterate over all observables and create observation managers.
-        observationManagers_ = createObservationManagersBase(
-            observationSettingsList, bodies, fullParameters_,
-            stateTransitionAndSensitivityMatrixInterface_, dependentVariablesInterface_ );
+        observationManagers_ = createObservationManagersBase( observationSettingsList,
+                                                              bodies,
+                                                              fullParameters_,
+                                                              stateTransitionAndSensitivityMatrixInterface_,
+                                                              dependentVariablesInterface_ );
 
         // Set current parameter estimate from body initial states and parameter set.
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
         currentFullParameterValues_ = fullParameters_->template getFullParameterValues< ObservationScalarType >( );
-        if ( considerParametersIncluded_ )
+        if( considerParametersIncluded_ )
         {
-            considerParametersValues_ = considerParameters_->template getFullParameterValues<ObservationScalarType>( );
+            considerParametersValues_ = considerParameters_->template getFullParameterValues< ObservationScalarType >( );
         }
         else
         {
             considerParametersValues_ = ParameterVectorType::Zero( 0 );
         }
-
     }
 
     //! Function to create full parameters set with estimated and consider parameters.
     void setFullParametersSet( )
     {
-        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > fullDoubleParameters = parametersToEstimate_->getEstimatedDoubleParameters( );
-        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > fullVectorParameters = parametersToEstimate_->getEstimatedVectorParameters( );
+        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > fullDoubleParameters =
+                parametersToEstimate_->getEstimatedDoubleParameters( );
+        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > fullVectorParameters =
+                parametersToEstimate_->getEstimatedVectorParameters( );
 
         // Check if consider parameters are included in full set of parameters
-        if ( considerParametersIncluded_ )
+        if( considerParametersIncluded_ )
         {
             std::vector< std::string > parametersDescriptions = parametersToEstimate_->getParametersDescriptions( );
             std::vector< std::string > considerParametersDescriptions = considerParameters_->getParametersDescriptions( );
-            for ( unsigned int i = 0 ; i < considerParametersDescriptions.size( ) ; i++ )
+            for( unsigned int i = 0; i < considerParametersDescriptions.size( ); i++ )
             {
-                if (std::find(parametersDescriptions.begin(), parametersDescriptions.end(), considerParametersDescriptions[i]) != parametersDescriptions.end()) {
-                    throw std::runtime_error("Error when initialising orbit determination manager, the following consider parameter is already included as estimated parameter: "
-                                             + considerParametersDescriptions[i]);
+                if( std::find( parametersDescriptions.begin( ), parametersDescriptions.end( ), considerParametersDescriptions[ i ] ) !=
+                    parametersDescriptions.end( ) )
+                {
+                    throw std::runtime_error(
+                            "Error when initialising orbit determination manager, the following consider parameter is already included as "
+                            "estimated parameter: " +
+                            considerParametersDescriptions[ i ] );
                 }
             }
 
-            for ( unsigned int i = 0 ; i < considerParameters_->getEstimatedDoubleParameters( ).size( ) ; i++ )
+            for( unsigned int i = 0; i < considerParameters_->getEstimatedDoubleParameters( ).size( ); i++ )
             {
                 fullDoubleParameters.push_back( considerParameters_->getEstimatedDoubleParameters( )[ i ] );
             }
-            for ( unsigned int i = 0 ; i < considerParameters_->getEstimatedVectorParameters( ).size( ) ; i++ )
+            for( unsigned int i = 0; i < considerParameters_->getEstimatedVectorParameters( ).size( ); i++ )
             {
                 fullVectorParameters.push_back( considerParameters_->getEstimatedVectorParameters( )[ i ] );
             }
-            if ( considerParameters_->getEstimatedInitialStateParameters( ).size( ) != 0 )
+            if( considerParameters_->getEstimatedInitialStateParameters( ).size( ) != 0 )
             {
-                throw std::runtime_error( "Error when initialising orbit determination manager, consider parameters cannot include initial states parameters." );
+                throw std::runtime_error(
+                        "Error when initialising orbit determination manager, consider parameters cannot include initial states "
+                        "parameters." );
             }
         }
 
-        fullParameters_ = std::make_shared< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >( fullDoubleParameters, fullVectorParameters,
-                                                                                                                        parametersToEstimate_->getEstimatedInitialStateParameters( ) );
+        fullParameters_ = std::make_shared< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >(
+                fullDoubleParameters, fullVectorParameters, parametersToEstimate_->getEstimatedInitialStateParameters( ) );
     }
 
     void getEstimatedAndConsiderParametersIndices( )
     {
         indicesAndSizeConsiderParameters_.clear( );
         indicesAndSizeEstimatedParameters_.clear( );
-        if ( considerParametersIncluded_ )
+        if( considerParametersIncluded_ )
         {
-            std::vector< std::string > considerParametersDescriptions = considerParameters_->getParametersDescriptions();
-            for ( unsigned int i = 0; i < considerParametersDescriptions.size( ); i++ )
+            std::vector< std::string > considerParametersDescriptions = considerParameters_->getParametersDescriptions( );
+            for( unsigned int i = 0; i < considerParametersDescriptions.size( ); i++ )
             {
-                std::pair< int, int > indicesInFullParametersSet = fullParameters_->getIndicesForParameterDescription( considerParametersDescriptions[ i ] );
-                std::pair< int, int > indicesInConsiderParametersSet = considerParameters_->getIndicesForParameterDescription( considerParametersDescriptions[ i ] );
-                indicesAndSizeConsiderParameters_.push_back( std::make_pair( std::make_pair( indicesInConsiderParametersSet.first, indicesInFullParametersSet.first ),
-                                                                             indicesInFullParametersSet.second ) );
+                std::pair< int, int > indicesInFullParametersSet =
+                        fullParameters_->getIndicesForParameterDescription( considerParametersDescriptions[ i ] );
+                std::pair< int, int > indicesInConsiderParametersSet =
+                        considerParameters_->getIndicesForParameterDescription( considerParametersDescriptions[ i ] );
+                indicesAndSizeConsiderParameters_.push_back(
+                        std::make_pair( std::make_pair( indicesInConsiderParametersSet.first, indicesInFullParametersSet.first ),
+                                        indicesInFullParametersSet.second ) );
             }
         }
 
         std::vector< std::string > estimatedParametersDescriptions = parametersToEstimate_->getParametersDescriptions( );
-        for ( unsigned int i = 0 ; i < estimatedParametersDescriptions.size( ) ; i++ )
+        for( unsigned int i = 0; i < estimatedParametersDescriptions.size( ); i++ )
         {
-            std::pair< int, int > indicesInFullParametersSet = fullParameters_->getIndicesForParameterDescription( estimatedParametersDescriptions[ i ] );
-            std::pair< int, int > indicesInEstimatedParametersSet = parametersToEstimate_->getIndicesForParameterDescription( estimatedParametersDescriptions[ i ] );
-            indicesAndSizeEstimatedParameters_.push_back( std::make_pair( std::make_pair( indicesInEstimatedParametersSet.first, indicesInFullParametersSet.first ),
-                                                                          indicesInFullParametersSet.second ) );
+            std::pair< int, int > indicesInFullParametersSet =
+                    fullParameters_->getIndicesForParameterDescription( estimatedParametersDescriptions[ i ] );
+            std::pair< int, int > indicesInEstimatedParametersSet =
+                    parametersToEstimate_->getIndicesForParameterDescription( estimatedParametersDescriptions[ i ] );
+            indicesAndSizeEstimatedParameters_.push_back(
+                    std::make_pair( std::make_pair( indicesInEstimatedParametersSet.first, indicesInFullParametersSet.first ),
+                                    indicesInFullParametersSet.second ) );
         }
     }
 
-
-    std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > performPreEstimationSteps(
-            std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
-            ParameterVectorType& newParameterEstimate,
-            const bool calculateResiduals,
-            const int numberOfIterations,
-            bool& exceptionDuringPropagation,
-            std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults )
+    std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
+    performPreEstimationSteps( std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+                               ParameterVectorType& newParameterEstimate,
+                               const bool calculateResiduals,
+                               const int numberOfIterations,
+                               bool& exceptionDuringPropagation,
+                               std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > >& simulationResults )
     {
         // Get number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
@@ -1307,7 +1382,8 @@ protected:
 
             if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput ) != nullptr )
             {
-                if ( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput )->getSaveStateHistoryForEachIteration( ) )
+                if( std::dynamic_pointer_cast< EstimationInput< ObservationScalarType, TimeType > >( estimationInput )
+                            ->getSaveStateHistoryForEachIteration( ) )
                 {
                     simulationResults = variationalEquationsSolver_->getVariationalPropagationResults( );
                 }
@@ -1315,8 +1391,9 @@ protected:
         }
         catch( std::runtime_error& error )
         {
-            std::cerr<<"Error when resetting parameters during parameter estimation: "<<std::endl<<
-                     error.what( )<<std::endl<<"Terminating estimation"<<std::endl;
+            std::cerr << "Error when resetting parameters during parameter estimation: " << std::endl
+                      << error.what( ) << std::endl
+                      << "Terminating estimation" << std::endl;
             exceptionDuringPropagation = true;
         }
 
@@ -1328,55 +1405,72 @@ protected:
         // Calculate residuals and observation matrix for current parameter estimate.
         Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residuals;
         Eigen::MatrixXd designMatrix;
-        if ( calculateResiduals )
+        if( calculateResiduals )
         {
-            calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
-                    estimationInput->getObservationCollection( ), observationManagers_, totalNumberParameters_, totalNumberOfObservations, designMatrix, residuals, true );
+            calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >( estimationInput->getObservationCollection( ),
+                                                                                  observationManagers_,
+                                                                                  totalNumberParameters_,
+                                                                                  totalNumberOfObservations,
+                                                                                  designMatrix,
+                                                                                  residuals,
+                                                                                  true );
         }
         else
         {
-            calculateDesignMatrix< ObservationScalarType, TimeType >(
-                    estimationInput->getObservationCollection( ), observationManagers_, totalNumberParameters_, totalNumberOfObservations, designMatrix );
+            calculateDesignMatrix< ObservationScalarType, TimeType >( estimationInput->getObservationCollection( ),
+                                                                      observationManagers_,
+                                                                      totalNumberParameters_,
+                                                                      totalNumberOfObservations,
+                                                                      designMatrix );
         }
 
         // Divide partials matrix between estimated and consider parameters
-        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > designMatrices = separateEstimatedAndConsiderDesignMatrices( designMatrix, totalNumberOfObservations );
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > designMatrices =
+                separateEstimatedAndConsiderDesignMatrices( designMatrix, totalNumberOfObservations );
 
         return std::make_pair( designMatrices, residuals );
     }
 
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices(
-            const Eigen::MatrixXd& designMatrix,
-            const int numberObservations )
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > separateEstimatedAndConsiderDesignMatrices( const Eigen::MatrixXd& designMatrix,
+                                                                                              const int numberObservations )
     {
         Eigen::MatrixXd designMatrixEstimatedParameters = Eigen::MatrixXd::Zero( numberObservations, numberEstimatedParameters_ );
-        for ( unsigned int i = 0 ; i < indicesAndSizeEstimatedParameters_.size( ) ; i++ )
+        for( unsigned int i = 0; i < indicesAndSizeEstimatedParameters_.size( ); i++ )
         {
-            designMatrixEstimatedParameters.block( 0, indicesAndSizeEstimatedParameters_[ i ].first.first, numberObservations,
-                                                   indicesAndSizeEstimatedParameters_[ i ].second )
-                    = designMatrix.block( 0, indicesAndSizeEstimatedParameters_[ i ].first.second, numberObservations, indicesAndSizeEstimatedParameters_[ i ].second );
+            designMatrixEstimatedParameters.block( 0,
+                                                   indicesAndSizeEstimatedParameters_[ i ].first.first,
+                                                   numberObservations,
+                                                   indicesAndSizeEstimatedParameters_[ i ].second ) =
+                    designMatrix.block( 0,
+                                        indicesAndSizeEstimatedParameters_[ i ].first.second,
+                                        numberObservations,
+                                        indicesAndSizeEstimatedParameters_[ i ].second );
         }
         Eigen::MatrixXd designMatrixConsiderParameters = Eigen::MatrixXd::Zero( numberObservations, numberConsiderParameters_ );
-        for ( unsigned int i = 0 ; i < indicesAndSizeConsiderParameters_.size( ) ; i++ )
+        for( unsigned int i = 0; i < indicesAndSizeConsiderParameters_.size( ); i++ )
         {
-            designMatrixConsiderParameters.block( 0, indicesAndSizeConsiderParameters_[ i ].first.first, numberObservations,
-                                                  indicesAndSizeConsiderParameters_[ i ].second )
-                    = designMatrix.block( 0, indicesAndSizeConsiderParameters_[ i ].first.second, numberObservations, indicesAndSizeConsiderParameters_[ i ].second );
+            designMatrixConsiderParameters.block( 0,
+                                                  indicesAndSizeConsiderParameters_[ i ].first.first,
+                                                  numberObservations,
+                                                  indicesAndSizeConsiderParameters_[ i ].second ) =
+                    designMatrix.block( 0,
+                                        indicesAndSizeConsiderParameters_[ i ].first.second,
+                                        numberObservations,
+                                        indicesAndSizeConsiderParameters_[ i ].second );
         }
         return std::make_pair( designMatrixEstimatedParameters, designMatrixConsiderParameters );
     }
-
 
     //! Boolean to denote whether any dynamical parameters are estimated
     bool integrateAndEstimateOrbit_;
 
     //! Object used to propagate/process the numerical solution of the variational equations/dynamics
-    std::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >
-    variationalEquationsSolver_;
+    std::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > > variationalEquationsSolver_;
 
     //! List of object that compute the values/partials of the observables
     std::map< observation_models::ObservableType,
-    std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > > observationManagers_;
+              std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
+            observationManagers_;
 
     //! Container object for all parameters that are to be estimated
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate_;
@@ -1407,11 +1501,10 @@ protected:
     //! Number of consider parameters
     unsigned int numberConsiderParameters_;
 
-    //std::vector< int > observationLinkParameterIndices_;
+    // std::vector< int > observationLinkParameterIndices_;
 
     //! Object used to interpolate the numerically integrated result of the state transition/sensitivity matrices.
-    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
-    stateTransitionAndSensitivityMatrixInterface_;
+    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionAndSensitivityMatrixInterface_;
 
     //! Object used to interpolate the numerically integrated result of the dependent variables.
     std::shared_ptr< propagators::DependentVariablesInterface< TimeType > > dependentVariablesInterface_;
@@ -1424,15 +1517,11 @@ protected:
 
     //! Boolean denoting whether consider parameters are included in the orbit determination
     bool considerParametersIncluded_;
-
 };
 
+// extern template class OrbitDeterminationManager< double, double >;
 
-//extern template class OrbitDeterminationManager< double, double >;
+}  // namespace simulation_setup
 
-
-
-}
-
-}
-#endif // TUDAT_ORBITDETERMINATIONMANAGER_H
+}  // namespace tudat
+#endif  // TUDAT_ORBITDETERMINATIONMANAGER_H

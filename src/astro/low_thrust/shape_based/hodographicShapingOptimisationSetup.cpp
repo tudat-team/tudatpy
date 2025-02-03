@@ -26,41 +26,46 @@ namespace shape_based_methods
 // Calculates the fitness
 std::vector< double > FixedTimeHodographicShapingOptimisationProblem::fitness( const std::vector< double > &x ) const
 {
-
     int numberFreeCoefficientsRadialFunction = radialVelocityFunctionComponents_.size( ) - 3;
     int numberFreeCoefficientsNormalFunction = normalVelocityFunctionComponents_.size( ) - 3;
     int numberFreeCoefficientsAxialFunction = axialVelocityFunctionComponents_.size( ) - 3;
 
     if( numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction !=
-            static_cast< int >( x.size( ) ) )
+        static_cast< int >( x.size( ) ) )
     {
-        throw std::runtime_error( "Error, size of design variables vector unconsistent with number of base function components"
-                                  "when making a hodographic shaping optimisation problem." );
+        throw std::runtime_error(
+                "Error, size of design variables vector unconsistent with number of base function components"
+                "when making a hodographic shaping optimisation problem." );
     }
 
     Eigen::VectorXd freeCoefficientsRadialVelocityFunction( numberFreeCoefficientsRadialFunction );
     Eigen::VectorXd freeCoefficientsNormalVelocityFunction( numberFreeCoefficientsNormalFunction );
     Eigen::VectorXd freeCoefficientsAxialVelocityFunction( numberFreeCoefficientsAxialFunction );
 
-    for ( int i = 0 ; i < numberFreeCoefficientsRadialFunction ; i++ )
+    for( int i = 0; i < numberFreeCoefficientsRadialFunction; i++ )
     {
         freeCoefficientsRadialVelocityFunction[ i ] = x[ i ];
     }
-    for( int i = 0 ; i < numberFreeCoefficientsNormalFunction ; i++ )
+    for( int i = 0; i < numberFreeCoefficientsNormalFunction; i++ )
     {
         freeCoefficientsNormalVelocityFunction[ i ] = x[ i + numberFreeCoefficientsRadialFunction ];
     }
-    for ( int i = 0 ; i < numberFreeCoefficientsAxialFunction ; i++ )
+    for( int i = 0; i < numberFreeCoefficientsAxialFunction; i++ )
     {
         freeCoefficientsAxialVelocityFunction[ i ] = x[ i + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction ];
     }
 
-    HodographicShaping hodographicShaping = HodographicShaping(
-                initialState_, finalState_, timeOfFlight_, centralBodyGravitationalParameter_,
-                 numberOfRevolutions_, radialVelocityFunctionComponents_,
-                normalVelocityFunctionComponents_, axialVelocityFunctionComponents_,
-                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction );
+    HodographicShaping hodographicShaping = HodographicShaping( initialState_,
+                                                                finalState_,
+                                                                timeOfFlight_,
+                                                                centralBodyGravitationalParameter_,
+                                                                numberOfRevolutions_,
+                                                                radialVelocityFunctionComponents_,
+                                                                normalVelocityFunctionComponents_,
+                                                                axialVelocityFunctionComponents_,
+                                                                freeCoefficientsRadialVelocityFunction,
+                                                                freeCoefficientsNormalVelocityFunction,
+                                                                freeCoefficientsAxialVelocityFunction );
 
     std::vector< double > fitnessVector;
     fitnessVector.push_back( hodographicShaping.computeDeltaV( ) );
@@ -86,42 +91,51 @@ std::vector< double > HodographicShapingOptimisationProblem::fitness( const std:
     int numberFreeCoefficientsAxialFunction = axialVelocityFunctionComponents.size( ) - 3;
 
     if( numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction + 5 !=
-            static_cast< int >( x.size( ) ) )
+        static_cast< int >( x.size( ) ) )
     {
-        throw std::runtime_error( "Error, size of design variables vector unconsistent with number of base function components"
-                                  "when making a hodographic shaping optimisation problem." );
+        throw std::runtime_error(
+                "Error, size of design variables vector unconsistent with number of base function components"
+                "when making a hodographic shaping optimisation problem." );
     }
 
     Eigen::VectorXd freeCoefficientsRadialVelocityFunction( numberFreeCoefficientsRadialFunction );
     Eigen::VectorXd freeCoefficientsNormalVelocityFunction( numberFreeCoefficientsNormalFunction );
     Eigen::VectorXd freeCoefficientsAxialVelocityFunction( numberFreeCoefficientsAxialFunction );
 
-    for ( int i = 0 ; i < numberFreeCoefficientsRadialFunction ; i++ )
+    for( int i = 0; i < numberFreeCoefficientsRadialFunction; i++ )
     {
         freeCoefficientsRadialVelocityFunction[ i ] = x[ i + 2 ];
     }
-    for( int i = 0 ; i < numberFreeCoefficientsNormalFunction ; i++ )
+    for( int i = 0; i < numberFreeCoefficientsNormalFunction; i++ )
     {
         freeCoefficientsNormalVelocityFunction[ i ] = x[ i + 2 + numberFreeCoefficientsRadialFunction ];
     }
-    for ( int i = 0 ; i < numberFreeCoefficientsAxialFunction ; i++ )
+    for( int i = 0; i < numberFreeCoefficientsAxialFunction; i++ )
     {
-        freeCoefficientsAxialVelocityFunction[ i ] = x[ i + 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction ];
+        freeCoefficientsAxialVelocityFunction[ i ] =
+                x[ i + 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction ];
     }
 
-
     Eigen::Vector6d departureState = initialStateFunction_( departureTime );
-    departureState( 3 ) += x.at( 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction );
-    departureState( 4 ) += x.at( 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction + 1 );
-    departureState( 5 ) += x.at( 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction + 2 );
+    departureState( 3 ) +=
+            x.at( 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction + numberFreeCoefficientsAxialFunction );
+    departureState( 4 ) += x.at( 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction +
+                                 numberFreeCoefficientsAxialFunction + 1 );
+    departureState( 5 ) += x.at( 2 + numberFreeCoefficientsRadialFunction + numberFreeCoefficientsNormalFunction +
+                                 numberFreeCoefficientsAxialFunction + 2 );
 
-    HodographicShaping hodographicShaping = HodographicShaping(
-                departureState, finalStateFunction_( arrivalTime ),
-                timeOfFlight, centralBodyGravitationalParameter_,
-                numberOfRevolutions_, radialVelocityFunctionComponents,
-                normalVelocityFunctionComponents, axialVelocityFunctionComponents,
-                freeCoefficientsRadialVelocityFunction, freeCoefficientsNormalVelocityFunction,
-                freeCoefficientsAxialVelocityFunction, initialMass_ );
+    HodographicShaping hodographicShaping = HodographicShaping( departureState,
+                                                                finalStateFunction_( arrivalTime ),
+                                                                timeOfFlight,
+                                                                centralBodyGravitationalParameter_,
+                                                                numberOfRevolutions_,
+                                                                radialVelocityFunctionComponents,
+                                                                normalVelocityFunctionComponents,
+                                                                axialVelocityFunctionComponents,
+                                                                freeCoefficientsRadialVelocityFunction,
+                                                                freeCoefficientsNormalVelocityFunction,
+                                                                freeCoefficientsAxialVelocityFunction,
+                                                                initialMass_ );
 
     std::vector< double > fitnessVector;
     fitnessVector.push_back( hodographicShaping.computeDeltaV( ) );
@@ -133,23 +147,17 @@ std::vector< double > HodographicShapingOptimisationProblem::fitness( const std:
         double maximumAcceleration = 0.0;
         for( int i = 0; i < epochsVector.rows( ); i++ )
         {
-            double currentAcceleration =
-                    hodographicShaping.computeCurrentThrustAccelerationMagnitude( epochsVector( i ) );
+            double currentAcceleration = hodographicShaping.computeCurrentThrustAccelerationMagnitude( epochsVector( i ) );
             if( maximumAcceleration < currentAcceleration )
             {
                 maximumAcceleration = currentAcceleration;
             }
         }
         fitnessVector.push_back( maximumAcceleration );
-
     }
 
     return fitnessVector;
 }
 
-} // namespace shape_based_methods
-} // namespace tudat
-
-
-
-
+}  // namespace shape_based_methods
+}  // namespace tudat

@@ -8,10 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
-
-
-
 #include "tudat/astro/gravitation/timeDependentSphericalHarmonicsGravityField.h"
 
 namespace tudat
@@ -42,7 +38,6 @@ void TimeDependentSphericalHarmonicsGravityField::clearVariations( )
     correctionFunctions_.clear( );
 }
 
-
 //! Update gravity field to current time.
 void TimeDependentSphericalHarmonicsGravityField::update( const double time )
 {
@@ -58,6 +53,6 @@ void TimeDependentSphericalHarmonicsGravityField::update( const double time )
     }
 }
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat

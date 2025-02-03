@@ -36,31 +36,29 @@ template< typename DataType = double >
 class RootFinder
 {
 public:
-
     //! Typedef of the function whose root we have to determine.
     typedef std::shared_ptr< basic_mathematics::Function< DataType, DataType > > FunctionPointer;
 
     //! Typedef of the function determining whether to terminate the root finding (i.e convergence)
-    typedef std::function< bool( DataType, DataType,
-                                   DataType, DataType, unsigned int ) > TerminationFunction;
-        
+    typedef std::function< bool( DataType, DataType, DataType, DataType, unsigned int ) > TerminationFunction;
+
     //! Constructor taking custom termination function.
     /*!
      *  Constructor taking custom termination function.
      *  \param terminationFunction The function specifying the termination conditions of the
      *  root-finding process \sa RootFinderCore::terminationFunction_
      */
-    RootFinder( TerminationFunction terminationFunction )
-        : terminationFunction_( terminationFunction )
-    { }
+    RootFinder( TerminationFunction terminationFunction ): terminationFunction_( terminationFunction ) { }
 
-    RootFinder( std::shared_ptr< TerminationCondition< DataType > > terminationCondition )
-        : terminationFunction_(
-              std::bind( &TerminationCondition< DataType >::checkTerminationCondition, terminationCondition,
-                         std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
-                         std::placeholders::_4, std::placeholders::_5 ) )
+    RootFinder( std::shared_ptr< TerminationCondition< DataType > > terminationCondition ):
+        terminationFunction_( std::bind( &TerminationCondition< DataType >::checkTerminationCondition,
+                                         terminationCondition,
+                                         std::placeholders::_1,
+                                         std::placeholders::_2,
+                                         std::placeholders::_3,
+                                         std::placeholders::_4,
+                                         std::placeholders::_5 ) )
     { }
-
 
     //! Default destructor.
     /*!
@@ -87,17 +85,15 @@ public:
      * \throws ConvergenceExeption If the solution does not converge to a root value.
      * \return Root of the rootFunction that is found
      */
-    virtual DataType execute( const FunctionPointer aRootFunction,
-                              const DataType initialGuess ) = 0;
+    virtual DataType execute( const FunctionPointer aRootFunction, const DataType initialGuess ) = 0;
 
 protected:
-
     //! Function to find the root of.
     /*!
      * The root-finder tries to find a root of this function.
      */
     FunctionPointer rootFunction;
-    
+
     //! Function specifying the termination conditions.
     /*!
      * The rootfinder will continue improving the solution of the root until the termination
@@ -108,15 +104,13 @@ protected:
     TerminationFunction terminationFunction_;
 
 private:
-
 };
-
 
 //! Typedef for a shared-pointer to a root-finder with double data type.
 typedef std::shared_ptr< RootFinder< double > > RootFinderPointer;
 
-} // namespace root_finders
+}  // namespace root_finders
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_ROOT_FINDER_H
+#endif  // TUDAT_ROOT_FINDER_H

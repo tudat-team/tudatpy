@@ -32,18 +32,10 @@ namespace filters
 {
 
 //! Enumeration for value of contant parameters.
-enum ConstantParameterIndices
-{
-    alpha_index = 0,
-    beta_index = 1,
-    gamma_index = 2,
-    kappa_index = 3,
-    lambda_index = 4
-};
+enum ConstantParameterIndices { alpha_index = 0, beta_index = 1, gamma_index = 2, kappa_index = 3, lambda_index = 4 };
 
 //! Enumeration for value of contant parameters.
-enum ConstantParameterReferences
-{
+enum ConstantParameterReferences {
     reference_Wan_and_Van_der_Merwe = 0,        // reference [Wan, E., et al.]
     reference_Lisano_and_Born_and_Axelrad = 1,  // reference [Jah, M., et al.]
     reference_Challa_and_Moore_and_Rogers = 2,  // reference [Challa, M., et al.]
@@ -57,10 +49,9 @@ enum ConstantParameterReferences
  *  \tparam DependentVariableType Type of dependent variable. Default is double.
  */
 template< typename IndependentVariableType = double, typename DependentVariableType = double >
-class UnscentedKalmanFilter: public KalmanFilterBase< IndependentVariableType, DependentVariableType >
+class UnscentedKalmanFilter : public KalmanFilterBase< IndependentVariableType, DependentVariableType >
 {
 public:
-
     //! Inherit typedefs from base class.
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentVector DependentVector;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
@@ -100,11 +91,15 @@ public:
                            const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr,
                            const ConstantParameterReferences constantValueReference = reference_Wan_and_Van_der_Merwe,
                            const std::pair< DependentVariableType, DependentVariableType > customConstantParameters =
-            std::make_pair( static_cast< DependentVariableType >( TUDAT_NAN ),
-                            static_cast< DependentVariableType >( TUDAT_NAN ) ) ) :
-        KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
-                                                                            filteringStepSize, initialTime, initialStateVector,
-                                                                            initialCovarianceMatrix, integratorSettings ),
+                                   std::make_pair( static_cast< DependentVariableType >( TUDAT_NAN ),
+                                                   static_cast< DependentVariableType >( TUDAT_NAN ) ) ):
+        KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty,
+                                                                            measurementUncertainty,
+                                                                            filteringStepSize,
+                                                                            initialTime,
+                                                                            initialStateVector,
+                                                                            initialCovarianceMatrix,
+                                                                            integratorSettings ),
         inputSystemFunction_( systemFunction ), inputMeasurementFunction_( measurementFunction )
     {
         // Set dimensions
@@ -121,12 +116,12 @@ public:
         augmentedStateVector_ = DependentVector::Zero( augmentedStateDimension_ );
         augmentedCovarianceMatrix_ = DependentMatrix::Zero( augmentedStateDimension_, augmentedStateDimension_ );
         augmentedCovarianceMatrix_.block( stateDimension_, stateDimension_, stateDimension_, stateDimension_ ) = systemUncertainty;
-        augmentedCovarianceMatrix_.block( 2 * stateDimension_, 2 * stateDimension_,
-                                          measurementDimension_, measurementDimension_ ) = measurementUncertainty;
+        augmentedCovarianceMatrix_.block( 2 * stateDimension_, 2 * stateDimension_, measurementDimension_, measurementDimension_ ) =
+                measurementUncertainty;
     }
 
     //! Destructor.
-    ~UnscentedKalmanFilter( ){ }
+    ~UnscentedKalmanFilter( ) { }
 
     //! Function to update the filter with the new step data.
     /*!
@@ -137,17 +132,17 @@ public:
     {
         // Compute sigma points
         computeSigmaPoints( this->aPosterioriStateEstimate_, this->aPosterioriCovarianceEstimate_ );
-        historyOfSigmaPoints_[ this->currentTime_ ] = mapOfSigmaPoints_; // store points
+        historyOfSigmaPoints_[ this->currentTime_ ] = mapOfSigmaPoints_;  // store points
 
         // Prediction step
         // Compute series of state estimates based on sigma points
         std::map< unsigned int, DependentVector > sigmaPointsStateEstimates;
-        for ( sigmaPointConstantIterator_ = mapOfSigmaPoints_.begin( );
-              sigmaPointConstantIterator_ != mapOfSigmaPoints_.end( ); sigmaPointConstantIterator_++ )
+        for( sigmaPointConstantIterator_ = mapOfSigmaPoints_.begin( ); sigmaPointConstantIterator_ != mapOfSigmaPoints_.end( );
+             sigmaPointConstantIterator_++ )
         {
             currentSigmaPoint_ = sigmaPointConstantIterator_->first;
-            sigmaPointsStateEstimates[ currentSigmaPoint_ ] = this->predictState(
-                        sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ) );
+            sigmaPointsStateEstimates[ currentSigmaPoint_ ] =
+                    this->predictState( sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ) );
         }
 
         // Compute the weighted average to find the a-priori state vector
@@ -163,12 +158,12 @@ public:
 
         // Compute series of measurement estimates based on sigma points
         std::map< unsigned int, DependentVector > sigmaPointsMeasurementEstimates;
-        for ( sigmaPointConstantIterator_ = mapOfSigmaPoints_.begin( );
-              sigmaPointConstantIterator_ != mapOfSigmaPoints_.end( ); sigmaPointConstantIterator_++ )
+        for( sigmaPointConstantIterator_ = mapOfSigmaPoints_.begin( ); sigmaPointConstantIterator_ != mapOfSigmaPoints_.end( );
+             sigmaPointConstantIterator_++ )
         {
             currentSigmaPoint_ = sigmaPointConstantIterator_->first;
-            sigmaPointsMeasurementEstimates[ currentSigmaPoint_ ] = this->measurementFunction_(
-                        this->currentTime_, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ) );
+            sigmaPointsMeasurementEstimates[ currentSigmaPoint_ ] =
+                    this->measurementFunction_( this->currentTime_, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ) );
         }
 
         // Compute the weighted average to find the expected measurement vector
@@ -179,8 +174,9 @@ public:
         DependentMatrix innovationMatrix = DependentMatrix::Zero( measurementDimension_, measurementDimension_ );
         computeWeightedAverageFromSigmaPointEstimates( innovationMatrix, measurementEstimate, sigmaPointsMeasurementEstimates );
         DependentMatrix crossCorrelationMatrix = DependentMatrix::Zero( stateDimension_, measurementDimension_ );
-        for ( sigmaPointConstantIterator_ = sigmaPointsStateEstimates.begin( );
-              sigmaPointConstantIterator_ != sigmaPointsStateEstimates.end( ); sigmaPointConstantIterator_++ )
+        for( sigmaPointConstantIterator_ = sigmaPointsStateEstimates.begin( );
+             sigmaPointConstantIterator_ != sigmaPointsStateEstimates.end( );
+             sigmaPointConstantIterator_++ )
         {
             crossCorrelationMatrix += covarianceEstimationWeights_.at( sigmaPointConstantIterator_->first ) *
                     ( sigmaPointConstantIterator_->second - aPrioriStateEstimate ) *
@@ -206,15 +202,17 @@ public:
         // Convert map of maps into map of Eigen::Matrix
         DependentVector vectorOfSigmaPoints;
         std::map< IndependentVariableType, DependentMatrix > mapOfSigmaPointsHistory;
-        for ( typename std::map< IndependentVariableType, std::map< unsigned int, DependentVector > >::const_iterator
-              mapIterator = historyOfSigmaPoints_.begin( ); mapIterator != historyOfSigmaPoints_.end( ); mapIterator++ )
+        for( typename std::map< IndependentVariableType, std::map< unsigned int, DependentVector > >::const_iterator mapIterator =
+                     historyOfSigmaPoints_.begin( );
+             mapIterator != historyOfSigmaPoints_.end( );
+             mapIterator++ )
         {
             // Extract current map of sigma points and turn it into a vector
             vectorOfSigmaPoints = utilities::createConcatenatedEigenMatrixFromMapValues( mapIterator->second );
 
             // Reshape the vector into a matrix and store it into the output map
-            Eigen::Map< Eigen::MatrixXd > matrixOfSigmaPoints( vectorOfSigmaPoints.data( ),
-                                                               augmentedStateDimension_, numberOfSigmaPoints_ );
+            Eigen::Map< Eigen::MatrixXd > matrixOfSigmaPoints(
+                    vectorOfSigmaPoints.data( ), augmentedStateDimension_, numberOfSigmaPoints_ );
             mapOfSigmaPointsHistory[ mapIterator->first ] = matrixOfSigmaPoints;
         }
 
@@ -223,7 +221,6 @@ public:
     }
 
 private:
-
     //! Function to create the function that defines the system model.
     /*!
      *  Function to create the function that defines the system model. The output of this function is then bound
@@ -232,11 +229,10 @@ private:
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated state.
      */
-    DependentVector createSystemFunction( const IndependentVariableType currentTime,
-                                          const DependentVector& currentStateVector )
+    DependentVector createSystemFunction( const IndependentVariableType currentTime, const DependentVector& currentStateVector )
     {
         return inputSystemFunction_( currentTime, currentStateVector ) +
-                mapOfSigmaPoints_[ currentSigmaPoint_ ].segment( stateDimension_, stateDimension_ ); // add system noise
+                mapOfSigmaPoints_[ currentSigmaPoint_ ].segment( stateDimension_, stateDimension_ );  // add system noise
     }
 
     //! Function to create the function that defines the system model.
@@ -247,11 +243,10 @@ private:
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated measurement.
      */
-    DependentVector createMeasurementFunction( const IndependentVariableType currentTime,
-                                               const DependentVector& currentStateVector )
+    DependentVector createMeasurementFunction( const IndependentVariableType currentTime, const DependentVector& currentStateVector )
     {
         return inputMeasurementFunction_( currentTime, currentStateVector ) +
-                mapOfSigmaPoints_[ currentSigmaPoint_ ].segment( 2 * stateDimension_, measurementDimension_ ); // add measurement noise
+                mapOfSigmaPoints_[ currentSigmaPoint_ ].segment( 2 * stateDimension_, measurementDimension_ );  // add measurement noise
     }
 
     //! Function to clear the history of stored variables for derived class-specific variables.
@@ -259,7 +254,10 @@ private:
      *  Function to clear the history of stored variables for derived class-specific variables. This function adds to the list of
      *  variables to be cleared, the history of sigma point estimates over time.
      */
-    void clearSpecificFilterHistory( ) { historyOfSigmaPoints_.clear( ); }
+    void clearSpecificFilterHistory( )
+    {
+        historyOfSigmaPoints_.clear( );
+    }
 
     //! Function to revert to the previous time step for derived class-specific variables.
     /*!
@@ -269,7 +267,7 @@ private:
      */
     virtual void specificRevertToPreviousTimeStep( const double timeToBeRemoved )
     {
-        if ( historyOfSigmaPoints_.count( timeToBeRemoved ) != 0 )
+        if( historyOfSigmaPoints_.count( timeToBeRemoved ) != 0 )
         {
             historyOfSigmaPoints_.erase( timeToBeRemoved );
         }
@@ -318,7 +316,7 @@ private:
 
         // Pre-compute square root of augmented covariance matrix
         DependentMatrix augmentedCovarianceMatrixSquareRoot;
-        if ( augmentedCovarianceMatrix_.determinant( ) != static_cast< DependentVariableType >( 0.0 ) )
+        if( augmentedCovarianceMatrix_.determinant( ) != static_cast< DependentVariableType >( 0.0 ) )
         {
             // Matrix is invertible, so take matrix square-root directly
             augmentedCovarianceMatrixSquareRoot = augmentedCovarianceMatrix_.sqrt( );
@@ -327,7 +325,7 @@ private:
         {
             // Check if matrix is diagonal
             DependentVector augmentedCovarianceMatrixDiagonal = augmentedCovarianceMatrix_.diagonal( );
-            if ( augmentedCovarianceMatrix_.isApprox( DependentMatrix( augmentedCovarianceMatrixDiagonal.asDiagonal( ) ) ) )
+            if( augmentedCovarianceMatrix_.isApprox( DependentMatrix( augmentedCovarianceMatrixDiagonal.asDiagonal( ) ) ) )
             {
                 augmentedCovarianceMatrixDiagonal = augmentedCovarianceMatrixDiagonal.array( ).sqrt( );
                 augmentedCovarianceMatrixSquareRoot = augmentedCovarianceMatrixDiagonal.asDiagonal( );
@@ -335,27 +333,29 @@ private:
             else
             {
                 // Otherwise, matrix is singular and the square-root cannot be computed
-                throw std::runtime_error( "Error in unscented Kalman filter. Augemented covariance matrix is singular. "
-                                          "Its square-root cannot be computed." );
+                throw std::runtime_error(
+                        "Error in unscented Kalman filter. Augemented covariance matrix is singular. "
+                        "Its square-root cannot be computed." );
             }
         }
 
         // Loop over sigma points and assign value
-        for ( unsigned int i = 0; i < numberOfSigmaPoints_; i++ )
+        for( unsigned int i = 0; i < numberOfSigmaPoints_; i++ )
         {
-            if ( i == 0 )
+            if( i == 0 )
             {
                 mapOfSigmaPoints_[ i ] = augmentedStateVector_;
             }
-            else if ( i < ( augmentedCovarianceMatrixSquareRoot.cols( ) + 1 ) )
+            else if( i < ( augmentedCovarianceMatrixSquareRoot.cols( ) + 1 ) )
             {
-                mapOfSigmaPoints_[ i ] = augmentedStateVector_ + constantParameters_.at( gamma_index ) *
-                        augmentedCovarianceMatrixSquareRoot.col( i - 1 );
+                mapOfSigmaPoints_[ i ] =
+                        augmentedStateVector_ + constantParameters_.at( gamma_index ) * augmentedCovarianceMatrixSquareRoot.col( i - 1 );
             }
             else
             {
-                mapOfSigmaPoints_[ i ] = augmentedStateVector_ - constantParameters_.at( gamma_index ) *
-                        augmentedCovarianceMatrixSquareRoot.col( ( i - 1 ) - augmentedCovarianceMatrixSquareRoot.cols( ) );
+                mapOfSigmaPoints_[ i ] = augmentedStateVector_ -
+                        constantParameters_.at( gamma_index ) *
+                                augmentedCovarianceMatrixSquareRoot.col( ( i - 1 ) - augmentedCovarianceMatrixSquareRoot.cols( ) );
             }
         }
     }
@@ -372,11 +372,10 @@ private:
                                                         const std::map< unsigned int, DependentVector >& sigmaPointEstimates )
     {
         // Loop over each sigma point
-        for ( sigmaPointConstantIterator_ = sigmaPointEstimates.begin( );
-              sigmaPointConstantIterator_ != sigmaPointEstimates.end( ); sigmaPointConstantIterator_++ )
+        for( sigmaPointConstantIterator_ = sigmaPointEstimates.begin( ); sigmaPointConstantIterator_ != sigmaPointEstimates.end( );
+             sigmaPointConstantIterator_++ )
         {
-            weightedAverageVector += stateEstimationWeights_.at( sigmaPointConstantIterator_->first ) *
-                    sigmaPointConstantIterator_->second;
+            weightedAverageVector += stateEstimationWeights_.at( sigmaPointConstantIterator_->first ) * sigmaPointConstantIterator_->second;
         }
     }
 
@@ -394,8 +393,8 @@ private:
                                                         const std::map< unsigned int, DependentVector >& sigmaPointEstimates )
     {
         // Loop over each sigma point
-        for ( sigmaPointConstantIterator_ = sigmaPointEstimates.begin( );
-              sigmaPointConstantIterator_ != sigmaPointEstimates.end( ); sigmaPointConstantIterator_++ )
+        for( sigmaPointConstantIterator_ = sigmaPointEstimates.begin( ); sigmaPointConstantIterator_ != sigmaPointEstimates.end( );
+             sigmaPointConstantIterator_++ )
         {
             weightedAverageMatrix += covarianceEstimationWeights_.at( sigmaPointConstantIterator_->first ) *
                     ( sigmaPointConstantIterator_->second - referenceVector ) *
@@ -411,7 +410,8 @@ private:
      *  \param kalmanGain Matrix denoting the Kalman gain, to be used to correct the state estimate with the external measurement data.
      */
     void correctCovariance( const DependentMatrix& aPrioriCovarianceEstimate,
-                            const DependentMatrix& innovationMatrix, const DependentMatrix& kalmanGain )
+                            const DependentMatrix& innovationMatrix,
+                            const DependentMatrix& kalmanGain )
     {
         this->aPosterioriCovarianceEstimate_ = aPrioriCovarianceEstimate - kalmanGain * innovationMatrix * kalmanGain.transpose( );
         this->historyOfCovarianceEstimates_[ this->currentTime_ ] = this->aPosterioriCovarianceEstimate_;
@@ -482,11 +482,10 @@ private:
      *  noise can be added.
      */
     unsigned int currentSigmaPoint_;
-
 };
 
 //! Typedef for a filter with double data type.
-typedef UnscentedKalmanFilter< > UnscentedKalmanFilterDouble;
+typedef UnscentedKalmanFilter<> UnscentedKalmanFilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
 typedef std::shared_ptr< UnscentedKalmanFilterDouble > UnscentedKalmanFilterDoublePointer;
@@ -501,45 +500,43 @@ void UnscentedKalmanFilter< IndependentVariableType, DependentVariableType >::se
     constantParameters_.resize( 5 );
 
     // Set parameters based on input
-    switch ( constantValueReference )
+    switch( constantValueReference )
     {
-    case reference_Wan_and_Van_der_Merwe:
-    {
-        constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 0.003 );
-        constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 0.0 );
-        break;
-    }
-    case reference_Lisano_and_Born_and_Axelrad:
-    {
-        constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 1.0 );
-        constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 3.0 - stateDimension_ );
-        break;
-    }
-    case reference_Challa_and_Moore_and_Rogers:
-    {
-        constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 0.001 );
-        constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 1.0 );
-        break;
-    }
-    case custom_parameters:
-    {
-        // Check that the values have been set
-        if ( customConstantParameters.first == static_cast< DependentVariableType >( TUDAT_NAN ) ||
-             customConstantParameters.second == static_cast< DependentVariableType >( TUDAT_NAN ) )
-        {
-            throw std::runtime_error( "Error in unscented Kalman filter. The value of the alpha and kappa parameters "
-                                      "have not been specified, but the selected method is custom_parameters." );
+        case reference_Wan_and_Van_der_Merwe: {
+            constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 0.003 );
+            constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 0.0 );
+            break;
         }
+        case reference_Lisano_and_Born_and_Axelrad: {
+            constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 1.0 );
+            constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 3.0 - stateDimension_ );
+            break;
+        }
+        case reference_Challa_and_Moore_and_Rogers: {
+            constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 0.001 );
+            constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 1.0 );
+            break;
+        }
+        case custom_parameters: {
+            // Check that the values have been set
+            if( customConstantParameters.first == static_cast< DependentVariableType >( TUDAT_NAN ) ||
+                customConstantParameters.second == static_cast< DependentVariableType >( TUDAT_NAN ) )
+            {
+                throw std::runtime_error(
+                        "Error in unscented Kalman filter. The value of the alpha and kappa parameters "
+                        "have not been specified, but the selected method is custom_parameters." );
+            }
 
-        // Assign values to parameters
-        constantParameters_.at( alpha_index ) = customConstantParameters.first;
-        constantParameters_.at( kappa_index ) = customConstantParameters.second;
-        break;
-    }
-    default:
-        throw std::runtime_error( "Error in unscented Kalman filter. The name of the reference for the alpha and kappa "
-                                  "parameters is not recognized. To enter a custom pair of coefficients, "
-                                  "use the value custom_parameters." );
+            // Assign values to parameters
+            constantParameters_.at( alpha_index ) = customConstantParameters.first;
+            constantParameters_.at( kappa_index ) = customConstantParameters.second;
+            break;
+        }
+        default:
+            throw std::runtime_error(
+                    "Error in unscented Kalman filter. The name of the reference for the alpha and kappa "
+                    "parameters is not recognized. To enter a custom pair of coefficients, "
+                    "use the value custom_parameters." );
     }
 
     // Set augmented state and sigma parameters
@@ -548,8 +545,9 @@ void UnscentedKalmanFilter< IndependentVariableType, DependentVariableType >::se
 
     // Set remaining parameters
     constantParameters_.at( beta_index ) = 2.0;
-    constantParameters_.at( lambda_index ) = std::pow( constantParameters_.at( alpha_index ), 2 ) *
-            ( augmentedStateDimension_ + constantParameters_.at( kappa_index ) ) - augmentedStateDimension_;
+    constantParameters_.at( lambda_index ) =
+            std::pow( constantParameters_.at( alpha_index ), 2 ) * ( augmentedStateDimension_ + constantParameters_.at( kappa_index ) ) -
+            augmentedStateDimension_;
     constantParameters_.at( gamma_index ) = std::sqrt( augmentedStateDimension_ + constantParameters_.at( lambda_index ) );
 }
 
@@ -560,17 +558,17 @@ void UnscentedKalmanFilter< IndependentVariableType, DependentVariableType >::ge
     // Generate state and covariance estimation weights
     stateEstimationWeights_.push_back( constantParameters_.at( lambda_index ) /
                                        ( augmentedStateDimension_ + constantParameters_.at( lambda_index ) ) );
-    for ( unsigned int i = 1; i < numberOfSigmaPoints_; i++ )
+    for( unsigned int i = 1; i < numberOfSigmaPoints_; i++ )
     {
         stateEstimationWeights_.push_back( 1.0 / ( 2.0 * ( augmentedStateDimension_ + constantParameters_.at( lambda_index ) ) ) );
     }
     covarianceEstimationWeights_ = stateEstimationWeights_;
-    covarianceEstimationWeights_.at( 0 ) += 1.0 - std::pow( constantParameters_.at( alpha_index ), 2 ) +
-            constantParameters_.at( beta_index );
+    covarianceEstimationWeights_.at( 0 ) +=
+            1.0 - std::pow( constantParameters_.at( alpha_index ), 2 ) + constantParameters_.at( beta_index );
 }
 
-} // namespace filters
+}  // namespace filters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_UNSCENTED_KALMAN_FILTER_H
+#endif  // TUDAT_UNSCENTED_KALMAN_FILTER_H

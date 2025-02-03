@@ -30,13 +30,11 @@ namespace json_interface
 class SpiceSettings
 {
 public:
-
     //! Empty constructor.
     SpiceSettings( ) { }
 
     //! Destructor.
     virtual ~SpiceSettings( ) { }
-
 
     //! Whether the standard kernel should be preloaded.
     bool useStandardKernels_ = true;
@@ -87,7 +85,7 @@ public:
      */
     double getInitialOffset( )
     {
-        if ( isNaN( interpolationOffsets_.first ) )
+        if( isNaN( interpolationOffsets_.first ) )
         {
             return 10.0 * interpolationStep_;
         }
@@ -105,7 +103,7 @@ public:
      */
     double getFinalOffset( )
     {
-        if ( isNaN( interpolationOffsets_.second ) )
+        if( isNaN( interpolationOffsets_.second ) )
         {
             return 10.0 * interpolationStep_;
         }
@@ -122,7 +120,6 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< SpiceSettings >
 //! Create a shared pointer to a `SpiceSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< SpiceSettings >& spiceSettings );
 
-
 //! Load in Tudat the Spice kernels specified in \p spiceSettings.
 /*!
  * @copybrief loadSpiceKernels
@@ -132,8 +129,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< SpiceSettings
  */
 void loadSpiceKernels( const std::shared_ptr< SpiceSettings >& spiceSettings );
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_SPICE_H
+#endif  // TUDAT_JSONINTERFACE_SPICE_H

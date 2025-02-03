@@ -45,9 +45,9 @@ namespace unit_tests
 {
 
 //! Reads a text file and tokenizes it into lines.
-std::vector< std::string > readLinesFromFile(
-        const std::string& dataFileAbsolutePath, const std::string& delimiter = " ",
-        const char commentCharacter = '#' )
+std::vector< std::string > readLinesFromFile( const std::string& dataFileAbsolutePath,
+                                              const std::string& delimiter = " ",
+                                              const char commentCharacter = '#' )
 {
     // Read in data file.
     std::ifstream inputFile;
@@ -58,7 +58,7 @@ std::vector< std::string > readLinesFromFile(
 
     // If input file could be opened, read contents into data buffer, filter out comment lines,
     // and close file.
-    if ( inputFile )
+    if( inputFile )
     {
         // Create unfiltered data buffer.
         std::stringstream unfilteredDataBuffer;
@@ -73,8 +73,7 @@ std::vector< std::string > readLinesFromFile(
         boost::iostreams::filtering_ostream filterProcessor;
 
         // Add remove comment lines filter.
-        filterProcessor.push( input_output::stream_filters::RemoveComment(
-                                  commentCharacter, true ) );
+        filterProcessor.push( input_output::stream_filters::RemoveComment( commentCharacter, true ) );
 
         // Last step in the chain; store the resulting string in filteredData.
         filterProcessor.push( boost::iostreams::back_inserter( filteredData ) );
@@ -95,15 +94,14 @@ std::vector< std::string > readLinesFromFile(
     boost::trim( filteredData );
 
     // Erase all non-whitespace delimiter characters.
-    if ( delimiter.compare( " " ) != 0 )
+    if( delimiter.compare( " " ) != 0 )
     {
         boost::erase_all( filteredData, delimiter );
     }
 
     // Tokenize the row data by splitting for any of a list of characters.
     std::vector< std::string > inputFileRowTokens;
-    boost::split( inputFileRowTokens, filteredData, boost::is_any_of( "\n\r\t" ),
-                  boost::token_compress_on );
+    boost::split( inputFileRowTokens, filteredData, boost::is_any_of( "\n\r\t" ), boost::token_compress_on );
 
     // Return tokenized input file (tokenized per row).
     return inputFileRowTokens;
@@ -128,22 +126,19 @@ BOOST_AUTO_TEST_CASE( testPrintingNumberInFormattedScientificNotation )
         const std::string expectedOutputForNumber1 = "1.230000000000000E-45";
 
         // Check that output generated for first number matches expected output.
-        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number1 ),
-                           expectedOutputForNumber1 );
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number1 ), expectedOutputForNumber1 );
 
         // Set expected output for second number.
         const std::string expectedOutputForNumber2 = "9.870000000000000E+65";
 
         // Check that output generated for first number matches expected output.
-        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number2 ),
-                           expectedOutputForNumber2 );
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number2 ), expectedOutputForNumber2 );
 
         // Set expected output for third number.
         const std::string expectedOutputForNumber3 = "-3.240112000000000E+201";
 
         // Check that output generated for first number matches expected output.
-        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number3 ),
-                           expectedOutputForNumber3 );
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number3 ), expectedOutputForNumber3 );
     }
 
     // Test 2: format numbers with five-digit precision for the base and four digits for exponent
@@ -154,22 +149,19 @@ BOOST_AUTO_TEST_CASE( testPrintingNumberInFormattedScientificNotation )
         const std::string expectedOutputForNumber1 = "1.23000E-0045";
 
         // Check that output generated for first number matches expected output.
-        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number1, 5, 4 ),
-                           expectedOutputForNumber1 );
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number1, 5, 4 ), expectedOutputForNumber1 );
 
         // Set expected output for second number.
         const std::string expectedOutputForNumber2 = "9.87000E+0065";
 
         // Check that output generated for first number matches expected output.
-        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number2, 5, 4 ),
-                           expectedOutputForNumber2 );
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number2, 5, 4 ), expectedOutputForNumber2 );
 
         // Set expected output for third number.
         const std::string expectedOutputForNumber3 = "-3.24011E+0201";
 
         // Check that output generated for first number matches expected output.
-        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number3, 5, 4 ),
-                           expectedOutputForNumber3 );
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number3, 5, 4 ), expectedOutputForNumber3 );
     }
 }
 
@@ -177,8 +169,7 @@ BOOST_AUTO_TEST_CASE( testPrintingNumberInFormattedScientificNotation )
 BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
 {
     // Set path to new directory.
-    const boost::filesystem::path pathToNewDirectory(
-            paths::getTudatTestDataPath( ) + "/ListAllFiles" );
+    const boost::filesystem::path pathToNewDirectory( paths::getTudatTestDataPath( ) + "/ListAllFiles" );
 
     // Set number of files in directory.
     const unsigned int numberOfFiles = 10;
@@ -193,7 +184,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
     BOOST_CHECK_EQUAL( emptyListOfFilenames.size( ), 0 );
 
     // Create test files.
-    for ( unsigned int i = 0; i < numberOfFiles; i++ )
+    for( unsigned int i = 0; i < numberOfFiles; i++ )
     {
         // Create stream new filename.
         std::stringstream newFile;
@@ -206,11 +197,10 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
     }
 
     // List all files in directory and check that they are as expected.
-    std::vector< boost::filesystem::path > listOfFilenames =
-            input_output::listAllFilesInDirectory( pathToNewDirectory.string( ) );
+    std::vector< boost::filesystem::path > listOfFilenames = input_output::listAllFilesInDirectory( pathToNewDirectory.string( ) );
     std::sort( listOfFilenames.begin( ), listOfFilenames.end( ) );
 
-    for ( unsigned int i = 0; i < listOfFilenames.size( ); i++ )
+    for( unsigned int i = 0; i < listOfFilenames.size( ); i++ )
     {
         std::stringstream newFile;
         newFile << "testFile" << i << ".txt" << std::endl;
@@ -223,7 +213,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
 
 // TODO: Find out why this is failing with new paths.hpp
 // Test if writing data map to text file works correctly.
-//BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
+// BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
 //{
 //    // Set path to output directory.
 //    const boost::filesystem::path pathToOutputDirectory(paths::getTudatTestDataPath( ) + "/WriteDataMap" );
@@ -572,13 +562,10 @@ BOOST_AUTO_TEST_CASE( testMatrixFileWriting )
 
     //  Read matrix to file and check if it is equal to original
     Eigen::MatrixXd retrievedRandomMatrix = input_output::readMatrixFromFile( outputPath + fileName, "\t" );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( randomMatrix,
-                                       retrievedRandomMatrix,
-                                       ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
-
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( randomMatrix, retrievedRandomMatrix, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

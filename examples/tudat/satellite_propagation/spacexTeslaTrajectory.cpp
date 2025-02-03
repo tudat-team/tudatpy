@@ -28,18 +28,15 @@ int main( )
     using namespace tudat::gravitation;
     using namespace tudat::numerical_integrators;
 
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////     CREATE ENVIRONMENT AND VEHICLE       //////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( { paths::getSpiceKernelPath( ) + "/de430.bsp" } );
 
     // Set simulation time settings.
-    const double simulationStartEpoch =
-            ( 2458163.500000000 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 86400.0;
+    const double simulationStartEpoch = ( 2458163.500000000 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 86400.0;
     const double simulationEndEpoch = 500.0 * physical_constants::JULIAN_YEAR;
 
     // Define body settings for simulation.
@@ -54,27 +51,26 @@ int main( )
     bodiesToCreate.push_back( "Mercury" );
 
     // Create body objects.
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodiesToCreate );
-//    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-//    bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-//    bodySettings[ "Earth" ]->ephemerisSettings->resetFrameOrientation( "J2000" );
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings( bodiesToCreate );
+    //    bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrientation( "J2000" );
+    //    bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrientation( "J2000" );
+    //    bodySettings[ "Earth" ]->ephemerisSettings->resetFrameOrientation( "J2000" );
 
-//    for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
-//    {
-//        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
-//    }
+    //    for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
+    //    {
+    //        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+    //    }
 
-    bodySettings[ "Mars" ]->ephemerisSettings = std::make_shared< ApproximatePlanetPositionSettings >(
-                ephemerides::ApproximatePlanetPositionsBase::mars, false );
-    bodySettings[ "Jupiter" ]->ephemerisSettings = std::make_shared< ApproximatePlanetPositionSettings >(
-                ephemerides::ApproximatePlanetPositionsBase::mars, false );
-    bodySettings[ "Saturn" ]->ephemerisSettings = std::make_shared< ApproximatePlanetPositionSettings >(
-                ephemerides::ApproximatePlanetPositionsBase::mars, false );
-    bodySettings[ "Venus" ]->ephemerisSettings = std::make_shared< ApproximatePlanetPositionSettings >(
-                ephemerides::ApproximatePlanetPositionsBase::mars, false );
-    bodySettings[ "Mercury" ]->ephemerisSettings = std::make_shared< ApproximatePlanetPositionSettings >(
-                ephemerides::ApproximatePlanetPositionsBase::mars, false );
+    bodySettings[ "Mars" ]->ephemerisSettings =
+            std::make_shared< ApproximatePlanetPositionSettings >( ephemerides::ApproximatePlanetPositionsBase::mars, false );
+    bodySettings[ "Jupiter" ]->ephemerisSettings =
+            std::make_shared< ApproximatePlanetPositionSettings >( ephemerides::ApproximatePlanetPositionsBase::mars, false );
+    bodySettings[ "Saturn" ]->ephemerisSettings =
+            std::make_shared< ApproximatePlanetPositionSettings >( ephemerides::ApproximatePlanetPositionsBase::mars, false );
+    bodySettings[ "Venus" ]->ephemerisSettings =
+            std::make_shared< ApproximatePlanetPositionSettings >( ephemerides::ApproximatePlanetPositionsBase::mars, false );
+    bodySettings[ "Mercury" ]->ephemerisSettings =
+            std::make_shared< ApproximatePlanetPositionSettings >( ephemerides::ApproximatePlanetPositionsBase::mars, false );
 
     SystemOfBodies bodies = createBodies( bodySettings );
 
@@ -93,13 +89,11 @@ int main( )
     std::vector< std::string > occultingBodies;
     std::shared_ptr< RadiationPressureInterfaceSettings > teslaRoadsterRadiationPressureSettings =
             std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
     bodies[ "TeslaRoadster" ]->setRadiationPressureInterface(
-                "Sun", createRadiationPressureInterface(
-                    teslaRoadsterRadiationPressureSettings, "TeslaRoadster", bodies ) );
-
+            "Sun", createRadiationPressureInterface( teslaRoadsterRadiationPressureSettings, "TeslaRoadster", bodies ) );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
@@ -115,32 +109,23 @@ int main( )
 
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Venus" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Mercury" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Saturn" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Venus" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Mercury" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Saturn" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Sun" ].push_back(
+            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
 
-
-    accelerationMap[  "TeslaRoadster" ] = accelerationsOfAsterix;
+    accelerationMap[ "TeslaRoadster" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "TeslaRoadster" );
     centralBodies.push_back( "Sun" );
 
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -148,65 +133,61 @@ int main( )
 
     // Set Keplerian elements for TeslaRoadster.
     Eigen::Vector6d teslaRoadsterInitialStateJ2000;
-    teslaRoadsterInitialStateJ2000 << -1.484544094935328E+06, -1.530028575781120E+06, -4.100899567817330E+05,
-    -2.358201939417945E+00, -2.459124989364402E+00, -6.370785284397021E-01;
+    teslaRoadsterInitialStateJ2000 << -1.484544094935328E+06, -1.530028575781120E+06, -4.100899567817330E+05, -2.358201939417945E+00,
+            -2.459124989364402E+00, -6.370785284397021E-01;
     teslaRoadsterInitialStateJ2000 *= 1000.0;
-    teslaRoadsterInitialStateJ2000 += spice_interface::getBodyCartesianStateAtEpoch(
-                "Earth", "SSB", "J2000", "None", simulationStartEpoch );
+    teslaRoadsterInitialStateJ2000 +=
+            spice_interface::getBodyCartesianStateAtEpoch( "Earth", "SSB", "J2000", "None", simulationStartEpoch );
 
-    Eigen::Quaterniond toEclipJ2000 = spice_interface::computeRotationQuaternionBetweenFrames(
-                                 "J2000", "ECLIPJ2000", 0.0 );
+    Eigen::Quaterniond toEclipJ2000 = spice_interface::computeRotationQuaternionBetweenFrames( "J2000", "ECLIPJ2000", 0.0 );
 
     Eigen::Vector6d teslaRoadsterInitialState;
     teslaRoadsterInitialState.segment( 0, 3 ) = toEclipJ2000 * teslaRoadsterInitialStateJ2000.segment( 0, 3 );
     teslaRoadsterInitialState.segment( 3, 3 ) = toEclipJ2000 * teslaRoadsterInitialStateJ2000.segment( 3, 3 );
-\
-
-
-
 
     // Define list of dependent variables to save.
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
     dependentVariablesList.push_back(
-                std::make_shared< SingleDependentVariableSaveSettings >(
-                    relative_position_dependent_variable, "Earth", "Sun" ) );
+            std::make_shared< SingleDependentVariableSaveSettings >( relative_position_dependent_variable, "Earth", "Sun" ) );
     dependentVariablesList.push_back(
-                std::make_shared< SingleDependentVariableSaveSettings >(
-                    relative_position_dependent_variable, "Mars", "Sun" ) );
+            std::make_shared< SingleDependentVariableSaveSettings >( relative_position_dependent_variable, "Mars", "Sun" ) );
     dependentVariablesList.push_back(
-                std::make_shared< SingleDependentVariableSaveSettings >(
-                    relative_position_dependent_variable, "Venus", "Sun" ) );
+            std::make_shared< SingleDependentVariableSaveSettings >( relative_position_dependent_variable, "Venus", "Sun" ) );
     dependentVariablesList.push_back(
-                std::make_shared< SingleDependentVariableSaveSettings >(
-                    relative_distance_dependent_variable, "TeslaRoadster", "Earth" ) );
+            std::make_shared< SingleDependentVariableSaveSettings >( relative_distance_dependent_variable, "TeslaRoadster", "Earth" ) );
 
     // Create object with list of dependent variables
     std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
             std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, teslaRoadsterInitialState, simulationEndEpoch, cowell,
-              dependentVariablesToSave );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                accelerationModelMap,
+                                                                                bodiesToPropagate,
+                                                                                teslaRoadsterInitialState,
+                                                                                simulationEndEpoch,
+                                                                                cowell,
+                                                                                dependentVariablesToSave );
 
-    std::shared_ptr< IntegratorSettings< > > integratorSettings
-            = std::make_shared< tudat::numerical_integrators::BulirschStoerIntegratorSettings< > >(
-                simulationStartEpoch, 3600.0,
-                numerical_integrators::bulirsch_stoer_sequence, 4,
-                std::numeric_limits< double >::epsilon( ), std::numeric_limits< double >::infinity( ),
-                1.0E-15, 1.0E-12 );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< tudat::numerical_integrators::BulirschStoerIntegratorSettings<> >(
+                    simulationStartEpoch,
+                    3600.0,
+                    numerical_integrators::bulirsch_stoer_sequence,
+                    4,
+                    std::numeric_limits< double >::epsilon( ),
+                    std::numeric_limits< double >::infinity( ),
+                    1.0E-15,
+                    1.0E-12 );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////        PROVIDE OUTPUT TO CONSOLE AND FILES           //////////////////////////////////////////
@@ -231,9 +212,7 @@ int main( )
                                           std::numeric_limits< double >::digits10,
                                           "," );
 
-
     // Final statement.
     // The exit code EXIT_SUCCESS indicates that the program was successfully executed.
     return EXIT_SUCCESS;
 }
-

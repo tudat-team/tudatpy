@@ -35,7 +35,7 @@ namespace propagators
 template< typename StateScalarType = double >
 StateScalarType calculateEnckeQFunction( const StateScalarType qValue )
 {
-    StateScalarType powerTerm =  mathematical_constants::getFloatingInteger< StateScalarType >( 1 )  +
+    StateScalarType powerTerm = mathematical_constants::getFloatingInteger< StateScalarType >( 1 ) +
             mathematical_constants::getFloatingInteger< StateScalarType >( 2 ) * qValue;
     return mathematical_constants::getFloatingInteger< StateScalarType >( 1 ) - 1.0 / ( powerTerm * std::sqrt( powerTerm ) );
 }
@@ -47,10 +47,9 @@ StateScalarType calculateEnckeQFunction( const StateScalarType qValue )
  * See e.g. Wakker, astro II for mathematical details.
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class NBodyEnckeStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
+class NBodyEnckeStateDerivative : public NBodyStateDerivative< StateScalarType, TimeType >
 {
 public:
-
     //! Constructor, computes required reference quantities, and removes central gravity from acceleration list.
     /*!
      * Constructor, computes required reference quantities, and removes central gravity from acceleration list. For
@@ -72,26 +71,20 @@ public:
                                const std::vector< std::string >& bodiesToIntegrate,
                                const std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& initialKeplerElements,
                                const TimeType& initialTime ):
-        NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, encke, bodiesToIntegrate, true ),
-        initialKeplerElements_( initialKeplerElements ),
-        initialTime_( initialTime ),
-        currentKeplerOrbitTime_( TUDAT_NAN )
+        NBodyStateDerivative< StateScalarType, TimeType >( accelerationModelsPerBody, centralBodyData, encke, bodiesToIntegrate, true ),
+        initialKeplerElements_( initialKeplerElements ), initialTime_( initialTime ), currentKeplerOrbitTime_( TUDAT_NAN )
     {
         currentKeplerianOrbitCartesianState_.resize( bodiesToIntegrate.size( ) );
 
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
-        centralBodyGravitationalParameters_ =
-                removeCentralGravityAccelerations(
-                    centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
-                    this->accelerationModelsPerBody_, this->removedCentralAccelerations_ );
+        centralBodyGravitationalParameters_ = removeCentralGravityAccelerations( centralBodyData->getCentralBodies( ),
+                                                                                 this->bodiesToBeIntegratedNumerically_,
+                                                                                 this->accelerationModelsPerBody_,
+                                                                                 this->removedCentralAccelerations_ );
 
         // Create root-finder for Kepler orbit propagation
-        rootFinder_ = root_finders::createRootFinder< StateScalarType >(
-                    root_finders::newtonRaphsonRootFinderSettings(
-                        TUDAT_NAN, 5.0 * std::numeric_limits< StateScalarType >::epsilon( ),
-                        TUDAT_NAN, 50, root_finders::accept_result ) );
-
+        rootFinder_ = root_finders::createRootFinder< StateScalarType >( root_finders::newtonRaphsonRootFinderSettings(
+                TUDAT_NAN, 5.0 * std::numeric_limits< StateScalarType >::epsilon( ), TUDAT_NAN, 50, root_finders::accept_result ) );
 
         this->createAccelerationModelList( );
     }
@@ -119,10 +112,9 @@ public:
      *  \param stateDerivative Current derivative of Encke state (velocity + acceleration w.r.t. reference Kepler orbit) of
      *  system of bodies integrated numerically (returned by reference).
      */
-    void calculateSystemStateDerivative(
-            const TimeType time,
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
+    void calculateSystemStateDerivative( const TimeType time,
+                                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+                                         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         stateDerivative.setZero( );
 
@@ -130,8 +122,7 @@ public:
         calculateKeplerTrajectoryCartesianStates( time );
 
         // Get Cartesian state derivative for all bodies of Encke state (excluding central gravitational accelerations).
-        this->sumStateDerivativeContributions(
-                    stateOfSystemToBeIntegrated, stateDerivative, true );
+        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, true );
 
         // Initialize Encke algorithm variables.
         StateScalarType qValue = 0.0;
@@ -149,18 +140,16 @@ public:
             keplerianRadius = currentKeplerianOrbitCartesianState_[ i ].segment( 0, 3 ).norm( );
 
             // Calculate Encke algorithm variables.
-            qValue = positionPerturbation.dot( currentKeplerianOrbitCartesianState_[ i ].segment( 0, 3 ) +
-                                               0.5 * positionPerturbation ) / ( keplerianRadius * keplerianRadius );
+            qValue = positionPerturbation.dot( currentKeplerianOrbitCartesianState_[ i ].segment( 0, 3 ) + 0.5 * positionPerturbation ) /
+                    ( keplerianRadius * keplerianRadius );
             qFunction = calculateEnckeQFunction( qValue );
 
             // Update state derivative with Encke term.
-            stateDerivative.block( i * 6 + 3, 0, 3, 1 ) += static_cast< StateScalarType >(
-                        centralBodyGravitationalParameters_[ i ]( ) ) /
-                    ( keplerianRadius * keplerianRadius * keplerianRadius ) * (
-                        ( positionPerturbation + currentKeplerianOrbitCartesianState_[ i ].segment( 0, 3 ) ) * qFunction -
-                        positionPerturbation );
+            stateDerivative.block( i * 6 + 3, 0, 3, 1 ) += static_cast< StateScalarType >( centralBodyGravitationalParameters_[ i ]( ) ) /
+                    ( keplerianRadius * keplerianRadius * keplerianRadius ) *
+                    ( ( positionPerturbation + currentKeplerianOrbitCartesianState_[ i ].segment( 0, 3 ) ) * qFunction -
+                      positionPerturbation );
         }
-
     }
 
     //! Function to convert the state in the conventional form to the Encke-propagator-specific form.
@@ -188,7 +177,6 @@ public:
         }
 
         return currentState;
-
     }
 
     //! Function to convert the Encke-propagator-specific form of the state to the conventional form.
@@ -205,9 +193,9 @@ public:
      * \param currentCartesianLocalSoluton State (internalSolution, which is Encke-formulation),
      *  converted to the 'conventional form'.
      */
-    void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
+    void convertToOutputSolution( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
+                                  const TimeType& time,
+                                  Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
         // Calculate Keplerian orbit state around centeal bodies.
         calculateKeplerTrajectoryCartesianStates( time );
@@ -215,32 +203,29 @@ public:
         // Add Keplerian state to perturbation from Encke algorithm to get Cartesian state in local frames.
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianLocalSoluton.block( i * 6, 0, 6, 1 ) = currentKeplerianOrbitCartesianState_[ i ] +
-                    internalSolution.block( i * 6, 0, 6, 1 );
+            currentCartesianLocalSoluton.block( i * 6, 0, 6, 1 ) =
+                    currentKeplerianOrbitCartesianState_[ i ] + internalSolution.block( i * 6, 0, 6, 1 );
         }
     }
 
-
 private:
-
     //! Function to calculate and set the reference Kepler orbit in Cartesian coordinates for given body.
     /*!
      * Function to calculate and set the reference Kepler orbit in Cartesian coordinates for given body.
      * \param time Time at which Kepler orbit is to be computed.
      * \param bodyIndex Index in list of bodies for which Kepler orbit is to be computed.
      */
-    void calculateKeplerTrajectoryCartesianState(
-            const TimeType time,
-            const int bodyIndex )
+    void calculateKeplerTrajectoryCartesianState( const TimeType time, const int bodyIndex )
     {
         // Propagate Kepler orbit to current time and set.
         currentKeplerianOrbitCartesianState_[ bodyIndex ] =
                 orbital_element_conversions::convertKeplerianToCartesianElements< StateScalarType >(
-                    orbital_element_conversions::propagateKeplerOrbit< StateScalarType >(
-                        initialKeplerElements_.at( bodyIndex ), static_cast< StateScalarType >( time - initialTime_ ),
-                        static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( bodyIndex )( ) ),
-                        rootFinder_ ),
-                    static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( bodyIndex )( ) ) );
+                        orbital_element_conversions::propagateKeplerOrbit< StateScalarType >(
+                                initialKeplerElements_.at( bodyIndex ),
+                                static_cast< StateScalarType >( time - initialTime_ ),
+                                static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( bodyIndex )( ) ),
+                                rootFinder_ ),
+                        static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( bodyIndex )( ) ) );
     }
 
     //! Function to calculate and set the reference Kepler orbit in Cartesian coordinates for all bodies.
@@ -248,8 +233,7 @@ private:
      * Function to calculate and set the reference Kepler orbit in Cartesian coordinates for all bodies.
      * \param time Time at which Kepler orbits are to be computed.
      */
-    void calculateKeplerTrajectoryCartesianStates(
-            const TimeType time )
+    void calculateKeplerTrajectoryCartesianStates( const TimeType time )
     {
         // Check if update is neede.
         if( !( currentKeplerOrbitTime_ == time ) )
@@ -270,11 +254,10 @@ private:
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > initialKeplerElements_;
 
     //! Time at which the initialKeplerElements provide the reference Keper orbit.
-    TimeType initialTime_ ;
+    TimeType initialTime_;
 
     //! Central body accelerations for each propagated body, which has been removed from accelerationModelsPerBody_/
-    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
-    centralAccelerations_;
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > centralAccelerations_;
 
     //! Root finder used to propagate Kepler orbit.
     std::shared_ptr< root_finders::RootFinder< StateScalarType > > rootFinder_;
@@ -286,15 +269,12 @@ private:
     //! Time at which the currentKeplerianOrbitCartesianState_ provide the Cartesian representation of the
     //! referfence Kepler state.
     TimeType currentKeplerOrbitTime_;
-
-
 };
 
-//extern template class NBodyEnckeStateDerivative< double, double >;
+// extern template class NBodyEnckeStateDerivative< double, double >;
 
+}  // namespace propagators
 
-} // namespace propagators
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_NBODYENCKESTATEDERIVATIVE_H
+#endif  // TUDAT_NBODYENCKESTATEDERIVATIVE_H

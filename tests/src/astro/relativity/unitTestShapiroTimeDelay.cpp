@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
@@ -36,30 +35,31 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
     Eigen::Vector6d groundStationState;
     groundStationState << 0.0, 0.0, 6378.0, 0.0, 0.0, 0.0;
     Eigen::Vector6d satelliteState;
-    satelliteState  <<  0.0, 0.0, 26600.0, 0.0, 0.0, 0.0;
+    satelliteState << 0.0, 0.0, 26600.0, 0.0, 0.0, 0.0;
     Eigen::Vector6d centralBodyPosition = Eigen::Vector6d::Zero( );
 
-    std::shared_ptr< ConstantEphemeris > ephemeris = std::make_shared< ConstantEphemeris >(
-                [ & ]( ){ return centralBodyPosition; } );
+    std::shared_ptr< ConstantEphemeris > ephemeris = std::make_shared< ConstantEphemeris >( [ & ]( ) { return centralBodyPosition; } );
 
     double earthGravitationalParameter = 398600.44189E9;
 
-    double directCalculation = calculateFirstOrderLightTimeCorrectionFromCentralBody(
-                earthGravitationalParameter, groundStationState.segment( 0, 3 ),
-                satelliteState.segment( 0, 3 ), centralBodyPosition.segment( 0, 3 ) );
+    double directCalculation = calculateFirstOrderLightTimeCorrectionFromCentralBody( earthGravitationalParameter,
+                                                                                      groundStationState.segment( 0, 3 ),
+                                                                                      satelliteState.segment( 0, 3 ),
+                                                                                      centralBodyPosition.segment( 0, 3 ) );
 
     std::vector< std::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions;
     std::vector< std::function< double( ) > > perturbingBodyGravitationalParameterFunctions;
 
     perturbingBodyStateFunctions.push_back( std::bind( &Ephemeris::getCartesianState, ephemeris, std::placeholders::_1 ) );
-    perturbingBodyGravitationalParameterFunctions.push_back( [ & ]( ){ return earthGravitationalParameter; } );
+    perturbingBodyGravitationalParameterFunctions.push_back( [ & ]( ) { return earthGravitationalParameter; } );
 
-    FirstOrderLightTimeCorrectionCalculator correctionCalculator(
-                perturbingBodyStateFunctions, perturbingBodyGravitationalParameterFunctions,
-                std::vector< std::string >{ "Earth" }, "Satellite", "Earth" );
+    FirstOrderLightTimeCorrectionCalculator correctionCalculator( perturbingBodyStateFunctions,
+                                                                  perturbingBodyGravitationalParameterFunctions,
+                                                                  std::vector< std::string >{ "Earth" },
+                                                                  "Satellite",
+                                                                  "Earth" );
 
-    double classInterfaceCalculation = correctionCalculator.calculateLightTimeCorrection(
-                groundStationState, satelliteState, 0.0, 0.0 );
+    double classInterfaceCalculation = correctionCalculator.calculateLightTimeCorrection( groundStationState, satelliteState, 0.0, 0.0 );
 
     // Living reviews in relativity, GPS.
     double expectedResult = 6.3E-3;
@@ -73,15 +73,16 @@ BOOST_AUTO_TEST_CASE( testShapiroDelayGradient )
     Eigen::Vector6d groundStationState;
     groundStationState << -513.0E3, 120E3, 6378.0E3, 0.0, 0.0, 0.0;
     Eigen::Vector6d satelliteState;
-    satelliteState  <<  324.0E3, 1434.0E3, 26600.0E3, 0.0, 0.0, 0.0;
+    satelliteState << 324.0E3, 1434.0E3, 26600.0E3, 0.0, 0.0, 0.0;
     Eigen::Vector6d centralBodyPosition;
-    centralBodyPosition  <<  -80.0E3, 120.0E3, 1.0E3, 0.0, 0.0, 0.0;
+    centralBodyPosition << -80.0E3, 120.0E3, 1.0E3, 0.0, 0.0, 0.0;
 
     double earthGravitationalParameter = 398600.44189E15;
 
-    double directCalculation = calculateFirstOrderLightTimeCorrectionFromCentralBody(
-        earthGravitationalParameter, groundStationState.segment( 0, 3 ),
-        satelliteState.segment( 0, 3 ), centralBodyPosition.segment( 0, 3 ) );
+    double directCalculation = calculateFirstOrderLightTimeCorrectionFromCentralBody( earthGravitationalParameter,
+                                                                                      groundStationState.segment( 0, 3 ),
+                                                                                      satelliteState.segment( 0, 3 ),
+                                                                                      centralBodyPosition.segment( 0, 3 ) );
 
     double positionPerturbation = 1.0E2;
 
@@ -97,49 +98,56 @@ BOOST_AUTO_TEST_CASE( testShapiroDelayGradient )
     {
         perturbedSatelliteState = satelliteState;
         perturbedSatelliteState( i ) += positionPerturbation;
-        double upperturbedLightTime = calculateFirstOrderLightTimeCorrectionFromCentralBody(
-            earthGravitationalParameter, groundStationState.segment( 0, 3 ),
-            perturbedSatelliteState.segment( 0, 3 ), centralBodyPosition.segment( 0, 3 ) );
-        
+        double upperturbedLightTime = calculateFirstOrderLightTimeCorrectionFromCentralBody( earthGravitationalParameter,
+                                                                                             groundStationState.segment( 0, 3 ),
+                                                                                             perturbedSatelliteState.segment( 0, 3 ),
+                                                                                             centralBodyPosition.segment( 0, 3 ) );
+
         perturbedSatelliteState = satelliteState;
         perturbedSatelliteState( i ) -= positionPerturbation;
-        double downperturbedLightTime = calculateFirstOrderLightTimeCorrectionFromCentralBody(
-            earthGravitationalParameter, groundStationState.segment( 0, 3 ),
-            perturbedSatelliteState.segment( 0, 3 ), centralBodyPosition.segment( 0, 3 ) );
+        double downperturbedLightTime = calculateFirstOrderLightTimeCorrectionFromCentralBody( earthGravitationalParameter,
+                                                                                               groundStationState.segment( 0, 3 ),
+                                                                                               perturbedSatelliteState.segment( 0, 3 ),
+                                                                                               centralBodyPosition.segment( 0, 3 ) );
 
         numericalLightTimePartialWrtReceiver( i ) = ( upperturbedLightTime - downperturbedLightTime ) / ( 2.0 * positionPerturbation );
 
         perturbedStationState = groundStationState;
         perturbedStationState( i ) += positionPerturbation;
-        upperturbedLightTime = calculateFirstOrderLightTimeCorrectionFromCentralBody(
-            earthGravitationalParameter, perturbedStationState.segment( 0, 3 ),
-            satelliteState.segment( 0, 3 ), centralBodyPosition.segment( 0, 3 ) );
+        upperturbedLightTime = calculateFirstOrderLightTimeCorrectionFromCentralBody( earthGravitationalParameter,
+                                                                                      perturbedStationState.segment( 0, 3 ),
+                                                                                      satelliteState.segment( 0, 3 ),
+                                                                                      centralBodyPosition.segment( 0, 3 ) );
 
         perturbedStationState = groundStationState;
         perturbedStationState( i ) -= positionPerturbation;
-        downperturbedLightTime = calculateFirstOrderLightTimeCorrectionFromCentralBody(
-            earthGravitationalParameter, perturbedStationState.segment( 0, 3 ),
-            satelliteState.segment( 0, 3 ), centralBodyPosition.segment( 0, 3 ) );
+        downperturbedLightTime = calculateFirstOrderLightTimeCorrectionFromCentralBody( earthGravitationalParameter,
+                                                                                        perturbedStationState.segment( 0, 3 ),
+                                                                                        satelliteState.segment( 0, 3 ),
+                                                                                        centralBodyPosition.segment( 0, 3 ) );
 
         numericalLightTimePartialWrtTransmitter( i ) = ( upperturbedLightTime - downperturbedLightTime ) / ( 2.0 * positionPerturbation );
     }
-    Eigen::Matrix< double, 1, 3 > analyticalLightTimePartialWrtReceiver = calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
-        earthGravitationalParameter, groundStationState.segment( 0, 3 ),
-        satelliteState.segment( 0, 3 ), centralBodyPosition.segment( 0, 3 ), true );
+    Eigen::Matrix< double, 1, 3 > analyticalLightTimePartialWrtReceiver =
+            calculateFirstOrderCentralBodyLightTimeCorrectionGradient( earthGravitationalParameter,
+                                                                       groundStationState.segment( 0, 3 ),
+                                                                       satelliteState.segment( 0, 3 ),
+                                                                       centralBodyPosition.segment( 0, 3 ),
+                                                                       true );
 
-    Eigen::Matrix< double, 1, 3 > analyticalLightTimePartialWrtTransmitter = calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
-        earthGravitationalParameter, groundStationState.segment( 0, 3 ),
-        satelliteState.segment( 0, 3 ), centralBodyPosition.segment( 0, 3 ), false );
+    Eigen::Matrix< double, 1, 3 > analyticalLightTimePartialWrtTransmitter =
+            calculateFirstOrderCentralBodyLightTimeCorrectionGradient( earthGravitationalParameter,
+                                                                       groundStationState.segment( 0, 3 ),
+                                                                       satelliteState.segment( 0, 3 ),
+                                                                       centralBodyPosition.segment( 0, 3 ),
+                                                                       false );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalLightTimePartialWrtReceiver, numericalLightTimePartialWrtReceiver, 1.0E-7 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalLightTimePartialWrtTransmitter, numericalLightTimePartialWrtTransmitter, 1.0E-7 );
-
 }
-
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

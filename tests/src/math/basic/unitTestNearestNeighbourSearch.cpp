@@ -52,12 +52,10 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         vectorOfExpectedIndices << 0, 1, 1, 3, 8;
 
         // Compute nearest left neighbors and check if they match expectations.
-        for ( int i = 0; i < vectorOfTargetValues.rows( ); i++ )
+        for( int i = 0; i < vectorOfTargetValues.rows( ); i++ )
         {
-            BOOST_CHECK_EQUAL(
-                        vectorOfExpectedIndices[ i ],
-                        computeNearestLeftNeighborUsingBinarySearch(
-                            vectorOfSortedData, vectorOfTargetValues[ i ] ) );
+            BOOST_CHECK_EQUAL( vectorOfExpectedIndices[ i ],
+                               computeNearestLeftNeighborUsingBinarySearch( vectorOfSortedData, vectorOfTargetValues[ i ] ) );
         }
     }
 
@@ -89,12 +87,10 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         vectorOfExpectedIndices << 1, 6, 0, 8, 3;
 
         // Compute nearest left neighbors and check if they match expectations.
-        for ( int i = 0; i < vectorOfTargetValues.rows( ); i++ )
+        for( int i = 0; i < vectorOfTargetValues.rows( ); i++ )
         {
-            BOOST_CHECK_EQUAL(
-                        vectorOfExpectedIndices[ i ],
-                        computeNearestLeftNeighborUsingBinarySearch(
-                            mapOfSortedData, vectorOfTargetValues[ i ] ) );
+            BOOST_CHECK_EQUAL( vectorOfExpectedIndices[ i ],
+                               computeNearestLeftNeighborUsingBinarySearch( mapOfSortedData, vectorOfTargetValues[ i ] ) );
         }
     }
 
@@ -130,11 +126,10 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         vectorOfExpectedIndices[ 4 ] = 8;
 
         // Compute nearest left neighbors and check if they match expectations.
-        for ( int i = 0; i < 5; i++ )
+        for( int i = 0; i < 5; i++ )
         {
             BOOST_CHECK_EQUAL( vectorOfExpectedIndices[ i ],
-             computeNearestLeftNeighborUsingBinarySearch< double >(
-                            vectorOfSortedData, vectorOfTargetValues[ i ] ) );
+                               computeNearestLeftNeighborUsingBinarySearch< double >( vectorOfSortedData, vectorOfTargetValues[ i ] ) );
         }
     }
 
@@ -170,14 +165,14 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         vectorOfExpectedIndices[ 4 ] = 8;
 
         // Compute nearest left neighbors and check if they match expectations.
-        for ( int i = 0; i < 5; i++ )
+        for( int i = 0; i < 5; i++ )
         {
             // Check whether each initial guess yields correct result.
             for( int j = 0; j < 9; j++ )
             {
-                BOOST_CHECK_EQUAL( vectorOfExpectedIndices[ i ],
-                    findNearestLeftNeighbourUsingHuntingAlgorithm< double >(
-                    vectorOfTargetValues[ i ], j, vectorOfSortedData ) );
+                BOOST_CHECK_EQUAL(
+                        vectorOfExpectedIndices[ i ],
+                        findNearestLeftNeighbourUsingHuntingAlgorithm< double >( vectorOfTargetValues[ i ], j, vectorOfSortedData ) );
             }
         }
     }
@@ -197,19 +192,16 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         vectorOfExpectedIndices << 0, 0, 0, 1, 1, 2, 4, 8, 9, 9;
 
         // Compute nearest left neighbors and check if they match expectations.
-        for ( int i = 0; i < vectorOfTargetValues.rows( ); i++ )
+        for( int i = 0; i < vectorOfTargetValues.rows( ); i++ )
         {
-            BOOST_CHECK_EQUAL(
-                        vectorOfExpectedIndices[ i ],
-                        computeNearestNeighborUsingBinarySearch(
-                            vectorOfSortedData, vectorOfTargetValues[ i ] ) );
+            BOOST_CHECK_EQUAL( vectorOfExpectedIndices[ i ],
+                               computeNearestNeighborUsingBinarySearch( vectorOfSortedData, vectorOfTargetValues[ i ] ) );
         }
     }
-
 }
 
 //! Close Boost test suite.
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

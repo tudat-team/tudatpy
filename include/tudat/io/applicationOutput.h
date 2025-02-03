@@ -14,8 +14,7 @@ static inline std::string getOutputPath( const std::string& extraDirectory = "" 
     std::string filePath_( __FILE__ );
 
     // Strip filename from temporary string and return root-path string.
-    std::string reducedPath = filePath_.substr( 0, filePath_.length( ) -
-                                std::string( "applicationOutput.h" ).length( ) );
+    std::string reducedPath = filePath_.substr( 0, filePath_.length( ) - std::string( "applicationOutput.h" ).length( ) );
     std::string outputPath = reducedPath + "SimulationOutput/";
     if( extraDirectory != "" )
     {
@@ -29,7 +28,6 @@ static inline std::string getOutputPath( const std::string& extraDirectory = "" 
 
     return outputPath;
 }
-}
+}  // namespace tudat_applications
 
-
-#endif // TUDAT_APPLICATIONOUTPUT_H
+#endif  // TUDAT_APPLICATIONOUTPUT_H

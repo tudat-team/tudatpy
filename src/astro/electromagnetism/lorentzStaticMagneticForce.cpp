@@ -19,15 +19,13 @@ namespace electromagnetism
 {
 
 //! Compute Lorentz Force due to static magnetic field
-Eigen::Vector3d computeLorentzForceDueToStaticMagneticField(
-        const Eigen::Vector3d& velocityOfBodySubjectToAcceleration,
-        const Eigen::Vector3d& localMagneticField,
-        const double chargeOfBodySubjectToAcceleration )
+Eigen::Vector3d computeLorentzForceDueToStaticMagneticField( const Eigen::Vector3d& velocityOfBodySubjectToAcceleration,
+                                                             const Eigen::Vector3d& localMagneticField,
+                                                             const double chargeOfBodySubjectToAcceleration )
 {
-    //Return Lorentz force due to static magnetic field
+    // Return Lorentz force due to static magnetic field
     return chargeOfBodySubjectToAcceleration * velocityOfBodySubjectToAcceleration.cross( localMagneticField );
-
 }
 
-} // namespace electromagnetism
-} // namespace tudat
+}  // namespace electromagnetism
+}  // namespace tudat

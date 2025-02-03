@@ -17,48 +17,9 @@ namespace simulation_setup
 {
 
 //! Function to create control surface aerodynamic coefficient settings fom coefficients stored in data files
-std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
-    readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
-            const std::map< int, std::string > forceCoefficientFiles,
-            const std::map< int, std::string > momentCoefficientFiles,
-            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
-{
-    // Retrieve number of independent variables from file.
-    int numberOfIndependentVariables =
-            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.begin( )->second );
-
-    // Call approriate file reading function for N independent variables
-    std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings;
-    if( numberOfIndependentVariables == 1 )
-    {
-        coefficientSettings = readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles< 1 >(
-                    forceCoefficientFiles, momentCoefficientFiles, independentVariableNames );
-    }
-    else if( numberOfIndependentVariables == 2 )
-    {
-        coefficientSettings = readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles< 2 >(
-                    forceCoefficientFiles, momentCoefficientFiles, independentVariableNames );
-    }
-    else if( numberOfIndependentVariables == 3 )
-    {
-        coefficientSettings = readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles< 3 >(
-                    forceCoefficientFiles, momentCoefficientFiles, independentVariableNames );
-
-    }
-    else
-    {
-        throw std::runtime_error( "Error when reading aerodynamic control increment coefficient settings from file, found " +
-                                  std::to_string( numberOfIndependentVariables ) +
-                                  " independent variables, up to 3 currently supported" );
-    }
-
-    return coefficientSettings;
-}
-
-//! Function to create control surface aerodynamic coefficient settings fom coefficients stored in data files
-std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
-readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
+std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
+        const std::map< int, std::string > momentCoefficientFiles,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
 {
     // Retrieve number of independent variables from file.
@@ -70,31 +31,63 @@ readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
     if( numberOfIndependentVariables == 1 )
     {
         coefficientSettings = readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles< 1 >(
-                    forceCoefficientFiles, independentVariableNames );
+                forceCoefficientFiles, momentCoefficientFiles, independentVariableNames );
     }
     else if( numberOfIndependentVariables == 2 )
     {
         coefficientSettings = readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles< 2 >(
-                    forceCoefficientFiles, independentVariableNames );
+                forceCoefficientFiles, momentCoefficientFiles, independentVariableNames );
     }
     else if( numberOfIndependentVariables == 3 )
     {
         coefficientSettings = readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles< 3 >(
-                    forceCoefficientFiles, independentVariableNames );
+                forceCoefficientFiles, momentCoefficientFiles, independentVariableNames );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when reading aerodynamic control increment coefficient settings from file, found " +
+                                  std::to_string( numberOfIndependentVariables ) + " independent variables, up to 3 currently supported" );
+    }
+
+    return coefficientSettings;
+}
+
+//! Function to create control surface aerodynamic coefficient settings fom coefficients stored in data files
+std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
+        const std::map< int, std::string > forceCoefficientFiles,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
+{
+    // Retrieve number of independent variables from file.
+    int numberOfIndependentVariables =
+            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.begin( )->second );
+
+    // Call approriate file reading function for N independent variables
+    std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings;
+    if( numberOfIndependentVariables == 1 )
+    {
+        coefficientSettings = readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles< 1 >( forceCoefficientFiles,
+                                                                                                           independentVariableNames );
+    }
+    else if( numberOfIndependentVariables == 2 )
+    {
+        coefficientSettings = readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles< 2 >( forceCoefficientFiles,
+                                                                                                           independentVariableNames );
+    }
+    else if( numberOfIndependentVariables == 3 )
+    {
+        coefficientSettings = readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles< 3 >( forceCoefficientFiles,
+                                                                                                           independentVariableNames );
     }
     else
     {
         throw std::runtime_error( "Error when reading aerodynamic coefficient settings from file, found " +
-                                  std::to_string( numberOfIndependentVariables ) +
-                                  " independent variables, up to 3 currently supported" );
+                                  std::to_string( numberOfIndependentVariables ) + " independent variables, up to 3 currently supported" );
     }
     return coefficientSettings;
 }
 
-
 //! Function to tabulated control surface aerodynamic coefficients from associated settings object
-std::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface >
-createControlSurfaceIncrementAerodynamicCoefficientInterface(
+std::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface > createControlSurfaceIncrementAerodynamicCoefficientInterface(
         const std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body )
 {
@@ -105,76 +98,65 @@ createControlSurfaceIncrementAerodynamicCoefficientInterface(
     // Check type of interface that is to be created.
     switch( coefficientSettings->getAerodynamicCoefficientType( ) )
     {
-    case custom_aerodynamic_coefficients:
-    {
-        std::shared_ptr< CustomControlSurfaceIncrementAerodynamicCoefficientSettings > customSettings =
-                std::dynamic_pointer_cast< CustomControlSurfaceIncrementAerodynamicCoefficientSettings >(
-                        coefficientSettings );
-        if( coefficientSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when creating custom aerodynamic coefficient settings; input type is inconsistent" );
-        }
-        coefficientInterface = std::make_shared< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >(
-                customSettings->getCoefficientFunction( ),
-                customSettings->getIndependentVariableNames( ) );
-        break;
-    }
-    case tabulated_coefficients:
-    {
-        // Check number of dimensions of tabulated coefficients.
-        int numberOfDimensions = coefficientSettings->getIndependentVariableNames( ).size( );
-        switch( numberOfDimensions )
-        {
-        case 1:
-        {
-            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 1 >(
-                        coefficientSettings, body );
+        case custom_aerodynamic_coefficients: {
+            std::shared_ptr< CustomControlSurfaceIncrementAerodynamicCoefficientSettings > customSettings =
+                    std::dynamic_pointer_cast< CustomControlSurfaceIncrementAerodynamicCoefficientSettings >( coefficientSettings );
+            if( coefficientSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating custom aerodynamic coefficient settings; input type is inconsistent" );
+            }
+            coefficientInterface = std::make_shared< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >(
+                    customSettings->getCoefficientFunction( ), customSettings->getIndependentVariableNames( ) );
             break;
         }
-        case 2:
-        {
-            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 2 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 3:
-        {
-            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 3 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 4:
-        {
-            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 4 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 5:
-        {
-            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 5 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 6:
-        {
-            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 6 >(
-                        coefficientSettings, body );
+        case tabulated_coefficients: {
+            // Check number of dimensions of tabulated coefficients.
+            int numberOfDimensions = coefficientSettings->getIndependentVariableNames( ).size( );
+            switch( numberOfDimensions )
+            {
+                case 1: {
+                    coefficientInterface =
+                            createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 1 >( coefficientSettings, body );
+                    break;
+                }
+                case 2: {
+                    coefficientInterface =
+                            createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 2 >( coefficientSettings, body );
+                    break;
+                }
+                case 3: {
+                    coefficientInterface =
+                            createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 3 >( coefficientSettings, body );
+                    break;
+                }
+                case 4: {
+                    coefficientInterface =
+                            createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 4 >( coefficientSettings, body );
+                    break;
+                }
+                case 5: {
+                    coefficientInterface =
+                            createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 5 >( coefficientSettings, body );
+                    break;
+                }
+                case 6: {
+                    coefficientInterface =
+                            createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 6 >( coefficientSettings, body );
+                    break;
+                }
+                default:
+                    throw std::runtime_error( "Error when making tabulated control surface aerodynamic coefficient interface, " +
+                                              std::to_string( numberOfDimensions ) + " dimensions not yet implemented" );
+            }
             break;
         }
         default:
-            throw std::runtime_error( "Error when making tabulated control surface aerodynamic coefficient interface, " +
-                                      std::to_string( numberOfDimensions ) + " dimensions not yet implemented" );
-        }
-        break;
+            throw std::runtime_error( "Error, do not recognize control surface aerodynamic coefficient settings for " + body );
     }
-    default:
-        throw std::runtime_error( "Error, do not recognize control surface aerodynamic coefficient settings for " + body );
-    }
-
 
     return coefficientInterface;
 }
 
-}
+}  // namespace simulation_setup
 
-}
+}  // namespace tudat

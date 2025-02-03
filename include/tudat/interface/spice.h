@@ -15,4 +15,4 @@
 #include "spice/spiceInterface.h"
 #include "spice/spiceRotationalEphemeris.h"
 
-#endif // TUDAT_SPICE_H
+#endif  // TUDAT_SPICE_H

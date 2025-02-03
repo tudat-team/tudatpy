@@ -15,7 +15,6 @@
 
 #include <functional>
 
-
 #include <Eigen/Geometry>
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
@@ -37,12 +36,10 @@ namespace observation_models
  * observable is a Vector of size 3, with entries [alpha,beta,gamma], where the inertial-to-body-fixed rotation matrix is
  * defined as R=R_z(alpha)R_x(beta)R_z(gamma).
  */
-template< typename ObservationScalarType = double,
-          typename TimeType = double >
-class EulerAngle313ObservationModel: public ObservationModel< 3, ObservationScalarType, TimeType >
+template< typename ObservationScalarType = double, typename TimeType = double >
+class EulerAngle313ObservationModel : public ObservationModel< 3, ObservationScalarType, TimeType >
 {
-public:    
-
+public:
     //! Constructor
     /*!
      * Constructor
@@ -50,15 +47,15 @@ public:
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none)
      */
-    EulerAngle313ObservationModel(
-            const LinkEnds linkEnds,
-            const std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction,
-            const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
+    EulerAngle313ObservationModel( const LinkEnds linkEnds,
+                                   const std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction,
+                                   const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
         ObservationModel< 3, ObservationScalarType, TimeType >( euler_angle_313_observable, linkEnds, observationBiasCalculator ),
-      toBodyFixedFrameFunction_( toBodyFixedFrameFunction ){ }
+        toBodyFixedFrameFunction_( toBodyFixedFrameFunction )
+    { }
 
     //! Destructor
-    ~EulerAngle313ObservationModel( ){ }
+    ~EulerAngle313ObservationModel( ) { }
 
     //! Function to compute ideal Euler angle observation at given time.
     /*!
@@ -73,17 +70,16 @@ public:
      *  \return Ideal Euler angle position observable.
      */
     Eigen::Matrix< ObservationScalarType, 3, 1 > computeIdealObservationsWithLinkEndData(
-                    const TimeType time,
-                    const LinkEndType linkEndAssociatedWithTime,
-                    std::vector< double >& linkEndTimes,
-                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         // Check link end
         if( linkEndAssociatedWithTime != observed_body )
         {
-            throw std::runtime_error(
-                        "Error when computing position observable, associated link end must be observed_body " );
+            throw std::runtime_error( "Error when computing position observable, associated link end must be observed_body " );
         }
 
         if( ancilliarySetings != nullptr )
@@ -98,18 +94,17 @@ public:
         linkEndStates.clear( );
         linkEndStates.push_back( Eigen::Matrix< double, 6, 1 >::Constant( TUDAT_NAN ) );
 
-        return basic_mathematics::get313EulerAnglesFromQuaternion(
-                    toBodyFixedFrameFunction_( time ) ).template cast< ObservationScalarType >( );
+        return basic_mathematics::get313EulerAnglesFromQuaternion( toBodyFixedFrameFunction_( time ) )
+                .template cast< ObservationScalarType >( );
     }
 
 private:
-
     //! Function that returns the rotation from inertial to body-fixed frame as a function of time
     std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction_;
 };
 
-} // namespace observation_models
+}  // namespace observation_models
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_EULERANGLEOBSERVATIONMODEL_H
+#endif  // TUDAT_EULERANGLEOBSERVATIONMODEL_H

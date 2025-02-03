@@ -23,8 +23,7 @@ std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
     std::function< Eigen::VectorXd( const double ) > noiseFunction;
     if( observableSize != 1 )
     {
-        noiseFunction = [=]( const double time )
-        {
+        noiseFunction = [ = ]( const double time ) {
             Eigen::VectorXd noise = Eigen::VectorXd::Zero( observableSize );
             for( int i = 0; i < observableSize; i++ )
             {
@@ -35,16 +34,14 @@ std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
     }
     else
     {
-        noiseFunction = [=]( const double time ){ return ( Eigen::VectorXd( 1 )<<singleNoiseFunction( time ) ).finished( ); };
+        noiseFunction = [ = ]( const double time ) { return ( Eigen::VectorXd( 1 ) << singleNoiseFunction( time ) ).finished( ); };
     }
     return noiseFunction;
 }
 
-
-Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
-        const std::function< double( const double ) > noiseFunction,
-        const int observationSize,
-        const double evaluationTime )
+Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise( const std::function< double( const double ) > noiseFunction,
+                                                                const int observationSize,
+                                                                const double evaluationTime )
 {
     Eigen::VectorXd noiseValues = Eigen::VectorXd( observationSize );
     for( int i = 0; i < observationSize; i++ )
@@ -54,11 +51,10 @@ Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
     return noiseValues;
 }
 
+// template class ObservationSimulationSettings< double >;
+// template class TabulatedObservationSimulationSettings< double >;
+// template class PerArcObservationSimulationSettings< double >;
 
-//template class ObservationSimulationSettings< double >;
-//template class TabulatedObservationSimulationSettings< double >;
-//template class PerArcObservationSimulationSettings< double >;
+}  // namespace simulation_setup
 
-}
-
-}
+}  // namespace tudat

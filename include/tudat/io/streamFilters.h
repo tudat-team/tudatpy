@@ -39,7 +39,6 @@ namespace stream_filters
 class RemoveComment : public boost::iostreams::line_filter
 {
 public:
-
     //! Create a comment filter for a given start comment character.
     /*!
      * Creates a comment filter for a given start comment character.
@@ -49,15 +48,13 @@ public:
      * \param isOmitIfEmpty True if a line should be removed when a complete line is filtered away.
      *                      (When the 'skipCharacter' is the first character on the line)
      */
-    RemoveComment( char skipCharacter = '#', bool isOmitIfEmpty = true )
-        : boost::iostreams::line_filter( true ), 
-          skipCharacter_( skipCharacter ),
-          isOmitIfEmpty_( isOmitIfEmpty ) 
+    RemoveComment( char skipCharacter = '#', bool isOmitIfEmpty = true ):
+        boost::iostreams::line_filter( true ), skipCharacter_( skipCharacter ), isOmitIfEmpty_( isOmitIfEmpty )
     { }
 
     //! Remove comments in a single line.
     /*!
-     * Executes filter to remove comments from input line of data. 
+     * Executes filter to remove comments from input line of data.
      * For more information see boost::iostreams::line_filter (overrides definition of line_filter
      * to enable chaining of filters).
      * \param line Unfiltered line.
@@ -66,7 +63,6 @@ public:
     std::string do_filter( const std::string& line );
 
 private:
-
     //! Skip character.
     /*!
      * Character that initiates a comment.
@@ -88,27 +84,23 @@ private:
 class SkipFirstLines : public boost::iostreams::line_filter
 {
 public:
-
     //! Create a filter to skip a given amount of lines.
     /*!
      * Creates a filter to skip a given amount of lines by passing in the number of lines to skip
-     * and the action for empty lines. 
+     * and the action for empty lines.
      * Note that the variable "line_filter" is set to true, to indicate to Boost not to append
      * newline characters.
      * \param linesToSkip Number of lines (counted sequentially from the stream head) to discard.
      * \param isOmitIfEmpty True if a line should be removed when a complete line is filtered away.
      *       (If false, there will be 'linesToSkip' newline characters is the start of the stream.)
      */
-    SkipFirstLines( unsigned int linesToSkip = 0, bool isOmitIfEmpty = true )
-        : boost::iostreams::line_filter( true ), 
-          linesToSkip_( linesToSkip ),
-          numberOfSkippedLines_( 0 ), 
-          isOmitIfEmpty_( isOmitIfEmpty ) 
+    SkipFirstLines( unsigned int linesToSkip = 0, bool isOmitIfEmpty = true ):
+        boost::iostreams::line_filter( true ), linesToSkip_( linesToSkip ), numberOfSkippedLines_( 0 ), isOmitIfEmpty_( isOmitIfEmpty )
     { }
 
     //! Execute filter on the input line by skipping if required.
     /*!
-     * This object will ignore the first 'linesToSkip_' number of passed in lines before returning 
+     * This object will ignore the first 'linesToSkip_' number of passed in lines before returning
      * the same line.
      * For more information see boost::iostreams::line_filter (overrides definition of line_filter
      * to enable chaining of filters).
@@ -118,7 +110,6 @@ public:
     std::string do_filter( const std::string& line );
 
 private:
-
     //! Lines to skip.
     /*!
      * Lines to skip, counted sequentially from the head of a stream.
@@ -143,9 +134,9 @@ private:
  * This filter allows the user to perform a search&replace operation on a stream (line based).
  * If a match is found, it is replaced by the given replace string.
  *
- * The search pattern is created using a regex expression (boost::regex). The following are example 
+ * The search pattern is created using a regex expression (boost::regex). The following are example
  * search queries:
- * 
+ *
  * Search for keyword:                      'myKeyWord'
  *      This will match all exact matches of 'myKeyWord'.
  *
@@ -161,26 +152,22 @@ private:
 class ReplaceElements : public boost::iostreams::line_filter
 {
 public:
-
     //! Create filter with a regex object and replace string.
     /*!
      * Creates a ReplaceElements filter with a provided regex search pattern object and a
      * replacement for any matches. If you want to remove any match leave replaceString empty.
-     * Note that "line_filter" is set to true, to indicate to Boost not to append newline 
+     * Note that "line_filter" is set to true, to indicate to Boost not to append newline
      * characters.
      * \param searchFilter Regex search pattern to search for.
      * \param replaceString String to replace any search matches with.
      * \param isOmitIfEmpty True if a line should be removed when a complete line is filtered away.
      *              (If true, if an entire line is removed, no newline character will be returned.)
      */
-    ReplaceElements( boost::regex searchFilter, std::string replaceString="",
-                     bool isOmitIfEmpty = true )
-        : boost::iostreams::line_filter( true ), 
-          searchFilter_( searchFilter ),
-          replaceString_( replaceString ), 
-          isOmitIfEmpty_( isOmitIfEmpty ) 
+    ReplaceElements( boost::regex searchFilter, std::string replaceString = "", bool isOmitIfEmpty = true ):
+        boost::iostreams::line_filter( true ), searchFilter_( searchFilter ), replaceString_( replaceString ),
+        isOmitIfEmpty_( isOmitIfEmpty )
     { }
-    
+
     //! Create filter with a basic search and replace string.
     /*!
      * Creates a ReplaceElements filter with a provided search string object and a
@@ -192,8 +179,7 @@ public:
      * \param isOmitIfEmpty True if a line should be removed when a complete line is filtered away.
      *              (If true, if an entire line is removed, no newline character will be returned.)
      */
-    ReplaceElements( std::string searchFilter, std::string replaceString = "",
-                     bool isOmitIfEmpty = true );
+    ReplaceElements( std::string searchFilter, std::string replaceString = "", bool isOmitIfEmpty = true );
 
     //! Execute filter on a single line to replace matched elements with replace string.
     /*!
@@ -206,7 +192,6 @@ public:
     std::string do_filter( const std::string& line );
 
 private:
-
     //! Search pattern.
     /*!
      * Search pattern used to find matches to replace.
@@ -227,8 +212,8 @@ private:
     bool isOmitIfEmpty_;
 };
 
-} // namespace stream_filters
-} // namespace input_output
-} // namespace tudat
+}  // namespace stream_filters
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_STREAM_FILTERS_H
+#endif  // TUDAT_STREAM_FILTERS_H

@@ -11,7 +11,6 @@
 #ifndef TUDAT_CREATETORQUEMODEL_H
 #define TUDAT_CREATETORQUEMODEL_H
 
-
 #include "tudat/astro/basic_astro/torqueModel.h"
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -70,13 +69,13 @@ std::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSecon
 //! Function to create a spherical harmonic gravitational torque
 /*!
  * Function to create spherical harmonic gravitational torque, exerted by a point mass
-*  \param bodyUndergoingTorque Pointer to object of body that is being accelerated.
-*  \param bodyExertingTorque Pointer to object of body that is exerting the gravitational torque.
-*  \param torqueSettings Settings for the torque that is to be created
-*  \param nameOfBodyUndergoingTorque Name of body that is being accelerated.
-*  \param nameOfBodyExertingTorque Name of body that is exerting the gravitational torque.
-*  \return Direct gravitational torque model of requested settings.
-*/
+ *  \param bodyUndergoingTorque Pointer to object of body that is being accelerated.
+ *  \param bodyExertingTorque Pointer to object of body that is exerting the gravitational torque.
+ *  \param torqueSettings Settings for the torque that is to be created
+ *  \param nameOfBodyUndergoingTorque Name of body that is being accelerated.
+ *  \param nameOfBodyExertingTorque Name of body that is exerting the gravitational torque.
+ *  \return Direct gravitational torque model of requested settings.
+ */
 std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > createSphericalHarmonicGravitationalTorqueModel(
         const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
@@ -85,16 +84,15 @@ std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > create
         const std::string& nameOfBodyExertingTorque );
 
 std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureTorque > createRadiationPressureTorqueModel(
-    const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
-    const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
-    const std::shared_ptr< TorqueSettings > torqueSettings,
-    const std::string& nameOfBodyUndergoingTorque,
-    const std::string& nameOfBodyExertingTorque,
-    const SystemOfBodies& bodies );
-
-std::shared_ptr< basic_astrodynamics::CustomTorqueModel > createCustomTorqueModel(
+        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::shared_ptr< TorqueSettings > torqueSettings,
-        const std::string& nameOfBodyUndergoingTorque );
+        const std::string& nameOfBodyUndergoingTorque,
+        const std::string& nameOfBodyExertingTorque,
+        const SystemOfBodies& bodies );
+
+std::shared_ptr< basic_astrodynamics::CustomTorqueModel > createCustomTorqueModel( const std::shared_ptr< TorqueSettings > torqueSettings,
+                                                                                   const std::string& nameOfBodyUndergoingTorque );
 
 //! Function to create torque model object.
 /*!
@@ -107,13 +105,12 @@ std::shared_ptr< basic_astrodynamics::CustomTorqueModel > createCustomTorqueMode
  *  \param nameOfBodyExertingTorque Name of object of body that is exerting the torque.
  *  \return Torque model pointer.
  */
-std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
-        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
-        const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
-        const std::shared_ptr< TorqueSettings > torqueSettings,
-        const std::string& nameOfBodyUndergoingTorque,
-        const std::string& nameOfBodyExertingTorque,
-        const SystemOfBodies& bodies );
+std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel( const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+                                                                       const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+                                                                       const std::shared_ptr< TorqueSettings > torqueSettings,
+                                                                       const std::string& nameOfBodyUndergoingTorque,
+                                                                       const std::string& nameOfBodyExertingTorque,
+                                                                       const SystemOfBodies& bodies );
 
 //! Function to create torque models from a map of bodies and torque model settings.
 /*!
@@ -126,13 +123,12 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
  *  \param propagatedBodies List of bodies that are to be propagated.
  *  \return Torque models for the input map of bodies, based on the torque model settings.
  */
-basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
-        const SystemOfBodies& bodies,
-        SelectedTorqueMap selectedTorquePerBody,
-        const std::vector< std::string >& propagatedBodies );
+basic_astrodynamics::TorqueModelMap createTorqueModelsMap( const SystemOfBodies& bodies,
+                                                           SelectedTorqueMap selectedTorquePerBody,
+                                                           const std::vector< std::string >& propagatedBodies );
 
 }  // namespace simulation_setup
 
 }  // namespace tudat
 
-#endif // TUDAT_CREATETORQUEMODEL_H
+#endif  // TUDAT_CREATETORQUEMODEL_H

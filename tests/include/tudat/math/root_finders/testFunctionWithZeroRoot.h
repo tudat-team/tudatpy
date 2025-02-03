@@ -31,16 +31,12 @@ namespace unit_tests
  *      f(x) = x^{2}
  * \f]
  */
-struct TestFunctionWithZeroRoot : public TestFunction,
-        public basic_mathematics::BasicFunction< double, double >
-{
+struct TestFunctionWithZeroRoot : public TestFunction, public basic_mathematics::BasicFunction< double, double > {
     //! Maximum order of the derivative before throwing an exception.
     unsigned int maximumDerivativeOrder;
 
     //! Create a function, where aMaximumDerivativeOrder is the maximum order of the derivative.
-    TestFunctionWithZeroRoot( unsigned int aMaximumDerivativeOrder )
-        : maximumDerivativeOrder( aMaximumDerivativeOrder )
-    { }
+    TestFunctionWithZeroRoot( unsigned int aMaximumDerivativeOrder ): maximumDerivativeOrder( aMaximumDerivativeOrder ) { }
 
     //! Mathematical test function.
     double evaluate( double inputValue )
@@ -51,27 +47,27 @@ struct TestFunctionWithZeroRoot : public TestFunction,
 
     //! Derivatives of mathematical test function.
     double computeDerivative( const unsigned int order, const double inputValue )
-    { 
+    {
         // Sanity check.
-        if ( order > maximumDerivativeOrder )
+        if( order > maximumDerivativeOrder )
         {
             throw std::runtime_error( "The rootfinder should not evaluate higher derivatives!" );
         }
 
         // Return the analytical expression for the derivatives.
-        if ( order == 0 )
+        if( order == 0 )
         {
             // Return the function value: y = inputValue^2.
             return evaluate( inputValue );
         }
 
-        else if ( order == 1 )
+        else if( order == 1 )
         {
             // Return the first derivative function value: y = 2 * inputValue.
             return 2.0 * inputValue;
         }
 
-        else if ( order == 2 )
+        else if( order == 2 )
         {
             // Return the second derivative function value: y = 2.
             return 2.0;
@@ -79,14 +75,12 @@ struct TestFunctionWithZeroRoot : public TestFunction,
 
         else
         {
-            throw std::runtime_error(
-                        "An error occured when evaluating the order of the derivative." );
+            throw std::runtime_error( "An error occured when evaluating the order of the derivative." );
         }
     }
 
     //! Crash on integration as root_finders should not execute these.
-    double computeDefiniteIntegral( const unsigned int order, const double lowerBound,
-                                    const double upperbound )
+    double computeDefiniteIntegral( const unsigned int order, const double lowerBound, const double upperbound )
     {
         throw std::runtime_error( "The rootfinder should not evaluate integrals!" );
     }
@@ -96,14 +90,20 @@ struct TestFunctionWithZeroRoot : public TestFunction,
      * Returns the expected true location of the function root, here 0.0.
      * \return True location of the root.
      */
-    double getTrueRootLocation( ) { return 0.0; }
-    
+    double getTrueRootLocation( )
+    {
+        return 0.0;
+    }
+
     //! Get the accuracy of the true location of the root.
     /*!
      * Returns the accuracy of the true location of the function root, here 1e-308.
      * \return Accuracy of the true location of the root.
      */
-    double getTrueRootAccuracy( ) { return 1e-308; }
+    double getTrueRootAccuracy( )
+    {
+        return 1e-308;
+    }
 
     //! Get a reasonable initial guess of the root location.
     /*!
@@ -111,7 +111,10 @@ struct TestFunctionWithZeroRoot : public TestFunction,
      *
      * \return Initial guess for the true location of the function root.
      */
-    double getInitialGuess( ) { return 2.0; }
+    double getInitialGuess( )
+    {
+        return 2.0;
+    }
 
     //! Get a reasonable lower boundary for the root location.
     /*!
@@ -119,7 +122,10 @@ struct TestFunctionWithZeroRoot : public TestFunction,
      *
      * \return Lower bound for the true location of the function root.
      */
-    double getLowerBound( ) { return -3.0; }
+    double getLowerBound( )
+    {
+        return -3.0;
+    }
 
     //! Get a reasonable upper boundary for the root location.
     /*!
@@ -127,14 +133,16 @@ struct TestFunctionWithZeroRoot : public TestFunction,
      *
      * \return Upper bound for the true location of the function root.
      */
-    double getUpperBound( ) { return 3.0; }
+    double getUpperBound( )
+    {
+        return 3.0;
+    }
 
 protected:
-
 private:
 };
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat
 
-#endif // TUDAT_TEST_FUNCTION_WITH_ZERO_ROOT_H
+#endif  // TUDAT_TEST_FUNCTION_WITH_ZERO_ROOT_H

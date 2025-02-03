@@ -18,19 +18,19 @@ namespace tudat
 namespace low_thrust_trajectories
 {
 
-//std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
-//        const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
-//        const Eigen::Vector6d& stateAtDeparture,
-//        const Eigen::Vector6d& stateAtArrival,
-//        const double& timeOfFlight )
+// std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
+//         const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
+//         const Eigen::Vector6d& stateAtDeparture,
+//         const Eigen::Vector6d& stateAtArrival,
+//         const double& timeOfFlight )
 //{
-//    // Declare LowThrustLeg object.
-//    std::shared_ptr< LowThrustLeg > lowThrustLeg;
+//     // Declare LowThrustLeg object.
+//     std::shared_ptr< LowThrustLeg > lowThrustLeg;
 
 //    switch( lowThrustLegSettings->lowThrustLegType_ )
 //    {
 //
-//#if( TUDAT_BUILD_WITH_PAGMO )
+// #if( TUDAT_BUILD_WITH_PAGMO )
 //    case sims_flanagan_leg:
 //    {
 //        std::shared_ptr< SimsFlanaganLegSettings > simsFlanaganSettings =
@@ -58,13 +58,13 @@ namespace low_thrust_trajectories
 
 //        break;
 //    }
-//#endif
+// #endif
 //    }
 //
 //    // Return low-thrust leg.
 //    return lowThrustLeg;
 //}
 
-} // namespace transfer_trajectories
+}  // namespace low_thrust_trajectories
 
-} // namespace tudat
+}  // namespace tudat

@@ -33,14 +33,14 @@ namespace tudat
 
 static constexpr int TIME_NORMALIZATION_INTEGER_TERM = 3600;
 
-static constexpr long double TIME_NORMALIZATION_TERM = mathematical_constants::getFloatingInteger< long double >( TIME_NORMALIZATION_INTEGER_TERM );
+static constexpr long double TIME_NORMALIZATION_TERM =
+        mathematical_constants::getFloatingInteger< long double >( TIME_NORMALIZATION_INTEGER_TERM );
 
 static constexpr int TIME_NORMALIZATION_TERMS_PER_DAY = physical_constants::JULIAN_DAY_INT / TIME_NORMALIZATION_INTEGER_TERM;
 
 static constexpr int TIME_NORMALIZATION_TERMS_PER_HALF_DAY = TIME_NORMALIZATION_TERMS_PER_DAY / 2;
 
 static constexpr int J2000_JULIAN_DAY_IN_FULL_PERIODS = physical_constants::JULIAN_DAY_INT * TIME_NORMALIZATION_TERMS_PER_DAY;
-
 
 //! Class for defining time with a resolution that is sub-fs for very long periods of time.
 /*!
@@ -55,8 +55,7 @@ static constexpr int J2000_JULIAN_DAY_IN_FULL_PERIODS = physical_constants::JULI
 class Time
 {
 public:
-
-    constexpr Time( ):fullPeriods_( 0 ), secondsIntoFullPeriod_( 0.0L ), daysToAdd( 0 ){ }
+    constexpr Time( ): fullPeriods_( 0 ), secondsIntoFullPeriod_( 0.0L ), daysToAdd( 0 ) { }
 
     //! Constructor, sets current hour and time into current hour directly
     /*!
@@ -77,8 +76,7 @@ public:
      * Constructor, sets number of seconds since epoch (with long double representation as input)
      * \param numberOfSeconds Number of seconds since epoch.
      */
-    constexpr Time( const long double numberOfSeconds ):
-        fullPeriods_( 0 ), secondsIntoFullPeriod_( numberOfSeconds ), daysToAdd( 0 )
+    constexpr Time( const long double numberOfSeconds ): fullPeriods_( 0 ), secondsIntoFullPeriod_( numberOfSeconds ), daysToAdd( 0 )
     {
         normalizeMembers( );
     }
@@ -136,7 +134,6 @@ public:
             return *this;
         }
     }
-
 
     //! Addition operator for two Time objects
     /*!
@@ -199,8 +196,6 @@ public:
         return timeToAdd1 + timeToAdd2;
     }
 
-
-
     //! Subtraction operator for two Time objects
     /*!
      * Addition operator for two Time objects
@@ -210,7 +205,6 @@ public:
      */
     friend Time operator-( const Time& timeToSubtract1, const Time& timeToSubtract2 )
     {
-
         return Time( timeToSubtract1.fullPeriods_ - timeToSubtract2.fullPeriods_,
                      timeToSubtract1.secondsIntoFullPeriod_ - timeToSubtract2.secondsIntoFullPeriod_ );
     }
@@ -263,7 +257,6 @@ public:
         return Time( timeToSubtract1 ) - timeToSubtract2;
     }
 
-
     //! Multiplication operator of a long double with a Time object (i.e. to rescale time)
     /*!
      * Multiplication operator of a long double with a Time object (i.e. to rescale time)
@@ -304,13 +297,11 @@ public:
      */
     friend Time operator*( const double timeToMultiply1, const Time& timeToMultiply2 )
     {
-        long double newPeriods = static_cast< long double >( timeToMultiply1 ) *
-                static_cast< long double >( timeToMultiply2.fullPeriods_ );
+        long double newPeriods = static_cast< long double >( timeToMultiply1 ) * static_cast< long double >( timeToMultiply2.fullPeriods_ );
         long double roundedNewPeriods = std::floor( newPeriods );
 
         int newfullPeriods = static_cast< int >( std::round( roundedNewPeriods ) );
-        long double newSecondsIntoFullPeriod_ = timeToMultiply2.secondsIntoFullPeriod_ *
-                static_cast< long double >( timeToMultiply1 );
+        long double newSecondsIntoFullPeriod_ = timeToMultiply2.secondsIntoFullPeriod_ * static_cast< long double >( timeToMultiply1 );
         newSecondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
 
         return Time( newfullPeriods, newSecondsIntoFullPeriod_ );
@@ -337,19 +328,16 @@ public:
      */
     friend const Time operator/( const Time& original, const double doubleToDivideBy )
     {
-        long double newPeriods =  static_cast< long double >( original.fullPeriods_ ) /
-                static_cast< long double >( doubleToDivideBy );
+        long double newPeriods = static_cast< long double >( original.fullPeriods_ ) / static_cast< long double >( doubleToDivideBy );
 
         long double roundedNewPeriods = std::floor( newPeriods );
 
         int newfullPeriods = static_cast< int >( std::round( roundedNewPeriods ) );
-        long double newSecondsIntoFullPeriod_ = original.secondsIntoFullPeriod_ /
-                static_cast< long double >( doubleToDivideBy );
+        long double newSecondsIntoFullPeriod_ = original.secondsIntoFullPeriod_ / static_cast< long double >( doubleToDivideBy );
         newSecondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
 
         return Time( newfullPeriods, newSecondsIntoFullPeriod_ );
     }
-
 
     //! Division operator of a Time object with a long double (i.e. to rescale time)
     /*!
@@ -360,17 +348,16 @@ public:
      */
     friend const Time operator/( const Time& original, const long double doubleToDivideBy )
     {
-        long double newPeriods =  static_cast< long double >( original.fullPeriods_ ) / doubleToDivideBy;
+        long double newPeriods = static_cast< long double >( original.fullPeriods_ ) / doubleToDivideBy;
 
         long double roundedNewPeriods = std::floor( newPeriods );
 
         int newfullPeriods = static_cast< int >( std::round( roundedNewPeriods ) );
-        long double newSecondsIntoFullPeriod_ = original.secondsIntoFullPeriod_ /  doubleToDivideBy;
+        long double newSecondsIntoFullPeriod_ = original.secondsIntoFullPeriod_ / doubleToDivideBy;
         newSecondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
 
         return Time( newfullPeriods, newSecondsIntoFullPeriod_ );
     }
-
 
     //! Add and assign operator for adding a Time
     /*!
@@ -493,7 +480,6 @@ public:
 
         normalizeMembers( );
     }
-
 
     //! Equality operator for two Time objects
     /*!
@@ -644,7 +630,7 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is larger than timeToCompare2, false otherwise.
      */
-    friend bool operator> ( const Time& timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator>( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
         if( timeToCompare1.getFullPeriods( ) > timeToCompare2.getFullPeriods( ) )
         {
@@ -668,14 +654,14 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is larger than or equal to timeToCompare2, false otherwise.
      */
-    friend bool operator>= ( const Time& timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator>=( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
         if( timeToCompare1.getFullPeriods( ) > timeToCompare2.getFullPeriods( ) )
         {
             return true;
         }
         else if( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
-          ( timeToCompare1.getSecondsIntoFullPeriod( ) >= timeToCompare2.getSecondsIntoFullPeriod( ) ) )
+                 ( timeToCompare1.getSecondsIntoFullPeriod( ) >= timeToCompare2.getSecondsIntoFullPeriod( ) ) )
         {
             return true;
         }
@@ -692,7 +678,7 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is smaller than timeToCompare2, false otherwise.
      */
-    friend bool operator< ( const Time& timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator<( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
         if( timeToCompare1.getFullPeriods( ) < timeToCompare2.getFullPeriods( ) )
         {
@@ -716,7 +702,7 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is smaller than or equal to timeToCompare2, false otherwise.
      */
-    friend bool operator<= ( const Time& timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator<=( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
         if( timeToCompare1.getFullPeriods( ) < timeToCompare2.getFullPeriods( ) )
         {
@@ -740,7 +726,7 @@ public:
      * \param timeToCompare2 Second time to compare (as double)
      * \return True if timeToCompare1 is smaller than timeToCompare2, false otherwise.
      */
-    friend bool operator< ( const Time& timeToCompare1, const double timeToCompare2 )
+    friend bool operator<( const Time& timeToCompare1, const double timeToCompare2 )
     {
         return ( timeToCompare1.getSeconds< double >( ) < timeToCompare2 );
     }
@@ -752,7 +738,7 @@ public:
      * \param timeToCompare2 Second time to compare (as double)
      * \return True if timeToCompare1 is smaller than timeToCompare2, false otherwise.
      */
-    friend bool operator< ( const Time& timeToCompare1, const long double timeToCompare2 )
+    friend bool operator<( const Time& timeToCompare1, const long double timeToCompare2 )
     {
         return ( timeToCompare1.getSeconds< long double >( ) < timeToCompare2 );
     }
@@ -764,7 +750,7 @@ public:
      * \param timeToCompare2 Second time to compare (as double)
      * \return True if timeToCompare1 is smaller than or equal to timeToCompare2, false otherwise.
      */
-    friend bool operator<= ( const Time& timeToCompare1, const double timeToCompare2 )
+    friend bool operator<=( const Time& timeToCompare1, const double timeToCompare2 )
     {
         return ( timeToCompare1.getSeconds< double >( ) <= timeToCompare2 );
     }
@@ -776,7 +762,7 @@ public:
      * \param timeToCompare2 Second time to compare (as double)
      * \return True if timeToCompare1 is smaller than or equal to timeToCompare2, false otherwise.
      */
-    friend bool operator<= ( const Time& timeToCompare1, const long double timeToCompare2 )
+    friend bool operator<=( const Time& timeToCompare1, const long double timeToCompare2 )
     {
         return ( timeToCompare1.getSeconds< long double >( ) <= timeToCompare2 );
     }
@@ -788,7 +774,7 @@ public:
      * \param timeToCompare2 Second time to compare (as double)
      * \return True if timeToCompare1 is larger than timeToCompare2, false otherwise.
      */
-    friend bool operator> ( const Time& timeToCompare1, const double timeToCompare2 )
+    friend bool operator>( const Time& timeToCompare1, const double timeToCompare2 )
     {
         return ( timeToCompare1.getSeconds< double >( ) > timeToCompare2 );
     }
@@ -800,7 +786,7 @@ public:
      * \param timeToCompare2 Second time to compare (as double)
      * \return True if timeToCompare1 is larger than timeToCompare2, false otherwise.
      */
-    friend bool operator> ( const Time& timeToCompare1, const long double timeToCompare2 )
+    friend bool operator>( const Time& timeToCompare1, const long double timeToCompare2 )
     {
         return ( timeToCompare1.getSeconds< long double >( ) > timeToCompare2 );
     }
@@ -812,7 +798,7 @@ public:
      * \param timeToCompare2 Second time to compare (as double)
      * \return True if timeToCompare1 is larger than or equal to timeToCompare2, false otherwise.
      */
-    friend bool operator>= ( const Time& timeToCompare1, const double timeToCompare2 )
+    friend bool operator>=( const Time& timeToCompare1, const double timeToCompare2 )
     {
         return ( timeToCompare1.getSeconds< double >( ) >= timeToCompare2 );
     }
@@ -824,7 +810,7 @@ public:
      * \param timeToCompare2 Second time to compare (as double)
      * \return True if timeToCompare1 is larger than or equal to timeToCompare2, false otherwise.
      */
-    friend bool operator>= ( const Time& timeToCompare1, const long double timeToCompare2 )
+    friend bool operator>=( const Time& timeToCompare1, const long double timeToCompare2 )
     {
         return ( timeToCompare1.getSeconds< long double >( ) >= timeToCompare2 );
     }
@@ -836,7 +822,7 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is smaller than timeToCompare2, false otherwise.
      */
-    friend bool operator< ( const double timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator<( const double timeToCompare1, const Time& timeToCompare2 )
     {
         return ( timeToCompare1 < timeToCompare2.getSeconds< double >( ) );
     }
@@ -848,7 +834,7 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is smaller than timeToCompare2, false otherwise.
      */
-    friend bool operator< ( const long double timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator<( const long double timeToCompare1, const Time& timeToCompare2 )
     {
         return ( timeToCompare1 < timeToCompare2.getSeconds< long double >( ) );
     }
@@ -860,7 +846,7 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is smaller than or equal to timeToCompare2, false otherwise.
      */
-    friend bool operator<= ( const double timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator<=( const double timeToCompare1, const Time& timeToCompare2 )
     {
         return ( timeToCompare1 <= timeToCompare2.getSeconds< double >( ) );
     }
@@ -872,7 +858,7 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is smaller than or equal to timeToCompare2, false otherwise.
      */
-    friend bool operator<= ( const long double timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator<=( const long double timeToCompare1, const Time& timeToCompare2 )
     {
         return ( timeToCompare1 <= timeToCompare2.getSeconds< long double >( ) );
     }
@@ -884,7 +870,7 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is larger than timeToCompare2, false otherwise.
      */
-    friend bool operator> ( const double timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator>( const double timeToCompare1, const Time& timeToCompare2 )
     {
         return ( timeToCompare1 > timeToCompare2.getSeconds< double >( ) );
     }
@@ -896,7 +882,7 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is larger than timeToCompare2, false otherwise.
      */
-    friend bool operator> ( const long double timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator>( const long double timeToCompare1, const Time& timeToCompare2 )
     {
         return ( timeToCompare1 > timeToCompare2.getSeconds< long double >( ) );
     }
@@ -908,7 +894,7 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is larger than or equal to timeToCompare2, false otherwise.
      */
-    friend bool operator>= ( const double timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator>=( const double timeToCompare1, const Time& timeToCompare2 )
     {
         return ( timeToCompare1 >= timeToCompare2.getSeconds< double >( ) );
     }
@@ -920,13 +906,13 @@ public:
      * \param timeToCompare2 Second time to compare
      * \return True if timeToCompare1 is larger than or equal to timeToCompare2, false otherwise.
      */
-    friend bool operator>= ( const long double timeToCompare1, const Time& timeToCompare2 )
+    friend bool operator>=( const long double timeToCompare1, const Time& timeToCompare2 )
     {
         return ( timeToCompare1 >= timeToCompare2.getSeconds< long double >( ) );
     }
 
     //!Output operator for Time object
-    friend std::ostream& operator << ( std::ostream& stream, const Time& timeToPrint )
+    friend std::ostream& operator<<( std::ostream& stream, const Time& timeToPrint )
     {
         stream << "(" << timeToPrint.getFullPeriods( ) << ", " << timeToPrint.getSecondsIntoFullPeriod( ) << ") ";
         return stream;
@@ -940,8 +926,7 @@ public:
     template< typename ScalarType >
     ScalarType getSeconds( ) const
     {
-        return static_cast< ScalarType >(
-                    static_cast< long double >( fullPeriods_ ) * TIME_NORMALIZATION_TERM + secondsIntoFullPeriod_ );
+        return static_cast< ScalarType >( static_cast< long double >( fullPeriods_ ) * TIME_NORMALIZATION_TERM + secondsIntoFullPeriod_ );
     }
 
     //! Function to get the total seconds since epoch, in int precision (cast of Time to int)
@@ -1019,7 +1004,7 @@ public:
     int fullPeriodsSinceMidnight( ) const
     {
         int fullPeriodsIntoCurrentDay = this->fullPeriodsIntoCurrentDay( );
-        if( fullPeriodsIntoCurrentDay < TIME_NORMALIZATION_TERMS_PER_HALF_DAY)
+        if( fullPeriodsIntoCurrentDay < TIME_NORMALIZATION_TERMS_PER_HALF_DAY )
         {
             return fullPeriodsIntoCurrentDay + TIME_NORMALIZATION_TERMS_PER_HALF_DAY;
         }
@@ -1035,14 +1020,13 @@ public:
     }
 
 protected:
-
     //! Function to renormalize the members of the Time object, so that secondsIntoFullPeriod_ is between 0 and 3600
     constexpr void normalizeMembers( )
     {
         if( secondsIntoFullPeriod_ < 0.0L || secondsIntoFullPeriod_ >= TIME_NORMALIZATION_TERM )
         {
             basic_mathematics::computeModuloAndRemainder< long double >(
-                        secondsIntoFullPeriod_,TIME_NORMALIZATION_TERM, secondsIntoFullPeriod_, daysToAdd );
+                    secondsIntoFullPeriod_, TIME_NORMALIZATION_TERM, secondsIntoFullPeriod_, daysToAdd );
             fullPeriods_ += daysToAdd;
         }
     }
@@ -1055,19 +1039,14 @@ protected:
 
     //! Pre-declared variable used in often-called normalizeMembers function
     int daysToAdd;
-
 };
 
-
 //! The Time at JD0
-constexpr static Time TIME_AT_JD0 =  Time(
-    -basic_astrodynamics::JULIAN_DAY_ON_J2000_INT *  tudat::TIME_NORMALIZATION_TERMS_PER_DAY,
-    0.0L );
+constexpr static Time TIME_AT_JD0 = Time( -basic_astrodynamics::JULIAN_DAY_ON_J2000_INT * tudat::TIME_NORMALIZATION_TERMS_PER_DAY, 0.0L );
 
 //! The Time at MJD0
-constexpr static Time TIME_AT_MJD0 = Time(
-    -51545 * tudat::TIME_NORMALIZATION_TERMS_PER_DAY,
-    static_cast< long double >( TIME_NORMALIZATION_TERMS_PER_HALF_DAY ) * TIME_NORMALIZATION_TERM );
+constexpr static Time TIME_AT_MJD0 = Time( -51545 * tudat::TIME_NORMALIZATION_TERMS_PER_DAY,
+                                           static_cast< long double >( TIME_NORMALIZATION_TERMS_PER_HALF_DAY ) * TIME_NORMALIZATION_TERM );
 
 //! Function to get the Julian day from the current Time
 template< typename ScalarType >
@@ -1088,17 +1067,20 @@ ScalarType modifiedJulianDayFromTime( const Time& time )
 template< typename ScalarType >
 Time timeFromJulianDay( const ScalarType julianDay )
 {
-    return Time( 0.0, ( julianDay - basic_astrodynamics::getJulianDayOnJ2000< ScalarType >( ) ) * physical_constants::getJulianDay< ScalarType >( ) );
+    return Time(
+            0.0,
+            ( julianDay - basic_astrodynamics::getJulianDayOnJ2000< ScalarType >( ) ) * physical_constants::getJulianDay< ScalarType >( ) );
 }
 
 //! Function to get Time from the current modified Julian day
 template< typename ScalarType >
 Time timeFromModifiedJulianDay( const ScalarType julianDay )
 {
-    return Time( 0.0, ( julianDay - basic_astrodynamics::getModifiedJulianDayOnJ2000< ScalarType >( ) ) * physical_constants::getJulianDay< ScalarType >( ) );
+    return Time( 0.0,
+                 ( julianDay - basic_astrodynamics::getModifiedJulianDayOnJ2000< ScalarType >( ) ) *
+                         physical_constants::getJulianDay< ScalarType >( ) );
 }
 
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_TIMETYPE_H
+#endif  // TUDAT_TIMETYPE_H

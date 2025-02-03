@@ -32,7 +32,6 @@ namespace earth_orientation
 class PrecessionNutationCalculator
 {
 public:
-
     //! Constructor for (CIO-based) precession-nutation calculation object.
     /*!
      * Constructor for CIO-based precession-nutation calculation object. This constructor binds the SOFA function wrapper
@@ -44,7 +43,7 @@ public:
      */
     PrecessionNutationCalculator(
             const basic_astrodynamics::IAUConventions precessionNutationTheory,
-            const std::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector2d > > dailyCorrectionInterpolator,
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyCorrectionInterpolator,
             const std::shared_ptr< interpolators::InterpolatorGenerationSettings< double > > angleInterpolatorSettings = nullptr );
 
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
@@ -55,8 +54,7 @@ public:
      *  \param terrestrialTime TT at which calculation is to be performed.
      *  \return Pair of CIP position in GCRS (X and Y) and CIO-locator (s).
      */
-    Eigen::Vector3d getPositionOfCipInGcrs(
-            const double terrestrialTime );
+    Eigen::Vector3d getPositionOfCipInGcrs( const double terrestrialTime );
 
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
     /*!
@@ -66,17 +64,14 @@ public:
      *  \param utc UTC at which calculation is to be performed.
      *  \return Pair of CIP position in GCRS (X and Y) and CIO-locator (s).
      */
-    Eigen::Vector3d getPositionOfCipInGcrs(
-            const double terrestrialTime,
-            const double utc );
+    Eigen::Vector3d getPositionOfCipInGcrs( const double terrestrialTime, const double utc );
 
     //! Function to retrieve the interpolator for daily measured values of precession-nutation corrections.
     /*!
      * Function to retrieve the interpolator for daily measured values of precession-nutation corrections.
      * \return Interpolator for daily measured values of precession-nutation corrections.
      */
-    std::shared_ptr< interpolators::OneDimensionalInterpolator
-    < double, Eigen::Vector2d > > getDailyCorrectionInterpolator( )
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > getDailyCorrectionInterpolator( )
     {
         return dailyCorrectionInterpolator_;
     }
@@ -91,9 +86,7 @@ public:
         return precessionNutationTheory_;
     }
 
-
 private:
-
     //! IAU precession-nutation theory that is to be used.
     basic_astrodynamics::IAUConventions precessionNutationTheory_;
 
@@ -102,20 +95,18 @@ private:
      *  Interpolator taking UTC time since J2000 as input and returning
      *  interpolated daily measured values of precession-nutation corrections.
      */
-    std::shared_ptr< interpolators::OneDimensionalInterpolator
-    < double, Eigen::Vector2d > > dailyCorrectionInterpolator_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyCorrectionInterpolator_;
 
     //! Function pointer returning the nominal CIP position  in the GCRS  and CIO locator.
     /*!
      *  Function pointer returning the nominal CIP position in the GCRS (X and Y, see IERS Conventions 2010),
      *  first pair argument, and CIO locator (s, see IERS Conventions 2010), second pair argument.
      */
-    std::function< Eigen::Vector3d ( const double ) > nominalCipPositionFunction_;
-
+    std::function< Eigen::Vector3d( const double ) > nominalCipPositionFunction_;
 };
 
-}
+}  // namespace earth_orientation
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_PRECESSIONNUTATIONCALCULATOR_H
+#endif  // TUDAT_PRECESSIONNUTATIONCALCULATOR_H

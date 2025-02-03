@@ -11,7 +11,6 @@
 #ifndef TUDAT_FREECORENUTATIONRATE_H
 #define TUDAT_FREECORENUTATIONRATE_H
 
-
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -28,37 +27,32 @@ namespace estimatable_parameters
  *  Interface class for estimation of a body's free core nutation rate (for a full planetary rotational model).
  *  Interfaces the estimation with the free core nutation rate of a PlanetaryRotationModel object
  */
-class FreeCoreNutationRate: public EstimatableParameter< double >
+class FreeCoreNutationRate : public EstimatableParameter< double >
 {
-
 public:
-
     //! Constructor
     /*!
      *  Constructor
      *  \param rotationModel PlanetaryRotationModel object of which the free core nutation rate is a property.
      *  \param associatedBody Name of body of which parameter is a property.
      */
-    FreeCoreNutationRate(
-            const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel,
-            const std::string& associatedBody):
-        EstimatableParameter< double >( free_core_nutation_rate, associatedBody ),
-        rotationModel_( rotationModel ) { }
+    FreeCoreNutationRate( const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel, const std::string& associatedBody ):
+        EstimatableParameter< double >( free_core_nutation_rate, associatedBody ), rotationModel_( rotationModel )
+    { }
 
     //! Destructor
     ~FreeCoreNutationRate( ) { }
 
-
     //! Get value of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model.
     /*!
-     *  Get value of of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model.
+     *  Get value of of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational
+     * model.
      *  \return Free core nutation rate
      */
     double getParameterValue( )
     {
-        return rotationModel_->getPlanetaryOrientationAngleCalculator()->getFreeCoreNutationRate();
+        return rotationModel_->getPlanetaryOrientationAngleCalculator( )->getFreeCoreNutationRate( );
     }
-
 
     //! Reset value of the free core nutation rate of the body whose rotational ephemeris is described by a full planetary rotational model.
     /*!
@@ -67,9 +61,8 @@ public:
      */
     void setParameterValue( const double parameterValue )
     {
-        rotationModel_->getPlanetaryOrientationAngleCalculator()->resetFreeCoreNutationRate( parameterValue );
+        rotationModel_->getPlanetaryOrientationAngleCalculator( )->resetFreeCoreNutationRate( parameterValue );
     }
-
 
     //! Function to retrieve the size of the parameter (always 1)
     /*!
@@ -82,15 +75,13 @@ public:
     }
 
 protected:
-
 private:
-
     //! PlanetaryRotationModel object of which the free core nutation rate is a property
     std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel_;
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_FREECORENUTATIONRATE_H
+#endif  // TUDAT_FREECORENUTATIONRATE_H

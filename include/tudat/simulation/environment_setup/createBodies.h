@@ -42,8 +42,7 @@ namespace simulation_setup
  *  created by the createBodies function. Default values can be generated from the function in
  *  defaultBodies.h.
  */
-struct BodySettings
-{
+struct BodySettings {
     //! Constant mass.
     double constantMass = TUDAT_NAN;
 
@@ -64,8 +63,7 @@ struct BodySettings
 
     //! Settings for the radiations pressure interfaces that the body is to contain (source body as key).
     // RP-OLD
-    std::map< std::string,
-    std::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
+    std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
 
     //! Settings for the radiation source model that the body is to contain.
     std::shared_ptr< RadiationSourceModelSettings > radiationSourceModelSettings;
@@ -86,51 +84,48 @@ struct BodySettings
     std::vector< std::shared_ptr< BodyDeformationSettings > > bodyDeformationSettings;
 
     std::vector< std::shared_ptr< GroundStationSettings > > groundStationSettings;
-
-
 };
 
-void addAerodynamicCoefficientInterface(
-        const SystemOfBodies& bodies, const std::string bodyName,
-        const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings );
+void addAerodynamicCoefficientInterface( const SystemOfBodies& bodies,
+                                         const std::string bodyName,
+                                         const std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings );
 
 // RP-OLD
-void addRadiationPressureInterface(
-        const SystemOfBodies& bodies, const std::string bodyName,
-        const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings );
+void addRadiationPressureInterface( const SystemOfBodies& bodies,
+                                    const std::string bodyName,
+                                    const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureSettings );
 
-void addRadiationPressureTargetModel(
-    const SystemOfBodies& bodies, const std::string bodyName,
-    const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureSettings );
+void addRadiationPressureTargetModel( const SystemOfBodies& bodies,
+                                      const std::string bodyName,
+                                      const std::shared_ptr< RadiationPressureTargetModelSettings > radiationPressureSettings );
 
+void addRotationModel( const SystemOfBodies& bodies,
+                       const std::string bodyName,
+                       const std::shared_ptr< RotationModelSettings > rotationModelSettings );
 
-void addRotationModel(
-        const SystemOfBodies& bodies, const std::string bodyName,
-        const std::shared_ptr< RotationModelSettings > rotationModelSettings );
+void addGravityFieldModel( const SystemOfBodies& bodies,
+                           const std::string bodyName,
+                           const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
+                           const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
+                                   std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
 
-void addGravityFieldModel(
-    const SystemOfBodies& bodies, const std::string bodyName,
-    const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
-    const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
-        std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ));
-
-void addRigidBodyProperties(
-    const SystemOfBodies& bodies, const std::string bodyName,
-    const std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyProperties );
-
-
+void addRigidBodyProperties( const SystemOfBodies& bodies,
+                             const std::string bodyName,
+                             const std::shared_ptr< RigidBodyPropertiesSettings > rigidBodyProperties );
 
 class BodyListSettings
 {
 public:
-
     BodyListSettings( const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000" ):
-        bodySettings_( std::map< std::string, std::shared_ptr< BodySettings > >( ) ),
-        frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ){ }
+        bodySettings_( std::map< std::string, std::shared_ptr< BodySettings > >( ) ), frameOrigin_( frameOrigin ),
+        frameOrientation_( frameOrientation )
+    { }
 
     BodyListSettings( const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings,
-                      const std::string frameOrigin = "SSB", const std::string frameOrientation = "ECLIPJ2000" ):
-        bodySettings_( bodySettings ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ){ }
+                      const std::string frameOrigin = "SSB",
+                      const std::string frameOrientation = "ECLIPJ2000" ):
+        bodySettings_( bodySettings ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation )
+    { }
 
     std::shared_ptr< BodySettings > at( const std::string& bodyName ) const
     {
@@ -173,15 +168,22 @@ public:
         frameOrientation_ = frameOrientation;
     }
 
-    std::string getFrameOrigin( ) const { return frameOrigin_; }
+    std::string getFrameOrigin( ) const
+    {
+        return frameOrigin_;
+    }
 
-    std::string getFrameOrientation( ) const { return frameOrientation_; }
+    std::string getFrameOrientation( ) const
+    {
+        return frameOrientation_;
+    }
 
-    std::map< std::string, std::shared_ptr< BodySettings > > getMap( ) const { return bodySettings_; }
-
+    std::map< std::string, std::shared_ptr< BodySettings > > getMap( ) const
+    {
+        return bodySettings_;
+    }
 
 private:
-
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings_;
 
     std::string frameOrigin_;
@@ -189,9 +191,7 @@ private:
     std::string frameOrientation_;
 };
 
-void setSimpleRotationSettingsFromSpice(
-        const BodyListSettings& bodySettings, const std::string& bodyName, const double  spiceEvaluation );
-
+void setSimpleRotationSettingsFromSpice( const BodyListSettings& bodySettings, const std::string& bodyName, const double spiceEvaluation );
 
 //! Function that determines the order in which bodies are to be created
 /*!
@@ -211,16 +211,14 @@ std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determi
  *  pointers to an object of class BodySettings
  *  \return List of bodies created according to settings in bodySettings.
  */
-template< typename StateScalarType = double , typename TimeType = double >
-SystemOfBodies createSystemOfBodies(
-        const BodyListSettings& bodySettings )
+template< typename StateScalarType = double, typename TimeType = double >
+SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
 {
-    std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > orderedBodySettings
-            = determineBodyCreationOrder( bodySettings.getMap( ) );
+    std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > orderedBodySettings =
+            determineBodyCreationOrder( bodySettings.getMap( ) );
 
     // Declare map of bodies that is to be returned.
-    SystemOfBodies bodyList = SystemOfBodies(
-                bodySettings.getFrameOrigin( ), bodySettings.getFrameOrientation( ) );
+    SystemOfBodies bodyList = SystemOfBodies( bodySettings.getFrameOrigin( ), bodySettings.getFrameOrientation( ) );
 
     // Create empty body objects.
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
@@ -232,7 +230,7 @@ SystemOfBodies createSystemOfBodies(
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         const double constantMass = orderedBodySettings.at( i ).second->constantMass;
-        if ( constantMass == constantMass )
+        if( constantMass == constantMass )
         {
             bodyList.at( orderedBodySettings.at( i ).first )->setConstantBodyMass( constantMass );
         }
@@ -243,10 +241,9 @@ SystemOfBodies createSystemOfBodies(
     {
         if( orderedBodySettings.at( i ).second->ephemerisSettings != nullptr )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setEphemeris(
-                        createBodyEphemeris< StateScalarType, TimeType >(
-                            orderedBodySettings.at( i ).second->ephemerisSettings,
-                                             orderedBodySettings.at( i ).first ) );
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setEphemeris( createBodyEphemeris< StateScalarType, TimeType >( orderedBodySettings.at( i ).second->ephemerisSettings,
+                                                                                      orderedBodySettings.at( i ).first ) );
         }
     }
 
@@ -255,9 +252,9 @@ SystemOfBodies createSystemOfBodies(
     {
         if( orderedBodySettings.at( i ).second->atmosphereSettings != nullptr )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setAtmosphereModel(
-                        createAtmosphereModel( orderedBodySettings.at( i ).second->atmosphereSettings,
-                                               orderedBodySettings.at( i ).first ) );
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setAtmosphereModel( createAtmosphereModel( orderedBodySettings.at( i ).second->atmosphereSettings,
+                                                                 orderedBodySettings.at( i ).first ) );
         }
     }
 
@@ -266,9 +263,9 @@ SystemOfBodies createSystemOfBodies(
     {
         if( orderedBodySettings.at( i ).second->shapeModelSettings != nullptr )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setShapeModel(
-                        createBodyShapeModel( orderedBodySettings.at( i ).second->shapeModelSettings,
-                                              orderedBodySettings.at( i ).first ) );
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setShapeModel( createBodyShapeModel( orderedBodySettings.at( i ).second->shapeModelSettings,
+                                                           orderedBodySettings.at( i ).first ) );
         }
     }
 
@@ -277,9 +274,9 @@ SystemOfBodies createSystemOfBodies(
     {
         if( orderedBodySettings.at( i ).second->rotationModelSettings != nullptr )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setRotationalEphemeris(
-                        createRotationModel( orderedBodySettings.at( i ).second->rotationModelSettings,
-                                             orderedBodySettings.at( i ).first, bodyList ) );
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setRotationalEphemeris( createRotationModel(
+                            orderedBodySettings.at( i ).second->rotationModelSettings, orderedBodySettings.at( i ).first, bodyList ) );
         }
     }
 
@@ -288,34 +285,34 @@ SystemOfBodies createSystemOfBodies(
     {
         if( orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_ != nullptr )
         {
-            addBodyExteriorPanelledShape( orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_ ,
-                                          orderedBodySettings.at( i ).first, bodyList );
+            addBodyExteriorPanelledShape(
+                    orderedBodySettings.at( i ).second->bodyExteriorPanelSettings_, orderedBodySettings.at( i ).first, bodyList );
         }
     }
     std::vector< std::shared_ptr< BodyPanelSettings > > bodyExteriorPanelSettings_;
-
 
     // Create gravity field model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->gravityFieldSettings != nullptr )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setGravityFieldModel(
-                        createGravityFieldModel( orderedBodySettings.at( i ).second->gravityFieldSettings,
-                                                 orderedBodySettings.at( i ).first, bodyList,
-                                                 orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setGravityFieldModel( createGravityFieldModel( orderedBodySettings.at( i ).second->gravityFieldSettings,
+                                                                     orderedBodySettings.at( i ).first,
+                                                                     bodyList,
+                                                                     orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
         }
     }
-
 
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->gravityFieldVariationSettings.size( ) > 0 )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setGravityFieldVariationSet(
-                        createGravityFieldModelVariationsSet(
-                            orderedBodySettings.at( i ).first, bodyList,
-                            orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setGravityFieldVariationSet(
+                            createGravityFieldModelVariationsSet( orderedBodySettings.at( i ).first,
+                                                                  bodyList,
+                                                                  orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
         }
     }
 
@@ -324,45 +321,43 @@ SystemOfBodies createSystemOfBodies(
     {
         if( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings != nullptr )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setMassProperties(
-                createRigidBodyProperties( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings,
-                                          orderedBodySettings.at( i ).first, bodyList ) );
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setMassProperties( createRigidBodyProperties( orderedBodySettings.at( i ).second->rigidBodyPropertiesSettings,
+                                                                    orderedBodySettings.at( i ).first,
+                                                                    bodyList ) );
         }
     }
-
 
     // Create aerodynamic coefficient interface objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings != nullptr )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setAerodynamicCoefficientInterface(
-                        createAerodynamicCoefficientInterface(
-                            orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings,
-                            orderedBodySettings.at( i ).first, bodyList ) );
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setAerodynamicCoefficientInterface(
+                            createAerodynamicCoefficientInterface( orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings,
+                                                                   orderedBodySettings.at( i ).first,
+                                                                   bodyList ) );
         }
     }
-
 
     // Create radiation pressure coefficient objects for each body (if required).
     // RP-OLD
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >
-                radiationPressureSettings
-                = orderedBodySettings.at( i ).second->radiationPressureSettings;
-        for( std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >::iterator
-             radiationPressureSettingsIterator = radiationPressureSettings.begin( );
+        std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings =
+                orderedBodySettings.at( i ).second->radiationPressureSettings;
+        for( std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >::iterator radiationPressureSettingsIterator =
+                     radiationPressureSettings.begin( );
              radiationPressureSettingsIterator != radiationPressureSettings.end( );
              radiationPressureSettingsIterator++ )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureInterface(
-                        radiationPressureSettingsIterator->first,
-                        createRadiationPressureInterface(
-                            radiationPressureSettingsIterator->second,
-                            orderedBodySettings.at( i ).first, bodyList ) );
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setRadiationPressureInterface(
+                            radiationPressureSettingsIterator->first,
+                            createRadiationPressureInterface(
+                                    radiationPressureSettingsIterator->second, orderedBodySettings.at( i ).first, bodyList ) );
         }
-
     }
 
     // Create radiation source model objects for each body (if required).
@@ -371,24 +366,24 @@ SystemOfBodies createSystemOfBodies(
     {
         auto radiationSourceModelSettings = orderedBodySettings.at( i ).second->radiationSourceModelSettings;
         if( radiationSourceModelSettings != nullptr &&
-            radiationSourceModelSettings->getRadiationSourceModelType() == RadiationSourceModelType::isotropic_point_source )
+            radiationSourceModelSettings->getRadiationSourceModelType( ) == RadiationSourceModelType::isotropic_point_source )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationSourceModel(
-                        createRadiationSourceModel(
-                            orderedBodySettings.at( i ).second->radiationSourceModelSettings,
-                            orderedBodySettings.at( i ).first, bodyList ));
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setRadiationSourceModel( createRadiationSourceModel( orderedBodySettings.at( i ).second->radiationSourceModelSettings,
+                                                                           orderedBodySettings.at( i ).first,
+                                                                           bodyList ) );
         }
     }
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         auto radiationSourceModelSettings = orderedBodySettings.at( i ).second->radiationSourceModelSettings;
         if( radiationSourceModelSettings != nullptr &&
-            radiationSourceModelSettings->getRadiationSourceModelType() == RadiationSourceModelType::extended_source )
+            radiationSourceModelSettings->getRadiationSourceModelType( ) == RadiationSourceModelType::extended_source )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationSourceModel(
-                        createRadiationSourceModel(
-                            orderedBodySettings.at( i ).second->radiationSourceModelSettings,
-                            orderedBodySettings.at( i ).first, bodyList ));
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setRadiationSourceModel( createRadiationSourceModel( orderedBodySettings.at( i ).second->radiationSourceModelSettings,
+                                                                           orderedBodySettings.at( i ).first,
+                                                                           bodyList ) );
         }
     }
 
@@ -397,10 +392,11 @@ SystemOfBodies createSystemOfBodies(
     {
         if( orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings != nullptr )
         {
-            bodyList.at( orderedBodySettings.at( i ).first )->setRadiationPressureTargetModels(
-                        createRadiationPressureTargetModel(
-                            orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings,
-                            orderedBodySettings.at( i ).first, bodyList ) );
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setRadiationPressureTargetModels(
+                            createRadiationPressureTargetModel( orderedBodySettings.at( i ).second->radiationPressureTargetModelSettings,
+                                                                orderedBodySettings.at( i ).first,
+                                                                bodyList ) );
         }
     }
 
@@ -410,28 +406,27 @@ SystemOfBodies createSystemOfBodies(
         {
             for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->bodyDeformationSettings.size( ); j++ )
             {
-                bodyList.at( orderedBodySettings.at( i ).first )->addBodyDeformationModel(
-                            createBodyDeformationModel(
-                                orderedBodySettings.at( i ).second->bodyDeformationSettings.at( j ),
-                                orderedBodySettings.at( i ).first, bodyList ) );
+                bodyList.at( orderedBodySettings.at( i ).first )
+                        ->addBodyDeformationModel(
+                                createBodyDeformationModel( orderedBodySettings.at( i ).second->bodyDeformationSettings.at( j ),
+                                                            orderedBodySettings.at( i ).first,
+                                                            bodyList ) );
             }
         }
     }
-
 
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->groundStationSettings.size( ); j++ )
         {
             createGroundStation( bodyList.at( orderedBodySettings.at( i ).first ),
-                     orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
+                                 orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
         }
     }
 
     bodyList.processBodyFrameDefinitions< StateScalarType, TimeType >( );
 
     return bodyList;
-
 }
 
 //! Function to create a simplified system of bodies
@@ -442,11 +437,10 @@ SystemOfBodies createSystemOfBodies(
  * @param secondsSinceJ2000 Initial time of the simulation, expressed in seconds since J2000
  * @return List of bodies created
  */
-simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies(const double secondsSinceJ2000 = 0 );
+simulation_setup::SystemOfBodies createSimplifiedSystemOfBodies( const double secondsSinceJ2000 = 0 );
 
+}  // namespace simulation_setup
 
-} // namespace simulation_setup
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_CREATEBODIES_H
+#endif  // TUDAT_CREATEBODIES_H

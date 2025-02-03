@@ -14,7 +14,6 @@
 
 #include <map>
 
-
 #include <Eigen/Core>
 
 #include "tudat/astro/basic_astro/timeConversions.h"
@@ -39,20 +38,17 @@ template< typename StateScalarType = double, typename TimeType = double >
 class TabulatedCartesianEphemeris : public Ephemeris
 {
 public:
-
-    using Ephemeris::getCartesianState;
     using Ephemeris::getCartesianLongState;
-    using Ephemeris::getCartesianStateFromExtendedTime;
     using Ephemeris::getCartesianLongStateFromExtendedTime;
+    using Ephemeris::getCartesianState;
+    using Ephemeris::getCartesianStateFromExtendedTime;
 
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
     typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > VariableStateType;
 
     //! Typedef for state interpolator
-    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator
-    < TimeType, StateType  > > StateInterpolatorPointer;
-    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator
-    < TimeType, VariableStateType  > > VariableStateInterpolatorPointer;
+    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > > StateInterpolatorPointer;
+    typedef std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, VariableStateType > > VariableStateInterpolatorPointer;
 
     //! Constructor, sets data interpolator and frame data.
     /*!
@@ -61,30 +57,27 @@ public:
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
      */
-    TabulatedCartesianEphemeris(
-            const StateInterpolatorPointer interpolator,
-            const std::string referenceFrameOrigin = "SSB",
-            const std::string referenceFrameOrientation = "ECLIPJ2000" ):
+    TabulatedCartesianEphemeris( const StateInterpolatorPointer interpolator,
+                                 const std::string referenceFrameOrigin = "SSB",
+                                 const std::string referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), interpolator_( interpolator )
-    {  }
+    { }
 
-    TabulatedCartesianEphemeris(
-            const VariableStateInterpolatorPointer interpolator,
-            const std::string referenceFrameOrigin = "SSB",
-            const std::string referenceFrameOrientation = "ECLIPJ2000" ):
+    TabulatedCartesianEphemeris( const VariableStateInterpolatorPointer interpolator,
+                                 const std::string referenceFrameOrigin = "SSB",
+                                 const std::string referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
     {
-       interpolator_ = interpolators::convertBetweenStaticDynamicEigenTypeInterpolators<
-               TimeType, StateScalarType, Eigen::Dynamic, 1, 6, 1 >(
-                   interpolator );
+        interpolator_ =
+                interpolators::convertBetweenStaticDynamicEigenTypeInterpolators< TimeType, StateScalarType, Eigen::Dynamic, 1, 6, 1 >(
+                        interpolator );
     }
-
 
     //! Destructor
     /*!
      *  Destructor
      */
-    ~TabulatedCartesianEphemeris( ){ }
+    ~TabulatedCartesianEphemeris( ) { }
 
     //! Function to reset the state interpolator.
     /*!
@@ -100,9 +93,9 @@ public:
 
     void resetInterpolator( const VariableStateInterpolatorPointer interpolator )
     {
-        interpolator_ = interpolators::convertBetweenStaticDynamicEigenTypeInterpolators<
-                TimeType, StateScalarType, Eigen::Dynamic, 1, 6, 1 >(
-                    interpolator );
+        interpolator_ =
+                interpolators::convertBetweenStaticDynamicEigenTypeInterpolators< TimeType, StateScalarType, Eigen::Dynamic, 1, 6, 1 >(
+                        interpolator );
     }
 
     //! Get cartesian state from ephemeris.
@@ -111,8 +104,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Cartesian elements from ephemeris.
      */
-    Eigen::Vector6d getCartesianState(
-            const double secondsSinceEpoch );
+    Eigen::Vector6d getCartesianState( const double secondsSinceEpoch );
 
     //! Get cartesian state from ephemeris (in long double precision).
     /*!
@@ -122,8 +114,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Cartesian elements from ephemeris.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongState(
-            const double secondsSinceEpoch );
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double secondsSinceEpoch );
 
     //! Get cartesian state from ephemeris (in double precision from Time input).
     /*!
@@ -131,8 +122,7 @@ public:
      * \param time Time at which ephemeris is to be evaluated
      * \return State in Cartesian elements from ephemeris.
      */
-    Eigen::Vector6d getCartesianStateFromExtendedTime(
-            const Time& time );
+    Eigen::Vector6d getCartesianStateFromExtendedTime( const Time& time );
 
     //! Get cartesian state from ephemeris (in long double precision from Time input).
     /*!
@@ -142,9 +132,7 @@ public:
      * \param time Time at which ephemeris is to be evaluated
      * \return State in Cartesian elements from ephemeris.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
-            const Time& time );
-
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& time );
 
     //! Function to return the interpolator
     /*!
@@ -158,9 +146,8 @@ public:
 
     VariableStateInterpolatorPointer getDynamicVectorSizeInterpolator( )
     {
-        return interpolators::convertBetweenStaticDynamicEigenTypeInterpolators<
-                TimeType, StateScalarType, 6, 1, Eigen::Dynamic, 1 >(
-                    interpolator_ );
+        return interpolators::convertBetweenStaticDynamicEigenTypeInterpolators< TimeType, StateScalarType, 6, 1, Eigen::Dynamic, 1 >(
+                interpolator_ );
     }
 
     //! Function that retrieves the time interval at which this ephemeris can be safely interrogated
@@ -174,42 +161,40 @@ public:
         std::pair< double, double > safeInterpolationInterval;
 
         // Check interpolator type. If interpolator is not a Lagrange interpolator, return full domain
-        if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
-                    interpolator_ ) == nullptr &&
-                std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
-                    interpolator_ ) == nullptr )
+        if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >( interpolator_ ) == nullptr &&
+            std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ ) ==
+                    nullptr )
         {
             safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 );
-            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
-                        interpolator_->getIndependentValues( ).size( ) - 1 );
+            safeInterpolationInterval.second =
+                    interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( ) - 1 );
         }
         // If interpolator is a Lagrange interpolator, return full domain minus edges where interpolator has reduced accuracy
-        else if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
-                     interpolator_ ) != nullptr )
+        else if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >( interpolator_ ) !=
+                 nullptr )
         {
             int numberOfNodes =
-                    std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
-                        interpolator_ )->getNumberOfStages( );
+                    std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >( interpolator_ )
+                            ->getNumberOfStages( );
 
             safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
-            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
-                        interpolator_->getIndependentValues( ).size( ) - 1 - ( + numberOfNodes / 2 + 1 ) );
+            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( ) -
+                                                                                          1 - ( +numberOfNodes / 2 + 1 ) );
         }
-        else if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
-                     interpolator_ ) != nullptr )
+        else if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ ) !=
+                 nullptr )
         {
             int numberOfNodes =
-                    std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
-                        interpolator_ )->getNumberOfStages( );
+                    std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ )
+                            ->getNumberOfStages( );
             safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
-            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
-                        interpolator_->getIndependentValues( ).size( ) - 1 - ( + numberOfNodes / 2 + 1 ) );
+            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( ) -
+                                                                                          1 - ( +numberOfNodes / 2 + 1 ) );
         }
         return safeInterpolationInterval;
     }
 
 private:
-
     //! Interpolator that returns body state as a function of time.
     /*!
      *  Interpolator that returns body state as a function of time by calling the interpolate
@@ -217,7 +202,6 @@ private:
      */
     StateInterpolatorPointer interpolator_;
 };
-
 
 //! Function to check whether an ephemeris is a (type of) tabulated ephemeris
 /*!
@@ -247,15 +231,15 @@ std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared
  *  \return Empty tabulated ephemeris with given reference frame settings
  */
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< Ephemeris > createEmptyTabulatedEphemeris(
-        const std::string referenceFrameOrigin = "SSB",
-        const std::string referenceFrameOrientation = "ECLIPJ2000"  )
+std::shared_ptr< Ephemeris > createEmptyTabulatedEphemeris( const std::string referenceFrameOrigin = "SSB",
+                                                            const std::string referenceFrameOrientation = "ECLIPJ2000" )
 {
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     return std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > >( ),
-                referenceFrameOrigin, referenceFrameOrientation );
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > >( ),
+            referenceFrameOrigin,
+            referenceFrameOrientation );
 }
 
 //! Create a tabulated ephemeris from a given ephemeris model and interpolation settings
@@ -269,38 +253,34 @@ std::shared_ptr< Ephemeris > createEmptyTabulatedEphemeris(
  * \return Tabulated ephemeris, as synthesized from a given ephemeris model and interpolation settings
  */
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< Ephemeris > getTabulatedEphemeris(
-        const std::shared_ptr< Ephemeris > ephemerisToInterrogate,
-        const TimeType startTime,
-        const TimeType endTime,
-        const TimeType timeStep,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+std::shared_ptr< Ephemeris > getTabulatedEphemeris( const std::shared_ptr< Ephemeris > ephemerisToInterrogate,
+                                                    const TimeType startTime,
+                                                    const TimeType endTime,
+                                                    const TimeType timeStep,
+                                                    const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+                                                            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
-
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     // Create state map that is to be interpolated
-    std::map< TimeType, StateType >  stateMap;
+    std::map< TimeType, StateType > stateMap;
     TimeType currentTime = startTime;
     while( currentTime <= endTime )
     {
-        stateMap[ currentTime ] = ephemerisToInterrogate->getTemplatedStateFromEphemeris<
-                StateScalarType, TimeType >( currentTime );
+        stateMap[ currentTime ] = ephemerisToInterrogate->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( currentTime );
         currentTime += timeStep;
     }
 
     // Create tabulated ephemeris model
     auto ephemeris = std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings ),
-                ephemerisToInterrogate->getReferenceFrameOrigin( ),
-                ephemerisToInterrogate->getReferenceFrameOrientation( ) );
+            interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings ),
+            ephemerisToInterrogate->getReferenceFrameOrigin( ),
+            ephemerisToInterrogate->getReferenceFrameOrientation( ) );
 
     return ephemeris;
-
 }
 
-} // namespace ephemerides
+}  // namespace ephemerides
 
-} // namespace tudat
-#endif // TUDAT_TABULATEDEPHEMERIS_H
+}  // namespace tudat
+#endif  // TUDAT_TABULATEDEPHEMERIS_H

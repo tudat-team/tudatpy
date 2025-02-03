@@ -25,4 +25,4 @@
 #include "basic_astro/unitConversions.h"
 #include "basic_astro/tleElementsConversions.h"
 
-#endif//TUDAT_CONVERSIONS_H
+#endif  // TUDAT_CONVERSIONS_H

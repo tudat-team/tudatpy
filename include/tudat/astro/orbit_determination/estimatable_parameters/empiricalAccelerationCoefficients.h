@@ -27,11 +27,9 @@ namespace estimatable_parameters
  * Interface class for estimation of a body's time-independent empirical accelerations. Interfaces the estimation with the
  * acceleration components in the EmpiricalAcceleration class
  */
-class EmpiricalAccelerationCoefficientsParameter: public EstimatableParameter< Eigen::VectorXd >
+class EmpiricalAccelerationCoefficientsParameter : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
-
     //! Constructor
     /*!
      *  Constructor
@@ -46,7 +44,7 @@ public:
             const std::string& associatedBody,
             const std::string& centralBody,
             const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate ):
+                            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate ):
         EstimatableParameter< Eigen::VectorXd >( empirical_acceleration_coefficients, associatedBody, centralBody ),
         empiricalAcceleration_( empiricalAcceleration )
     {
@@ -54,8 +52,8 @@ public:
 
         // Set components of empirical accelerations that are to be estimated
         for( std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > >::
-             const_iterator inputComponentIterator =  componentsToEstimate.begin( );
+                       std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > >::const_iterator inputComponentIterator =
+                     componentsToEstimate.begin( );
              inputComponentIterator != componentsToEstimate.end( );
              inputComponentIterator++ )
         {
@@ -68,18 +66,16 @@ public:
                 if( accelerationIndices_.count( inputComponentIterator->second.at( i ) ) > 0 )
                 {
                     std::vector< int > currentIndices = accelerationIndices_.at( inputComponentIterator->second.at( i ) );
-                    if( std::find( currentIndices.begin( ), currentIndices.end( ), currentComponentIndex ) !=
-                            currentIndices.end( ) )
+                    if( std::find( currentIndices.begin( ), currentIndices.end( ), currentComponentIndex ) != currentIndices.end( ) )
                     {
                         throw std::runtime_error(
-                                    "Error when creating empirical acceleration parameter object, found duplicate of component." );
+                                "Error when creating empirical acceleration parameter object, found duplicate of component." );
                     }
                 }
                 accelerationIndices_[ inputComponentIterator->second.at( i ) ].push_back( currentComponentIndex );
                 parameterSize_++;
             }
         }
-
     }
 
     //! Destructor
@@ -97,18 +93,17 @@ public:
         // Iterate over all acceleration models
         for( unsigned int i = 0; i < empiricalAcceleration_.size( ); i++ )
         {
-
             Eigen::VectorXd currentAccelerationParameter = Eigen::VectorXd::Zero( parameterSize_ );
 
             // Iterate over all components and retrieve required values
             Eigen::Matrix3d accelerationComponents = empiricalAcceleration_.at( i )->getAccelerationComponents( );
             int currentIndex = 0;
             for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator
-                 componentIterator = accelerationIndices_.begin( );
-                 componentIterator != accelerationIndices_.end( ); componentIterator++ )
+                         componentIterator = accelerationIndices_.begin( );
+                 componentIterator != accelerationIndices_.end( );
+                 componentIterator++ )
             {
-                Eigen::Vector3d accelerations =
-                        accelerationComponents.block( 0, static_cast< int >( componentIterator->first ), 3, 1 );
+                Eigen::Vector3d accelerations = accelerationComponents.block( 0, static_cast< int >( componentIterator->first ), 3, 1 );
 
                 for( unsigned int i = 0; i < componentIterator->second.size( ); i++ )
                 {
@@ -128,9 +123,12 @@ public:
             }
             else if( parameter != currentAccelerationParameter )
             {
-                std::cerr<<"Warning when retrieving emp. acc. parameter from list. List entries are incompatible. First entry is: "<<std::endl<<
-                           parameter<<std::endl<<" Current value is: "<<std::endl<<currentAccelerationParameter<<std::endl<<
-                           "Difference is: "<<parameter - currentAccelerationParameter<<std::endl;
+                std::cerr << "Warning when retrieving emp. acc. parameter from list. List entries are incompatible. First entry is: "
+                          << std::endl
+                          << parameter << std::endl
+                          << " Current value is: " << std::endl
+                          << currentAccelerationParameter << std::endl
+                          << "Difference is: " << parameter - currentAccelerationParameter << std::endl;
             }
         }
 
@@ -151,11 +149,11 @@ public:
             // Iterate over all components and set required values
             Eigen::Matrix3d accelerationComponents = empiricalAcceleration_.at( i )->getAccelerationComponents( );
             for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator
-                 componentIterator = accelerationIndices_.begin( );
-                 componentIterator != accelerationIndices_.end( ); componentIterator++ )
+                         componentIterator = accelerationIndices_.begin( );
+                 componentIterator != accelerationIndices_.end( );
+                 componentIterator++ )
             {
-                Eigen::Vector3d accelerations =
-                        accelerationComponents.block( 0, static_cast< int >( componentIterator->first ), 3, 1 );
+                Eigen::Vector3d accelerations = accelerationComponents.block( 0, static_cast< int >( componentIterator->first ), 3, 1 );
                 for( unsigned int i = 0; i < componentIterator->second.size( ); i++ )
                 {
                     accelerations( componentIterator->second.at( i ) ) = parameterValue( currentIndex );
@@ -169,8 +167,7 @@ public:
 
             if( currentIndex != parameterSize_ )
             {
-                throw std::runtime_error(
-                            "Error when getting empirical parameter size; inconsistent sizes found." );
+                throw std::runtime_error( "Error when getting empirical parameter size; inconsistent sizes found." );
             }
         }
     }
@@ -189,10 +186,13 @@ public:
     {
         std::string parameterDescription = ", components in RSW frame, functional shapes; ";
 
-        for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator
-             indexIterator = accelerationIndices_.begin( ); indexIterator != accelerationIndices_.end( ); indexIterator++ )
+        for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator indexIterator =
+                     accelerationIndices_.begin( );
+             indexIterator != accelerationIndices_.end( );
+             indexIterator++ )
         {
-            parameterDescription += "("+ basic_astrodynamics::getEmpiricalAccelerationFunctionalShapeString( indexIterator->first ) + ": index ";
+            parameterDescription +=
+                    "(" + basic_astrodynamics::getEmpiricalAccelerationFunctionalShapeString( indexIterator->first ) + ": index ";
             for( unsigned int i = 0; i < indexIterator->second.size( ); i++ )
             {
                 parameterDescription += std::to_string( indexIterator->second.at( i ) );
@@ -218,9 +218,7 @@ public:
     }
 
 protected:
-
 private:
-
     //! Class defining properties of empirical acceleration used in propagation.
     std::vector< std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > > empiricalAcceleration_;
 
@@ -236,11 +234,9 @@ private:
  * Interface class for estimation of a body's time-dependent (arcwise constant) empirical accelerations.
  * Interfaces the estimation with the acceleration components in the EmpiricalAcceleration class
  */
-class ArcWiseEmpiricalAccelerationCoefficientsParameter: public EstimatableParameter< Eigen::VectorXd >
+class ArcWiseEmpiricalAccelerationCoefficientsParameter : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
-
     //! Constructor
     /*!
      *  Constructor
@@ -257,18 +253,17 @@ public:
             const std::string& associatedBody,
             const std::string& centralBody,
             const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate,
+                            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate,
             const std::vector< double > arcStartTimeList ):
         EstimatableParameter< Eigen::VectorXd >( arc_wise_empirical_acceleration_coefficients, associatedBody, centralBody ),
-        empiricalAcceleration_( empiricalAcceleration ),
-        arcStartTimeList_( arcStartTimeList )
+        empiricalAcceleration_( empiricalAcceleration ), arcStartTimeList_( arcStartTimeList )
     {
         singleArcParameterSize_ = 0;
 
         // Set components of empirical accelerations that are to be estimated
         for( std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > >::
-             const_iterator inputComponentIterator =  componentsToEstimate.begin( );
+                       std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > >::const_iterator inputComponentIterator =
+                     componentsToEstimate.begin( );
              inputComponentIterator != componentsToEstimate.end( );
              inputComponentIterator++ )
         {
@@ -281,11 +276,10 @@ public:
                 if( accelerationIndices_.count( inputComponentIterator->second.at( i ) ) > 0 )
                 {
                     std::vector< int > currentIndices = accelerationIndices_.at( inputComponentIterator->second.at( i ) );
-                    if( std::find( currentIndices.begin( ), currentIndices.end( ), currentComponentIndex ) !=
-                            currentIndices.end( ) )
+                    if( std::find( currentIndices.begin( ), currentIndices.end( ), currentComponentIndex ) != currentIndices.end( ) )
                     {
                         throw std::runtime_error(
-                                    "Error when creating arcwise empirical acceleration parameter object, found duplicate of component." );
+                                "Error when creating arcwise empirical acceleration parameter object, found duplicate of component." );
                     }
                 }
                 accelerationIndices_[ inputComponentIterator->second.at( i ) ].push_back( currentComponentIndex );
@@ -303,9 +297,10 @@ public:
             Eigen::Matrix3d comparisonAccelerations = empiricalAcceleration.at( i )->getAccelerationComponents( );
             if( comparisonAccelerations != currentTimeInvariantEmpiricalAccelerations )
             {
-                std::cerr<<"Warning when initializing arc-wise empirical acceleration parameter, list of input acceleration models do not have identical accelerations."<<std::endl;
+                std::cerr << "Warning when initializing arc-wise empirical acceleration parameter, list of input acceleration models do "
+                             "not have identical accelerations."
+                          << std::endl;
             }
-
         }
         for( unsigned int i = 0; i < arcStartTimeList_.size( ); i++ )
         {
@@ -313,15 +308,14 @@ public:
         }
 
         // Create piecewise constant interpolator for empirical acceleration
-        empiricalAccelerationInterpolator_ = std::make_shared<
-                interpolators::PiecewiseConstantInterpolator< double, Eigen::Matrix3d > >(
-                    arcStartTimeList_, empiricalAccelerationList_ );
+        empiricalAccelerationInterpolator_ = std::make_shared< interpolators::PiecewiseConstantInterpolator< double, Eigen::Matrix3d > >(
+                arcStartTimeList_, empiricalAccelerationList_ );
         typedef interpolators::OneDimensionalInterpolator< double, Eigen::Matrix3d > LocalInterpolator;
 
         empiricalAccelerationFunction_ =
-                std::bind( static_cast< Eigen::Matrix3d( LocalInterpolator::* )( const double ) >
-                           ( &LocalInterpolator::interpolate ), empiricalAccelerationInterpolator_, std::placeholders::_1 );
-
+                std::bind( static_cast< Eigen::Matrix3d ( LocalInterpolator::* )( const double ) >( &LocalInterpolator::interpolate ),
+                           empiricalAccelerationInterpolator_,
+                           std::placeholders::_1 );
     }
 
     //! Destructor
@@ -343,8 +337,9 @@ public:
             // Iterate over all components and retrieve required values
             Eigen::Matrix3d currentArcAccelerations = empiricalAccelerationList_.at( i );
             for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator
-                 componentIterator = accelerationIndices_.begin( );
-                 componentIterator != accelerationIndices_.end( ); componentIterator++ )
+                         componentIterator = accelerationIndices_.begin( );
+                 componentIterator != accelerationIndices_.end( );
+                 componentIterator++ )
             {
                 int currentBlockColumn = static_cast< int >( componentIterator->first );
                 for( unsigned int j = 0; j < componentIterator->second.size( ); j++ )
@@ -359,7 +354,6 @@ public:
         if( currentIndex != getParameterSize( ) )
         {
             throw std::runtime_error( "Error when getting arcwise empirical parameter; inconsistent sizes found." );
-
         }
 
         return parameter;
@@ -382,14 +376,14 @@ public:
                 // Iterate over all components and set required values
                 Eigen::Matrix3d currentArcAccelerations = empiricalAccelerationList_.at( i );
                 for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator
-                     componentIterator = accelerationIndices_.begin( );
-                     componentIterator != accelerationIndices_.end( ); componentIterator++ )
+                             componentIterator = accelerationIndices_.begin( );
+                     componentIterator != accelerationIndices_.end( );
+                     componentIterator++ )
                 {
                     int currentBlockColumn = static_cast< int >( componentIterator->first );
                     for( unsigned int j = 0; j < componentIterator->second.size( ); j++ )
                     {
-                        currentArcAccelerations( componentIterator->second.at( j ), currentBlockColumn ) =
-                                parameterValue( currentIndex );
+                        currentArcAccelerations( componentIterator->second.at( j ), currentBlockColumn ) = parameterValue( currentIndex );
                         currentIndex++;
                     }
                 }
@@ -402,8 +396,7 @@ public:
 
             if( currentIndex != getParameterSize( ) )
             {
-                throw std::runtime_error(
-                            "Error when setting arc-wise empirical parameter size; inconsistent sizes found." );
+                throw std::runtime_error( "Error when setting arc-wise empirical parameter size; inconsistent sizes found." );
             }
         }
     }
@@ -439,15 +432,12 @@ public:
     }
 
 protected:
-
 private:
-
     //! Class defining properties of empirical acceleration used in propagation.
     std::vector< std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > > empiricalAcceleration_;
 
     //! Interpolator to compute the empirical acceleration as a function of time
-    std::shared_ptr< interpolators::PiecewiseConstantInterpolator< double, Eigen::Matrix3d > >
-    empiricalAccelerationInterpolator_;
+    std::shared_ptr< interpolators::PiecewiseConstantInterpolator< double, Eigen::Matrix3d > > empiricalAccelerationInterpolator_;
 
     //! Function returning the empirical acceleration as a function of time (linked to empiricalAccelerationInterpolator_)
     std::function< Eigen::Matrix3d( const double ) > empiricalAccelerationFunction_;
@@ -463,11 +453,10 @@ private:
 
     //! Number of empirical acceleration components that are to be estimated for a single arc
     int singleArcParameterSize_;
-
 };
 
-}
+}  // namespace estimatable_parameters
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_EMPIRICALACCELERATIONCOEFFICIENTS_H
+#endif  // TUDAT_EMPIRICALACCELERATIONCOEFFICIENTS_H

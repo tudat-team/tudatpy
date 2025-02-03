@@ -8,11 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
 #include "tudat/astro/orbit_determination/observation_partials/firstOrderRelativisticPartial.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrectionPartials.h"
-
 
 namespace tudat
 {
@@ -32,33 +30,32 @@ std::vector< std::shared_ptr< LightTimeCorrectionPartial > > createLightTimeCorr
         // Check type of light time correction
         switch( lightTimeCorrectionList.at( i )->getLightTimeCorrectionType( ) )
         {
-        case observation_models::first_order_relativistic:
-        {
-            std::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > currentCorrection =
-                    std::dynamic_pointer_cast< observation_models::FirstOrderLightTimeCorrectionCalculator >(
-                        lightTimeCorrectionList.at( i ) );
-            if( currentCorrection == nullptr )
-            {
-                throw std::runtime_error( "Error when making first order light time correction partial, type id observation_models::first_order_relativistic not consistent with class type." );
-            }
-            else
-            {
-                // Create partial of first-order relativistic light-time correction
-                partialList.push_back(
-                            std::make_shared< FirstOrderRelativisticLightTimeCorrectionPartial >( currentCorrection ) );
-            }
+            case observation_models::first_order_relativistic: {
+                std::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > currentCorrection =
+                        std::dynamic_pointer_cast< observation_models::FirstOrderLightTimeCorrectionCalculator >(
+                                lightTimeCorrectionList.at( i ) );
+                if( currentCorrection == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when making first order light time correction partial, type id "
+                            "observation_models::first_order_relativistic not consistent with class type." );
+                }
+                else
+                {
+                    // Create partial of first-order relativistic light-time correction
+                    partialList.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionPartial >( currentCorrection ) );
+                }
 
-            break;
-        }
-        default:
-            break;
+                break;
+            }
+            default:
+                break;
         }
     }
 
     return partialList;
 }
 
-}
+}  // namespace observation_partials
 
-}
-
+}  // namespace tudat

@@ -31,12 +31,10 @@ template< typename StateMatrix >
 class SphericalHarmonicsGravitationalAccelerationModelBase
 {
 protected:
-
     //! Typedef for a position-returning function.
     typedef std::function< void( StateMatrix& ) > StateFunction;
 
 public:
-
     //! Default constructor taking position of body subject to acceleration, variable
     //! gravitational parameter, and position of body exerting acceleration.
     /*!
@@ -55,18 +53,15 @@ public:
      * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
      * if the variable is true.
      */
-    SphericalHarmonicsGravitationalAccelerationModelBase(
-            const StateFunction positionOfBodySubjectToAccelerationFunction,
-            const double aGravitationalParameter,
-            const StateFunction positionOfBodyExertingAccelerationFunction,
-            const bool isMutualAttractionUsed,
-            const bool updateGravitationalPotential = false )
-        : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
-          gravitationalParameterFunction( [ = ]( ){ return aGravitationalParameter; } ),
-          sourcePositionFunction( positionOfBodyExertingAccelerationFunction ),
-          isMutualAttractionUsed_( isMutualAttractionUsed ),
-          currentPotential_( TUDAT_NAN ),
-          updatePotential_( updateGravitationalPotential )
+    SphericalHarmonicsGravitationalAccelerationModelBase( const StateFunction positionOfBodySubjectToAccelerationFunction,
+                                                          const double aGravitationalParameter,
+                                                          const StateFunction positionOfBodyExertingAccelerationFunction,
+                                                          const bool isMutualAttractionUsed,
+                                                          const bool updateGravitationalPotential = false ):
+        subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
+        gravitationalParameterFunction( [ = ]( ) { return aGravitationalParameter; } ),
+        sourcePositionFunction( positionOfBodyExertingAccelerationFunction ), isMutualAttractionUsed_( isMutualAttractionUsed ),
+        currentPotential_( TUDAT_NAN ), updatePotential_( updateGravitationalPotential )
     { }
 
     //! Default constructor taking position of body subject to acceleration, variable
@@ -88,25 +83,22 @@ public:
      * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
      * if the variable is true.
      */
-    SphericalHarmonicsGravitationalAccelerationModelBase(
-            const StateFunction positionOfBodySubjectToAccelerationFunction,
-            const std::function< double( ) > aGravitationalParameterFunction,
-            const StateFunction positionOfBodyExertingAccelerationFunction,
-            const bool isMutualAttractionUsed,
-            const bool updateGravitationalPotential = false )
-        : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
-          gravitationalParameterFunction( aGravitationalParameterFunction ),
-          sourcePositionFunction( positionOfBodyExertingAccelerationFunction ),
-          isMutualAttractionUsed_( isMutualAttractionUsed ),
-          currentPotential_( TUDAT_NAN ),
-          updatePotential_( updateGravitationalPotential )
+    SphericalHarmonicsGravitationalAccelerationModelBase( const StateFunction positionOfBodySubjectToAccelerationFunction,
+                                                          const std::function< double( ) > aGravitationalParameterFunction,
+                                                          const StateFunction positionOfBodyExertingAccelerationFunction,
+                                                          const bool isMutualAttractionUsed,
+                                                          const bool updateGravitationalPotential = false ):
+        subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
+        gravitationalParameterFunction( aGravitationalParameterFunction ),
+        sourcePositionFunction( positionOfBodyExertingAccelerationFunction ), isMutualAttractionUsed_( isMutualAttractionUsed ),
+        currentPotential_( TUDAT_NAN ), updatePotential_( updateGravitationalPotential )
     { }
 
     //! Virtual destructor.
     /*!
      * Base class virtual destructor.
      */
-    virtual ~SphericalHarmonicsGravitationalAccelerationModelBase( ){ }
+    virtual ~SphericalHarmonicsGravitationalAccelerationModelBase( ) { }
 
     //! Update base class members.
     /*!
@@ -129,7 +121,9 @@ public:
      * \return Function returning the gravitational parameter used in the computations.
      */
     std::function< double( ) > getGravitationalParameterFunction( )
-    { return gravitationalParameterFunction; }
+    {
+        return gravitationalParameterFunction;
+    }
 
     //! Function to return the function returning position of body exerting acceleration.
     /*!
@@ -137,7 +131,9 @@ public:
      * \return Function returning position of body exerting acceleration.
      */
     StateFunction getStateFunctionOfBodyExertingAcceleration( )
-    { return sourcePositionFunction; }
+    {
+        return sourcePositionFunction;
+    }
 
     //! Function to return the function returning position of body subject to acceleration.
     /*!
@@ -145,7 +141,9 @@ public:
      * \return Function returning position of body subject to acceleration.
      */
     StateFunction getStateFunctionOfBodyUndergoingAcceleration( )
-    { return subjectPositionFunction; }
+    {
+        return subjectPositionFunction;
+    }
 
     //! Function to return whether the mutual attraction is used.
     /*!
@@ -188,20 +186,24 @@ public:
     }
 
     //! Function to return the value of the current gravitational potential.
-    double getCurrentPotential ( )
-    { return currentPotential_; }
+    double getCurrentPotential( )
+    {
+        return currentPotential_;
+    }
 
     //! Function to return the update potential flag.
-    bool getUpdatePotential ( )
-    { return updatePotential_; }
+    bool getUpdatePotential( )
+    {
+        return updatePotential_;
+    }
 
     //! Function to reset the update potential flag.
-    void resetUpdatePotential ( bool updatePotential )
-    { updatePotential_ = updatePotential; }
-
+    void resetUpdatePotential( bool updatePotential )
+    {
+        updatePotential_ = updatePotential;
+    }
 
 protected:
-
     //! Position of body subject to acceleration.
     /*!
      * Current position vector of body subject to gravitational acceleration in inertial frame.
@@ -256,11 +258,10 @@ protected:
     //! Flag indicating whether to update the gravitational potential when calling the updateMembers function.
     bool updatePotential_;
 
-
 private:
 };
 
-} // namespace gravitation
-} // namespace tudat
+}  // namespace gravitation
+}  // namespace tudat
 
-#endif // TUDAT_SPHERICAL_HARMONICS_GRAVITATIONAL_ACCELERATION_MODEL_BASE_H
+#endif  // TUDAT_SPHERICAL_HARMONICS_GRAVITATIONAL_ACCELERATION_MODEL_BASE_H

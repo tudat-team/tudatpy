@@ -20,14 +20,14 @@
 #include "propagation_setup/dynamicsSimulator.h"
 #include "propagation_setup/environmentUpdater.h"
 #include "propagation_setup/propagationCR3BPFullProblem.h"
-//#include "propagation_setup/propagationLambertTargeterFullProblem.h"
+// #include "propagation_setup/propagationLambertTargeterFullProblem.h"
 #include "propagation_setup/propagationOutput.h"
 #include "propagation_setup/propagationOutputSettings.h"
-//#include "propagation_setup/propagationPatchedConicFullProblem.h"
+// #include "propagation_setup/propagationPatchedConicFullProblem.h"
 #include "propagation_setup/propagationSettings.h"
 #include "propagation_setup/propagationTermination.h"
 #include "propagation_setup/propagationTerminationSettings.h"
 #include "propagation_setup/setNumericallyIntegratedStates.h"
 #include "propagation_setup/torqueSettings.h"
 
-#endif // TUDAT_PROPAGATION_SETUP_H
+#endif  // TUDAT_PROPAGATION_SETUP_H

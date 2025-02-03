@@ -17,7 +17,7 @@
 
 #include <cmath>
 
-#include <boost/math/special_functions.hpp> // for asinh and acosh
+#include <boost/math/special_functions.hpp>  // for asinh and acosh
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -30,8 +30,7 @@ namespace mission_segments
 {
 
 //! Compute solution for N revolutions and branch.
-void MultiRevolutionLambertTargeterIzzo::computeForRevolutionsAndBranch(
-        const int aNumberOfRevolutions, const bool aIsRightBranch )
+void MultiRevolutionLambertTargeterIzzo::computeForRevolutionsAndBranch( const int aNumberOfRevolutions, const bool aIsRightBranch )
 {
     // Adjust parameters for new solution
     numberOfRevolutions = aNumberOfRevolutions;
@@ -47,7 +46,7 @@ void MultiRevolutionLambertTargeterIzzo::computeForRevolutionsAndBranch(
 //! Get maximum number of revolutions calculated.
 int MultiRevolutionLambertTargeterIzzo::getMaximumNumberOfRevolutions( )
 {
-    if ( !solved )
+    if( !solved )
     {
         transformDimensions( );
         sanityCheckNumberOfRevolutions( );
@@ -60,7 +59,7 @@ int MultiRevolutionLambertTargeterIzzo::getMaximumNumberOfRevolutions( )
 void MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions( )
 {
     // If not yet defined, calculate number of revolutions possible.
-    if ( maximumNumberOfRevolutions == NO_MAXIMUM_REVOLUTIONS )
+    if( maximumNumberOfRevolutions == NO_MAXIMUM_REVOLUTIONS )
     {
         // Temporarily store specified number, as numberOfRevolutions is needed to calculate max
         // (this is a tricky way to work, but on the other hand this makes this approach decidedly
@@ -69,16 +68,14 @@ void MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions( )
 
         // Calculate first guess of maximum, by dividing the time of flight of the minimum energy
         // ellipse by the normalized time of flight.
-        numberOfRevolutions = static_cast< int >(
-                    normalizedTimeOfFlight / (
-                        mathematical_constants::PI / 2.0
-                        * std::sqrt( 2.0 * normalizedSemiPerimeter
-                                     * normalizedSemiPerimeter
-                                     * normalizedSemiPerimeter ) ) );
+        numberOfRevolutions =
+                static_cast< int >( normalizedTimeOfFlight /
+                                    ( mathematical_constants::PI / 2.0 *
+                                      std::sqrt( 2.0 * normalizedSemiPerimeter * normalizedSemiPerimeter * normalizedSemiPerimeter ) ) );
 
         // If the current guess for the maximum is non-zero, then additional analysis is required to
         // determine the correct maximum.
-        if( numberOfRevolutions != 0)
+        if( numberOfRevolutions != 0 )
         {
             // The following try-block is meant to check whether the solution converges or not. If
             // the current guess for the maximum number of revolutions is correct, then the problem
@@ -88,7 +85,7 @@ void MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions( )
             try
             {
                 // Compute root (no further information is required)
-                computeRootTimeOfFlight();
+                computeRootTimeOfFlight( );
             }
             catch( basic_mathematics::ConvergenceException& )
             {
@@ -108,12 +105,12 @@ void MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions( )
 
     // Default: compare maximum with specified number of revolutions.
     // If specified is larger than maximum, no solution is possible.
-    if ( numberOfRevolutions > maximumNumberOfRevolutions )
+    if( numberOfRevolutions > maximumNumberOfRevolutions )
     {
         // Throw exception.
-        throw std::runtime_error(  "Number of revolutions specified in Lambert problem is larger than possible. Specified number of revolutions is " +
-                                   std::to_string( numberOfRevolutions )  + " while the maximum is " +
-                                   std::to_string( maximumNumberOfRevolutions ) );
+        throw std::runtime_error(
+                "Number of revolutions specified in Lambert problem is larger than possible. Specified number of revolutions is " +
+                std::to_string( numberOfRevolutions ) + " while the maximum is " + std::to_string( maximumNumberOfRevolutions ) );
     }
     // Else, nothing wrong.
 }
@@ -131,7 +128,7 @@ void MultiRevolutionLambertTargeterIzzo::execute( )
     /*// Sanity check for number of revolutions (must be after dimension removal).
     sanityCheckNumberOfRevolutions( );*/
 
-    if ( numberOfRevolutions == 0 )
+    if( numberOfRevolutions == 0 )
     {
         // call base class function that works on zero revolutions.
         ZeroRevolutionLambertTargeterIzzo::execute( );
@@ -152,11 +149,10 @@ void MultiRevolutionLambertTargeterIzzo::execute( )
 double MultiRevolutionLambertTargeterIzzo::computeTimeOfFlight( const double xParameter )
 {
     // Determine semi-major axis.
-    const double semiMajorAxis = normalizedMinimumEnergySemiMajorAxis
-            / ( 1.0 - xParameter * xParameter );
+    const double semiMajorAxis = normalizedMinimumEnergySemiMajorAxis / ( 1.0 - xParameter * xParameter );
 
     // If x < 1, the solution is an ellipse.
-    if ( xParameter < 1.0 )
+    if( xParameter < 1.0 )
     {
         // Alpha parameter in Lagrange's equation (no explanation available).
         const double alphaParameter = 2.0 * std::acos( xParameter );
@@ -165,26 +161,20 @@ double MultiRevolutionLambertTargeterIzzo::computeTimeOfFlight( const double xPa
         double betaParameter;
 
         // If long transfer arc.
-        if ( isLongway )
+        if( isLongway )
         {
-            betaParameter = -2.0 * std::asin(
-                        std::sqrt( ( normalizedSemiPerimeter - normalizedChord )
-                                   / ( 2.0 * semiMajorAxis ) ) );
+            betaParameter = -2.0 * std::asin( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( 2.0 * semiMajorAxis ) ) );
         }
         // Otherwise short transfer arc.
         else
         {
-            betaParameter = 2.0 * std::asin(
-                        std::sqrt( ( normalizedSemiPerimeter - normalizedChord )
-                                   / ( 2.0 * semiMajorAxis ) ) );
+            betaParameter = 2.0 * std::asin( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( 2.0 * semiMajorAxis ) ) );
         }
 
         // Time-of-flight according to Lagrange including multiple revolutions.
         const double timeOfFlight = semiMajorAxis * std::sqrt( semiMajorAxis ) *
-                ( ( alphaParameter - std::sin( alphaParameter ) )
-                  - ( betaParameter - std::sin( betaParameter ) )
-                  + 2.0 * mathematical_constants::PI
-                  * numberOfRevolutions );
+                ( ( alphaParameter - std::sin( alphaParameter ) ) - ( betaParameter - std::sin( betaParameter ) ) +
+                  2.0 * mathematical_constants::PI * numberOfRevolutions );
 
         return timeOfFlight;
     }
@@ -198,24 +188,21 @@ double MultiRevolutionLambertTargeterIzzo::computeTimeOfFlight( const double xPa
         double betaParameter;
 
         // If long transfer arc.
-        if ( isLongway )
+        if( isLongway )
         {
-            betaParameter = -2.0 * boost::math::asinh( std::sqrt( ( normalizedSemiPerimeter
-                                                                    - normalizedChord )
-                                                                  / ( -2.0 * semiMajorAxis ) ) );
+            betaParameter =
+                    -2.0 * boost::math::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
         }
         // Otherwise short transfer arc
         else
         {
-            betaParameter = 2.0 * boost::math::asinh( std::sqrt( ( normalizedSemiPerimeter
-                                                                   - normalizedChord )
-                                                                 / ( -2.0 * semiMajorAxis ) ) );
+            betaParameter =
+                    2.0 * boost::math::asinh( std::sqrt( ( normalizedSemiPerimeter - normalizedChord ) / ( -2.0 * semiMajorAxis ) ) );
         }
 
         // Time-of-flight according to Lagrange.
         const double timeOfFlightLagrange = -semiMajorAxis * std::sqrt( -semiMajorAxis ) *
-                ( ( std::sinh( alphaParameter ) - alphaParameter )
-                  - ( std::sinh( betaParameter ) - betaParameter ) );
+                ( ( std::sinh( alphaParameter ) - alphaParameter ) - ( std::sinh( betaParameter ) - betaParameter ) );
 
         return timeOfFlightLagrange;
     }
@@ -229,13 +216,13 @@ double MultiRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
     // Define initial guesses for abcissae (x) and ordinates (y).
     double x1, x2;
 
-    if ( isRightBranch )
-    { // right branch solution.
+    if( isRightBranch )
+    {  // right branch solution.
         x1 = std::tan( .7234 * PI / 2.0 );
         x2 = std::tan( .5234 * PI / 2.0 );
     }
     else
-    { // left branch solution.
+    {  // left branch solution.
         x1 = std::tan( -.5234 * PI / 2.0 );
         x2 = std::tan( -.2234 * PI / 2.0 );
     }
@@ -249,8 +236,7 @@ double MultiRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
     int iterator = 0;
 
     // Root-finding loop.
-    while ( ( rootFindingError > convergenceTolerance ) && ( y1 != y2 )
-            && ( iterator < maximumNumberOfIterations ) )
+    while( ( rootFindingError > convergenceTolerance ) && ( y1 != y2 ) && ( iterator < maximumNumberOfIterations ) )
     {
         // Update iterator.
         iterator++;
@@ -272,11 +258,12 @@ double MultiRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
     }
 
     // Verify that root-finder has converged.
-    if ( iterator == maximumNumberOfIterations )
+    if( iterator == maximumNumberOfIterations )
     {
         throw basic_mathematics::ConvergenceException(
-                    "Multi-Revolution Lambert targeter failed to converge to a solution. Reached the maximum number of iterations: %d"
-                    + std::to_string( maximumNumberOfIterations ) );;
+                "Multi-Revolution Lambert targeter failed to converge to a solution. Reached the maximum number of iterations: %d" +
+                std::to_string( maximumNumberOfIterations ) );
+        ;
     }
 
     // Revert to x parameter.
@@ -286,5 +273,5 @@ double MultiRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
 
 // Add compute maximum number of revolutions routine?
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat

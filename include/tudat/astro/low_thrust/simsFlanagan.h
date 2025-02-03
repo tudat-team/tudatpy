@@ -26,11 +26,11 @@ namespace tudat
 namespace low_thrust_trajectories
 {
 
-
 //! Transform thrust model as a function of time into Sims Flanagan thrust model.
 std::vector< double > convertToSimsFlanaganThrustModel( std::function< Eigen::Vector3d( const double ) > thrustModelWrtTime,
                                                         const double maximumThrust,
-                                                        const double timeOfFlight, const int numberSegmentsForwardPropagation,
+                                                        const double timeOfFlight,
+                                                        const int numberSegmentsForwardPropagation,
                                                         const int numberSegmentsBackwardPropagation );
 
 //! Convert a shape-based thrust profile into a possible initial guess for Sims-Flanagan.
@@ -41,28 +41,22 @@ std::function< Eigen::Vector3d( const double ) > getInitialGuessFunctionFromShap
         std::function< double( const double ) > specificImpulseFunction,
         std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
-
-
 class SimsFlanagan : public low_thrust_trajectories::LowThrustLeg
 {
 public:
-
     //! Constructor.
-    SimsFlanagan(
-            const Eigen::Vector6d& stateAtDeparture,
-            const Eigen::Vector6d& stateAtArrival,
-            const double centralBodyGravitationalParameter,
-            const double initialSpacecraftMass,
-            const double maximumThrust,
-            const std::function< double ( const double ) > specificImpulseFunction,
-            const int numberSegments,
-            const double timeOfFlight,
-            std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings ) :
+    SimsFlanagan( const Eigen::Vector6d& stateAtDeparture,
+                  const Eigen::Vector6d& stateAtArrival,
+                  const double centralBodyGravitationalParameter,
+                  const double initialSpacecraftMass,
+                  const double maximumThrust,
+                  const std::function< double( const double ) > specificImpulseFunction,
+                  const int numberSegments,
+                  const double timeOfFlight,
+                  std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings ):
         LowThrustLeg( stateAtDeparture, stateAtArrival, timeOfFlight, initialSpacecraftMass, true ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-        maximumThrust_( maximumThrust ),
-        specificImpulseFunction_( specificImpulseFunction ),
-        numberSegments_( numberSegments ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ), maximumThrust_( maximumThrust ),
+        specificImpulseFunction_( specificImpulseFunction ), numberSegments_( numberSegments ),
         optimisationSettings_( optimisationSettings )
     {
         // Calculate number of segments for both the forward propagation (from departure to match point)
@@ -71,19 +65,18 @@ public:
         numberSegmentsBackwardPropagation_ = numberSegments_ / 2;
 
         // Convert the thrust model proposed as initial guess into simplified thrust model adapted to the Sims-Flanagan method.
-        if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 )
+        if( optimisationSettings_->initialGuessThrustModel_.first.size( ) != 0 )
         {
-            if ( optimisationSettings_->initialGuessThrustModel_.first.size( ) !=
-                 static_cast< unsigned int >( 3 * numberSegments ) )
+            if( optimisationSettings_->initialGuessThrustModel_.first.size( ) != static_cast< unsigned int >( 3 * numberSegments ) )
             {
                 throw std::runtime_error(
-                            "Error when providing an initial guess for Sims-Flanagan, size of the thrust model initial guess unconsistent with number of segments" );
+                        "Error when providing an initial guess for Sims-Flanagan, size of the thrust model initial guess unconsistent with "
+                        "number of segments" );
             }
             else
             {
                 initialGuessThrustModel_.first = optimisationSettings_->initialGuessThrustModel_.first;
             }
-
         }
         else
         {
@@ -98,18 +91,23 @@ public:
 
         // Transform best design variables into vector of throttles.
         std::vector< Eigen::Vector3d > throttles;
-        for ( int i = 0 ; i < numberSegments ; i++ )
+        for( int i = 0; i < numberSegments; i++ )
         {
-            throttles.push_back( ( Eigen::Vector3d( ) << championDesignVariables_[ i * 3 ], championDesignVariables_[ i * 3 + 1 ],
-                    championDesignVariables_[ i * 3 + 2 ] ).finished( ) );
+            throttles.push_back( ( Eigen::Vector3d( ) << championDesignVariables_[ i * 3 ],
+                                   championDesignVariables_[ i * 3 + 1 ],
+                                   championDesignVariables_[ i * 3 + 2 ] )
+                                         .finished( ) );
         }
 
         // Create Sims-Flanagan leg from the best optimisation individual.
-        simsFlanaganModel_ = std::make_shared< SimsFlanaganModel >(
-                    stateAtDeparture_, stateAtArrival_,
-                    centralBodyGravitationalParameter_, initialMass_, maximumThrust_, specificImpulseFunction_,
-                    timeOfFlight_, throttles );
-
+        simsFlanaganModel_ = std::make_shared< SimsFlanaganModel >( stateAtDeparture_,
+                                                                    stateAtArrival_,
+                                                                    centralBodyGravitationalParameter_,
+                                                                    initialMass_,
+                                                                    maximumThrust_,
+                                                                    specificImpulseFunction_,
+                                                                    timeOfFlight_,
+                                                                    throttles );
     }
 
     //! Default destructor.
@@ -140,31 +138,26 @@ public:
     Eigen::Vector6d computeCurrentStateVector( const double currentTime );
 
     //! Compute state history.
-    void getTrajectory(
-            std::vector< double >& epochsVector,
-            std::map< double, Eigen::Vector6d >& propagatedTrajectory )
+    void getTrajectory( std::vector< double >& epochsVector, std::map< double, Eigen::Vector6d >& propagatedTrajectory )
     {
         simsFlanaganModel_->propagateTrajectory( epochsVector, propagatedTrajectory );
     }
 
     Eigen::Vector3d computeCurrentThrustForce( double time,
-                                          std::function< double ( const double ) > specificImpulseFunction,
-                                          std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+                                               std::function< double( const double ) > specificImpulseFunction,
+                                               std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Compute direction thrust acceleration in cartesian coordinates.
-    Eigen::Vector3d computeCurrentThrustAccelerationDirection(
-            double currentTime );
+    Eigen::Vector3d computeCurrentThrustAccelerationDirection( double currentTime );
 
     //! Compute magnitude thrust acceleration.
-    double computeCurrentThrustAccelerationMagnitude(
-            double currentTime );
+    double computeCurrentThrustAccelerationMagnitude( double currentTime );
 
     //! Return thrust acceleration profile.
-    void getThrustAccelerationProfile(
-            std::vector< double >& epochsVector,
-            std::map< double, Eigen::VectorXd >& thrustAccelerationProfile,
-            std::function< double ( const double ) > specificImpulseFunction,
-            std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings );
+    void getThrustAccelerationProfile( std::vector< double >& epochsVector,
+                                       std::map< double, Eigen::VectorXd >& thrustAccelerationProfile,
+                                       std::function< double( const double ) > specificImpulseFunction,
+                                       std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
 
     //! Return best individual.
     std::vector< double > getBestIndividual( )
@@ -178,46 +171,40 @@ public:
         return championFitness_;
     }
 
-
     //! Return best Sims-Flanagan leg after optimisation.
     std::shared_ptr< SimsFlanaganModel > getOptimalSimsFlanaganModel( )
     {
         return simsFlanaganModel_;
     }
 
-
     //! Retrieve acceleration map (thrust and central gravity accelerations).
     basic_astrodynamics::AccelerationMap retrieveLowThrustAccelerationMap(
             const simulation_setup::SystemOfBodies& bodies,
             const std::string& bodyToPropagate,
             const std::string& centralBody,
-            const std::function< double ( const double ) > specificImpulseFunction,
+            const std::function< double( const double ) > specificImpulseFunction,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings );
-
 
     //! Define appropriate translational state propagator settings for the full propagation.
     std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > createLowThrustTranslationalStatePropagatorSettings(
-            const std::string& bodyToPropagate,
-            const std::string& centralBody,
-            const basic_astrodynamics::AccelerationMap& accelerationModelMap );
-
+               std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
+    createLowThrustTranslationalStatePropagatorSettings( const std::string& bodyToPropagate,
+                                                         const std::string& centralBody,
+                                                         const basic_astrodynamics::AccelerationMap& accelerationModelMap );
 
 protected:
-
     int convertTimeToLegSegment( double currentTime )
     {
         return simsFlanaganModel_->convertTimeToLegSegment( currentTime );
     }
 
 private:
-
     double centralBodyGravitationalParameter_;
 
     //! Maximum allowed thrust.
     double maximumThrust_;
 
-    std::function< double ( const double ) > specificImpulseFunction_;
+    std::function< double( const double ) > specificImpulseFunction_;
 
     //! Number of segments into which the leg is subdivided.
     int numberSegments_;
@@ -244,11 +231,9 @@ private:
 
     //! Sims-Flanagan leg corresponding to the best optimisation output.
     std::shared_ptr< SimsFlanaganModel > simsFlanaganModel_;
-
 };
 
+}  // namespace low_thrust_trajectories
+}  // namespace tudat
 
-} // namespace low_thrust_trajectories
-} // namespace tudat
-
-#endif // TUDAT_SIMS_FLANAGAN_H
+#endif  // TUDAT_SIMS_FLANAGAN_H

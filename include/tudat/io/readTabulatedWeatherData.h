@@ -30,14 +30,12 @@ namespace input_output
 class DsnWeatherData
 {
 public:
-
     /*!
      * Constructor. Reads weather file and saves the data.
      *
      * @param weatherFile File name.
      */
-    DsnWeatherData( const std::string& weatherFile ):
-        dsnStationComplexId_( -1 )
+    DsnWeatherData( const std::string& weatherFile ): dsnStationComplexId_( -1 )
     {
         fileNames_.push_back( weatherFile );
         readSingleFileWeatherData( weatherFile );
@@ -46,9 +44,7 @@ public:
     /*!
      * Constructor.
      */
-    DsnWeatherData( ):
-        dsnStationComplexId_( -1 )
-    { }
+    DsnWeatherData( ): dsnStationComplexId_( -1 ) { }
 
     // Number of the DSN station complex
     int dsnStationComplexId_;
@@ -75,7 +71,6 @@ public:
     std::vector< double > relativeHumidity_;
 
 private:
-
     /*!
      * Extracts the data in the read file and places it in the appropriate vectors. Missing measurements are set to NAN.
      * Data is extracted according to TRK-2-24 (2006).
@@ -92,8 +87,7 @@ private:
  * @param file2 Weather data file.
  * @return
  */
-bool compareDsnWeatherFileStartDate( std::shared_ptr< DsnWeatherData > file1,
-                                     std::shared_ptr< DsnWeatherData > file2 );
+bool compareDsnWeatherFileStartDate( std::shared_ptr< DsnWeatherData > file1, std::shared_ptr< DsnWeatherData > file2 );
 
 /*!
  * Reads multiple DSN weather files. Merges the data associated with each DSN complex.
@@ -101,8 +95,7 @@ bool compareDsnWeatherFileStartDate( std::shared_ptr< DsnWeatherData > file1,
  * @param weatherFileNames Vector with weather file names.
  * @return Map with a single DsnWeatherData object per DSN complex id.
  */
-std::map< int, std::shared_ptr< DsnWeatherData > > readDsnWeatherDataFiles(
-        const std::vector< std::string >& weatherFileNames );
+std::map< int, std::shared_ptr< DsnWeatherData > > readDsnWeatherDataFiles( const std::vector< std::string >& weatherFileNames );
 
 /*!
  * Creates interpolation function with the specified settings, keys and values. The only difference with respect to a manual
@@ -114,10 +107,9 @@ std::map< int, std::shared_ptr< DsnWeatherData > > readDsnWeatherDataFiles(
  * @param values Vector with interpolation values (e.g. temperature, pressure, etc.)
  * @return Value as a function of the key.
  */
-std::function< double ( double ) > createInterpolatingFunction(
-        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
-        const std::vector< double >& keys,
-        const std::vector< double >& values );
+std::function< double( double ) > createInterpolatingFunction( std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
+                                                               const std::vector< double >& keys,
+                                                               const std::vector< double >& values );
 
 /*!
  * Sets the functions to compute the weather data variables (pressure, temperature, etc.) as a function of time in the
@@ -129,12 +121,11 @@ std::function< double ( double ) > createInterpolatingFunction(
  * @param groundStationsPerComplex Map containing the names of the DSN stations per DSN complex id.
  * @param bodyWithGroundStations Name of the body with the ground stations.
  */
-void setDsnWeatherDataInGroundStations(
-        simulation_setup::SystemOfBodies& bodies,
-        const std::map< int, std::shared_ptr< DsnWeatherData > >& weatherDataPerComplex,
-        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
-        const std::map< int, std::vector< std::string > >& groundStationsPerComplex,
-        const std::string& bodyWithGroundStations );
+void setDsnWeatherDataInGroundStations( simulation_setup::SystemOfBodies& bodies,
+                                        const std::map< int, std::shared_ptr< DsnWeatherData > >& weatherDataPerComplex,
+                                        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
+                                        const std::map< int, std::vector< std::string > >& groundStationsPerComplex,
+                                        const std::string& bodyWithGroundStations );
 
 /*!
  * Sets the functions to compute the weather data variables (pressure, temperature, etc.) as a function of time in the
@@ -150,16 +141,16 @@ inline void setDsnWeatherDataInGroundStations(
         simulation_setup::SystemOfBodies& bodies,
         const std::vector< std::string >& weatherFiles,
         std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
-        const std::map< int, std::vector< std::string > >& groundStationsPerComplex = simulation_setup::getDefaultDsnStationNamesPerComplex( ),
+        const std::map< int, std::vector< std::string > >& groundStationsPerComplex =
+                simulation_setup::getDefaultDsnStationNamesPerComplex( ),
         const std::string& bodyWithGroundStations = "Earth" )
 {
     setDsnWeatherDataInGroundStations(
-            bodies, readDsnWeatherDataFiles( weatherFiles ), interpolatorSettings, groundStationsPerComplex,
-            bodyWithGroundStations );
+            bodies, readDsnWeatherDataFiles( weatherFiles ), interpolatorSettings, groundStationsPerComplex, bodyWithGroundStations );
 }
 
-} // namespace input_output
+}  // namespace input_output
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif //TUDAT_READTABULATEDWEATHERDATA_H
+#endif  // TUDAT_READTABULATEDWEATHERDATA_H

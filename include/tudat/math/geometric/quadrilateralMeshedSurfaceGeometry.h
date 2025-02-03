@@ -39,17 +39,11 @@ namespace geometric_shapes
 class QuadrilateralMeshedSurfaceGeometry : public SingleSurfaceGeometry
 {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    QuadrilateralMeshedSurfaceGeometry( )
-        : numberOfLines_( -0 ),
-          numberOfPoints_( -0 ),
-          reversalOperator_( 1 ),
-          totalArea_( -0.0 )
-    { }
+    QuadrilateralMeshedSurfaceGeometry( ): numberOfLines_( -0 ), numberOfPoints_( -0 ), reversalOperator_( 1 ), totalArea_( -0.0 ) { }
 
     //! Default destructor.
     /*!
@@ -110,21 +104,30 @@ public:
      * Returns number of lines.
      * \return Number of lines on mesh.
      */
-    int getNumberOfLines( ) { return numberOfLines_; }
+    int getNumberOfLines( )
+    {
+        return numberOfLines_;
+    }
 
     //! Get number of points.
     /*!
      * Returns number of points.
      * \return Number of points on mesh.
      */
-    int getNumberOfPoints( ) { return numberOfPoints_; }
+    int getNumberOfPoints( )
+    {
+        return numberOfPoints_;
+    }
 
     //! Get total area of the mesh.
     /*!
      * Returns the total area of the mesh.
      * \return Total mesh area.
      */
-    double getTotalArea( ) { return totalArea_; }
+    double getTotalArea( )
+    {
+        return totalArea_;
+    }
 
     //! Set reversal operator.
     /*!
@@ -139,63 +142,60 @@ public:
      * Returns a boolean denoting if the mesh is inverted.
      * \return Boolean which is true if mesh is inverted, false if not.
      */
-     bool getReversalOperator( );
+    bool getReversalOperator( );
 
-     //! Overload ostream to print class information.
-     /*!
-      * Overloads ostream to print class information, prints the number of
-      * lines and points, and the name of the part.
-      * \param stream Stream object.
-      * \param quadrilateralMeshedSurfaceGeometry Quadrilateral meshed surface
-      *         geometry.
-      * \return Stream object.
-      */
-     friend std::ostream& operator << ( std::ostream& stream,
-                                      QuadrilateralMeshedSurfaceGeometry&
-                                      quadrilateralMeshedSurfaceGeometry );
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information, prints the number of
+     * lines and points, and the name of the part.
+     * \param stream Stream object.
+     * \param quadrilateralMeshedSurfaceGeometry Quadrilateral meshed surface
+     *         geometry.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream, QuadrilateralMeshedSurfaceGeometry& quadrilateralMeshedSurfaceGeometry );
 
-     boost::multi_array< Eigen::Vector3d, 2 > getMeshPoints( )
-     {
-         return meshPoints_;
-     }
+    boost::multi_array< Eigen::Vector3d, 2 > getMeshPoints( )
+    {
+        return meshPoints_;
+    }
 
-     //! Panel centroids.
-     /*!
-      * 2-Dimensional array containing panel centroid locations.
-      */
-     boost::multi_array< Eigen::Vector3d, 2 > getPanelCentroids( )
-     {
-         return panelCentroids_;
-     }
+    //! Panel centroids.
+    /*!
+     * 2-Dimensional array containing panel centroid locations.
+     */
+    boost::multi_array< Eigen::Vector3d, 2 > getPanelCentroids( )
+    {
+        return panelCentroids_;
+    }
 
-     //! Panel centroids.
-     /*!
-      * 2-Dimensional array containing panel centroid locations.
-      */
-     boost::multi_array< Eigen::Vector3d, 2 > getPanelSurfaceNormals( )
-     {
-         return panelSurfaceNormals_;
-     }
+    //! Panel centroids.
+    /*!
+     * 2-Dimensional array containing panel centroid locations.
+     */
+    boost::multi_array< Eigen::Vector3d, 2 > getPanelSurfaceNormals( )
+    {
+        return panelSurfaceNormals_;
+    }
 
-     void clear( )
-     {
-         boost::array< int, 2 > numberOfPointsPerIndependentVariables;
-         numberOfPointsPerIndependentVariables[ 0 ] = 0;
-         numberOfPointsPerIndependentVariables[ 1 ] = 0;
+    void clear( )
+    {
+        boost::array< int, 2 > numberOfPointsPerIndependentVariables;
+        numberOfPointsPerIndependentVariables[ 0 ] = 0;
+        numberOfPointsPerIndependentVariables[ 1 ] = 0;
 
-         meshPoints_.resize( numberOfPointsPerIndependentVariables );
-         panelCentroids_.resize( numberOfPointsPerIndependentVariables );
-         panelSurfaceNormals_.resize( numberOfPointsPerIndependentVariables );
-         panelAreas_.resize( numberOfPointsPerIndependentVariables );
-     }
+        meshPoints_.resize( numberOfPointsPerIndependentVariables );
+        panelCentroids_.resize( numberOfPointsPerIndependentVariables );
+        panelSurfaceNormals_.resize( numberOfPointsPerIndependentVariables );
+        panelAreas_.resize( numberOfPointsPerIndependentVariables );
+    }
 
 protected:
-
-     //! Calculate panel characteristics.
-     /*!
-      * Calculates the normal, centroid and area of panels in mesh.
-      */
-     void performPanelCalculations( );
+    //! Calculate panel characteristics.
+    /*!
+     * Calculates the normal, centroid and area of panels in mesh.
+     */
+    void performPanelCalculations( );
 
     //! Number of lines in mesh.
     /*!
@@ -250,10 +250,9 @@ private:
 };
 
 //! Typedef for shared-pointer to QuadrilateralMeshedSurfaceGeometry object.
-typedef std::shared_ptr< QuadrilateralMeshedSurfaceGeometry >
-QuadrilateralMeshedSurfaceGeometryPointer;
+typedef std::shared_ptr< QuadrilateralMeshedSurfaceGeometry > QuadrilateralMeshedSurfaceGeometryPointer;
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat
 
-#endif // TUDAT_QUADRILATERAL_MESHED_SURFACE_GEOMETRY_H
+#endif  // TUDAT_QUADRILATERAL_MESHED_SURFACE_GEOMETRY_H

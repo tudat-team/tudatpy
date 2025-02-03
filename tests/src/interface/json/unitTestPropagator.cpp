@@ -20,17 +20,14 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_propagator )
 
 // Test 1: propagator types
 BOOST_AUTO_TEST_CASE( test_json_propagator_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
-                            propagators::integratedStateTypes,
-                            propagators::unsupportedIntegratedStateTypes );
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ), propagators::integratedStateTypes, propagators::unsupportedIntegratedStateTypes );
 }
 
 // Test 2: translational propagator types
@@ -58,21 +55,16 @@ BOOST_AUTO_TEST_CASE( test_json_propagator_translational )
     const std::vector< std::string > bodiesToPropagate = { "a", "b" };
     const std::vector< std::string > centralBodies = { "A", "B" };
     const std::shared_ptr< PropagationTerminationSettings > terminationSettings;
-    const Eigen::VectorXd initialStates = ( Eigen::VectorXd( 12 ) <<
-                                            1.0, 2.0, 3.0,  4.0,  5.0,  6.0,
-                                            7.0, 8.0, 9.0, 10.0, 11.0, 12.0 ).finished( );
+    const Eigen::VectorXd initialStates =
+            ( Eigen::VectorXd( 12 ) << 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0 ).finished( );
     SelectedAccelerationMap accelerations;
     accelerations[ "a" ][ "A" ] = { std::make_shared< AccelerationSettings >( point_mass_gravity ) };
     accelerations[ "a" ][ "B" ] = { std::make_shared< AccelerationSettings >( point_mass_gravity ) };
     accelerations[ "b" ][ "A" ] = { std::make_shared< AccelerationSettings >( point_mass_gravity ) };
     accelerations[ "b" ][ "B" ] = { std::make_shared< AccelerationSettings >( point_mass_gravity ) };
     const std::shared_ptr< SingleArcPropagatorSettings< double > > manualSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                  accelerations,
-                                                                                  bodiesToPropagate,
-                                                                                  initialStates,
-                                                                                  terminationSettings,
-                                                                                  propagatorType );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerations, bodiesToPropagate, initialStates, terminationSettings, propagatorType );
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
@@ -96,10 +88,7 @@ BOOST_AUTO_TEST_CASE( test_json_propagator_mass )
     massRateModels[ "a" ] = { std::make_shared< FromThrustMassModelSettings >( ) };
     massRateModels[ "b" ] = { std::make_shared< FromThrustMassModelSettings >( ) };
     const std::shared_ptr< SingleArcPropagatorSettings< double > > manualSettings =
-            std::make_shared< MassPropagatorSettings< double > >( bodiesToPropagate,
-                                                                    massRateModels,
-                                                                    initialStates,
-                                                                    terminationSettings );
+            std::make_shared< MassPropagatorSettings< double > >( bodiesToPropagate, massRateModels, initialStates, terminationSettings );
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
@@ -119,24 +108,21 @@ BOOST_AUTO_TEST_CASE( test_json_propagator_rotational )
     // Create RotationalStatePropagatorSettings manually
     const std::vector< std::string > bodiesToPropagate = { "A", "B" };
     const std::shared_ptr< PropagationTerminationSettings > terminationSettings;
-    const Eigen::VectorXd initialStates = ( Eigen::VectorXd( 14 ) <<
-                                            0.0, 1.0, 2.0,  3.0,  4.0,  5.0,  6.0,
-                                            7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0 ).finished( );
+    const Eigen::VectorXd initialStates =
+            ( Eigen::VectorXd( 14 ) << 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0 ).finished( );
     SelectedTorqueMap torques;
     torques[ "A" ][ "B" ] = { std::make_shared< TorqueSettings >( second_order_gravitational_torque ) };
     torques[ "B" ][ "A" ] = { std::make_shared< TorqueSettings >( second_order_gravitational_torque ),
-            std::make_shared< TorqueSettings >( aerodynamic_torque ) };
+                              std::make_shared< TorqueSettings >( aerodynamic_torque ) };
     const std::shared_ptr< SingleArcPropagatorSettings< double > > manualSettings =
-            std::make_shared< RotationalStatePropagatorSettings< double > >( torques,
-                                                                               bodiesToPropagate,
-                                                                               initialStates,
-                                                                               terminationSettings );
+            std::make_shared< RotationalStatePropagatorSettings< double > >(
+                    torques, bodiesToPropagate, initialStates, terminationSettings );
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

@@ -20,7 +20,7 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `BodyShapeSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodyShapeSettings >& bodyShapeSettings )
 {
-    if ( ! bodyShapeSettings )
+    if( !bodyShapeSettings )
     {
         return;
     }
@@ -30,29 +30,27 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodyShapeSettin
     const BodyShapeTypes bodyShapeType = bodyShapeSettings->getBodyShapeType( );
     jsonObject[ K::type ] = bodyShapeType;
 
-    switch ( bodyShapeType )
+    switch( bodyShapeType )
     {
-    case spherical:
-    {
-        std::shared_ptr< SphericalBodyShapeSettings > sphericalBodyShapeSettings =
-                std::dynamic_pointer_cast< SphericalBodyShapeSettings >( bodyShapeSettings );
-        assertNonnullptrPointer( sphericalBodyShapeSettings );
-        jsonObject[ K::radius ] = sphericalBodyShapeSettings->getRadius( );
-        return;
-    }
-    case spherical_spice:
-        return;
-    case oblate_spheroid:
-    {
-        std::shared_ptr< OblateSphericalBodyShapeSettings > oblateSphericalBodyShapeSettings =
-                std::dynamic_pointer_cast< OblateSphericalBodyShapeSettings >( bodyShapeSettings );
-        assertNonnullptrPointer( oblateSphericalBodyShapeSettings );
-        jsonObject[ K::equatorialRadius ] = oblateSphericalBodyShapeSettings->getEquatorialRadius( );
-        jsonObject[ K::flattening ] = oblateSphericalBodyShapeSettings->getFlattening( );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( bodyShapeType, bodyShapeTypes, unsupportedBodyShapeTypes );
+        case spherical: {
+            std::shared_ptr< SphericalBodyShapeSettings > sphericalBodyShapeSettings =
+                    std::dynamic_pointer_cast< SphericalBodyShapeSettings >( bodyShapeSettings );
+            assertNonnullptrPointer( sphericalBodyShapeSettings );
+            jsonObject[ K::radius ] = sphericalBodyShapeSettings->getRadius( );
+            return;
+        }
+        case spherical_spice:
+            return;
+        case oblate_spheroid: {
+            std::shared_ptr< OblateSphericalBodyShapeSettings > oblateSphericalBodyShapeSettings =
+                    std::dynamic_pointer_cast< OblateSphericalBodyShapeSettings >( bodyShapeSettings );
+            assertNonnullptrPointer( oblateSphericalBodyShapeSettings );
+            jsonObject[ K::equatorialRadius ] = oblateSphericalBodyShapeSettings->getEquatorialRadius( );
+            jsonObject[ K::flattening ] = oblateSphericalBodyShapeSettings->getFlattening( );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( bodyShapeType, bodyShapeTypes, unsupportedBodyShapeTypes );
     }
 }
 
@@ -65,30 +63,26 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< BodyShapeSett
     // Base class settings
     const BodyShapeTypes bodyShapeType = getValue< BodyShapeTypes >( jsonObject, K::type );
 
-    switch ( bodyShapeType ) {
-    case spherical:
+    switch( bodyShapeType )
     {
-        bodyShapeSettings = std::make_shared< SphericalBodyShapeSettings >(
-                    getValue< double >( jsonObject, K::radius ) );
-        return;
-    }
-    case spherical_spice:
-    {
-        bodyShapeSettings = std::make_shared< BodyShapeSettings >( bodyShapeType );
-        return;
-    }
-    case oblate_spheroid:
-    {
-        bodyShapeSettings = std::make_shared< OblateSphericalBodyShapeSettings >(
-                    getValue< double >( jsonObject, K::equatorialRadius ),
-                    getValue< double >( jsonObject, K::flattening ) );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( bodyShapeType, bodyShapeTypes, unsupportedBodyShapeTypes );
+        case spherical: {
+            bodyShapeSettings = std::make_shared< SphericalBodyShapeSettings >( getValue< double >( jsonObject, K::radius ) );
+            return;
+        }
+        case spherical_spice: {
+            bodyShapeSettings = std::make_shared< BodyShapeSettings >( bodyShapeType );
+            return;
+        }
+        case oblate_spheroid: {
+            bodyShapeSettings = std::make_shared< OblateSphericalBodyShapeSettings >( getValue< double >( jsonObject, K::equatorialRadius ),
+                                                                                      getValue< double >( jsonObject, K::flattening ) );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( bodyShapeType, bodyShapeTypes, unsupportedBodyShapeTypes );
     }
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

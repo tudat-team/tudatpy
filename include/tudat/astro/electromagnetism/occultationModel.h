@@ -22,7 +22,6 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 
-
 namespace tudat
 {
 namespace electromagnetism
@@ -41,17 +40,17 @@ class OccultationModel
 {
 public:
     /*!
-    * Constructor.
-    *
-    * @param occultingBodyNames Names of the bodies that are occulting
-    */
-    explicit OccultationModel(const std::vector<std::string>& occultingBodyNames) :
-        numberOfOccultingBodies(occultingBodyNames.size()),
-        occultingBodyNames_(occultingBodyNames) {}
+     * Constructor.
+     *
+     * @param occultingBodyNames Names of the bodies that are occulting
+     */
+    explicit OccultationModel( const std::vector< std::string >& occultingBodyNames ):
+        numberOfOccultingBodies( occultingBodyNames.size( ) ), occultingBodyNames_( occultingBodyNames )
+    { }
 
-    virtual ~OccultationModel() = default;
+    virtual ~OccultationModel( ) = default;
 
-    void updateMembers(double currentTime);
+    void updateMembers( double currentTime );
 
     /*!
      *  Evaluate how much of an occulted extended source is visible (i.e. the shadow function).
@@ -63,8 +62,8 @@ public:
      */
     virtual double evaluateReceivedFractionFromExtendedSource(
             const Eigen::Vector3d& occultedSourcePosition,
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& occultedSourceShapeModel,
-            const Eigen::Vector3d& targetPosition) const = 0;
+            const std::shared_ptr< basic_astrodynamics::BodyShapeModel >& occultedSourceShapeModel,
+            const Eigen::Vector3d& targetPosition ) const = 0;
 
     /*!
      * Evaluate how much of an occulted point source is visible (i.e. point-to-point visibility). This function is
@@ -74,26 +73,25 @@ public:
      * @param targetPosition Position of the target from which occultation is observed in global coordinates
      * @return Visible fraction of the occulted source (either 0 and 1)
      */
-    virtual double evaluateReceivedFractionFromPointSource(
-            const Eigen::Vector3d& occultedSourcePosition,
-            const Eigen::Vector3d& targetPosition) const = 0;
+    virtual double evaluateReceivedFractionFromPointSource( const Eigen::Vector3d& occultedSourcePosition,
+                                                            const Eigen::Vector3d& targetPosition ) const = 0;
 
-    std::vector<std::string> getOccultingBodyNames() const
+    std::vector< std::string > getOccultingBodyNames( ) const
     {
         return occultingBodyNames_;
     }
 
-    unsigned int getNumberOfOccultingBodies() const
+    unsigned int getNumberOfOccultingBodies( ) const
     {
         return numberOfOccultingBodies;
     }
 
 private:
-    virtual void updateMembers_(double currentTime) {}
+    virtual void updateMembers_( double currentTime ) { }
 
-    double currentTime_{TUDAT_NAN};
+    double currentTime_{ TUDAT_NAN };
     unsigned int numberOfOccultingBodies;
-    std::vector<std::string> occultingBodyNames_;
+    std::vector< std::string > occultingBodyNames_;
 };
 
 /*!
@@ -102,20 +100,18 @@ private:
 class NoOccultingBodyOccultationModel : public OccultationModel
 {
 public:
-    explicit NoOccultingBodyOccultationModel() :
-            OccultationModel({}) {}
+    explicit NoOccultingBodyOccultationModel( ): OccultationModel( { } ) { }
 
     double evaluateReceivedFractionFromExtendedSource(
             const Eigen::Vector3d& occultedSourcePosition,
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& occultedSourceShapeModel,
-            const Eigen::Vector3d& targetPosition) const override
+            const std::shared_ptr< basic_astrodynamics::BodyShapeModel >& occultedSourceShapeModel,
+            const Eigen::Vector3d& targetPosition ) const override
     {
         return 1.0;
     }
 
-    double evaluateReceivedFractionFromPointSource(
-            const Eigen::Vector3d& occultedSourcePosition,
-            const Eigen::Vector3d& targetPosition) const override
+    double evaluateReceivedFractionFromPointSource( const Eigen::Vector3d& occultedSourcePosition,
+                                                    const Eigen::Vector3d& targetPosition ) const override
     {
         return 1.0;
     }
@@ -128,28 +124,26 @@ public:
 class SingleOccultingBodyOccultationModel : public OccultationModel
 {
 public:
-    SingleOccultingBodyOccultationModel(
-            const std::string& occultingBodyName,
-            const std::function<Eigen::Vector3d()>& occultingBodyPositionFunction,
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& occultingBodyShapeModel) :
-            OccultationModel({occultingBodyName}),
-            occultingBodyPositionFunction_(occultingBodyPositionFunction),
-            occultingBodyShapeModel_(occultingBodyShapeModel) {}
+    SingleOccultingBodyOccultationModel( const std::string& occultingBodyName,
+                                         const std::function< Eigen::Vector3d( ) >& occultingBodyPositionFunction,
+                                         const std::shared_ptr< basic_astrodynamics::BodyShapeModel >& occultingBodyShapeModel ):
+        OccultationModel( { occultingBodyName } ), occultingBodyPositionFunction_( occultingBodyPositionFunction ),
+        occultingBodyShapeModel_( occultingBodyShapeModel )
+    { }
 
     double evaluateReceivedFractionFromExtendedSource(
             const Eigen::Vector3d& occultedSourcePosition,
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& occultedSourceShapeModel,
-            const Eigen::Vector3d& targetPosition) const override;
+            const std::shared_ptr< basic_astrodynamics::BodyShapeModel >& occultedSourceShapeModel,
+            const Eigen::Vector3d& targetPosition ) const override;
 
-    double evaluateReceivedFractionFromPointSource(
-            const Eigen::Vector3d& occultedSourcePosition,
-            const Eigen::Vector3d& targetPosition) const override;
+    double evaluateReceivedFractionFromPointSource( const Eigen::Vector3d& occultedSourcePosition,
+                                                    const Eigen::Vector3d& targetPosition ) const override;
 
 private:
-    void updateMembers_(double currentTime) override;
+    void updateMembers_( double currentTime ) override;
 
-    std::function<Eigen::Vector3d()> occultingBodyPositionFunction_;
-    std::shared_ptr<basic_astrodynamics::BodyShapeModel> occultingBodyShapeModel_;
+    std::function< Eigen::Vector3d( ) > occultingBodyPositionFunction_;
+    std::shared_ptr< basic_astrodynamics::BodyShapeModel > occultingBodyShapeModel_;
     Eigen::Vector3d occultingBodyPosition;
 };
 
@@ -164,29 +158,27 @@ class SimpleMultipleOccultingBodyOccultationModel : public OccultationModel
 {
 public:
     SimpleMultipleOccultingBodyOccultationModel(
-            const std::vector<std::string>& occultingBodyNames,
-            const std::vector<std::function<Eigen::Vector3d()>>& occultingBodyPositionFunctions,
-            const std::vector<std::shared_ptr<basic_astrodynamics::BodyShapeModel>>& occultingBodyShapeModels) :
-            OccultationModel(occultingBodyNames),
-            occultingBodyPositionFunctions_(occultingBodyPositionFunctions),
-            occultingBodyShapeModels_(occultingBodyShapeModels),
-            occultingBodyPositions(occultingBodyNames.size()) {}
+            const std::vector< std::string >& occultingBodyNames,
+            const std::vector< std::function< Eigen::Vector3d( ) > >& occultingBodyPositionFunctions,
+            const std::vector< std::shared_ptr< basic_astrodynamics::BodyShapeModel > >& occultingBodyShapeModels ):
+        OccultationModel( occultingBodyNames ), occultingBodyPositionFunctions_( occultingBodyPositionFunctions ),
+        occultingBodyShapeModels_( occultingBodyShapeModels ), occultingBodyPositions( occultingBodyNames.size( ) )
+    { }
 
     double evaluateReceivedFractionFromExtendedSource(
             const Eigen::Vector3d& occultedSourcePosition,
-            const std::shared_ptr<basic_astrodynamics::BodyShapeModel>& occultedSourceShapeModel,
-            const Eigen::Vector3d& targetPosition) const override;
+            const std::shared_ptr< basic_astrodynamics::BodyShapeModel >& occultedSourceShapeModel,
+            const Eigen::Vector3d& targetPosition ) const override;
 
-    double evaluateReceivedFractionFromPointSource(
-            const Eigen::Vector3d& occultedSourcePosition,
-            const Eigen::Vector3d& targetPosition) const override;
+    double evaluateReceivedFractionFromPointSource( const Eigen::Vector3d& occultedSourcePosition,
+                                                    const Eigen::Vector3d& targetPosition ) const override;
 
 private:
-    void updateMembers_(double currentTime) override;
+    void updateMembers_( double currentTime ) override;
 
-    std::vector<std::function<Eigen::Vector3d()>> occultingBodyPositionFunctions_;
-    std::vector<std::shared_ptr<basic_astrodynamics::BodyShapeModel>> occultingBodyShapeModels_;
-    std::vector<Eigen::Vector3d> occultingBodyPositions;
+    std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositionFunctions_;
+    std::vector< std::shared_ptr< basic_astrodynamics::BodyShapeModel > > occultingBodyShapeModels_;
+    std::vector< Eigen::Vector3d > occultingBodyPositions;
 };
 
 // TODO Realistic two-body occultation (DOI: 10.1016/j.asr.2018.02.002)
@@ -202,13 +194,12 @@ private:
  * @param targetPosition Position of the target from which occultation is observed in global coordinates
  * @return Whether the target can see the source
  */
-bool evaluatePointToPointVisibilityWithOccultation(
-        const Eigen::Vector3d& occultedSourcePosition,
-        const Eigen::Vector3d& occultingBodyPosition,
-        double occultingBodyRadius,
-        const Eigen::Vector3d& targetPosition);
+bool evaluatePointToPointVisibilityWithOccultation( const Eigen::Vector3d& occultedSourcePosition,
+                                                    const Eigen::Vector3d& occultingBodyPosition,
+                                                    double occultingBodyRadius,
+                                                    const Eigen::Vector3d& targetPosition );
 
-} // electromagnetism
-} // tudat
+}  // namespace electromagnetism
+}  // namespace tudat
 
-#endif //TUDAT_OCCULTATIONMODEL_H
+#endif  // TUDAT_OCCULTATIONMODEL_H

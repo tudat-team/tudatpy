@@ -39,11 +39,8 @@ template< typename AccelerationDataType = Eigen::Vector3d >
 class AccelerationModel
 {
 public:
-
     //! Constructor.
-    AccelerationModel( ):
-        currentTime_( TUDAT_NAN ),
-        currentAcceleration_( Eigen::Vector3d::Constant( TUDAT_NAN ) ){ }
+    AccelerationModel( ): currentTime_( TUDAT_NAN ), currentAcceleration_( Eigen::Vector3d::Constant( TUDAT_NAN ) ) { }
 
     //! Virtual destructor.
     /*!
@@ -51,16 +48,16 @@ public:
      */
     virtual ~AccelerationModel( ) { }
 
-//    //! Get acceleration.
-//    /*!
-//     * Returns the acceleration. No arguments are passed to this function for generality.
-//     * Instead, all data required for computation is to be obtained from pointers to functions/
-//     * classes/structs, etc which are to be set in a derived class and evaluated by the
-//     * updateMembers() function below.
-//     * \return Acceleration.
-//     * \sa updateMembers().
-//     */
-//    virtual AccelerationDataType getAcceleration( ) = 0;
+    //    //! Get acceleration.
+    //    /*!
+    //     * Returns the acceleration. No arguments are passed to this function for generality.
+    //     * Instead, all data required for computation is to be obtained from pointers to functions/
+    //     * classes/structs, etc which are to be set in a derived class and evaluated by the
+    //     * updateMembers() function below.
+    //     * \return Acceleration.
+    //     * \sa updateMembers().
+    //     */
+    //    virtual AccelerationDataType getAcceleration( ) = 0;
 
     //! Update member variables used by the acceleration model.
     /*!
@@ -107,24 +104,20 @@ public:
     }
 
 protected:
-
     //! Previous time to which acceleration model was updated.
     double currentTime_;
 
     AccelerationDataType currentAcceleration_;
 
 protected:
-
 private:
-
 };
 
 //! Typedef to a 3D acceleration model.
-typedef AccelerationModel< > AccelerationModel3d;
+typedef AccelerationModel<> AccelerationModel3d;
 
 //! Typedef for shared-pointer to a 3D acceleration model.
 typedef std::shared_ptr< AccelerationModel3d > AccelerationModel3dPointer;
-
 
 //! Typedef to a 2D acceleration model.
 typedef AccelerationModel< Eigen::Vector2d > AccelerationModel2d;
@@ -132,8 +125,7 @@ typedef AccelerationModel< Eigen::Vector2d > AccelerationModel2d;
 //! Typedef for shared-pointer to a 2D acceleration model.
 typedef std::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
 
-//extern template class AccelerationModel< Eigen::Vector3d >;
-
+// extern template class AccelerationModel< Eigen::Vector3d >;
 
 //! Update the members of an acceleration model and evaluate the acceleration.
 /*!
@@ -146,10 +138,9 @@ typedef std::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
  * \param currentTime Time at which acceleration model is to be updated.
  * \return Acceleration that is obtained following the member update.
  */
-template < typename AccelerationDataType >
-AccelerationDataType updateAndGetAcceleration(
-        const std::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel,
-        const double currentTime = TUDAT_NAN )
+template< typename AccelerationDataType >
+AccelerationDataType updateAndGetAcceleration( const std::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel,
+                                               const double currentTime = TUDAT_NAN )
 {
     // Update members.
     accelerationModel->updateMembers( currentTime );
@@ -160,17 +151,15 @@ AccelerationDataType updateAndGetAcceleration(
 
 //! Typedef defining a list of accelerations acting on a single body, key is the name of each
 //! body exerting a acceletation, value is a list of accelerations exerted by that body.
-typedef std::unordered_map< std::string, std::vector<
-std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >
-SingleBodyAccelerationMap;
-
+typedef std::unordered_map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >
+        SingleBodyAccelerationMap;
 
 //! Typedef defining a list of accelerations acting on a set of bodies, key is the name of each
 //! body undergoing an acceletation, value is SingleBodyAccelerationMap, defining all accelerations
 //! acting on it.
 typedef std::unordered_map< std::string, SingleBodyAccelerationMap > AccelerationMap;
 
-} // namespace basic_astrodynamics
-} // namespace tudat
+}  // namespace basic_astrodynamics
+}  // namespace tudat
 
-#endif // TUDAT_ACCELERATION_MODEL_H
+#endif  // TUDAT_ACCELERATION_MODEL_H

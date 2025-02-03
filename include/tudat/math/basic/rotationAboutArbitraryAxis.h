@@ -48,11 +48,10 @@ namespace basic_mathematics
  * \return Position of point after rotation about the axis of rotation with respect to the same
  *         chosen arbitrary origin.
  */
-Eigen::Vector3d computeRotationOfPointAboutArbitraryAxis(
-        const Eigen::Vector3d& originOfRotation,
-        const double angleOfRotation,
-        const Eigen::Vector3d& axisOfRotation,
-        const Eigen::Vector3d& initialPositionOfPoint );
+Eigen::Vector3d computeRotationOfPointAboutArbitraryAxis( const Eigen::Vector3d& originOfRotation,
+                                                          const double angleOfRotation,
+                                                          const Eigen::Vector3d& axisOfRotation,
+                                                          const Eigen::Vector3d& initialPositionOfPoint );
 
 //! Compute rotation of vector about an arbitrary axis.
 /*!
@@ -73,14 +72,13 @@ Eigen::Vector3d computeRotationOfPointAboutArbitraryAxis(
  *        arbitrary origin.
  * \sa computeRotationOfPointAboutArbitraryAxis.
  */
-Eigen::Vector3d computeRotationOfVectorAboutArbitraryAxis(
-        const Eigen::Vector3d& originOfRotation,
-        const double angleOfRotation,
-        const Eigen::Vector3d& axisOfRotation,
-        const Eigen::Vector3d& initialPositionOfVectorTail,
-        const Eigen::Vector3d& initialVector );
+Eigen::Vector3d computeRotationOfVectorAboutArbitraryAxis( const Eigen::Vector3d& originOfRotation,
+                                                           const double angleOfRotation,
+                                                           const Eigen::Vector3d& axisOfRotation,
+                                                           const Eigen::Vector3d& initialPositionOfVectorTail,
+                                                           const Eigen::Vector3d& initialVector );
 
-} // namespace basic_mathematics
-} // namespace tudat
+}  // namespace basic_mathematics
+}  // namespace tudat
 
-#endif // TUDAT_ROTATION_ABOUT_ARBITRARY_AXIS_H
+#endif  // TUDAT_ROTATION_ABOUT_ARBITRARY_AXIS_H

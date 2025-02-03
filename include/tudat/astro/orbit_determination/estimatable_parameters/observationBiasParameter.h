@@ -30,11 +30,9 @@ namespace estimatable_parameters
  *  used in the simulations for the observation bias. This is due to the fact that the ConstantObservationBias and
  *  ConstantRelativeObservationBiases class are templated by the observable size, while this class is not.
  */
-class ConstantObservationBiasParameter: public EstimatableParameter< Eigen::VectorXd >
+class ConstantObservationBiasParameter : public EstimatableParameter< Eigen::VectorXd >
 {
-    
 public:
-    
     //! Constructor
     /*!
      * Constructor
@@ -44,21 +42,19 @@ public:
      * \param observableType Observable type for which the bias is active.
      * \param biasIsAbsolute Boolean denoting whether the bias is absolute or relative
      */
-    ConstantObservationBiasParameter(
-            const std::function< Eigen::VectorXd( ) > getCurrentBias,
-            const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
-            const observation_models::LinkEnds linkEnds,
-            const observation_models::ObservableType observableType,
-            const bool biasIsAbsolute ):
-        EstimatableParameter< Eigen::VectorXd >(
-            biasIsAbsolute ? constant_additive_observation_bias :constant_relative_observation_bias,
+    ConstantObservationBiasParameter( const std::function< Eigen::VectorXd( ) > getCurrentBias,
+                                      const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
+                                      const observation_models::LinkEnds linkEnds,
+                                      const observation_models::ObservableType observableType,
+                                      const bool biasIsAbsolute ):
+        EstimatableParameter< Eigen::VectorXd >( biasIsAbsolute ? constant_additive_observation_bias : constant_relative_observation_bias,
                                                  linkEnds.begin( )->second.bodyName_ ),
-        getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ),
-        linkEnds_( linkEnds ), observableType_( observableType ){ }
-    
+        getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEnds_( linkEnds ), observableType_( observableType )
+    { }
+
     //! Destructor
     ~ConstantObservationBiasParameter( ) { }
-    
+
     //! Function to get the current value of the constant observation bias that is to be estimated.
     /*!
      * Function to get the current value of the constant observation bias that is to be estimated.
@@ -75,7 +71,7 @@ public:
             return Eigen::VectorXd::Constant( getParameterSize( ), TUDAT_NAN );
         }
     }
-    
+
     //! Function to reset the value of the constant observation bias that is to be estimated.
     /*!
      * Function to reset the value of the constant observation bias that is to be estimated.
@@ -92,7 +88,7 @@ public:
             throwExceptionIfNotFullyDefined( );
         }
     }
-    
+
     //! Function to retrieve the size of the parameter (equal to the size of the observable).
     /*!
      *  Function to retrieve the size of the parameter (equal to the size of the observable).
@@ -102,7 +98,7 @@ public:
     {
         return observation_models::getObservableSize( observableType_ );
     }
-    
+
     //! Function to reset the get/set function of the observation bias
     /*!
      * Function to reset the get/set function of the observation bias. This function is needed since te observation models/biases
@@ -110,34 +106,33 @@ public:
      * \param getCurrentBias New function to retrieve the current observation bias.
      * \param resetCurrentBias New function to reset the current observation bias
      */
-    void setObservationBiasFunctions(
-            const std::function< Eigen::VectorXd( ) > getCurrentBias,
-            const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
+    void setObservationBiasFunctions( const std::function< Eigen::VectorXd( ) > getCurrentBias,
+                                      const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
     {
         // Check if functions already exist
         if( !( getCurrentBias_ == nullptr ) || !( resetCurrentBias_ == nullptr ) )
         {
             std::cerr << "Warning when resetting observation bias in estimation object, existing contents not empty" << std::endl;
         }
-        
+
         getCurrentBias_ = getCurrentBias;
         resetCurrentBias_ = resetCurrentBias;
     }
-    
+
     void throwExceptionIfNotFullyDefined( )
     {
         if( getCurrentBias_ == nullptr || resetCurrentBias_ == nullptr )
         {
             throw std::runtime_error(
-                        "Error in " + getParameterTypeString( parameterName_.first ) +
-                        " of observable type " + observation_models::getObservableName(
-                            observableType_, linkEnds_.size( ) ) +
-                        " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
-                        " parameter not linked to bias object. Associated bias model been implemented in observation model. " +
-                        " This may be because you are resetting the parameter value before creating observation models, or because you have not defined the required bias model.");
+                    "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
+                    observation_models::getObservableName( observableType_, linkEnds_.size( ) ) +
+                    " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
+                    " parameter not linked to bias object. Associated bias model been implemented in observation model. " +
+                    " This may be because you are resetting the parameter value before creating observation models, or because you have "
+                    "not defined the required bias model." );
         }
     }
-    
+
     //! Function to retrieve the observation link ends for which the bias is active.
     /*!
      * Function to retrieve the observation link ends for which the bias is active.
@@ -147,7 +142,7 @@ public:
     {
         return linkEnds_;
     }
-    
+
     //! Function to retrieve the observable type for which the bias is active.
     /*!
      * Function to retrieve the observable type ends for which the bias is active.
@@ -157,32 +152,29 @@ public:
     {
         return observableType_;
     }
-    
+
     std::string getParameterDescription( )
     {
         std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-                observation_models::getObservableName( observableType_, linkEnds_.size( )  ) + ") and link ends: (" +
+                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
                 observation_models::getLinkEndsString( linkEnds_ ) + ")";
         return parameterDescription;
     }
-    
+
 protected:
-    
 private:
-    
     //! Function to retrieve the current observation bias.
     std::function< Eigen::VectorXd( ) > getCurrentBias_;
-    
+
     //! Function to reset the current observation bia
     std::function< void( const Eigen::VectorXd& ) > resetCurrentBias_;
-    
+
     //! Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
-    
+
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
 };
-
 
 //! Interface class for the estimation of an arc-wise constant absolute or relative observation bias.
 /*!
@@ -193,11 +185,9 @@ private:
  *  ConstantArcWiseObservationBias and  ConstantRelativeArcWiseObservationBias class are templated by the observable size,
  *  while this class is not.
  */
-class ArcWiseObservationBiasParameter: public EstimatableParameter< Eigen::VectorXd >
+class ArcWiseObservationBiasParameter : public EstimatableParameter< Eigen::VectorXd >
 {
-    
 public:
-    
     //! Constructor
     /*!
      * Constructor
@@ -209,27 +199,26 @@ public:
      * \param observableType Observable type for which the bias is active.
      * \param biasIsAbsolute Boolean denoting whether the bias is absolute or relative
      */
-    ArcWiseObservationBiasParameter(
-            const std::vector< double > arcStartTimes,
-            const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
-            const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
-            const int linkEndIndex,
-            const observation_models::LinkEnds linkEnds,
-            const observation_models::ObservableType observableType,
-            const bool biasIsAbsolute ):
+    ArcWiseObservationBiasParameter( const std::vector< double > arcStartTimes,
+                                     const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
+                                     const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
+                                     const int linkEndIndex,
+                                     const observation_models::LinkEnds linkEnds,
+                                     const observation_models::ObservableType observableType,
+                                     const bool biasIsAbsolute ):
         EstimatableParameter< Eigen::VectorXd >(
-            biasIsAbsolute ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-            linkEnds.begin( )->second.bodyName_ ),
-        arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
-        linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType )
+                biasIsAbsolute ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
+                linkEnds.begin( )->second.bodyName_ ),
+        arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ), linkEndIndex_( linkEndIndex ),
+        linkEnds_( linkEnds ), observableType_( observableType )
     {
         observableSize_ = observation_models::getObservableSize( observableType );
         numberOfArcs_ = arcStartTimes.size( );
     }
-    
+
     //! Destructor
     ~ArcWiseObservationBiasParameter( ) { }
-    
+
     //! Function to get the current value of the arc-wise observation bias that is to be estimated.
     /*!
      * Function to get the current value of the arc-wise observation bias that is to be estimated.
@@ -240,8 +229,7 @@ public:
         if( !( getBiasList_ == nullptr ) )
         {
             std::vector< Eigen::VectorXd > observationBiases = getBiasList_( );
-            Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero(
-                        observableSize_ * observationBiases.size( ) );
+            Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero( observableSize_ * observationBiases.size( ) );
             for( unsigned int i = 0; i < observationBiases.size( ); i++ )
             {
                 currentParameterSet.segment( i * observableSize_, observableSize_ ) = observationBiases.at( i );
@@ -253,7 +241,7 @@ public:
             return Eigen::VectorXd::Constant( getParameterSize( ), TUDAT_NAN );
         }
     }
-    
+
     //! Function to reset the value of the arc-wise constant observation bias that is to be estimated.
     /*!
      * Function to reset the value of the arc-wise constant observation bias that is to be estimated.
@@ -262,14 +250,14 @@ public:
     void setParameterValue( Eigen::VectorXd parameterValue )
     {
         std::vector< Eigen::VectorXd > observationBiases;
-        
+
         if( resetBiasList_ != nullptr )
         {
             for( int i = 0; i < numberOfArcs_; i++ )
             {
                 observationBiases.push_back( parameterValue.segment( i * observableSize_, observableSize_ ) );
             }
-            
+
             resetBiasList_( observationBiases );
         }
         else
@@ -277,7 +265,7 @@ public:
             throwExceptionIfNotFullyDefined( );
         }
     }
-    
+
     //! Function to retrieve the size of the parameter (equal to the size of the observable).
     /*!
      *  Function to retrieve the size of the parameter (equal to the size of the observable).
@@ -287,7 +275,7 @@ public:
     {
         return observableSize_ * numberOfArcs_;
     }
-    
+
     //! Function to reset the get/set function of the observation bias list
     /*!
      * Function to reset the get/set function of the observation bias list. This function is needed since te observation
@@ -295,20 +283,19 @@ public:
      * \param getBiasList New function to retrieve the current observation bias list.
      * \param resetBiasList New function to reset the current observation bias list
      */
-    void setObservationBiasFunctions(
-            const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
-            const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList )
+    void setObservationBiasFunctions( const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
+                                      const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList )
     {
         // Check if functions already exist
         if( !( getBiasList_ == nullptr ) || !( resetBiasList_ == nullptr ) )
         {
             std::cerr << "Warning when resetting arc-wise observation bias in estimation object, existing contents not empty" << std::endl;
         }
-        
+
         getBiasList_ = getBiasList;
         resetBiasList_ = resetBiasList;
     }
-    
+
     //! Function to retrieve the observation link ends for which the bias is active.
     /*!
      * Function to retrieve the observation link ends for which the bias is active.
@@ -318,7 +305,7 @@ public:
     {
         return linkEnds_;
     }
-    
+
     //! Function to retrieve the observable type for which the bias is active.
     /*!
      * Function to retrieve the observable type ends for which the bias is active.
@@ -328,11 +315,11 @@ public:
     {
         return observableType_;
     }
-    
+
     std::string getParameterDescription( )
     {
         std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-                observation_models::getObservableName( observableType_, linkEnds_.size( )  ) + ") and link ends: (" +
+                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
                 observation_models::getLinkEndsString( linkEnds_ ) + ")";
         return parameterDescription;
     }
@@ -345,7 +332,7 @@ public:
     {
         return arcStartTimes_;
     }
-    
+
     //! Function to retrieve link end index from which the 'current time' is determined
     /*!
      * Function to retrieve link end index from which the 'current time' is determined
@@ -355,7 +342,7 @@ public:
     {
         return linkEndIndex_;
     }
-    
+
     //! Function to retrieve object used to determine the current arc, based on the current time.
     /*!
      * Function to retrieve object used to determine the current arc, based on the current time.
@@ -365,7 +352,7 @@ public:
     {
         return lookupScheme_;
     }
-    
+
     //! Function to reset object used to determine the current arc, based on the current time.
     /*!
      * Function to reset object used to determine the current arc, based on the current time.
@@ -375,70 +362,67 @@ public:
     {
         lookupScheme_ = lookupScheme;
     }
-    
+
     void throwExceptionIfNotFullyDefined( )
     {
         if( getBiasList_ == nullptr || resetBiasList_ == nullptr )
         {
             throw std::runtime_error(
-                        "Error in " + getParameterTypeString( parameterName_.first ) +
-                        " of observable type " + observation_models::getObservableName(
-                            observableType_, linkEnds_.size( ) ) +
-                        " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
-                        " parameter not linked to bias object. Has associated bias model been implemented in observation model?");
+                    "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
+                    observation_models::getObservableName( observableType_, linkEnds_.size( ) ) +
+                    " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
+                    " parameter not linked to bias object. Has associated bias model been implemented in observation model?" );
         }
     }
-    
+
 protected:
-    
 private:
-    
     //! Start times for arcs in which biases are defined
     const std::vector< double > arcStartTimes_;
-    
+
     //! Function to retrieve the current observation bias list.
     std::function< std::vector< Eigen::VectorXd >( ) > getBiasList_;
-    
+
     //! Function to reset the current observation bias list
     std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList_;
-    
+
     //! Link end index from which the 'current time' is determined
     int linkEndIndex_;
-    
+
     //! Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
-    
+
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
-    
+
     //! Size of observable for which bias is considered
     int observableSize_;
-    
+
     //! Number of arc for which biases are considered
     int numberOfArcs_;
-    
+
     //! Object used to determine the current arc, based on the current time.
     std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 };
 
-class TimeBiasParameterBase: public EstimatableParameter< Eigen::VectorXd >
+class TimeBiasParameterBase : public EstimatableParameter< Eigen::VectorXd >
 {
 public:
-
     TimeBiasParameterBase( const EstimatebleParametersEnum parameterName,
-                          const std::string& associatedBody,
-                          const std::string& pointOnBodyId = ""  ):
+                           const std::string& associatedBody,
+                           const std::string& pointOnBodyId = "" ):
         EstimatableParameter< Eigen::VectorXd >( parameterName, associatedBody, pointOnBodyId )
     {
         if( !isParameterObservationLinkTimeProperty( parameterName ) )
         {
-            throw std::runtime_error( "Error when creating TimeBiasParameterBase, parameter " + std::to_string( parameterName ) + " not supported" );
+            throw std::runtime_error( "Error when creating TimeBiasParameterBase, parameter " + std::to_string( parameterName ) +
+                                      " not supported" );
         }
     }
 
-    ~TimeBiasParameterBase( ){ }
+    ~TimeBiasParameterBase( ) { }
 
-    void setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) >  bodyAccelerationFunction )
+    void setBodyAccelerationFunction( const std::function< Eigen::VectorXd( const double ) > bodyAccelerationFunction )
     {
         bodyAccelerationFunction_ = bodyAccelerationFunction;
     }
@@ -448,11 +432,8 @@ public:
         return bodyAccelerationFunction_;
     }
 
-
 protected:
-
     std::function< Eigen::VectorXd( const double ) > bodyAccelerationFunction_;
-
 };
 
 //! Interface class for the estimation of a constant time drift bias.
@@ -463,11 +444,9 @@ protected:
  *  used in the simulations for the observation bias. This is due to the fact that the ConstantTimeDriftBias class is
  *  templated by the observable size, while this class is not.
  */
-class ConstantTimeDriftBiasParameter: public EstimatableParameter< Eigen::VectorXd >
+class ConstantTimeDriftBiasParameter : public EstimatableParameter< Eigen::VectorXd >
 {
-    
 public:
-    
     //! Constructor
     /*!
      * Constructor
@@ -478,20 +457,20 @@ public:
      * \param observableType Observable type for which the bias is active.
      * \param referenceEpoch Reference epoch at which the time drift is initialised.
      */
-    ConstantTimeDriftBiasParameter(
-            const std::function< Eigen::VectorXd( ) > getCurrentBias,
-            const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
-            const int linkEndIndex,
-            const observation_models::LinkEnds linkEnds,
-            const observation_models::ObservableType observableType,
-            const double referenceEpoch ):
+    ConstantTimeDriftBiasParameter( const std::function< Eigen::VectorXd( ) > getCurrentBias,
+                                    const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
+                                    const int linkEndIndex,
+                                    const observation_models::LinkEnds linkEnds,
+                                    const observation_models::ObservableType observableType,
+                                    const double referenceEpoch ):
         EstimatableParameter< Eigen::VectorXd >( constant_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
-        getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndIndex_( linkEndIndex ),
-        linkEnds_( linkEnds ), observableType_( observableType ), referenceEpoch_( referenceEpoch ){ }
-    
+        getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ),
+        observableType_( observableType ), referenceEpoch_( referenceEpoch )
+    { }
+
     //! Destructor
     ~ConstantTimeDriftBiasParameter( ) { }
-    
+
     //! Function to get the current value of the constant time drift bias that is to be estimated.
     /*!
      * Function to get the current value of the constant time drift bias that is to be estimated.
@@ -508,7 +487,7 @@ public:
             return Eigen::VectorXd::Constant( getParameterSize( ), TUDAT_NAN );
         }
     }
-    
+
     //! Function to reset the value of the time drift bias that is to be estimated.
     /*!
      * Function to reset the value of the time drift bias that is to be estimated.
@@ -520,7 +499,9 @@ public:
         {
             if( getParameterSize( ) != parameterValue.rows( ) )
             {
-                throw std::runtime_error( "Error, size of parameter (type:constant_time_drift_observation_bias) incompatible with expected size when resetting value." );
+                throw std::runtime_error(
+                        "Error, size of parameter (type:constant_time_drift_observation_bias) incompatible with expected size when "
+                        "resetting value." );
             }
             resetCurrentBias_( parameterValue );
         }
@@ -535,15 +516,15 @@ public:
         if( getCurrentBias_ == nullptr || resetCurrentBias_ == nullptr )
         {
             throw std::runtime_error(
-                        "Error in " + getParameterTypeString( parameterName_.first ) +
-                        " of observable type " + observation_models::getObservableName(
-                            observableType_, linkEnds_.size( ) ) +
-                        " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
-                        " parameter not linked to bias object. Associated bias model been implemented in observation model. " +
-                        " This may be because you are resetting the parameter value before creating observation models, or because you have not defined the required bias model.");
+                    "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
+                    observation_models::getObservableName( observableType_, linkEnds_.size( ) ) +
+                    " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
+                    " parameter not linked to bias object. Associated bias model been implemented in observation model. " +
+                    " This may be because you are resetting the parameter value before creating observation models, or because you have "
+                    "not defined the required bias model." );
         }
     }
-    
+
     //! Function to retrieve the size of the parameter (equal to the size of the observable).
     /*!
      *  Function to retrieve the size of the parameter (equal to the size of the observable).
@@ -553,7 +534,7 @@ public:
     {
         return observation_models::getObservableSize( observableType_ );
     }
-    
+
     //! Function to reset the get/set function of the observation bias
     /*!
      * Function to reset the get/set function of the observation bias. This function is needed since te observation models/biases
@@ -561,20 +542,19 @@ public:
      * \param getCurrentBias New function to retrieve the current observation bias.
      * \param resetCurrentBias New function to reset the current observation bias
      */
-    void setObservationBiasFunctions(
-            const std::function< Eigen::VectorXd( ) > getCurrentBias,
-            const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
+    void setObservationBiasFunctions( const std::function< Eigen::VectorXd( ) > getCurrentBias,
+                                      const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
     {
         // Check if functions already exist
         if( !( getCurrentBias_ == nullptr ) || !( resetCurrentBias_ == nullptr ) )
         {
             std::cerr << "Warning when resetting time drift bias in estimation object, existing contents not empty" << std::endl;
         }
-        
+
         getCurrentBias_ = getCurrentBias;
         resetCurrentBias_ = resetCurrentBias;
     }
-    
+
     //! Function to retrieve the observation link ends for which the bias is active.
     /*!
      * Function to retrieve the observation link ends for which the bias is active.
@@ -584,7 +564,7 @@ public:
     {
         return linkEnds_;
     }
-    
+
     //! Function to retrieve the observable type for which the bias is active.
     /*!
      * Function to retrieve the observable type ends for which the bias is active.
@@ -594,15 +574,15 @@ public:
     {
         return observableType_;
     }
-    
+
     std::string getParameterDescription( )
     {
         std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-                observation_models::getObservableName( observableType_, linkEnds_.size( )  ) + ") and link ends: (" +
+                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
                 observation_models::getLinkEndsString( linkEnds_ ) + ")";
         return parameterDescription;
     }
-    
+
     //! Function to retrieve link end index from which the 'current time' is determined
     /*!
      * Function to retrieve link end index from which the 'current time' is determined
@@ -612,7 +592,7 @@ public:
     {
         return linkEndIndex_;
     }
-    
+
     //! Function to retrieve the reference epoch at which the time drift is supposed to be equal to 0.
     /*!
      * Function to retrieve the reference epoch at which the time drift is supposed to be equal to 0.
@@ -622,14 +602,12 @@ public:
     {
         return referenceEpoch_;
     }
-    
+
 protected:
-    
 private:
-    
     //! Function to retrieve the current time drift bias.
     std::function< Eigen::VectorXd( ) > getCurrentBias_;
-    
+
     //! Function to reset the current time drift
     std::function< void( const Eigen::VectorXd& ) > resetCurrentBias_;
 
@@ -638,27 +616,25 @@ private:
 
     //! Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
-    
+
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
-    
+
     //! Reference epoch at which the time drift is initialised.
     double referenceEpoch_;
 };
 
 //! Interface class for the estimation of an arc-wise time drift bias.
 /*!
-*  Interface class for the estimation of an arc-wise time drift bias (at given link ends and
-*  observable type).  Unlike most other EstimatableParameter derived
-*  classes, this class does not have direct access to the class (ArcWiseTimeDriftBias) used in the
-*  simulations for the observation bias. This is due to the fact that the ArcWiseTimeDriftBias class
-*  is templated by the observable size, while this class is not.
-*/
-class ArcWiseTimeDriftBiasParameter: public EstimatableParameter< Eigen::VectorXd >
+ *  Interface class for the estimation of an arc-wise time drift bias (at given link ends and
+ *  observable type).  Unlike most other EstimatableParameter derived
+ *  classes, this class does not have direct access to the class (ArcWiseTimeDriftBias) used in the
+ *  simulations for the observation bias. This is due to the fact that the ArcWiseTimeDriftBias class
+ *  is templated by the observable size, while this class is not.
+ */
+class ArcWiseTimeDriftBiasParameter : public EstimatableParameter< Eigen::VectorXd >
 {
-    
 public:
-    
     //! Constructor
     /*!
      * Constructor
@@ -670,25 +646,24 @@ public:
      * \param observableType Observable type for which the bias is active.
      * \param referenceEpochs Reference epochs (per arc) at which the time drifts are initialised.
      */
-    ArcWiseTimeDriftBiasParameter(
-            const std::vector< double > arcStartTimes,
-            const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
-            const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
-            const int linkEndIndex,
-            const observation_models::LinkEnds linkEnds,
-            const observation_models::ObservableType observableType,
-            const std::vector< double > referenceEpochs ):
+    ArcWiseTimeDriftBiasParameter( const std::vector< double > arcStartTimes,
+                                   const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
+                                   const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
+                                   const int linkEndIndex,
+                                   const observation_models::LinkEnds linkEnds,
+                                   const observation_models::ObservableType observableType,
+                                   const std::vector< double > referenceEpochs ):
         EstimatableParameter< Eigen::VectorXd >( arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.bodyName_ ),
-        arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
-        linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType ), referenceEpochs_( referenceEpochs )
+        arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ), linkEndIndex_( linkEndIndex ),
+        linkEnds_( linkEnds ), observableType_( observableType ), referenceEpochs_( referenceEpochs )
     {
         observableSize_ = observation_models::getObservableSize( observableType );
         numberOfArcs_ = arcStartTimes.size( );
     }
-    
+
     //! Destructor
     ~ArcWiseTimeDriftBiasParameter( ) { }
-    
+
     //! Function to get the current value of the arc-wise time drift bias that is to be estimated.
     /*!
      * Function to get the current value of the arc-wise time drift bias that is to be estimated.
@@ -699,8 +674,7 @@ public:
         if( !( getBiasList_ == nullptr ) )
         {
             std::vector< Eigen::VectorXd > observationBiases = getBiasList_( );
-            Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero(
-                        observableSize_ * observationBiases.size( ) );
+            Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero( observableSize_ * observationBiases.size( ) );
             for( unsigned int i = 0; i < observationBiases.size( ); i++ )
             {
                 currentParameterSet.segment( i * observableSize_, observableSize_ ) = observationBiases.at( i );
@@ -712,7 +686,7 @@ public:
             return Eigen::VectorXd::Constant( getParameterSize( ), TUDAT_NAN );
         }
     }
-    
+
     //! Function to reset the value of the arc-wise time drift bias that is to be estimated.
     /*!
      * Function to reset the value of the arc-wise time drift bias that is to be estimated.
@@ -724,11 +698,12 @@ public:
         {
             if( getParameterSize( ) != parameterValue.rows( ) )
             {
-                throw std::runtime_error( "Error, size of parameter (type:arc_wise_time_drift_observation_bias) incompatible with expected size when resetting value." );
-
+                throw std::runtime_error(
+                        "Error, size of parameter (type:arc_wise_time_drift_observation_bias) incompatible with expected size when "
+                        "resetting value." );
             }
             std::vector< Eigen::VectorXd > observationBiases;
-            
+
             for( int i = 0; i < numberOfArcs_; i++ )
             {
                 observationBiases.push_back( parameterValue.segment( i * observableSize_, observableSize_ ) );
@@ -741,21 +716,19 @@ public:
         }
     }
 
-
     void throwExceptionIfNotFullyDefined( )
     {
         if( getBiasList_ == nullptr || resetBiasList_ == nullptr )
         {
             throw std::runtime_error(
-                        "Error in " + getParameterTypeString( parameterName_.first ) +
-                        " of observable type " + observation_models::getObservableName(
-                            observableType_, linkEnds_.size( ) ) +
-                        " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
-                        " parameter not linked to bias object. Associated bias model been implemented in observation model. " +
-                        " This may be because you are resetting the parameter value before creating observation models, or because you have not defined the required bias model.");
+                    "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
+                    observation_models::getObservableName( observableType_, linkEnds_.size( ) ) +
+                    " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
+                    " parameter not linked to bias object. Associated bias model been implemented in observation model. " +
+                    " This may be because you are resetting the parameter value before creating observation models, or because you have "
+                    "not defined the required bias model." );
         }
     }
-
 
     //! Function to retrieve the size of the parameter (equal to the size of the observable).
     /*!
@@ -766,7 +739,7 @@ public:
     {
         return observableSize_ * numberOfArcs_;
     }
-    
+
     //! Function to reset the get/set function of the observation bias list
     /*!
      * Function to reset the get/set function of the observation bias list. This function is needed since te observation
@@ -774,20 +747,19 @@ public:
      * \param getBiasList New function to retrieve the current observation bias list.
      * \param resetBiasList New function to reset the current observation bias list
      */
-    void setObservationBiasFunctions(
-            const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
-            const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList )
+    void setObservationBiasFunctions( const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
+                                      const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList )
     {
         // Check if functions already exist
         if( !( getBiasList_ == nullptr ) || !( resetBiasList_ == nullptr ) )
         {
             std::cerr << "Warning when resetting arc-wise time drift bias in estimation object, existing contents not empty" << std::endl;
         }
-        
+
         getBiasList_ = getBiasList;
         resetBiasList_ = resetBiasList;
     }
-    
+
     //! Function to retrieve the observation link ends for which the bias is active.
     /*!
      * Function to retrieve the observation link ends for which the bias is active.
@@ -797,7 +769,7 @@ public:
     {
         return linkEnds_;
     }
-    
+
     //! Function to retrieve the observable type for which the bias is active.
     /*!
      * Function to retrieve the observable type ends for which the bias is active.
@@ -807,11 +779,11 @@ public:
     {
         return observableType_;
     }
-    
+
     std::string getParameterDescription( )
     {
         std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-                observation_models::getObservableName( observableType_, linkEnds_.size( )  ) + ") and link ends: (" +
+                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
                 observation_models::getLinkEndsString( linkEnds_ ) + ")";
         return parameterDescription;
     }
@@ -824,7 +796,7 @@ public:
     {
         return arcStartTimes_;
     }
-    
+
     //! Function to retrieve link end index from which the 'current time' is determined
     /*!
      * Function to retrieve link end index from which the 'current time' is determined
@@ -834,7 +806,7 @@ public:
     {
         return linkEndIndex_;
     }
-    
+
     //! Function to retrieve object used to determine the current arc, based on the current time.
     /*!
      * Function to retrieve object used to determine the current arc, based on the current time.
@@ -844,7 +816,7 @@ public:
     {
         return lookupScheme_;
     }
-    
+
     //! Function to reset object used to determine the current arc, based on the current time.
     /*!
      * Function to reset object used to determine the current arc, based on the current time.
@@ -854,7 +826,7 @@ public:
     {
         lookupScheme_ = lookupScheme;
     }
-    
+
     //! Function to retrieve the reference epochs at which the arc-wise time drifts are supposed to be equal to 0.
     /*!
      * Function to retrieve the reference epochs at which the arc-wise time drifts are supposed to be equal to 0.
@@ -864,42 +836,39 @@ public:
     {
         return referenceEpochs_;
     }
-    
+
 protected:
-    
 private:
-    
     //! Start times for arcs in which biases are defined
     const std::vector< double > arcStartTimes_;
-    
+
     //! Function to retrieve the current observation bias list.
     std::function< std::vector< Eigen::VectorXd >( ) > getBiasList_;
-    
+
     //! Function to reset the current observation bias list
     std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList_;
-    
+
     //! Link end index from which the 'current time' is determined
     int linkEndIndex_;
-    
+
     //! Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
-    
+
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
-    
+
     //! Size of observable for which bias is considered
     int observableSize_;
-    
+
     //! Number of arc for which biases are considered
     int numberOfArcs_;
-    
+
     //! Object used to determine the current arc, based on the current time.
     std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
-    
+
     //! Reference epochs (per arc) at which the time drifts are initialised.
     std::vector< double > referenceEpochs_;
 };
-
 
 //! Interface class for the estimation of a constant time bias.
 /*!
@@ -909,11 +878,9 @@ private:
  *  used in the simulations for the observation bias. This is due to the fact that the ConstantTimeBias class is
  *  templated by the observable size, while this class is not.
  */
-class ConstantTimeBiasParameter: public TimeBiasParameterBase
+class ConstantTimeBiasParameter : public TimeBiasParameterBase
 {
-
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -923,19 +890,18 @@ public:
      * \param linkEnds Observation link ends for which the bias is active.
      * \param observableType Observable type for which the bias is active.
      */
-    ConstantTimeBiasParameter(
-            const std::function< Eigen::VectorXd( ) > getCurrentBias,
-            const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
-            const observation_models::LinkEndType linkEndForTime,
-            const observation_models::LinkEnds linkEnds,
-            const observation_models::ObservableType observableType ):
-            TimeBiasParameterBase( constant_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
-            getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEndForTime_( linkEndForTime ),
-            linkEnds_( linkEnds ), observableType_( observableType )
-            {
-                linkEndIndex_ = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                    observableType_, linkEndForTime_, linkEnds_.size( ) ).at( 0 );
-            }
+    ConstantTimeBiasParameter( const std::function< Eigen::VectorXd( ) > getCurrentBias,
+                               const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
+                               const observation_models::LinkEndType linkEndForTime,
+                               const observation_models::LinkEnds linkEnds,
+                               const observation_models::ObservableType observableType ):
+        TimeBiasParameterBase( constant_time_observation_bias, linkEnds.begin( )->second.bodyName_ ), getCurrentBias_( getCurrentBias ),
+        resetCurrentBias_( resetCurrentBias ), linkEndForTime_( linkEndForTime ), linkEnds_( linkEnds ), observableType_( observableType )
+    {
+        linkEndIndex_ =
+                observation_models::getLinkEndIndicesForLinkEndTypeAtObservable( observableType_, linkEndForTime_, linkEnds_.size( ) )
+                        .at( 0 );
+    }
 
     //! Destructor
     ~ConstantTimeBiasParameter( ) { }
@@ -968,7 +934,9 @@ public:
         {
             if( getParameterSize( ) != parameterValue.rows( ) )
             {
-                throw std::runtime_error( "Error, size of parameter (type:constant_time_observation_bias) incompatible with expected size when resetting value." );
+                throw std::runtime_error(
+                        "Error, size of parameter (type:constant_time_observation_bias) incompatible with expected size when resetting "
+                        "value." );
             }
             resetCurrentBias_( parameterValue );
         }
@@ -983,12 +951,12 @@ public:
         if( getCurrentBias_ == nullptr || resetCurrentBias_ == nullptr )
         {
             throw std::runtime_error(
-                    "Error in " + getParameterTypeString( parameterName_.first ) +
-                    " of observable type " + observation_models::getObservableName(
-                            observableType_, linkEnds_.size( ) ) +
+                    "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
+                    observation_models::getObservableName( observableType_, linkEnds_.size( ) ) +
                     " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
                     " parameter not linked to bias object. Associated bias model been implemented in observation model. " +
-                    " This may be because you are resetting the parameter value before creating observation models, or because you have not defined the required bias model.");
+                    " This may be because you are resetting the parameter value before creating observation models, or because you have "
+                    "not defined the required bias model." );
         }
     }
 
@@ -1009,9 +977,8 @@ public:
      * \param getCurrentBias New function to retrieve the current observation bias.
      * \param resetCurrentBias New function to reset the current observation bias
      */
-    void setObservationBiasFunctions(
-            const std::function< Eigen::VectorXd( ) > getCurrentBias,
-            const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
+    void setObservationBiasFunctions( const std::function< Eigen::VectorXd( ) > getCurrentBias,
+                                      const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
     {
         // Check if functions already exist
         if( !( getCurrentBias_ == nullptr ) || !( resetCurrentBias_ == nullptr ) )
@@ -1043,8 +1010,6 @@ public:
         return linkEndForTime_;
     }
 
-
-
     //! Function to retrieve the observable type for which the bias is active.
     /*!
      * Function to retrieve the observable type ends for which the bias is active.
@@ -1058,8 +1023,8 @@ public:
     std::string getParameterDescription( )
     {
         std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-                                           observation_models::getObservableName( observableType_, linkEnds_.size( )  ) + ") and link ends: (" +
-                                           observation_models::getLinkEndsString( linkEnds_ ) + ")";
+                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
+                observation_models::getLinkEndsString( linkEnds_ ) + ")";
         return parameterDescription;
     }
 
@@ -1074,9 +1039,7 @@ public:
     }
 
 protected:
-
 private:
-
     //! Function to retrieve the current time drift bias.
     std::function< Eigen::VectorXd( ) > getCurrentBias_;
 
@@ -1097,17 +1060,15 @@ private:
 
 //! Interface class for the estimation of an arc-wise time bias.
 /*!
-*  Interface class for the estimation of an arc-wise time bias (at given link ends and
-*  observable type).  Unlike most other EstimatableParameter derived
-*  classes, this class does not have direct access to the class (ArcWiseTimeBias) used in the
-*  simulations for the observation bias. This is due to the fact that the ArcWiseTimeBias class
-*  is templated by the observable size, while this class is not.
-*/
-class ArcWiseTimeBiasParameter: public TimeBiasParameterBase
+ *  Interface class for the estimation of an arc-wise time bias (at given link ends and
+ *  observable type).  Unlike most other EstimatableParameter derived
+ *  classes, this class does not have direct access to the class (ArcWiseTimeBias) used in the
+ *  simulations for the observation bias. This is due to the fact that the ArcWiseTimeBias class
+ *  is templated by the observable size, while this class is not.
+ */
+class ArcWiseTimeBiasParameter : public TimeBiasParameterBase
 {
-
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -1118,19 +1079,19 @@ public:
      * \param linkEnds Observation link ends for which the bias is active.
      * \param observableType Observable type for which the bias is active.
      */
-    ArcWiseTimeBiasParameter(
-            const std::vector< double > arcStartTimes,
-            const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
-            const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
-            const observation_models::LinkEndType linkEndForTime,
-            const observation_models::LinkEnds linkEnds,
-            const observation_models::ObservableType observableType ):
-            TimeBiasParameterBase( arc_wise_time_observation_bias, linkEnds.begin( )->second.bodyName_ ),
-            arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
-            linkEndForTime_( linkEndForTime ), linkEnds_( linkEnds ), observableType_( observableType )
+    ArcWiseTimeBiasParameter( const std::vector< double > arcStartTimes,
+                              const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
+                              const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
+                              const observation_models::LinkEndType linkEndForTime,
+                              const observation_models::LinkEnds linkEnds,
+                              const observation_models::ObservableType observableType ):
+        TimeBiasParameterBase( arc_wise_time_observation_bias, linkEnds.begin( )->second.bodyName_ ), arcStartTimes_( arcStartTimes ),
+        getBiasList_( getBiasList ), resetBiasList_( resetBiasList ), linkEndForTime_( linkEndForTime ), linkEnds_( linkEnds ),
+        observableType_( observableType )
     {
-        linkEndIndex_ = observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-            observableType_, linkEndForTime_, linkEnds_.size( ) ).at( 0 );
+        linkEndIndex_ =
+                observation_models::getLinkEndIndicesForLinkEndTypeAtObservable( observableType_, linkEndForTime_, linkEnds_.size( ) )
+                        .at( 0 );
         observableSize_ = observation_models::getObservableSize( observableType );
         numberOfArcs_ = arcStartTimes.size( );
     }
@@ -1148,8 +1109,7 @@ public:
         if( !( getBiasList_ == nullptr ) )
         {
             std::vector< Eigen::VectorXd > observationBiases = getBiasList_( );
-            Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero(
-                    observationBiases.size( ) );
+            Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero( observationBiases.size( ) );
             for( unsigned int i = 0; i < observationBiases.size( ); i++ )
             {
                 currentParameterSet.segment( i, 1 ) = observationBiases.at( i );
@@ -1173,8 +1133,9 @@ public:
         {
             if( getParameterSize( ) != parameterValue.rows( ) )
             {
-                throw std::runtime_error( "Error, size of parameter (type:arc_wise_time_observation_bias) incompatible with expected size when resetting value." );
-
+                throw std::runtime_error(
+                        "Error, size of parameter (type:arc_wise_time_observation_bias) incompatible with expected size when resetting "
+                        "value." );
             }
             std::vector< Eigen::VectorXd > observationBiases;
 
@@ -1190,21 +1151,19 @@ public:
         }
     }
 
-
     void throwExceptionIfNotFullyDefined( )
     {
         if( getBiasList_ == nullptr || resetBiasList_ == nullptr )
         {
             throw std::runtime_error(
-                    "Error in " + getParameterTypeString( parameterName_.first ) +
-                    " of observable type " + observation_models::getObservableName(
-                            observableType_, linkEnds_.size( ) ) +
+                    "Error in " + getParameterTypeString( parameterName_.first ) + " of observable type " +
+                    observation_models::getObservableName( observableType_, linkEnds_.size( ) ) +
                     " with link ends: " + observation_models::getLinkEndsString( linkEnds_ ) +
                     " parameter not linked to bias object. Associated bias model been implemented in observation model. " +
-                    " This may be because you are resetting the parameter value before creating observation models, or because you have not defined the required bias model.");
+                    " This may be because you are resetting the parameter value before creating observation models, or because you have "
+                    "not defined the required bias model." );
         }
     }
-
 
     //! Function to retrieve the size of the parameter (equal to the size of the observable).
     /*!
@@ -1223,9 +1182,8 @@ public:
      * \param getBiasList New function to retrieve the current observation bias list.
      * \param resetBiasList New function to reset the current observation bias list
      */
-    void setObservationBiasFunctions(
-            const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
-            const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList )
+    void setObservationBiasFunctions( const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
+                                      const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList )
     {
         // Check if functions already exist
         if( !( getBiasList_ == nullptr ) || !( resetBiasList_ == nullptr ) )
@@ -1260,8 +1218,8 @@ public:
     std::string getParameterDescription( )
     {
         std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-                                           observation_models::getObservableName( observableType_, linkEnds_.size( )  ) + ") and link ends: (" +
-                                           observation_models::getLinkEndsString( linkEnds_ ) + ")";
+                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
+                observation_models::getLinkEndsString( linkEnds_ ) + ")";
         return parameterDescription;
     }
     //! Function to retrieve start times for arcs in which biases are defined
@@ -1314,11 +1272,8 @@ public:
         return linkEndForTime_;
     }
 
-
 protected:
-
 private:
-
     //! Start times for arcs in which biases are defined
     const std::vector< double > arcStartTimes_;
 
@@ -1347,12 +1302,10 @@ private:
 
     //! Object used to determine the current arc, based on the current time.
     std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
-
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_OBSERVATIONBIASPARAMETER_H
+#endif  // TUDAT_OBSERVATIONBIASPARAMETER_H

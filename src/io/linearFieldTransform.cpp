@@ -29,5 +29,5 @@ std::shared_ptr< std::string > LinearFieldTransform::transform( const std::strin
     return std::shared_ptr< std::string >( new std::string( std::to_string( result ) ) );
 }
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat

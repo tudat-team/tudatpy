@@ -31,10 +31,9 @@ namespace propagators
  * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
  * \return Time derivatives of osculating dified equinictial elements.
  */
-Eigen::Vector6d computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
-        const Eigen::Vector6d& osculatingModifiedEquinoctialElements,
-        const Eigen::Vector3d& accelerationsInRswFrame,
-        const double centralBodyGravitationalParameter );
+Eigen::Vector6d computeGaussPlanetaryEquationsForModifiedEquinoctialElements( const Eigen::Vector6d& osculatingModifiedEquinoctialElements,
+                                                                              const Eigen::Vector3d& accelerationsInRswFrame,
+                                                                              const double centralBodyGravitationalParameter );
 
 //! Class for computing the state derivative of translational motion of N bodies, using a Gauss method with MEE.
 /*!
@@ -43,10 +42,9 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
  * of the bodies the states being numerically propagated.
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class NBodyGaussModifiedEquinictialStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
+class NBodyGaussModifiedEquinictialStateDerivative : public NBodyStateDerivative< StateScalarType, TimeType >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -61,48 +59,50 @@ public:
      *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
      *  \param initialKeplerElements Kepler elements of bodiesToIntegrate, at initial propagation time
      */
-    NBodyGaussModifiedEquinictialStateDerivative(
-            const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-            const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
-            const std::vector< std::string >& bodiesToIntegrate ,
-            const std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& initialKeplerElements ):
-        NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, gauss_modified_equinoctial, bodiesToIntegrate, true )
+    NBodyGaussModifiedEquinictialStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
+                                                  const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
+                                                  const std::vector< std::string >& bodiesToIntegrate,
+                                                  const std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& initialKeplerElements ):
+        NBodyStateDerivative< StateScalarType, TimeType >( accelerationModelsPerBody,
+                                                           centralBodyData,
+                                                           gauss_modified_equinoctial,
+                                                           bodiesToIntegrate,
+                                                           true )
     {
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
-        centralBodyGravitationalParameters_ =
-                removeCentralGravityAccelerations(
-                    centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
-                    this->accelerationModelsPerBody_, this->removedCentralAccelerations_ );
+        centralBodyGravitationalParameters_ = removeCentralGravityAccelerations( centralBodyData->getCentralBodies( ),
+                                                                                 this->bodiesToBeIntegratedNumerically_,
+                                                                                 this->accelerationModelsPerBody_,
+                                                                                 this->removedCentralAccelerations_ );
         this->createAccelerationModelList( );
 
         // Check if singularity in equations of motion should be palced at 0 or 180 degrees inclination
         flipSingularities_.resize( bodiesToIntegrate.size( ) );
         for( unsigned int i = 0; i < initialKeplerElements.size( ); i++ )
         {
-            if( initialKeplerElements.at( i )( orbital_element_conversions::inclinationIndex ) >  mathematical_constants::PI / 2.0 )
+            if( initialKeplerElements.at( i )( orbital_element_conversions::inclinationIndex ) > mathematical_constants::PI / 2.0 )
             {
                 flipSingularities_[ i ] = false;
                 std::cerr << "Warning when using Gauss-MEE propagation, body " << bodiesToIntegrate.at( i ) << " has inclination of "
                           << initialKeplerElements.at( i )( orbital_element_conversions::inclinationIndex ) * 180.0 /
-                           mathematical_constants::PI << " degrees, but propagator has singularity at i=180 degrees" << std::endl;
+                                mathematical_constants::PI
+                          << " degrees, but propagator has singularity at i=180 degrees" << std::endl;
             }
             else
             {
                 flipSingularities_[ i ] = false;
             }
 
-            if( initialKeplerElements.at( i )( orbital_element_conversions::inclinationIndex ) >
-                    mathematical_constants::PI  )
+            if( initialKeplerElements.at( i )( orbital_element_conversions::inclinationIndex ) > mathematical_constants::PI )
             {
-                throw std::runtime_error( "Error when setting N Body Gauss MEE propagator, initial inclination of body is larger than pi." );
+                throw std::runtime_error(
+                        "Error when setting N Body Gauss MEE propagator, initial inclination of body is larger than pi." );
             }
         }
-
     }
 
     //! Destructor
-    ~NBodyGaussModifiedEquinictialStateDerivative( ){ }
+    ~NBodyGaussModifiedEquinictialStateDerivative( ) { }
 
     //! Calculates the state derivative of the translational motion of the system, using the Gauss equations for MEE
     /*!
@@ -117,9 +117,9 @@ public:
      *  \param stateDerivative Current derivative of the modified equinoctial elements of the
      *  system of bodies integrated numerically (returned by reference).
      */
-    void calculateSystemStateDerivative(
-            const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
+    void calculateSystemStateDerivative( const TimeType time,
+                                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+                                         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         // Get total inertial accelerations acting on bodies
         stateDerivative.setZero( );
@@ -130,14 +130,16 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
-                        currentCartesianLocalSolution_.segment( i * 6, 6 ).template cast< double >( ) ) *
+                                                    currentCartesianLocalSolution_.segment( i * 6, 6 ).template cast< double >( ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
-            stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
-                        stateOfSystemToBeIntegrated.block( i * 6, 0, 6, 1 ).template cast< double >( ), currentAccelerationInRswFrame,
-                        centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
+            stateDerivative.block( i * 6, 0, 6, 1 ) =
+                    computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
+                            stateOfSystemToBeIntegrated.block( i * 6, 0, 6, 1 ).template cast< double >( ),
+                            currentAccelerationInRswFrame,
+                            centralBodyGravitationalParameters_.at( i )( ) )
+                            .template cast< StateScalarType >( );
         }
-
     }
 
     //! Function to convert the state in the conventional form to the Modified Equinoctial Elements form.
@@ -160,12 +162,12 @@ public:
         {
             currentState.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertCartesianToModifiedEquinoctialElements< StateScalarType >(
-                        cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ), flipSingularities_.at( i ) );
+                            cartesianSolution.block( i * 6, 0, 6, 1 ),
+                            static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ),
+                            flipSingularities_.at( i ) );
         }
 
         return currentState;
-
     }
 
     //! Function to convert the MEE states of the bodies to the conventional form.
@@ -181,31 +183,29 @@ public:
      * \param currentCartesianLocalSolution State (internalSolution, which is Encke-formulation),
      *  converted to the 'conventional form' (returned by reference).
      */
-    void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
+    void convertToOutputSolution( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
+                                  const TimeType& time,
+                                  Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
     {
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentCartesianLocalSolution.block( i * 6, 0, 6, 1 ) =
                     orbital_element_conversions::convertModifiedEquinoctialToCartesianElements< StateScalarType >(
-                        internalSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ), flipSingularities_.at( i ) );
+                            internalSolution.block( i * 6, 0, 6, 1 ),
+                            static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ),
+                            flipSingularities_.at( i ) );
         }
 
         currentCartesianLocalSolution_ = currentCartesianLocalSolution;
     }
 
-
 private:
-
     //!  Gravitational parameters of central bodies used to convert Cartesian to Keplerian orbits, and vice versa
     std::vector< std::function< double( ) > > centralBodyGravitationalParameters_;
 
     //! Central body accelerations for each propagated body, which has been removed from accelerationModelsPerBody_
-    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
-    centralAccelerations_;
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > centralAccelerations_;
 
     //! Current full Cartesian state of the propagated bodies, w.r.t. the central bodies
     /*!
@@ -217,13 +217,12 @@ private:
     //! List of booleans to denote, per propagated body, if the singularity in the MEE equations it o be flipped to 0 inclination
     //! (if true) or if it remains at 180 degree inclination (if false)
     std::vector< bool > flipSingularities_;
-
 };
 
-//extern template class NBodyGaussModifiedEquinictialStateDerivative< double, double >;
+// extern template class NBodyGaussModifiedEquinictialStateDerivative< double, double >;
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_NGAUSSMODIFIEDEQUINOCTIALSTATEDERIVATIVE_H
+#endif  // TUDAT_NGAUSSMODIFIEDEQUINOCTIALSTATEDERIVATIVE_H

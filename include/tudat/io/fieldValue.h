@@ -29,7 +29,6 @@ namespace input_output
 class FieldValue
 {
 public:
-
     //! Create a FieldValue containing type, string content and transformation of field.
     /*!
      * Create a FieldValue which contains the type, the content as a string and unit transformation
@@ -38,9 +37,9 @@ public:
      * \param field Field data.
      * \param transformer Transformation to apply to field data.
      */
-    FieldValue( const FieldType& type, const std::string& field,
-                const std::shared_ptr< FieldTransform > transformer
-                = std::shared_ptr< FieldTransform >( ) );
+    FieldValue( const FieldType& type,
+                const std::string& field,
+                const std::shared_ptr< FieldTransform > transformer = std::shared_ptr< FieldTransform >( ) );
 
     //! FieldType of the FieldValue.
     const FieldType type;
@@ -58,7 +57,7 @@ public:
     std::shared_ptr< T > getPointer( )
     {
         loadTransformation( );
-        return std::make_shared< T >( boost::lexical_cast<T>( transformedField ) );
+        return std::make_shared< T >( boost::lexical_cast< T >( transformedField ) );
     }
 
     //! Get transformed field content.
@@ -68,26 +67,23 @@ public:
     const std::string& getRaw( );
 
 protected:
-
     //! Load the transformed string if required.
     inline void loadTransformation( )
     {
         // Check if transformedField exists already (lazy cache value).
-        if ( transformedField.empty( ) )
+        if( transformedField.empty( ) )
         {
             // Doesn't exist yet, load the transform.
-            transformedField = transform.get( ) ? 
-                *transform->transform( rawField ).get( ) : rawField;
+            transformedField = transform.get( ) ? *transform->transform( rawField ).get( ) : rawField;
         }
     }
 
 private:
-
     //! String of field value in raw data format.
-    const std::string   rawField;
+    const std::string rawField;
 
     //! String of field value in the transformed data format.
-    std::string         transformedField;
+    std::string transformedField;
 
     //! Pointer to unit transformation equation.
     FieldTransformPointer transform;
@@ -96,7 +92,7 @@ private:
 //! Typedef for shared-pointer to FieldValue object.
 typedef std::shared_ptr< FieldValue > FieldValuePointer;
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_FIELD_VALUE_H
+#endif  // TUDAT_FIELD_VALUE_H

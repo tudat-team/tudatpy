@@ -21,20 +21,21 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
     bool requiresMultiLegIterations = false;
     switch( lightTimeCorrectionType )
     {
-    case first_order_relativistic:
-    case tabulated_tropospheric:
-    case saastamoinen_tropospheric:
-        requiresMultiLegIterations = false;
-        break;
-    case tabulated_ionospheric:
-    case jakowski_vtec_ionospheric:
-    case inverse_power_series_solar_corona:
-        requiresMultiLegIterations = true;
-        break;
-    default:
-        throw std::runtime_error(
-                "Error when getting whether light time corrections require multi-leg iterations: could not find light"
-                "time correction type " +  std::to_string( lightTimeCorrectionType ) + "." );
+        case first_order_relativistic:
+        case tabulated_tropospheric:
+        case saastamoinen_tropospheric:
+            requiresMultiLegIterations = false;
+            break;
+        case tabulated_ionospheric:
+        case jakowski_vtec_ionospheric:
+        case inverse_power_series_solar_corona:
+            requiresMultiLegIterations = true;
+            break;
+        default:
+            throw std::runtime_error(
+                    "Error when getting whether light time corrections require multi-leg iterations: could not find light"
+                    "time correction type " +
+                    std::to_string( lightTimeCorrectionType ) + "." );
     }
 
     return requiresMultiLegIterations;
@@ -46,34 +47,34 @@ std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTime
 
     switch( lightTimeCorrectionType )
     {
-    case first_order_relativistic:
-        name = "first order relativistic";
-        break;
-    case tabulated_tropospheric:
-        name = "tabulated tropospheric";
-        break;
-    case tabulated_ionospheric:
-        name = "tabulated ionospheric";
-        break;
-    case saastamoinen_tropospheric:
-        name = "Saastamoinen tropospheric";
-        break;
-    case jakowski_vtec_ionospheric:
-        name = "Jakowski VTEC ionospheric";
-        break;
-    case inverse_power_series_solar_corona:
-        name = "inverse power series solar corona";
-        break;
-    default:
-        throw std::runtime_error(
-                "Error when getting light time correction name: could not find light"
-                "time correction type " +  std::to_string( lightTimeCorrectionType ) + "." );
+        case first_order_relativistic:
+            name = "first order relativistic";
+            break;
+        case tabulated_tropospheric:
+            name = "tabulated tropospheric";
+            break;
+        case tabulated_ionospheric:
+            name = "tabulated ionospheric";
+            break;
+        case saastamoinen_tropospheric:
+            name = "Saastamoinen tropospheric";
+            break;
+        case jakowski_vtec_ionospheric:
+            name = "Jakowski VTEC ionospheric";
+            break;
+        case inverse_power_series_solar_corona:
+            name = "inverse power series solar corona";
+            break;
+        default:
+            throw std::runtime_error(
+                    "Error when getting light time correction name: could not find light"
+                    "time correction type " +
+                    std::to_string( lightTimeCorrectionType ) + "." );
     }
 
     return name;
 }
 
+}  // namespace observation_models
 
-} // namespace observation_models
-
-} // namespace tudat
+}  // namespace tudat

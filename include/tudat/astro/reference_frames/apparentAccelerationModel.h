@@ -55,82 +55,78 @@ namespace reference_frames
  *          frame of reference in which the apparent acceleration is computed [m s^-1].
  * \return Apparent acceleration as seen by an observer in the rotating and accelerating frame.
  */
-Eigen::Vector3d computeApparentAcceleration(
-        const Eigen::Vector3d& accelerationOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& angularAccelerationOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame,
-        const Eigen::Vector3d& velocityOfBodyInNonInertialReferenceFrame );
+Eigen::Vector3d computeApparentAcceleration( const Eigen::Vector3d& accelerationOfNonInertialReferenceFrame,
+                                             const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
+                                             const Eigen::Vector3d& angularAccelerationOfNonInertialReferenceFrame,
+                                             const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame,
+                                             const Eigen::Vector3d& velocityOfBodyInNonInertialReferenceFrame );
 
 //! Compute centripetal acceleration due to non-inertiality of reference frame.
 /*!
-  * Computes centripetal acceleration experienced by an object, of which the position is
-  * provided in a rotating reference frame.
-  * The centripetal acceleration of a particle due to the non-inertiality of the reference frame in
-  * which its state is given, is given by following equation:
-  * \f[
-  *      \boldsymbol{a}_{centripetal} =
-  *      -\boldsymbol{\omega} \times (\boldsymbol{\omega} \times \boldsymbol{r}_{ni})
-  * \f]
-  * where \f$\boldsymbol{\omega}\f$ is the rotation rate of the non-inertial frame with respect to
-  * an inertial reference frame  and \f$\boldsymbol{r}_{ni}\f$ is the object's position in the
-  * non-inertial frame in which the apparent acceleration is computed.
-  * \param angularVelocityOfNonInertialReferenceFrame Angular velocity vector of the non-inertial
-  *          frame with respect to an inertial reference frame [rad s^-1].
-  * \param positionOfBodyInNonInertialReferenceFrame Position vector of body in the non-inertial
-  *          frame of reference in which the apparent acceleration is computed [m].
-  * \return Centripetal acceleration as seen by an observer in the rotating frame.
-  */
-Eigen::Vector3d computeCentripetalAcceleration(
-        const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame );
+ * Computes centripetal acceleration experienced by an object, of which the position is
+ * provided in a rotating reference frame.
+ * The centripetal acceleration of a particle due to the non-inertiality of the reference frame in
+ * which its state is given, is given by following equation:
+ * \f[
+ *      \boldsymbol{a}_{centripetal} =
+ *      -\boldsymbol{\omega} \times (\boldsymbol{\omega} \times \boldsymbol{r}_{ni})
+ * \f]
+ * where \f$\boldsymbol{\omega}\f$ is the rotation rate of the non-inertial frame with respect to
+ * an inertial reference frame  and \f$\boldsymbol{r}_{ni}\f$ is the object's position in the
+ * non-inertial frame in which the apparent acceleration is computed.
+ * \param angularVelocityOfNonInertialReferenceFrame Angular velocity vector of the non-inertial
+ *          frame with respect to an inertial reference frame [rad s^-1].
+ * \param positionOfBodyInNonInertialReferenceFrame Position vector of body in the non-inertial
+ *          frame of reference in which the apparent acceleration is computed [m].
+ * \return Centripetal acceleration as seen by an observer in the rotating frame.
+ */
+Eigen::Vector3d computeCentripetalAcceleration( const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
+                                                const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame );
 
 //! Compute Coriolis acceleration due to non-inertiality of reference frame.
 /*!
-  * Computes Coriolis acceleration experienced by an object, of which the position is
-  * provided in a rotating reference frame.
-  * The Coriolis acceleration of a particle due to the non-inertiality of the reference frame in
-  * which its state is given, is given by following equation:
-  * \f[
-  *      \boldsymbol{a}_{Coriolis} =
-  *      -2(\boldsymbol{\omega} \times \boldsymbol{v}_{ni})
-  * \f]
-  * where \f$\boldsymbol{\omega}\f$ is the rotation rate of the non-inertial frame with respect to
-  * an inertial reference frame and \f$\boldsymbol{v}_{ni}\f$ is the object's velocity in the
-  * non-inertial frame in which the apparent acceleration is computed.
-  * \param angularVelocityOfNonInertialReferenceFrame Angular velocity vector of the non-inertial
-  *          frame with respect to an inertial reference frame [rad s^-1].
-  * \param velocityOfBodyInNonInertialReferenceFrame Velocity vector of body in the non-inertial
-  *          frame of reference in which the apparent acceleration is computed [m s^-1].
-  * \return Coriolis acceleration as seen by an observer in the rotating frame.
-  */
-Eigen::Vector3d computeCoriolisAcceleration(
-        const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& velocityOfBodyInNonInertialReferenceFrame );
+ * Computes Coriolis acceleration experienced by an object, of which the position is
+ * provided in a rotating reference frame.
+ * The Coriolis acceleration of a particle due to the non-inertiality of the reference frame in
+ * which its state is given, is given by following equation:
+ * \f[
+ *      \boldsymbol{a}_{Coriolis} =
+ *      -2(\boldsymbol{\omega} \times \boldsymbol{v}_{ni})
+ * \f]
+ * where \f$\boldsymbol{\omega}\f$ is the rotation rate of the non-inertial frame with respect to
+ * an inertial reference frame and \f$\boldsymbol{v}_{ni}\f$ is the object's velocity in the
+ * non-inertial frame in which the apparent acceleration is computed.
+ * \param angularVelocityOfNonInertialReferenceFrame Angular velocity vector of the non-inertial
+ *          frame with respect to an inertial reference frame [rad s^-1].
+ * \param velocityOfBodyInNonInertialReferenceFrame Velocity vector of body in the non-inertial
+ *          frame of reference in which the apparent acceleration is computed [m s^-1].
+ * \return Coriolis acceleration as seen by an observer in the rotating frame.
+ */
+Eigen::Vector3d computeCoriolisAcceleration( const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
+                                             const Eigen::Vector3d& velocityOfBodyInNonInertialReferenceFrame );
 
 //! Compute Euler acceleration due to non-inertiality of reference frame.
 /*!
-  * Computes Euler acceleration experienced by an object, of which the position is
-  * provided in a rotationally accelerating reference frame.
-  * The Euler acceleration of a particle due to the non-inertiality of the reference frame in
-  * which its state is given, is given by following equation:
-  * \f[
-  *      \boldsymbol{a}_{Euler} =
-  *      - \dot{\boldsymbol{\omega}} \times \boldsymbol{r}_{ni}
-  * \f]
-  * where \f$\dot{\boldsymbol{\omega}}\f$ is the rate of change of the rotation rate of the
-  * non-inertial frame with respect to an inertial reference frame and \f$\boldsymbol{r}_{ni}\f$
-  * is the object's position in the non-inertial frame in which the apparent acceleration is
-  * computed.
-  * \param angularAccelerationOfNonInertialReferenceFrame Angular acceleration vector of the
-  *          non-inertial frame with respect to an inertial reference frame [rad s^-1].
-  * \param positionOfBodyInNonInertialReferenceFrame Position vector of body in the non-inertial
-  *          frame of reference in which the apparent acceleration is computed [m].
-  * \return Euler acceleration as seen by an observer in the rotationally accelerating frame.
-  */
-Eigen::Vector3d computeEulerAcceleration(
-        const Eigen::Vector3d& angularAccelerationOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame );
+ * Computes Euler acceleration experienced by an object, of which the position is
+ * provided in a rotationally accelerating reference frame.
+ * The Euler acceleration of a particle due to the non-inertiality of the reference frame in
+ * which its state is given, is given by following equation:
+ * \f[
+ *      \boldsymbol{a}_{Euler} =
+ *      - \dot{\boldsymbol{\omega}} \times \boldsymbol{r}_{ni}
+ * \f]
+ * where \f$\dot{\boldsymbol{\omega}}\f$ is the rate of change of the rotation rate of the
+ * non-inertial frame with respect to an inertial reference frame and \f$\boldsymbol{r}_{ni}\f$
+ * is the object's position in the non-inertial frame in which the apparent acceleration is
+ * computed.
+ * \param angularAccelerationOfNonInertialReferenceFrame Angular acceleration vector of the
+ *          non-inertial frame with respect to an inertial reference frame [rad s^-1].
+ * \param positionOfBodyInNonInertialReferenceFrame Position vector of body in the non-inertial
+ *          frame of reference in which the apparent acceleration is computed [m].
+ * \return Euler acceleration as seen by an observer in the rotationally accelerating frame.
+ */
+Eigen::Vector3d computeEulerAcceleration( const Eigen::Vector3d& angularAccelerationOfNonInertialReferenceFrame,
+                                          const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame );
 
 //! Apparent acceleration model class.
 /*!
@@ -142,12 +138,10 @@ Eigen::Vector3d computeEulerAcceleration(
 class ApparentAccelerationModel : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 private:
-
     //! Typedef for Eigen::Vector3d returning function.
     typedef std::function< Eigen::Vector3d( ) > Vector3dReturningFunction;
 
 public:
-
     //! Class constructor.
     /*!
      * Constructor for apparent acceleration model.
@@ -157,8 +151,8 @@ public:
      * \param angularVelocityOfNonInertialReferenceFrameFunction Pointer to a function returning
      *         the angular velocity vector of the non-intertial reference frame w.r.t. an
      *         inertial frame of reference.
-     * \param angularAccelerationOfNonInertialReferenceFrameFunction Pointer to a function 
-     *         returning the angular acceleration vector of the non-inertial frame with respect to 
+     * \param angularAccelerationOfNonInertialReferenceFrameFunction Pointer to a function
+     *         returning the angular acceleration vector of the non-inertial frame with respect to
      *         an inertial reference frame.
      * \param positionOfBodyInNonInertialReferenceFrameFunction Pointer to a function returning
      *         the position vector in the non-inertial frame of reference in which the apparent
@@ -167,22 +161,16 @@ public:
      *          the velocity vector in the non-inertial frame of reference in which the apparent
      *          acceleration is computed.
      */
-    ApparentAccelerationModel(
-            Vector3dReturningFunction accelerationOfNonInertialReferenceFrameFunction,
-            Vector3dReturningFunction angularVelocityOfNonInertialReferenceFrameFunction,
-            Vector3dReturningFunction angularAccelerationOfNonInertialReferenceFrameFunction,
-            Vector3dReturningFunction positionOfBodyInNonInertialReferenceFrameFunction,
-            Vector3dReturningFunction velocityOfBodyInNonInertialReferenceFrameFunction )
-        : accelerationOfNonInertialReferenceFrameFunction_(
-              accelerationOfNonInertialReferenceFrameFunction ),
-          angularVelocityOfNonInertialReferenceFrameFunction_(
-              angularVelocityOfNonInertialReferenceFrameFunction ),
-          angularAccelerationOfNonInertialReferenceFrameFunction_(
-              angularAccelerationOfNonInertialReferenceFrameFunction ),
-          positionOfBodyInNonInertialReferenceFrameFunction_(
-              positionOfBodyInNonInertialReferenceFrameFunction ),
-          velocityOfBodyInNonInertialReferenceFrameFunction_(
-              velocityOfBodyInNonInertialReferenceFrameFunction )
+    ApparentAccelerationModel( Vector3dReturningFunction accelerationOfNonInertialReferenceFrameFunction,
+                               Vector3dReturningFunction angularVelocityOfNonInertialReferenceFrameFunction,
+                               Vector3dReturningFunction angularAccelerationOfNonInertialReferenceFrameFunction,
+                               Vector3dReturningFunction positionOfBodyInNonInertialReferenceFrameFunction,
+                               Vector3dReturningFunction velocityOfBodyInNonInertialReferenceFrameFunction ):
+        accelerationOfNonInertialReferenceFrameFunction_( accelerationOfNonInertialReferenceFrameFunction ),
+        angularVelocityOfNonInertialReferenceFrameFunction_( angularVelocityOfNonInertialReferenceFrameFunction ),
+        angularAccelerationOfNonInertialReferenceFrameFunction_( angularAccelerationOfNonInertialReferenceFrameFunction ),
+        positionOfBodyInNonInertialReferenceFrameFunction_( positionOfBodyInNonInertialReferenceFrameFunction ),
+        velocityOfBodyInNonInertialReferenceFrameFunction_( velocityOfBodyInNonInertialReferenceFrameFunction )
     {
         updateMembers( );
     }
@@ -198,9 +186,7 @@ public:
     void updateMembers( const double currentTime = TUDAT_NAN );
 
 protected:
-
 private:
-
     //! Function returning translational acceleration vector of non-inertial reference frame.
     /*!
      * Function returning translational acceleration vector of non-inertial reference frame.
@@ -270,7 +256,7 @@ private:
 //! Typedef for shared-pointer to ApparentAccelerationModel object.
 typedef std::shared_ptr< ApparentAccelerationModel > ApparentAccelerationModelPointer;
 
-}   // namespace reference_frames
-}   // namespace tudat
+}  // namespace reference_frames
+}  // namespace tudat
 
-#endif // TUDAT_APPARENT_ACCELERATION_MODEL_H
+#endif  // TUDAT_APPARENT_ACCELERATION_MODEL_H

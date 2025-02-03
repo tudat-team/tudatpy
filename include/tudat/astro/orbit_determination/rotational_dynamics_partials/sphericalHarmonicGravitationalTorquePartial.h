@@ -43,10 +43,9 @@ Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSphericalHarmonicGravitation
         const std::vector< Eigen::Matrix3d > derivativeOfRotationMatrixWrtQuaternions );
 
 //! Class to calculate the partials of the central gravitational torque w.r.t. parameters and states.
-class SphericalHarmonicGravitationalTorquePartial: public TorquePartial
+class SphericalHarmonicGravitationalTorquePartial : public TorquePartial
 {
 public:
-
     SphericalHarmonicGravitationalTorquePartial(
             const std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > torqueModel,
             const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial,
@@ -58,7 +57,7 @@ public:
         currentRotationMatrixDerivativesWrtQuaternion_.resize( 4 );
     }
 
-    ~SphericalHarmonicGravitationalTorquePartial( ){ }
+    ~SphericalHarmonicGravitationalTorquePartial( ) { }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!
@@ -67,8 +66,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -90,9 +89,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    virtual void wrtOrientationOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    virtual void wrtOrientationOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                  const bool addContribution = 1,
+                                                  const int startRow = 0,
+                                                  const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -111,18 +111,17 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType )
     {
         bool isStateDerivativeDependent = 0;
-        if( ( ( stateReferencePoint.first == bodyUndergoingTorque_ || ( stateReferencePoint.first == bodyExertingTorque_ ) )
-              && integratedStateType == propagators::translational_state ) )
+        if( ( ( stateReferencePoint.first == bodyUndergoingTorque_ || ( stateReferencePoint.first == bodyExertingTorque_ ) ) &&
+              integratedStateType == propagators::translational_state ) )
         {
             isStateDerivativeDependent = true;
         }
-        else if( ( ( stateReferencePoint.first == bodyUndergoingTorque_ || ( stateReferencePoint.first == bodyExertingTorque_ ) )
-              && integratedStateType == propagators::body_mass_state ) )
+        else if( ( ( stateReferencePoint.first == bodyUndergoingTorque_ || ( stateReferencePoint.first == bodyExertingTorque_ ) ) &&
+                   integratedStateType == propagators::body_mass_state ) )
         {
             throw std::runtime_error( "Warning, dependency of 2nd degree gravity torques on body masses not yet implemented" );
         }
@@ -137,10 +136,9 @@ public:
      *  \param stateReferencePoint Reference point id of propagated state
      *  \param integratedStateType Type of propagated state for which partial is to be computed.
      */
-    void wrtNonRotationalStateOfAdditionalBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType );
+    void wrtNonRotationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                const std::pair< std::string, std::string >& stateReferencePoint,
+                                                const propagators::IntegratedStateType integratedStateType );
 
     //! Update partial model to current time
     /*!
@@ -150,7 +148,6 @@ public:
     void update( const double currentTime = TUDAT_NAN );
 
 protected:
-
     //! Function to compute torque partial from constituent spherical harmonic acceleration partial
     /*!
      * Function to compute torque partial from constituent spherical harmonic acceleration partial
@@ -194,11 +191,10 @@ protected:
 
     //! Partial for associated spherical harmonic acceleration
     const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial_;
-
 };
 
-} // namespace acceleration_partials
+}  // namespace acceleration_partials
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUEPARTIALS_H
+#endif  // TUDAT_SPHERICALHARMONICGRAVITATIONALTORQUEPARTIALS_H

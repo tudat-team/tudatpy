@@ -47,26 +47,23 @@ using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
 
-BOOST_AUTO_TEST_SUITE( test_n_way_range_rate_observation_partials)
+BOOST_AUTO_TEST_SUITE( test_n_way_range_rate_observation_partials )
 
 std::vector< double > getRetransmissionDelays( const double evaluationTime, const int numberOfRetransmitters )
 {
     std::vector< double > retransmissionDelays;
 
-        for( int i = 0; i < numberOfRetransmitters; i++ )
-        {
-            retransmissionDelays.push_back( evaluationTime * 5.0E-17 * static_cast< double >( i + 1 ) );
-        }
+    for( int i = 0; i < numberOfRetransmitters; i++ )
+    {
+        retransmissionDelays.push_back( evaluationTime * 5.0E-17 * static_cast< double >( i + 1 ) );
+    }
     return retransmissionDelays;
 }
-
 
 //! Test partial derivatives of one-way differenced range observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
 {
-
-    Eigen::VectorXd parameterPerturbationMultipliers =
-            ( Eigen::VectorXd( 4 ) << 100.0, 100.0, 1.0, 100.0 ).finished( );
+    Eigen::VectorXd parameterPerturbationMultipliers = ( Eigen::VectorXd( 4 ) << 100.0, 100.0, 1.0, 100.0 ).finished( );
 
     // Define and create ground stations.
     std::vector< std::pair< std::string, std::string > > groundStations;
@@ -89,24 +86,28 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
-        lightTimeCorrectionsList.push_back(
-                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
-
+        lightTimeCorrectionsList.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
 
         std::shared_ptr< ObservationModel< 1 > > nWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    std::make_shared< observation_models::NWayDifferencedRangeObservationSettings >(
-                        linkEnds,
-                        lightTimeCorrectionsList ) , bodies  );
+                        std::make_shared< observation_models::NWayDifferencedRangeObservationSettings >( linkEnds,
+                                                                                                         lightTimeCorrectionsList ),
+                        bodies );
 
         // Create parame ter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodies, 1.1E7 );
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
-        testObservationPartials< 1 >(
-                    nWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
-                    n_way_differenced_range, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers,
-                    getNWayAveragedDopplerAncilliarySettings( 60.0, getRetransmissionDelays( 1.0E7, 1 ) ) );
+        testObservationPartials< 1 >( nWayDifferencedRangeModel,
+                                      bodies,
+                                      fullEstimatableParameterSet,
+                                      linkEnds,
+                                      n_way_differenced_range,
+                                      1.0E-4,
+                                      true,
+                                      true,
+                                      1000.0,
+                                      parameterPerturbationMultipliers,
+                                      getNWayAveragedDopplerAncilliarySettings( 60.0, getRetransmissionDelays( 1.0E7, 1 ) ) );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -124,33 +125,32 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
-        lightTimeCorrectionsList.push_back(
-                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
-
+        lightTimeCorrectionsList.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
 
         std::shared_ptr< ObservationModel< 1 > > nWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    std::make_shared< observation_models::NWayDifferencedRangeObservationSettings >(
-                        linkEnds,
-                        lightTimeCorrectionsList ) , bodies  );
+                        std::make_shared< observation_models::NWayDifferencedRangeObservationSettings >( linkEnds,
+                                                                                                         lightTimeCorrectionsList ),
+                        bodies );
         // Create parameter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodies, 1.1E7 );
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
-        testObservationPartials< 1 >(
-                    nWayDifferencedRangeModel, bodies, fullEstimatableParameterSet, linkEnds,
-                    n_way_differenced_range, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
-                    getNWayAveragedDopplerAncilliarySettings( 60.0, getRetransmissionDelays( 1.0E7, 1 ) ) );
+        testObservationPartials< 1 >( nWayDifferencedRangeModel,
+                                      bodies,
+                                      fullEstimatableParameterSet,
+                                      linkEnds,
+                                      n_way_differenced_range,
+                                      1.0E-4,
+                                      false,
+                                      true,
+                                      1000.0,
+                                      parameterPerturbationMultipliers,
+                                      getNWayAveragedDopplerAncilliarySettings( 60.0, getRetransmissionDelays( 1.0E7, 1 ) ) );
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
-
-
-
-
+}  // namespace tudat

@@ -33,10 +33,8 @@ namespace basic_astrodynamics
 class MassRateModel
 {
 public:
-
     //! Constructor
-    MassRateModel( ):
-        currentTime_( TUDAT_NAN ), currentMassRate_( TUDAT_NAN ){ }
+    MassRateModel( ): currentTime_( TUDAT_NAN ), currentMassRate_( TUDAT_NAN ) { }
 
     //! Destructor
     virtual ~MassRateModel( ) { }
@@ -74,7 +72,6 @@ public:
     }
 
 protected:
-
     //! Previous time to which mass rate model was updated.
     double currentTime_;
 
@@ -90,21 +87,18 @@ private:
  *  This class can be used for any kind of mass rate model for which the user can define the dependency as a function
  *  of time.
  */
-class CustomMassRateModel: public MassRateModel
+class CustomMassRateModel : public MassRateModel
 {
 public:
-
     //! Constructor.
     /*!
      * Constructor
      * \param massRateFunction Function returning mass rate as a function of time.
      */
-    CustomMassRateModel(
-            const std::function< double( const double ) > massRateFunction ):
-    massRateFunction_( massRateFunction ){ }
+    CustomMassRateModel( const std::function< double( const double ) > massRateFunction ): massRateFunction_( massRateFunction ) { }
 
     //! Destructor.
-    ~CustomMassRateModel( ){ }
+    ~CustomMassRateModel( ) { }
 
     //! Update member variables used by the mass rate model and compute the mass rate
     /*!
@@ -121,18 +115,15 @@ public:
     }
 
 private:
-
     //! Function returning mass rate as a function of time.
     std::function< double( const double ) > massRateFunction_;
-
 };
 
 //! Typedef for the massrate model map.
 typedef std::map< std::string, std::vector< std::shared_ptr< MassRateModel > > > MassRateModelMap;
 
+}  // namespace basic_astrodynamics
 
-} // namespace basic_astrodynamics
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_MASSRATEMODEL_H
+#endif  // TUDAT_MASSRATEMODEL_H

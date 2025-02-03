@@ -23,8 +23,7 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_observation )
 
@@ -60,7 +59,6 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_parameters )
     groundStationNames.push_back( "Station2" );
     groundStationNames.push_back( "Station3" );
 
-
     // Create list of link ends in which station is receiver and in which station is transmitter (with spacecraft other link end).
     std::vector< LinkEnds > stationReceiverLinkEnds;
     std::vector< LinkEnds > stationTransmitterLinkEnds;
@@ -93,18 +91,17 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_parameters )
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
 
     Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 6 * arcStartTimes.size( ) );
-    for( unsigned int i = 0; i < arcStartTimes.size( ); i ++ )
+    for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
-        systemInitialState.segment( i * 6, 6 ) = tudat::spice_interface::getBodyCartesianStateAtEpoch(
-                                "Mars", "Sun", "ECLIPJ2000", "None", initialEphemerisTime );
+        systemInitialState.segment( i * 6, 6 ) =
+                tudat::spice_interface::getBodyCartesianStateAtEpoch( "Mars", "Sun", "ECLIPJ2000", "None", initialEphemerisTime );
     }
-    parameterNames.push_back(
-                std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                    "Earth", tudat::spice_interface::getBodyCartesianStateAtEpoch(
-                        "Earth", "Sun", "ECLIPJ2000", "None", initialEphemerisTime ), "Sun" ) );
-    parameterNames.push_back(
-                std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
-                    "Mars", systemInitialState, arcStartTimes, "Sun" ) );
+    parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+            "Earth",
+            tudat::spice_interface::getBodyCartesianStateAtEpoch( "Earth", "Sun", "ECLIPJ2000", "None", initialEphemerisTime ),
+            "Sun" ) );
+    parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
+            "Mars", systemInitialState, arcStartTimes, "Sun" ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "global_metric", ppn_parameter_gamma ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
@@ -112,28 +109,29 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_parameters )
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", rotation_pole_position ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", ground_station_position, "Station1" ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", ground_station_position, "Station2" ) );
-//    parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-//                                  linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, true ) );
-//    parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-//                                  linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, false ) );
+    //    parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+    //                                  linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, true ) );
+    //    parameterNames.push_back( std::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+    //                                  linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, false ) );
 
-//    parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
-//                                  linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, arcStartTimes, receiver, true ) );
-//    parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
-//                                  linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, arcStartTimes, retransmitter, false ) );
+    //    parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+    //                                  linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, arcStartTimes, receiver, true ) );
+    //    parameterNames.push_back( std::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+    //                                  linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, arcStartTimes, retransmitter,
+    //                                  false ) );
 
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 0, 8, 8, "Earth", spherical_harmonics_cosine_coefficient_block ) );
+            2, 0, 8, 8, "Earth", spherical_harmonics_cosine_coefficient_block ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 1, 8, 8, "Earth", spherical_harmonics_sine_coefficient_block ) );
+            2, 1, 8, 8, "Earth", spherical_harmonics_sine_coefficient_block ) );
 
     std::vector< std::pair< int, int > > blockIndices;
     blockIndices.push_back( std::make_pair( 2, 0 ) );
     blockIndices.push_back( std::make_pair( 2, 2 ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  blockIndices , "Sun", spherical_harmonics_cosine_coefficient_block ) );
+            blockIndices, "Sun", spherical_harmonics_cosine_coefficient_block ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  blockIndices, "Sun", spherical_harmonics_sine_coefficient_block ) );
+            blockIndices, "Sun", spherical_harmonics_sine_coefficient_block ) );
 
     std::map< EmpiricalAccelerationComponents, std::vector< EmpiricalAccelerationFunctionalShapes > > empiricalAccelerationComponents;
     empiricalAccelerationComponents[ across_track_empirical_acceleration_component ].push_back( cosine_empirical );
@@ -146,32 +144,28 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_parameters )
     empiricalAccelerationArcTimes.push_back( initialEphemerisTime );
     empiricalAccelerationArcTimes.push_back( initialEphemerisTime + ( finalEphemerisTime - initialEphemerisTime ) / 2.0 );
     parameterNames.push_back( std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
-                                 "Vehicle", "Earth", empiricalAccelerationComponents, empiricalAccelerationArcTimes ) );
-    parameterNames.push_back( std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >(
-                                 "Vehicle", "Earth", empiricalAccelerationComponents ) );
-    parameterNames.push_back( std::make_shared< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >(
-                                 "Vehicle", arcStartTimes ) );
-    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
-                                 "Earth", 2, "Sun", 0 ) );
+            "Vehicle", "Earth", empiricalAccelerationComponents, empiricalAccelerationArcTimes ) );
+    parameterNames.push_back(
+            std::make_shared< EmpiricalAccelerationEstimatableParameterSettings >( "Vehicle", "Earth", empiricalAccelerationComponents ) );
+    parameterNames.push_back(
+            std::make_shared< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >( "Vehicle", arcStartTimes ) );
+    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, "Sun", 0 ) );
     std::vector< std::string > deformingBodies;
     deformingBodies.push_back( "Sun" );
     deformingBodies.push_back( "Moon" );
 
-    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
-                                 "Earth", 2, deformingBodies, 1 ) );
+    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, deformingBodies, 1 ) );
 
     std::vector< int > orders;
     orders.push_back( 0 );
     orders.push_back( 2 );
-    parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                                 "Earth", 2, orders, "Sun", 1 ) );
-    parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                                 "Earth", 2, orders, deformingBodies, 0 ) );
+    parameterNames.push_back(
+            std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, orders, "Sun", 1 ) );
+    parameterNames.push_back(
+            std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, orders, deformingBodies, 0 ) );
 
-    parameterNames.push_back( std::make_shared< DirectTidalTimeLagEstimatableParameterSettings >(
-                                 "Earth", deformingBodies ) );
-    parameterNames.push_back( std::make_shared< DirectTidalTimeLagEstimatableParameterSettings >(
-                                 "Earth", "Sun" ) );
+    parameterNames.push_back( std::make_shared< DirectTidalTimeLagEstimatableParameterSettings >( "Earth", deformingBodies ) );
+    parameterNames.push_back( std::make_shared< DirectTidalTimeLagEstimatableParameterSettings >( "Earth", "Sun" ) );
 
     nlohmann::json jsonObject;
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames2;
@@ -194,9 +188,8 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_parameters )
     BOOST_CHECK_EQUAL_JSON( parameterNames, parameterNamesFromFile );
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

@@ -47,11 +47,10 @@ int main( )
 
     // Define simulation body settings.
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
-                                    simulationEndEpoch + 10.0 * fixedStepSize );
+            getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize, simulationEndEpoch + 10.0 * fixedStepSize );
 
-    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-                Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+    bodySettings[ "Earth" ]->ephemerisSettings =
+            std::make_shared< simulation_setup::ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
 
     bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
     bodySettings[ "Earth" ]->atmosphereSettings = NULL;
@@ -90,13 +89,12 @@ int main( )
     centralBodies.push_back( "Earth" );
 
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     // Set initial conditions for satellites that will be propagated in this simulation.
     // The initial conditions are given in Keplerian elements and later on converted to
@@ -107,10 +105,8 @@ int main( )
     asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0e3;
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );
-    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-            = convertDegreesToRadians( 235.7 );
-    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-            = convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
     // Set Keplerian elements for Obelix.
@@ -118,10 +114,8 @@ int main( )
     obelixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 12040.6e3;
     obelixInitialStateInKeplerianElements( eccentricityIndex ) = 0.4;
     obelixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( -23.5 );
-    obelixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-            = convertDegreesToRadians( 10.6 );
-    obelixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-            = convertDegreesToRadians( 367.9 );
+    obelixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 10.6 );
+    obelixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 367.9 );
     obelixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 93.4 );
 
     // Convert initial states from Keplerian to Cartesian elements.
@@ -129,15 +123,12 @@ int main( )
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     // Convert Asterix state from Keplerian elements to Cartesian elements.
-    const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements,
-                earthGravitationalParameter );
+    const Eigen::Vector6d asterixInitialState =
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Convert Obelix state from Keplerian elements to Cartesian elements.
-    const Eigen::Vector6d obelixInitialState = convertKeplerianToCartesianElements(
-                obelixInitialStateInKeplerianElements,
-                earthGravitationalParameter );
-
+    const Eigen::Vector6d obelixInitialState =
+            convertKeplerianToCartesianElements( obelixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Set initial state
     Eigen::VectorXd systemInitialState = Eigen::VectorXd( 12 );
@@ -145,31 +136,29 @@ int main( )
     systemInitialState.segment( 6, 6 ) = obelixInitialState;
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch );
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, integratorSettings, propagatorSettings, true, false, false );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     // Retrieve numerically integrated states of vehicles.
     std::map< double, Eigen::VectorXd > asterixPropagationHistory;
     std::map< double, Eigen::VectorXd > obelixPropagationHistory;
     for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integrationResult.begin( );
-         stateIterator != integrationResult.end( ); stateIterator++ )
+         stateIterator != integrationResult.end( );
+         stateIterator++ )
     {
         asterixPropagationHistory[ stateIterator->first ] = stateIterator->second.segment( 0, 6 );
         obelixPropagationHistory[ stateIterator->first ] = stateIterator->second.segment( 6, 6 );
     }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////        PROVIDE OUTPUT TO FILE                        //////////////////////////////////////////
@@ -197,4 +186,5 @@ int main( )
 
     // Final statement.
     // The exit code EXIT_SUCCESS indicates that the program was successfully executed.
-    return EXIT_SUCCESS;}
+    return EXIT_SUCCESS;
+}

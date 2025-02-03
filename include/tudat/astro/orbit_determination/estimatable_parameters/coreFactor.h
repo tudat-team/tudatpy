@@ -11,7 +11,6 @@
 #ifndef TUDAT_COREFACTOR_H
 #define TUDAT_COREFACTOR_H
 
-
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -28,26 +27,21 @@ namespace estimatable_parameters
  *  Interface class for estimation of a body's core factor (for a full planetary rotational model).
  *  Interfaces the estimation with the core factor of a PlanetaryRotationModel object
  */
-class CoreFactor: public EstimatableParameter< double >
+class CoreFactor : public EstimatableParameter< double >
 {
-
 public:
-
     //! Constructor
     /*!
      *  Constructor
      *  \param rotationModel PlanetaryRotationModel object of which the core factor is a property.
      *  \param associatedBody Name of body of which parameter is a property.
      */
-    CoreFactor(
-            const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel,
-            const std::string& associatedBody):
-        EstimatableParameter< double >( core_factor, associatedBody ),
-        rotationModel_( rotationModel ) { }
+    CoreFactor( const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel, const std::string& associatedBody ):
+        EstimatableParameter< double >( core_factor, associatedBody ), rotationModel_( rotationModel )
+    { }
 
     //! Destructor
     ~CoreFactor( ) { }
-
 
     //! Get value of the core factor of the body whose rotational ephemeris is described by a full planetary rotational model.
     /*!
@@ -59,7 +53,6 @@ public:
         return rotationModel_->getPlanetaryOrientationAngleCalculator( )->getCorefactor( );
     }
 
-
     //! Reset value of the core factor of the body whose rotational ephemeris is described by a full planetary rotational model.
     /*!
      *  Reset value of the core factor of the body whose rotational ephemeris is described by a full planetary rotational model.
@@ -69,7 +62,6 @@ public:
     {
         rotationModel_->getPlanetaryOrientationAngleCalculator( )->resetCoreFactor( parameterValue );
     }
-
 
     //! Function to retrieve the size of the parameter (always 1)
     /*!
@@ -82,15 +74,13 @@ public:
     }
 
 protected:
-
 private:
-
     //! PlanetaryRotationModel object of which the core factor is a property
     std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel_;
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_COREFACTOR_H
+#endif  // TUDAT_COREFACTOR_H

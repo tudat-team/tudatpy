@@ -11,7 +11,6 @@
 #ifndef TUDAT_RELATIVEPOSITIONOBSERVATIONMODEL_H
 #define TUDAT_RELATIVEPOSITIONOBSERVATIONMODEL_H
 
-
 #include <functional>
 
 #include "tudat/astro/ephemerides/ephemeris.h"
@@ -30,10 +29,9 @@ namespace observation_models
  *  practice, but its use can be very valuable in simulation studies
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-class RelativePositionObservationModel: public ObservationModel< 3, ObservationScalarType, TimeType >
+class RelativePositionObservationModel : public ObservationModel< 3, ObservationScalarType, TimeType >
 {
 public:
-
     //! Constructor.
     /*!
      *  Constructor,
@@ -43,11 +41,12 @@ public:
      */
     RelativePositionObservationModel(
             const LinkEnds& linkEnds,
-            const std::function<  Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunctionTarget,
-            const std::function<  Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunctionObserver,
+            const std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunctionTarget,
+            const std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunctionObserver,
             const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
-        ObservationModel< 3, ObservationScalarType, TimeType >(
-            relative_position_observable, linkEnds, observationBiasCalculator ), stateFunctionTarget_( stateFunctionTarget ), stateFunctionObserver_( stateFunctionObserver ){ }
+        ObservationModel< 3, ObservationScalarType, TimeType >( relative_position_observable, linkEnds, observationBiasCalculator ),
+        stateFunctionTarget_( stateFunctionTarget ), stateFunctionObserver_( stateFunctionObserver )
+    { }
 
     //! Destructor
     ~RelativePositionObservationModel( ) { }
@@ -64,17 +63,16 @@ public:
      *  \return Ideal position observable.
      */
     Eigen::Matrix< ObservationScalarType, 3, 1 > computeIdealObservationsWithLinkEndData(
-                const TimeType time,
-                const LinkEndType linkEndAssociatedWithTime,
-                std::vector< double >& linkEndTimes,
-                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-                const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         // Check link end
         if( ( linkEndAssociatedWithTime != observed_body ) && ( linkEndAssociatedWithTime != observer ) )
         {
-            throw std::runtime_error(
-                        "Error when computing position observable, associated link end must be observed_body or observer." );
+            throw std::runtime_error( "Error when computing position observable, associated link end must be observed_body or observer." );
         }
 
         currentStateTarget_ = stateFunctionTarget_( time );
@@ -93,9 +91,7 @@ public:
         return ( currentStateTarget_.segment( 0, 3 ) - currentStateObserver_.segment( 0, 3 ) );
     }
 
-
 private:
-
     //! Function that returns the Cartesian state of the observed body as a function of time.
     std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunctionTarget_;
 
@@ -107,8 +103,8 @@ private:
     Eigen::Matrix< ObservationScalarType, 6, 1 > currentStateObserver_;
 };
 
-} // namespace observation_models
+}  // namespace observation_models
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_RELATIVEPOSITIONOBSERVATIONMODEL_H
+#endif  // TUDAT_RELATIVEPOSITIONOBSERVATIONMODEL_H

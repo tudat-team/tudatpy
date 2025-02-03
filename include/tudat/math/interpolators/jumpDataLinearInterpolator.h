@@ -48,7 +48,6 @@ template< typename IndependentVariableType, typename DependentVariableType >
 class JumpDataLinearInterpolator : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
 public:
-
     //! Using statements to prevent having to put 'this' everywhere in the code.
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
@@ -71,14 +70,14 @@ public:
      *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
-    JumpDataLinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
-                                const DependentVariableType maximumAllowableVariation,
-                                const DependentVariableType jumpSize,
-                                const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                                const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue )
+    JumpDataLinearInterpolator(
+            const std::map< IndependentVariableType, DependentVariableType >& dataMap,
+            const DependentVariableType maximumAllowableVariation,
+            const DependentVariableType jumpSize,
+            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+            const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         maximumAllowableVariation_ = maximumAllowableVariation;
         jumpSize_ = jumpSize;
@@ -90,7 +89,8 @@ public:
         // Fill data vectors with data from map.
         int counter = 0;
         for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator mapIterator = dataMap.begin( );
-             mapIterator != dataMap.end( ); mapIterator++ )
+             mapIterator != dataMap.end( );
+             mapIterator++ )
         {
             independentValues_[ counter ] = mapIterator->first;
             dependentValues_[ counter ] = mapIterator->second;
@@ -120,22 +120,22 @@ public:
      *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
-    JumpDataLinearInterpolator( const std::vector< IndependentVariableType > independentValues,
-                                const std::vector< DependentVariableType > dependentValues,
-                                const DependentVariableType maximumAllowableVariation,
-                                const DependentVariableType jumpSize,
-                                const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                                const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue )
+    JumpDataLinearInterpolator(
+            const std::vector< IndependentVariableType > independentValues,
+            const std::vector< DependentVariableType > dependentValues,
+            const DependentVariableType maximumAllowableVariation,
+            const DependentVariableType jumpSize,
+            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+            const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         maximumAllowableVariation_ = maximumAllowableVariation;
         jumpSize_ = jumpSize;
 
         // Set data vectors.
         independentValues_ = independentValues;
-        dependentValues_= dependentValues;
+        dependentValues_ = dependentValues;
 
         // Create lookup scheme from independent variable values
         this->makeLookupScheme( selectedLookupScheme );
@@ -167,29 +167,29 @@ public:
 
         // If newNearestLowerIndex is the last element of independentValues_, execute extrapolation with
         // the last and second to last elements of independentValues_.
-        if ( newNearestLowerIndex == independentValues_.size( ) - 1 )
+        if( newNearestLowerIndex == independentValues_.size( ) - 1 )
         {
             newNearestLowerIndex -= 1;
         }
 
         // Check if jump occurs
         if( std::abs( dependentValues_[ newNearestLowerIndex ] - dependentValues_[ newNearestLowerIndex + 1 ] ) >
-                maximumAllowableVariation_ )
+            maximumAllowableVariation_ )
         {
             double jumpSign = ( dependentValues_[ newNearestLowerIndex ] - dependentValues_[ newNearestLowerIndex + 1 ] ) /
                     std::abs( dependentValues_[ newNearestLowerIndex ] - dependentValues_[ newNearestLowerIndex + 1 ] );
             interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
                     ( independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
-                    ( independentValues_[ newNearestLowerIndex + 1 ] - independentValues_[ newNearestLowerIndex ] ) *
-                    ( dependentValues_[ newNearestLowerIndex + 1 ] + jumpSign * jumpSize_ - dependentValues_[ newNearestLowerIndex ] );
+                            ( independentValues_[ newNearestLowerIndex + 1 ] - independentValues_[ newNearestLowerIndex ] ) *
+                            ( dependentValues_[ newNearestLowerIndex + 1 ] + jumpSign * jumpSize_ -
+                              dependentValues_[ newNearestLowerIndex ] );
         }
         else
         {
-
             interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
                     ( independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
-                    ( independentValues_[ newNearestLowerIndex + 1 ] - independentValues_[ newNearestLowerIndex ] ) *
-                    ( dependentValues_[ newNearestLowerIndex + 1 ] - dependentValues_[ newNearestLowerIndex ] );
+                            ( independentValues_[ newNearestLowerIndex + 1 ] - independentValues_[ newNearestLowerIndex ] ) *
+                            ( dependentValues_[ newNearestLowerIndex + 1 ] - dependentValues_[ newNearestLowerIndex ] );
         }
 
         return interpolatedValue;
@@ -199,8 +199,8 @@ public:
     {
         return discrete_jump_linear_interpolator;
     }
-private:
 
+private:
     //! Maximum allowable deviation between two dependent variable values, above which a jump is identified.
     DependentVariableType maximumAllowableVariation_;
 
@@ -208,10 +208,8 @@ private:
     DependentVariableType jumpSize_;
 };
 
-} // Namespace interpolators.
+}  // Namespace interpolators.
 
-} // Namespace tudat.
+}  // Namespace tudat.
 
-#endif // TUDAT_JUMPLINEARINTERPOLATOR_H
-
-
+#endif  // TUDAT_JUMPLINEARINTERPOLATOR_H

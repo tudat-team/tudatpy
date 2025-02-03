@@ -24,12 +24,9 @@ namespace simulation_setup
 // GravityFieldType
 
 //! Map of `GravityFieldType`s string representations.
-static std::map< GravityFieldType, std::string > gravityFieldTypes =
-{
-    { central, "pointMass" },
-    { central_spice, "pointMassSpice" },
-    { spherical_harmonic, "sphericalHarmonic" }
-};
+static std::map< GravityFieldType, std::string > gravityFieldTypes = { { central, "pointMass" },
+                                                                       { central_spice, "pointMassSpice" },
+                                                                       { spherical_harmonic, "sphericalHarmonic" } };
 
 //! `GravityFieldType` not supported by `json_interface`.
 static std::vector< GravityFieldType > unsupportedGravityFieldTypes = { };
@@ -46,20 +43,13 @@ inline void from_json( const nlohmann::json& jsonObject, GravityFieldType& gravi
     gravityFieldType = json_interface::enumFromString( jsonObject, gravityFieldTypes );
 }
 
-
 // SphericalHarmonicsModel
 
 //! Map of `SphericalHarmonicsModel`s string representations.
-static std::map< SphericalHarmonicsModel, std::string > sphericalHarmonicsModels =
-{
-    { customModel, "custom" },
-    { egm96, "egm96" },
-    { ggm02c, "ggm02c" },
-    { ggm02s, "ggm02s" },
-    { glgm3150, "glgm3150" },
-    { lpe200, "lpe200" },
-    { jgmro120d, "jgmro120d" }
-};
+static std::map< SphericalHarmonicsModel, std::string > sphericalHarmonicsModels = { { customModel, "custom" }, { egm96, "egm96" },
+                                                                                     { ggm02c, "ggm02c" },      { ggm02s, "ggm02s" },
+                                                                                     { glgm3150, "glgm3150" },  { lpe200, "lpe200" },
+                                                                                     { jgmro120d, "jgmro120d" } };
 
 //! `SphericalHarmonicsModel` not supported by `json_interface`.
 static std::vector< SphericalHarmonicsModel > unsupportedSphericalHarmonicsModels = { };
@@ -73,10 +63,8 @@ inline void to_json( nlohmann::json& jsonObject, const SphericalHarmonicsModel& 
 //! Convert `json` to `SphericalHarmonicsModel`.
 inline void from_json( const nlohmann::json& jsonObject, SphericalHarmonicsModel& sphericalHarmonicsModel )
 {
-    sphericalHarmonicsModel =
-            json_interface::enumFromString( jsonObject, sphericalHarmonicsModels );
+    sphericalHarmonicsModel = json_interface::enumFromString( jsonObject, sphericalHarmonicsModels );
 }
-
 
 // GravityFieldSettings
 
@@ -86,8 +74,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GravityFieldSet
 //! Create a shared pointer to a `GravityFieldSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GravityFieldSettings >& gravityFieldSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_GRAVITYFIELD_H
+#endif  // TUDAT_JSONINTERFACE_GRAVITYFIELD_H

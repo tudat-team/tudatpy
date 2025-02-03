@@ -22,9 +22,8 @@ namespace simulation_setup
 {
 
 //! Function to create a body shape model.
-std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
-        const std::shared_ptr< BodyShapeSettings > shapeSettings,
-        const std::string& body )
+std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel( const std::shared_ptr< BodyShapeSettings > shapeSettings,
+                                                                             const std::string& body )
 {
     using namespace tudat::basic_astrodynamics;
 
@@ -33,111 +32,100 @@ std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
     // Check body shape type
     switch( shapeSettings->getBodyShapeType( ) )
     {
-    case spherical:
-    {
-        // Check input consistency
-        std::shared_ptr< SphericalBodyShapeSettings > sphericalShapeSettings =
-                std::dynamic_pointer_cast< SphericalBodyShapeSettings >( shapeSettings );
-        if( sphericalShapeSettings == nullptr )
-        {
-            throw std::runtime_error( "Error, expected spherical shape settings for body " + body );
+        case spherical: {
+            // Check input consistency
+            std::shared_ptr< SphericalBodyShapeSettings > sphericalShapeSettings =
+                    std::dynamic_pointer_cast< SphericalBodyShapeSettings >( shapeSettings );
+            if( sphericalShapeSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected spherical shape settings for body " + body );
+            }
+            else
+            {
+                // Creat spherical shape model
+                shapeModel = std::make_shared< SphericalBodyShapeModel >( sphericalShapeSettings->getRadius( ) );
+            }
+            break;
         }
-        else
-        {
-            // Creat spherical shape model
-            shapeModel = std::make_shared< SphericalBodyShapeModel >(
-                sphericalShapeSettings->getRadius( ) );
+        case oblate_spheroid: {
+            // Check input consistency
+            std::shared_ptr< OblateSphericalBodyShapeSettings > oblateSpheroidShapeSettings =
+                    std::dynamic_pointer_cast< OblateSphericalBodyShapeSettings >( shapeSettings );
+            if( oblateSpheroidShapeSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected oblate spherical shape settings for body " + body );
+            }
+            else
+            {
+                // Creat oblate spheroid shape model
+                shapeModel = std::make_shared< OblateSpheroidBodyShapeModel >( oblateSpheroidShapeSettings->getEquatorialRadius( ),
+                                                                               oblateSpheroidShapeSettings->getFlattening( ) );
+            }
+            break;
         }
-        break;
-    }
-    case oblate_spheroid:
-    {
-        // Check input consistency
-        std::shared_ptr< OblateSphericalBodyShapeSettings > oblateSpheroidShapeSettings =
-                std::dynamic_pointer_cast< OblateSphericalBodyShapeSettings >( shapeSettings );
-        if( oblateSpheroidShapeSettings == nullptr )
-        {
-           throw std::runtime_error( "Error, expected oblate spherical shape settings for body " + body );
+        case spherical_spice: {
+            // Retrieve radius from Spice and create spherical shape model.
+            shapeModel = std::make_shared< SphericalBodyShapeModel >( spice_interface::getAverageRadius( body ) );
+            break;
         }
-        else
-        {
-            // Creat oblate spheroid shape model
-            shapeModel = std::make_shared< OblateSpheroidBodyShapeModel >(
-                        oblateSpheroidShapeSettings->getEquatorialRadius( ),
-                        oblateSpheroidShapeSettings->getFlattening( ) );
-        }
-        break;
-    }
-    case spherical_spice:
-    {
-        // Retrieve radius from Spice and create spherical shape model.
-        shapeModel = std::make_shared< SphericalBodyShapeModel >(
-                    spice_interface::getAverageRadius( body ) );
-        break;
-    }
-    case oblate_spice:
-    {
-        const double equatorialRadius = spice_interface::getAverageEquatorialRadius( body );
-        const double polarRadius = spice_interface::getPolarRadius( body );
+        case oblate_spice: {
+            const double equatorialRadius = spice_interface::getAverageEquatorialRadius( body );
+            const double polarRadius = spice_interface::getPolarRadius( body );
 
-        const double flattening = 1 - polarRadius / equatorialRadius;
+            const double flattening = 1 - polarRadius / equatorialRadius;
 
-        shapeModel = std::make_shared< OblateSpheroidBodyShapeModel >( equatorialRadius, flattening );
+            shapeModel = std::make_shared< OblateSpheroidBodyShapeModel >( equatorialRadius, flattening );
 
-        break;
-    }
-    case polyhedron_shape:
-    {
-        // Check input consistency
-        std::shared_ptr< PolyhedronBodyShapeSettings > polyhedronShapeSettings =
-                std::dynamic_pointer_cast< PolyhedronBodyShapeSettings >( shapeSettings );
-        if( polyhedronShapeSettings == nullptr )
-        {
-           throw std::runtime_error( "Error, expected polyhedron shape settings for body " + body );
+            break;
         }
-        else
-        {
-            // Creat polyhedron shape model
-            shapeModel = std::make_shared< PolyhedronBodyShapeModel >(
-                        polyhedronShapeSettings->getVerticesCoordinates(),
-                        polyhedronShapeSettings->getVerticesDefiningEachFacet(),
-                        polyhedronShapeSettings->getComputeAltitudeWithSign(),
-                        polyhedronShapeSettings->getJustComputeDistanceToVertices() );
+        case polyhedron_shape: {
+            // Check input consistency
+            std::shared_ptr< PolyhedronBodyShapeSettings > polyhedronShapeSettings =
+                    std::dynamic_pointer_cast< PolyhedronBodyShapeSettings >( shapeSettings );
+            if( polyhedronShapeSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected polyhedron shape settings for body " + body );
+            }
+            else
+            {
+                // Creat polyhedron shape model
+                shapeModel = std::make_shared< PolyhedronBodyShapeModel >( polyhedronShapeSettings->getVerticesCoordinates( ),
+                                                                           polyhedronShapeSettings->getVerticesDefiningEachFacet( ),
+                                                                           polyhedronShapeSettings->getComputeAltitudeWithSign( ),
+                                                                           polyhedronShapeSettings->getJustComputeDistanceToVertices( ) );
+            }
+            break;
         }
-        break;
-    }
-    case hybrid_shape:
-    {
-        // Check input consistency
-        std::shared_ptr< HybridBodyShapeSettings > hybridShapeSettings =
-                std::dynamic_pointer_cast< HybridBodyShapeSettings >( shapeSettings );
-        if( hybridShapeSettings == nullptr )
-        {
-           throw std::runtime_error( "Error, expected polyhedron shape settings for body " + body );
+        case hybrid_shape: {
+            // Check input consistency
+            std::shared_ptr< HybridBodyShapeSettings > hybridShapeSettings =
+                    std::dynamic_pointer_cast< HybridBodyShapeSettings >( shapeSettings );
+            if( hybridShapeSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected polyhedron shape settings for body " + body );
+            }
+            else
+            {
+                // Create low-resolution shape model
+                std::shared_ptr< BodyShapeModel > lowResolutionShapeModel =
+                        createBodyShapeModel( hybridShapeSettings->getLowResolutionBodyShapeSettings( ), body );
+
+                // Create high-resolution shape model
+                std::shared_ptr< BodyShapeModel > highResolutionShapeModel =
+                        createBodyShapeModel( hybridShapeSettings->getHighResolutionBodyShapeSettings( ), body );
+
+                // Creat hybrid shape model
+                shapeModel = std::make_shared< HybridBodyShapeModel >(
+                        lowResolutionShapeModel, highResolutionShapeModel, hybridShapeSettings->getSwitchoverAltitude( ) );
+            }
+            break;
         }
-        else
-        {
-            // Create low-resolution shape model
-            std::shared_ptr< BodyShapeModel > lowResolutionShapeModel = createBodyShapeModel(
-                    hybridShapeSettings->getLowResolutionBodyShapeSettings(), body);
-
-            // Create high-resolution shape model
-            std::shared_ptr< BodyShapeModel > highResolutionShapeModel = createBodyShapeModel(
-                    hybridShapeSettings->getHighResolutionBodyShapeSettings(), body);
-
-            // Creat hybrid shape model
-            shapeModel = std::make_shared< HybridBodyShapeModel >(
-                    lowResolutionShapeModel, highResolutionShapeModel, hybridShapeSettings->getSwitchoverAltitude() );
-        }
-        break;
-    }
-    default:
-       throw std::runtime_error( "Error, did not recognize body shape settings for " + body );
-
+        default:
+            throw std::runtime_error( "Error, did not recognize body shape settings for " + body );
     }
     return shapeModel;
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

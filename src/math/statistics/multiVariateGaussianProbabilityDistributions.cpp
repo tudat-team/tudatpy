@@ -22,18 +22,16 @@ namespace tudat
 namespace statistics
 {
 
-
 //! Function to evaluate pdf of Gaussian cupola distribution
-double GaussianCopulaDistributionXd::evaluatePdf(
-        const Eigen::VectorXd& independentVariables )
+double GaussianCopulaDistributionXd::evaluatePdf( const Eigen::VectorXd& independentVariables )
 {
-    double probabilityDensity = 0.0 ;
+    double probabilityDensity = 0.0;
 
     // Check if vector independentVariables is inside [0,1]
-    int inBound = 0 ;
-    for( int i = 0 ; i < dimension_ ; i++ )
+    int inBound = 0;
+    for( int i = 0; i < dimension_; i++ )
     {
-        if( independentVariables(i) > 0.0 && independentVariables(i) < 1.0 )
+        if( independentVariables( i ) > 0.0 && independentVariables( i ) < 1.0 )
         {
             inBound++;
         }
@@ -43,24 +41,24 @@ double GaussianCopulaDistributionXd::evaluatePdf(
     if( inBound == dimension_ )
     {
         // Convert U[0,1] to N[0,1] using inverse CDF of standard normal distribution
-        Eigen::VectorXd gaussianQuantiles( dimension_ ) ;
-        boost::math::normal distribution( 0.0 , 1.0 );
+        Eigen::VectorXd gaussianQuantiles( dimension_ );
+        boost::math::normal distribution( 0.0, 1.0 );
 
-        for( int i = 0 ; i < dimension_ ; i++ )
+        for( int i = 0; i < dimension_; i++ )
         {
-            gaussianQuantiles( i ) = boost::math::quantile( distribution , independentVariables( i ) ); // Inverse cdf
+            gaussianQuantiles( i ) = boost::math::quantile( distribution, independentVariables( i ) );  // Inverse cdf
         }
 
         // Calculate probability density
-        Eigen::MatrixXd location = - 0.5 * ( gaussianQuantiles.transpose() *
-                       ( inverseCorrelationMatrix_ - Eigen::MatrixXd::Identity( dimension_ , dimension_ ) ) *
-                                             gaussianQuantiles );
+        Eigen::MatrixXd location = -0.5 *
+                ( gaussianQuantiles.transpose( ) * ( inverseCorrelationMatrix_ - Eigen::MatrixXd::Identity( dimension_, dimension_ ) ) *
+                  gaussianQuantiles );
 
-        probabilityDensity = ( ( 1.0 / ( std::sqrt( determinant_ ) ) ) * std::exp( location( 0, 0 ) ) ) ;
+        probabilityDensity = ( ( 1.0 / ( std::sqrt( determinant_ ) ) ) * std::exp( location( 0, 0 ) ) );
     }
 
-    return probabilityDensity ;
+    return probabilityDensity;
 }
 
-} // namespace statistics
-} // namespace tudat
+}  // namespace statistics
+}  // namespace tudat
