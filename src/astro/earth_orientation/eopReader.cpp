@@ -19,9 +19,7 @@ namespace earth_orientation
 {
 
 //! Constructor
-EOPReader::EOPReader( const std::string& eopFile,
-                      const std::string& format,
-                      const basic_astrodynamics::IAUConventions nutationTheory )
+EOPReader::EOPReader( const std::string& eopFile, const std::string& format, const basic_astrodynamics::IAUConventions nutationTheory )
 {
     if( format != "C04" )
     {
@@ -43,7 +41,7 @@ void EOPReader::readEopFile( const std::string& fileName )
     std::fstream stream( fileName.c_str( ), std::ios::in );
 
     // Check if file opened correctly.
-    if ( stream.fail( ) )
+    if( stream.fail( ) )
     {
         throw std::runtime_error( "Data file could not be opened." + fileName );
     }
@@ -54,7 +52,7 @@ void EOPReader::readEopFile( const std::string& fileName )
     // Line based parsing
     std::string line;
     std::vector< std::string > vectorOfIndividualStrings;
-    while ( !stream.fail( ) && !stream.eof( ) )
+    while( !stream.fail( ) && !stream.eof( ) )
     {
         // Get line from stream
         std::getline( stream, line );
@@ -64,10 +62,7 @@ void EOPReader::readEopFile( const std::string& fileName )
 
         // Split string into multiple strings, each containing one element from a line from the
         // data file.
-        boost::algorithm::split( vectorOfIndividualStrings,
-                                 line,
-                                 boost::algorithm::is_any_of( " " ),
-                                 boost::algorithm::token_compress_on );
+        boost::algorithm::split( vectorOfIndividualStrings, line, boost::algorithm::is_any_of( " " ), boost::algorithm::token_compress_on );
 
         // If first line before data is found, check entry names and set isHeaderPassed to true.
         if( !isHeaderPassed && vectorOfIndividualStrings[ 0 ] == "Date" )
@@ -87,7 +82,6 @@ void EOPReader::readEopFile( const std::string& fileName )
         // Read line of data and set values.
         if( isHeaderPassed && vectorOfIndividualStrings.size( ) == 16 )
         {
-
             // Read pole positions.
             cipInItrs[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].x( ) =
                     convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 4 ] ) );
@@ -95,21 +89,18 @@ void EOPReader::readEopFile( const std::string& fileName )
                     convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 5 ] ) );
 
             // Read UTC-UT1 and LOD corrections
-            ut1MinusUtc[ std::stod( vectorOfIndividualStrings[ 3 ] ) ] =
-                    std::stod( vectorOfIndividualStrings[ 6 ] );
-            lengthOfDayOffset[ std::stod( vectorOfIndividualStrings[ 3 ] ) ] =
-                    std::stod( vectorOfIndividualStrings[ 7 ] );
+            ut1MinusUtc[ std::stod( vectorOfIndividualStrings[ 3 ] ) ] = std::stod( vectorOfIndividualStrings[ 6 ] );
+            lengthOfDayOffset[ std::stod( vectorOfIndividualStrings[ 3 ] ) ] = std::stod( vectorOfIndividualStrings[ 7 ] );
 
             // Read precession-nutation corrections.
             cipInGcrsCorrection[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].x( ) =
                     convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 8 ] ) );
             cipInGcrsCorrection[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].y( ) =
                     convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 9 ] ) );
-
         }
     }
 }
 
-}
+}  // namespace earth_orientation
 
-}
+}  // namespace tudat

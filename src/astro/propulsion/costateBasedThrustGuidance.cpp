@@ -15,24 +15,24 @@ namespace propulsion
 {
 
 ////! Constructor
-//MeeCostateBasedThrustGuidance::MeeCostateBasedThrustGuidance(
-//        const std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction,
-//        const std::function< Eigen::Vector6d( ) > centralBodyStateFunction,
-//        const std::function< double( ) > centralBodyGravitationalParameterFunction,
-//        std::function< Eigen::VectorXd( const double ) > costateFunction,
-//        const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection )
-//    : BodyFixedForceDirectionGuidance( bodyFixedForceDirection ),
-//      thrustingBodyStateFunction_( thrustingBodyStateFunction ),
-//      centralBodyStateFunction_( centralBodyStateFunction ),
-//      centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction ),
-//      costateFunction_( costateFunction ){ }
+// MeeCostateBasedThrustGuidance::MeeCostateBasedThrustGuidance(
+//         const std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction,
+//         const std::function< Eigen::Vector6d( ) > centralBodyStateFunction,
+//         const std::function< double( ) > centralBodyGravitationalParameterFunction,
+//         std::function< Eigen::VectorXd( const double ) > costateFunction,
+//         const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection )
+//     : BodyFixedForceDirectionGuidance( bodyFixedForceDirection ),
+//       thrustingBodyStateFunction_( thrustingBodyStateFunction ),
+//       centralBodyStateFunction_( centralBodyStateFunction ),
+//       centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction ),
+//       costateFunction_( costateFunction ){ }
 
 ////! Function to update the force direction to the current time.
-//void MeeCostateBasedThrustGuidance::updateForceDirection( const double time )
+// void MeeCostateBasedThrustGuidance::updateForceDirection( const double time )
 //{
-//    if( !( time == currentTime_ ) )
-//    {
-//        Eigen::VectorXd costates_ = costateFunction_( time );
+//     if( !( time == currentTime_ ) )
+//     {
+//         Eigen::VectorXd costates_ = costateFunction_( time );
 
 //        // Get the current state in cartesian coordinates and keplerian elements, and some convenient parameters
 //        Eigen::Vector6d currentState = thrustingBodyStateFunction_( ) - centralBodyStateFunction_( );
@@ -98,7 +98,6 @@ namespace propulsion
 //                    sin( thrustAngleBeta )  ).finished( ).normalized( ) );
 //        currentTime_ = time;
 
-
 ////        // Switching function for the thrust magnitude.
 ////        double thrustMagnitudeSwitchingCondition = /*( 1.0 / thrustingBodyMassFunction_( ) ) **/
 ////                ( Lbp * cos( thrustAngleBeta ) + Lbh * sin( thrustAngleBeta ) + Lbk * sin( thrustAngleBeta )
@@ -116,6 +115,6 @@ namespace propulsion
 
 //}
 
-} // namespace propulsion
+}  // namespace propulsion
 
-} // namespace tudat
+}  // namespace tudat

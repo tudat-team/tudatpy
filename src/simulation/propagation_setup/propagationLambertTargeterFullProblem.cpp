@@ -8,62 +8,61 @@
 // *    http://tudat.tudelft.nl/LICENSE.
 // */
 
-//#include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
-//#include "tudat/astro/mission_segments/lambertTargeter.h"
-//#include "tudat/astro/mission_segments/lambertTargeterIzzo.h"
-//#include "tudat/astro/mission_segments/lambertRoutines.h"
-//#include "tudat/simulation/environment_setup/defaultBodies.h"
-//#include "tudat/simulation/propagation_setup/createAccelerationModels.h"
-//#include "tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h"
-//#include <tudat/simulation/estimation.h>
+// #include "tudat/simulation/propagation_setup/createStateDerivativeModel.h"
+// #include "tudat/astro/mission_segments/lambertTargeter.h"
+// #include "tudat/astro/mission_segments/lambertTargeterIzzo.h"
+// #include "tudat/astro/mission_segments/lambertRoutines.h"
+// #include "tudat/simulation/environment_setup/defaultBodies.h"
+// #include "tudat/simulation/propagation_setup/createAccelerationModels.h"
+// #include "tudat/simulation/propagation_setup/propagationLambertTargeterFullProblem.h"
+// #include <tudat/simulation/estimation.h>
 
-//#include "tudat/astro/gravitation/librationPoint.h"
-//#include "tudat/astro/basic_astro/celestialBodyConstants.h"
-//#include "tudat/astro/basic_astro/missionGeometry.h"
+// #include "tudat/astro/gravitation/librationPoint.h"
+// #include "tudat/astro/basic_astro/celestialBodyConstants.h"
+// #include "tudat/astro/basic_astro/missionGeometry.h"
 
-//#include "tudat/astro/trajectory_design/trajectory.h"
-//#include "tudat/astro/trajectory_design/exportTrajectory.h"
-//#include "tudat/astro/trajectory_design/planetTrajectory.h"
+// #include "tudat/astro/trajectory_design/trajectory.h"
+// #include "tudat/astro/trajectory_design/exportTrajectory.h"
+// #include "tudat/astro/trajectory_design/planetTrajectory.h"
 
-//#include "tudat/interface/spice/spiceInterface.h"
+// #include "tudat/interface/spice/spiceInterface.h"
 
-//#include "tudat/io/basicInputOutput.h"
+// #include "tudat/io/basicInputOutput.h"
 
-//namespace tudat
+// namespace tudat
 //{
 
-//namespace propagators
+// namespace propagators
 //{
 
 ////! Function to setup a system of bodies corresponding to the assumptions of the Lambert targeter,
 ////! using default ephemerides for the central, departure and arrival bodies.
-//simulation_setup::SystemOfBodies setupBodyMapFromEphemeridesForLambertTargeter(
-//        const std::string& nameCentralBody,
-//        const std::string& nameBodyToPropagate,
-//        const std::pair< std::string, std::string >& departureAndArrivalBodies )
+// simulation_setup::SystemOfBodies setupBodyMapFromEphemeridesForLambertTargeter(
+//         const std::string& nameCentralBody,
+//         const std::string& nameBodyToPropagate,
+//         const std::pair< std::string, std::string >& departureAndArrivalBodies )
 //{
-    
+
 //    spice_interface::loadStandardSpiceKernels( );
-    
+
 //    // Create central, departure and arrival bodies.
 //    std::vector< std::string > bodiesToCreate;
 //    bodiesToCreate.push_back( nameCentralBody );
 //    bodiesToCreate.push_back( departureAndArrivalBodies.first );
 //    bodiesToCreate.push_back( departureAndArrivalBodies.second );
-    
+
 //    std::string frameOrigin = "SSB";
 //    std::string frameOrientation = "ECLIPJ2000";
 //    simulation_setup::BodyListSettings bodySettings =
 //            simulation_setup::getDefaultBodySettings( bodiesToCreate, frameOrigin, frameOrientation );
-    
+
 //    // Define central body ephemeris settings.
 //    bodySettings.at( nameCentralBody )->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
 //                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
-    
+
 //    bodySettings.at( nameCentralBody )->ephemerisSettings->resetFrameOrientation( frameOrientation );
 //    bodySettings.at( nameCentralBody )->rotationModelSettings->resetOriginalFrame( frameOrientation );
 //<<<<<<< HEAD
-
 
 //    // Create system of bodies.
 //    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
@@ -73,45 +72,40 @@
 //                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
 //                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
-
 //    return bodies;
 //=======
-    
-    
+
 //    // Create body map.
 //    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
-    
+
 //    bodyMap.addNewBody( nameBodyToPropagate );
 //    bodyMap.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
 //                                                         std::shared_ptr< interpolators::OneDimensionalInterpolator
 //                                                         < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-    
-    
+
 //    return bodyMap;
 //>>>>>>> dominic-origin/features/mission_segments_refactor
 //}
 
-
-
 ////! Function to setup a system of bodies corresponding to the assumptions of the patched conics trajectory,
 ////! the ephemerides of the transfer bodies being provided as inputs.
-//simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(
-//        const std::string& nameCentralBody,
-//        const std::string& nameBodyToPropagate,
-//        const std::pair< std::string, std::string >& departureAndArrivalBodies,
-//        const std::vector< ephemerides::EphemerisPointer >& ephemerisVectorDepartureAndArrivalBodies)
+// simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(
+//         const std::string& nameCentralBody,
+//         const std::string& nameBodyToPropagate,
+//         const std::pair< std::string, std::string >& departureAndArrivalBodies,
+//         const std::vector< ephemerides::EphemerisPointer >& ephemerisVectorDepartureAndArrivalBodies)
 //{
-//    spice_interface::loadStandardSpiceKernels( );
-    
+//     spice_interface::loadStandardSpiceKernels( );
+
 //    // Create central body object.
 //    std::vector< std::string > bodiesToCreate;
 //    bodiesToCreate.push_back( nameCentralBody );
-    
+
 //    std::string frameOrigin = "SSB";
 //    std::string frameOrientation = "ECLIPJ2000";
 //    simulation_setup::BodyListSettings bodySettings =
 //            simulation_setup::getDefaultBodySettings( bodiesToCreate, frameOrigin, frameOrientation );
-    
+
 //    // Define central body ephemeris settings.
 //    bodySettings.at( nameCentralBody )->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
 //                ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
@@ -120,18 +114,16 @@
 //    bodySettings.at( nameCentralBody )->ephemerisSettings->resetFrameOrientation( frameOrientation );
 //    bodySettings.at( nameCentralBody )->rotationModelSettings->resetOriginalFrame( frameOrientation );
 
-
-
 //    // Create system of bodies.
 //    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
 //    bodies.createEmptyBody( nameBodyToPropagate );
 //    bodies.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
 //=======
-    
+
 //    // Create body map.
 //    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
-    
+
 //    bodyMap.addNewBody( nameBodyToPropagate );
 //    bodyMap.at( nameBodyToPropagate )->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
 //>>>>>>> dominic-origin/features/mission_segments_refactor
@@ -151,30 +143,24 @@
 
 //    }
 
-
 //    return bodies;
 
 //}
 
-
-
-
 ////! Function to setup a system of bodies corresponding to the assumptions of the Lambert targeter,
 ////! using default ephemerides for the central body only, while the positions of departure and arrival bodies are provided as inputs.
-//simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedStatesForLambertTargeter(
-//        const std::string& nameCentralBody,
-//        const std::string& nameBodyToPropagate,
-//        const std::vector< std::string >& departureAndArrivalBodies,
-//        const Eigen::Vector3d& cartesianPositionAtDeparture,
-//        const Eigen::Vector3d& cartesianPositionAtArrival )
+// simulation_setup::SystemOfBodies setupBodyMapFromUserDefinedStatesForLambertTargeter(
+//         const std::string& nameCentralBody,
+//         const std::string& nameBodyToPropagate,
+//         const std::vector< std::string >& departureAndArrivalBodies,
+//         const Eigen::Vector3d& cartesianPositionAtDeparture,
+//         const Eigen::Vector3d& cartesianPositionAtArrival )
 //{
 
 //    spice_interface::loadStandardSpiceKernels( );
 
-
 //    std::string frameOrigin = "SSB";
 //    std::string frameOrientation = "ECLIPJ2000";
-
 
 //    // Create ephemeris vector for departure and arrival bodies.
 //    std::vector< ephemerides::EphemerisPointer > ephemerisVectorDepartureAndArrivalBodies(2);
@@ -187,10 +173,9 @@
 //                ( Eigen::Vector6d( ) << cartesianPositionAtArrival[0], cartesianPositionAtArrival[1], cartesianPositionAtArrival[2],
 //                  0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
-
-
 //    // Create system of bodies.
-//    simulation_setup::SystemOfBodies bodies = setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(nameCentralBody, nameBodyToPropagate,
+//    simulation_setup::SystemOfBodies bodies = setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(nameCentralBody,
+//    nameBodyToPropagate,
 //                                                                                                      departureAndArrivalBodies,
 //                                                                                                      ephemerisVectorDepartureAndArrivalBodies);
 
@@ -199,55 +184,51 @@
 //=======
 //    bodyMap.addNewBody( departureAndArrivalBodies.second );
 //    bodyMap.at( departureAndArrivalBodies.second )->setEphemeris( ephemerisVectorDepartureAndArrivalBodies.at( 1 ) );
-    
-    
+
 //    return bodyMap;
-    
+
 //>>>>>>> dominic-origin/features/mission_segments_refactor
 //}
 
-
 ////! Function to directly setup an acceleration map for the Lambert targeter.
-//basic_astrodynamics::AccelerationMap setupAccelerationMapLambertTargeter(
-//        const std::string& nameCentralBody,
-//        const std::string& nameBodyToPropagate,
-//        const simulation_setup::SystemOfBodies& bodies )
+// basic_astrodynamics::AccelerationMap setupAccelerationMapLambertTargeter(
+//         const std::string& nameCentralBody,
+//         const std::string& nameBodyToPropagate,
+//         const simulation_setup::SystemOfBodies& bodies )
 //{
-    
+
 //    std::vector< std::string > bodiesToPropagate;
 //    bodiesToPropagate.push_back( nameBodyToPropagate );
 //    std::vector< std::string > centralBodies;
 //    centralBodies.push_back( nameCentralBody );
-    
+
 //    // Acceleration from the central body.
 //    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
 //    bodyToPropagateAccelerations[nameCentralBody].push_back(std::make_shared< simulation_setup::AccelerationSettings >(
 //                                                                basic_astrodynamics::central_gravity ) );
-    
+
 //    simulation_setup::SelectedAccelerationMap accelerationMap;
 //    accelerationMap[ nameBodyToPropagate ] = bodyToPropagateAccelerations;
-    
+
 //    // Create the acceleration map.
 //    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
 //<<<<<<< HEAD
 //                bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
-
 //=======
 //                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
-    
-    
+
 //>>>>>>> dominic-origin/features/mission_segments_refactor
 //    return accelerationModelMap;
-    
+
 //}
 
-//std::shared_ptr< mission_segments::LambertTargeterIzzo > createLambertTargeterIzzo(
-//        const double timeOfFlight,
-//        const double initialTime,
-//        const simulation_setup::NamedBodyMap& bodyMap,
-//        const std::string& centralBody,
-//        const std::pair< std::string, std::string >& departureAndArrivalBodies )
+// std::shared_ptr< mission_segments::LambertTargeterIzzo > createLambertTargeterIzzo(
+//         const double timeOfFlight,
+//         const double initialTime,
+//         const simulation_setup::NamedBodyMap& bodyMap,
+//         const std::string& centralBody,
+//         const std::pair< std::string, std::string >& departureAndArrivalBodies )
 //{
 
 //    // Cartesian state at departure
@@ -283,37 +264,37 @@
 //                timeOfFlight, centralBodyGravitationalParameter );
 //}
 
-//void propagateLambertTargeterAndFullProblem(
-//        const double timeOfFlight,
-//        const double initialTime,
-//        const simulation_setup::NamedBodyMap& bodyMap,
-//        const std::string& centralBody,
-//        const std::pair< std::string, std::string >& departureAndArrivalBodies ,
-//        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-//        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
-//        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-//        std::map< double, Eigen::Vector6d >& lambertTargeterResult,
-//        std::map< double, Eigen::Vector6d >& fullProblemResult )
+// void propagateLambertTargeterAndFullProblem(
+//         const double timeOfFlight,
+//         const double initialTime,
+//         const simulation_setup::NamedBodyMap& bodyMap,
+//         const std::string& centralBody,
+//         const std::pair< std::string, std::string >& departureAndArrivalBodies ,
+//         const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
+//         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+//         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
+//         std::map< double, Eigen::Vector6d >& fullProblemResult )
 //{
-//    std::map< double, Eigen::VectorXd > dependentVariableResult;
-//    propagateLambertTargeterAndFullProblem(
-//                timeOfFlight, initialTime, bodyMap, centralBody, departureAndArrivalBodies, propagatorSettings,
-//                integratorSettings, lambertTargeterResult,fullProblemResult );
-//}
+//     std::map< double, Eigen::VectorXd > dependentVariableResult;
+//     propagateLambertTargeterAndFullProblem(
+//                 timeOfFlight, initialTime, bodyMap, centralBody, departureAndArrivalBodies, propagatorSettings,
+//                 integratorSettings, lambertTargeterResult,fullProblemResult );
+// }
 
 ////! Function to propagate the full dynamics problem and the Lambert targeter solution.
-//void propagateLambertTargeterAndFullProblem(
-//        const double timeOfFlight,
-//        const double initialTime,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const std::string& centralBody,
-//        const std::pair< std::string, std::string >& departureAndArrivalBodies,
-//        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-//        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
-//        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-//        std::map< double, Eigen::Vector6d >& lambertTargeterResult,
-//        std::map< double, Eigen::Vector6d >& fullProblemResult,
-//        std::map< double, Eigen::VectorXd >& dependentVariableResult )
+// void propagateLambertTargeterAndFullProblem(
+//         const double timeOfFlight,
+//         const double initialTime,
+//         const simulation_setup::SystemOfBodies& bodies,
+//         const std::string& centralBody,
+//         const std::pair< std::string, std::string >& departureAndArrivalBodies,
+//         const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+//         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >& propagatorSettings,
+//         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+//         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
+//         std::map< double, Eigen::Vector6d >& fullProblemResult,
+//         std::map< double, Eigen::VectorXd >& dependentVariableResult )
 //{
 
 //    // Clear output maps
@@ -372,7 +353,6 @@
 //        cartesianPositionAtArrivalForLambertTargeter = cartesianPositionAtArrival;
 //    }
 
-
 //    // Run the Lambert targeter.
 //    mission_segments::LambertTargeterIzzo lambertTargeter(
 //                cartesianPositionAtDepartureForLambertTargeter, cartesianPositionAtArrivalForLambertTargeter,
@@ -383,7 +363,6 @@
 //    Eigen::Vector6d cartesianStateAtDeparture;
 //    cartesianStateAtDeparture.segment(0,3) = cartesianPositionAtDepartureForLambertTargeter;
 //    cartesianStateAtDeparture.segment(3,3) = cartesianVelocityAtDeparture;
-
 
 //    // Convert into keplerian elements
 //    Eigen::Vector6d keplerianStateAtDeparture = orbital_element_conversions::convertCartesianToKeplerianElements(
@@ -406,20 +385,19 @@
 //            mission_segments::getLambertTargeterCartesianStateDuringTransfer(
 //                *lambertTargeter.get( ), halvedTimeOfFlight );
 
-
 //    // Define forward propagator settings variables.
 //    integratorSettings->initialTime_ = initialTime + halvedTimeOfFlight;
-    
+
 //    // Define forward propagation settings
 //    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsForwardPropagation;
 //    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsBackwardPropagation;
-    
+
 //    propagatorSettingsForwardPropagation = propagatorSettings.second;
 //    propagatorSettingsForwardPropagation->resetInitialStates( initialStatePropagationCartesianElements );
-    
+
 //    propagatorSettingsBackwardPropagation = propagatorSettings.first;
 //    propagatorSettingsBackwardPropagation->resetInitialStates( initialStatePropagationCartesianElements );
-    
+
 //    // Perform forward propagation.
 //    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards(
 //                bodies, integratorSettings, propagatorSettingsForwardPropagation );
@@ -427,7 +405,6 @@
 //            getEquationsOfMotionNumericalSolution( );
 //    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation =
 //            dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
-
 
 //    // Calculate the difference between the full problem and the Lambert targeter solution along the forward propagation direction.
 //    Eigen::Vector6d cartesianStateLambertSolution;
@@ -441,14 +418,14 @@
 //        dependentVariableResult[ stateIterator.first ] = dependentVariableHistoryForwardPropagation[ stateIterator.first ];
 //    }
 
-
 //    // Define backward propagator settings variables.
 //    integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
 //    integratorSettings->initialTime_ = initialTime + halvedTimeOfFlight;
-    
+
 //    // Perform the backward propagation.
 //<<<<<<< HEAD
-//    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards(bodies, integratorSettings, propagatorSettingsBackwardPropagation );
+//    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards(bodies, integratorSettings,
+//    propagatorSettingsBackwardPropagation );
 //=======
 //    propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards(
 //                bodyMap, integratorSettings, propagatorSettingsBackwardPropagation );
@@ -457,52 +434,49 @@
 //            dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
 //    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation =
 //            dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
-    
+
 //    // Calculate the difference between the full problem and the Lambert targeter solution along the backward propagation direction.
 //    for( auto stateIterator : stateHistoryFullProblemBackwardPropagation )
 //    {
 //        cartesianStateLambertSolution = orbital_element_conversions::propagateCartesianStateAlongKeplerOrbit(
 //                    initialStatePropagationCartesianElements, - (initialTime + halvedTimeOfFlight) + stateIterator.first,
 //                    centralBodyGravitationalParameter);
-        
+
 //        lambertTargeterResult[ stateIterator.first ] = cartesianStateLambertSolution;
 //        fullProblemResult[ stateIterator.first ] = stateIterator.second;
 //        dependentVariableResult[ stateIterator.first ] = dependentVariableHistoryBackwardPropagation[ stateIterator.first ];
-        
+
 //    }
 
-
 //    integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
-    
+
 //}
 
-
-//std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-//std::shared_ptr< propagators::PropagationTerminationSettings > > getLambertTargeterTerminationSettings(
-//        const double timeOfFlight,
-//        const double initialTime,
+// std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+// std::shared_ptr< propagators::PropagationTerminationSettings > > getLambertTargeterTerminationSettings(
+//         const double timeOfFlight,
+//         const double initialTime,
 //<<<<<<< HEAD
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
+//         const simulation_setup::SystemOfBodies& bodies,
+//         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
 //=======
-//        const simulation_setup::NamedBodyMap& bodyMap,
+//         const simulation_setup::NamedBodyMap& bodyMap,
 //>>>>>>> dominic-origin/features/mission_segments_refactor
-//        const std::string& bodyToPropagate,
-//        const std::string& centralBody,
-//        const std::pair< std::string, std::string >& departureAndArrivalBodies,
-//        const bool setSphereOfInfluenceTermination,
-//        const std::pair< double, double > distanceTerminationAsSoiFraction,
-//        const double timeTerminationInSynodicPeriods )
+//         const std::string& bodyToPropagate,
+//         const std::string& centralBody,
+//         const std::pair< std::string, std::string >& departureAndArrivalBodies,
+//         const bool setSphereOfInfluenceTermination,
+//         const std::pair< double, double > distanceTerminationAsSoiFraction,
+//         const double timeTerminationInSynodicPeriods )
 //{
-//    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-//            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings;
+//     std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+//             std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings;
 
 //<<<<<<< HEAD
 //    // Retrieve the gravitational parameter of the relevant bodies.
 //    double gravitationalParameterCentralBody = ( centralBodyGravitationalParameter == centralBodyGravitationalParameter ) ?
 //                centralBodyGravitationalParameter :
 //                bodies.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( );
-
 
 //    // Retrieve positions of departure and arrival bodies from ephemerides if not defined as inputs.
 //    Eigen::Vector3d cartesianPositionAtDepartureForLambertTargeter, cartesianPositionAtArrivalForLambertTargeter;
@@ -552,8 +526,6 @@
 //        cartesianPositionAtArrivalForLambertTargeter = cartesianPositionAtArrival;
 //    }
 
-
-
 //    // Calculate radii sphere of influence about departure and arrival bodies
 //    double radiusSphereOfInfluenceDeparture;
 //    double radiusSphereOfInfluenceArrival;
@@ -576,7 +548,8 @@
 //                    initialTime ).segment( 0, 3 ).norm( ) - cartesianPositionAtDepartureForLambertTargeter.segment( 0, 3 ).norm( );
 //        double distanceArrivalToCentralBodies =
 //                bodies.at( centralBody )->getEphemeris( )->getCartesianState(
-//                    initialTime + timeOfFlight ).segment( 0, 3 ).norm( ) - cartesianPositionAtArrivalForLambertTargeter.segment( 0, 3 ).norm( );
+//                    initialTime + timeOfFlight ).segment( 0, 3 ).norm( ) - cartesianPositionAtArrivalForLambertTargeter.segment( 0, 3
+//                    ).norm( );
 //=======
 //        if( bodyMap.count( departureAndArrivalBodies.first ) == 0 )
 //        {
@@ -620,10 +593,12 @@
 
 //        double distanceDepartureToCentralBodY =
 //                ( bodyMap.at( centralBody )->getEphemeris( )->getCartesianState( initialTime ).segment( 0, 3 ) -
-//                  bodyMap.at( departureAndArrivalBodies.first )->getEphemeris( )->getCartesianState( initialTime ).segment( 0, 3 ) ).norm( );
+//                  bodyMap.at( departureAndArrivalBodies.first )->getEphemeris( )->getCartesianState( initialTime ).segment( 0, 3 ) ).norm(
+//                  );
 //        double distanceArrivalToCentralBodY =
 //                ( bodyMap.at( centralBody )->getEphemeris( )->getCartesianState( initialTime + timeOfFlight ).segment( 0, 3 ) -
-//                  bodyMap.at( departureAndArrivalBodies.second )->getEphemeris( )->getCartesianState( initialTime + timeOfFlight ).segment( 0, 3 ) ).norm( );
+//                  bodyMap.at( departureAndArrivalBodies.second )->getEphemeris( )->getCartesianState( initialTime + timeOfFlight
+//                  ).segment( 0, 3 ) ).norm( );
 
 //        // Calculate radius sphere of influence for departure body.
 //        double radiusSphereOfInfluenceDeparture = tudat::mission_geometry::computeSphereOfInfluence(
@@ -637,13 +612,13 @@
 //        double orbitalPeriodDepartureBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
 //<<<<<<< HEAD
 //              orbital_element_conversions::convertCartesianToKeplerianElements( bodies.at( departureAndArrivalBodies[0] )->
-//              getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
-//              gravitationalParameterCentralBody, gravitationalParameterDepartureBody);
+//              getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[
+//              orbital_element_conversions::semiMajorAxisIndex ], gravitationalParameterCentralBody, gravitationalParameterDepartureBody);
 
 //        double orbitalPeriodArrivalBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
 //              orbital_element_conversions::convertCartesianToKeplerianElements( bodies.at( departureAndArrivalBodies[1] )->
-//              getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
-//              gravitationalParameterCentralBody, gravitationalParameterArrivalBody);
+//              getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[
+//              orbital_element_conversions::semiMajorAxisIndex ], gravitationalParameterCentralBody, gravitationalParameterArrivalBody);
 //=======
 //                    orbital_element_conversions::convertCartesianToKeplerianElements(
 //                        bodyMap.at( departureAndArrivalBodies.first )->getEphemeris()->getCartesianState(initialTime),
@@ -667,7 +642,6 @@
 //            synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodArrivalBody, orbitalPeriodDepartureBody);
 //        }
 
-
 //        // Create total propagator termination settings.
 //        std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
 //        forwardPropagationTerminationSettingsList.push_back(
@@ -678,10 +652,8 @@
 //        forwardPropagationTerminationSettingsList.push_back(
 //                    std::make_shared< PropagationTimeTerminationSettings >( timeTerminationInSynodicPeriods * synodicPeriod ) );
 
-
 //        std::shared_ptr< PropagationTerminationSettings > forwardPropagationTerminationSettings =
 //                std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
-
 
 //        std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
 //        backwardPropagationTerminationSettingsList.push_back(
@@ -697,7 +669,6 @@
 //                std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
 
 //        terminationSettings = std::make_pair( backwardPropagationTerminationSettings, forwardPropagationTerminationSettings );
-
 
 //    }
 //    else
@@ -733,21 +704,21 @@
 //>>>>>>> dominic-origin/features/mission_segments_refactor
 //}
 ////! Function to propagate the full dynamics problem and the Lambert targeter solution.
-//void propagateLambertTargeterAndFullProblem(
-//        const double timeOfFlight,
-//        const double initialTime,
-//        const simulation_setup::SystemOfBodies& bodies,
-//        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-//        const std::string& bodyToPropagate,
-//        const std::string& centralBody,
-//        const std::pair< std::string, std::string >& departureAndArrivalBodies,
-//        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-//        std::map< double, Eigen::Vector6d >& lambertTargeterResult,
-//        std::map< double, Eigen::Vector6d >& fullProblemResult,
-//        std::map< double, Eigen::VectorXd >& dependentVariableResult,
-//        const bool terminationSphereOfInfluence,
-//        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave ,
-//        const TranslationalPropagatorType propagator )
+// void propagateLambertTargeterAndFullProblem(
+//         const double timeOfFlight,
+//         const double initialTime,
+//         const simulation_setup::SystemOfBodies& bodies,
+//         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
+//         const std::string& bodyToPropagate,
+//         const std::string& centralBody,
+//         const std::pair< std::string, std::string >& departureAndArrivalBodies,
+//         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+//         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
+//         std::map< double, Eigen::Vector6d >& fullProblemResult,
+//         std::map< double, Eigen::VectorXd >& dependentVariableResult,
+//         const bool terminationSphereOfInfluence,
+//         const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave ,
+//         const TranslationalPropagatorType propagator )
 //{
 
 //    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
@@ -756,21 +727,21 @@
 //                bodyMap, bodyToPropagate, centralBody, departureAndArrivalBodies, terminationSphereOfInfluence );
 
 //    Eigen::Vector6d initialState;
-    
+
 //    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
 //            std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
-    
+
 //    std::vector< std::string > centralBodyPropagation; centralBodyPropagation.push_back( centralBody );
 //    std::vector< std::string > bodyToPropagatePropagation; bodyToPropagatePropagation.push_back( bodyToPropagate );
-    
+
 //    propagatorSettings.first = std::make_shared< TranslationalStatePropagatorSettings< double > >(
 //                centralBodyPropagation, accelerationModelMap, bodyToPropagatePropagation, initialState,
 //                terminationSettings.first, propagator, dependentVariablesToSave );
-    
+
 //    propagatorSettings.second = std::make_shared< TranslationalStatePropagatorSettings< double > >(
 //                centralBodyPropagation, accelerationModelMap, bodyToPropagatePropagation, initialState,
 //                terminationSettings.second, propagator, dependentVariablesToSave );
-    
+
 //    propagateLambertTargeterAndFullProblem(
 //<<<<<<< HEAD
 //                timeOfFlight, initialTime, bodies, accelerationModelMap, bodyToPropagate, centralBody, integratorSettings,
@@ -783,7 +754,6 @@
 //    Eigen::Vector6d stateLambertTargeterAtArrival = lambertTargeterResult.rbegin( )->second;
 //    Eigen::Vector6d propagatedStateFullProblemAtArrival = fullProblemResult.rbegin( )->second;
 
-
 //    // Difference between the Lambert targeter and full problem results at departure and arrival.
 //    return std::make_pair( stateLambertTargeterAtDeparture - propagatedStateFullProblemAtDeparture,
 //                           stateLambertTargeterAtArrival - propagatedStateFullProblemAtArrival);
@@ -792,7 +762,6 @@
 //                integratorSettings, lambertTargeterResult, fullProblemResult, dependentVariableResult );
 //>>>>>>> dominic-origin/features/mission_segments_refactor
 //}
-
 
 //}
 

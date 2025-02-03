@@ -20,30 +20,29 @@ namespace tudat
 namespace simulation_setup
 {
 
-typedef std::function< Eigen::VectorXd( const std::vector< double >& ,
+typedef std::function< Eigen::VectorXd( const std::vector< double >&,
                                         const std::vector< Eigen::Matrix< double, 6, 1 > >&,
                                         const Eigen::VectorXd&,
                                         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
-                                        ObservationDependentVariableFunction;
+        ObservationDependentVariableFunction;
 
 typedef std::function< void( Eigen::VectorXd&,
                              const std::vector< double >&,
                              const std::vector< Eigen::Matrix< double, 6, 1 > >&,
                              const Eigen::VectorXd&,
-                             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > ObservationDependentVariableAddFunction;
+                             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
+        ObservationDependentVariableAddFunction;
 
-void checkObservationDependentVariableEnvironment(
-        const SystemOfBodies& bodies,
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
-
+void checkObservationDependentVariableEnvironment( const SystemOfBodies& bodies,
+                                                   const std::shared_ptr< ObservationDependentVariableSettings > variableSettings );
 
 std::pair< int, int > getLinkEndStateTimeIndices(
-    const observation_models::ObservableType observableType,
-    const observation_models::LinkDefinition linkEnds,
-    const observation_models::LinkEndId linkEndId,
-    const observation_models::LinkEndType linkEndRole = observation_models::unidentified_link_end,
-    const observation_models::LinkEndType originatingLinkEndRole = observation_models::unidentified_link_end,
-    const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined );
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkDefinition linkEnds,
+        const observation_models::LinkEndId linkEndId,
+        const observation_models::LinkEndType linkEndRole = observation_models::unidentified_link_end,
+        const observation_models::LinkEndType originatingLinkEndRole = observation_models::unidentified_link_end,
+        const IntegratedObservationPropertyHandling integratedObservableHandling = interval_undefined );
 
 ObservationDependentVariableFunction getStationObservationAngleFunction(
         const SystemOfBodies& bodies,
@@ -66,30 +65,24 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
 class ObservationDependentVariableCalculator
 {
 public:
-
     ObservationDependentVariableCalculator( const observation_models::ObservableType observableType,
                                             const observation_models::LinkDefinition& linkEnds ):
-    observableType_( observableType ), linkEnds_( linkEnds )
+        observableType_( observableType ), linkEnds_( linkEnds )
     {
         totalDependentVariableSize_ = 0;
     }
 
-    Eigen::VectorXd calculateDependentVariables(
-            const std::vector< double >& linkEndTimes,
-            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const Eigen::VectorXd& observation,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > );
+    Eigen::VectorXd calculateDependentVariables( const std::vector< double >& linkEndTimes,
+                                                 const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+                                                 const Eigen::VectorXd& observation,
+                                                 const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > );
 
-    void addDependentVariable(
-            const std::shared_ptr< ObservationDependentVariableSettings > settings,
-            const SystemOfBodies& bodies );
+    void addDependentVariable( const std::shared_ptr< ObservationDependentVariableSettings > settings, const SystemOfBodies& bodies );
 
-    void addDependentVariables(
-            const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
-            const SystemOfBodies& bodies );
+    void addDependentVariables( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
+                                const SystemOfBodies& bodies );
 
-    std::pair< int, int > getDependentVariableIndices(
-            const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables );
+    std::pair< int, int > getDependentVariableIndices( const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables );
 
     observation_models::ObservableType getObservableType( )
     {
@@ -104,9 +97,10 @@ public:
     std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > getSettingsIndicesAndSizes( ) const
     {
         std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > settingsStartIndices;
-        for ( unsigned int i = 0 ; i < dependentVariableStartIndices_.size( ) ; i++ )
+        for( unsigned int i = 0; i < dependentVariableStartIndices_.size( ); i++ )
         {
-            settingsStartIndices[ std::make_pair( dependentVariableStartIndices_[ i ], dependentVariableSizes_[ i ] ) ] = settingsList_[ i ];
+            settingsStartIndices[ std::make_pair( dependentVariableStartIndices_[ i ], dependentVariableSizes_[ i ] ) ] =
+                    settingsList_[ i ];
         }
         return settingsStartIndices;
     }
@@ -122,32 +116,27 @@ public:
     }
 
 private:
-
     observation_models::ObservableType observableType_;
 
     observation_models::LinkDefinition linkEnds_;
 
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList_;
 
-    std::vector< std::function< void(
-            Eigen::VectorXd&,
-            const std::vector< double >&,
-            const std::vector< Eigen::Matrix< double, 6, 1 > >&,
-            const Eigen::VectorXd&,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > > dependentVariableAddFunctions_;
+    std::vector< std::function< void( Eigen::VectorXd&,
+                                      const std::vector< double >&,
+                                      const std::vector< Eigen::Matrix< double, 6, 1 > >&,
+                                      const Eigen::VectorXd&,
+                                      const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > >
+            dependentVariableAddFunctions_;
 
     std::vector< int > dependentVariableStartIndices_;
 
     std::vector< int > dependentVariableSizes_;
 
     int totalDependentVariableSize_;
-
-
 };
 
+}  // namespace simulation_setup
 
-
-}
-
-}
-#endif // TUDAT_OBSERVATIONOUTPUT
+}  // namespace tudat
+#endif  // TUDAT_OBSERVATIONOUTPUT

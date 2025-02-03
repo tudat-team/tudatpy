@@ -34,8 +34,7 @@ namespace reference_frames
 
 //! Enum to define ids for various angles needed for converting between inertial and body-fixed
 //! frame, using transformation chain via aerodynamic frame.
-enum AerodynamicsReferenceFrameAngles
-{
+enum AerodynamicsReferenceFrameAngles {
     latitude_angle = 0,
     longitude_angle = 1,
     heading_angle = 2,
@@ -53,8 +52,7 @@ enum AerodynamicsReferenceFrameAngles
  */
 std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angle );
 
-enum BodyFixedAngleSource
-{
+enum BodyFixedAngleSource {
     body_fixed_angles_from_body,
     body_fixed_angles_from_aero_based_ephemeris,
     body_fixed_angles_from_generic_ephemeris,
@@ -70,15 +68,13 @@ enum BodyFixedAngleSource
 class BodyFixedAerodynamicAngleInterface
 {
 public:
-    BodyFixedAerodynamicAngleInterface(
-            const BodyFixedAngleSource angleSource ):angleSource_( angleSource ){ }
+    BodyFixedAerodynamicAngleInterface( const BodyFixedAngleSource angleSource ): angleSource_( angleSource ) { }
 
-    virtual ~BodyFixedAerodynamicAngleInterface( ){ }
+    virtual ~BodyFixedAerodynamicAngleInterface( ) { }
 
-    virtual Eigen::Vector3d getAngles( const double time,
-                                       const Eigen::Matrix3d& trajectoryToInertialFrame ) = 0;
+    virtual Eigen::Vector3d getAngles( const double time, const Eigen::Matrix3d& trajectoryToInertialFrame ) = 0;
 
-    virtual void resetCurrentTime( ){ }
+    virtual void resetCurrentTime( ) { }
 
     BodyFixedAngleSource getAngleSource( )
     {
@@ -86,19 +82,16 @@ public:
     }
 
 protected:
-
     BodyFixedAngleSource angleSource_;
 };
-
 
 //! Object to calculate aerodynamic orientation angles from current vehicle state.
 /*!
  *  Object to calculate aerodynamic orientation angles from current vehicle state.
  */
-class AerodynamicAngleCalculator/*: public DependentOrientationCalculator*/
+class AerodynamicAngleCalculator /*: public DependentOrientationCalculator*/
 {
 public:
-
     //! Constructor
     /*!
      *  Constructor.
@@ -114,19 +107,14 @@ public:
      *  \param bankAngleFunction Function to determine the bank angle of the vehicle.
      * \param angleUpdateFunction Function to update the aerodynamic angles to the current time (default none).
      */
-    AerodynamicAngleCalculator(
-            const std::function< Eigen::Vector6d( ) > bodyFixedStateFunction,
-            const std::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame,
-            const std::string centralBodyName,
-            const bool calculateVerticalToAerodynamicFrame = false ):
-//        DependentOrientationCalculator( ),
-        bodyFixedStateFunction_( bodyFixedStateFunction ),
-        rotationFromCorotatingToInertialFrame_( rotationFromCorotatingToInertialFrame ),
-        centralBodyName_( centralBodyName ),
-        calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ),
-        currentBodyAngleTime_( TUDAT_NAN ),
-        currentTime_( TUDAT_NAN ),
-        aerodynamicAngleClosureIsIncomplete_( false )
+    AerodynamicAngleCalculator( const std::function< Eigen::Vector6d( ) > bodyFixedStateFunction,
+                                const std::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame,
+                                const std::string centralBodyName,
+                                const bool calculateVerticalToAerodynamicFrame = false ):
+        //        DependentOrientationCalculator( ),
+        bodyFixedStateFunction_( bodyFixedStateFunction ), rotationFromCorotatingToInertialFrame_( rotationFromCorotatingToInertialFrame ),
+        centralBodyName_( centralBodyName ), calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ),
+        currentBodyAngleTime_( TUDAT_NAN ), currentTime_( TUDAT_NAN ), aerodynamicAngleClosureIsIncomplete_( false )
     {
         currentAerodynamicAngles_.resize( 7 );
         for( unsigned int i = 0; i < 7; i++ )
@@ -141,9 +129,8 @@ public:
      * \param windModel Model that computes the atmospheric wind as a function of position and time
      * \param shapeModel Shape model of central body, used in computation of altitude that is required for wind calculation
      */
-    void setWindModel(
-            const std::shared_ptr< aerodynamics::WindModel > windModel,
-            const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel )
+    void setWindModel( const std::shared_ptr< aerodynamics::WindModel > windModel,
+                       const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel )
     {
         windModel_ = windModel;
         shapeModel_ = shapeModel;
@@ -193,10 +180,9 @@ public:
      */
     void update( const double currentTime, const bool updateBodyOrientation );
 
-    void getRotationQuaternionReferenceBetweenFrames(
-            Eigen::Quaterniond& rotationToFrame,
-            const AerodynamicsReferenceFrames originalFrame,
-            const AerodynamicsReferenceFrames targetFrame );
+    void getRotationQuaternionReferenceBetweenFrames( Eigen::Quaterniond& rotationToFrame,
+                                                      const AerodynamicsReferenceFrames originalFrame,
+                                                      const AerodynamicsReferenceFrames targetFrame );
 
     //! Function to get the rotation quaternion between two frames
     /*!
@@ -207,13 +193,11 @@ public:
      * (from originalFrame).
      * \return Rotation quaternion from originalFrame to targetFrame.
      */
-    Eigen::Quaterniond getRotationQuaternionBetweenFrames(
-            const AerodynamicsReferenceFrames originalFrame,
-            const AerodynamicsReferenceFrames targetFrame );
+    Eigen::Quaterniond getRotationQuaternionBetweenFrames( const AerodynamicsReferenceFrames originalFrame,
+                                                           const AerodynamicsReferenceFrames targetFrame );
 
-    Eigen::Matrix3d getRotationMatrixBetweenFrames(
-            const AerodynamicsReferenceFrames originalFrame,
-            const AerodynamicsReferenceFrames targetFrame )
+    Eigen::Matrix3d getRotationMatrixBetweenFrames( const AerodynamicsReferenceFrames originalFrame,
+                                                    const AerodynamicsReferenceFrames targetFrame )
     {
         return getRotationQuaternionBetweenFrames( originalFrame, targetFrame ).toRotationMatrix( );
     }
@@ -227,40 +211,39 @@ public:
      */
     double getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId );
 
-//    //! Function to set the trajectory<->body-fixed orientation angles.
-//    /*!
-//     * Function to set the trajectory<->body-fixed orientation angles.
-//     * \param angleOfAttackFunction Function to return the angle of attack.
-//     * \param angleOfSideslipFunction Function to return the angle of sideslip.
-//     * \param bankAngleFunction Function to return the bank angle.
-//     * \param angleUpdateFunction Function to update the angles to the current time.
-//     */
+    //    //! Function to set the trajectory<->body-fixed orientation angles.
+    //    /*!
+    //     * Function to set the trajectory<->body-fixed orientation angles.
+    //     * \param angleOfAttackFunction Function to return the angle of attack.
+    //     * \param angleOfSideslipFunction Function to return the angle of sideslip.
+    //     * \param bankAngleFunction Function to return the bank angle.
+    //     * \param angleUpdateFunction Function to update the angles to the current time.
+    //     */
     void setOrientationAngleFunctionsRemoved1(
             const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
             const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
-            const std::function< double( ) > bankAngleFunction =  std::function< double( ) >( ),
+            const std::function< double( ) > bankAngleFunction = std::function< double( ) >( ),
             const std::function< void( const double ) > updateFunction = std::function< void( const double ) >( ),
             const bool silenceWarnings = false );
 
-//    //! Function to set constant trajectory<->body-fixed orientation angles.
-//    /*!
-//     * Function to set constant trajectory<->body-fixed orientation angles.
-//     * \param angleOfAttack Constant angle of attack (default NaN, used if no angle is to be defined).
-//     * \param angleOfSideslip Constant angle of sideslip (default NaN, used if no angle is to be defined).
-//     * \param bankAngle Constant bank angle (default NaN, used if no angle is to be defined).
-//     */
-    void setOrientationAngleFunctionsRemoved2(
-            const double angleOfAttack = TUDAT_NAN,
-            const double angleOfSideslip = TUDAT_NAN,
-            const double bankAngle = TUDAT_NAN,
-            const bool silenceWarnings = false );
+    //    //! Function to set constant trajectory<->body-fixed orientation angles.
+    //    /*!
+    //     * Function to set constant trajectory<->body-fixed orientation angles.
+    //     * \param angleOfAttack Constant angle of attack (default NaN, used if no angle is to be defined).
+    //     * \param angleOfSideslip Constant angle of sideslip (default NaN, used if no angle is to be defined).
+    //     * \param bankAngle Constant bank angle (default NaN, used if no angle is to be defined).
+    //     */
+    void setOrientationAngleFunctionsRemoved2( const double angleOfAttack = TUDAT_NAN,
+                                               const double angleOfSideslip = TUDAT_NAN,
+                                               const double bankAngle = TUDAT_NAN,
+                                               const bool silenceWarnings = false );
 
     //! Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
     /*!
      * Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
      * \return Function returning the quaternion that rotates from the corotating to the inertial frame.
      */
-    std::function< Eigen::Quaterniond( ) >  getRotationFromCorotatingToInertialFrame(  )
+    std::function< Eigen::Quaterniond( ) > getRotationFromCorotatingToInertialFrame( )
     {
         return rotationFromCorotatingToInertialFrame_;
     }
@@ -333,7 +316,7 @@ public:
         bodyFixedAngleInterface_ = bodyFixedAngleInterface;
 
         if( bodyFixedAngleInterface_->getAngleSource( ) == body_fixed_angles_from_aero_based_ephemeris &&
-                aerodynamicAngleClosureIsIncomplete_ == true )
+            aerodynamicAngleClosureIsIncomplete_ == true )
         {
             aerodynamicAngleClosureIsIncomplete_ = false;
         }
@@ -344,15 +327,13 @@ public:
         aerodynamicAngleClosureIsIncomplete_ = true;
     }
 
-    void setSideslipAndBankAngles(
-            const double sideslipAngle,
-            const double bankAngle )
+    void setSideslipAndBankAngles( const double sideslipAngle, const double bankAngle )
     {
         currentAerodynamicAngles_[ angle_of_sideslip ] = sideslipAngle;
         currentAerodynamicAngles_[ bank_angle ] = bankAngle;
     }
-private:
 
+private:
     //! Model that computes the atmospheric wind as a function of position and time
     std::shared_ptr< aerodynamics::WindModel > windModel_;
 
@@ -363,8 +344,7 @@ private:
     std::vector< double > currentAerodynamicAngles_;
 
     //! Map of current transformation quaternions, as calculated since previous call to update( ) function.
-    std::map< std::pair< AerodynamicsReferenceFrames, AerodynamicsReferenceFrames >,
-    Eigen::Quaterniond > currentRotationMatrices_;
+    std::map< std::pair< AerodynamicsReferenceFrames, AerodynamicsReferenceFrames >, Eigen::Quaterniond > currentRotationMatrices_;
 
     //! Current airspeed-based body-fixed state of vehicle, as set by previous call to update( ).
     Eigen::Vector6d currentBodyFixedAirspeedBasedState_;
@@ -397,14 +377,10 @@ private:
     //! Current time to which the bank, attack and sideslip angles have been updated.
     double currentBodyAngleTime_;
 
-
     //! Current simulation time.
     double currentTime_;
 
     bool aerodynamicAngleClosureIsIncomplete_;
-
-
-
 };
 
 //! Get a function to transform aerodynamic force from local to propagation frame.
@@ -420,27 +396,22 @@ private:
  *  \param propagationFrame Id of frame in which orbit propagation is done.
  *  \return Aerodynamic force conversion function.
  */
-std::function< Eigen::Vector3d( const Eigen::Vector3d& ) >
-getAerodynamicForceTransformationFunction(
+std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > getAerodynamicForceTransformationFunction(
         const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const AerodynamicsReferenceFrames accelerationFrame,
         const std::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
-        [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+                []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
 
 // EFFICIENCY TODO: MAKE THIS AND PREVIOUS FUNCTION THE SAME
-std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) >
-getAerodynamicForceTransformationReferenceFunction(
+std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > getAerodynamicForceTransformationReferenceFunction(
         const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const AerodynamicsReferenceFrames accelerationFrame,
         const std::function< Eigen::Quaterniond&( ) > bodyFixedToInertialFrameFunction,
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
 
+}  // namespace reference_frames
 
+}  // namespace tudat
 
-
-} // namespace reference_frames
-
-} // namespace tudat
-
-#endif // TUDAT_AERODYNAMICANGLECALCULATOR_H
+#endif  // TUDAT_AERODYNAMICANGLECALCULATOR_H

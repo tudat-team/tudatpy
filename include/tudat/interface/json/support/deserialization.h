@@ -32,7 +32,9 @@ namespace json_interface
  * (empty if \p filePath is equal to \p rootFilePath).
  * \return Read `json` object.
  */
-nlohmann::json readJSON( const boost::filesystem::path& filePath, const boost::filesystem::path& parentFilePath = boost::filesystem::path( ), const boost::filesystem::path& rootFilePath = boost::filesystem::path( ) );
+nlohmann::json readJSON( const boost::filesystem::path& filePath,
+                         const boost::filesystem::path& parentFilePath = boost::filesystem::path( ),
+                         const boost::filesystem::path& rootFilePath = boost::filesystem::path( ) );
 
 //! Get the path for a JSON file.
 /*!
@@ -46,7 +48,8 @@ nlohmann::json readJSON( const boost::filesystem::path& filePath, const boost::f
  * \return Path for the JSON file.
  * \throws Error if the file does not exist.
  */
-boost::filesystem::path getPathForJSONFile( const std::string& file, const boost::filesystem::path& basePath = boost::filesystem::current_path( ) );
+boost::filesystem::path getPathForJSONFile( const std::string& file,
+                                            const boost::filesystem::path& basePath = boost::filesystem::current_path( ) );
 
 //! Read and parse a (normal) `json` object from a file, and then parse its imported modular files.
 /*!
@@ -61,4 +64,4 @@ nlohmann::json getDeserializedJSON( const boost::filesystem::path& inputFilePath
 
 }  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_MODULAR_H
+#endif  // TUDAT_JSONINTERFACE_MODULAR_H

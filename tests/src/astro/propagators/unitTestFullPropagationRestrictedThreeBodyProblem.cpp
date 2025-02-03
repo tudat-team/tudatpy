@@ -26,7 +26,6 @@
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h"
 
-
 namespace tudat
 {
 
@@ -43,25 +42,23 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
     double initialTime = 0.0;
     double finalTime = 120000000.0;
 
-    std::vector < std::string > bodiesCR3BP;
+    std::vector< std::string > bodiesCR3BP;
     bodiesCR3BP.push_back( "Sun" );
     bodiesCR3BP.push_back( "Earth" );
 
-    simulation_setup::SystemOfBodies bodies = setupBodyMapCR3BP(
-                physical_constants::ASTRONOMICAL_UNIT, "Sun", "Earth", "Spacecraft" );
+    simulation_setup::SystemOfBodies bodies = setupBodyMapCR3BP( physical_constants::ASTRONOMICAL_UNIT, "Sun", "Earth", "Spacecraft" );
 
     // Spacecraft properties
     bodies.at( "Spacecraft" )->setConstantBodyMass( 100.0 );
 
     // Initialization of the spacecraft state
     Eigen::Vector6d initialState;
-    initialState[0] = 2.991957413820000e+10;
-    initialState[1] = 1.295555563704656e+11;
-    initialState[2] = 0.0;
-    initialState[3] = -2.579433850734350e+04;
-    initialState[4] = 5.956947312313238e+03;
-    initialState[5] = 0.0;
-
+    initialState[ 0 ] = 2.991957413820000e+10;
+    initialState[ 1 ] = 1.295555563704656e+11;
+    initialState[ 2 ] = 0.0;
+    initialState[ 3 ] = -2.579433850734350e+04;
+    initialState[ 4 ] = 5.956947312313238e+03;
+    initialState[ 5 ] = 0.0;
 
     // Define propagator settings variables.
     std::vector< std::string > bodiesToPropagate;
@@ -69,30 +66,33 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
     bodiesToPropagate.push_back( "Spacecraft" );
     centralBodies.push_back( "SSB" );
 
-    basic_astrodynamics::AccelerationMap accelerationModelMap = setupAccelerationMapCR3BP(
-                "Sun", "Earth", bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), bodies );
-
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            setupAccelerationMapCR3BP( "Sun", "Earth", bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), bodies );
 
     // Create integrator settings
     const double fixedStepSize = 1000.0;
-    std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
-            std::make_shared < numerical_integrators::IntegratorSettings < > >
-            ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize );
-
+    std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings<> >(
+                    numerical_integrators::rungeKutta4, initialTime, fixedStepSize );
 
     // calculate the difference between CR3BP and full problem
-    Eigen::Vector6d stateDifference = getFinalStateDifferenceFullPropagationWrtCR3BP(
-                initialTime, finalTime, initialState, integratorSettings, accelerationModelMap,
-                bodiesToPropagate, centralBodies,bodies, bodiesCR3BP );
+    Eigen::Vector6d stateDifference = getFinalStateDifferenceFullPropagationWrtCR3BP( initialTime,
+                                                                                      finalTime,
+                                                                                      initialState,
+                                                                                      integratorSettings,
+                                                                                      accelerationModelMap,
+                                                                                      bodiesToPropagate,
+                                                                                      centralBodies,
+                                                                                      bodies,
+                                                                                      bodiesCR3BP );
 
     for( int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( stateDifference( i ) ), 1.0 );
         BOOST_CHECK_SMALL( std::fabs( stateDifference( i + 3 ) ), 1.0E-6 );
     }
-
 }
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

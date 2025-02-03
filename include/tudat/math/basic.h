@@ -27,4 +27,4 @@
 #include "basic/rotationRepresentations.h"
 #include "basic/sphericalHarmonics.h"
 
-#endif // TUDAT_BASIC_H
+#endif  // TUDAT_BASIC_H

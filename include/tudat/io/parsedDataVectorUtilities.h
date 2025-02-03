@@ -31,21 +31,21 @@ namespace parsed_data_vector_utilities
 {
 
 //! Pointer to a field value (string).
-typedef std::shared_ptr< FieldValue >         FieldValuePtr;
+typedef std::shared_ptr< FieldValue > FieldValuePtr;
 
 //! Map containing field value pointers (mapped value), identified by their field type (key
 //! value). Such maps contain the information from one parsed line.
-typedef std::map< FieldType, FieldValuePtr >    ParsedDataLineMap;
+typedef std::map< FieldType, FieldValuePtr > ParsedDataLineMap;
 
 //! Pointer to a parsed data line (see ParsedDataLineMap).
-typedef std::shared_ptr< ParsedDataLineMap >  ParsedDataLineMapPtr;
+typedef std::shared_ptr< ParsedDataLineMap > ParsedDataLineMapPtr;
 
 //! Vector of data map pointers (see ParsedDataLineMapPtr). Each entry of the vector points to
 //! parsed data line.
-typedef std::vector< ParsedDataLineMapPtr >     ParsedDataVector;
+typedef std::vector< ParsedDataLineMapPtr > ParsedDataVector;
 
 //! Pointer to the data map pointer vectors (see ParsedDataVector).
-typedef std::shared_ptr< ParsedDataVector >   ParsedDataVectorPtr;
+typedef std::shared_ptr< ParsedDataVector > ParsedDataVectorPtr;
 
 //! Get the value of a given field from the map containing data.
 /*!
@@ -186,8 +186,8 @@ std::ostream& dump( std::ostream& stream, ParsedDataLineMapPtr data, bool showTr
  */
 std::ostream& dump( std::ostream& stream, ParsedDataVectorPtr data, bool showTransformed );
 
-} // namespace parsed_data_vector_utilities
-} // namespace input_output
-} // namespace tudat
+}  // namespace parsed_data_vector_utilities
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_PARSED_DATA_VECTOR_UTILS_H
+#endif  // TUDAT_PARSED_DATA_VECTOR_UTILS_H

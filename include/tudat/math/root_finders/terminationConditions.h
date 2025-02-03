@@ -26,14 +26,7 @@ namespace tudat
 namespace root_finders
 {
 
-
-enum MaximumIterationHandling
-{
-    accept_result,
-    accept_result_with_warning,
-    throw_exception
-};
-
+enum MaximumIterationHandling { accept_result, accept_result_with_warning, throw_exception };
 
 //! Check if maximum number of iterations specified has been exceeded.
 /*!
@@ -54,22 +47,20 @@ inline bool checkMaximumIterationsExceeded( const unsigned int numberOfIteration
     const bool isMaximumIterationsExceeded = numberOfIterations > maximumNumberOfIterations;
 
     // If exceeded, and flag is set to throw run-time exception, proceed.
-    if ( isMaximumIterationsExceeded )
+    if( isMaximumIterationsExceeded )
     {
-        static std::string errorMessage
-                = "Root-finder did not converge within maximum number of iterations!";
+        static std::string errorMessage = "Root-finder did not converge within maximum number of iterations!";
         switch( maximumIterationHandling )
         {
-        case accept_result:
-            break;
-        case accept_result_with_warning:
-            std::cerr<<errorMessage<<std::endl;
-            break;
-        case throw_exception:
-            throw std::runtime_error( errorMessage );
-            break;
+            case accept_result:
+                break;
+            case accept_result_with_warning:
+                std::cerr << errorMessage << std::endl;
+                break;
+            case throw_exception:
+                throw std::runtime_error( errorMessage );
+                break;
         }
-
     }
 
     // Else, simply return whether maximum number of iterations have been exceeded.
@@ -107,11 +98,8 @@ inline bool checkRootRelativeTolerance( const ScalarType currentRootGuess,
                                         const ScalarType previousRootGuess,
                                         const ScalarType relativeTolerance )
 {
-    return std::fabs( ( currentRootGuess - previousRootGuess )
-                      / currentRootGuess ) < relativeTolerance;
+    return std::fabs( ( currentRootGuess - previousRootGuess ) / currentRootGuess ) < relativeTolerance;
 }
-
-
 
 //! Check termination condition (required maximum absolute value of root function)
 /*!
@@ -121,10 +109,9 @@ inline bool checkRootRelativeTolerance( const ScalarType currentRootGuess,
  * \return Flag indicating if termination condition has been reached.
  */
 template< typename ScalarType = double >
-bool checkRootFunctionValueCondition( const ScalarType currentRootFunctionValue,
-                                      const ScalarType rootToleranceValue )
+bool checkRootFunctionValueCondition( const ScalarType currentRootFunctionValue, const ScalarType rootToleranceValue )
 {
-    return (std::fabs( currentRootFunctionValue ) < rootToleranceValue );
+    return ( std::fabs( currentRootFunctionValue ) < rootToleranceValue );
 }
 
 //! Termination condition base class.
@@ -136,7 +123,6 @@ template< typename ScalarType = double >
 class TerminationCondition
 {
 public:
-
     //! Virtual destructor.
     virtual ~TerminationCondition( ) { }
 
@@ -171,7 +157,6 @@ template< typename ScalarType = double >
 class MaximumIterationsTerminationCondition : public TerminationCondition< ScalarType >
 {
 public:
-
     //! Default constructor, taking maximum number of iterations and run-time exception flag.
     /*!
      * Default constructor, taking a specified maximum number of iterations (default=1000) and a
@@ -180,9 +165,8 @@ public:
      * \param maximumNumberOfIterations Maximum number of iterations (default=1000).
      */
     MaximumIterationsTerminationCondition( const unsigned int maximumNumberOfIterations = 1000,
-                                           const MaximumIterationHandling maximumIterationHandling = throw_exception )
-        : maximumNumberOfIterations_( maximumNumberOfIterations ),
-          maximumIterationHandling_( maximumIterationHandling )
+                                           const MaximumIterationHandling maximumIterationHandling = throw_exception ):
+        maximumNumberOfIterations_( maximumNumberOfIterations ), maximumIterationHandling_( maximumIterationHandling )
     { }
 
     //! Check termination condition (wrapper for checkMaximumIterationsExceeded()-function).
@@ -192,12 +176,10 @@ public:
                                     const ScalarType previousRootFunctionValue,
                                     const unsigned int numberOfIterations )
     {
-        return checkMaximumIterationsExceeded( numberOfIterations, maximumNumberOfIterations_,
-                                               maximumIterationHandling_ );
+        return checkMaximumIterationsExceeded( numberOfIterations, maximumNumberOfIterations_, maximumIterationHandling_ );
     }
 
 private:
-
     //! Maximum number of iterations.
     const unsigned int maximumNumberOfIterations_;
 
@@ -218,7 +200,6 @@ template< typename ScalarType = double >
 class RootAbsoluteToleranceTerminationCondition : public TerminationCondition< ScalarType >
 {
 public:
-
     //! Default constructor, taking root absolute tolerance, maximum number of iterations and
     //! run-time exception flag.
     /*!
@@ -227,9 +208,7 @@ public:
      * thrown if this number is exceeded (default=true).
      * \param anAbsoluteTolerance An absolute tolerance (default=1.0e-15).
      */
-    RootAbsoluteToleranceTerminationCondition( const ScalarType absoluteTolerance = 1.0e-15 )
-        : absoluteTolerance_( absoluteTolerance )
-    { }
+    RootAbsoluteToleranceTerminationCondition( const ScalarType absoluteTolerance = 1.0e-15 ): absoluteTolerance_( absoluteTolerance ) { }
 
     //! Check termination condition (combined abs. tolerance and max. itetations)
     /*!
@@ -250,12 +229,10 @@ public:
                                     const ScalarType previousRootFunctionValue,
                                     const unsigned int numberOfIterations )
     {
-        return checkRootAbsoluteTolerance< ScalarType >(
-                    currentRootGuess, previousRootGuess, absoluteTolerance_ );
+        return checkRootAbsoluteTolerance< ScalarType >( currentRootGuess, previousRootGuess, absoluteTolerance_ );
     }
 
 private:
-
     //! Absolute tolerance.
     const ScalarType absoluteTolerance_;
 };
@@ -273,7 +250,6 @@ template< typename ScalarType = double >
 class RootRelativeToleranceTerminationCondition : public TerminationCondition< ScalarType >
 {
 public:
-
     //! Default constructor, taking root relative tolerance, maximum number of iterations and
     //! run-time exception flag.
     /*!
@@ -282,9 +258,7 @@ public:
      * thrown if this number is exceeded (default=true).
      * \param relativeTolerance A relative tolerance (default=1.0e-12).
      */
-    RootRelativeToleranceTerminationCondition( const ScalarType relativeTolerance = 1.0e-12 )
-        : relativeTolerance_( relativeTolerance )
-    { }
+    RootRelativeToleranceTerminationCondition( const ScalarType relativeTolerance = 1.0e-12 ): relativeTolerance_( relativeTolerance ) { }
 
     //! Check termination condition (combined rel. tolerance and max. itetations)
     /*!
@@ -309,7 +283,6 @@ public:
     }
 
 private:
-
     //! Relative tolerance.
     const ScalarType relativeTolerance_;
 };
@@ -318,10 +291,8 @@ template< typename ScalarType = double >
 class RootFunctionTerminationCondition : public TerminationCondition< ScalarType >
 {
 public:
-
-    RootFunctionTerminationCondition( const ScalarType rootFunctionTolerance = 1.0e-12 )
-        : rootFunctionTolerance_( rootFunctionTolerance )
-    { }
+    RootFunctionTerminationCondition( const ScalarType rootFunctionTolerance = 1.0e-12 ):
+        rootFunctionTolerance_( rootFunctionTolerance ) { }
 
     bool checkTerminationCondition( const ScalarType currentRootGuess,
                                     const ScalarType previousRootGuess,
@@ -333,19 +304,15 @@ public:
     }
 
 private:
-
     const ScalarType rootFunctionTolerance_;
-
 };
 
 template< typename ScalarType = double >
 class CombinedTerminationCondition : public TerminationCondition< ScalarType >
 {
 public:
-
-    CombinedTerminationCondition(
-            const std::vector< std::shared_ptr< TerminationCondition< ScalarType > > > terminationList )
-        : terminationList_( terminationList )
+    CombinedTerminationCondition( const std::vector< std::shared_ptr< TerminationCondition< ScalarType > > > terminationList ):
+        terminationList_( terminationList )
     { }
 
     bool checkTerminationCondition( const ScalarType currentRootGuess,
@@ -358,9 +325,7 @@ public:
         for( unsigned int i = 0; i < terminationList_.size( ); i++ )
         {
             if( terminationList_.at( i )->checkTerminationCondition(
-                        currentRootGuess, previousRootGuess,
-                        currentRootFunctionValue, previousRootFunctionValue,
-                        numberOfIterations ) )
+                        currentRootGuess, previousRootGuess, currentRootFunctionValue, previousRootFunctionValue, numberOfIterations ) )
             {
                 terminate = true;
             }
@@ -369,10 +334,8 @@ public:
     }
 
 private:
-
     std::vector< std::shared_ptr< TerminationCondition< ScalarType > > > terminationList_;
 };
-
 
 template< typename DataType = double >
 std::shared_ptr< TerminationCondition< DataType > > createTerminationCondition(
@@ -384,30 +347,24 @@ std::shared_ptr< TerminationCondition< DataType > > createTerminationCondition(
 {
     std::vector< std::shared_ptr< TerminationCondition< DataType > > > terminationConditionList;
 
-
     terminationConditionList.push_back(
-                std::make_shared< MaximumIterationsTerminationCondition< DataType > >(
-                    maximumNumberOfIterations, maximumIterationHandling ) );
+            std::make_shared< MaximumIterationsTerminationCondition< DataType > >( maximumNumberOfIterations, maximumIterationHandling ) );
 
     if( ( relativeIndependentVariableTolerance == relativeIndependentVariableTolerance ) )
     {
         terminationConditionList.push_back(
-                    std::make_shared< RootRelativeToleranceTerminationCondition< DataType > >(
-                        relativeIndependentVariableTolerance ) );
+                std::make_shared< RootRelativeToleranceTerminationCondition< DataType > >( relativeIndependentVariableTolerance ) );
     }
 
     if( ( absoluteIndependentVariableTolerance == absoluteIndependentVariableTolerance ) )
     {
         terminationConditionList.push_back(
-                    std::make_shared< RootAbsoluteToleranceTerminationCondition< DataType > >(
-                        absoluteIndependentVariableTolerance ) );
+                std::make_shared< RootAbsoluteToleranceTerminationCondition< DataType > >( absoluteIndependentVariableTolerance ) );
     }
 
     if( ( rootFunctionTolerance == rootFunctionTolerance ) )
     {
-        terminationConditionList.push_back(
-                    std::make_shared< RootFunctionTerminationCondition< DataType > >(
-                        rootFunctionTolerance ) );
+        terminationConditionList.push_back( std::make_shared< RootFunctionTerminationCondition< DataType > >( rootFunctionTolerance ) );
     }
 
     if( terminationConditionList.size( ) == 1 )
@@ -416,8 +373,7 @@ std::shared_ptr< TerminationCondition< DataType > > createTerminationCondition(
     }
     else
     {
-        return std::make_shared< CombinedTerminationCondition< DataType > >(
-                    terminationConditionList );
+        return std::make_shared< CombinedTerminationCondition< DataType > >( terminationConditionList );
     }
 }
 
@@ -430,15 +386,19 @@ std::function< bool( DataType, DataType, DataType, DataType, unsigned int ) > cr
         const MaximumIterationHandling maximumIterationHandling = throw_exception )
 {
     return std::bind( &TerminationCondition< DataType >::checkTerminationCondition,
-                      createTerminationCondition< DataType >(
-                          relativeIndependentVariableTolerance, absoluteIndependentVariableTolerance, rootFunctionTolerance,
-                          maximumNumberOfIterations, maximumIterationHandling ),
-                      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
-                      std::placeholders::_4, std::placeholders::_5 );
+                      createTerminationCondition< DataType >( relativeIndependentVariableTolerance,
+                                                              absoluteIndependentVariableTolerance,
+                                                              rootFunctionTolerance,
+                                                              maximumNumberOfIterations,
+                                                              maximumIterationHandling ),
+                      std::placeholders::_1,
+                      std::placeholders::_2,
+                      std::placeholders::_3,
+                      std::placeholders::_4,
+                      std::placeholders::_5 );
 }
 
+}  // namespace root_finders
+}  // namespace tudat
 
-} // namespace root_finders
-} // namespace tudat
-
-#endif // TUDAT_TERMINATION_CONDITIONS_H
+#endif  // TUDAT_TERMINATION_CONDITIONS_H

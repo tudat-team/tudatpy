@@ -20,17 +20,15 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_radiationPressure )
 
 // Test 1: radiation pressure types
 BOOST_AUTO_TEST_CASE( test_json_radiationPressure_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
-                            simulation_setup::radiationPressureTypes,
-                            simulation_setup::unsupportedRadiationPressureTypes );
+    BOOST_CHECK_EQUAL_ENUM(
+            INPUT( "types" ), simulation_setup::radiationPressureTypes, simulation_setup::unsupportedRadiationPressureTypes );
 }
 
 // Test 2: cannon ball radiation pressure
@@ -49,10 +47,8 @@ BOOST_AUTO_TEST_CASE( test_json_radiationPressure_cannonBall )
     const double radiationPressureCoefficient = 1.5;
     const std::vector< std::string > occultingBodies = { "Earth", "Moon" };
     const std::shared_ptr< RadiationPressureInterfaceSettings > manualSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >( sourceBody,
-                                                                                referenceArea,
-                                                                                radiationPressureCoefficient,
-                                                                                occultingBodies );
+            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                    sourceBody, referenceArea, radiationPressureCoefficient, occultingBodies );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -60,6 +56,6 @@ BOOST_AUTO_TEST_CASE( test_json_radiationPressure_cannonBall )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

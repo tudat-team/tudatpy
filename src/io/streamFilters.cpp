@@ -30,7 +30,7 @@ std::string RemoveComment::do_filter( const std::string& line )
 
     // Check if the 'skipCharacter_' is the first character and check if empty lines should be
     // returned.
-    if ( index == 0 && isOmitIfEmpty_ )
+    if( index == 0 && isOmitIfEmpty_ )
     {
         // This prevents newline characters for empty lines.
         return "";
@@ -45,7 +45,7 @@ std::string RemoveComment::do_filter( const std::string& line )
 std::string SkipFirstLines::do_filter( const std::string& line )
 {
     // Check if the required number of lines have already been skipped.
-    if ( numberOfSkippedLines_ >= linesToSkip_ )
+    if( numberOfSkippedLines_ >= linesToSkip_ )
     {
         // We have already skipped enough lines, just return the input.
         return line + traits_type::newline( );
@@ -60,23 +60,19 @@ std::string SkipFirstLines::do_filter( const std::string& line )
 }
 
 //! Create filter with a basic search and replace string.
-ReplaceElements::ReplaceElements( std::string searchFilter, std::string replaceString,
-                                  bool isOmitIfEmpty )
+ReplaceElements::ReplaceElements( std::string searchFilter, std::string replaceString, bool isOmitIfEmpty )
     // line_filter is set to true, to indicate to Boost not to append newline characters.
-    : boost::iostreams::line_filter( true ), 
-      replaceString_( replaceString ), isOmitIfEmpty_( isOmitIfEmpty )
+    : boost::iostreams::line_filter( true ), replaceString_( replaceString ), isOmitIfEmpty_( isOmitIfEmpty )
 {
     // The following are all characters with special meaning in regex, so escape them:
-    std::vector< std::string > replaceCharacters_ =
-    { "\\", ".", "[", "]", "{", "}", "(", ")", "*", "+", "?", "|", "^", "$" };
+    std::vector< std::string > replaceCharacters_ = { "\\", ".", "[", "]", "{", "}", "(", ")", "*", "+", "?", "|", "^", "$" };
 
     // Iterate over each possible character.
-    for ( unsigned int i = 0; i < replaceCharacters_.size( ); i++ )
+    for( unsigned int i = 0; i < replaceCharacters_.size( ); i++ )
     {
         // For each of the special characters, replace it with the escaped '\' version of that
         // character.
-        boost::replace_all( searchFilter, replaceCharacters_[ i ],
-                            "\\" + replaceCharacters_[ i ] );
+        boost::replace_all( searchFilter, replaceCharacters_[ i ], "\\" + replaceCharacters_[ i ] );
     }
 
     // Save the escaped version of the input string as the regex search query.
@@ -90,7 +86,7 @@ std::string ReplaceElements::do_filter( const std::string& line )
     std::string filteredString = boost::regex_replace( line, searchFilter_, replaceString_ );
 
     // Check if filtered string is empty and return empty string if true.
-    if ( filteredString.size( ) == 0 && isOmitIfEmpty_ )
+    if( filteredString.size( ) == 0 && isOmitIfEmpty_ )
     {
         return "";
     }
@@ -101,6 +97,6 @@ std::string ReplaceElements::do_filter( const std::string& line )
     }
 }
 
-} // namespace stream_filters
-} // namespace input_output
-} // namespace tudat
+}  // namespace stream_filters
+}  // namespace input_output
+}  // namespace tudat

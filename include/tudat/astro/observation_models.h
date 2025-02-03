@@ -35,4 +35,4 @@
 #include "observation_models/corrections/atmosphereCorrection.h"
 #include "observation_models/corrections/solarCoronaCorrection.h"
 
-#endif // TUDAT_OBSERVATION_MODELS_H
+#endif  // TUDAT_OBSERVATION_MODELS_H

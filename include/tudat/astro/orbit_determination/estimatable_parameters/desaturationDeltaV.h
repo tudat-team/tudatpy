@@ -26,11 +26,9 @@ namespace estimatable_parameters
  *  Interfaces the estimation with the deltaV values of a momentum wheel desaturation thrust
  *  acceleration object.
  */
-class DesaturationDeltaV: public EstimatableParameter< Eigen::VectorXd >
+class DesaturationDeltaV : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
-
     //! Constructor
     /*!
      *  Constructor
@@ -38,13 +36,11 @@ public:
      *  the deltaV values are a property.
      *  \param associatedBody Name of body undergoing the momentum wheel desaturation acceleration.
      */
-    DesaturationDeltaV(
-            const std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > accelerationModel,
-            const std::string& associatedBody ):
-        EstimatableParameter< Eigen::VectorXd >( desaturation_delta_v_values, associatedBody ),
-        accelerationModel_( accelerationModel )
+    DesaturationDeltaV( const std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > accelerationModel,
+                        const std::string& associatedBody ):
+        EstimatableParameter< Eigen::VectorXd >( desaturation_delta_v_values, associatedBody ), accelerationModel_( accelerationModel )
     {
-        numberOfDeltaVBlocks_  = accelerationModel_->getDeltaVValues( ).size( );
+        numberOfDeltaVBlocks_ = accelerationModel_->getDeltaVValues( ).size( );
     }
 
     //! Destructor.
@@ -62,7 +58,7 @@ public:
 
         for( int i = 0; i < numberOfDeltaVBlocks_; i++ )
         {
-           deltaVVector.segment( i * 3, 3 ) = deltaVList.at( i );
+            deltaVVector.segment( i * 3, 3 ) = deltaVList.at( i );
         }
         return deltaVVector;
     }
@@ -74,7 +70,6 @@ public:
      */
     void setParameterValue( Eigen::VectorXd parameterValue )
     {
-
         std::vector< Eigen::Vector3d > deltaVList;
         for( int i = 0; i < numberOfDeltaVBlocks_; i++ )
         {
@@ -82,7 +77,6 @@ public:
         }
 
         accelerationModel_->setDeltaVValues( deltaVList );
-
     }
 
     //! Function to retrieve the size of the parameter
@@ -97,20 +91,16 @@ public:
     }
 
 protected:
-
 private:
-
     //! Momentum wheel desaturation thrust acceleration.
     const std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > accelerationModel_;
 
     //! Number of momemtum wheel desaturation maneuvers.
     int numberOfDeltaVBlocks_;
-
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_DESATURATIONDELTAV_H
+#endif  // TUDAT_DESATURATIONDELTAV_H

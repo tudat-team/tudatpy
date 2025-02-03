@@ -19,7 +19,6 @@
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
-
 namespace tudat
 {
 namespace electromagnetism
@@ -35,30 +34,29 @@ double computeLuminosityFromIrradiance( const double irradiance, const double di
 class LuminosityModel
 {
 public:
-    LuminosityModel() = default;
+    LuminosityModel( ) = default;
 
-    virtual ~LuminosityModel() = default;
+    virtual ~LuminosityModel( ) = default;
 
     /*!
      * Get the luminosity.
      *
      * @return Luminosity [W]
      */
-    virtual double getLuminosity() const = 0;
+    virtual double getLuminosity( ) const = 0;
 
     /*!
      * Update class members.
      *
      * @param currentTime Current simulation time
      */
-    void updateMembers(double currentTime);
+    void updateMembers( double currentTime );
 
 protected:
-    virtual void updateMembers_(const double currentTime) {};
+    virtual void updateMembers_( const double currentTime ) { };
 
-    double currentTime_{TUDAT_NAN};
+    double currentTime_{ TUDAT_NAN };
 };
-
 
 /*!
  * Class modeling constant luminosity of a radiation source.
@@ -71,9 +69,9 @@ public:
      *
      * @param luminosity Constant luminosity of the source [W]
      */
-    explicit ConstantLuminosityModel(double luminosity) : luminosity_(luminosity) {}
+    explicit ConstantLuminosityModel( double luminosity ): luminosity_( luminosity ) { }
 
-    double getLuminosity() const override
+    double getLuminosity( ) const override
     {
         return luminosity_;
     }
@@ -91,17 +89,17 @@ public:
      *
      * @param luminosity Constant luminosity of the source [W]
      */
-    explicit VariableLuminosityModel( const std::function< double( const double ) > luminosityFunction ) :
-        luminosityFunction_( luminosityFunction ), luminosity_( TUDAT_NAN ) {}
+    explicit VariableLuminosityModel( const std::function< double( const double ) > luminosityFunction ):
+        luminosityFunction_( luminosityFunction ), luminosity_( TUDAT_NAN )
+    { }
 
-    double getLuminosity() const override
+    double getLuminosity( ) const override
     {
         return luminosity_;
     }
 
 private:
-
-    virtual void updateMembers_(const double currentTime)  override
+    virtual void updateMembers_( const double currentTime ) override
     {
         luminosity_ = luminosityFunction_( currentTime );
     }
@@ -112,8 +110,7 @@ private:
     double luminosity_;
 };
 
+}  // namespace electromagnetism
+}  // namespace tudat
 
-} // tudat
-} // electromagnetism
-
-#endif //TUDAT_LUMINOSITYMODEL_H
+#endif  // TUDAT_LUMINOSITYMODEL_H

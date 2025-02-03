@@ -19,24 +19,24 @@ namespace input_output
 {
 
 //! Default constructor.
-FixedWidthParser::FixedWidthParser( int numberOfFields, ... ) : TextParser( false ), doTrim( true )
+FixedWidthParser::FixedWidthParser( int numberOfFields, ... ): TextParser( false ), doTrim( true )
 {
     numberOfFields_ = numberOfFields;
 
     // Create a fancy vector (list) of all the fields:
     // Define argument list variable.
-    va_list        listOfArguments;
+    va_list listOfArguments;
 
     // Initialize list. Point to last defined argument.
     va_start( listOfArguments, numberOfFields );
 
-    for ( unsigned int i=0; i < numberOfFields_; i++ )
+    for( unsigned int i = 0; i < numberOfFields_; i++ )
     {
         // Populate typeList with arguments from constructor.
-        typeList.push_back( va_arg(listOfArguments, FieldType ) );
+        typeList.push_back( va_arg( listOfArguments, FieldType ) );
     }
 
-    for ( unsigned int i=0; i < numberOfFields_; i++ )
+    for( unsigned int i = 0; i < numberOfFields_; i++ )
     {
         // Populate sizeList with arguments from constructor.
         sizeList.push_back( va_arg( listOfArguments, int ) );
@@ -69,34 +69,32 @@ void FixedWidthParser::parseLine( std::string& line )
     // Start index of current field in the line.
     int currentFieldIndex = 0;
 
-    for ( int unsigned currentFieldNumber = 0; currentFieldNumber < numberOfFields_;
-          currentFieldNumber++ )
+    for( int unsigned currentFieldNumber = 0; currentFieldNumber < numberOfFields_; currentFieldNumber++ )
     {
         // Generate string of the field.
-        temp = line.substr( currentFieldIndex, sizeList[currentFieldNumber] );
+        temp = line.substr( currentFieldIndex, sizeList[ currentFieldNumber ] );
 
         // If we need to trim whitespace, do so
-        if ( doTrim )
+        if( doTrim )
         {
             boost::trim( temp );
         }
 
         // Copy field value.
-        vectorOfIndividualStrings_[currentFieldNumber] = temp;
+        vectorOfIndividualStrings_[ currentFieldNumber ] = temp;
 
         // Increase current field index to index of next field.
-        currentFieldIndex += sizeList[currentFieldNumber];
+        currentFieldIndex += sizeList[ currentFieldNumber ];
 
         // Clear temporary string.
         temp.clear( );
     }
 
     // Verify that number of individual vectors corresponds to the specified number of fields.
-    if ( vectorOfIndividualStrings_.size( ) != numberOfFields_ )
+    if( vectorOfIndividualStrings_.size( ) != numberOfFields_ )
     {
         std::cerr << "Number of elements in the line (" << vectorOfIndividualStrings_.size( )
-        << ") does not match the specified number of fields (" << numberOfFields_ << ")"
-        << std::endl;
+                  << ") does not match the specified number of fields (" << numberOfFields_ << ")" << std::endl;
     }
 
     // Create a new data line.
@@ -105,18 +103,17 @@ void FixedWidthParser::parseLine( std::string& line )
     // Register the data line with the global current parsed data vector.
     parsedData->push_back( currentLineData );
 
-    //Loop over all field type and field value pairs
-    for ( int unsigned currentFieldNumber = 0; currentFieldNumber < numberOfFields_;
-          currentFieldNumber++ )
+    // Loop over all field type and field value pairs
+    for( int unsigned currentFieldNumber = 0; currentFieldNumber < numberOfFields_; currentFieldNumber++ )
     {
         // Get the corresponding field type
-        FieldType type ( typeList.at( currentFieldNumber ) );
+        FieldType type( typeList.at( currentFieldNumber ) );
 
         // Define unit transformer
         std::shared_ptr< FieldTransform > transformer;
 
         // If type corresponds to one of the entries of the unit transformation map
-        if ( unitTransformationMap_.find( type ) != unitTransformationMap_.end( ) )
+        if( unitTransformationMap_.find( type ) != unitTransformationMap_.end( ) )
         {
             // Set corresponding transformer
             transformer = unitTransformationMap_.find( type )->second;
@@ -129,14 +126,12 @@ void FixedWidthParser::parseLine( std::string& line )
         }
 
         // Store the resulting string.
-        FieldValuePtr value( new FieldValue( type,
-                                             vectorOfIndividualStrings_.at( currentFieldNumber ),
-                                             transformer ) );
+        FieldValuePtr value( new FieldValue( type, vectorOfIndividualStrings_.at( currentFieldNumber ), transformer ) );
 
         // Store the type and value in the current line data.
         currentLineData->insert( FieldDataPair( type, value ) );
     }
 }
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat

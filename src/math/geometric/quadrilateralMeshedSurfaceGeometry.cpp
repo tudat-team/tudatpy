@@ -35,9 +35,9 @@ namespace geometric_shapes
 void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
 {
     // Allocate memory for panel properties.
-    panelCentroids_.resize(boost::extents[ numberOfLines_ - 1 ][ numberOfPoints_ - 1 ]);
-    panelSurfaceNormals_.resize(boost::extents[ numberOfLines_ - 1 ][ numberOfPoints_ - 1 ]);
-    panelAreas_.resize(boost::extents[ numberOfLines_ - 1 ][ numberOfPoints_ - 1 ]);
+    panelCentroids_.resize( boost::extents[ numberOfLines_ - 1 ][ numberOfPoints_ - 1 ] );
+    panelSurfaceNormals_.resize( boost::extents[ numberOfLines_ - 1 ][ numberOfPoints_ - 1 ] );
+    panelAreas_.resize( boost::extents[ numberOfLines_ - 1 ][ numberOfPoints_ - 1 ] );
 
     // Declare local variables for normal and area determination.
     Eigen::Vector3d crossVector1;
@@ -47,15 +47,13 @@ void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
     totalArea_ = 0.0;
 
     // Loop over all panels to determine properties.
-    for ( int i = 0; i < numberOfLines_ - 1; i++ )
+    for( int i = 0; i < numberOfLines_ - 1; i++ )
     {
-        for ( int j = 0; j < numberOfPoints_ - 1; j++ )
+        for( int j = 0; j < numberOfPoints_ - 1; j++ )
         {
             // Set panel centroid.
-            panelCentroids_[ i ][ j ] = ( meshPoints_[ i ][ j ] +
-                                          meshPoints_[ i + 1 ][ j ] +
-                                          meshPoints_[ i ][ j + 1 ] +
-                                          meshPoints_[ i + 1 ][ j + 1 ] ) / 4;
+            panelCentroids_[ i ][ j ] =
+                    ( meshPoints_[ i ][ j ] + meshPoints_[ i + 1 ][ j ] + meshPoints_[ i ][ j + 1 ] + meshPoints_[ i + 1 ][ j + 1 ] ) / 4;
 
             // Set panel cross vectors.
             crossVector1 = meshPoints_[ i + 1 ][ j + 1 ] - meshPoints_[ i ][ j ];
@@ -66,10 +64,9 @@ void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
 
             // Set panel area (not yet correct size).
             panelAreas_[ i ][ j ] = panelSurfaceNormals_[ i ][ j ].norm( );
-            if ( panelAreas_[ i ][ j ] < std::numeric_limits< double >::epsilon( ) )
+            if( panelAreas_[ i ][ j ] < std::numeric_limits< double >::epsilon( ) )
             {
-                std::cerr << "Warning, panel area is zero in part at panel" << i
-                          << ", " << j << std::endl;
+                std::cerr << "Warning, panel area is zero in part at panel" << i << ", " << j << std::endl;
             }
 
             // Normalize panel normal and, if necessary, invert normal direction.
@@ -88,7 +85,7 @@ void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
 //! Set reversal operator.
 void QuadrilateralMeshedSurfaceGeometry::setReversalOperator( const bool isMeshInverted )
 {
-    if ( isMeshInverted == 0 )
+    if( isMeshInverted == 0 )
     {
         reversalOperator_ = 1;
     }
@@ -103,7 +100,7 @@ void QuadrilateralMeshedSurfaceGeometry::setReversalOperator( const bool isMeshI
 bool QuadrilateralMeshedSurfaceGeometry::getReversalOperator( )
 {
     bool isMeshInverted;
-    if ( reversalOperator_ == 1 )
+    if( reversalOperator_ == 1 )
     {
         isMeshInverted = 0;
     }
@@ -117,19 +114,16 @@ bool QuadrilateralMeshedSurfaceGeometry::getReversalOperator( )
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator << ( std::ostream& stream,
-                          QuadrilateralMeshedSurfaceGeometry& quadrilateralMeshedSurfaceGeometry )
+std::ostream& operator<<( std::ostream& stream, QuadrilateralMeshedSurfaceGeometry& quadrilateralMeshedSurfaceGeometry )
 {
     stream << "This is a quadrilateral meshed surface geometry"
            << " of a single part." << std::endl;
-    stream << "The number of lines ( contours ) is: "
-           << quadrilateralMeshedSurfaceGeometry.numberOfLines_ << std::endl;
-    stream << "The number of points per line is: "
-           << quadrilateralMeshedSurfaceGeometry.numberOfPoints_ << std::endl;
+    stream << "The number of lines ( contours ) is: " << quadrilateralMeshedSurfaceGeometry.numberOfLines_ << std::endl;
+    stream << "The number of points per line is: " << quadrilateralMeshedSurfaceGeometry.numberOfPoints_ << std::endl;
 
     // Return stream.
     return stream;
 }
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat

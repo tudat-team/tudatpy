@@ -16,7 +16,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/simulation/estimation.h"
 
 namespace tudat
@@ -49,7 +48,7 @@ double ignoreInputeVariable( std::function< double( ) > inputFreeFunction, const
 //! Test whether observation noise is correctly added when simulating noisy observations
 BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 {
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation
@@ -62,18 +61,15 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     double finalEphemerisTime = double( 1.0E7 + 3.0 * physical_constants::JULIAN_DAY );
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0, finalEphemerisTime + 3600.0 );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0, finalEphemerisTime + 3600.0 );
     bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
-                "ECLIPJ2000", "IAU_Earth",
-                spice_interface::computeRotationQuaternionBetweenFrames(
-                    "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
-                initialEphemerisTime, 2.0 * mathematical_constants::PI /
-                ( physical_constants::JULIAN_DAY ) );
+            "ECLIPJ2000",
+            "IAU_Earth",
+            spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+            initialEphemerisTime,
+            2.0 * mathematical_constants::PI / ( physical_constants::JULIAN_DAY ) );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-
-    
 
     // Creatre ground stations: same position, but different representation
     std::vector< std::string > groundStationNames;
@@ -121,7 +117,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     // Define observation settings for each observable/link ends combination
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
-         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
+         linkEndIterator != linkEndsPerObservable.end( );
+         linkEndIterator++ )
     {
         ObservableType currentObservable = linkEndIterator->first;
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
@@ -132,25 +129,21 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             std::shared_ptr< ObservationBiasSettings > biasSettings;
             if( ( currentObservable == one_way_range ) && ( i == 0 ) )
             {
-                biasSettings = std::make_shared< ConstantObservationBiasSettings >(
-                            Eigen::Vector1d::Constant( rangeBias1 ), false );
+                biasSettings = std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d::Constant( rangeBias1 ), false );
             }
             else if( ( currentObservable == one_way_range ) && ( i == 1 ) )
             {
-                biasSettings = std::make_shared< ConstantObservationBiasSettings >(
-                            Eigen::Vector1d::Constant( rangeBias2 ), false );
+                biasSettings = std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d::Constant( rangeBias2 ), false );
             }
 
             // Create observation settings
             observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
-                                                   currentObservable, currentLinkEndsList.at( i ),
-                                                   std::shared_ptr< LightTimeCorrectionSettings >( ),
-                                                   biasSettings ) );
+                    currentObservable, currentLinkEndsList.at( i ), std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ) );
         }
     }
 
     // Create observation simulators
-    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
+    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
             createObservationSimulators( observationSettingsList, bodies );
 
     // Define osbervation times. NOTE: These times are not checked w.r.t. visibility and are used for testing purposes only.
@@ -172,21 +165,21 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     // Define observation simulation settings (observation type, link end, times and reference link end)
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
-         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
+         linkEndIterator != linkEndsPerObservable.end( );
+         linkEndIterator++ )
     {
         ObservableType currentObservable = linkEndIterator->first;
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
-            measurementSimulationInput.push_back(
-                        std::make_shared< TabulatedObservationSimulationSettings< > >(
-                            currentObservable, currentLinkEndsList.at( i ), baseTimeList, receiver ) );
+            measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings<> >(
+                    currentObservable, currentLinkEndsList.at( i ), baseTimeList, receiver ) );
         }
     }
 
     // Simulate noise-free observations
-    std::shared_ptr< ObservationCollection< > > idealObservationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, observationSimulators, bodies );
+    std::shared_ptr< ObservationCollection<> > idealObservationsAndTimes =
+            simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< double > > > observationDifference;
     std::map< ObservableType, std::map< LinkEnds, double > > meanObservationDifference;
@@ -200,18 +193,19 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
         // Create noise function
         std::function< double( ) > inputFreeNoiseFunction = createBoostContinuousRandomVariableGeneratorFunction(
-                    normal_boost_distribution, { constantOffset, constantStandardDeviation }, 0.0 );
+                normal_boost_distribution, { constantOffset, constantStandardDeviation }, 0.0 );
         std::function< double( const double ) > noiseFunction =
                 std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
-                           inputFreeNoiseFunction, std::placeholders::_1 );
+                           inputFreeNoiseFunction,
+                           std::placeholders::_1 );
 
         // Simulate noisy observables
         addNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, noiseFunction );
-        std::shared_ptr< ObservationCollection< > > constantNoiseObservationsAndTimes = simulateObservations< double, double >(
-                    measurementSimulationInput, observationSimulators, bodies );
+        std::shared_ptr< ObservationCollection<> > constantNoiseObservationsAndTimes =
+                simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
 
         // Compare ideal and noise observations for each combination of observable/link ends
-        for( auto observableIterator : linkEndsPerObservable )
+        for( auto observableIterator: linkEndsPerObservable )
         {
             ObservableType currentObservable = observableIterator.first;
             std::vector< LinkEnds > linkEndsList = observableIterator.second;
@@ -221,186 +215,171 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
                 // Compute mean and standard deviation of difference bewteen noisy and ideal observations.
                 Eigen::VectorXd dataDifference =
-                        constantNoiseObservationsAndTimes->getSingleLinkObservations(
-                            currentObservable, currentLinkEnds ) -
-                        idealObservationsAndTimes->getSingleLinkObservations(
-                            currentObservable, currentLinkEnds );
+                        constantNoiseObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds ) -
+                        idealObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds );
 
-                meanObservationDifference[ currentObservable ][ currentLinkEnds] =
-                        computeAverageOfVectorComponents( dataDifference );
-                standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds] =
+                meanObservationDifference[ currentObservable ][ currentLinkEnds ] = computeAverageOfVectorComponents( dataDifference );
+                standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds ] =
                         computeStandardDeviationOfVectorComponents( dataDifference );
 
                 // Compare with imposed mean and standard deviation of noise.
+                BOOST_CHECK_CLOSE_FRACTION( meanObservationDifference[ currentObservable ][ currentLinkEnds ], constantOffset, 1.0E-2 );
                 BOOST_CHECK_CLOSE_FRACTION(
-                            meanObservationDifference[ currentObservable ][ currentLinkEnds],
-                            constantOffset, 1.0E-2 );
-                BOOST_CHECK_CLOSE_FRACTION(
-                            standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds],
-                            constantStandardDeviation, 1.0E-2 );
+                        standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds ], constantStandardDeviation, 1.0E-2 );
             }
         }
     }
 
-        // Test noise simulation, with difference distribution for each observable.
+    // Test noise simulation, with difference distribution for each observable.
+    {
+        // Define (arbitrary) noise properties for observables
+        std::map< ObservableType, double > constantOffsets;
+        constantOffsets[ one_way_range ] = -200.0;
+        constantOffsets[ one_way_doppler ] = -2.8E3;
+        constantOffsets[ angular_position ] = 3.0E-4;
+
+        std::map< ObservableType, double > constantStandardDeviations;
+        constantStandardDeviations[ one_way_range ] = 2.4;
+        constantStandardDeviations[ one_way_doppler ] = 7.5;
+        constantStandardDeviations[ angular_position ] = 6.3E-6;
+
+        clearNoiseFunctionFromObservationSimulationSettings( measurementSimulationInput );
+        // Create noise function for each observable
+        std::map< ObservableType, std::function< double( const double ) > > noiseFunctionPerObservable;
+        for( std::map< ObservableType, double >::const_iterator typeIterator = constantOffsets.begin( );
+             typeIterator != constantOffsets.end( );
+             typeIterator++ )
         {
+            std::function< double( const double ) > noiseFunction =
+                    std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
+                               createBoostContinuousRandomVariableGeneratorFunction(
+                                       normal_boost_distribution,
+                                       { constantOffsets.at( typeIterator->first ), constantStandardDeviations.at( typeIterator->first ) },
+                                       0.0 ),
+                               std::placeholders::_1 );
 
-            // Define (arbitrary) noise properties for observables
-            std::map< ObservableType, double > constantOffsets;
-            constantOffsets[ one_way_range ] = -200.0;
-            constantOffsets[ one_way_doppler ] = -2.8E3;
-            constantOffsets[ angular_position ] = 3.0E-4;
-
-            std::map< ObservableType, double > constantStandardDeviations;
-            constantStandardDeviations[ one_way_range ] = 2.4;
-            constantStandardDeviations[ one_way_doppler ] = 7.5;
-            constantStandardDeviations[ angular_position ] = 6.3E-6;
-
-            clearNoiseFunctionFromObservationSimulationSettings( measurementSimulationInput );
-            // Create noise function for each observable
-            std::map< ObservableType, std::function< double( const double ) > > noiseFunctionPerObservable;
-            for( std::map< ObservableType, double >::const_iterator typeIterator = constantOffsets.begin( );
-                 typeIterator != constantOffsets.end( ); typeIterator++ )
-            {
-                std::function< double( const double ) > noiseFunction =  std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
-                                                 createBoostContinuousRandomVariableGeneratorFunction(
-                                                     normal_boost_distribution,
-                { constantOffsets.at( typeIterator->first ), constantStandardDeviations.at( typeIterator->first ) },
-                                                     0.0 ), std::placeholders::_1 );
-
-                addNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, noiseFunction, typeIterator->first );
-
-            }
-
-            // Simulate noisy observables
-            std::shared_ptr< ObservationCollection< > > noisyPerObservableObservationsAndTimes = simulateObservations< double, double >(
-                        measurementSimulationInput, observationSimulators, bodies );
-
-            // Compare ideal and noise observations for each combination of observable/link ends
-            for( auto observableIterator : linkEndsPerObservable )
-            {
-                ObservableType currentObservable = observableIterator.first;
-                std::vector< LinkEnds > linkEndsList = observableIterator.second;
-                        for( unsigned int k = 0; k < linkEndsList.size( ); k++ )
-                {
-                    LinkEnds currentLinkEnds = linkEndsList.at( k );
-
-                    // Compute mean and standard deviation of difference bewteen noisy and ideal observations.
-                    Eigen::VectorXd dataDifference =
-                            noisyPerObservableObservationsAndTimes->getSingleLinkObservations(
-                                currentObservable, currentLinkEnds ) -
-                            idealObservationsAndTimes->getSingleLinkObservations(
-                                currentObservable, currentLinkEnds );
-
-                    meanObservationDifference[ currentObservable ][ currentLinkEnds] =
-                            computeAverageOfVectorComponents( dataDifference );
-                    standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds] =
-                            computeStandardDeviationOfVectorComponents( dataDifference );
-
-                    // Compare with imposed mean and standard deviation of noise.
-                    BOOST_CHECK_CLOSE_FRACTION(
-                                meanObservationDifference[ currentObservable ][ currentLinkEnds],
-                                constantOffsets[ currentObservable ], 1.0E-2 );
-                    BOOST_CHECK_CLOSE_FRACTION(
-                                standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds],
-                                constantStandardDeviations[ currentObservable ], 1.0E-2 );
-                }
-            }
-
+            addNoiseFunctionToObservationSimulationSettings( measurementSimulationInput, noiseFunction, typeIterator->first );
         }
 
-        // Test noise simulation, with difference distribution for each observable and set of link ends.
+        // Simulate noisy observables
+        std::shared_ptr< ObservationCollection<> > noisyPerObservableObservationsAndTimes =
+                simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+
+        // Compare ideal and noise observations for each combination of observable/link ends
+        for( auto observableIterator: linkEndsPerObservable )
         {
-
-            // Define (arbitrary) noise properties for observable, per link ends
-            std::map< ObservableType, std::map< LinkEnds, double > > constantOffsetsPerStation;
-            constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 0 ) ] = 2.4;
-            constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 1 ) ] = -65.3;
-            constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 2 ) ] = 54.1;
-
-            constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 4.3E2;
-            constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = -3.4E3;
-
-            constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 5.3E-7;
-            constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 3.33E-6;
-
-            std::map< ObservableType, std::map< LinkEnds, double > > constantStandardDeviationsStation;
-            constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 0 ) ] = 0.65;
-            constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 1 ) ] = 1.34;
-            constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 2 ) ] = 4.33;
-
-            constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 2.6;
-            constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = 2.2;
-
-            constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 1.2E-12;
-            constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 4.3E-10;
-
-            clearNoiseFunctionFromObservationSimulationSettings( measurementSimulationInput );
-
-            // Create noise function for each observable and link ends combination
-            std::map< ObservableType, std::function< double( const double ) > > noiseFunctionPerObservable;
-            std::map< ObservableType, std::map< LinkEnds, std::function< double( const double ) > > > noiseFunctionPerLinkEnd;
-            for( std::map< ObservableType, std::map< LinkEnds, double > >::const_iterator
-                 typeIterator = constantOffsetsPerStation.begin( );
-                 typeIterator != constantOffsetsPerStation.end( );
-                 typeIterator++ )
+            ObservableType currentObservable = observableIterator.first;
+            std::vector< LinkEnds > linkEndsList = observableIterator.second;
+            for( unsigned int k = 0; k < linkEndsList.size( ); k++ )
             {
-                for( std::map< LinkEnds, double >::const_iterator linkEndIterator = typeIterator->second.begin( );
-                     linkEndIterator != typeIterator->second.end( ); linkEndIterator++ )
-                {
-                    std::function< double( const double ) > noiseFunction =
-                            std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
-                                       createBoostContinuousRandomVariableGeneratorFunction(
+                LinkEnds currentLinkEnds = linkEndsList.at( k );
+
+                // Compute mean and standard deviation of difference bewteen noisy and ideal observations.
+                Eigen::VectorXd dataDifference =
+                        noisyPerObservableObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds ) -
+                        idealObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds );
+
+                meanObservationDifference[ currentObservable ][ currentLinkEnds ] = computeAverageOfVectorComponents( dataDifference );
+                standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds ] =
+                        computeStandardDeviationOfVectorComponents( dataDifference );
+
+                // Compare with imposed mean and standard deviation of noise.
+                BOOST_CHECK_CLOSE_FRACTION(
+                        meanObservationDifference[ currentObservable ][ currentLinkEnds ], constantOffsets[ currentObservable ], 1.0E-2 );
+                BOOST_CHECK_CLOSE_FRACTION( standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds ],
+                                            constantStandardDeviations[ currentObservable ],
+                                            1.0E-2 );
+            }
+        }
+    }
+
+    // Test noise simulation, with difference distribution for each observable and set of link ends.
+    {
+        // Define (arbitrary) noise properties for observable, per link ends
+        std::map< ObservableType, std::map< LinkEnds, double > > constantOffsetsPerStation;
+        constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 0 ) ] = 2.4;
+        constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 1 ) ] = -65.3;
+        constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 2 ) ] = 54.1;
+
+        constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 4.3E2;
+        constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = -3.4E3;
+
+        constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 5.3E-7;
+        constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 3.33E-6;
+
+        std::map< ObservableType, std::map< LinkEnds, double > > constantStandardDeviationsStation;
+        constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 0 ) ] = 0.65;
+        constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 1 ) ] = 1.34;
+        constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 2 ) ] = 4.33;
+
+        constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 2.6;
+        constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = 2.2;
+
+        constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 1.2E-12;
+        constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 4.3E-10;
+
+        clearNoiseFunctionFromObservationSimulationSettings( measurementSimulationInput );
+
+        // Create noise function for each observable and link ends combination
+        std::map< ObservableType, std::function< double( const double ) > > noiseFunctionPerObservable;
+        std::map< ObservableType, std::map< LinkEnds, std::function< double( const double ) > > > noiseFunctionPerLinkEnd;
+        for( std::map< ObservableType, std::map< LinkEnds, double > >::const_iterator typeIterator = constantOffsetsPerStation.begin( );
+             typeIterator != constantOffsetsPerStation.end( );
+             typeIterator++ )
+        {
+            for( std::map< LinkEnds, double >::const_iterator linkEndIterator = typeIterator->second.begin( );
+                 linkEndIterator != typeIterator->second.end( );
+                 linkEndIterator++ )
+            {
+                std::function< double( const double ) > noiseFunction =
+                        std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
+                                   createBoostContinuousRandomVariableGeneratorFunction(
                                            normal_boost_distribution,
-                    { constantOffsetsPerStation.at( typeIterator->first ).at( linkEndIterator->first ), constantStandardDeviationsStation.at( typeIterator->first ).at( linkEndIterator->first ) },
-                                           0.0 ), std::placeholders::_1 );
+                                           { constantOffsetsPerStation.at( typeIterator->first ).at( linkEndIterator->first ),
+                                             constantStandardDeviationsStation.at( typeIterator->first ).at( linkEndIterator->first ) },
+                                           0.0 ),
+                                   std::placeholders::_1 );
 
-                    addNoiseFunctionToObservationSimulationSettings(
-                                measurementSimulationInput, noiseFunction, typeIterator->first, linkEndIterator->first );
-
-                }
-            }
-
-            // Simulate noisy observables
-            std::shared_ptr< ObservationCollection< > > noisyPerObservableAndLinkEndsObservationsAndTimes =
-                    simulateObservations< double, double >(
-                        measurementSimulationInput, observationSimulators, bodies );
-
-            // Compare ideal and noise observations for each combination of observable/link ends
-            for( auto observableIterator : linkEndsPerObservable )
-            {
-                ObservableType currentObservable = observableIterator.first;
-                std::vector< LinkEnds > linkEndsList = observableIterator.second;
-                        for( unsigned int k = 0; k < linkEndsList.size( ); k++ )
-                {
-                    LinkEnds currentLinkEnds = linkEndsList.at( k );
-
-                    // Compute mean and standard deviation of difference bewteen noisy and ideal observations.
-                    Eigen::VectorXd dataDifference =
-                            noisyPerObservableAndLinkEndsObservationsAndTimes->getSingleLinkObservations(
-                                currentObservable, currentLinkEnds ) -
-                            idealObservationsAndTimes->getSingleLinkObservations(
-                                currentObservable, currentLinkEnds );
-                    meanObservationDifference[ currentObservable ][ currentLinkEnds] =
-                            computeAverageOfVectorComponents( dataDifference );
-                    standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds] =
-                            computeStandardDeviationOfVectorComponents( dataDifference );
-
-                    // Compare with imposed mean and standard deviation of noise.
-                    BOOST_CHECK_CLOSE_FRACTION(
-                                meanObservationDifference[ currentObservable ][ currentLinkEnds],
-                                constantOffsetsPerStation[ currentObservable ][ currentLinkEnds], 1.0E-2 );
-                    BOOST_CHECK_CLOSE_FRACTION(
-                                standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds],
-                                constantStandardDeviationsStation[ currentObservable ][ currentLinkEnds], 1.0E-2 );
-                }
+                addNoiseFunctionToObservationSimulationSettings(
+                        measurementSimulationInput, noiseFunction, typeIterator->first, linkEndIterator->first );
             }
         }
+
+        // Simulate noisy observables
+        std::shared_ptr< ObservationCollection<> > noisyPerObservableAndLinkEndsObservationsAndTimes =
+                simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
+
+        // Compare ideal and noise observations for each combination of observable/link ends
+        for( auto observableIterator: linkEndsPerObservable )
+        {
+            ObservableType currentObservable = observableIterator.first;
+            std::vector< LinkEnds > linkEndsList = observableIterator.second;
+            for( unsigned int k = 0; k < linkEndsList.size( ); k++ )
+            {
+                LinkEnds currentLinkEnds = linkEndsList.at( k );
+
+                // Compute mean and standard deviation of difference bewteen noisy and ideal observations.
+                Eigen::VectorXd dataDifference =
+                        noisyPerObservableAndLinkEndsObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds ) -
+                        idealObservationsAndTimes->getSingleLinkObservations( currentObservable, currentLinkEnds );
+                meanObservationDifference[ currentObservable ][ currentLinkEnds ] = computeAverageOfVectorComponents( dataDifference );
+                standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds ] =
+                        computeStandardDeviationOfVectorComponents( dataDifference );
+
+                // Compare with imposed mean and standard deviation of noise.
+                BOOST_CHECK_CLOSE_FRACTION( meanObservationDifference[ currentObservable ][ currentLinkEnds ],
+                                            constantOffsetsPerStation[ currentObservable ][ currentLinkEnds ],
+                                            1.0E-2 );
+                BOOST_CHECK_CLOSE_FRACTION( standardDeviationObservationDifference[ currentObservable ][ currentLinkEnds ],
+                                            constantStandardDeviationsStation[ currentObservable ][ currentLinkEnds ],
+                                            1.0E-2 );
+            }
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
+}  // namespace tudat

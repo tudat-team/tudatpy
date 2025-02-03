@@ -22,7 +22,7 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `GravityFieldVariationSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GravityFieldVariationSettings >& variationSettings )
 {
-    if ( ! variationSettings )
+    if( !variationSettings )
     {
         return;
     }
@@ -34,30 +34,28 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GravityFieldVar
     jsonObject[ K::bodyDeformationType ] = bodyDeformationType;
     jsonObject[ K::modelInterpolation ] = variationSettings->getInterpolatorSettings( );
 
-    switch ( bodyDeformationType )
+    switch( bodyDeformationType )
     {
-    case basic_solid_body:
-    {
-        std::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > basicSolidBodySettings =
-                std::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >( variationSettings );
-        assertNonnullptrPointer( basicSolidBodySettings );
-        jsonObject[ K::deformingBodies ] = basicSolidBodySettings->getDeformingBodies( );
-        jsonObject[ K::loveNumbers ] = basicSolidBodySettings->getLoveNumbers( );
-        return;
-    }
-    case tabulated_variation:
-    {
-        std::shared_ptr< TabulatedGravityFieldVariationSettings > tabulatedSettings =
-                std::dynamic_pointer_cast< TabulatedGravityFieldVariationSettings >( variationSettings );
-        assertNonnullptrPointer( tabulatedSettings );
-        jsonObject[ K::cosineCoefficientCorrections ] = tabulatedSettings->getCosineCoefficientCorrections( );
-        jsonObject[ K::sineCoefficientCorrections ] = tabulatedSettings->getSineCoefficientCorrections( );
-        jsonObject[ K::minimumDegree ] = tabulatedSettings->getMinimumDegree( );
-        jsonObject[ K::minimumOrder ] = tabulatedSettings->getMinimumOrder( );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( bodyDeformationType, bodyDeformationTypes, unsupportedBodyDeformationTypes );
+        case basic_solid_body: {
+            std::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > basicSolidBodySettings =
+                    std::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >( variationSettings );
+            assertNonnullptrPointer( basicSolidBodySettings );
+            jsonObject[ K::deformingBodies ] = basicSolidBodySettings->getDeformingBodies( );
+            jsonObject[ K::loveNumbers ] = basicSolidBodySettings->getLoveNumbers( );
+            return;
+        }
+        case tabulated_variation: {
+            std::shared_ptr< TabulatedGravityFieldVariationSettings > tabulatedSettings =
+                    std::dynamic_pointer_cast< TabulatedGravityFieldVariationSettings >( variationSettings );
+            assertNonnullptrPointer( tabulatedSettings );
+            jsonObject[ K::cosineCoefficientCorrections ] = tabulatedSettings->getCosineCoefficientCorrections( );
+            jsonObject[ K::sineCoefficientCorrections ] = tabulatedSettings->getSineCoefficientCorrections( );
+            jsonObject[ K::minimumDegree ] = tabulatedSettings->getMinimumDegree( );
+            jsonObject[ K::minimumOrder ] = tabulatedSettings->getMinimumOrder( );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( bodyDeformationType, bodyDeformationTypes, unsupportedBodyDeformationTypes );
     }
 }
 
@@ -70,33 +68,32 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GravityFieldV
     using K = Keys::Body::GravityFieldVariation;
 
     // Body deformation type
-    const BodyDeformationTypes bodyDeformationType =
-            getValue< BodyDeformationTypes >( jsonObject, K::bodyDeformationType );
+    const BodyDeformationTypes bodyDeformationType = getValue< BodyDeformationTypes >( jsonObject, K::bodyDeformationType );
 
-    switch ( bodyDeformationType ) {
-    case basic_solid_body:
+    switch( bodyDeformationType )
     {
-        throw std::runtime_error( "Error, BasicSolidBodyGravityFieldVariationSettings not yet enabled in JSON interface." );
-//        BasicSolidBodyGravityFieldVariationSettings defaults( { }, { } );
-//        variationSettings = std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-//                    getValue< std::vector< std::string > >( jsonObject, K::deformingBodies ),
-//                    getValue< std::vector< std::vector< std::complex< double > > > >( jsonObject, K::loveNumbers ),
-//                    getValue( jsonObject, K::modelInterpolation, defaults.getInterpolatorSettings( ) ) );
-        return;
-    }
-    case tabulated_variation:
-        variationSettings = std::make_shared< TabulatedGravityFieldVariationSettings >(
+        case basic_solid_body: {
+            throw std::runtime_error( "Error, BasicSolidBodyGravityFieldVariationSettings not yet enabled in JSON interface." );
+            //        BasicSolidBodyGravityFieldVariationSettings defaults( { }, { } );
+            //        variationSettings = std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+            //                    getValue< std::vector< std::string > >( jsonObject, K::deformingBodies ),
+            //                    getValue< std::vector< std::vector< std::complex< double > > > >( jsonObject, K::loveNumbers ),
+            //                    getValue( jsonObject, K::modelInterpolation, defaults.getInterpolatorSettings( ) ) );
+            return;
+        }
+        case tabulated_variation:
+            variationSettings = std::make_shared< TabulatedGravityFieldVariationSettings >(
                     getValue< std::map< double, Eigen::MatrixXd > >( jsonObject, K::cosineCoefficientCorrections ),
                     getValue< std::map< double, Eigen::MatrixXd > >( jsonObject, K::sineCoefficientCorrections ),
                     getValue< int >( jsonObject, K::minimumDegree ),
                     getValue< int >( jsonObject, K::minimumOrder ),
                     getValue< std::shared_ptr< InterpolatorSettings > >( jsonObject, K::interpolator ) );
-        return;
-    default:
-        handleUnimplementedEnumValue( bodyDeformationType, bodyDeformationTypes, unsupportedBodyDeformationTypes );
+            return;
+        default:
+            handleUnimplementedEnumValue( bodyDeformationType, bodyDeformationTypes, unsupportedBodyDeformationTypes );
     }
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

@@ -30,61 +30,67 @@ namespace aerodynamics
 class StandardAtmosphere : public AtmosphereModel
 {
 public:
-
     //! Get local density.
     /*!
-    * Returns the local density parameter of the atmosphere in kg-per-meter^3.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return Atmospheric density.
-    */
-    virtual double getDensity( const double altitude, const double longitude = 0.0,
-                               const double latitude = 0.0, const double time = 0.0 ) = 0;
+     * Returns the local density parameter of the atmosphere in kg-per-meter^3.
+     * \param altitude Altitude.
+     * \param longitude Longitude.
+     * \param latitude Latitude.
+     * \param time Time.
+     * \return Atmospheric density.
+     */
+    virtual double getDensity( const double altitude,
+                               const double longitude = 0.0,
+                               const double latitude = 0.0,
+                               const double time = 0.0 ) = 0;
 
     //! Get local pressure.
     /*!
-    * Returns the local pressure of the atmosphere parameter in Newton-per-meter^2.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return Atmospheric pressure.
-    */
-    virtual double getPressure( const double altitude, const double longitude = 0.0,
-                                const double latitude = 0.0, const double time = 0.0 ) = 0;
+     * Returns the local pressure of the atmosphere parameter in Newton-per-meter^2.
+     * \param altitude Altitude.
+     * \param longitude Longitude.
+     * \param latitude Latitude.
+     * \param time Time.
+     * \return Atmospheric pressure.
+     */
+    virtual double getPressure( const double altitude,
+                                const double longitude = 0.0,
+                                const double latitude = 0.0,
+                                const double time = 0.0 ) = 0;
 
     //! Get local temperature.
     /*!
-    * Returns the local temperature of the atmosphere parameter in Kelvin.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return Atmospheric temperature.
-    */
-    virtual double getTemperature( const double altitude, const double longitude = 0.0,
-                                   const double latitude = 0.0, const double time = 0.0 ) = 0;
+     * Returns the local temperature of the atmosphere parameter in Kelvin.
+     * \param altitude Altitude.
+     * \param longitude Longitude.
+     * \param latitude Latitude.
+     * \param time Time.
+     * \return Atmospheric temperature.
+     */
+    virtual double getTemperature( const double altitude,
+                                   const double longitude = 0.0,
+                                   const double latitude = 0.0,
+                                   const double time = 0.0 ) = 0;
 
     //! Get local speed of sound.
     /*!
-    * Returns the local speed of sound of the atmosphere in m/s.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return Atmospheric speed of sound.
-    */
-    virtual double getSpeedOfSound( const double altitude, const double longitude = 0.0,
-                                    const double latitude = 0.0, const double time = 0.0 ) = 0;
-
+     * Returns the local speed of sound of the atmosphere in m/s.
+     * \param altitude Altitude.
+     * \param longitude Longitude.
+     * \param latitude Latitude.
+     * \param time Time.
+     * \return Atmospheric speed of sound.
+     */
+    virtual double getSpeedOfSound( const double altitude,
+                                    const double longitude = 0.0,
+                                    const double latitude = 0.0,
+                                    const double time = 0.0 ) = 0;
 };
 
 //! Typedef for shared-pointer to StandardAtmosphere object.
 typedef std::shared_ptr< StandardAtmosphere > StandardAtmospherePointer;
 
-} // namespace aerodynamics
-} // namespace tudat
+}  // namespace aerodynamics
+}  // namespace tudat
 
-#endif // TUDAT_STANDARD_ATMOSPHERE_H
+#endif  // TUDAT_STANDARD_ATMOSPHERE_H

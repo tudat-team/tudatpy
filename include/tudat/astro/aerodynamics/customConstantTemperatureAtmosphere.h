@@ -20,9 +20,7 @@
 #ifndef TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
 #define TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
 
-
 #include <boost/function.hpp>
-
 
 #include <cmath>
 
@@ -32,16 +30,13 @@
 #include "tudat/astro/aerodynamics/standardAtmosphere.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
-
-
 namespace tudat
 {
 
 namespace aerodynamics
 {
 
-enum AvailableConstantTemperatureAtmosphereModels
-{
+enum AvailableConstantTemperatureAtmosphereModels {
     exponential_atmosphere_model = 0,
     three_wave_atmosphere_model = 1,
     three_term_atmosphere_model = 2
@@ -59,8 +54,13 @@ enum AvailableConstantTemperatureAtmosphereModels
  *  \param scaleHeight Scale height of the atmosphere.
  *  \return Density at current conditions, based on the exponential model with given characteristics.
  */
-double exponentialAtmosphereModel( const double altitude, const double longitude, const double latitude, const double time,
-                                   const double referenceAltitude, const double densityAtReferenceAltitude, const double scaleHeight );
+double exponentialAtmosphereModel( const double altitude,
+                                   const double longitude,
+                                   const double latitude,
+                                   const double time,
+                                   const double referenceAltitude,
+                                   const double densityAtReferenceAltitude,
+                                   const double scaleHeight );
 
 //! Second atmosphere model, based on a three longitudinal waves model.
 /*!
@@ -79,9 +79,15 @@ double exponentialAtmosphereModel( const double altitude, const double longitude
  *      useful for Mars applications).
  *  \return Density at current conditions, based on the three-waves model with given characteristics.
  */
-double threeWaveAtmosphereModel( const double altitude, const double longitude, const double latitude, const double time,
-                                 const double referenceAltitude, const double densityAtReferenceAltitude, const double scaleHeight,
-                                 const double uncertaintyFactor, const double dustStormFactor );
+double threeWaveAtmosphereModel( const double altitude,
+                                 const double longitude,
+                                 const double latitude,
+                                 const double time,
+                                 const double referenceAltitude,
+                                 const double densityAtReferenceAltitude,
+                                 const double scaleHeight,
+                                 const double uncertaintyFactor,
+                                 const double dustStormFactor );
 
 //! Third atmosphere model, based on three constant scale height atmospheres.
 /*!
@@ -98,8 +104,13 @@ double threeWaveAtmosphereModel( const double altitude, const double longitude, 
  *  \param modelWeights Weights for each of the three models.
  *  \return Density at current conditions, based on the exponential model with given characteristics.
  */
-double threeTermAtmosphereModel( const double altitude, const double longitude, const double latitude, const double time,
-                                 const double referenceAltitude, const double densityAtReferenceAltitude, const double scaleHeight,
+double threeTermAtmosphereModel( const double altitude,
+                                 const double longitude,
+                                 const double latitude,
+                                 const double time,
+                                 const double referenceAltitude,
+                                 const double densityAtReferenceAltitude,
+                                 const double scaleHeight,
                                  const std::vector< double >& modelWeights );
 
 //! Custom constant temperature atmosphere class.
@@ -112,10 +123,8 @@ double threeTermAtmosphereModel( const double altitude, const double longitude, 
 class CustomConstantTemperatureAtmosphere : public AtmosphereModel
 {
 public:
-
     //! Typedef for density function.
-    typedef std::function< double( const double, const double,
-                                   const double, const double ) > DensityFunction;
+    typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
 
     //! Default constructor.
     /*!
@@ -126,14 +135,11 @@ public:
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
      */
-    CustomConstantTemperatureAtmosphere(
-            const DensityFunction& densityFunction,
-            const double constantTemperature,
-            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-            const double ratioOfSpecificHeats = 1.4 ) :
-        densityFunction_( densityFunction ),
-        constantTemperature_( constantTemperature ),
-        specificGasConstant_( specificGasConstant ),
+    CustomConstantTemperatureAtmosphere( const DensityFunction& densityFunction,
+                                         const double constantTemperature,
+                                         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+                                         const double ratioOfSpecificHeats = 1.4 ):
+        densityFunction_( densityFunction ), constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats )
     { }
 
@@ -147,19 +153,21 @@ public:
      *  \param modelSpecificParameters Vector of parameters to be used to set up the density
      *      function. Both meaning and number of parameters depends on the model.
      */
-    CustomConstantTemperatureAtmosphere(
-            const AvailableConstantTemperatureAtmosphereModels densityFunctionType,
-            const double constantTemperature,
-            const double specificGasConstant,
-            const double ratioOfSpecificHeats,
-            const std::vector< double >& modelSpecificParameters );
+    CustomConstantTemperatureAtmosphere( const AvailableConstantTemperatureAtmosphereModels densityFunctionType,
+                                         const double constantTemperature,
+                                         const double specificGasConstant,
+                                         const double ratioOfSpecificHeats,
+                                         const std::vector< double >& modelSpecificParameters );
 
     //! Get the function to compute the density at the current conditions.
     /*!
      *  Function to return the function to compute the density at the current conditions.
      *  \return Function to compute the density at the current conditions.
      */
-    DensityFunction getDensityFunction( ) { return densityFunction_; }
+    DensityFunction getDensityFunction( )
+    {
+        return densityFunction_;
+    }
 
     //! Set the function to compute the density at the current conditions.
     /*!
@@ -177,7 +185,10 @@ public:
      *  Kelvin.
      *  \return Constant atmospheric temperature in exponential atmosphere.
      */
-    double getConstantTemperature( ) { return constantTemperature_; }
+    double getConstantTemperature( )
+    {
+        return constantTemperature_;
+    }
 
     //! Get specific gas constant.
     /*!
@@ -185,7 +196,10 @@ public:
      *  due to the assumption of constant atmospheric composition.
      *  \return Specific gas constant in exponential atmosphere.
      */
-    double getSpecificGasConstant( ) { return specificGasConstant_; }
+    double getSpecificGasConstant( )
+    {
+        return specificGasConstant_;
+    }
 
     //! Get ratio of specific heats.
     /*!
@@ -193,7 +207,10 @@ public:
      *  due to the assumption of constant atmospheric composition.
      *  \return Ratio of specific heats exponential atmosphere.
      */
-    double getRatioOfSpecificHeats( ) { return ratioOfSpecificHeats_; }
+    double getRatioOfSpecificHeats( )
+    {
+        return ratioOfSpecificHeats_;
+    }
 
     //! Get local density.
     /*!
@@ -204,8 +221,7 @@ public:
      *  \param time Time at which density is to be computed.
      *  \return Atmospheric density at specified altitude.
      */
-    double getDensity( const double altitude, const double longitude = 0.0,
-                       const double latitude = 0.0, const double time = 0.0 )
+    double getDensity( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
     {
         return densityFunction_( altitude, longitude, latitude, time );
     }
@@ -219,8 +235,7 @@ public:
      *  \param time Time at which pressure is to be computed.
      *  \return Atmospheric pressure at specified altitude.
      */
-    double getPressure( const double altitude, const double longitude = 0.0,
-                        const double latitude = 0.0, const double time = 0.0 )
+    double getPressure( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
     {
         return getDensity( altitude, longitude, latitude, time ) * specificGasConstant_ * constantTemperature_;
     }
@@ -238,8 +253,7 @@ public:
      *      consistency with base class interface).
      *  \return constantTemperature Atmospheric temperature at specified altitude.
      */
-    double getTemperature( const double altitude, const double longitude = 0.0,
-                           const double latitude = 0.0, const double time = 0.0 )
+    double getTemperature( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( altitude );
         TUDAT_UNUSED_PARAMETER( longitude );
@@ -260,18 +274,13 @@ public:
      *      consistency with base class interface).
      *  \return Atmospheric speed of sounds at specified altitude.
      */
-    double getSpeedOfSound( const double altitude, const double longitude = 0.0,
-                            const double latitude = 0.0, const double time = 0.0 )
+    double getSpeedOfSound( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
     {
-        return computeSpeedOfSound(
-                    getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_,
-                    specificGasConstant_ );
+        return computeSpeedOfSound( getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_, specificGasConstant_ );
     }
 
 protected:
-
 private:
-
     //! Function to compute the density at the current conditions.
     /*!
      *  Function to compute the density at the current conditions. Note that the independent
@@ -298,14 +307,13 @@ private:
      *  This value is set to a constant, implying constant atmospheric composition.
      */
     const double ratioOfSpecificHeats_;
-
 };
 
 //! Typedef for shared-pointer to CustomConstantTemperatureAtmosphere object.
 typedef std::shared_ptr< CustomConstantTemperatureAtmosphere > CustomConstantTemperatureAtmospherePointer;
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H
+#endif  // TUDAT_CUSTOM_CONSTANT_TEMPERATURE_ATMOSPHERE_H

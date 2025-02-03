@@ -16,34 +16,29 @@ namespace tudat
 namespace observation_models
 {
 
-std::shared_ptr< TabulatedMediaReferenceCorrection > createReferenceCorrection(
-        const double startTime,
-        const double endTime,
-        const std::vector< double >& coefficients,
-        const std::string& computationSpecifier )
+std::shared_ptr< TabulatedMediaReferenceCorrection > createReferenceCorrection( const double startTime,
+                                                                                const double endTime,
+                                                                                const std::vector< double >& coefficients,
+                                                                                const std::string& computationSpecifier )
 {
-
     std::shared_ptr< TabulatedMediaReferenceCorrection > mediaCorrection;
 
-    if ( computationSpecifier == "BY CONST" || computationSpecifier == "BY DCONST" )
+    if( computationSpecifier == "BY CONST" || computationSpecifier == "BY DCONST" )
     {
-        mediaCorrection =std::make_shared< ConstantReferenceCorrection >(
-                        startTime, endTime, coefficients.front( ) );
+        mediaCorrection = std::make_shared< ConstantReferenceCorrection >( startTime, endTime, coefficients.front( ) );
     }
-    else if ( computationSpecifier == "BY NRMPOW" || computationSpecifier == "BY DNRMPOW" )
+    else if( computationSpecifier == "BY NRMPOW" || computationSpecifier == "BY DNRMPOW" )
     {
-        mediaCorrection = std::make_shared< PowerSeriesReferenceCorrection >(
-                        startTime, endTime, coefficients );
+        mediaCorrection = std::make_shared< PowerSeriesReferenceCorrection >( startTime, endTime, coefficients );
     }
-    else if ( computationSpecifier == "BY TRIG" || computationSpecifier == "BY DTRIG" )
+    else if( computationSpecifier == "BY TRIG" || computationSpecifier == "BY DTRIG" )
     {
-        mediaCorrection = std::make_shared< FourierSeriesReferenceCorrection >(
-                        startTime, endTime, coefficients );
+        mediaCorrection = std::make_shared< FourierSeriesReferenceCorrection >( startTime, endTime, coefficients );
     }
     else
     {
-        throw std::runtime_error( "Error when creating media reference correction object: computation specifier " +
-            computationSpecifier + " is not valid." );
+        throw std::runtime_error( "Error when creating media reference correction object: computation specifier " + computationSpecifier +
+                                  " is not valid." );
     }
 
     return mediaCorrection;
@@ -61,73 +56,76 @@ AtmosphericCorrectionPerStationAndSpacecraftType extractAtmosphericCorrection(
     observation_models::AtmosphericCorrectionPerStationAndSpacecraftType troposphericCorrection;
 
     // Keys: std::pair< station, source (i.e. spacecraft or quasar) >, data type identifier
-    std::map< std::pair< std::string, std::string >, std::map< std::string,
-        std::shared_ptr< observation_models::TabulatedMediaReferenceCorrectionManager > > >
-        correctionsPerStationsAndSourcePerType;
+    std::map< std::pair< std::string, std::string >,
+              std::map< std::string, std::shared_ptr< observation_models::TabulatedMediaReferenceCorrectionManager > > >
+            correctionsPerStationsAndSourcePerType;
 
-    for ( unsigned int i = 0; i < rawCspFiles.size( ); ++i )
+    for( unsigned int i = 0; i < rawCspFiles.size( ); ++i )
     {
-        for ( unsigned int j = 0; j < rawCspFiles.at( i )->getCspCommands( ).size( ); ++j )
+        for( unsigned int j = 0; j < rawCspFiles.at( i )->getCspCommands( ).size( ); ++j )
         {
-            std::shared_ptr< input_output::AtmosphericCorrectionCspCommand > cspCommand = std::dynamic_pointer_cast< input_output::AtmosphericCorrectionCspCommand >(
-                    rawCspFiles.at( i )->getCspCommands( ).at( j ) );
-            if ( cspCommand == nullptr )
+            std::shared_ptr< input_output::AtmosphericCorrectionCspCommand > cspCommand =
+                    std::dynamic_pointer_cast< input_output::AtmosphericCorrectionCspCommand >(
+                            rawCspFiles.at( i )->getCspCommands( ).at( j ) );
+            if( cspCommand == nullptr )
             {
                 throw std::runtime_error( "Error when creating tabulated atmospheric corrections: inconsistent CSP command type." );
             }
 
-            if ( modelIdentifier != cspCommand->modelIdentifier_ )
+            if( modelIdentifier != cspCommand->modelIdentifier_ )
             {
                 continue;
             }
 
-            std::string sourceName = input_output::getSourceName(  cspCommand->sourceSpecifier_, cspCommand->sourceId_,
-                                                     spacecraftNamePerSpacecraftId, quasarNamePerQuasarId );
-            if ( ( modelIdentifier == "DRY NUPART" || modelIdentifier == "WET NUPART" ) && !sourceName.empty( ) )
+            std::string sourceName = input_output::getSourceName(
+                    cspCommand->sourceSpecifier_, cspCommand->sourceId_, spacecraftNamePerSpacecraftId, quasarNamePerQuasarId );
+            if( ( modelIdentifier == "DRY NUPART" || modelIdentifier == "WET NUPART" ) && !sourceName.empty( ) )
             {
-                throw std::runtime_error( "Error when creating tabulated atmospheric corrections: invalid source name was"
-                                          "created for tropospheric corrections." );
+                throw std::runtime_error(
+                        "Error when creating tabulated atmospheric corrections: invalid source name was"
+                        "created for tropospheric corrections." );
             }
-            std::pair< std::string, std::string > stationsAndSource = std::make_pair(
-                    cspCommand->groundStationsId_, sourceName );
+            std::pair< std::string, std::string > stationsAndSource = std::make_pair( cspCommand->groundStationsId_, sourceName );
 
             // Check whether new media correction manager object should be created
             bool createNewObject = false;
-            if ( correctionsPerStationsAndSourcePerType.count( stationsAndSource ) == 0 ||
+            if( correctionsPerStationsAndSourcePerType.count( stationsAndSource ) == 0 ||
                 correctionsPerStationsAndSourcePerType.at( stationsAndSource ).count( cspCommand->dataTypesIdentifier_ ) == 0 )
             {
                 createNewObject = true;
             }
 
-            if ( createNewObject )
+            if( createNewObject )
             {
                 correctionsPerStationsAndSourcePerType[ stationsAndSource ][ cspCommand->dataTypesIdentifier_ ] =
                         std::make_shared< observation_models::TabulatedMediaReferenceCorrectionManager >( );
             }
 
             // Create correction calculator and save it to correction manager
-            correctionsPerStationsAndSourcePerType.at( stationsAndSource ).at(
-                    cspCommand->dataTypesIdentifier_ )->pushReferenceCorrectionCalculator( createReferenceCorrection(
-                            cspCommand->startTime_, cspCommand->endTime_,
-                            cspCommand->computationCoefficients_, cspCommand->computationSpecifier_ ) );
+            correctionsPerStationsAndSourcePerType.at( stationsAndSource )
+                    .at( cspCommand->dataTypesIdentifier_ )
+                    ->pushReferenceCorrectionCalculator( createReferenceCorrection( cspCommand->startTime_,
+                                                                                    cspCommand->endTime_,
+                                                                                    cspCommand->computationCoefficients_,
+                                                                                    cspCommand->computationSpecifier_ ) );
         }
     }
 
     // Loop over created calculator managers and assign them to map with ground station and observation type as keys
-    for ( auto stationsAndSourceIt = correctionsPerStationsAndSourcePerType.begin( );
-            stationsAndSourceIt != correctionsPerStationsAndSourcePerType.end( ); ++stationsAndSourceIt )
+    for( auto stationsAndSourceIt = correctionsPerStationsAndSourcePerType.begin( );
+         stationsAndSourceIt != correctionsPerStationsAndSourcePerType.end( );
+         ++stationsAndSourceIt )
     {
         std::vector< std::string > groundStations = input_output::getGroundStationsNames( stationsAndSourceIt->first.first );
         std::string source = stationsAndSourceIt->first.second;
 
-        for ( auto observableIt = stationsAndSourceIt->second.begin( ); observableIt != stationsAndSourceIt->second.end( ); ++observableIt )
+        for( auto observableIt = stationsAndSourceIt->second.begin( ); observableIt != stationsAndSourceIt->second.end( ); ++observableIt )
         {
-            std::vector< observation_models::ObservableType > observableTypes = input_output::getBaseObservableTypes(
-                observableIt->first );
+            std::vector< observation_models::ObservableType > observableTypes = input_output::getBaseObservableTypes( observableIt->first );
 
-            for ( const std::string& groundStation : groundStations )
+            for( const std::string& groundStation: groundStations )
             {
-                for ( const observation_models::ObservableType& observableType : observableTypes )
+                for( const observation_models::ObservableType& observableType: observableTypes )
                 {
                     troposphericCorrection[ std::make_pair( groundStation, source ) ][ observableType ] =
                             correctionsPerStationsAndSourcePerType.at( stationsAndSourceIt->first ).at( observableIt->first );
@@ -159,24 +157,21 @@ AtmosphericCorrectionPerStationAndSpacecraftType extractIonosphericCorrection(
         const std::map< int, std::string >& quasarNamePerQuasarId )
 {
     std::string modelIdentifier = "CHPART";
-    return extractAtmosphericCorrection( rawCspFiles, modelIdentifier, spacecraftNamePerSpacecraftId,
-                                         quasarNamePerQuasarId );
+    return extractAtmosphericCorrection( rawCspFiles, modelIdentifier, spacecraftNamePerSpacecraftId, quasarNamePerQuasarId );
 }
 
 AtmosphericCorrectionPerStationAndSpacecraftType extractDefaultTroposphericDryCorrection( )
 {
     std::string modelIdentifier = "DRY NUPART";
-    return extractAtmosphericCorrection(
-            { input_output::getDsnDefaultTroposphericSeasonalModelCspFile( ) }, modelIdentifier );
+    return extractAtmosphericCorrection( { input_output::getDsnDefaultTroposphericSeasonalModelCspFile( ) }, modelIdentifier );
 }
 
 AtmosphericCorrectionPerStationAndSpacecraftType extractDefaultTroposphericWetCorrection( )
 {
     std::string modelIdentifier = "WET NUPART";
-    return extractAtmosphericCorrection(
-            { input_output::getDsnDefaultTroposphericSeasonalModelCspFile( ) }, modelIdentifier );
+    return extractAtmosphericCorrection( { input_output::getDsnDefaultTroposphericSeasonalModelCspFile( ) }, modelIdentifier );
 }
 
-} // namespace observation_models
+}  // namespace observation_models
 
-} // namespace tudat
+}  // namespace tudat

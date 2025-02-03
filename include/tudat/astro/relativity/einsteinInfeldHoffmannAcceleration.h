@@ -11,19 +11,19 @@ namespace tudat
 namespace relativity
 {
 
-class EinsteinInfeldHoffmannAcceleration: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
+class EinsteinInfeldHoffmannAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 public:
     EinsteinInfeldHoffmannAcceleration( const std::shared_ptr< EinsteinInfeldHoffmannEquations > eihEquations,
                                         const std::string bodyUndergoingAcceleration,
                                         const std::vector< std::string > bodiesExertingAcceleration ):
         eihEquations_( eihEquations ), bodyUndergoingAcceleration_( bodyUndergoingAcceleration ),
-        bodiesExertingAcceleration_( bodiesExertingAcceleration ){ }
-
+        bodiesExertingAcceleration_( bodiesExertingAcceleration )
+    { }
 
     virtual void updateMembers( const double currentTime = TUDAT_NAN )
     {
-        if( ! ( currentTime == currentTime_ ) )
+        if( !( currentTime == currentTime_ ) )
         {
             eihEquations_->update( currentTime );
             currentTime_ = currentTime;
@@ -51,13 +51,12 @@ public:
     }
 
 private:
-
     std::shared_ptr< EinsteinInfeldHoffmannEquations > eihEquations_;
     std::string bodyUndergoingAcceleration_;
     std::vector< std::string > bodiesExertingAcceleration_;
 };
 
-}
+}  // namespace relativity
 
-}
-#endif // EINSTEININFELDHOFFMANNACCELERATION_H
+}  // namespace tudat
+#endif  // EINSTEININFELDHOFFMANNACCELERATION_H

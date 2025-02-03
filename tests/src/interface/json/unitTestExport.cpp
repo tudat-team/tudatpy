@@ -20,8 +20,7 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_export )
 
@@ -32,18 +31,15 @@ BOOST_AUTO_TEST_CASE( test_json_export_full_result )
     using namespace tudat::json_interface;
 
     // Create ExportSettings from JSON file
-    const std::shared_ptr< ExportSettings > fromFileSettings =
-            parseJSONFile< std::shared_ptr< ExportSettings > >( INPUT( "fullResult" ) );
+    const std::shared_ptr< ExportSettings > fromFileSettings = parseJSONFile< std::shared_ptr< ExportSettings > >( INPUT( "fullResult" ) );
 
     // Create ExportSettings manually
     const std::string outputFile = "full.txt";
-    const std::vector< std::shared_ptr< VariableSettings > > variables =
-    {
+    const std::vector< std::shared_ptr< VariableSettings > > variables = {
         std::make_shared< VariableSettings >( independentVariable ),
         std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "body", "Earth" ),
     };
-    std::shared_ptr< ExportSettings > manualSettings =
-            std::make_shared< ExportSettings >( outputFile, variables );
+    std::shared_ptr< ExportSettings > manualSettings = std::make_shared< ExportSettings >( outputFile, variables );
     manualSettings->header_ = "Foo\n";
     manualSettings->epochsInFirstColumn_ = false;
 
@@ -63,12 +59,10 @@ BOOST_AUTO_TEST_CASE( test_json_export_partial_result )
 
     // Create ExportSettings manually
     const std::string outputFile = "partial.txt";
-    const std::vector< std::shared_ptr< VariableSettings > > variables =
-    {
+    const std::vector< std::shared_ptr< VariableSettings > > variables = {
         std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "body", "Earth" ),
     };
-    std::shared_ptr< ExportSettings > manualSettings =
-            std::make_shared< ExportSettings >( outputFile, variables );
+    std::shared_ptr< ExportSettings > manualSettings = std::make_shared< ExportSettings >( outputFile, variables );
     manualSettings->epochsInFirstColumn_ = true;
     manualSettings->onlyInitialStep_ = true;
     manualSettings->onlyFinalStep_ = true;
@@ -80,6 +74,6 @@ BOOST_AUTO_TEST_CASE( test_json_export_partial_result )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

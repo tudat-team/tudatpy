@@ -29,11 +29,9 @@ namespace tudat
 namespace observation_partials
 {
 
-
-class TwoWayDopplerScaling: public PositionPartialScaling
+class TwoWayDopplerScaling : public PositionPartialScaling
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -44,11 +42,11 @@ public:
      * \param oneWayDopplerModels List of double precision observation functions for one-way Doppler, with entry i indicating
      * link i (0=transmitter to reflector, etc.)
      */
-    TwoWayDopplerScaling( const std::vector< std::shared_ptr< OneWayDopplerScaling > > dopplerScalings,
-                          const std::vector< std::shared_ptr< OneWayRangeScaling > > rangeScalings,
-                          const std::vector< std::function< double( const double, const observation_models::LinkEndType ) > >
-                          oneWayDopplerModels,
-                          const double multiplicationTerm ): multiplicationTerm_( multiplicationTerm )
+    TwoWayDopplerScaling(
+            const std::vector< std::shared_ptr< OneWayDopplerScaling > > dopplerScalings,
+            const std::vector< std::shared_ptr< OneWayRangeScaling > > rangeScalings,
+            const std::vector< std::function< double( const double, const observation_models::LinkEndType ) > > oneWayDopplerModels,
+            const double multiplicationTerm ): multiplicationTerm_( multiplicationTerm )
     {
         if( dopplerScalings.size( ) != 2 )
         {
@@ -124,7 +122,6 @@ public:
     }
 
 private:
-
     double multiplicationTerm_;
 
     //! One-way Doppler partial scaling object for uplink
@@ -133,13 +130,11 @@ private:
     //! One-way Doppler partial scaling object for downlink
     std::shared_ptr< OneWayDopplerScaling > downlinkDopplerScaling_;
 
-
     //! One-way range partial scaling object for uplink
     std::shared_ptr< OneWayRangeScaling > uplinkRangeScaling_;
 
     //! One-way range partial scaling object for downlink
     std::shared_ptr< OneWayRangeScaling > downlinkRangeScaling_;
-
 
     //! Function to return the uplink one-way Doppler observation
     std::function< double( const double, const observation_models::LinkEndType ) > uplinkDopplerModel_;
@@ -147,23 +142,19 @@ private:
     //! Function to return the downlink one-way Doppler observation
     std::function< double( const double, const observation_models::LinkEndType ) > downlinkDopplerModel_;
 
-
     //! Current partial time derivative of one-way Doppler for uplink.
     double uplinkOneWayDopplerTimeDerivative_;
 
     //! Current partial time derivative of one-way Doppler for downlink.
     double downlinkOneWayDopplerTimeDerivative_;
 
-
     //! List of values by which to scale constituent one-way ranges partials for it to be put into two-way range partial.
     std::map< int, double > projectedRelativeVelocityRatios_;
 };
 
-
 //! Class to compute the partial derivatives of an two-way range observation partial.
-class TwoWayDopplerPartial: public ObservationPartial< 1 >
+class TwoWayDopplerPartial : public ObservationPartial< 1 >
 {
-
 public:
     typedef std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > TwoWayDopplerPartialReturnType;
 
@@ -176,16 +167,21 @@ public:
      * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
      * \param numberOfLinkEnds Number of link ends in two-way observable
      */
-    TwoWayDopplerPartial( const std::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler,
-                          const std::map< int, std::shared_ptr< ObservationPartial< 1 > > >& dopplerPartialList,
-                          const std::map< int, std::shared_ptr< ObservationPartial< 1 > > >& rangePartialList,
-                          const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-                          const int numberOfLinkEnds,
-                          const std::function< double(
-                              const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
-                              const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > scalingFactorFunction = nullptr ):
-        ObservationPartial< 1 >( parameterIdentifier ), twoWayDopplerScaler_( twoWayDopplerScaler ), dopplerPartialList_( dopplerPartialList ),
-        rangePartialList_( rangePartialList ), numberOfLinkEnds_( numberOfLinkEnds ), scalingFactorFunction_( scalingFactorFunction ){ }
+    TwoWayDopplerPartial(
+            const std::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler,
+            const std::map< int, std::shared_ptr< ObservationPartial< 1 > > >& dopplerPartialList,
+            const std::map< int, std::shared_ptr< ObservationPartial< 1 > > >& rangePartialList,
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
+            const int numberOfLinkEnds,
+            const std::function< double( const observation_models::LinkEndType,
+                                         const std::vector< Eigen::Vector6d >&,
+                                         const std::vector< double >&,
+                                         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
+                    scalingFactorFunction = nullptr ):
+        ObservationPartial< 1 >( parameterIdentifier ), twoWayDopplerScaler_( twoWayDopplerScaler ),
+        dopplerPartialList_( dopplerPartialList ), rangePartialList_( rangePartialList ), numberOfLinkEnds_( numberOfLinkEnds ),
+        scalingFactorFunction_( scalingFactorFunction )
+    { }
 
     //! Destructor
     ~TwoWayDopplerPartial( ) { }
@@ -209,7 +205,6 @@ public:
             const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Constant( TUDAT_NAN ) );
 
 protected:
-
     //! Scaling object used for mapping partials of one-way ranges to partials of observable
     std::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler_;
 
@@ -219,26 +214,24 @@ protected:
     //! Predeclared iterator
     std::map< int, std::shared_ptr< ObservationPartial< 1 > > >::iterator dopplerPartialIterator_;
 
-
     //! List of one-way range partials per link index.
     std::map< int, std::shared_ptr< ObservationPartial< 1 > > > rangePartialList_;
 
     //! Predeclared iterator
     std::map< int, std::shared_ptr< ObservationPartial< 1 > > >::iterator rangePartialIterator_;
 
-
     //! Number of link ends in two-way observable
     int numberOfLinkEnds_;
 
-    std::function< double(
-        const observation_models::LinkEndType, const std::vector< Eigen::Vector6d >&,
-        const std::vector< double >&, const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > scalingFactorFunction_;
-
+    std::function< double( const observation_models::LinkEndType,
+                           const std::vector< Eigen::Vector6d >&,
+                           const std::vector< double >&,
+                           const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
+            scalingFactorFunction_;
 };
 
-}
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-
-#endif // TUDAT_TWOWAYDOPPLERPARTIAL_H
+#endif  // TUDAT_TWOWAYDOPPLERPARTIAL_H

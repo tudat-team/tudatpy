@@ -58,18 +58,18 @@ BOOST_AUTO_TEST_CASE( testIzzoTimeOfFlightComputation )
 
     // Set input values (taken from testEllipticalCase in test_lambert_targeter_izzo) [-].
     const double testXParameter = -0.5, testSemiPerimeter = 2.36603, testChord = 1.73205,
-            testSemiMajorAxisOfTheMinimumEnergyEllipse = 1.18301;
+                 testSemiMajorAxisOfTheMinimumEnergyEllipse = 1.18301;
     const bool testIsLongway = false;
 
     // Set expected time-of-flight [-].
     const double expectedTimeOfFlight = 9.759646;
 
     // Check that returned value is equal to expected value.
-    BOOST_CHECK_CLOSE_FRACTION( expectedTimeOfFlight,
-                                mission_segments::computeTimeOfFlightIzzo(
-                                    testXParameter, testSemiPerimeter, testChord, testIsLongway,
-                                    testSemiMajorAxisOfTheMinimumEnergyEllipse ),
-                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedTimeOfFlight,
+            mission_segments::computeTimeOfFlightIzzo(
+                    testXParameter, testSemiPerimeter, testChord, testIsLongway, testSemiMajorAxisOfTheMinimumEnergyEllipse ),
+            tolerance );
 }
 
 //! Test the Izzo Lambert routine for an elliptical transfer.
@@ -83,8 +83,7 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoElliptical )
     const double timeUnit = 806.78;
 
     // Set expected inertial vectors.
-    Eigen::Vector3d expectedInertialVelocityAtDeparture( 2735.8, 6594.3, 0.0 ),
-            expectedInertialVelocityAtArrival( -1367.9, 4225.03, 0.0 );
+    Eigen::Vector3d expectedInertialVelocityAtDeparture( 2735.8, 6594.3, 0.0 ), expectedInertialVelocityAtArrival( -1367.9, 4225.03, 0.0 );
 
     // Time conversions.
     const double testTimeOfFlight = 5.0 * timeUnit;
@@ -94,47 +93,39 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoElliptical )
 
     // Set position at departure and arrival.
     const Eigen::Vector3d testCartesianPositionAtDeparture( 2.0 * distanceUnit, 0.0, 0.0 ),
-            testCartesianPositionAtArrival( 2.0 * distanceUnit, 2.0 * sqrt( 3.0 ) * distanceUnit,
-                                            0.0 );
+            testCartesianPositionAtArrival( 2.0 * distanceUnit, 2.0 * sqrt( 3.0 ) * distanceUnit, 0.0 );
 
     // Declare velocity vectors.
     Eigen::Vector3d testInertialVelocityAtDeparture, testInertialVelocityAtArrival;
 
     // Solve Lambert problem.
     mission_segments::solveLambertProblemIzzo( testCartesianPositionAtDeparture,
-                                                      testCartesianPositionAtArrival,
-                                                      testTimeOfFlight,
-                                                      testGravitationalParameter,
-                                                      testInertialVelocityAtDeparture,
-                                                      testInertialVelocityAtArrival );
+                                               testCartesianPositionAtArrival,
+                                               testTimeOfFlight,
+                                               testGravitationalParameter,
+                                               testInertialVelocityAtDeparture,
+                                               testInertialVelocityAtArrival );
 
     // Check that returned vectors are equal to expected vectors.
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ),
-                                testInertialVelocityAtDeparture.x( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ),
-                                testInertialVelocityAtDeparture.y( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ), testInertialVelocityAtDeparture.x( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ), testInertialVelocityAtDeparture.y( ), tolerance );
     BOOST_CHECK_SMALL( testInertialVelocityAtDeparture.z( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ),
-                                testInertialVelocityAtArrival.x( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ),
-                                testInertialVelocityAtArrival.y( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ), testInertialVelocityAtArrival.x( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ), testInertialVelocityAtArrival.y( ), tolerance );
     BOOST_CHECK_SMALL( testInertialVelocityAtArrival.z( ), tolerance );
 
     Eigen::Vector6d initialCartesianState;
     initialCartesianState << testCartesianPositionAtDeparture, testInertialVelocityAtDeparture;
 
-    Eigen::Vector6d constantKeplerianState_ = orbital_element_conversions::convertCartesianToKeplerianElements(
-                initialCartesianState, testGravitationalParameter );
+    Eigen::Vector6d constantKeplerianState_ =
+            orbital_element_conversions::convertCartesianToKeplerianElements( initialCartesianState, testGravitationalParameter );
 
     Eigen::Vector6d finalCartesianState = orbital_element_conversions::convertKeplerianToCartesianElements(
-                orbital_element_conversions::propagateKeplerOrbit(
-                    constantKeplerianState_, testTimeOfFlight, testGravitationalParameter ),
-                testGravitationalParameter );
+            orbital_element_conversions::propagateKeplerOrbit( constantKeplerianState_, testTimeOfFlight, testGravitationalParameter ),
+            testGravitationalParameter );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( finalCartesianState.segment( 0, 3 ) ), testCartesianPositionAtArrival, 1.0E-14 )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( finalCartesianState.segment( 3, 3 ) ), testInertialVelocityAtArrival, 1.0E-14 )
-
-
 }
 
 //! Test the Izzo Lambert routine for a hyperbolic transfer.
@@ -149,39 +140,32 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoHyperbolic )
 
     // Time conversions.
     const double testTimeOfFlightInDaysHyperbola = 100.0;
-    const double testTimeOfFlightHyperbola = convertJulianDaysToSeconds(
-            testTimeOfFlightInDaysHyperbola );
+    const double testTimeOfFlightHyperbola = convertJulianDaysToSeconds( testTimeOfFlightInDaysHyperbola );
 
     // Set central body graviational parameter.
     const double testGravitationalParameter = 398600.4418e9;
 
     // Set position at departure and arrival.
-    const Eigen::Vector3d testCartesianPositionAtDeparture(
-                convertAstronomicalUnitsToMeters( 0.02 ), 0.0, 0.0 ),
-            testCartesianPositionAtArrival(
-                0.0, convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
+    const Eigen::Vector3d testCartesianPositionAtDeparture( convertAstronomicalUnitsToMeters( 0.02 ), 0.0, 0.0 ),
+            testCartesianPositionAtArrival( 0.0, convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
 
     // Declare velocity vectors.
     Eigen::Vector3d testInertialVelocityAtDeparture, testInertialVelocityAtArrival;
 
     // Solve Lambert problem.
     mission_segments::solveLambertProblemIzzo( testCartesianPositionAtDeparture,
-                                                      testCartesianPositionAtArrival,
-                                                      testTimeOfFlightHyperbola,
-                                                      testGravitationalParameter,
-                                                      testInertialVelocityAtDeparture,
-                                                      testInertialVelocityAtArrival );
+                                               testCartesianPositionAtArrival,
+                                               testTimeOfFlightHyperbola,
+                                               testGravitationalParameter,
+                                               testInertialVelocityAtDeparture,
+                                               testInertialVelocityAtArrival );
 
     // Check that returned vectors are equal to expected vectors.
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ),
-                                testInertialVelocityAtDeparture.x( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ),
-                                testInertialVelocityAtDeparture.y( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ), testInertialVelocityAtDeparture.x( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ), testInertialVelocityAtDeparture.y( ), tolerance );
     BOOST_CHECK_SMALL( testInertialVelocityAtDeparture.z( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ),
-                                testInertialVelocityAtArrival.x( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ),
-                                testInertialVelocityAtArrival.y( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ), testInertialVelocityAtArrival.x( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ), testInertialVelocityAtArrival.y( ), tolerance );
     BOOST_CHECK_SMALL( testInertialVelocityAtArrival.z( ), tolerance );
 }
 
@@ -195,9 +179,8 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoRetrograde )
     /* Values taken from http://ccar.colorado.edu/~rla/lambert_j2000.html for JDi = 2456036 and
      * JDf = 2456336.
      */
-    const Eigen::Vector3d
-            testPositionAtDeparture( -131798187443.90068, -72114797019.4148, 2343782.3918863535 ),
-            testPositionAtArrival( 202564770723.92966, -42405023055.01754, -5861543784.413235);
+    const Eigen::Vector3d testPositionAtDeparture( -131798187443.90068, -72114797019.4148, 2343782.3918863535 ),
+            testPositionAtArrival( 202564770723.92966, -42405023055.01754, -5861543784.413235 );
 
     // Set time-of-flight, coherent with initial and final positions.
     const double testTimeOfFlight = convertJulianDaysToSeconds( 300.0 );
@@ -206,18 +189,20 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoRetrograde )
     const double testSolarGravitationalParameter = 1.32712428e20;
 
     // Set expected values for inertial velocities. Values obtained with keptoolbox.
-    const Eigen::Vector3d
-            expectedInitialVelocity( -14157.8507230353, 28751.266655828, 1395.46037631136 ),
+    const Eigen::Vector3d expectedInitialVelocity( -14157.8507230353, 28751.266655828, 1395.46037631136 ),
             expectedFinalVelocity( -6609.91626743654, -22363.5220239692, -716.519714631494 );
 
     // Declare initial and final velocity vectors.
     Eigen::Vector3d initialVelocity, finalVelocity;
 
     // Compute Lambert solution.
-    mission_segments::solveLambertProblemIzzo(
-                testPositionAtDeparture, testPositionAtArrival,
-                testTimeOfFlight, testSolarGravitationalParameter,
-                initialVelocity, finalVelocity, true );
+    mission_segments::solveLambertProblemIzzo( testPositionAtDeparture,
+                                               testPositionAtArrival,
+                                               testTimeOfFlight,
+                                               testSolarGravitationalParameter,
+                                               initialVelocity,
+                                               finalVelocity,
+                                               true );
 
     // Check that velocities match expected values within the defined tolerance.
     TUDAT_CHECK_MATRIX_CLOSE( expectedInitialVelocity, initialVelocity, tolerance );
@@ -238,18 +223,14 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoNearPi )
 
     // Set Keplerian elements at departure and arrival.
     Eigen::Matrix< double, 6, 1 > keplerianStateAtDeparture, keplerianStateAtArrival;
-    keplerianStateAtDeparture << convertAstronomicalUnitsToMeters( 1.0 ),
-                                    0.0, 0.0, 0.0, 0.0, 0.0;
-    keplerianStateAtArrival << convertAstronomicalUnitsToMeters( 1.5 ),
-            0.0, 0.0, 0.0, 0.0, convertDegreesToRadians( 179.999 );
+    keplerianStateAtDeparture << convertAstronomicalUnitsToMeters( 1.0 ), 0.0, 0.0, 0.0, 0.0, 0.0;
+    keplerianStateAtArrival << convertAstronomicalUnitsToMeters( 1.5 ), 0.0, 0.0, 0.0, 0.0, convertDegreesToRadians( 179.999 );
 
     //  Convert to Cartesian elements.
     const Eigen::Matrix< double, 6, 1 > cartesianStateAtDeparture =
-            orbital_element_conversions::convertKeplerianToCartesianElements(
-                keplerianStateAtDeparture, testSolarGravitationalParameter );
+            orbital_element_conversions::convertKeplerianToCartesianElements( keplerianStateAtDeparture, testSolarGravitationalParameter );
     const Eigen::Matrix< double, 6, 1 > cartesianStateAtArrival =
-            orbital_element_conversions::convertKeplerianToCartesianElements(
-                keplerianStateAtArrival, testSolarGravitationalParameter );
+            orbital_element_conversions::convertKeplerianToCartesianElements( keplerianStateAtArrival, testSolarGravitationalParameter );
 
     // Extract positions at departure and arrival.
     const Eigen::Vector3d positionAtDeparture = cartesianStateAtDeparture.head( 3 );
@@ -263,9 +244,8 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoNearPi )
     Eigen::Vector3d initialVelocity, finalVelocity;
 
     // Compute Lambert solution.
-    mission_segments::solveLambertProblemIzzo( positionAtDeparture, positionAtArrival,
-                                               testTimeOfFlight, testSolarGravitationalParameter,
-                                               initialVelocity, finalVelocity );
+    mission_segments::solveLambertProblemIzzo(
+            positionAtDeparture, positionAtArrival, testTimeOfFlight, testSolarGravitationalParameter, initialVelocity, finalVelocity );
 
     // Check that velocities match expected values within the defined tolerance.
     BOOST_CHECK_CLOSE_FRACTION( expectedInitialVelocity.x( ), initialVelocity.x( ), tolerance );
@@ -292,13 +272,11 @@ BOOST_AUTO_TEST_CASE( testLambertFunctionPositiveGooding )
     const double expectedLambertFunctionPositiveValue = -0.4004214;
 
     // Create LambertFunctionsGooding object.
-    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
-                testQParameter, testNormalizedTimeOfFlight);
+    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding( testQParameter, testNormalizedTimeOfFlight );
 
     // Check that the result is equal to the expected value.
-    BOOST_CHECK_CLOSE_FRACTION( expectedLambertFunctionPositiveValue,
-                                testLambertFunctionsGooding.lambertFunctionPositiveGooding(
-                                    testXParameter ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedLambertFunctionPositiveValue, testLambertFunctionsGooding.lambertFunctionPositiveGooding( testXParameter ), tolerance );
 }
 
 //! Test the negative Gooding Lambert function.
@@ -316,13 +294,11 @@ BOOST_AUTO_TEST_CASE( testLambertFunctionNegativeGooding )
     const double expectedLambertFunctionNegativeValue = -1.1439925;
 
     // Create LambertFunctionsGooding object.
-    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
-                testQParameter, testNormalizedTimeOfFlight);
+    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding( testQParameter, testNormalizedTimeOfFlight );
 
     // Check that the result is equal to the expected value.
-    BOOST_CHECK_CLOSE_FRACTION( expectedLambertFunctionNegativeValue,
-                                testLambertFunctionsGooding.lambertFunctionNegativeGooding(
-                                    testXParameter ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION(
+            expectedLambertFunctionNegativeValue, testLambertFunctionsGooding.lambertFunctionNegativeGooding( testXParameter ), tolerance );
 }
 
 //! Test the Gooding Lambert function.
@@ -342,13 +318,11 @@ BOOST_AUTO_TEST_CASE( testLambertFunctionGooding )
         const double expectedLambertFunctionValue = -0.4004214;
 
         // Create LambertFunctionsGooding object.
-        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
-                    testQParameter, testNormalizedTimeOfFlight );
+        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding( testQParameter, testNormalizedTimeOfFlight );
 
         // Check that the result is equal to the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedLambertFunctionValue,
-                                    testLambertFunctionsGooding.computeLambertFunctionGooding(
-                                        testXParameter ), tolerance );
+        BOOST_CHECK_CLOSE_FRACTION(
+                expectedLambertFunctionValue, testLambertFunctionsGooding.computeLambertFunctionGooding( testXParameter ), tolerance );
     }
 
     // Test 2: Test negative case.
@@ -362,13 +336,11 @@ BOOST_AUTO_TEST_CASE( testLambertFunctionGooding )
         const double expectedLambertFunctionValue = -1.1439925;
 
         // Create LambertFunctionsGooding object.
-        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
-                    testQParameter, testNormalizedTimeOfFlight );
+        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding( testQParameter, testNormalizedTimeOfFlight );
 
         // Check that the result is equal to the expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedLambertFunctionValue,
-                                    testLambertFunctionsGooding.computeLambertFunctionGooding(
-                                        testXParameter ), tolerance );
+        BOOST_CHECK_CLOSE_FRACTION(
+                expectedLambertFunctionValue, testLambertFunctionsGooding.computeLambertFunctionGooding( testXParameter ), tolerance );
     }
 }
 
@@ -387,13 +359,12 @@ BOOST_AUTO_TEST_CASE( testLambertFirstDerivativeFunctionPositiveGooding )
     const double expectedLambertFirstDerivativeFunctionPositiveValue = 0.7261451;
 
     // Create LambertFunctionsGooding object.
-    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
-                testQParameter, testNormalizedTimeOfFlight);
+    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding( testQParameter, testNormalizedTimeOfFlight );
 
     // Check that the result is equal to the expected value.
     BOOST_CHECK_CLOSE_FRACTION( expectedLambertFirstDerivativeFunctionPositiveValue,
-              testLambertFunctionsGooding.lambertFirstDerivativeFunctionPositiveGooding(
-                                    testXParameter ), tolerance );
+                                testLambertFunctionsGooding.lambertFirstDerivativeFunctionPositiveGooding( testXParameter ),
+                                tolerance );
 }
 
 //! Test the negative Gooding Lambert first derivative function.
@@ -411,13 +382,12 @@ BOOST_AUTO_TEST_CASE( testLambertFirstDerivativeFunctionNegativeGooding )
     const double expectedLambertFirstDerivativeFunctionNegativeValue = 1.72419;
 
     // Create LambertFunctionsGooding object.
-    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
-                testQParameter, testNormalizedTimeOfFlight);
+    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding( testQParameter, testNormalizedTimeOfFlight );
 
     // Check that the result is equal to the expected value.
     BOOST_CHECK_CLOSE_FRACTION( expectedLambertFirstDerivativeFunctionNegativeValue,
-              testLambertFunctionsGooding.lambertFirstDerivativeFunctionNegativeGooding(
-                                    testXParameter ), tolerance );
+                                testLambertFunctionsGooding.lambertFirstDerivativeFunctionNegativeGooding( testXParameter ),
+                                tolerance );
 }
 
 //! Test the Gooding Lambert first derivative function.
@@ -437,13 +407,12 @@ BOOST_AUTO_TEST_CASE( testLambertFirstDerivativeFunctionGooding )
         const double expectedLambertFirstDerivativeFunctionValue = 0.7261451;
 
         // Create LambertFunctionsGooding object.
-        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
-                    testQParameter, testNormalizedTimeOfFlight);
+        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding( testQParameter, testNormalizedTimeOfFlight );
 
         // Check that the result is equal to the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedLambertFirstDerivativeFunctionValue,
-                  testLambertFunctionsGooding.computeFirstDerivativeLambertFunctionGooding(
-                                        testXParameter ), tolerance );
+                                    testLambertFunctionsGooding.computeFirstDerivativeLambertFunctionGooding( testXParameter ),
+                                    tolerance );
     }
 
     // Test 2: Test the negative case.
@@ -457,13 +426,12 @@ BOOST_AUTO_TEST_CASE( testLambertFirstDerivativeFunctionGooding )
         const double expectedLambertFirstDerivativeFunctionValue = 1.72419;
 
         // Create LambertFunctionsGooding object.
-        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
-                    testQParameter, testNormalizedTimeOfFlight);
+        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding( testQParameter, testNormalizedTimeOfFlight );
 
         // Check that the result is equal to the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedLambertFirstDerivativeFunctionValue,
-                  testLambertFunctionsGooding.computeFirstDerivativeLambertFunctionGooding(
-                                        testXParameter ), tolerance );
+                                    testLambertFunctionsGooding.computeFirstDerivativeLambertFunctionGooding( testXParameter ),
+                                    tolerance );
     }
 }
 
@@ -479,39 +447,32 @@ BOOST_AUTO_TEST_CASE( testsolveLambertProblemGoodingHyperbolic )
 
     // Time conversions.
     const double testTimeOfFlightInDaysHyperbola = 100.0;
-    const double testTimeOfFlightHyperbola = convertJulianDaysToSeconds(
-            testTimeOfFlightInDaysHyperbola );
+    const double testTimeOfFlightHyperbola = convertJulianDaysToSeconds( testTimeOfFlightInDaysHyperbola );
 
     // Set central body graviational parameter.
     const double testGravitationalParameter = 398600.4418e9;
 
     // Set position at departure and arrival.
-    const Eigen::Vector3d testCartesianPositionAtDeparture(
-                convertAstronomicalUnitsToMeters( 0.02 ), 0.0, 0.0 ),
-            testCartesianPositionAtArrival(
-                0.0, convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
+    const Eigen::Vector3d testCartesianPositionAtDeparture( convertAstronomicalUnitsToMeters( 0.02 ), 0.0, 0.0 ),
+            testCartesianPositionAtArrival( 0.0, convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
 
     // Declare velocity vectors.
     Eigen::Vector3d testInertialVelocityAtDeparture, testInertialVelocityAtArrival;
 
     // Solve Lambert problem.
     mission_segments::solveLambertProblemGooding( testCartesianPositionAtDeparture,
-                                                        testCartesianPositionAtArrival,
-                                                        testTimeOfFlightHyperbola,
-                                                        testGravitationalParameter,
-                                                        testInertialVelocityAtDeparture,
-                                                        testInertialVelocityAtArrival);
+                                                  testCartesianPositionAtArrival,
+                                                  testTimeOfFlightHyperbola,
+                                                  testGravitationalParameter,
+                                                  testInertialVelocityAtDeparture,
+                                                  testInertialVelocityAtArrival );
 
     // Check that returned vectors are equal to expected vectors.
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ),
-                                testInertialVelocityAtDeparture.x( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ),
-                                testInertialVelocityAtDeparture.y( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ), testInertialVelocityAtDeparture.x( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ), testInertialVelocityAtDeparture.y( ), tolerance );
     BOOST_CHECK_SMALL( testInertialVelocityAtDeparture.z( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ),
-                                testInertialVelocityAtArrival.x( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ),
-                                testInertialVelocityAtArrival.y( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ), testInertialVelocityAtArrival.x( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ), testInertialVelocityAtArrival.y( ), tolerance );
     BOOST_CHECK_SMALL( testInertialVelocityAtArrival.z( ), tolerance );
 }
 
@@ -537,34 +498,29 @@ BOOST_AUTO_TEST_CASE( testsolveLambertProblemGoodingElliptical )
 
     // Set position at departure and arrival.
     const Eigen::Vector3d testCartesianPositionAtDeparture( 2.0 * distanceUnit, 0.0, 0.0 ),
-            testCartesianPositionAtArrival( 2.0 * distanceUnit, 2.0 * sqrt( 3.0 ) * distanceUnit,
-                                            0.0 );
+            testCartesianPositionAtArrival( 2.0 * distanceUnit, 2.0 * sqrt( 3.0 ) * distanceUnit, 0.0 );
 
     // Declare velocity vectors.
     Eigen::Vector3d testInertialVelocityAtDeparture, testInertialVelocityAtArrival;
 
     // Solve Lambert problem.
     mission_segments::solveLambertProblemGooding( testCartesianPositionAtDeparture,
-                                                         testCartesianPositionAtArrival,
-                                                         testTimeOfFlight,
-                                                         testGravitationalParameter,
-                                                         testInertialVelocityAtDeparture,
-                                                         testInertialVelocityAtArrival );
+                                                  testCartesianPositionAtArrival,
+                                                  testTimeOfFlight,
+                                                  testGravitationalParameter,
+                                                  testInertialVelocityAtDeparture,
+                                                  testInertialVelocityAtArrival );
 
     // Check that returned vectors are equal to expected vectors.
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ),
-                                testInertialVelocityAtDeparture.x( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ),
-                                testInertialVelocityAtDeparture.y( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ), testInertialVelocityAtDeparture.x( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ), testInertialVelocityAtDeparture.y( ), tolerance );
     BOOST_CHECK_SMALL( testInertialVelocityAtDeparture.z( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ),
-                                testInertialVelocityAtArrival.x( ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ),
-                                testInertialVelocityAtArrival.y( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ), testInertialVelocityAtArrival.x( ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ), testInertialVelocityAtArrival.y( ), tolerance );
     BOOST_CHECK_SMALL( testInertialVelocityAtArrival.z( ), tolerance );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

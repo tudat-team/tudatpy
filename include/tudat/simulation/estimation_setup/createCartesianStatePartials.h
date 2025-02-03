@@ -25,7 +25,6 @@
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
 
-
 namespace tudat
 {
 
@@ -119,14 +118,15 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslat
 template< typename InitialStateParameterType >
 std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtStateParameter(
         const simulation_setup::SystemOfBodies& bodies,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix<
-        InitialStateParameterType, Eigen::Dynamic, 1 > > > parameterToEstimate )
+        const std::shared_ptr<
+                estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > >
+                parameterToEstimate )
 {
     using namespace simulation_setup;
     using namespace ephemerides;
 
     // Declare return object.
-    std::shared_ptr< RotationMatrixPartial >  rotationMatrixPartial;
+    std::shared_ptr< RotationMatrixPartial > rotationMatrixPartial;
 
     // Get body for rotation of which partial is to be created.
     std::shared_ptr< Body > currentBody = bodies.at( parameterToEstimate->getParameterName( ).second.first );
@@ -134,22 +134,21 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtStatePar
     // Check for which rotation model parameter the partial object is to be created.
     switch( parameterToEstimate->getParameterName( ).first )
     {
-    case estimatable_parameters::initial_rotational_body_state:
+        case estimatable_parameters::initial_rotational_body_state:
 
-        // Create rotation matrix partial object
-        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtQuaternion >(
+            // Create rotation matrix partial object
+            rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtQuaternion >(
                     std::bind( &Body::getCurrentRotationToGlobalFrame, currentBody ) );
-        break;
+            break;
 
-    default:
-        std::string errorMessage = "Warning, rotation matrix partial not implemented for state parameter " +
-                std::to_string( parameterToEstimate->getParameterName( ).first );
-        throw std::runtime_error( errorMessage );
-        break;
+        default:
+            std::string errorMessage = "Warning, rotation matrix partial not implemented for state parameter " +
+                    std::to_string( parameterToEstimate->getParameterName( ).first );
+            throw std::runtime_error( errorMessage );
+            break;
     }
 
     return rotationMatrixPartial;
-
 }
 
 //! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
@@ -189,27 +188,25 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
 template< typename ParameterType >
 RotationMatrixPartialNamedList createRotationMatrixPartials(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const std::string& bodyName, const simulation_setup::SystemOfBodies& bodies )
+        const std::string& bodyName,
+        const simulation_setup::SystemOfBodies& bodies )
 
 {
-    //std::vector< std::shared_ptr< EstimatableParameter< Eigen:: > > >
-    //getEstimatedInitialStateParameters( )
+    // std::vector< std::shared_ptr< EstimatableParameter< Eigen:: > > >
+    // getEstimatedInitialStateParameters( )
 
     // Declare map to return.
-    std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-            std::shared_ptr< RotationMatrixPartial > >
+    std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >, std::shared_ptr< RotationMatrixPartial > >
             rotationMatrixPartials;
 
     // Check if parametersToEstimate pointer isn't empty
-    if ( !parametersToEstimate )
+    if( !parametersToEstimate )
     {
-        throw std::runtime_error(
-                "Error when creating rotation matrix partials, the provided parameters to estimate are empty.");
+        throw std::runtime_error( "Error when creating rotation matrix partials, the provided parameters to estimate are empty." );
     }
     // Retrieve double and vector parameters from total set of parameters.
-    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter<
-            Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > stateParameters =
-            parametersToEstimate->getInitialStateParameters( );
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > >
+            stateParameters = parametersToEstimate->getInitialStateParameters( );
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
             parametersToEstimate->getDoubleParameters( );
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
@@ -219,56 +216,53 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
             createRotationMatrixPartialsWrtTranslationalState( bodies.at( bodyName ) );
     if( rotationMatrixPartialWrtTranslationalState != nullptr )
     {
-        rotationMatrixPartials[ std::make_pair(
-                    estimatable_parameters::initial_body_state, "" ) ] = rotationMatrixPartialWrtTranslationalState;
+        rotationMatrixPartials[ std::make_pair( estimatable_parameters::initial_body_state, "" ) ] =
+                rotationMatrixPartialWrtTranslationalState;
     }
 
-    for( auto parameterIterator = stateParameters.begin( ); parameterIterator != stateParameters.end( );
-         parameterIterator++ )
+    for( auto parameterIterator = stateParameters.begin( ); parameterIterator != stateParameters.end( ); parameterIterator++ )
     {
         // Check parameter is rotational property of requested body.
         if( ( parameterIterator->second->getParameterName( ).second.first == bodyName ) &&
-                ( estimatable_parameters::isParameterRotationMatrixProperty(
-                      parameterIterator->second->getParameterName( ).first ) ) )
+            ( estimatable_parameters::isParameterRotationMatrixProperty( parameterIterator->second->getParameterName( ).first ) ) )
         {
             // Create partial object.
-            rotationMatrixPartials[ std::make_pair(
-                        parameterIterator->second->getParameterName( ).first,
-                        parameterIterator->second->getSecondaryIdentifier( )) ] =
+            rotationMatrixPartials[ std::make_pair( parameterIterator->second->getParameterName( ).first,
+                                                    parameterIterator->second->getSecondaryIdentifier( ) ) ] =
                     createRotationMatrixPartialsWrtStateParameter( bodies, parameterIterator->second );
         }
     }
 
     // Iterate over double parameters.
-    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
-         parameterIterator = doubleParameters.begin( ); parameterIterator != doubleParameters.end( ); parameterIterator++ )
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator parameterIterator =
+                 doubleParameters.begin( );
+         parameterIterator != doubleParameters.end( );
+         parameterIterator++ )
     {
         // Check parameter is rotational property of requested body.
         if( ( parameterIterator->second->getParameterName( ).second.first == bodyName ) &&
-                ( estimatable_parameters::isParameterRotationMatrixProperty(
-                      parameterIterator->second->getParameterName( ).first ) ) )
+            ( estimatable_parameters::isParameterRotationMatrixProperty( parameterIterator->second->getParameterName( ).first ) ) )
         {
             // Create partial object.
-            rotationMatrixPartials[ std::make_pair(
-                        parameterIterator->second->getParameterName( ).first,
-                        parameterIterator->second->getSecondaryIdentifier( )) ] =
+            rotationMatrixPartials[ std::make_pair( parameterIterator->second->getParameterName( ).first,
+                                                    parameterIterator->second->getSecondaryIdentifier( ) ) ] =
                     createRotationMatrixPartialsWrtParameter( bodies, parameterIterator->second );
         }
     }
 
     // Iterate over vector parameters.
-    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator
-         parameterIterator = vectorParameters.begin( ); parameterIterator != vectorParameters.end( ); parameterIterator++ )
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator parameterIterator =
+                 vectorParameters.begin( );
+         parameterIterator != vectorParameters.end( );
+         parameterIterator++ )
     {
         // Check parameter is rotational property of requested body.
         if( ( parameterIterator->second->getParameterName( ).second.first == bodyName ) &&
-                ( estimatable_parameters::isParameterRotationMatrixProperty(
-                      parameterIterator->second->getParameterName( ).first ) ) )
+            ( estimatable_parameters::isParameterRotationMatrixProperty( parameterIterator->second->getParameterName( ).first ) ) )
         {
             // Create partial object.
-            rotationMatrixPartials[ std::make_pair(
-                        parameterIterator->second->getParameterName( ).first,
-                        parameterIterator->second->getSecondaryIdentifier( )) ] =
+            rotationMatrixPartials[ std::make_pair( parameterIterator->second->getParameterName( ).first,
+                                                    parameterIterator->second->getSecondaryIdentifier( ) ) ] =
                     createRotationMatrixPartialsWrtParameter( bodies, parameterIterator->second );
         }
     }
@@ -277,12 +271,11 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
 }
 
 //! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
-typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-std::shared_ptr< RotationMatrixPartial > > RotationMatrixPartialNamedList;
+typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >, std::shared_ptr< RotationMatrixPartial > >
+        RotationMatrixPartialNamedList;
 
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-}
-
-#endif // TUDAT_CREATEPOSITIONPARTIALS_H
+#endif  // TUDAT_CREATEPOSITIONPARTIALS_H

@@ -36,16 +36,12 @@ namespace ephemerides
 class ApproximateJplEphemeris : public ApproximateJplSolarSystemEphemerisBase
 {
 public:
-
     using Ephemeris::getCartesianState;
 
-    ApproximateJplEphemeris( const std::string& bodyName,
-                             const double sunGravitationalParameter = 1.32712440018e20 )
-        : ApproximateJplSolarSystemEphemerisBase( sunGravitationalParameter ),
-          eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
-          longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ),
-          meanAnomalyAtGivenJulianDate_( TUDAT_NAN ),
-          trueAnomalyAtGivenJulianData_( TUDAT_NAN )
+    ApproximateJplEphemeris( const std::string& bodyName, const double sunGravitationalParameter = 1.32712440018e20 ):
+        ApproximateJplSolarSystemEphemerisBase( sunGravitationalParameter ), eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
+        longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ), meanAnomalyAtGivenJulianDate_( TUDAT_NAN ),
+        trueAnomalyAtGivenJulianData_( TUDAT_NAN )
     {
         this->setPlanet( bodyName );
     }
@@ -56,8 +52,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Cartesian elements from ephemeris.
      */
-    Eigen::Vector6d getCartesianState(
-            const double secondsSinceEpoch );
+    Eigen::Vector6d getCartesianState( const double secondsSinceEpoch );
 
     //! Get keplerian state from ephemeris.
     /*!
@@ -65,13 +60,10 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Keplerian elements from ephemeris.
      */
-    Eigen::Vector6d getKeplerianStateFromEphemeris(
-            const double secondsSinceEpoch );
+    Eigen::Vector6d getKeplerianStateFromEphemeris( const double secondsSinceEpoch );
 
 protected:
-
 private:
-
     //! Eccentric anomaly at given Julian date.
     /*!
      * Eccentric anomaly of planet at given Julian date.
@@ -97,15 +89,12 @@ private:
     double trueAnomalyAtGivenJulianData_;
 };
 
-
 //! NOTE: Implementation of this function taken from https://github.com/esa/pagmo/blob/master/src/AstroToolbox/Pl_Eph_An.cpp
-Eigen::Vector6d getGtopCartesianElements( const double daysSinceMjd2000,
-                                          const int planet );
+Eigen::Vector6d getGtopCartesianElements( const double daysSinceMjd2000, const int planet );
 
 class ApproximateGtopEphemeris : public Ephemeris
 {
 public:
-
     using Ephemeris::getCartesianState;
 
     ApproximateGtopEphemeris( const std::string& bodyName );
@@ -116,24 +105,20 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Cartesian elements from ephemeris.
      */
-    Eigen::Vector6d getCartesianState(
-            const double secondsSinceEpoch )
+    Eigen::Vector6d getCartesianState( const double secondsSinceEpoch )
     {
         double mjd2000 = ( secondsSinceEpoch + physical_constants::JULIAN_DAY / 2.0 ) / physical_constants::JULIAN_DAY;
         return getGtopCartesianElements( mjd2000, bodyIndex_ );
     }
 
 protected:
-
 private:
-
     int bodyIndex_;
-
 };
 
-//Eigen::Vector6d getGtopKeplerElements( const double currentTime );
+// Eigen::Vector6d getGtopKeplerElements( const double currentTime );
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat
 
-#endif // TUDAT_APPROXIMATE_PLANET_POSITIONS_H
+#endif  // TUDAT_APPROXIMATE_PLANET_POSITIONS_H

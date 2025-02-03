@@ -24,37 +24,36 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
     std::string linkEndString = "";
     switch( linkEndType )
     {
-    case transmitter:
-        linkEndString = "transmitter";
-        break;
-    case reflector1:
-        linkEndString = "reflector_1";
-        break;
-    case reflector2:
-        linkEndString = "reflector_2";
-        break;
-    case reflector3:
-        linkEndString = "reflector_3";
-        break;
-    case reflector4:
-        linkEndString = "reflector_4";
-        break;
-    case receiver:
-        linkEndString = "receiver";
-        break;
-    case observed_body:
-        linkEndString = "observed body";
-        break;
-    case transmitter2:
-        linkEndString = "transmitter_2";
-        break;
-    case observer:
-        linkEndString = "observer";
-        break;
-    default:
-        std::string errorMessage = "Error when getting link end string for type " +
-                std::to_string( linkEndType ) + ", type not found.";
-        throw std::runtime_error( errorMessage );
+        case transmitter:
+            linkEndString = "transmitter";
+            break;
+        case reflector1:
+            linkEndString = "reflector_1";
+            break;
+        case reflector2:
+            linkEndString = "reflector_2";
+            break;
+        case reflector3:
+            linkEndString = "reflector_3";
+            break;
+        case reflector4:
+            linkEndString = "reflector_4";
+            break;
+        case receiver:
+            linkEndString = "receiver";
+            break;
+        case observed_body:
+            linkEndString = "observed body";
+            break;
+        case transmitter2:
+            linkEndString = "transmitter_2";
+            break;
+        case observer:
+            linkEndString = "observer";
+            break;
+        default:
+            std::string errorMessage = "Error when getting link end string for type " + std::to_string( linkEndType ) + ", type not found.";
+            throw std::runtime_error( errorMessage );
     }
     return linkEndString;
 }
@@ -63,20 +62,19 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
 std::string getLinkEndsString( const LinkEnds linkEnds )
 {
     std::string linkEndsString = "";
-    for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
-         linkEndIterator++ )
+    for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
         linkEndsString += getLinkEndTypeString( linkEndIterator->first ) + ": (" + linkEndIterator->second.bodyName_;
         if( linkEndIterator->second.stationName_ == "" )
         {
-            linkEndsString +=  ")";
+            linkEndsString += ")";
         }
         else
         {
-            linkEndsString += ", " + linkEndIterator->second.stationName_ +  ")";
+            linkEndsString += ", " + linkEndIterator->second.stationName_ + ")";
         }
 
-        if( linkEndIterator != (--linkEnds.end( ) ) )
+        if( linkEndIterator != ( --linkEnds.end( ) ) )
         {
             linkEndsString += "; ";
         }
@@ -125,10 +123,8 @@ LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOf
     // Check feasibility of inner link end
     else if( linkEndIndex >= numberOfLinkEnds )
     {
-        throw std::runtime_error(
-                    "Error, found link end index " + std::to_string( linkEndIndex ) +
-                    " when getting n-way link end index for " + std::to_string(
-                   numberOfLinkEnds ) + " link end total." );
+        throw std::runtime_error( "Error, found link end index " + std::to_string( linkEndIndex ) +
+                                  " when getting n-way link end index for " + std::to_string( numberOfLinkEnds ) + " link end total." );
     }
     else
     {
@@ -141,8 +137,7 @@ LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOf
 //! Function to get the list of indices in link-end list for n-way observables that matches a given link end id.
 std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndId, const LinkEnds& linkEnds )
 {
-    std::vector< LinkEndType >  matchingLinkEndTypes = getNWayLinkIndicesFromLinkEndId(
-                linkEndId, linkEnds );
+    std::vector< LinkEndType > matchingLinkEndTypes = getNWayLinkIndicesFromLinkEndId( linkEndId, linkEnds );
     return getNWayLinkEndIndicesFromLinkEndId( matchingLinkEndTypes, linkEnds );
 }
 
@@ -164,15 +159,14 @@ std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& lin
 
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
-        if( linkEndIterator->second == linkEndId || ( ( linkEndIterator->second.bodyName_ == linkEndId.bodyName_ ) &&
-                                                                        linkEndId.stationName_ == "" ) )
+        if( linkEndIterator->second == linkEndId ||
+            ( ( linkEndIterator->second.bodyName_ == linkEndId.bodyName_ ) && linkEndId.stationName_ == "" ) )
         {
             matchingLinkEndTypes.push_back( linkEndIterator->first );
         }
     }
     return matchingLinkEndTypes;
 }
-
 
 LinkEnds mergeUpDownLink( const LinkEnds& uplink, const LinkEnds& downlink )
 {
@@ -187,7 +181,6 @@ LinkEnds mergeUpDownLink( const LinkEnds& uplink, const LinkEnds& downlink )
     return twoWayLinkEnds;
 }
 
-
 LinkDefinition mergeUpDownLink( const LinkDefinition& uplink, const LinkDefinition& downlink )
 {
     return LinkDefinition( mergeUpDownLink( uplink.linkEnds_, downlink.linkEnds_ ) );
@@ -201,7 +194,8 @@ LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds )
     {
         if( linkEnds.at( i - 1 ).at( receiver ) != linkEnds.at( i ).at( transmitter ) )
         {
-            throw std::runtime_error( "Error when merging one-way link ends, receiver and transmitter of subsequent link ends not compatible." );
+            throw std::runtime_error(
+                    "Error when merging one-way link ends, receiver and transmitter of subsequent link ends not compatible." );
         }
         nWayLinkEnds[ getNWayLinkEnumFromIndex( i, linkEnds.size( ) + 1 ) ] = linkEnds.at( i ).at( transmitter );
     }
@@ -217,11 +211,9 @@ LinkDefinition mergeOneWayLinkEnds( const std::vector< LinkDefinition >& linkEnd
         linkEnds.push_back( linkEndsDefinitions.at( i ).linkEnds_ );
     }
     return LinkDefinition( mergeOneWayLinkEnds( linkEnds ) );
-
 }
 
-LinkEnds getUplinkFromTwoWayLinkEnds(
-        const LinkEnds& twoWayLinkEnds )
+LinkEnds getUplinkFromTwoWayLinkEnds( const LinkEnds& twoWayLinkEnds )
 {
     LinkEnds uplink;
     uplink[ transmitter ] = twoWayLinkEnds.at( transmitter );
@@ -229,14 +221,12 @@ LinkEnds getUplinkFromTwoWayLinkEnds(
     return uplink;
 }
 
-LinkDefinition getUplinkFromTwoWayLinkEnds(
-        const LinkDefinition& twoWayLinkEnds )
+LinkDefinition getUplinkFromTwoWayLinkEnds( const LinkDefinition& twoWayLinkEnds )
 {
     return LinkDefinition( getUplinkFromTwoWayLinkEnds( twoWayLinkEnds.linkEnds_ ) );
 }
 
-LinkEnds getDownlinkFromTwoWayLinkEnds(
-        const LinkEnds& twoWayLinkEnds )
+LinkEnds getDownlinkFromTwoWayLinkEnds( const LinkEnds& twoWayLinkEnds )
 {
     LinkEnds downlink;
     downlink[ transmitter ] = twoWayLinkEnds.at( retransmitter );
@@ -244,32 +234,26 @@ LinkEnds getDownlinkFromTwoWayLinkEnds(
     return downlink;
 }
 
-LinkDefinition getDownlinkFromTwoWayLinkEnds(
-        const LinkDefinition& twoWayLinkEnds )
+LinkDefinition getDownlinkFromTwoWayLinkEnds( const LinkDefinition& twoWayLinkEnds )
 {
     return LinkDefinition( getDownlinkFromTwoWayLinkEnds( twoWayLinkEnds.linkEnds_ ) );
 }
 
-LinkEnds getSingleLegLinkEnds(
-        const LinkEnds& nWayLinkEnds, const unsigned int legIndex )
+LinkEnds getSingleLegLinkEnds( const LinkEnds& nWayLinkEnds, const unsigned int legIndex )
 {
     if( legIndex > nWayLinkEnds.size( ) - 2 )
     {
-        throw std::runtime_error( "Error when getting link ends for single n-way link, requested leg index " +
-                                  std::to_string( legIndex ) + ", for n-way link ends of size " + std::to_string( nWayLinkEnds.size( ) ) );
+        throw std::runtime_error( "Error when getting link ends for single n-way link, requested leg index " + std::to_string( legIndex ) +
+                                  ", for n-way link ends of size " + std::to_string( nWayLinkEnds.size( ) ) );
     }
 
     LinkEnds oneWayLinkEnds;
-    oneWayLinkEnds[ transmitter ] = nWayLinkEnds.at(
-            getNWayLinkEnumFromIndex( legIndex, nWayLinkEnds.size( ) ) );
-    oneWayLinkEnds[ receiver ] = nWayLinkEnds.at(
-            getNWayLinkEnumFromIndex( legIndex + 1, nWayLinkEnds.size( ) ) );
+    oneWayLinkEnds[ transmitter ] = nWayLinkEnds.at( getNWayLinkEnumFromIndex( legIndex, nWayLinkEnds.size( ) ) );
+    oneWayLinkEnds[ receiver ] = nWayLinkEnds.at( getNWayLinkEnumFromIndex( legIndex + 1, nWayLinkEnds.size( ) ) );
     return oneWayLinkEnds;
 }
 
-std::vector< LinkEnds > getOneWayDownlinkLinkEndsList(
-        const LinkEndId singleTransmitter,
-        const std::vector< LinkEndId >& listOfReceivers )
+std::vector< LinkEnds > getOneWayDownlinkLinkEndsList( const LinkEndId singleTransmitter, const std::vector< LinkEndId >& listOfReceivers )
 {
     std::vector< LinkEnds > linkEndsList;
 
@@ -283,9 +267,7 @@ std::vector< LinkEnds > getOneWayDownlinkLinkEndsList(
     return linkEndsList;
 }
 
-std::vector< LinkEnds > getOneWayUplinkLinkEndsList(
-        const std::vector< LinkEndId > listOfTransmitters,
-        const LinkEndId singleReceivers )
+std::vector< LinkEnds > getOneWayUplinkLinkEndsList( const std::vector< LinkEndId > listOfTransmitters, const LinkEndId singleReceivers )
 {
     std::vector< LinkEnds > linkEndsList;
 
@@ -299,9 +281,7 @@ std::vector< LinkEnds > getOneWayUplinkLinkEndsList(
     return linkEndsList;
 }
 
-std::vector< LinkEnds > getSameStationTwoWayLinkEndsList(
-        const std::vector< LinkEndId > listOfStations,
-        const LinkEndId spacecraft )
+std::vector< LinkEnds > getSameStationTwoWayLinkEndsList( const std::vector< LinkEndId > listOfStations, const LinkEndId spacecraft )
 {
     std::vector< LinkEnds > linkEndsList;
 
@@ -317,9 +297,7 @@ std::vector< LinkEnds > getSameStationTwoWayLinkEndsList(
     return linkEndsList;
 }
 
-std::vector< LinkEnds > getTwoWayLinkEndsList(
-        const std::vector< LinkEndId > listOfStations,
-        const LinkEndId spacecraft )
+std::vector< LinkEnds > getTwoWayLinkEndsList( const std::vector< LinkEndId > listOfStations, const LinkEndId spacecraft )
 {
     std::vector< LinkEnds > linkEndsList;
 
@@ -338,14 +316,11 @@ std::vector< LinkEnds > getTwoWayLinkEndsList(
     return linkEndsList;
 }
 
-
-bool isLinkEndPresent(
-        const LinkEnds linkEnds,
-        const LinkEndId linkEndToSearch )
+bool isLinkEndPresent( const LinkEnds linkEnds, const LinkEndId linkEndToSearch )
 {
     bool linkEndIsPresent = false;
 
-    for( auto linkEndIterator : linkEnds )
+    for( auto linkEndIterator: linkEnds )
     {
         if( linkEndIterator.second == linkEndToSearch )
         {
@@ -356,7 +331,6 @@ bool isLinkEndPresent(
     return linkEndIsPresent;
 }
 
+}  // namespace observation_models
 
-} // namespace observation_models
-
-} // namespace tudat
+}  // namespace tudat

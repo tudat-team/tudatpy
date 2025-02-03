@@ -20,14 +20,14 @@ namespace json_interface
 //! Create a `json` object from a shared pointer to a `SpiceSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< SpiceSettings >& spiceSettings )
 {
-    if ( ! spiceSettings )
+    if( !spiceSettings )
     {
         return;
     }
     using K = Keys::Spice;
 
     jsonObject[ K::useStandardKernels ] = spiceSettings->useStandardKernels_;
-    if ( spiceSettings->useStandardKernels_ )
+    if( spiceSettings->useStandardKernels_ )
     {
         assignIfNotEmpty( jsonObject, K::alternativeKernels, spiceSettings->alternativeKernels_ );
     }
@@ -37,11 +37,10 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< SpiceSettings >
     }
 
     jsonObject[ K::preloadEphemeris ] = spiceSettings->preloadEphemeris_;
-    if ( spiceSettings->preloadEphemeris_ )
+    if( spiceSettings->preloadEphemeris_ )
     {
         jsonObject[ K::interpolationStep ] = spiceSettings->interpolationStep_;
-        jsonObject[ K::interpolationOffsets ] = { spiceSettings->getInitialOffset( ),
-                                                  spiceSettings->getFinalOffset( ) };
+        jsonObject[ K::interpolationOffsets ] = { spiceSettings->getInitialOffset( ), spiceSettings->getFinalOffset( ) };
     }
 }
 
@@ -53,7 +52,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< SpiceSettings
     spiceSettings = std::make_shared< SpiceSettings >( );
 
     updateFromJSON( spiceSettings->useStandardKernels_, jsonObject, K::useStandardKernels );
-    if ( spiceSettings->useStandardKernels_ )
+    if( spiceSettings->useStandardKernels_ )
     {
         updateFromJSONIfDefined( spiceSettings->alternativeKernels_, jsonObject, K::alternativeKernels );
     }
@@ -63,15 +62,12 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< SpiceSettings
     }
 
     updateFromJSONIfDefined( spiceSettings->preloadEphemeris_, jsonObject, K::preloadEphemeris );
-    if ( spiceSettings->preloadEphemeris_ )
+    if( spiceSettings->preloadEphemeris_ )
     {
-        spiceSettings->interpolationOffsets_ =
-                getValue( jsonObject, K::interpolationOffsets, spiceSettings->interpolationOffsets_ );
-        spiceSettings->interpolationStep_ =
-                getValue( jsonObject, K::interpolationStep, spiceSettings->interpolationStep_ );
+        spiceSettings->interpolationOffsets_ = getValue( jsonObject, K::interpolationOffsets, spiceSettings->interpolationOffsets_ );
+        spiceSettings->interpolationStep_ = getValue( jsonObject, K::interpolationStep, spiceSettings->interpolationStep_ );
     }
 }
-
 
 //! Load in Tudat the Spice kernels specified in \p spiceSettings.
 void loadSpiceKernels( const std::shared_ptr< SpiceSettings >& spiceSettings )
@@ -80,12 +76,12 @@ void loadSpiceKernels( const std::shared_ptr< SpiceSettings >& spiceSettings )
 
     clearSpiceKernels( );
 
-    if ( spiceSettings )
+    if( spiceSettings )
     {
-        if ( spiceSettings->useStandardKernels_ )
+        if( spiceSettings->useStandardKernels_ )
         {
             std::vector< std::string > alternativeKernelsFiles;
-            for ( boost::filesystem::path kernel : spiceSettings->alternativeKernels_ )
+            for( boost::filesystem::path kernel: spiceSettings->alternativeKernels_ )
             {
                 alternativeKernelsFiles.push_back( kernel.string( ) );
             }
@@ -93,7 +89,7 @@ void loadSpiceKernels( const std::shared_ptr< SpiceSettings >& spiceSettings )
         }
         else
         {
-            for ( const boost::filesystem::path kernel : spiceSettings->kernels_ )
+            for( const boost::filesystem::path kernel: spiceSettings->kernels_ )
             {
                 spice_interface::loadSpiceKernelInTudat( kernel.string( ) );
             }
@@ -101,6 +97,6 @@ void loadSpiceKernels( const std::shared_ptr< SpiceSettings >& spiceSettings )
     }
 }
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat

@@ -25,10 +25,9 @@ namespace estimatable_parameters
  * Interface class for estimation the tidal time lag in a direct tidal acceleration modell (e.g. without modification of
  * deformed body's gravity field. Modifies the tidal time lag parameter of a (set of) DirectTidalDissipationAcceleration objects
  */
-class DirectTidalTimeLag: public EstimatableParameter< double >
+class DirectTidalTimeLag : public EstimatableParameter< double >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -37,21 +36,20 @@ public:
      * \param bodiesCausingDeformation List of bodies causing tidal deformation (empty if all bodies causing deformation in
      * AccelerationMap are used)
      */
-    DirectTidalTimeLag(
-            const std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModels,
-            const std::string& deformedBody,
-            const std::vector< std::string > bodiesCausingDeformation = std::vector< std::string >( ) ):
-        EstimatableParameter< double >(
-            direct_dissipation_tidal_time_lag, deformedBody ),
-        tidalAccelerationModels_( tidalAccelerationModels ),
-        bodiesCausingDeformation_( bodiesCausingDeformation )
+    DirectTidalTimeLag( const std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModels,
+                        const std::string& deformedBody,
+                        const std::vector< std::string > bodiesCausingDeformation = std::vector< std::string >( ) ):
+        EstimatableParameter< double >( direct_dissipation_tidal_time_lag, deformedBody ),
+        tidalAccelerationModels_( tidalAccelerationModels ), bodiesCausingDeformation_( bodiesCausingDeformation )
     {
         for( unsigned int i = 1; i < tidalAccelerationModels_.size( ); i++ )
         {
             // Check whetehr input is fully consistent at iteration 0.
             if( tidalAccelerationModels_.at( i )->getTimeLag( ) != tidalAccelerationModels_.at( 0 )->getTimeLag( ) )
             {
-                std::cerr << "Warning when making direct tidal time lag parameter. Time lags are different in model upon creation, but will be estimated to the same value" << std::endl;
+                std::cerr << "Warning when making direct tidal time lag parameter. Time lags are different in model upon creation, but "
+                             "will be estimated to the same value"
+                          << std::endl;
             }
         }
     }
@@ -78,7 +76,6 @@ public:
             tidalAccelerationModels_.at( i )->resetTimeLag( parameterValue );
         }
     }
-
 
     //! Function to retrieve the size of the parameter
     /*!
@@ -112,17 +109,17 @@ public:
 
     //! Function to retrieve parameter description.
     /*!
-    * Function to retrieve parameter description.
-    * \return Description direct tidal time lag parameter.
-    */
+     * Function to retrieve parameter description.
+     * \return Description direct tidal time lag parameter.
+     */
     std::string getParameterDescription( )
     {
         std::string parameterDescription =
                 getParameterTypeString( parameterName_.first ) + "of " + parameterName_.second.first + " due to ";
-        for ( unsigned int i = 0 ; i < bodiesCausingDeformation_.size( ) ; i++ )
+        for( unsigned int i = 0; i < bodiesCausingDeformation_.size( ); i++ )
         {
             parameterDescription += bodiesCausingDeformation_[ i ];
-            if ( i != bodiesCausingDeformation_.size( ) - 1 )
+            if( i != bodiesCausingDeformation_.size( ) - 1 )
             {
                 parameterDescription += " & ";
             }
@@ -130,19 +127,16 @@ public:
         return parameterDescription;
     }
 
-
 private:
-
     //! List of acceleration models of which the tidal time lag is to be estimated
     std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModels_;
 
     //! List of bodies causing tidal deformation (empty if all bodies causing deformation in AccelerationMap are used)
     std::vector< std::string > bodiesCausingDeformation_;
-
 };
 
-}
+}  // namespace estimatable_parameters
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_DIRECTTIDALTIMELAG_H
+#endif  // TUDAT_DIRECTTIDALTIMELAG_H

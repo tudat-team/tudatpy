@@ -15,18 +15,15 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
 namespace tudat
-{  
+{
 namespace basic_astrodynamics
 {
-class CustomAccelerationModel: public basic_astrodynamics::AccelerationModel3d
+class CustomAccelerationModel : public basic_astrodynamics::AccelerationModel3d
 {
 public:
-    CustomAccelerationModel(
-            const std::function< Eigen::Vector3d( const double ) > accelerationFunction ):
+    CustomAccelerationModel( const std::function< Eigen::Vector3d( const double ) > accelerationFunction ):
         accelerationFunction_( accelerationFunction )
-    {
-
-    }
+    { }
 
     virtual void updateMembers( const double currentTime = TUDAT_NAN )
     {
@@ -34,16 +31,13 @@ public:
         {
             currentAcceleration_ = accelerationFunction_( currentTime );
         }
-
     }
 
 private:
     std::function< Eigen::Vector3d( const double ) > accelerationFunction_;
-
 };
 
+}  // namespace basic_astrodynamics
+}  // namespace tudat
 
-} // namespace basic_astrodynamics
-} // namespace tudat
-
-#endif // TUDAT_CUSTOM_ACCELERATION_MODEL_H
+#endif  // TUDAT_CUSTOM_ACCELERATION_MODEL_H

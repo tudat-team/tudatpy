@@ -6,7 +6,6 @@ namespace tudat
 namespace observation_models
 {
 
-
 }
 
-}
+}  // namespace tudat

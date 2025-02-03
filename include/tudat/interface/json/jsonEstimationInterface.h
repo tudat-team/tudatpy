@@ -21,22 +21,17 @@
 
 #include "tudat/simulation/estimation.h"
 
-
 namespace tudat
 {
 
 namespace json_interface
 {
 
-
-
 //! Class for managing JSON-based simulations.
 template< typename TimeType = double, typename StateScalarType = double >
-class JsonEstimationManager: public JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >
+class JsonEstimationManager : public JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >
 {
-
 public:
-
     using JsonSimulationManager< TimeType, StateScalarType >::jsonObject_;
     using JsonSimulationManager< TimeType, StateScalarType >::applicationOptions_;
     using JsonSimulationManager< TimeType, StateScalarType >::profiling;
@@ -58,9 +53,8 @@ public:
      * \param initialClockTime Initial clock time from which the cummulative CPU time during the propagation will be
      * computed. Default is the moment at which the constructor was called.
      */
-    JsonEstimationManager(
-            const std::string& inputFilePath,
-            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
+    JsonEstimationManager( const std::string& inputFilePath,
+                           const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
         JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >( inputFilePath, initialClockTime )
     { }
 
@@ -71,27 +65,26 @@ public:
      * \param initialClockTime Initial clock time from which the cummulative CPU time during the propagation will be
      * computed. Default is the moment at which the constructor was called.
      */
-    JsonEstimationManager(
-            const nlohmann::json& jsonObject,
-            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
-        JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >( jsonObject, initialClockTime ){ }
+    JsonEstimationManager( const nlohmann::json& jsonObject,
+                           const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
+        JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >( jsonObject, initialClockTime )
+    { }
 
-    virtual ~JsonEstimationManager( ){ }
+    virtual ~JsonEstimationManager( ) { }
 
     virtual void updateSettings( )
     {
-        std::cout<<"T1"<<std::endl;
+        std::cout << "T1" << std::endl;
         JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >::updateSettings( );
-        std::cout<<"T2"<<std::endl;
+        std::cout << "T2" << std::endl;
 
         resetObservationSettings( );
-        std::cout<<"T3"<<std::endl;
+        std::cout << "T3" << std::endl;
 
         resetEstimationSettings( );
-        std::cout<<"T4"<<std::endl;
+        std::cout << "T4" << std::endl;
         createSimulationObjects( );
-        std::cout<<"T5"<<std::endl;
-
+        std::cout << "T5" << std::endl;
     }
 
     virtual void runJsonSimulation( )
@@ -99,46 +92,46 @@ public:
         estimationOutput_ = orbitDeterminationManager_->estimateParameters( estimationInput_, convergenceChecker_ );
     }
 
-
     //! Export the results of the dynamics simulation according to the export settings.
     /*!
      * @copybrief exportResults
      */
-    void exportEstimationResults( )
-    {
-
-    }
+    void exportEstimationResults( ) { }
 
 protected:
-
     void resetObservationSettings( )
     {
-        observationSettingsMap_ = getValue< observation_models::ObservationSettingsListPerLinkEnd >(
-            jsonObject_, Keys::observations );
-        std::cout<<"Size of obs. settings "<<observationSettingsMap_.size( )<<std::endl;
+        observationSettingsMap_ = getValue< observation_models::ObservationSettingsListPerLinkEnd >( jsonObject_, Keys::observations );
+        std::cout << "Size of obs. settings " << observationSettingsMap_.size( ) << std::endl;
 
-        if ( profiling )
+        if( profiling )
         {
-
-            std::cout << "resetObservationSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetObservationSettings: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
 
     void resetEstimationSettings( )
     {
-        updatePodSettingsFromJSON(
-                    jsonObject_[ Keys::estimationSettings ], estimationInput_, convergenceChecker_, parametersToEstimate_->getParameterSetSize( )  );
+        updatePodSettingsFromJSON( jsonObject_[ Keys::estimationSettings ],
+                                   estimationInput_,
+                                   convergenceChecker_,
+                                   parametersToEstimate_->getParameterSetSize( ) );
 
-        if ( profiling )
+        if( profiling )
         {
-            std::cout << "resetEstimationSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            std::cout << "resetEstimationSettings: "
+                      << std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::steady_clock::now( ) - initialClockTime_ )
+                                    .count( ) *
+                            1.0e-3
+                      << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
     }
-
 
     //! Reset dynamicsSimulator_ for the current bodies_, integratorSettings_ and propagatorSettings_.
     /*!
@@ -156,46 +149,43 @@ protected:
 
     virtual void createSimulationObjects( )
     {
-        orbitDeterminationManager_ =
-                std::make_shared< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > >(
-                    bodies_, parametersToEstimate_, observation_models::convertUnsortedToSortedObservationSettingsMap(
-                        observationSettingsMap_ ), integratorSettings_, propagatorSettings_,
-                    false );
+        orbitDeterminationManager_ = std::make_shared< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > >(
+                bodies_,
+                parametersToEstimate_,
+                observation_models::convertUnsortedToSortedObservationSettingsMap( observationSettingsMap_ ),
+                integratorSettings_,
+                propagatorSettings_,
+                false );
         variationalEquationsSolver_ =
                 std::dynamic_pointer_cast< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    orbitDeterminationManager_->getVariationalEquationsSolver( ) );
+                        orbitDeterminationManager_->getVariationalEquationsSolver( ) );
         dynamicsSimulator_ = variationalEquationsSolver_->getDynamicsSimulator( );
-        std::cout<<"check NULL "<<( variationalEquationsSolver_ == NULL )<<" "<<
-                   ( orbitDeterminationManager_->getVariationalEquationsSolver( ) == NULL )<<std::endl;
+        std::cout << "check NULL " << ( variationalEquationsSolver_ == NULL ) << " "
+                  << ( orbitDeterminationManager_->getVariationalEquationsSolver( ) == NULL ) << std::endl;
     }
 
 private:
-
     observation_models::ObservationSettingsListPerLinkEnd observationSettingsMap_;
 
     std::shared_ptr< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > > orbitDeterminationManager_;
-
 
     std::shared_ptr< simulation_setup::EstimationConvergenceChecker > convergenceChecker_;
 
     std::shared_ptr< simulation_setup::EstimationInput< StateScalarType, TimeType > > estimationInput_;
 
-
     std::shared_ptr< simulation_setup::EstimationOutput< StateScalarType, TimeType > > estimationOutput_;
-
 };
 
-//extern template class JsonEstimationManager< double, double >;
+// extern template class JsonEstimationManager< double, double >;
 
-//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//extern template class JsonEstimationManager< Time, long double >;
-//extern template class JsonEstimationManager< double, double >;
-//extern template class JsonEstimationManager< Time, long double >;
-//#endif
+// #if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+// extern template class JsonEstimationManager< Time, long double >;
+// extern template class JsonEstimationManager< double, double >;
+// extern template class JsonEstimationManager< Time, long double >;
+// #endif
 
+}  // namespace json_interface
 
-} // namespace json_interface
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_JSONESTIMATIONINTERFACE_H
+#endif  // TUDAT_JSONESTIMATIONINTERFACE_H

@@ -20,8 +20,7 @@ namespace tudat
 namespace shape_based_methods
 {
 
-enum baseFunctionSphericalShapingType
-{
+enum baseFunctionSphericalShapingType {
     constantSphericalShaping,
     linearSphericalShaping,
     squaredSphericalShaping,
@@ -35,12 +34,11 @@ enum baseFunctionSphericalShapingType
 class BaseFunctionSphericalShaping
 {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    BaseFunctionSphericalShaping( ){ }
+    BaseFunctionSphericalShaping( ) { }
 
     //! Default destructor.
     /*!
@@ -57,11 +55,8 @@ public:
     virtual double evaluateThirdDerivative( const double independentVariable ) = 0;
 
 protected:
-
 private:
-
 };
-
 
 //! Constant function.
 class ConstantFunctionSphericalShaping : public BaseFunctionSphericalShaping
@@ -71,7 +66,7 @@ public:
     /*!
      * Default constructor.
      */
-    ConstantFunctionSphericalShaping( ){}
+    ConstantFunctionSphericalShaping( ) { }
 
     //! Default destructor.
     /*!
@@ -100,11 +95,8 @@ public:
     }
 
 protected:
-
 private:
-
 };
-
 
 //! Linear function.
 class LinearFunctionSphericalShaping : public BaseFunctionSphericalShaping
@@ -121,7 +113,6 @@ public:
      * Default destructor.
      */
     ~LinearFunctionSphericalShaping( ) { }
-
 
     double evaluateFunction( const double independentVariable )
     {
@@ -143,13 +134,9 @@ public:
         return 0.0;
     }
 
-
 protected:
-
 private:
-
 };
-
 
 //! x^2 function.
 class SquaredFunctionSphericalShaping : public BaseFunctionSphericalShaping
@@ -167,7 +154,8 @@ public:
      */
     ~SquaredFunctionSphericalShaping( ) { }
 
-    double evaluateFunction( const double independentVariable ){
+    double evaluateFunction( const double independentVariable )
+    {
         return std::pow( independentVariable, 2.0 );
     }
 
@@ -176,7 +164,8 @@ public:
         return 2.0 * independentVariable;
     }
 
-    double evaluateSecondDerivative( const double independentVariable ){
+    double evaluateSecondDerivative( const double independentVariable )
+    {
         return 2.0;
     }
 
@@ -185,13 +174,9 @@ public:
         return 0.0;
     }
 
-
 protected:
-
 private:
-
 };
-
 
 //! cosine function.
 class CosineFunctionSphericalShaping : public BaseFunctionSphericalShaping
@@ -209,7 +194,6 @@ public:
      */
     ~CosineFunctionSphericalShaping( ) { }
 
-
     double evaluateFunction( const double independentVariable )
     {
         return std::cos( independentVariable );
@@ -217,12 +201,12 @@ public:
 
     double evaluateFirstDerivative( const double independentVariable )
     {
-        return - std::sin( independentVariable );
+        return -std::sin( independentVariable );
     }
 
     double evaluateSecondDerivative( const double independentVariable )
     {
-        return - std::cos( independentVariable );
+        return -std::cos( independentVariable );
     }
 
     double evaluateThirdDerivative( const double independentVariable )
@@ -231,11 +215,8 @@ public:
     }
 
 protected:
-
 private:
-
 };
-
 
 //! Power cosine function.
 class PowerCosineFunctionSphericalShaping : public BaseFunctionSphericalShaping
@@ -253,8 +234,8 @@ public:
      */
     ~PowerCosineFunctionSphericalShaping( ) { }
 
-
-    double evaluateFunction( const double independentVariable ){
+    double evaluateFunction( const double independentVariable )
+    {
         return independentVariable * std::cos( independentVariable );
     }
 
@@ -265,20 +246,17 @@ public:
 
     double evaluateSecondDerivative( const double independentVariable )
     {
-        return - 2.0 * std::sin( independentVariable ) - independentVariable * std::cos( independentVariable );
+        return -2.0 * std::sin( independentVariable ) - independentVariable * std::cos( independentVariable );
     }
 
     double evaluateThirdDerivative( const double independentVariable )
     {
-        return - 3.0 * std::cos( independentVariable ) + independentVariable * std::sin( independentVariable );
+        return -3.0 * std::cos( independentVariable ) + independentVariable * std::sin( independentVariable );
     }
 
 protected:
-
 private:
-
 };
-
 
 //! Sine function.
 class SineFunctionSphericalShaping : public BaseFunctionSphericalShaping
@@ -296,7 +274,6 @@ public:
      */
     ~SineFunctionSphericalShaping( ) { }
 
-
     double evaluateFunction( const double independentVariable )
     {
         return std::sin( independentVariable );
@@ -309,20 +286,17 @@ public:
 
     double evaluateSecondDerivative( const double independentVariable )
     {
-        return - std::sin( independentVariable );
+        return -std::sin( independentVariable );
     }
 
     double evaluateThirdDerivative( const double independentVariable )
     {
-        return - std::cos( independentVariable );
+        return -std::cos( independentVariable );
     }
 
 protected:
-
 private:
-
 };
-
 
 //! Power times sine function.
 class PowerSineFunctionSphericalShaping : public BaseFunctionSphericalShaping
@@ -340,13 +314,13 @@ public:
      */
     ~PowerSineFunctionSphericalShaping( ) { }
 
-
     double evaluateFunction( const double independentVariable )
     {
         return independentVariable * std::sin( independentVariable );
     }
 
-    double evaluateFirstDerivative( const double independentVariable ){
+    double evaluateFirstDerivative( const double independentVariable )
+    {
         return std::sin( independentVariable ) + independentVariable * std::cos( independentVariable );
     }
 
@@ -357,20 +331,17 @@ public:
 
     double evaluateThirdDerivative( const double independentVariable )
     {
-        return - 3.0 * std::sin( independentVariable ) - independentVariable * std::cos( independentVariable );
+        return -3.0 * std::sin( independentVariable ) - independentVariable * std::cos( independentVariable );
     }
 
 protected:
-
 private:
-
 };
 
 std::shared_ptr< BaseFunctionSphericalShaping > createBaseFunctionSphericalShaping(
         const baseFunctionSphericalShapingType baseFunctionType );
 
+}  // namespace shape_based_methods
+}  // namespace tudat
 
-} // namespace shape_based_methods
-} // namespace tudat
-
-#endif // TUDAT_BASE_FUNCTIONS_SPHERICAL_SHAPING_H
+#endif  // TUDAT_BASE_FUNCTIONS_SPHERICAL_SHAPING_H

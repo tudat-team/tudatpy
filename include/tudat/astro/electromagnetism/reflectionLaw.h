@@ -24,7 +24,6 @@
 
 #include <Eigen/Core>
 
-
 namespace tudat
 {
 namespace electromagnetism
@@ -37,9 +36,9 @@ namespace electromagnetism
 class ReflectionLaw
 {
 public:
-    ReflectionLaw() = default;
+    ReflectionLaw( ) = default;
 
-    virtual ~ReflectionLaw() = default;
+    virtual ~ReflectionLaw( ) = default;
 
     /*!
      * Evaluate reflected fraction (per steradian) of incoming light in a certain observer direction. Such a function
@@ -53,10 +52,9 @@ public:
      * @param observerDirection Unit vector from surface in direction of observer
      * @return Reflected fraction of radiation per steradian [1/sr]
      */
-    virtual double evaluateReflectedFraction(
-            const Eigen::Vector3d& surfaceNormal,
-            const Eigen::Vector3d& incomingDirection,
-            const Eigen::Vector3d& observerDirection) const = 0;
+    virtual double evaluateReflectedFraction( const Eigen::Vector3d& surfaceNormal,
+                                              const Eigen::Vector3d& incomingDirection,
+                                              const Eigen::Vector3d& observerDirection ) const = 0;
 
     /*!
      * Evaluate direction of reaction force due to incident and reflected radiation. For pure absorption, the force is
@@ -67,25 +65,22 @@ public:
      * @param incomingDirection Incoming radiation unit vector from source to target
      * @return Reaction vector
      */
-    virtual Eigen::Vector3d evaluateReactionVector(
-            const Eigen::Vector3d& surfaceNormal,
-            const Eigen::Vector3d& incomingDirection) const = 0;
+    virtual Eigen::Vector3d evaluateReactionVector( const Eigen::Vector3d& surfaceNormal,
+                                                    const Eigen::Vector3d& incomingDirection ) const = 0;
 
-    virtual Eigen::Vector3d evaluateReactionVectorPartialWrtSpecularReflectivity(
-            const Eigen::Vector3d& surfaceNormal,
-            const Eigen::Vector3d& incomingDirection) const = 0;
+    virtual Eigen::Vector3d evaluateReactionVectorPartialWrtSpecularReflectivity( const Eigen::Vector3d& surfaceNormal,
+                                                                                  const Eigen::Vector3d& incomingDirection ) const = 0;
 
-    virtual Eigen::Vector3d evaluateReactionVectorPartialWrtDiffuseReflectivity(
-            const Eigen::Vector3d& surfaceNormal,
-            const Eigen::Vector3d& incomingDirection) const = 0;
+    virtual Eigen::Vector3d evaluateReactionVectorPartialWrtDiffuseReflectivity( const Eigen::Vector3d& surfaceNormal,
+                                                                                 const Eigen::Vector3d& incomingDirection ) const = 0;
 
     virtual Eigen::Matrix3d evaluateReactionVectorDerivativeWrtTargetPosition(
-        const Eigen::Vector3d& surfaceNormal,
-        const Eigen::Vector3d& incomingDirection,
-        const double cosineOfAngleBetweenVectors,
-        const Eigen::Vector3d& currentReactionVector,
-        const Eigen::Matrix3d& sourceUnitVectorPartial,
-        const Eigen::Matrix< double, 1, 3 >& cosineAnglePartial ) = 0;
+            const Eigen::Vector3d& surfaceNormal,
+            const Eigen::Vector3d& incomingDirection,
+            const double cosineOfAngleBetweenVectors,
+            const Eigen::Vector3d& currentReactionVector,
+            const Eigen::Matrix3d& sourceUnitVectorPartial,
+            const Eigen::Matrix< double, 1, 3 >& cosineAnglePartial ) = 0;
 };
 
 /*!
@@ -93,10 +88,10 @@ public:
  * reflected is absorbed. Absorbed radiation can (optionally) be instantaneously diffusely reradiated, e.g., as
  * simplified model of a satellite's own thermal radiation (Vielberg, 2020). Instantaneous reradiation only makes
  * sense for targets, for sources use the dedicated thermal panel radiosity models.
- * 
+ *
  * Note that, to receive any specular reflection in evaluateReflectedFraction(), the observer has to be exactly
  * in the mirror-like reflection of the incoming ray, which is unlikely.
- * 
+ *
  * Model is described by Wetterer (2014) Eq. 3.
  */
 class SpecularDiffuseMixReflectionLaw : public ReflectionLaw
@@ -110,45 +105,36 @@ public:
      * @param diffuseReflectivity Diffuse reflectivity (between 0 and 1)
      * @param withInstantaneousReradiation Whether to instantaneously reradiate absorbed radiation
      */
-    explicit SpecularDiffuseMixReflectionLaw(
-            double absorptivity,
-            double specularReflectivity,
-            double diffuseReflectivity,
-            bool withInstantaneousReradiation = false) :
-            absorptivity_(absorptivity),
-            specularReflectivity_(specularReflectivity),
-            diffuseReflectivity_(diffuseReflectivity),
-            withInstantaneousReradiation_(withInstantaneousReradiation)
+    explicit SpecularDiffuseMixReflectionLaw( double absorptivity,
+                                              double specularReflectivity,
+                                              double diffuseReflectivity,
+                                              bool withInstantaneousReradiation = false ):
+        absorptivity_( absorptivity ), specularReflectivity_( specularReflectivity ), diffuseReflectivity_( diffuseReflectivity ),
+        withInstantaneousReradiation_( withInstantaneousReradiation )
     {
-        validateCoefficients();
+        validateCoefficients( );
     }
 
-    double evaluateReflectedFraction(
-            const Eigen::Vector3d& surfaceNormal,
-            const Eigen::Vector3d& incomingDirection,
-            const Eigen::Vector3d& observerDirection) const override;
+    double evaluateReflectedFraction( const Eigen::Vector3d& surfaceNormal,
+                                      const Eigen::Vector3d& incomingDirection,
+                                      const Eigen::Vector3d& observerDirection ) const override;
 
-    Eigen::Vector3d evaluateReactionVector(
-        const Eigen::Vector3d& surfaceNormal,
-        const Eigen::Vector3d& incomingDirection) const override;
+    Eigen::Vector3d evaluateReactionVector( const Eigen::Vector3d& surfaceNormal, const Eigen::Vector3d& incomingDirection ) const override;
 
-    Eigen::Vector3d evaluateReactionVectorPartialWrtSpecularReflectivity(
-        const Eigen::Vector3d& surfaceNormal,
-        const Eigen::Vector3d& incomingDirection) const override;
+    Eigen::Vector3d evaluateReactionVectorPartialWrtSpecularReflectivity( const Eigen::Vector3d& surfaceNormal,
+                                                                          const Eigen::Vector3d& incomingDirection ) const override;
 
-    Eigen::Vector3d evaluateReactionVectorPartialWrtDiffuseReflectivity(
-        const Eigen::Vector3d& surfaceNormal,
-        const Eigen::Vector3d& incomingDirection) const override;
+    Eigen::Vector3d evaluateReactionVectorPartialWrtDiffuseReflectivity( const Eigen::Vector3d& surfaceNormal,
+                                                                         const Eigen::Vector3d& incomingDirection ) const override;
 
-    Eigen::Matrix3d evaluateReactionVectorDerivativeWrtTargetPosition(
-        const Eigen::Vector3d& surfaceNormal,
-        const Eigen::Vector3d& incomingDirection,
-        const double cosineOfAngleBetweenVectors,
-        const Eigen::Vector3d& currentReactionVector,
-        const Eigen::Matrix3d& sourceUnitVectorPartial,
-        const Eigen::Matrix< double, 1, 3 >& cosineAnglePartial ) override;
+    Eigen::Matrix3d evaluateReactionVectorDerivativeWrtTargetPosition( const Eigen::Vector3d& surfaceNormal,
+                                                                       const Eigen::Vector3d& incomingDirection,
+                                                                       const double cosineOfAngleBetweenVectors,
+                                                                       const Eigen::Vector3d& currentReactionVector,
+                                                                       const Eigen::Matrix3d& sourceUnitVectorPartial,
+                                                                       const Eigen::Matrix< double, 1, 3 >& cosineAnglePartial ) override;
 
-    double getAbsorptivity() const
+    double getAbsorptivity( ) const
     {
         return absorptivity_;
     }
@@ -158,7 +144,7 @@ public:
         absorptivity_ = absorptivity;
     }
 
-    double getSpecularReflectivity() const
+    double getSpecularReflectivity( ) const
     {
         return specularReflectivity_;
     }
@@ -172,7 +158,7 @@ public:
         }
     }
 
-    double getDiffuseReflectivity() const
+    double getDiffuseReflectivity( ) const
     {
         return diffuseReflectivity_;
     }
@@ -186,13 +172,13 @@ public:
         }
     }
 
-    bool isWithInstantaneousReradiation() const
+    bool isWithInstantaneousReradiation( ) const
     {
         return withInstantaneousReradiation_;
     }
 
 protected:
-    void validateCoefficients() const;
+    void validateCoefficients( ) const;
 
     double absorptivity_;
     double specularReflectivity_;
@@ -211,15 +197,11 @@ public:
 
      * @param diffuseReflectivity Diffuse reflectivity, e.g., albedo (between 0 and 1)
      */
-    explicit LambertianReflectionLaw(
-            double diffuseReflectivity) :
-        SpecularDiffuseMixReflectionLaw(
-            1-diffuseReflectivity,
-            0,
-            diffuseReflectivity,
-            false) {}
+    explicit LambertianReflectionLaw( double diffuseReflectivity ):
+        SpecularDiffuseMixReflectionLaw( 1 - diffuseReflectivity, 0, diffuseReflectivity, false )
+    { }
 
-    void setDiffuseReflectivity(double diffuseReflectivity)
+    void setDiffuseReflectivity( double diffuseReflectivity )
     {
         absorptivity_ = 1 - diffuseReflectivity;
         diffuseReflectivity_ = diffuseReflectivity;
@@ -234,52 +216,39 @@ public:
  * @param surfaceNormal Surface normal unit vector
  * @return Mirrorlike reflection of vectorToMirror, pointing away from surface
  */
-Eigen::Vector3d computeMirrorlikeReflection(
-        const Eigen::Vector3d& vectorToMirror,
-        const Eigen::Vector3d& surfaceNormal);
+Eigen::Vector3d computeMirrorlikeReflection( const Eigen::Vector3d& vectorToMirror, const Eigen::Vector3d& surfaceNormal );
 
-
-inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromAbsorptivityAndSpecularReflectivity(
+inline std::shared_ptr< SpecularDiffuseMixReflectionLaw > reflectionLawFromAbsorptivityAndSpecularReflectivity(
         double absorptivity,
         double specularReflectivity,
-        bool withInstantaneousReradiation = false)
+        bool withInstantaneousReradiation = false )
 {
     const auto diffuseReflectivity = 1.0 - absorptivity - specularReflectivity;
-    return std::make_shared<SpecularDiffuseMixReflectionLaw>(
-            absorptivity,
-            specularReflectivity,
-            diffuseReflectivity,
-            withInstantaneousReradiation);
+    return std::make_shared< SpecularDiffuseMixReflectionLaw >(
+            absorptivity, specularReflectivity, diffuseReflectivity, withInstantaneousReradiation );
 }
 
-inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromAbsorptivityAndDiffuseReflectivity(
+inline std::shared_ptr< SpecularDiffuseMixReflectionLaw > reflectionLawFromAbsorptivityAndDiffuseReflectivity(
         double absorptivity,
         double diffuseReflectivity,
-        bool withInstantaneousReradiation = false)
+        bool withInstantaneousReradiation = false )
 {
     const auto specularReflectivity = 1.0 - absorptivity - diffuseReflectivity;
-    return std::make_shared<SpecularDiffuseMixReflectionLaw>(
-            absorptivity,
-            specularReflectivity,
-            diffuseReflectivity,
-            withInstantaneousReradiation);
+    return std::make_shared< SpecularDiffuseMixReflectionLaw >(
+            absorptivity, specularReflectivity, diffuseReflectivity, withInstantaneousReradiation );
 }
 
-inline std::shared_ptr<SpecularDiffuseMixReflectionLaw> reflectionLawFromSpecularAndDiffuseReflectivity(
+inline std::shared_ptr< SpecularDiffuseMixReflectionLaw > reflectionLawFromSpecularAndDiffuseReflectivity(
         double specularReflectivity,
         double diffuseReflectivity,
-        bool withInstantaneousReradiation = false)
+        bool withInstantaneousReradiation = false )
 {
     const auto absorptivity = 1.0 - specularReflectivity - diffuseReflectivity;
-    return std::make_shared<SpecularDiffuseMixReflectionLaw>(
-            absorptivity,
-            specularReflectivity,
-            diffuseReflectivity,
-            withInstantaneousReradiation);
+    return std::make_shared< SpecularDiffuseMixReflectionLaw >(
+            absorptivity, specularReflectivity, diffuseReflectivity, withInstantaneousReradiation );
 }
 
+}  // namespace electromagnetism
+}  // namespace tudat
 
-} // tudat
-} // electromagnetism
-
-#endif //TUDAT_REFLECTIONLAW_H
+#endif  // TUDAT_REFLECTIONLAW_H

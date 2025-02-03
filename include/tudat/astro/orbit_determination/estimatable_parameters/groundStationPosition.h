@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_GROUNDSTATIONPOSITION_H
 #define TUDAT_GROUNDSTATIONPOSITION_H
 
@@ -17,24 +16,20 @@
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
-
 namespace tudat
 {
 
 namespace estimatable_parameters
 {
 
-
 //! Class for estimating constant position of a ground station
 /*!
  *  Class for estimating constant position of a ground station. Specific parameter is Cartesian x,y and z component of station
  *  in body-fixed frame.
  */
-class GroundStationPosition: public EstimatableParameter< Eigen::VectorXd >
+class GroundStationPosition : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
-
     //! Constructor
     /*!
      *  Constructor
@@ -42,13 +37,14 @@ public:
      *  \param associatedBody Body on which station is located
      *  \param associatedStation Name of station
      */
-    GroundStationPosition( const std::shared_ptr<ground_stations:: GroundStationState > groundStationState,
+    GroundStationPosition( const std::shared_ptr< ground_stations::GroundStationState > groundStationState,
                            const std::string& associatedBody,
                            const std::string& associatedStation ):
-        EstimatableParameter< Eigen::VectorXd  >( ground_station_position, associatedBody, associatedStation ),
-        groundStationState_( groundStationState ){ }
+        EstimatableParameter< Eigen::VectorXd >( ground_station_position, associatedBody, associatedStation ),
+        groundStationState_( groundStationState )
+    { }
 
-    //! Destructor    
+    //! Destructor
     ~GroundStationPosition( ) { }
 
     //! Get values (Cartesian x,y,z position) of ground station position
@@ -56,7 +52,7 @@ public:
      *  Get values (Cartesian x,y,z position) of ground station position
      *  \return Values (Cartesian x,y,z position) of ground station position
      */
-    Eigen::VectorXd  getParameterValue( )
+    Eigen::VectorXd getParameterValue( )
     {
         return groundStationState_->getNominalCartesianPosition( );
     }
@@ -82,15 +78,13 @@ public:
     }
 
 protected:
-
 private:
-
     //! Object that represents state of ground stations
     std::shared_ptr< ground_stations::GroundStationState > groundStationState_;
 };
 
-}
+}  // namespace estimatable_parameters
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_GROUNDSTATIONPOSITION_H
+#endif  // TUDAT_GROUNDSTATIONPOSITION_H

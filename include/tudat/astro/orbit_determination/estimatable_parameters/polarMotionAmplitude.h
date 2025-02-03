@@ -11,7 +11,6 @@
 #ifndef TUDAT_POLARMOTIONAMPLITUDE_H
 #define TUDAT_POLARMOTIONAMPLITUDE_H
 
-
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -29,29 +28,25 @@ namespace estimatable_parameters
  *  Interfaces the estimation with the polar motion amplitude of a PlanetaryRotationModel
  *  object
  */
-class PolarMotionAmplitude: public EstimatableParameter< Eigen::VectorXd >
+class PolarMotionAmplitude : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
-
     //! Constructor
     /*!
      *  Constructor
      *  \param rotationModel PlanetaryRotationModel object of which the polar motion amplitude is a property.
      *  \param associatedBody Name of body of which parameter is a property.
      */
-    PolarMotionAmplitude(
-            const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel,
-            const std::string& associatedBody):
-        EstimatableParameter< Eigen::VectorXd >( polar_motion_amplitude, associatedBody ),
-        rotationModel_( rotationModel ),
-        maxOrderXpolarMotionCoefficients_( rotationModel->getPlanetaryOrientationAngleCalculator()->getXpolarMotionCoefficients().size() ),
-        maxOrderYpolarMotionCoefficients_( rotationModel->getPlanetaryOrientationAngleCalculator()->getYpolarMotionCoefficients().size() )
-        { }
+    PolarMotionAmplitude( const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel, const std::string& associatedBody ):
+        EstimatableParameter< Eigen::VectorXd >( polar_motion_amplitude, associatedBody ), rotationModel_( rotationModel ),
+        maxOrderXpolarMotionCoefficients_(
+                rotationModel->getPlanetaryOrientationAngleCalculator( )->getXpolarMotionCoefficients( ).size( ) ),
+        maxOrderYpolarMotionCoefficients_(
+                rotationModel->getPlanetaryOrientationAngleCalculator( )->getYpolarMotionCoefficients( ).size( ) )
+    { }
 
     //! Destructor
     ~PolarMotionAmplitude( ) { }
-
 
     //! Get value of the amplitudes of the polar motion (starting from the lowest order to the highest one, first cosinus
     //! coefficient directly followed by sinus coefficient for the x- polar motion, and then same order
@@ -66,18 +61,20 @@ public:
     {
         std::vector< double > parameterValues;
 
-        std::map< double, std::pair< double, double > > xPolarMotionCoefficients = rotationModel_->getPlanetaryOrientationAngleCalculator()
-                ->getXpolarMotionCoefficients();
-        std::map< double, std::pair< double, double > > yPolarMotionCoefficients = rotationModel_->getPlanetaryOrientationAngleCalculator()
-                ->getYpolarMotionCoefficients();
+        std::map< double, std::pair< double, double > > xPolarMotionCoefficients =
+                rotationModel_->getPlanetaryOrientationAngleCalculator( )->getXpolarMotionCoefficients( );
+        std::map< double, std::pair< double, double > > yPolarMotionCoefficients =
+                rotationModel_->getPlanetaryOrientationAngleCalculator( )->getYpolarMotionCoefficients( );
 
-        if ( xPolarMotionCoefficients.size() != yPolarMotionCoefficients.size() ){
+        if( xPolarMotionCoefficients.size( ) != yPolarMotionCoefficients.size( ) )
+        {
             throw std::runtime_error( "Error, unconsistent sizes when comparing x and y polar motion coefficients" );
         }
-        else {
-
+        else
+        {
             for( std::map< double, std::pair< double, double > >::iterator coefficientsIterator = xPolarMotionCoefficients.begin( );
-                 coefficientsIterator != xPolarMotionCoefficients.end( ); coefficientsIterator++ )
+                 coefficientsIterator != xPolarMotionCoefficients.end( );
+                 coefficientsIterator++ )
             {
                 // Retrieve x polar motion coefficients
                 parameterValues.push_back( coefficientsIterator->second.first );
@@ -87,12 +84,10 @@ public:
                 parameterValues.push_back( yPolarMotionCoefficients[ coefficientsIterator->first ].first );
                 parameterValues.push_back( yPolarMotionCoefficients[ coefficientsIterator->first ].second );
             }
-
         }
 
         return ( utilities::convertStlVectorToEigenVector( parameterValues ) );
     }
-
 
     //! Reset value of the polar motion amplitude coefficients (starting from the lowest order to the highest one, first cosinus
     //! coefficient directly followed by sinus coefficient for the x- polar motion, and then same order
@@ -105,39 +100,38 @@ public:
      */
     void setParameterValue( const Eigen::VectorXd parameterValue )
     {
-
         // Retrieve current polar motion coefficients
-        std::map< double, std::pair< double, double > > oldXpolarMotionAmplitudeCoefficients
-                = rotationModel_->getPlanetaryOrientationAngleCalculator()->getXpolarMotionCoefficients(); 
-        std::map< double, std::pair< double, double > > oldYpolarMotionAmplitudeCoefficients
-                = rotationModel_->getPlanetaryOrientationAngleCalculator()->getYpolarMotionCoefficients();
+        std::map< double, std::pair< double, double > > oldXpolarMotionAmplitudeCoefficients =
+                rotationModel_->getPlanetaryOrientationAngleCalculator( )->getXpolarMotionCoefficients( );
+        std::map< double, std::pair< double, double > > oldYpolarMotionAmplitudeCoefficients =
+                rotationModel_->getPlanetaryOrientationAngleCalculator( )->getYpolarMotionCoefficients( );
 
         std::map< double, std::pair< double, double > > xPolarMotionAmplitudeCoefficients;
         std::map< double, std::pair< double, double > > yPolarMotionAmplitudeCoefficients;
 
         int currentCoefficientIndex = 0;
 
-        for ( std::map< double, std::pair< double, double > >::iterator oldCoefficientIterator = oldXpolarMotionAmplitudeCoefficients.begin() ;
-              oldCoefficientIterator != oldXpolarMotionAmplitudeCoefficients.end() ; oldCoefficientIterator++ ){
-
-            xPolarMotionAmplitudeCoefficients[ oldCoefficientIterator->first ]
-                    = std::make_pair( parameterValue[ currentCoefficientIndex ], parameterValue[ currentCoefficientIndex + 1 ] );
-
-            currentCoefficientIndex += 2;
-
-            yPolarMotionAmplitudeCoefficients[ oldCoefficientIterator->first ]
-                    = std::make_pair( parameterValue[ currentCoefficientIndex ], parameterValue[ currentCoefficientIndex + 1 ] );
+        for( std::map< double, std::pair< double, double > >::iterator oldCoefficientIterator =
+                     oldXpolarMotionAmplitudeCoefficients.begin( );
+             oldCoefficientIterator != oldXpolarMotionAmplitudeCoefficients.end( );
+             oldCoefficientIterator++ )
+        {
+            xPolarMotionAmplitudeCoefficients[ oldCoefficientIterator->first ] =
+                    std::make_pair( parameterValue[ currentCoefficientIndex ], parameterValue[ currentCoefficientIndex + 1 ] );
 
             currentCoefficientIndex += 2;
 
+            yPolarMotionAmplitudeCoefficients[ oldCoefficientIterator->first ] =
+                    std::make_pair( parameterValue[ currentCoefficientIndex ], parameterValue[ currentCoefficientIndex + 1 ] );
+
+            currentCoefficientIndex += 2;
         }
 
         // Reset x polar motion amplitude coefficients.
-        rotationModel_->getPlanetaryOrientationAngleCalculator()->resetXpolarMotionCoefficients( xPolarMotionAmplitudeCoefficients);
+        rotationModel_->getPlanetaryOrientationAngleCalculator( )->resetXpolarMotionCoefficients( xPolarMotionAmplitudeCoefficients );
 
         // Reset y polar motion amplitude coefficients.
-        rotationModel_->getPlanetaryOrientationAngleCalculator()->resetYpolarMotionCoefficients( yPolarMotionAmplitudeCoefficients);
-
+        rotationModel_->getPlanetaryOrientationAngleCalculator( )->resetYpolarMotionCoefficients( yPolarMotionAmplitudeCoefficients );
     }
 
     //! Function to retrieve the size of the parameter
@@ -151,17 +145,15 @@ public:
     }
 
 protected:
-
 private:
-
     //! PlanetaryRotationModel object of which the polar motion amplitude is a property
     std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel_;
     int maxOrderXpolarMotionCoefficients_;
     int maxOrderYpolarMotionCoefficients_;
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_POLARMOTIONAMPLITUDE_H
+#endif  // TUDAT_POLARMOTIONAMPLITUDE_H

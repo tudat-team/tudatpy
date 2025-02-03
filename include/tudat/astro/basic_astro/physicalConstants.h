@@ -36,10 +36,11 @@ namespace tudat
 namespace physical_constants
 {
 
-template<typename T, typename U>
-T constexpr compile_time_pow(T base, U exponent) {
-    static_assert(std::is_integral<U>(), "exponent must be integral");
-    return exponent == 0 ? 1 : base * compile_time_pow(base, exponent - 1);
+template< typename T, typename U >
+T constexpr compile_time_pow( T base, U exponent )
+{
+    static_assert( std::is_integral< U >( ), "exponent must be integral" );
+    return exponent == 0 ? 1 : base * compile_time_pow( base, exponent - 1 );
 }
 
 //! Standard gravitational acceleration at sea-level.
@@ -63,14 +64,14 @@ template< typename ScalarType >
 constexpr ScalarType getJulianDay( );
 
 //! Function to get the length of a Julian day in seconds, with double precision.
-template< >
+template<>
 constexpr double getJulianDay< double >( )
 {
     return JULIAN_DAY;
 }
 
 //! Function to get the length of a Julian day in seconds, with long double precision.
-template< >
+template<>
 constexpr long double getJulianDay< long double >( )
 {
     return JULIAN_DAY_LONG;
@@ -91,14 +92,14 @@ template< typename ScalarType >
 constexpr ScalarType getJulianYearInDays( );
 
 //! Function to get the length of a Julian year in days, with double precision.
-template< >
+template<>
 constexpr double getJulianYearInDays< double >( )
 {
     return JULIAN_YEAR_IN_DAYS;
 }
 
 //! Function to get the length of a Julian year in days, with long double precision.
-template< >
+template<>
 constexpr long double getJulianYearInDays< long double >( )
 {
     return JULIAN_YEAR_IN_DAYS_LONG;
@@ -131,14 +132,14 @@ template< typename ScalarType >
 constexpr ScalarType getSpeedOfLight( );
 
 //! Function to get the speed of light in meters per second with double precision.
-template< >
+template<>
 constexpr double getSpeedOfLight< double >( )
 {
     return SPEED_OF_LIGHT;
 }
 
 //! Function to get the speed of light in meters per second with long double precision.
-template< >
+template<>
 constexpr long double getSpeedOfLight< long double >( )
 {
     return SPEED_OF_LIGHT_LONG;
@@ -180,11 +181,9 @@ constexpr static double BOLTZMANN_CONSTANT = 1.3806488E-23;
  * Stefan-Boltzmann constant, used for calculating black body radiation intensity, (Wolfram, 2013)
  * in J / (s m^{2} K{4} )
  */
-constexpr static double STEFAN_BOLTZMANN_CONSTANT = 2.0 *
-        compile_time_pow( mathematical_constants::PI, 5 ) *
+constexpr static double STEFAN_BOLTZMANN_CONSTANT = 2.0 * compile_time_pow( mathematical_constants::PI, 5 ) *
         compile_time_pow( BOLTZMANN_CONSTANT, 4 ) /
-        ( 15.0 * SPEED_OF_LIGHT * SPEED_OF_LIGHT *
-          PLANCK_CONSTANT * PLANCK_CONSTANT * PLANCK_CONSTANT );
+        ( 15.0 * SPEED_OF_LIGHT * SPEED_OF_LIGHT * PLANCK_CONSTANT * PLANCK_CONSTANT * PLANCK_CONSTANT );
 
 //! Precomputed inverse-square of speed of light.
 constexpr static double INVERSE_SQUARE_SPEED_OF_LIGHT = 1.0 / ( SPEED_OF_LIGHT * SPEED_OF_LIGHT );
@@ -219,14 +218,14 @@ template< typename ScalarType >
 constexpr ScalarType getLgTimeRateTerm( );
 
 //! Function to get the TCG and TT relative rate difference with double precision.
-template< >
+template<>
 constexpr double getLgTimeRateTerm< double >( )
 {
     return LG_TIME_RATE_TERM;
 }
 
 //! Function to get the TCG and TT relative rate difference with long double precision.
-template< >
+template<>
 constexpr long double getLgTimeRateTerm< long double >( )
 {
     return LG_TIME_RATE_TERM_LONG;
@@ -247,22 +246,21 @@ template< typename ScalarType >
 constexpr ScalarType getLbTimeRateTerm( );
 
 //! Function to get the TCB and TDB relative rate difference with double precision.
-template< >
+template<>
 constexpr double getLbTimeRateTerm< double >( )
 {
     return LB_TIME_RATE_TERM;
 }
 
 //! Function to get the TCB and TDB relative rate difference with long double precision.
-template< >
+template<>
 constexpr long double getLbTimeRateTerm< long double >( )
 {
     return LB_TIME_RATE_TERM_LONG;
 }
 
+}  // namespace physical_constants
 
-} // namespace physical_constants
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_PHYSICAL_CONSTANTS_H
+#endif  // TUDAT_PHYSICAL_CONSTANTS_H

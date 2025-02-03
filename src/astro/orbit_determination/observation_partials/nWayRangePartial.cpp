@@ -33,13 +33,13 @@ void NWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStat
     singleLinkTimes.resize( 2 );
 
     // Find index in link ends for fixed (reference) link ends
-    int fixedLinkEndIndex = observation_models::getNWayLinkIndexFromLinkEndType(
-                fixedLinkEnd, numberOfLinkEnds_ );
+    int fixedLinkEndIndex = observation_models::getNWayLinkIndexFromLinkEndType( fixedLinkEnd, numberOfLinkEnds_ );
 
     // Iterate over all constituent one-way range scalings
     observation_models::LinkEndType referenceLinkEnd;
     for( constituentRangeScalingIterator_ = constituentRangeScalings_.begin( );
-         constituentRangeScalingIterator_ != constituentRangeScalings_.end( ); constituentRangeScalingIterator_++ )
+         constituentRangeScalingIterator_ != constituentRangeScalings_.end( );
+         constituentRangeScalingIterator_++ )
     {
         // Set times, states and reference link end for current one-way range
         currentIndex = constituentRangeScalingIterator_->first;
@@ -58,8 +58,7 @@ void NWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStat
         }
 
         // Update current one-way range scaling
-        constituentRangeScalingIterator_->second->update(
-                    singleLinkEndStates, singleLinkTimes, referenceLinkEnd );
+        constituentRangeScalingIterator_->second->update( singleLinkEndStates, singleLinkTimes, referenceLinkEnd );
     }
 
     // Compute scaling factors by which one-way range partias are to be multiplied before being included in the n-way range
@@ -68,10 +67,8 @@ void NWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStat
     {
         currentRangeVector = ( linkEndStates[ i + 1 ] - linkEndStates[ i ] ).segment( 0, 3 ).normalized( );
         projectedRelativeVelocityRatios_[ i / 2 ] =
-                ( 1.0 - currentRangeVector.dot( ( linkEndStates[ i ] ).segment( 3, 3 ) ) /
-                  physical_constants::SPEED_OF_LIGHT ) /
-                ( 1.0 - currentRangeVector.dot( ( linkEndStates[ i + 1 ] ).segment( 3, 3 ) ) /
-                physical_constants::SPEED_OF_LIGHT );
+                ( 1.0 - currentRangeVector.dot( ( linkEndStates[ i ] ).segment( 3, 3 ) ) / physical_constants::SPEED_OF_LIGHT ) /
+                ( 1.0 - currentRangeVector.dot( ( linkEndStates[ i + 1 ] ).segment( 3, 3 ) ) / physical_constants::SPEED_OF_LIGHT );
     }
 }
 
@@ -95,8 +92,7 @@ NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
 
     double currentPartialMultiplier = TUDAT_NAN;
 
-    for( rangePartialIterator_ = rangePartialList_.begin( ); rangePartialIterator_ != rangePartialList_.end( );
-         rangePartialIterator_++ )
+    for( rangePartialIterator_ = rangePartialList_.begin( ); rangePartialIterator_ != rangePartialList_.end( ); rangePartialIterator_++ )
     {
         NWayRangePartialReturnType currentPartialSet;
 
@@ -127,7 +123,8 @@ NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
         }
 
         // Compute one-way range partials
-        currentPartialSet = rangePartialIterator_->second->calculatePartial( subLinkStates, subLinkTimes, subLinkReference, ancillarySettings );
+        currentPartialSet =
+                rangePartialIterator_->second->calculatePartial( subLinkStates, subLinkTimes, subLinkReference, ancillarySettings );
 
         // Scale partials by required amount and add to return map.
         for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
@@ -140,8 +137,6 @@ NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
     return completePartialSet;
 }
 
-}
+}  // namespace observation_partials
 
-}
-
-
+}  // namespace tudat

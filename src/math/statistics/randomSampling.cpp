@@ -12,7 +12,6 @@
 
 #include <boost/random.hpp>
 
-
 #if USE_GSL
 #include <gsl/gsl_qrng.h>
 #endif
@@ -47,7 +46,8 @@ std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
 
 //! Generate sample of random vectors, with entries of each vector independently and identically distributed.
 std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
-        const int numberOfSamples, const int numberOfDimensions,
+        const int numberOfSamples,
+        const int numberOfDimensions,
         const std::shared_ptr< RandomVariableGenerator< double > > randomVariableGenerator )
 {
     std::vector< std::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators;
@@ -59,12 +59,11 @@ std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
     return generateRandomSampleFromGenerator( numberOfSamples, randomVariableGenerators );
 }
 
-
-
 //! Generator random vector using pseudo random generator
-std::vector< Eigen::VectorXd > generateUniformRandomSample(
-        const int seed, const int numberOfSamples,
-        const Eigen::VectorXd& lowerBound, const Eigen::VectorXd& upperBound )
+std::vector< Eigen::VectorXd > generateUniformRandomSample( const int seed,
+                                                            const int numberOfSamples,
+                                                            const Eigen::VectorXd& lowerBound,
+                                                            const Eigen::VectorXd& upperBound )
 {
     if( lowerBound.rows( ) != upperBound.rows( ) )
     {
@@ -78,8 +77,7 @@ std::vector< Eigen::VectorXd > generateUniformRandomSample(
     {
         currentParameters = { lowerBound( i ), upperBound( i ) };
         randomVariableGenerators.push_back(
-                    createBoostContinuousRandomVariableGenerator(
-                        uniform_boost_distribution, currentParameters, seed + i ) );
+                createBoostContinuousRandomVariableGenerator( uniform_boost_distribution, currentParameters, seed + i ) );
     }
 
     // Generate samples
@@ -87,22 +85,23 @@ std::vector< Eigen::VectorXd > generateUniformRandomSample(
 }
 
 //! Generator random vector using pseudo random generator
-std::vector< Eigen::VectorXd > generateUniformRandomSample(
-        const int seed, const int numberOfSamples, const int numberOfDimensions,
-         const double lowerBound, const double upperBound )
+std::vector< Eigen::VectorXd > generateUniformRandomSample( const int seed,
+                                                            const int numberOfSamples,
+                                                            const int numberOfDimensions,
+                                                            const double lowerBound,
+                                                            const double upperBound )
 {
-    return generateUniformRandomSample(
-                seed, numberOfSamples,
-                Eigen::VectorXd::Constant( numberOfDimensions, lowerBound ),
-                Eigen::VectorXd::Constant( numberOfDimensions, upperBound ) );
+    return generateUniformRandomSample( seed,
+                                        numberOfSamples,
+                                        Eigen::VectorXd::Constant( numberOfDimensions, lowerBound ),
+                                        Eigen::VectorXd::Constant( numberOfDimensions, upperBound ) );
 }
 
-
-
 //! Generator random vector using pseudo random generator with gaussian distribution (without correlation)
-std::vector< Eigen::VectorXd > generateGaussianRandomSample(
-        const int seed, const int numberOfSamples,
-        const Eigen::VectorXd& mean, const Eigen::VectorXd& standardDeviation )
+std::vector< Eigen::VectorXd > generateGaussianRandomSample( const int seed,
+                                                             const int numberOfSamples,
+                                                             const Eigen::VectorXd& mean,
+                                                             const Eigen::VectorXd& standardDeviation )
 {
     if( mean.rows( ) != standardDeviation.rows( ) )
     {
@@ -116,69 +115,69 @@ std::vector< Eigen::VectorXd > generateGaussianRandomSample(
     {
         currentParameters = { mean( i ), standardDeviation( i ) };
         randomVariableGenerators.push_back(
-                    createBoostContinuousRandomVariableGenerator(
-                        normal_boost_distribution, currentParameters, seed + i ) );
+                createBoostContinuousRandomVariableGenerator( normal_boost_distribution, currentParameters, seed + i ) );
     }
 
     // Generate samples
     return generateRandomSampleFromGenerator( numberOfSamples, randomVariableGenerators );
 }
 
-
 //! Generator random vector using pseudo random generator with gaussian distribution (without correlation)
-std::vector< Eigen::VectorXd > generateGaussianRandomSample(
-        const int seed, const int numberOfSamples, const int numberOfDimensions,
-        const double mean, const double standardDeviation )
+std::vector< Eigen::VectorXd > generateGaussianRandomSample( const int seed,
+                                                             const int numberOfSamples,
+                                                             const int numberOfDimensions,
+                                                             const double mean,
+                                                             const double standardDeviation )
 {
-    return generateGaussianRandomSample(
-                seed, numberOfSamples,
-                Eigen::VectorXd::Constant( numberOfDimensions, mean ),
-                Eigen::VectorXd::Constant( numberOfDimensions, standardDeviation ) );
+    return generateGaussianRandomSample( seed,
+                                         numberOfSamples,
+                                         Eigen::VectorXd::Constant( numberOfDimensions, mean ),
+                                         Eigen::VectorXd::Constant( numberOfDimensions, standardDeviation ) );
 }
-
 
 #if USE_GSL
 
 //! Generator random vector using Sobol sampler
-std::vector< Eigen::VectorXd > generateVectorSobolSample(
-        int numberOfSamples,
-        const Eigen::VectorXd& lowerBound, const Eigen::VectorXd& upperBound )
+std::vector< Eigen::VectorXd > generateVectorSobolSample( int numberOfSamples,
+                                                          const Eigen::VectorXd& lowerBound,
+                                                          const Eigen::VectorXd& upperBound )
 {
     int numberOfDimensions = upperBound.rows( );
 
     // Compute propertie
     Eigen::VectorXd width = upperBound - lowerBound;
-    Eigen::VectorXd average = (upperBound + lowerBound)/2.0 ;
+    Eigen::VectorXd average = ( upperBound + lowerBound ) / 2.0;
 
     std::vector< Eigen::VectorXd > sobolSamples( numberOfSamples );
 
-    Eigen::VectorXd randomSample( numberOfDimensions ) ;
+    Eigen::VectorXd randomSample( numberOfDimensions );
     double randomSampleArray[ numberOfDimensions ];
 
-    gsl_qrng * q = gsl_qrng_alloc (gsl_qrng_sobol, numberOfDimensions );
+    gsl_qrng* q = gsl_qrng_alloc( gsl_qrng_sobol, numberOfDimensions );
 
     // Loop over samples
-    for( int j = 0 ; j < numberOfSamples ; j++ )
+    for( int j = 0; j < numberOfSamples; j++ )
     {
-        gsl_qrng_get( q, randomSampleArray ); // Generate sobol [0,1]
+        gsl_qrng_get( q, randomSampleArray );  // Generate sobol [0,1]
 
         // Fill vector
-        for( int i = 0 ; i < numberOfDimensions ; i++ )
+        for( int i = 0; i < numberOfDimensions; i++ )
         {
-            randomSample( i ) = randomSampleArray[ i ] - 0.5 ;
+            randomSample( i ) = randomSampleArray[ i ] - 0.5;
         }
-        sobolSamples[ j ] = randomSample.cwiseProduct( width ) + average ; // Save vector
+        sobolSamples[ j ] = randomSample.cwiseProduct( width ) + average;  // Save vector
     }
 
-    gsl_qrng_free (q); // Deallocate GSL variables
+    gsl_qrng_free( q );  // Deallocate GSL variables
 
     return sobolSamples;
 }
 
 //! Generator random vector using Sobol sampler
-std::vector< Eigen::VectorXd > generateVectorSobolSample(
-        const int numberOfDimensions, int numberOfSamples,
-        const double lowerBound, const double upperBound )
+std::vector< Eigen::VectorXd > generateVectorSobolSample( const int numberOfDimensions,
+                                                          int numberOfSamples,
+                                                          const double lowerBound,
+                                                          const double upperBound )
 {
     return generateVectorSobolSample( numberOfSamples,
                                       Eigen::VectorXd::Constant( numberOfDimensions, lowerBound ),
@@ -186,7 +185,6 @@ std::vector< Eigen::VectorXd > generateVectorSobolSample(
 }
 #endif
 
-} // Close Namespace statistics
+}  // namespace statistics
 
-} // Close Namespace tudat
-
+}  // namespace tudat

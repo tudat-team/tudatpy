@@ -21,12 +21,9 @@
 #include <limits>
 #include <stdexcept>
 
-
-
-
 #include <memory>
 
-//#include "tudat/math/integrators/rungeKutta4Integrator.h"
+// #include "tudat/math/integrators/rungeKutta4Integrator.h"
 
 #include "tudat/math/basic/function.h"
 
@@ -45,14 +42,11 @@ template< typename IndependentVariable = double, typename DependentVariable = do
 class BasicFunction : public Function< IndependentVariable, DependentVariable >
 {
 public:
-
     //! Number of steps to take when performing numerical integration.
     unsigned int integrationSteps;
 
     //! Constructor with definition of the number of steps.
-    BasicFunction( unsigned int numberOfIntegrationSteps = 1000 )
-        : integrationSteps( numberOfIntegrationSteps )
-    { }
+    BasicFunction( unsigned int numberOfIntegrationSteps = 1000 ): integrationSteps( numberOfIntegrationSteps ) { }
 
     //! Default destructor.
     virtual ~BasicFunction( ) { }
@@ -65,10 +59,9 @@ public:
      * \param independentVariable The independent variable with respect to which the derivative is taken.
      * \return The numerical derivative of the function.
      */
-    virtual DependentVariable computeDerivative( const unsigned int order,
-                                                 const IndependentVariable independentVariable )
+    virtual DependentVariable computeDerivative( const unsigned int order, const IndependentVariable independentVariable )
     {
-        if ( order == 0 )
+        if( order == 0 )
         {
             // Zero th order derivative is the function itself.
             return this->evaluate( independentVariable );
@@ -79,15 +72,16 @@ public:
 
         // Return derivative according to formula:
         // f'(x) = [f(x+h)-f(x-h)]/2h
-        return ( computeDerivative( order - 1, independentVariable + stepSize )
-                 - computeDerivative( order - 1, independentVariable - stepSize ) )
-                / ( 2.0 * stepSize );
+        return ( computeDerivative( order - 1, independentVariable + stepSize ) -
+                 computeDerivative( order - 1, independentVariable - stepSize ) ) /
+                ( 2.0 * stepSize );
     }
 
     //! Alias for computeDefiniteIntegral, but with an extra variable. Should not be used!
-    inline DependentVariable computeDefiniteIntegralMock(
-            const unsigned int order, const IndependentVariable lowerBound,
-            const IndependentVariable upperbound, const DependentVariable placeHolder )
+    inline DependentVariable computeDefiniteIntegralMock( const unsigned int order,
+                                                          const IndependentVariable lowerBound,
+                                                          const IndependentVariable upperbound,
+                                                          const DependentVariable placeHolder )
     {
         return computeDefiniteIntegral( order, lowerBound, upperbound );
     }
@@ -111,32 +105,29 @@ public:
     }
 
 protected:
-
     //! Square root of double precision, used to scale the step size.
     /*!
-     * The reason not to scale with epsilon itself is to limit the error due to floating point 
+     * The reason not to scale with epsilon itself is to limit the error due to floating point
      * arithmetic with super small numbers: = sqrt(std::numeric_limits<double>::epsilon()).
      * TODO: Remove when using external derivative code.
      */
     static const double sqrt_epsilon_double;
 
 private:
-
     //! typedef for a Function that relates a Dependent Variable to an IndependentVariable.
-    typedef Function< IndependentVariable, DependentVariable >          Parent;
+    typedef Function< IndependentVariable, DependentVariable > Parent;
     //! typedef for a Runge-Kutta 4 integration scheme.
-//    typedef numerical_integrators::RungeKutta4Integrator<
-//    IndependentVariable, DependentVariable, DependentVariable >         Integrator;
+    //    typedef numerical_integrators::RungeKutta4Integrator<
+    //    IndependentVariable, DependentVariable, DependentVariable >         Integrator;
 };
 
 template< typename IndependentVariable, typename DependentVariable >
-const double BasicFunction< IndependentVariable, DependentVariable >::sqrt_epsilon_double
-= std::numeric_limits< double >::epsilon( );
+const double BasicFunction< IndependentVariable, DependentVariable >::sqrt_epsilon_double = std::numeric_limits< double >::epsilon( );
 
 // Some handy typedefs.
 typedef std::shared_ptr< BasicFunction< double, double > > BasicFunctionPointer;
 
-} // namespace basic_mathematics
-} // namespace tudat
+}  // namespace basic_mathematics
+}  // namespace tudat
 
-#endif // TUDAT_BASIC_FUNCTION_H
+#endif  // TUDAT_BASIC_FUNCTION_H

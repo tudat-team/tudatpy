@@ -54,8 +54,7 @@ BOOST_AUTO_TEST_CASE( testSampleMean )
     double computedSampleMean = statistics::computeSampleMean( sampleData );
 
     // Check if computed sample mean matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( computedSampleMean, expectedSampleMean,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( computedSampleMean, expectedSampleMean, std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Test if sample variance is computed correctly.
@@ -81,8 +80,7 @@ BOOST_AUTO_TEST_CASE( testSampleVariance )
     double computedSampleVariance = statistics::computeSampleVariance( sampleData );
 
     // Check if computed sample variance matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( computedSampleVariance, expectedSampleVariance,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( computedSampleVariance, expectedSampleVariance, std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Test if moving average is computed correctly. Results compared with MATLAB movmean function.
@@ -101,18 +99,17 @@ BOOST_AUTO_TEST_CASE( testMovingAverage )
         Eigen::VectorXd expectedMovingAverage;
         expectedMovingAverage.resize( 15 );
         expectedMovingAverage << 2.07244925501420, 2.29708550033347, 2.47415883376797, 2.57448791073478, 1.97083438223698, 2.22155945208634,
-                2.04703015975610, 2.01881444895283, 1.78499182924363, 2.19573697920471, 1.92141711160903, 1.98702506816280, 1.70418859712017,
-                2.06377802457440, 1.76197527610331;
+                2.04703015975610, 2.01881444895283, 1.78499182924363, 2.19573697920471, 1.92141711160903, 1.98702506816280,
+                1.70418859712017, 2.06377802457440, 1.76197527610331;
 
         // Compute moving average with built-in function
         Eigen::VectorXd computedMovingAverage = statistics::computeMovingAverage( vectorOfPoints, 5 );
 
         // Compare results
         double tolerance = 1.0e2 * std::numeric_limits< double >::epsilon( );
-        for ( unsigned int i = 0; i < 15; i++ )
+        for( unsigned int i = 0; i < 15; i++ )
         {
-            BOOST_CHECK_CLOSE_FRACTION( computedMovingAverage[ i ], expectedMovingAverage[ i ],
-                                        tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( computedMovingAverage[ i ], expectedMovingAverage[ i ], tolerance );
         }
     }
 
@@ -150,13 +147,13 @@ BOOST_AUTO_TEST_CASE( testMovingAverage )
         // Compare results
         unsigned int i = 0;
         double tolerance = 1.0e2 * std::numeric_limits< double >::epsilon( );
-        for ( std::map< double, Eigen::Vector3d >::const_iterator mapIterator = expectedMovingAverage.begin( );
-              mapIterator != expectedMovingAverage.end( ); mapIterator++, i++ )
+        for( std::map< double, Eigen::Vector3d >::const_iterator mapIterator = expectedMovingAverage.begin( );
+             mapIterator != expectedMovingAverage.end( );
+             mapIterator++, i++ )
         {
-            for ( unsigned int j = 0; j < 3; j++ )
+            for( unsigned int j = 0; j < 3; j++ )
             {
-                BOOST_CHECK_CLOSE_FRACTION( computedMovingAverage.at( i )[ j ], mapIterator->second[ j ],
-                                            tolerance );
+                BOOST_CHECK_CLOSE_FRACTION( computedMovingAverage.at( i )[ j ], mapIterator->second[ j ], tolerance );
             }
         }
     }
@@ -194,13 +191,13 @@ BOOST_AUTO_TEST_CASE( testMovingAverage )
 
         // Compare results
         double tolerance = 1.0e2 * std::numeric_limits< double >::epsilon( );
-        for ( std::map< double, Eigen::VectorXd >::const_iterator mapIterator = computedMovingAverage.begin( );
-              mapIterator != computedMovingAverage.end( ); mapIterator++ )
+        for( std::map< double, Eigen::VectorXd >::const_iterator mapIterator = computedMovingAverage.begin( );
+             mapIterator != computedMovingAverage.end( );
+             mapIterator++ )
         {
-            for ( unsigned int i = 0; i < 3; i++ )
+            for( unsigned int i = 0; i < 3; i++ )
             {
-                BOOST_CHECK_CLOSE_FRACTION( mapIterator->second[ i ], expectedMovingAverage[ mapIterator->first ][ i ],
-                                            tolerance );
+                BOOST_CHECK_CLOSE_FRACTION( mapIterator->second[ i ], expectedMovingAverage[ mapIterator->first ][ i ], tolerance );
             }
         }
     }
@@ -208,5 +205,5 @@ BOOST_AUTO_TEST_CASE( testMovingAverage )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

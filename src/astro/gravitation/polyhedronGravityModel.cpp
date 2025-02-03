@@ -11,13 +11,12 @@
 
 #include "tudat/astro/gravitation/polyhedronGravityModel.h"
 
-
 namespace tudat
 {
 namespace gravitation
 {
 //
-//void PolyhedronGravitationalAccelerationModel::updateMembers( const double currentTime )
+// void PolyhedronGravitationalAccelerationModel::updateMembers( const double currentTime )
 //{
 //    if( !( this->currentTime_ == currentTime ) )
 //    {
@@ -70,7 +69,6 @@ namespace gravitation
 //    }
 //}
 
+}  // namespace gravitation
 
-} // namespace gravitation
-
-} // namespace tudat
+}  // namespace tudat

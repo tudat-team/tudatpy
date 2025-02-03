@@ -35,7 +35,6 @@ template< class T >
 class Extractor
 {
 public:
-
     //! Default destructor.
     virtual ~Extractor( ) { }
 
@@ -45,11 +44,9 @@ public:
      * \param data Raw (parsed) data to extract values from.
      * \return Extracted value.
      */
-    virtual std::shared_ptr< T > extract(
-        parsed_data_vector_utilities::ParsedDataLineMapPtr data ) = 0;
+    virtual std::shared_ptr< T > extract( parsed_data_vector_utilities::ParsedDataLineMapPtr data ) = 0;
 
 protected:
-
     //! Short-hand notations.
     //! Shortcut to field value shared-pointer.
     typedef parsed_data_vector_utilities::FieldValuePtr FieldValuePtr;
@@ -77,14 +74,13 @@ protected:
         // Initialize list. Point to last defined argument.
         va_start( listOfArguments, numberOfFields );
 
-        for ( int i = 0; i < numberOfFields; i++ )
+        for( int i = 0; i < numberOfFields; i++ )
         {
             // Assign current field type being tested.
-            input_output::FieldType testForType = va_arg( listOfArguments,
-                                                                 input_output::FieldType );
+            input_output::FieldType testForType = va_arg( listOfArguments, input_output::FieldType );
 
             // Check if field type is found in the data map.
-            if ( dataLineMap->find( testForType ) == dataLineMap->end( ) )
+            if( dataLineMap->find( testForType ) == dataLineMap->end( ) )
             {
                 // Clean up the system stack.
                 va_end( listOfArguments );
@@ -119,32 +115,30 @@ protected:
         // Initialize list. Point to last defined argument.
         va_start( listOfArguments, numberOfFields );
 
-        for ( int i = 0; i < numberOfFields; i++ )
+        for( int i = 0; i < numberOfFields; i++ )
         {
             // Assign current field type being tested.
-            input_output::FieldType testForType = va_arg( listOfArguments,
-                                                                 input_output::FieldType );
+            input_output::FieldType testForType = va_arg( listOfArguments, input_output::FieldType );
 
             // Check if field type is found in the data map.
-            if ( dataLineMap->find( testForType ) == dataLineMap->end( ) )
+            if( dataLineMap->find( testForType ) == dataLineMap->end( ) )
             {
                 // Clean up the system stack.
                 va_end( listOfArguments );
 
                 // Not found in map, throw exception.
-                throw std::runtime_error(
-                    "One of the types required for extracting this dataLineMap type is not present" );
+                throw std::runtime_error( "One of the types required for extracting this dataLineMap type is not present" );
             }
         }
 
         // Clean up the system stack.
-        va_end ( listOfArguments );
+        va_end( listOfArguments );
     }
 
 private:
 };
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_EXTRACTOR_H
+#endif  // TUDAT_EXTRACTOR_H

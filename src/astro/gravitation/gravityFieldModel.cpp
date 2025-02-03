@@ -9,7 +9,6 @@
  *
  */
 
-
 #include "tudat/astro/gravitation/gravityFieldModel.h"
 
 namespace tudat
@@ -19,120 +18,119 @@ namespace gravitation
 
 //! Set predefined central gravity field settings.
 std::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
-    BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField )
+        BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField )
 {
     double gravitationalParameter = 0.0;
 
     // Select body with prefined central gravity field.
     switch( bodyWithPredefinedCentralGravityField )
     {
-    case sun:
+        case sun:
 
-        // Set gravitational parameter [m^3 s^-2].
-        // Reference: http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter = 1.32712440018e20;
+            // Set gravitational parameter [m^3 s^-2].
+            // Reference: http://ssd.jpl.nasa.gov/?constants#ref.
+            gravitationalParameter = 1.32712440018e20;
 
-        break;
+            break;
 
-    case mercury:
+        case mercury:
 
-        // Set gravitational parameter [m^3 s^-2].
-        // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
-        //            of gravitational constant taken from
-        //            http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter = 2.203289218e13;
+            // Set gravitational parameter [m^3 s^-2].
+            // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
+            //            of gravitational constant taken from
+            //            http://ssd.jpl.nasa.gov/?constants#ref.
+            gravitationalParameter = 2.203289218e13;
 
-        break;
+            break;
 
-    case venus:
+        case venus:
 
-        // Set gravitational parameter [m^3 s^-2].
-        // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
-        //            of gravitational constant taken from
-        //            http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter = 3.2485504415e14;
+            // Set gravitational parameter [m^3 s^-2].
+            // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
+            //            of gravitational constant taken from
+            //            http://ssd.jpl.nasa.gov/?constants#ref.
+            gravitationalParameter = 3.2485504415e14;
 
-        break;
+            break;
 
-    case earth:
+        case earth:
 
-        // Set gravitational parameter [m^3 s^-2].
-        // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
-        //            of gravitational constant taken from
-        //            http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter = 3.9859383624e14;
+            // Set gravitational parameter [m^3 s^-2].
+            // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
+            //            of gravitational constant taken from
+            //            http://ssd.jpl.nasa.gov/?constants#ref.
+            gravitationalParameter = 3.9859383624e14;
 
-        break;
+            break;
 
-    case moon:
+        case moon:
 
-        // Set gravitational parameter [m^3 s^-2].
-        // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
-        //            of gravitational constant taken from
-        //            http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter = 4.903686391e12;
+            // Set gravitational parameter [m^3 s^-2].
+            // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
+            //            of gravitational constant taken from
+            //            http://ssd.jpl.nasa.gov/?constants#ref.
+            gravitationalParameter = 4.903686391e12;
 
-        break;
+            break;
 
-    case mars:
+        case mars:
 
-        // Set gravitational parameter [m^3 s^-2].
-        // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
-        //            of gravitational constant taken from
-        //            http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter = 4.2828018915e13;
+            // Set gravitational parameter [m^3 s^-2].
+            // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
+            //            of gravitational constant taken from
+            //            http://ssd.jpl.nasa.gov/?constants#ref.
+            gravitationalParameter = 4.2828018915e13;
 
-        break;
+            break;
 
-    case jupiter:
+        case jupiter:
 
-        // Set gravitational parameter [m^3 s^-2].
-        // Reference: Mass taken from Table 1.3, pg. 6, (de Pater, 2010), value
-        //            of gravitational constant taken from
-        //            http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter = 1.2668579374e17;
+            // Set gravitational parameter [m^3 s^-2].
+            // Reference: Mass taken from Table 1.3, pg. 6, (de Pater, 2010), value
+            //            of gravitational constant taken from
+            //            http://ssd.jpl.nasa.gov/?constants#ref.
+            gravitationalParameter = 1.2668579374e17;
 
-        break;
+            break;
 
-    case saturn:
+        case saturn:
 
-        // Set gravitational parameter [m^3 s^-2].
-        // Reference: Mass taken from Table 1.3, pg. 6, (de Pater, 2010), value
-        //            of gravitational constant taken from
-        //            http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter = 3.793100511400001e16;
+            // Set gravitational parameter [m^3 s^-2].
+            // Reference: Mass taken from Table 1.3, pg. 6, (de Pater, 2010), value
+            //            of gravitational constant taken from
+            //            http://ssd.jpl.nasa.gov/?constants#ref.
+            gravitationalParameter = 3.793100511400001e16;
 
-        break;
+            break;
 
-    case uranus:
+        case uranus:
 
-        // Set gravitational parameter [m^3 s^-2].
-        // Reference: Mass taken from Table 1.3, pg. 6, (de Pater, 2010), value
-        //            of gravitational constant taken from
-        //            http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter = 5.793943348799999e15;
+            // Set gravitational parameter [m^3 s^-2].
+            // Reference: Mass taken from Table 1.3, pg. 6, (de Pater, 2010), value
+            //            of gravitational constant taken from
+            //            http://ssd.jpl.nasa.gov/?constants#ref.
+            gravitationalParameter = 5.793943348799999e15;
 
-        break;
+            break;
 
-    case neptune:
+        case neptune:
 
-        // Set gravitational parameter [m^3 s^-2].
-        // Reference: Mass taken from Table 1.3, pg. 6, (de Pater, 2010), value
-        //            of gravitational constant taken from
-        //            http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter = 6.834733937e15;
+            // Set gravitational parameter [m^3 s^-2].
+            // Reference: Mass taken from Table 1.3, pg. 6, (de Pater, 2010), value
+            //            of gravitational constant taken from
+            //            http://ssd.jpl.nasa.gov/?constants#ref.
+            gravitationalParameter = 6.834733937e15;
 
-        break;
+            break;
 
-    default:
+        default:
 
-        std::string errorMessage = "Desired predefined central gravity field " +
-                std::to_string( bodyWithPredefinedCentralGravityField ) +
-                " does not exist";
-        throw std::runtime_error( errorMessage );
+            std::string errorMessage = "Desired predefined central gravity field " +
+                    std::to_string( bodyWithPredefinedCentralGravityField ) + " does not exist";
+            throw std::runtime_error( errorMessage );
     }
     return std::make_shared< GravityFieldModel >( gravitationalParameter );
 }
 
-} // namespace gravitation
-} // namespace tudat
+}  // namespace gravitation
+}  // namespace tudat

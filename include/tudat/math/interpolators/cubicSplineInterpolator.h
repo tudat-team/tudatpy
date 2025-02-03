@@ -45,13 +45,13 @@ namespace interpolators
  *  \param rightHandSide Right-hand-side of matrix equation.
  *  \return Solution to matrix equation.
  */
-template< typename IndependentVariableType, typename DependentVariableType,
+template< typename IndependentVariableType,
+          typename DependentVariableType,
           typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
-std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
-        const std::vector< IndependentVariableType >& subDiagonal,
-        const std::vector< IndependentVariableType >& diagonal,
-        const std::vector< IndependentVariableType >& superDiagonal,
-        const std::vector< DependentVariableType >& rightHandSide )
+std::vector< DependentVariableType > solveTridiagonalMatrixEquation( const std::vector< IndependentVariableType >& subDiagonal,
+                                                                     const std::vector< IndependentVariableType >& diagonal,
+                                                                     const std::vector< IndependentVariableType >& superDiagonal,
+                                                                     const std::vector< DependentVariableType >& rightHandSide )
 {
     // Check whether input diagonals are correct size.
     unsigned int matrixSize = static_cast< unsigned int >( rightHandSide.size( ) );
@@ -59,14 +59,13 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
     {
         throw std::runtime_error( "Error, RHS must be at least size 2 for tridiagonal matrix solution" );
     }
-    if ( ( diagonal.size( ) < matrixSize ) || ( superDiagonal.size( ) < matrixSize - 1 ) ||
-         ( rightHandSide.size( ) < matrixSize - 1 ) )
+    if( ( diagonal.size( ) < matrixSize ) || ( superDiagonal.size( ) < matrixSize - 1 ) || ( rightHandSide.size( ) < matrixSize - 1 ) )
     {
         throw std::runtime_error( "Error, input provided for diagonal and sub/super diagonals incorrect." );
     }
 
     // Check whether solution will not be singular.
-    if ( diagonal[ 0 ] == 0.0 )
+    if( diagonal[ 0 ] == 0.0 )
     {
         throw std::runtime_error( "Error when inverting tridiagonal system, first entry of diagonal is zero" );
     }
@@ -78,21 +77,20 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
     ScalarType scalingFactor = static_cast< ScalarType >( diagonal[ 0 ] );
     solution[ 0 ] = rightHandSide[ 0 ] / static_cast< ScalarType >( scalingFactor );
 
-    for ( unsigned int j = 1; j < matrixSize; j++ )
+    for( unsigned int j = 1; j < matrixSize; j++ )
     {
         intermediateVector[ j ] = static_cast< ScalarType >( superDiagonal[ j - 1 ] ) / scalingFactor;
         scalingFactor = diagonal[ j ] - static_cast< ScalarType >( subDiagonal[ j - 1 ] ) * intermediateVector[ j ];
 
         // Check whether solution will not be singular.
-        if ( scalingFactor == 0.0 )
+        if( scalingFactor == 0.0 )
         {
             throw std::runtime_error( "Error when inverting tridiagonal system, scaling factor equals zero!" );
         }
-        solution[ j ] = ( rightHandSide[ j ] - subDiagonal[ j - 1 ] * solution[ j - 1 ] ) /
-                scalingFactor;
+        solution[ j ] = ( rightHandSide[ j ] - subDiagonal[ j - 1 ] * solution[ j - 1 ] ) / scalingFactor;
     }
 
-    for ( int j = ( matrixSize - 2 ); j >= 0 ; j-- )
+    for( int j = ( matrixSize - 2 ); j >= 0; j-- )
     {
         solution[ j ] -= intermediateVector[ j + 1 ] * solution[ j + 1 ];
     }
@@ -108,19 +106,15 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
  *  \tparam IndependentVariableType Type of independent variables.
  *  \tparam DependentVariableType Type of dependent variables.
  */
-template< typename IndependentVariableType, typename DependentVariableType,
+template< typename IndependentVariableType,
+          typename DependentVariableType,
           typename ScalarType = typename scalar_type< IndependentVariableType >::value_type >
-class CubicSplineInterpolator :
-        public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
+class CubicSplineInterpolator : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
 public:
-
-    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
-    dependentValues_;
-    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
-    independentValues_;
-    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
-    lookUpScheme_;
+    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
+    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
+    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::lookUpScheme_;
     using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Cubic spline interpolator constructor.
@@ -142,15 +136,14 @@ public:
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                              const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                              const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) :
+                                     std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                     IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
-        if ( independentVariables.size( ) == 0 || dependentVariables.size( ) == 0 )
+        if( independentVariables.size( ) == 0 || dependentVariables.size( ) == 0 )
         {
-            throw std::runtime_error(
-                        "The vectors used in the cubic spline interpolator initialization are empty." );
+            throw std::runtime_error( "The vectors used in the cubic spline interpolator initialization are empty." );
         }
 
         // Set dependent and independent variable values.
@@ -160,7 +153,8 @@ public:
         // Check if data is in ascending order
         if( !std::is_sorted( independentVariables.begin( ), independentVariables.end( ) ) )
         {
-            throw std::runtime_error( "Error when making cubic spline interpolator, input vector with independent variables should be in ascending order" );
+            throw std::runtime_error(
+                    "Error when making cubic spline interpolator, input vector with independent variables should be in ascending order" );
         }
 
         // Create lookup scheme.
@@ -169,7 +163,7 @@ public:
         // Create zero value for initializing output.
         zeroValue_ = dependentVariables[ 0 ] - dependentVariables[ 0 ];
 
-        if ( dependentValues_.size( ) != independentValues_.size( ) )
+        if( dependentValues_.size( ) != independentValues_.size( ) )
         {
             throw std::runtime_error( "Warning: independent and dependent variables not of same size in cubic spline constrcutor" );
         }
@@ -197,7 +191,10 @@ public:
                              const AvailableLookupScheme selectedLookupScheme,
                              const BoundaryInterpolationType boundaryHandling,
                              const DependentVariableType& defaultExtrapolationValue ):
-        CubicSplineInterpolator( independentVariables, dependentVariables, selectedLookupScheme, boundaryHandling,
+        CubicSplineInterpolator( independentVariables,
+                                 dependentVariables,
+                                 selectedLookupScheme,
+                                 boundaryHandling,
                                  std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
     { }
 
@@ -214,18 +211,16 @@ public:
      *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
-    CubicSplineInterpolator(
-            const std::map< IndependentVariableType, DependentVariableType > dataMap,
-            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-            const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
-                                                                                      defaultExtrapolationValue )
+    CubicSplineInterpolator( const std::map< IndependentVariableType, DependentVariableType > dataMap,
+                             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+                             const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
+                                     std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                     IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
-        if ( dataMap.size( ) == 0 )
+        if( dataMap.size( ) == 0 )
         {
             throw std::runtime_error( "The map used in the cubic spline interpolator initialization are empty." );
         }
@@ -234,8 +229,9 @@ public:
         independentValues_.resize( dataMap.size( ) );
         dependentValues_.resize( dataMap.size( ) );
         int counter = 0;
-        for ( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
-              mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
+        for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator mapIterator = dataMap.begin( );
+             mapIterator != dataMap.end( );
+             mapIterator++ )
         {
             independentValues_[ counter ] = std::move( mapIterator->first );
             dependentValues_[ counter ] = std::move( mapIterator->second );
@@ -265,17 +261,18 @@ public:
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
-    CubicSplineInterpolator(
-            const std::map< IndependentVariableType, DependentVariableType > dataMap,
-            const AvailableLookupScheme selectedLookupScheme,
-            const BoundaryInterpolationType boundaryHandling,
-            const DependentVariableType& defaultExtrapolationValue ):
-        CubicSplineInterpolator( dataMap, selectedLookupScheme, boundaryHandling,
+    CubicSplineInterpolator( const std::map< IndependentVariableType, DependentVariableType > dataMap,
+                             const AvailableLookupScheme selectedLookupScheme,
+                             const BoundaryInterpolationType boundaryHandling,
+                             const DependentVariableType& defaultExtrapolationValue ):
+        CubicSplineInterpolator( dataMap,
+                                 selectedLookupScheme,
+                                 boundaryHandling,
                                  std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
     { }
 
     //! Destructor.
-    ~CubicSplineInterpolator( ){ }
+    ~CubicSplineInterpolator( ) { }
 
     //! Interpolate.
     /*!
@@ -302,7 +299,7 @@ public:
 
         // If lowerEntry_ is the last element of independentValues_, execute extrapolation with
         // the last and second to last elements of independentValues_.
-        if ( lowerEntry_ == independentValues_.size( ) - 1 )
+        if( lowerEntry_ == independentValues_.size( ) - 1 )
         {
             lowerEntry_ -= 1;
         }
@@ -314,10 +311,8 @@ public:
         upperValue = independentValues_[ lowerEntry_ + 1 ];
 
         // Calculate coefficients A,B,C,D (see Numerical (Press W.H., et al., 2002))
-        squareDifference = static_cast< ScalarType >( upperValue - lowerValue ) *
-                static_cast< ScalarType >( upperValue - lowerValue );
-        ScalarType coefficientA_ = ( upperValue - targetIndependentVariableValue )
-                / static_cast< ScalarType >( upperValue - lowerValue );
+        squareDifference = static_cast< ScalarType >( upperValue - lowerValue ) * static_cast< ScalarType >( upperValue - lowerValue );
+        ScalarType coefficientA_ = ( upperValue - targetIndependentVariableValue ) / static_cast< ScalarType >( upperValue - lowerValue );
         ScalarType coefficientB_ = mathematical_constants::getFloatingInteger< ScalarType >( 1.0 ) - coefficientA_;
         ScalarType coefficientC_ = ( coefficientA_ * coefficientA_ * coefficientA_ - coefficientA_ ) /
                 mathematical_constants::getFloatingInteger< ScalarType >( 6.0 ) * squareDifference;
@@ -325,18 +320,17 @@ public:
                 mathematical_constants::getFloatingInteger< ScalarType >( 6.0 ) * squareDifference;
 
         // The interpolated dependent variable value.
-        return coefficientA_ * dependentValues_[ lowerEntry_ ] +
-                coefficientB_ * dependentValues_[ lowerEntry_ + 1 ] +
-                coefficientC_ * secondDerivativeOfCurve_[ lowerEntry_ ] +
-                coefficientD_ * secondDerivativeOfCurve_[ lowerEntry_ + 1 ];
+        return coefficientA_ * dependentValues_[ lowerEntry_ ] + coefficientB_ * dependentValues_[ lowerEntry_ + 1 ] +
+                coefficientC_ * secondDerivativeOfCurve_[ lowerEntry_ ] + coefficientD_ * secondDerivativeOfCurve_[ lowerEntry_ + 1 ];
     }
 
-    InterpolatorTypes getInterpolatorType( ){ return cubic_spline_interpolator; }
+    InterpolatorTypes getInterpolatorType( )
+    {
+        return cubic_spline_interpolator;
+    }
 
 protected:
-
 private:
-
     //! Calculates the second derivatives of the curve.
     /*!
      *  This function calculates the second derivatives of the curve at the nodes, assuming
@@ -370,41 +364,40 @@ private:
 
         // Set second derivatives of curve to zero at endpoints, i.e. impose natural spline
         // condition.
-        aCoefficients_[ numberOfDataPoints_- 3 ] = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
-        cCoefficients_[ numberOfDataPoints_- 3 ] = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+        aCoefficients_[ numberOfDataPoints_ - 3 ] = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+        cCoefficients_[ numberOfDataPoints_ - 3 ] = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
 
         // Compute the vectors h (temporary values),a,c,b,r.
-        for ( unsigned int i = 0; i < ( numberOfDataPoints_ - 1 ); i++ )
+        for( unsigned int i = 0; i < ( numberOfDataPoints_ - 1 ); i++ )
         {
             hCoefficients_[ i ] = independentValues_[ i + 1 ] - independentValues_[ i ];
         }
 
         // Set tridiagonal matrix equation input.
-        for ( unsigned int i = 0; i < ( numberOfDataPoints_ - 3 ); i++ )
+        for( unsigned int i = 0; i < ( numberOfDataPoints_ - 3 ); i++ )
         {
             aCoefficients_[ i ] = hCoefficients_[ i + 1 ];
             cCoefficients_[ i ] = hCoefficients_[ i + 1 ];
         }
 
-        for ( unsigned int i = 0; i < ( numberOfDataPoints_ - 2 ); i++ )
+        for( unsigned int i = 0; i < ( numberOfDataPoints_ - 2 ); i++ )
         {
             bCoefficients_[ i ] = 2.0 * ( hCoefficients_[ i + 1 ] + hCoefficients_[ i ] );
-            rCoefficients_[ i ] = 6.0 * ( ( dependentValues_[ i + 2 ]-
-                                          dependentValues_[ i + 1 ] ) / hCoefficients_[ i + 1 ] -
-                    ( dependentValues_[ i + 1 ] - dependentValues_[ i ] ) /
-                    hCoefficients_[ i ] );
+            rCoefficients_[ i ] = 6.0 *
+                    ( ( dependentValues_[ i + 2 ] - dependentValues_[ i + 1 ] ) / hCoefficients_[ i + 1 ] -
+                      ( dependentValues_[ i + 1 ] - dependentValues_[ i ] ) / hCoefficients_[ i ] );
         }
 
         // Solve tridiagonal matrix equatuion.
         std::vector< DependentVariableType > middleSecondDerivativeOfCurvatures =
-                solveTridiagonalMatrixEquation< ScalarType, DependentVariableType >
-                ( aCoefficients_, bCoefficients_, cCoefficients_, rCoefficients_ );
+                solveTridiagonalMatrixEquation< ScalarType, DependentVariableType >(
+                        aCoefficients_, bCoefficients_, cCoefficients_, rCoefficients_ );
 
         // Append zeros to ends of calculated second derivative values (natural spline condition).
         secondDerivativeOfCurve_.resize( numberOfDataPoints_ );
         secondDerivativeOfCurve_[ 0 ] = zeroValue_;
 
-        for ( unsigned int i = 1; i < numberOfDataPoints_ - 1; i++ )
+        for( unsigned int i = 1; i < numberOfDataPoints_ - 1; i++ )
         {
             secondDerivativeOfCurve_[ i ] = middleSecondDerivativeOfCurvatures[ i - 1 ];
         }
@@ -420,13 +413,11 @@ private:
 
     //! Zero value of independent variable type
     DependentVariableType zeroValue_;
-
 };
 
-
-//extern template class CubicSplineInterpolator< double, Eigen::VectorXd >;
-//extern template class CubicSplineInterpolator< double, Eigen::Vector6d >;
-//extern template class CubicSplineInterpolator< double, Eigen::MatrixXd >;
+// extern template class CubicSplineInterpolator< double, Eigen::VectorXd >;
+// extern template class CubicSplineInterpolator< double, Eigen::Vector6d >;
+// extern template class CubicSplineInterpolator< double, Eigen::MatrixXd >;
 
 //! Typedef for cubic spline interpolator with (in)dependent = double.
 typedef CubicSplineInterpolator< double, double > CubicSplineInterpolatorDouble;
@@ -434,8 +425,8 @@ typedef CubicSplineInterpolator< double, double > CubicSplineInterpolatorDouble;
 //! Typedef for shared-pointer to cubic spline interpolator with (in)dependent = double.
 typedef std::shared_ptr< CubicSplineInterpolatorDouble > CubicSplineInterpolatorDoublePointer;
 
-} // namespace interpolators
+}  // namespace interpolators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CUBIC_SPLINE_INTERPOLATOR_H
+#endif  // TUDAT_CUBIC_SPLINE_INTERPOLATOR_H

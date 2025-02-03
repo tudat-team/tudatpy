@@ -21,112 +21,104 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/createRotationModel.h"
 
-
-
 namespace tudat
 {
-    namespace unit_tests
+namespace unit_tests
+{
+
+using namespace tudat::ephemerides;
+using namespace tudat::simulation_setup;
+
+BOOST_AUTO_TEST_SUITE( test_planetary_rotation_model )
+
+BOOST_AUTO_TEST_CASE( testPlanetaryRotationModel )
+{
+    double initialTime = 0.0;
+    double finalTime = 1.0E8;
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    SystemOfBodies bodies;
+    bodies.createEmptyBody( "Mars" );
+
+    std::shared_ptr< RotationModelSettings > defaultMarsRotationSettings = getHighAccuracyMarsRotationModel( );
+
+    std::shared_ptr< RotationalEphemeris > marsRotationModel = createRotationModel( defaultMarsRotationSettings, "Mars" );
+
+    std::shared_ptr< PlanetaryRotationModelSettings > modifiedMarsRotationModel =
+            std::dynamic_pointer_cast< PlanetaryRotationModelSettings >( defaultMarsRotationSettings );
+
+    modifiedMarsRotationModel->setPeriodTermsToZero( );
+
+    std::shared_ptr< RotationalEphemeris > marsSimplifiedRotationModel = createRotationModel( modifiedMarsRotationModel, "Mars" );
+
+    std::shared_ptr< RotationalEphemeris > spiceMarsRotationModel =
+            std::make_shared< SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_Mars" );
+
+    double timeStep = 3600.0;
+    double currentTime = initialTime + timeStep;
+    double dt = 0.9;
+
+    std::map< double, Eigen::MatrixXd > rotationDifferenceMap;
+    std::map< double, Eigen::MatrixXd > DerivativeDifferenceMap;
+
+    while( currentTime < finalTime - timeStep )
     {
-        
-        using namespace tudat::ephemerides;
-        using namespace tudat::simulation_setup;
-        
-        BOOST_AUTO_TEST_SUITE( test_planetary_rotation_model )
-        
-        BOOST_AUTO_TEST_CASE( testPlanetaryRotationModel )
+        rotationDifferenceMap[ currentTime ] = ( marsRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( ) -
+                ( marsSimplifiedRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( );
+
+        //                std::cout<<rotationDifferenceMap[ currentTime ]<<std::endl<<std::endl;
+
+        rotationDifferenceMap[ currentTime ] = ( marsRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( ) -
+                ( spiceMarsRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( );
+
+        //                std::cout<<rotationDifferenceMap[ currentTime ]<<std::endl<<std::endl;
+
+        //                rotationDifferenceMap[ currentTime ] =
+        //                        ( marsSimplifiedRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( ) -
+        //                        ( spiceMarsRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( );
+
+        //                std::cout<<rotationDifferenceMap[ currentTime ]<<std::endl<<std::endl;
+
+        Eigen::MatrixXd numericalRotationMatrixderivative =
+                ( ( marsRotationModel->getRotationToBaseFrame( currentTime + dt ) ).toRotationMatrix( ) -
+                  ( marsRotationModel->getRotationToBaseFrame( currentTime - dt ) ).toRotationMatrix( ) ) /
+                ( 2 * dt );
+
+        DerivativeDifferenceMap[ currentTime ] =
+                marsRotationModel->getDerivativeOfRotationToBaseFrame( currentTime ) - numericalRotationMatrixderivative;
+
+        for( unsigned int i = 0; i < 3; i++ )
         {
-            double initialTime = 0.0;
-            double finalTime = 1.0E8;
-            
-            spice_interface::loadStandardSpiceKernels( );
-            
-            SystemOfBodies bodies;
-            bodies.createEmptyBody( "Mars" );
-            
-            std::shared_ptr< RotationModelSettings > defaultMarsRotationSettings =
-                    getHighAccuracyMarsRotationModel( );
-            
-            std::shared_ptr< RotationalEphemeris > marsRotationModel =
-                    createRotationModel( defaultMarsRotationSettings, "Mars" );
-            
-            std::shared_ptr< PlanetaryRotationModelSettings > modifiedMarsRotationModel =
-                    std::dynamic_pointer_cast< PlanetaryRotationModelSettings >( defaultMarsRotationSettings );
-
-            modifiedMarsRotationModel->setPeriodTermsToZero( );
-            
-            std::shared_ptr< RotationalEphemeris > marsSimplifiedRotationModel =
-                    createRotationModel( modifiedMarsRotationModel, "Mars" );
-
-            
-            std::shared_ptr< RotationalEphemeris > spiceMarsRotationModel =
-                    std::make_shared< SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_Mars" );
-
-            
-            double timeStep = 3600.0;
-            double currentTime = initialTime + timeStep;
-            double dt = 0.9;
-            
-            std::map< double, Eigen::MatrixXd > rotationDifferenceMap;
-            std::map< double, Eigen::MatrixXd > DerivativeDifferenceMap;
-            
-            while( currentTime < finalTime - timeStep )
+            for( unsigned j = 0; j < 3; j++ )
             {
-
-                rotationDifferenceMap[ currentTime ] =  ( marsRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( ) -
-                        ( marsSimplifiedRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( );
-
-//                std::cout<<rotationDifferenceMap[ currentTime ]<<std::endl<<std::endl;
-
-                rotationDifferenceMap[ currentTime ] =  ( marsRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( ) -
-                        ( spiceMarsRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( );
-                
-//                std::cout<<rotationDifferenceMap[ currentTime ]<<std::endl<<std::endl;
-
-//                rotationDifferenceMap[ currentTime ] =
-//                        ( marsSimplifiedRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( ) -
-//                        ( spiceMarsRotationModel->getRotationToTargetFrame( currentTime ) ).toRotationMatrix( );
-
-//                std::cout<<rotationDifferenceMap[ currentTime ]<<std::endl<<std::endl;
-
-                Eigen::MatrixXd numericalRotationMatrixderivative =
-                        ( ( marsRotationModel->getRotationToBaseFrame( currentTime + dt ) ).toRotationMatrix( ) -
-                          (marsRotationModel->getRotationToBaseFrame( currentTime - dt ) ).toRotationMatrix( ) ) / ( 2*dt );
-
-                DerivativeDifferenceMap [ currentTime ] =
-                        marsRotationModel->getDerivativeOfRotationToBaseFrame( currentTime ) - numericalRotationMatrixderivative;
-
-
-                for( unsigned int i = 0; i < 3; i++ )
-                {
-                    for( unsigned j = 0; j < 3; j++ )
-                    {
-                        BOOST_CHECK_SMALL( rotationDifferenceMap[ currentTime ]( i, j ), 1.0E-4 );
-                        BOOST_CHECK_SMALL( DerivativeDifferenceMap[ currentTime ]( i, j ), 1.0E-10 );
-                    }
-                }
-
-                currentTime += timeStep;
+                BOOST_CHECK_SMALL( rotationDifferenceMap[ currentTime ]( i, j ), 1.0E-4 );
+                BOOST_CHECK_SMALL( DerivativeDifferenceMap[ currentTime ]( i, j ), 1.0E-10 );
             }
-
-//            std::cout << "analitical Rotation Matrix derivative" << std::endl;
-//            std::cout <<  marsRotationModel->getDerivativeOfRotationToBaseFrame( (finalTime - timeStep) ) << std::endl;
-
-//            Eigen::MatrixXd numericalRotationMatrixderivative = (
-//                        ( marsRotationModel->getRotationToBaseFrame( (finalTime - timeStep) + dt ) ).toRotationMatrix( ) -
-//                        ( marsRotationModel->getRotationToBaseFrame( (finalTime - timeStep) - dt ) ).toRotationMatrix( ) ) / ( 2*dt );
-//            std::cout << "numerical Rotation Matrix derivative" << std::endl;
-//            std::cout << numericalRotationMatrixderivative << std::endl;
-
-//            Eigen::MatrixXd DerivativeDifference =
-//                    marsRotationModel->getDerivativeOfRotationToBaseFrame( (finalTime - timeStep) ) - numericalRotationMatrixderivative;
-//            std::cout << "rotation Matrix derivative difference" << std::endl;
-
-//            std::cout << DerivativeDifference << std::endl;
-
         }
 
-        BOOST_AUTO_TEST_SUITE_END( )
-
+        currentTime += timeStep;
     }
 
+    //            std::cout << "analitical Rotation Matrix derivative" << std::endl;
+    //            std::cout <<  marsRotationModel->getDerivativeOfRotationToBaseFrame( (finalTime - timeStep) ) << std::endl;
+
+    //            Eigen::MatrixXd numericalRotationMatrixderivative = (
+    //                        ( marsRotationModel->getRotationToBaseFrame( (finalTime - timeStep) + dt ) ).toRotationMatrix( ) -
+    //                        ( marsRotationModel->getRotationToBaseFrame( (finalTime - timeStep) - dt ) ).toRotationMatrix( ) ) / ( 2*dt );
+    //            std::cout << "numerical Rotation Matrix derivative" << std::endl;
+    //            std::cout << numericalRotationMatrixderivative << std::endl;
+
+    //            Eigen::MatrixXd DerivativeDifference =
+    //                    marsRotationModel->getDerivativeOfRotationToBaseFrame( (finalTime - timeStep) ) -
+    //                    numericalRotationMatrixderivative;
+    //            std::cout << "rotation Matrix derivative difference" << std::endl;
+
+    //            std::cout << DerivativeDifference << std::endl;
 }
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+}  // namespace unit_tests
+
+}  // namespace tudat

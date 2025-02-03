@@ -55,13 +55,12 @@ Eigen::Vector4d convertMatrixToVectorQuaternionFormat( const Eigen::Matrix3d& ro
     return convertQuaternionToVectorFormat( Eigen::Quaterniond( rotationMatrix ) );
 }
 
-
 //! Function to take the product of two quaternions.
 Eigen::Vector4d quaternionProduct( const Eigen::Vector4d& firstQuaternion, const Eigen::Vector4d& secondQuaternion )
 {
     Eigen::Vector4d resultantQuaternion;
-    resultantQuaternion[ 0 ] = firstQuaternion[ 0 ] * secondQuaternion[ 0 ] -
-            firstQuaternion.segment( 1, 3 ).dot( secondQuaternion.segment( 1, 3 ) );
+    resultantQuaternion[ 0 ] =
+            firstQuaternion[ 0 ] * secondQuaternion[ 0 ] - firstQuaternion.segment( 1, 3 ).dot( secondQuaternion.segment( 1, 3 ) );
     resultantQuaternion.segment( 1, 3 ) = firstQuaternion[ 0 ] * secondQuaternion.segment( 1, 3 ) +
             secondQuaternion[ 0 ] * firstQuaternion.segment( 1, 3 ) +
             getCrossProductMatrix( firstQuaternion.segment( 1, 3 ) ) * secondQuaternion.segment( 1, 3 );
@@ -88,8 +87,7 @@ Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& vector )
 }
 
 //! Compute cosine of the angle between two vectors.
-double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0,
-                                           const Eigen::VectorXd& vector1 )
+double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0, const Eigen::VectorXd& vector1 )
 {
     if( !( vector0.size( ) == vector1.size( ) ) )
     {
@@ -100,12 +98,12 @@ double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0,
     double dotProductOfNormalizedVectors = vector0.normalized( ).dot( vector1.normalized( ) );
 
     // Explicitly define the extreme cases, which can give problems with the acos function.
-    if ( dotProductOfNormalizedVectors >= 1.0 )
+    if( dotProductOfNormalizedVectors >= 1.0 )
     {
         return 1.0;
     }
 
-    else if ( dotProductOfNormalizedVectors <= -1.0 )
+    else if( dotProductOfNormalizedVectors <= -1.0 )
     {
         return -1.0;
     }
@@ -127,8 +125,7 @@ double computeAngleBetweenVectors( const Eigen::VectorXd& vector0, const Eigen::
 }
 
 //! Computes norm of the the difference between two 3d vectors.
-double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
-                                      const Eigen::Vector3d& vector1 )
+double computeNormOfVectorDifference( const Eigen::Vector3d& vector0, const Eigen::Vector3d& vector1 )
 {
     return ( vector0 - vector1 ).norm( );
 }
@@ -139,9 +136,7 @@ double getVectorNorm( const Eigen::Vector3d& vector )
     return vector.norm( );
 }
 
-Eigen::Vector3d evaluateSecondBlockInStateVector(
-        const std::function< Eigen::Vector6d( const double ) > stateFunction,
-        const double time )
+Eigen::Vector3d evaluateSecondBlockInStateVector( const std::function< Eigen::Vector6d( const double ) > stateFunction, const double time )
 {
     return stateFunction( time ).segment( 3, 3 );
 }
@@ -158,8 +153,9 @@ Eigen::Matrix3d calculatePartialOfNormalizedVector( const Eigen::Matrix3d& parti
 {
     double normOfVector = unnormalizedVector.norm( );
 
-    return ( Eigen::Matrix3d::Identity( ) / normOfVector - unnormalizedVector * unnormalizedVector.transpose( ) /
-             ( normOfVector * normOfVector * normOfVector ) ) * partialOfUnnormalizedVector;
+    return ( Eigen::Matrix3d::Identity( ) / normOfVector -
+             unnormalizedVector * unnormalizedVector.transpose( ) / ( normOfVector * normOfVector * normOfVector ) ) *
+            partialOfUnnormalizedVector;
 }
 
 double getVectorEntryMean( const Eigen::VectorXd& inputVector )
@@ -190,33 +186,26 @@ double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector )
 }
 
 //! Function to compute the partial derivative of a rotation matrix w.r.t. its associated quaterion elements
-void computePartialDerivativeOfRotationMatrixWrtQuaternion(
-        const Eigen::Vector4d quaternionVector,
-        std::vector< Eigen::Matrix3d >& partialDerivatives )
+void computePartialDerivativeOfRotationMatrixWrtQuaternion( const Eigen::Vector4d quaternionVector,
+                                                            std::vector< Eigen::Matrix3d >& partialDerivatives )
 {
-    partialDerivatives[ 0 ]<< quaternionVector( 0 ), -quaternionVector( 3 ), quaternionVector( 2 ),
-            quaternionVector( 3 ), quaternionVector( 0 ), -quaternionVector( 1 ),
-            -quaternionVector( 2 ), quaternionVector( 1 ), quaternionVector( 0 );
-     partialDerivatives[ 0 ] *= 2.0;
+    partialDerivatives[ 0 ] << quaternionVector( 0 ), -quaternionVector( 3 ), quaternionVector( 2 ), quaternionVector( 3 ),
+            quaternionVector( 0 ), -quaternionVector( 1 ), -quaternionVector( 2 ), quaternionVector( 1 ), quaternionVector( 0 );
+    partialDerivatives[ 0 ] *= 2.0;
 
-    partialDerivatives[ 1 ]<< quaternionVector( 1 ), quaternionVector( 2 ), quaternionVector( 3 ),
-            quaternionVector( 2 ), -quaternionVector( 1 ), -quaternionVector( 0 ),
-            quaternionVector( 3 ), quaternionVector( 0 ), -quaternionVector( 1 );
+    partialDerivatives[ 1 ] << quaternionVector( 1 ), quaternionVector( 2 ), quaternionVector( 3 ), quaternionVector( 2 ),
+            -quaternionVector( 1 ), -quaternionVector( 0 ), quaternionVector( 3 ), quaternionVector( 0 ), -quaternionVector( 1 );
     partialDerivatives[ 1 ] *= 2.0;
 
-    partialDerivatives[ 2 ]<< -quaternionVector( 2 ), quaternionVector( 1 ), quaternionVector( 0 ),
-            quaternionVector( 1 ), quaternionVector( 2 ), quaternionVector( 3 ),
-            -quaternionVector( 0 ), quaternionVector( 3 ), -quaternionVector( 2 );
+    partialDerivatives[ 2 ] << -quaternionVector( 2 ), quaternionVector( 1 ), quaternionVector( 0 ), quaternionVector( 1 ),
+            quaternionVector( 2 ), quaternionVector( 3 ), -quaternionVector( 0 ), quaternionVector( 3 ), -quaternionVector( 2 );
     partialDerivatives[ 2 ] *= 2.0;
 
-    partialDerivatives[ 3 ]<< -quaternionVector( 3 ), -quaternionVector( 0 ), quaternionVector( 1 ),
-            quaternionVector( 0 ), -quaternionVector( 3 ), quaternionVector( 2 ),
-            quaternionVector( 1 ), quaternionVector( 2 ), quaternionVector( 3 );
+    partialDerivatives[ 3 ] << -quaternionVector( 3 ), -quaternionVector( 0 ), quaternionVector( 1 ), quaternionVector( 0 ),
+            -quaternionVector( 3 ), quaternionVector( 2 ), quaternionVector( 1 ), quaternionVector( 2 ), quaternionVector( 3 );
     partialDerivatives[ 3 ] *= 2.0;
-
 }
 
+}  // namespace linear_algebra
 
-} // namespace linear_algebra
-
-} // namespace tudat
+}  // namespace tudat

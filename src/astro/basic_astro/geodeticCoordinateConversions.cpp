@@ -33,11 +33,10 @@ double calculateEllipticity( const double flattening )
 }
 
 //! Calculate auxiliary quantities for geodetic coordinate conversions.
-std::pair< double, double > calculateGeodeticCoordinatesAuxiliaryQuantities(
-        const Eigen::Vector3d cartesianState,
-        const double equatorialRadius,
-        const double ellipticity,
-        const double tolerance )
+std::pair< double, double > calculateGeodeticCoordinatesAuxiliaryQuantities( const Eigen::Vector3d cartesianState,
+                                                                             const double equatorialRadius,
+                                                                             const double ellipticity,
+                                                                             const double tolerance )
 {
     // Precompute square of ellipticity.
     const double ellipticitySquared = ellipticity * ellipticity;
@@ -46,8 +45,7 @@ std::pair< double, double > calculateGeodeticCoordinatesAuxiliaryQuantities(
     double zInterceptOffset0 = ellipticitySquared * cartesianState.z( );
 
     // Declare variables to use in iteration.
-    double oldZInterceptOffset0 = 0.0, interceptToSurfaceDistance = 0.0,
-            sineOfGeodeticLatitude = 0.0, totalZ = 0.0, totalDistance = 0.0;
+    double oldZInterceptOffset0 = 0.0, interceptToSurfaceDistance = 0.0, sineOfGeodeticLatitude = 0.0, totalZ = 0.0, totalDistance = 0.0;
 
     // Perform iterative algorithm until tolerance is reached, Montenbruck and Gill (2000),
     // Eq. (5.87).
@@ -58,21 +56,18 @@ std::pair< double, double > calculateGeodeticCoordinatesAuxiliaryQuantities(
 
         // Calculate total z-distance from intercept and total distance from intercept point.
         totalZ = cartesianState.z( ) + zInterceptOffset0;
-        totalDistance = std::sqrt( cartesianState.x( ) * cartesianState.x( ) +
-                                   cartesianState.y( ) * cartesianState.y( ) +
-                                   totalZ * totalZ );
+        totalDistance =
+                std::sqrt( cartesianState.x( ) * cartesianState.x( ) + cartesianState.y( ) * cartesianState.y( ) + totalZ * totalZ );
 
         // Calculate sine of geodetic longitude for current values.
         sineOfGeodeticLatitude = totalZ / totalDistance;
 
         // Calculate auxiliary variables for current iteration.
-        interceptToSurfaceDistance = equatorialRadius /
-                std::sqrt( 1.0 - ellipticitySquared *
-                           sineOfGeodeticLatitude * sineOfGeodeticLatitude );
-        zInterceptOffset0 = interceptToSurfaceDistance * ellipticitySquared *
-                sineOfGeodeticLatitude;
+        interceptToSurfaceDistance =
+                equatorialRadius / std::sqrt( 1.0 - ellipticitySquared * sineOfGeodeticLatitude * sineOfGeodeticLatitude );
+        zInterceptOffset0 = interceptToSurfaceDistance * ellipticitySquared * sineOfGeodeticLatitude;
 
-    } while ( std::fabs( oldZInterceptOffset0 - zInterceptOffset0 ) > tolerance );
+    } while( std::fabs( oldZInterceptOffset0 - zInterceptOffset0 ) > tolerance );
 
     // Set and return final auxiliary variables.
     return std::make_pair( interceptToSurfaceDistance, zInterceptOffset0 );
@@ -85,17 +80,14 @@ Eigen::Vector3d convertGeodeticToCartesianCoordinates( const Eigen::Vector3d geo
 {
     // Pre-compute values for efficiency.
     const double sineLatitude = std::sin( geodeticCoordinates.y( ) );
-    const double centerOffset = equatorialRadius /
-            std::sqrt( 1.0 - flattening * ( 2.0 - flattening ) * sineLatitude * sineLatitude );
+    const double centerOffset = equatorialRadius / std::sqrt( 1.0 - flattening * ( 2.0 - flattening ) * sineLatitude * sineLatitude );
 
     // Calculate Cartesian coordinates, Montenbruck and Gill (2000), Eq. (5.82).
     Eigen::Vector3d cartesianCoordinates = Eigen::Vector3d::Zero( );
     cartesianCoordinates.x( ) =
-            ( centerOffset + geodeticCoordinates.x( ) ) *
-            std::cos( geodeticCoordinates.y( ) ) * std::cos( geodeticCoordinates.z( ) );
+            ( centerOffset + geodeticCoordinates.x( ) ) * std::cos( geodeticCoordinates.y( ) ) * std::cos( geodeticCoordinates.z( ) );
     cartesianCoordinates.y( ) = cartesianCoordinates.x( ) * std::tan( geodeticCoordinates.z( ) );
-    cartesianCoordinates.z( ) = ( ( 1.0 - flattening ) * ( 1.0 - flattening ) * centerOffset +
-                                  geodeticCoordinates.x( ) ) * sineLatitude;
+    cartesianCoordinates.z( ) = ( ( 1.0 - flattening ) * ( 1.0 - flattening ) * centerOffset + geodeticCoordinates.x( ) ) * sineLatitude;
 
     // Return Cartesian coordinates.
     return cartesianCoordinates;
@@ -107,10 +99,9 @@ double calculateAltitudeOverOblateSpheroid( const Eigen::Vector3d cartesianState
                                             const double interceptToSurfaceDistance )
 {
     // Calculate Cartesian coordinates, Montenbruck and Gill (2000), Eq. (5.88c).
-    return std::sqrt( cartesianState.x( ) * cartesianState.x( ) +
-                      cartesianState.y( ) * cartesianState.y( ) +
-                      ( cartesianState.z( ) + zInterceptOffset ) *
-                      ( cartesianState.z( ) + zInterceptOffset ) ) - interceptToSurfaceDistance;
+    return std::sqrt( cartesianState.x( ) * cartesianState.x( ) + cartesianState.y( ) * cartesianState.y( ) +
+                      ( cartesianState.z( ) + zInterceptOffset ) * ( cartesianState.z( ) + zInterceptOffset ) ) -
+            interceptToSurfaceDistance;
 }
 
 //! Calculate the altitude over an oblate spheroid of a position vector.
@@ -120,24 +111,19 @@ double calculateAltitudeOverOblateSpheroid( const Eigen::Vector3d cartesianState
                                             const double tolerance )
 {
     // Calculate auxiliary variables.
-    std::pair< double, double > auxiliaryVariables =
-            calculateGeodeticCoordinatesAuxiliaryQuantities(
-                cartesianState, equatorialRadius,  calculateEllipticity( flattening ), tolerance );
+    std::pair< double, double > auxiliaryVariables = calculateGeodeticCoordinatesAuxiliaryQuantities(
+            cartesianState, equatorialRadius, calculateEllipticity( flattening ), tolerance );
 
     // Calculate and return geodetic altitude.
-    return calculateAltitudeOverOblateSpheroid(
-                cartesianState, auxiliaryVariables.second, auxiliaryVariables.first );
+    return calculateAltitudeOverOblateSpheroid( cartesianState, auxiliaryVariables.second, auxiliaryVariables.first );
 }
 
 //! Calculate the geodetic latitude from Cartesian position and offset of z-intercept.
-double calculateGeodeticLatitude( const Eigen::Vector3d cartesianState,
-                                  const double zInterceptOffset )
+double calculateGeodeticLatitude( const Eigen::Vector3d cartesianState, const double zInterceptOffset )
 {
     // Calculate Cartesian coordinates, Montenbruck and Gill (2000), Eq. (5.88b).
-    return std::atan2( cartesianState.z( ) +
-                       zInterceptOffset, std::sqrt(
-                           cartesianState.x( ) * cartesianState.x( ) +
-                           cartesianState.y( ) * cartesianState.y( ) ) );
+    return std::atan2( cartesianState.z( ) + zInterceptOffset,
+                       std::sqrt( cartesianState.x( ) * cartesianState.x( ) + cartesianState.y( ) * cartesianState.y( ) ) );
 }
 
 //! Calculate the geodetic latitude of a position vector.
@@ -147,13 +133,11 @@ double calculateGeodeticLatitude( const Eigen::Vector3d cartesianState,
                                   const double tolerance )
 {
     // Calculate auxiliary variables.
-    std::pair< double, double > auxiliaryVariables =
-            calculateGeodeticCoordinatesAuxiliaryQuantities(
-                cartesianState, equatorialRadius, calculateEllipticity( flattening ), tolerance );
+    std::pair< double, double > auxiliaryVariables = calculateGeodeticCoordinatesAuxiliaryQuantities(
+            cartesianState, equatorialRadius, calculateEllipticity( flattening ), tolerance );
 
     // Calculate and return geodetic latitude.
     return calculateGeodeticLatitude( cartesianState, auxiliaryVariables.second );
-
 }
 
 //! Calculate geodetic coordinates ( altitude, geodetic latitude, longitude ) of a position vector.
@@ -165,29 +149,25 @@ Eigen::Vector3d convertCartesianToGeodeticCoordinates( const Eigen::Vector3d car
     using coordinate_conversions::convertCartesianToSpherical;
 
     // Determine spherical coordinates of position vector.
-    const Eigen::Vector3d sphericalCoordinates
-            = convertCartesianToSpherical( cartesianCoordinates );
+    const Eigen::Vector3d sphericalCoordinates = convertCartesianToSpherical( cartesianCoordinates );
     Eigen::Vector3d geodeticCoordinates = Eigen::Vector3d::Zero( );
 
     // Calculate auxiliary variables of geodetic coordinates.
-    std::pair< double, double > auxiliaryVariables =
-            calculateGeodeticCoordinatesAuxiliaryQuantities(
-                cartesianCoordinates, equatorialRadius,
-                calculateEllipticity( flattening ), tolerance );
+    std::pair< double, double > auxiliaryVariables = calculateGeodeticCoordinatesAuxiliaryQuantities(
+            cartesianCoordinates, equatorialRadius, calculateEllipticity( flattening ), tolerance );
 
     // Calculate altitude.
-    geodeticCoordinates.x( ) = calculateAltitudeOverOblateSpheroid(
-                cartesianCoordinates, auxiliaryVariables.second, auxiliaryVariables.first );
+    geodeticCoordinates.x( ) =
+            calculateAltitudeOverOblateSpheroid( cartesianCoordinates, auxiliaryVariables.second, auxiliaryVariables.first );
 
     // Calculate geodetic latitude.
-    geodeticCoordinates.y( ) = calculateGeodeticLatitude(
-                cartesianCoordinates, auxiliaryVariables.second );
+    geodeticCoordinates.y( ) = calculateGeodeticLatitude( cartesianCoordinates, auxiliaryVariables.second );
 
     // Set longitude.
     geodeticCoordinates.z( ) = sphericalCoordinates.z( );
     return geodeticCoordinates;
 }
 
-} // namespace tudat
+}  // namespace coordinate_conversions
 
-} // namespace coordinate_conversions
+}  // namespace tudat

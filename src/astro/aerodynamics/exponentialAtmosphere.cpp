@@ -17,61 +17,56 @@ namespace tudat
 namespace aerodynamics
 {
 
-ExponentialAtmosphere::ExponentialAtmosphere(
-        const BodiesWithPredefinedExponentialAtmospheres bodyWithPredefinedExponentialAtmosphere )
+ExponentialAtmosphere::ExponentialAtmosphere( const BodiesWithPredefinedExponentialAtmospheres bodyWithPredefinedExponentialAtmosphere )
 {
     switch( bodyWithPredefinedExponentialAtmosphere )
     {
-    case earth:
-    {
-        // Set local variables for Earth exponential atmosphere. Based on lecture notes
-        // Rocket Motion by Prof. Ir. B.A.C. Ambrosius, November 2009.
+        case earth: {
+            // Set local variables for Earth exponential atmosphere. Based on lecture notes
+            // Rocket Motion by Prof. Ir. B.A.C. Ambrosius, November 2009.
 
-        // Set scale height.
-        scaleHeight_ = 7.200e3;
+            // Set scale height.
+            scaleHeight_ = 7.200e3;
 
-        //Set density at zero altitude.
-        densityAtZeroAltitude_ = 1.225;
+            // Set density at zero altitude.
+            densityAtZeroAltitude_ = 1.225;
 
-        //Set atmosphere temperature.
-        constantTemperature_ = 246.0;
+            // Set atmosphere temperature.
+            constantTemperature_ = 246.0;
 
-        // Set specific gas constant.
-        specificGasConstant_ = physical_constants::SPECIFIC_GAS_CONSTANT_AIR;
+            // Set specific gas constant.
+            specificGasConstant_ = physical_constants::SPECIFIC_GAS_CONSTANT_AIR;
 
-        // Set ratio of specific heats
-        ratioOfSpecificHeats_ = 1.4;
-        break;
-    }
-    case mars:
-    {
-        // Set local variables for Earth exponential atmosphere. Based on Spohn, T., Breuer, D.,
-        // and Johnson, T., Eds., Encyclopedia of the Solar System, 3rd ed. Elsevier, 2014.
+            // Set ratio of specific heats
+            ratioOfSpecificHeats_ = 1.4;
+            break;
+        }
+        case mars: {
+            // Set local variables for Earth exponential atmosphere. Based on Spohn, T., Breuer, D.,
+            // and Johnson, T., Eds., Encyclopedia of the Solar System, 3rd ed. Elsevier, 2014.
 
-        // Set scale height.
-        scaleHeight_ = 11.100e3;
+            // Set scale height.
+            scaleHeight_ = 11.100e3;
 
-        //Set density at zero altitude.
-        densityAtZeroAltitude_ = 0.02;
+            // Set density at zero altitude.
+            densityAtZeroAltitude_ = 0.02;
 
-        //Set atmosphere temperature.
-        constantTemperature_ = 215.0;
+            // Set atmosphere temperature.
+            constantTemperature_ = 215.0;
 
-        // Set specific gas constant.
-        specificGasConstant_ = 197.0;
+            // Set specific gas constant.
+            specificGasConstant_ = 197.0;
 
-        // Set ratio of specific heats
-        ratioOfSpecificHeats_ = 1.3;
-        break;
-    }
-    default:
-        throw std::runtime_error(
-                    "Error when making exponential atmosphere, predefined atmosphere for body " +
-                    std::to_string(
-                        bodyWithPredefinedExponentialAtmosphere ) + " not available." );
+            // Set ratio of specific heats
+            ratioOfSpecificHeats_ = 1.3;
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when making exponential atmosphere, predefined atmosphere for body " +
+                                      std::to_string( bodyWithPredefinedExponentialAtmosphere ) + " not available." );
     }
 }
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat

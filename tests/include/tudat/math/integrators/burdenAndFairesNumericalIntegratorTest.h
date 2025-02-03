@@ -42,14 +42,12 @@ namespace unit_tests
 class BurdenAndFairesNumericalIntegratorTest
 {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor, initializing input parameters.
      */
-    BurdenAndFairesNumericalIntegratorTest( ) :
-        relativeError_( Eigen::VectorXd::Zero( 1 ) ),
-        lowerOrderEstimate_( Eigen::VectorXd::Zero( 1 ) ),
+    BurdenAndFairesNumericalIntegratorTest( ):
+        relativeError_( Eigen::VectorXd::Zero( 1 ) ), lowerOrderEstimate_( Eigen::VectorXd::Zero( 1 ) ),
         higherOrderEstimate_( Eigen::VectorXd::Zero( 1 ) )
     { }
 
@@ -75,8 +73,7 @@ public:
         lowerOrderEstimate_ = lowerOrderEstimate;
 
         // Compute truncation error estimate based on higher and lower estimates.
-        const Eigen::VectorXd trucationError = ( higherOrderEstimate
-                                                 - lowerOrderEstimate ).array( ).abs( );
+        const Eigen::VectorXd trucationError = ( higherOrderEstimate - lowerOrderEstimate ).array( ).abs( );
 
         // Compute relative error.
         relativeError_ = trucationError.array( ).abs( ) / stepSize;
@@ -84,14 +81,13 @@ public:
         // Compute new step size for next integration step. (In case the step size for this
         // current integration step doesn't satisfy the tolerances set, this new step size is
         // used to recompute the current step.
-        const double newStepSize = safetyFactorForNextStepSize * stepSize * std::pow(
-                    absoluteErrorTolerance.array( ).minCoeff( )
-                    / relativeError_.array( ).abs( ).maxCoeff( ), 1.0 / ( orders.first + 1 ) );
+        const double newStepSize = safetyFactorForNextStepSize * stepSize *
+                std::pow( absoluteErrorTolerance.array( ).minCoeff( ) / relativeError_.array( ).abs( ).maxCoeff( ),
+                          1.0 / ( orders.first + 1 ) );
 
         // Check if the current integration step is accepted, based on the allowed absolute
         // tolerance.
-        const bool isIntegrationStepAccepted = relativeError_.array( ).abs( ).maxCoeff( )
-                < absoluteErrorTolerance.array( ).minCoeff( );
+        const bool isIntegrationStepAccepted = relativeError_.array( ).abs( ).maxCoeff( ) < absoluteErrorTolerance.array( ).minCoeff( );
 
         // Return the computed new step size and a flag whether the current step is accepted or
         // not.
@@ -116,8 +112,7 @@ public:
      */
     Eigen::VectorXd computeStateDerivative( const double time, const Eigen::VectorXd& state )
     {
-        return numerical_integrator_test_functions::
-                computeNonAutonomousModelStateDerivative( time, state );
+        return numerical_integrator_test_functions::computeNonAutonomousModelStateDerivative( time, state );
     }
 
     //! Relative error.
@@ -139,11 +134,10 @@ public:
     Eigen::VectorXd higherOrderEstimate_;
 
 protected:
-
 private:
 };
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat
 
-#endif // TUDAT_BURDEN_AND_FAIRES_NUMERICAL_INTEGRATOR_TEST_H
+#endif  // TUDAT_BURDEN_AND_FAIRES_NUMERICAL_INTEGRATOR_TEST_H

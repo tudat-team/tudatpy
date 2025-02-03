@@ -19,7 +19,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
@@ -47,32 +46,24 @@ BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesGetFieldFunction )
     std::string testStringName = "TestName", testStringEpoch = "2456067";
 
     // Store strings as field values.
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueName(
-                new FieldValue( field_types::general::name, testStringName ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch(
-                new FieldValue( field_types::time::epoch, testStringEpoch ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueName( new FieldValue( field_types::general::name, testStringName ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch( new FieldValue( field_types::time::epoch, testStringEpoch ) );
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map.
     testDataMap->insert( FieldDataPair( field_types::general::name, testFieldValueName ) );
     testDataMap->insert( FieldDataPair( field_types::time::epoch, testFieldValueEpoch ) );
 
     // Retrieve name field value.
-    std::string returnedStringName =
-            parsed_data_vector_utilities::getField< std::string >(
-                testDataMap, field_types::general::name );
+    std::string returnedStringName = parsed_data_vector_utilities::getField< std::string >( testDataMap, field_types::general::name );
 
     // Retrieve the epoch field value, as string, integer and double.
-    std::string returnedStringEpoch = parsed_data_vector_utilities::getField< std::string >(
-                testDataMap, field_types::time::epoch );
-    int returnedIntegerEpoch = parsed_data_vector_utilities::getField< int >(
-                testDataMap, field_types::time::epoch );
-    double returnedDoubleEpoch = parsed_data_vector_utilities::getField< double >(
-                testDataMap, field_types::time::epoch );
+    std::string returnedStringEpoch = parsed_data_vector_utilities::getField< std::string >( testDataMap, field_types::time::epoch );
+    int returnedIntegerEpoch = parsed_data_vector_utilities::getField< int >( testDataMap, field_types::time::epoch );
+    double returnedDoubleEpoch = parsed_data_vector_utilities::getField< double >( testDataMap, field_types::time::epoch );
 
     // Verify that returned values are correct.
     BOOST_CHECK_EQUAL( returnedStringName, testStringName );
@@ -94,48 +85,38 @@ BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesFilterMapKeyFunction )
     typedef std::pair< FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings.
-    std::string testStringName1 = "TestName1", testStringEpoch1 = "2456067",
-            testStringName2 = "TestName2", testStringID1 = "5683",
-            testStringID2 = "5869", testStringEpoch2 = "2456068";
+    std::string testStringName1 = "TestName1", testStringEpoch1 = "2456067", testStringName2 = "TestName2", testStringID1 = "5683",
+                testStringID2 = "5869", testStringEpoch2 = "2456068";
 
     // Store strings as field values.
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueName1(
-                new FieldValue( field_types::general::name, testStringName1 ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch1(
-                new FieldValue( field_types::time::epoch, testStringEpoch1 ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueName2(
-                new FieldValue( field_types::general::name, testStringName2 ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueID1(
-                new FieldValue( field_types::general::id, testStringID1 ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueID2(
-                new FieldValue( field_types::general::id, testStringID2 ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch2(
-                new FieldValue( field_types::time::epoch, testStringEpoch2 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueName1( new FieldValue( field_types::general::name, testStringName1 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch1( new FieldValue( field_types::time::epoch, testStringEpoch1 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueName2( new FieldValue( field_types::general::name, testStringName2 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueID1( new FieldValue( field_types::general::id, testStringID1 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueID2( new FieldValue( field_types::general::id, testStringID2 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch2( new FieldValue( field_types::time::epoch, testStringEpoch2 ) );
 
     // Create data maps.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMapNameEpoch =
             std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
+                    std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMapNameID =
             std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
+                    std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMapIDEpoch =
             std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
+                    std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data maps.
-    testDataMapNameEpoch->insert( FieldDataPair(
-                                      field_types::general::name, testFieldValueName1 ) );
-    testDataMapNameEpoch->insert( FieldDataPair(
-                                      field_types::time::epoch, testFieldValueEpoch1 ) );
+    testDataMapNameEpoch->insert( FieldDataPair( field_types::general::name, testFieldValueName1 ) );
+    testDataMapNameEpoch->insert( FieldDataPair( field_types::time::epoch, testFieldValueEpoch1 ) );
     testDataMapNameID->insert( FieldDataPair( field_types::general::name, testFieldValueName2 ) );
     testDataMapNameID->insert( FieldDataPair( field_types::general::id, testFieldValueID1 ) );
-    testDataMapIDEpoch->insert( FieldDataPair (field_types::general::id, testFieldValueID2 ) );
-    testDataMapIDEpoch->insert( FieldDataPair (field_types::time::epoch, testFieldValueEpoch2 ) );
+    testDataMapIDEpoch->insert( FieldDataPair( field_types::general::id, testFieldValueID2 ) );
+    testDataMapIDEpoch->insert( FieldDataPair( field_types::time::epoch, testFieldValueEpoch2 ) );
 
     // Create data map vector.
-    parsed_data_vector_utilities::ParsedDataVectorPtr testDataMapVector(
-                new parsed_data_vector_utilities::ParsedDataVector );
+    parsed_data_vector_utilities::ParsedDataVectorPtr testDataMapVector( new parsed_data_vector_utilities::ParsedDataVector );
 
     // Populate data map vector.
     testDataMapVector->push_back( testDataMapNameEpoch );
@@ -143,41 +124,32 @@ BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesFilterMapKeyFunction )
     testDataMapVector->push_back( testDataMapIDEpoch );
 
     // Test 1: Filter data map vector for data maps containing epoch entries.
-    parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorEpoch
-            = parsed_data_vector_utilities::filterMapKey( testDataMapVector, 1,
-                                                          field_types::time::epoch );
+    parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorEpoch =
+            parsed_data_vector_utilities::filterMapKey( testDataMapVector, 1, field_types::time::epoch );
 
     // Verify that the size of the vector is equal to 2.
     BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->size( ), 2 );
 
     // Verify that the data map vector is correctly filtered.
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find(
-                           field_types::time::epoch )->second->getRaw( ), "2456067" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find( field_types::time::epoch )->second->getRaw( ), "2456067" );
 
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find(
-                           field_types::general::name )->second->getRaw( ), "TestName1" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find( field_types::general::name )->second->getRaw( ), "TestName1" );
 
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 1 )->find(
-                           field_types::general::id )->second->getRaw( ), "5869" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 1 )->find( field_types::general::id )->second->getRaw( ), "5869" );
 
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 1 )->find(
-                           field_types::time::epoch )->second->getRaw( ), "2456068" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 1 )->find( field_types::time::epoch )->second->getRaw( ), "2456068" );
 
     // Test 2: Filter data map vector for data maps containing name and epoch entries.
-    parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorNameEpoch
-            = parsed_data_vector_utilities::filterMapKey( testDataMapVector, 2,
-                                                          field_types::general::name,
-                                                          field_types::time::epoch );
+    parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorNameEpoch =
+            parsed_data_vector_utilities::filterMapKey( testDataMapVector, 2, field_types::general::name, field_types::time::epoch );
 
     // Verify that the size of the vector is equal to 1.
     BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->size( ), 1 );
 
     // Verify that the data map vector is correctly filtered.
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
-                           field_types::time::epoch )->second->getRaw( ), "2456067" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find( field_types::time::epoch )->second->getRaw( ), "2456067" );
 
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
-                           field_types::general::name )->second->getRaw( ), "TestName1" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find( field_types::general::name )->second->getRaw( ), "TestName1" );
 }
 
 //! Test that the data vector is correctly filtered based on the given field types and
@@ -191,48 +163,38 @@ BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesFilterMapKeyValueFunction )
     typedef std::pair< FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings.
-    std::string testStringName1 = "TestName1", testStringEpoch1 = "2456067",
-            testStringName2 = "TestName2", testStringID1 = "5683",
-            testStringID2 = "5869", testStringEpoch2 = "2456068";
+    std::string testStringName1 = "TestName1", testStringEpoch1 = "2456067", testStringName2 = "TestName2", testStringID1 = "5683",
+                testStringID2 = "5869", testStringEpoch2 = "2456068";
 
     // Store strings as field values.
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueName1(
-                new FieldValue( field_types::general::name, testStringName1 ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch1(
-                new FieldValue( field_types::time::epoch, testStringEpoch1 ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueName2(
-                new FieldValue( field_types::general::name, testStringName2 ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueID1(
-                new FieldValue( field_types::general::id, testStringID1 ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueID2(
-                new FieldValue( field_types::general::id, testStringID2 ) );
-    parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch2(
-                new FieldValue( field_types::time::epoch, testStringEpoch2 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueName1( new FieldValue( field_types::general::name, testStringName1 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch1( new FieldValue( field_types::time::epoch, testStringEpoch1 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueName2( new FieldValue( field_types::general::name, testStringName2 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueID1( new FieldValue( field_types::general::id, testStringID1 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueID2( new FieldValue( field_types::general::id, testStringID2 ) );
+    parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch2( new FieldValue( field_types::time::epoch, testStringEpoch2 ) );
 
     // Create data maps.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMapNameEpoch =
             std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
+                    std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMapNameID =
             std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
+                    std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMapIDEpoch =
             std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
+                    std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data maps.
-    testDataMapNameEpoch->insert( FieldDataPair(
-                                      field_types::general::name, testFieldValueName1 ) );
-    testDataMapNameEpoch->insert( FieldDataPair(
-                                      field_types::time::epoch, testFieldValueEpoch1 ) );
+    testDataMapNameEpoch->insert( FieldDataPair( field_types::general::name, testFieldValueName1 ) );
+    testDataMapNameEpoch->insert( FieldDataPair( field_types::time::epoch, testFieldValueEpoch1 ) );
     testDataMapNameID->insert( FieldDataPair( field_types::general::name, testFieldValueName2 ) );
     testDataMapNameID->insert( FieldDataPair( field_types::general::id, testFieldValueID1 ) );
-    testDataMapIDEpoch->insert( FieldDataPair (field_types::general::id, testFieldValueID2 ) );
-    testDataMapIDEpoch->insert( FieldDataPair (field_types::time::epoch, testFieldValueEpoch2 ) );
+    testDataMapIDEpoch->insert( FieldDataPair( field_types::general::id, testFieldValueID2 ) );
+    testDataMapIDEpoch->insert( FieldDataPair( field_types::time::epoch, testFieldValueEpoch2 ) );
 
     // Create data map vector.
-    parsed_data_vector_utilities::ParsedDataVectorPtr testDataMapVector(
-                new parsed_data_vector_utilities::ParsedDataVector );
+    parsed_data_vector_utilities::ParsedDataVectorPtr testDataMapVector( new parsed_data_vector_utilities::ParsedDataVector );
 
     // Populate data map vector.
     testDataMapVector->push_back( testDataMapNameEpoch );
@@ -240,45 +202,37 @@ BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesFilterMapKeyValueFunction )
     testDataMapVector->push_back( testDataMapIDEpoch );
 
     // Test 1: Filter data map vector for data maps containing an epoch entry equal to 2456067.
-    parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorEpoch
-            = parsed_data_vector_utilities::filterMapKeyValue(
-                testDataMapVector, 1, field_types::time::epoch, "2456067" );
+    parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorEpoch =
+            parsed_data_vector_utilities::filterMapKeyValue( testDataMapVector, 1, field_types::time::epoch, "2456067" );
 
     // Verify that the size of the vector is equal to 1.
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->size( ), 1);
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->size( ), 1 );
 
     // Verify that the data map vector is correctly filtered.
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find(
-                           field_types::time::epoch )->second->getRaw( ), "2456067" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find( field_types::time::epoch )->second->getRaw( ), "2456067" );
 
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find(
-                           field_types::general::name )->second->getRaw( ), "TestName1" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find( field_types::general::name )->second->getRaw( ), "TestName1" );
 
     // Test 2: Filter data map vector for data maps containing a name entry with field value within
     // a given range.
-    parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorNameEpoch
-            = parsed_data_vector_utilities::filterMapKeyValue(
-                testDataMapVector, 1, field_types::general::name, "TestName[1-9]*");
+    parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorNameEpoch =
+            parsed_data_vector_utilities::filterMapKeyValue( testDataMapVector, 1, field_types::general::name, "TestName[1-9]*" );
 
     // Verify that the size of the vector is equal to 1.
     BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->size( ), 2 );
 
     // Verify that the data map vector is correctly filtered.
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
-                           field_types::time::epoch )->second->getRaw( ), "2456067" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find( field_types::time::epoch )->second->getRaw( ), "2456067" );
 
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
-                           field_types::general::name )->second->getRaw( ), "TestName1" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find( field_types::general::name )->second->getRaw( ), "TestName1" );
 
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 1 )->find(
-                           field_types::general::id )->second->getRaw( ), "5683" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 1 )->find( field_types::general::id )->second->getRaw( ), "5683" );
 
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 1 )->find(
-                           field_types::general::name )->second->getRaw( ), "TestName2" );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 1 )->find( field_types::general::name )->second->getRaw( ), "TestName2" );
 }
 
 // Close Boost test suite.
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

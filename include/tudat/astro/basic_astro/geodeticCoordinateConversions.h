@@ -50,11 +50,10 @@ double calculateEllipticity( const double flattening );
  *          required change of position (in m) between two iterations.
  * \return Auxiliary parameters for geodetic coordinate conversions.
  */
-std::pair< double, double > calculateGeodeticCoordinatesAuxiliaryQuantities(
-        const Eigen::Vector3d cartesianPosition,
-        const double equatorialRadius,
-        const double ellipticity,
-        const double tolerance );
+std::pair< double, double > calculateGeodeticCoordinatesAuxiliaryQuantities( const Eigen::Vector3d cartesianPosition,
+                                                                             const double equatorialRadius,
+                                                                             const double ellipticity,
+                                                                             const double tolerance );
 
 //! Calculate the Cartesian position from geodetic coordinates.
 /*!
@@ -115,8 +114,7 @@ double calculateAltitudeOverOblateSpheroid( const Eigen::Vector3d cartesianPosit
  * surface from cartesianPosition.
  * \return Geodetic latitude above specified oblate spheroid at requested point.
  */
-double calculateGeodeticLatitude( const Eigen::Vector3d cartesianPosition,
-                                  const double zInterceptOffset );
+double calculateGeodeticLatitude( const Eigen::Vector3d cartesianPosition, const double zInterceptOffset );
 
 //! Calculate the geodetic latitude of a position vector.
 /*!
@@ -141,7 +139,7 @@ double calculateGeodeticLatitude( const Eigen::Vector3d cartesianPosition,
  * Calculates the geodetic coordinates (altitude, geodetic latitude, longitude)
  * of a position vector. The algorithm that is used is iterative, so that it requires a tolerance
  * (in m) for the difference of associated geodetic position between two iterations.
- * \param cartesianCoordinates Cartesian position in body-fixed frame where geodetic coordinates 
+ * \param cartesianCoordinates Cartesian position in body-fixed frame where geodetic coordinates
  *          are to be determined.
  * \param equatorialRadius Equatorial radius of oblate spheroid.
  * \param flattening Flattening of oblate spheroid.
@@ -154,8 +152,8 @@ Eigen::Vector3d convertCartesianToGeodeticCoordinates( const Eigen::Vector3d car
                                                        const double flattening,
                                                        const double tolerance );
 
-} // namespace coordinate_conversions
+}  // namespace coordinate_conversions
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_GEODETIC_COORDINATE_CONVERSIONS_H
+#endif  // TUDAT_GEODETIC_COORDINATE_CONVERSIONS_H

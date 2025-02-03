@@ -19,7 +19,6 @@ namespace tudat
 namespace observation_models
 {
 
-
 //! Class to define settings for observation viability calculator creation
 /*!
  *  Class to define settings for observation viability calculator creation. Settinsg are defined by type of viability check,
@@ -30,7 +29,6 @@ namespace observation_models
 class ObservationViabilitySettings
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -46,8 +44,9 @@ public:
                                   const std::pair< std::string, std::string > associatedLinkEnd,
                                   const std::string stringParameter = "",
                                   const double doubleParameter = TUDAT_NAN ):
-        observationViabilityType_( observationViabilityType ), associatedLinkEnd_( associatedLinkEnd ),
-        stringParameter_( stringParameter ), doubleParameter_( doubleParameter ){ }
+        observationViabilityType_( observationViabilityType ), associatedLinkEnd_( associatedLinkEnd ), stringParameter_( stringParameter ),
+        doubleParameter_( doubleParameter )
+    { }
 
     //! Type of viability that is to be checked
     ObservationViabilityType observationViabilityType_;
@@ -94,9 +93,8 @@ inline std::vector< std::shared_ptr< ObservationViabilitySettings > > elevationA
     std::vector< std::shared_ptr< ObservationViabilitySettings > > viabilitySettingsList;
     for( unsigned int i = 0; i < associatedLinkEnds.size( ); i++ )
     {
-        viabilitySettingsList.push_back(
-                    std::make_shared< ObservationViabilitySettings >(
-                                    minimum_elevation_angle, associatedLinkEnds.at( i ), "", elevationAngle ) );
+        viabilitySettingsList.push_back( std::make_shared< ObservationViabilitySettings >(
+                minimum_elevation_angle, associatedLinkEnds.at( i ), "", elevationAngle ) );
     }
     return viabilitySettingsList;
 }
@@ -105,11 +103,8 @@ inline std::shared_ptr< ObservationViabilitySettings > elevationAngleViabilitySe
         const std::pair< std::string, std::string > associatedLinkEnd,
         const double elevationAngle )
 {
-    return std::make_shared< ObservationViabilitySettings >(
-                minimum_elevation_angle, associatedLinkEnd, "", elevationAngle );
+    return std::make_shared< ObservationViabilitySettings >( minimum_elevation_angle, associatedLinkEnd, "", elevationAngle );
 }
-
-
 
 inline std::vector< std::shared_ptr< ObservationViabilitySettings > > bodyAvoidanceAngleViabilitySettings(
         const std::vector< std::pair< std::string, std::string > > associatedLinkEnds,
@@ -119,9 +114,8 @@ inline std::vector< std::shared_ptr< ObservationViabilitySettings > > bodyAvoida
     std::vector< std::shared_ptr< ObservationViabilitySettings > > viabilitySettingsList;
     for( unsigned int i = 0; i < associatedLinkEnds.size( ); i++ )
     {
-        viabilitySettingsList.push_back(
-                    std::make_shared< ObservationViabilitySettings >(
-                                    body_avoidance_angle, associatedLinkEnds.at( i ), bodyToAvoid, avoidanceAngle ) );
+        viabilitySettingsList.push_back( std::make_shared< ObservationViabilitySettings >(
+                body_avoidance_angle, associatedLinkEnds.at( i ), bodyToAvoid, avoidanceAngle ) );
     }
     return viabilitySettingsList;
 }
@@ -131,11 +125,8 @@ inline std::shared_ptr< ObservationViabilitySettings > bodyAvoidanceAngleViabili
         const std::string bodyToAvoid,
         const double avoidanceAngle )
 {
-    return std::make_shared< ObservationViabilitySettings >(
-                body_avoidance_angle, associatedLinkEnd, bodyToAvoid, avoidanceAngle );
+    return std::make_shared< ObservationViabilitySettings >( body_avoidance_angle, associatedLinkEnd, bodyToAvoid, avoidanceAngle );
 }
-
-
 
 inline std::vector< std::shared_ptr< ObservationViabilitySettings > > bodyOccultationViabilitySettings(
         const std::vector< std::pair< std::string, std::string > > associatedLinkEnds,
@@ -145,8 +136,7 @@ inline std::vector< std::shared_ptr< ObservationViabilitySettings > > bodyOccult
     for( unsigned int i = 0; i < associatedLinkEnds.size( ); i++ )
     {
         viabilitySettingsList.push_back(
-                    std::make_shared< ObservationViabilitySettings >(
-                                    body_occultation, associatedLinkEnds.at( i ), occultingBody ) );
+                std::make_shared< ObservationViabilitySettings >( body_occultation, associatedLinkEnds.at( i ), occultingBody ) );
     }
     return viabilitySettingsList;
 }
@@ -155,13 +145,11 @@ inline std::shared_ptr< ObservationViabilitySettings > bodyOccultationViabilityS
         const std::pair< std::string, std::string > associatedLinkEnd,
         const std::string occultingBody )
 {
-    return std::make_shared< ObservationViabilitySettings >(
-                body_occultation, associatedLinkEnd, occultingBody );
+    return std::make_shared< ObservationViabilitySettings >( body_occultation, associatedLinkEnd, occultingBody );
 }
 
 //! Typedef for vector of ObservationViabilitySettings pointers
 typedef std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > ObservationViabilitySettingsList;
-
 
 //! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
 /*!
@@ -170,10 +158,8 @@ typedef std::vector< std::shared_ptr< observation_models::ObservationViabilitySe
  * \param linkEnds Link ends for which the relevant observation vaibilityies are to be retrieved
  * \return List of observationViabilitySettings that are relevant for linkEnds
  */
-ObservationViabilitySettingsList filterObservationViabilitySettings(
-        const ObservationViabilitySettingsList& observationViabilitySettings,
-        const LinkEnds& linkEnds );
-
+ObservationViabilitySettingsList filterObservationViabilitySettings( const ObservationViabilitySettingsList& observationViabilitySettings,
+                                                                     const LinkEnds& linkEnds );
 
 //! Function to create an object to check if a minimum elevation angle condition is met for an observation
 /*!
@@ -261,9 +247,8 @@ std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator
         const ObservableType observationType,
         const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
 
+}  // namespace observation_models
 
-} // namespace observation_models
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_CREATEOBSERVATIONVIABILITY_H
+#endif  // TUDAT_CREATEOBSERVATIONVIABILITY_H

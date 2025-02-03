@@ -30,54 +30,52 @@ namespace ephemerides
 class PlanetaryOrientationAngleCalculator
 {
 public:
-    PlanetaryOrientationAngleCalculator( )
-    { }
+    PlanetaryOrientationAngleCalculator( ) { }
 
     PlanetaryOrientationAngleCalculator(
-            const double anglePsiAtEpoch, const double anglePsiRateAtEpoch, const double angleIAtEpoch,
-            const double angleIRateAtEpoch, const double anglePhiAtEpoch, const double anglePhiRateAtEpoch,
-            const double coreFactor, const double freeCoreNutationRate,
-            const double bodyMeanMotion, const double bodyMeanAnomalyAtEpoch, const std::string baseFrame,
+            const double anglePsiAtEpoch,
+            const double anglePsiRateAtEpoch,
+            const double angleIAtEpoch,
+            const double angleIRateAtEpoch,
+            const double anglePhiAtEpoch,
+            const double anglePhiRateAtEpoch,
+            const double coreFactor,
+            const double freeCoreNutationRate,
+            const double bodyMeanMotion,
+            const double bodyMeanAnomalyAtEpoch,
+            const std::string baseFrame,
 
             const std::map< double, std::pair< double, double > > meanMotionDirectNutationCorrections =
-            ( std::map< double, std::pair< double, double > >( ) ), // Konopliv table 5, 1st four terms
+                    ( std::map< double, std::pair< double, double > >( ) ),  // Konopliv table 5, 1st four terms
 
             const std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrections =
-            ( std::vector< std::map< double, std::pair< double, double > > > ( ) ), // Konopliv table 5, last six terms
+                    ( std::vector< std::map< double, std::pair< double, double > > >( ) ),  // Konopliv table 5, last six terms
 
             const std::vector< std::function< double( const double ) > > phaseAngleCorrectionFunctions =
-            ( std::vector< std::function< double( const double ) > > ( ) ),
+                    ( std::vector< std::function< double( const double ) > >( ) ),
 
             const std::map< double, std::pair< double, double > > rotationRateCorrections =
-            ( std::map< double, std::pair< double, double > >( ) ),  // Konopliv table 7, 1st four terms
+                    ( std::map< double, std::pair< double, double > >( ) ),  // Konopliv table 7, 1st four terms
 
             const std::map< double, std::pair< double, double > > xPolarMotionCoefficients =
-            ( std::map< double, std::pair< double, double > >( ) ),
+                    ( std::map< double, std::pair< double, double > >( ) ),
 
             const std::map< double, std::pair< double, double > > yPolarMotionCoefficients =
-            ( std::map< double, std::pair< double, double > >( ) ) ):
+                    ( std::map< double, std::pair< double, double > >( ) ) ):
 
-        bodyMeanAnomalyAtEpoch_( bodyMeanAnomalyAtEpoch),
-        bodyMeanMotion_( bodyMeanMotion ),
-        anglePsiAtEpoch_( anglePsiAtEpoch ),
-        anglePsiRateAtEpoch_( anglePsiRateAtEpoch ),
-        angleIAtEpoch_( angleIAtEpoch ),
-        angleIRateAtEpoch_( angleIRateAtEpoch ),
-        anglePhiAtEpoch_( anglePhiAtEpoch ),
-        anglePhiRateAtEpoch_( anglePhiRateAtEpoch ),
-        coreFactor_ ( coreFactor ),
-        freeCoreNutationRate_( freeCoreNutationRate ),
-        baseFrame_( baseFrame ),
+        bodyMeanAnomalyAtEpoch_( bodyMeanAnomalyAtEpoch ), bodyMeanMotion_( bodyMeanMotion ), anglePsiAtEpoch_( anglePsiAtEpoch ),
+        anglePsiRateAtEpoch_( anglePsiRateAtEpoch ), angleIAtEpoch_( angleIAtEpoch ), angleIRateAtEpoch_( angleIRateAtEpoch ),
+        anglePhiAtEpoch_( anglePhiAtEpoch ), anglePhiRateAtEpoch_( anglePhiRateAtEpoch ), coreFactor_( coreFactor ),
+        freeCoreNutationRate_( freeCoreNutationRate ), baseFrame_( baseFrame ),
         meanMotionDirectNutationCorrections_( meanMotionDirectNutationCorrections ),
         meanMotionTimeDependentPhaseNutationCorrections_( meanMotionTimeDependentPhaseNutationCorrections ),
-        phaseAngleCorrectionFunctions_( phaseAngleCorrectionFunctions ),
-        rotationRateCorrections_( rotationRateCorrections ),
-        xPolarMotionCoefficients_( xPolarMotionCoefficients ),
-        yPolarMotionCoefficients_( yPolarMotionCoefficients ){ }
+        phaseAngleCorrectionFunctions_( phaseAngleCorrectionFunctions ), rotationRateCorrections_( rotationRateCorrections ),
+        xPolarMotionCoefficients_( xPolarMotionCoefficients ), yPolarMotionCoefficients_( yPolarMotionCoefficients )
+    { }
 
     Eigen::Vector3d updateAndGetRotationAngles( const double ephemerisTime )
     {
-        //if( std::fabs( currentEphemerisTime_ - ephemerisTime ) > 1.0E-8 )
+        // if( std::fabs( currentEphemerisTime_ - ephemerisTime ) > 1.0E-8 )
         {
             updateCorrections( ephemerisTime );
         }
@@ -86,9 +84,8 @@ public:
 
     Eigen::Quaterniond getRotationMatrixFromMeanOfDateEquatorToInertialPlanetCenteredAtEpoch( const double ephemerisTime )
     {
-        return Eigen::Quaterniond(
-                    Eigen::AngleAxisd( anglePsiAtEpoch_ + ephemerisTime * anglePsiRateAtEpoch_, Eigen::Vector3d::UnitZ( ) )  *
-                    Eigen::AngleAxisd( angleIAtEpoch_ + ephemerisTime * angleIRateAtEpoch_, Eigen::Vector3d::UnitX( ) ) );
+        return Eigen::Quaterniond( Eigen::AngleAxisd( anglePsiAtEpoch_ + ephemerisTime * anglePsiRateAtEpoch_, Eigen::Vector3d::UnitZ( ) ) *
+                                   Eigen::AngleAxisd( angleIAtEpoch_ + ephemerisTime * angleIRateAtEpoch_, Eigen::Vector3d::UnitX( ) ) );
     }
 
     double getCurrentAnglePsi( )
@@ -111,12 +108,12 @@ public:
         return anglePhiRateAtEpoch_;
     }
 
-    double getCorefactor()
+    double getCorefactor( )
     {
         return coreFactor_;
     }
 
-    double getFreeCoreNutationRate()
+    double getFreeCoreNutationRate( )
     {
         return freeCoreNutationRate_;
     }
@@ -140,7 +137,7 @@ public:
     Eigen::Vector2d getPolarMotion( const double ephemerisTime )
     {
         calculatePolarMotion( ephemerisTime );
-        return ( Eigen::Vector2d( ) << currentXPolarMotion_ , currentYPolarMotion_ ).finished( );
+        return ( Eigen::Vector2d( ) << currentXPolarMotion_, currentYPolarMotion_ ).finished( );
     }
 
     double getcurrentMeanPhiAngleDerivative( const double ephemerisTime )
@@ -164,7 +161,7 @@ public:
         return meanMotionTimeDependentPhaseNutationCorrections_;
     }
 
-    std::vector< std::function< double( const double ) > > getphaseAngleCorrectionFunctions ( )
+    std::vector< std::function< double( const double ) > > getphaseAngleCorrectionFunctions( )
     {
         return phaseAngleCorrectionFunctions_;
     }
@@ -184,7 +181,8 @@ public:
         return angleIAtEpoch_;
     }
 
-    void resetRotationRateCorrections( std::map< double, std::pair< double, double > > rotationRateCorrections ){
+    void resetRotationRateCorrections( std::map< double, std::pair< double, double > > rotationRateCorrections )
+    {
         rotationRateCorrections_ = rotationRateCorrections;
     }
 
@@ -198,28 +196,29 @@ public:
         return yPolarMotionCoefficients_;
     }
 
-    void resetXpolarMotionCoefficients( std::map< double, std::pair< double, double > > xPolarMotionCoefficients ){
+    void resetXpolarMotionCoefficients( std::map< double, std::pair< double, double > > xPolarMotionCoefficients )
+    {
         xPolarMotionCoefficients_ = xPolarMotionCoefficients;
     }
 
-    void resetYpolarMotionCoefficients( std::map< double, std::pair< double, double > > yPolarMotionCoefficients ){
+    void resetYpolarMotionCoefficients( std::map< double, std::pair< double, double > > yPolarMotionCoefficients )
+    {
         yPolarMotionCoefficients_ = yPolarMotionCoefficients;
     }
 
-    void resetCoreFactor( const double coreFactor ){
+    void resetCoreFactor( const double coreFactor )
+    {
         coreFactor_ = coreFactor;
     }
 
-    void resetFreeCoreNutationRate( const double freeCoreNutationRate ){
+    void resetFreeCoreNutationRate( const double freeCoreNutationRate )
+    {
         freeCoreNutationRate_ = freeCoreNutationRate;
     }
 
-
-
 private:
-
     void updateCorrections( const double ephemerisTime );
-    void calculatePolarMotion ( const double ephemerisTime );
+    void calculatePolarMotion( const double ephemerisTime );
     void calculateCurrentMeanPhiAngleDerivative( const double ephemerisTime );
 
     double currentEphemerisTime_;
@@ -260,16 +259,15 @@ private:
     std::map< double, std::pair< double, double > > xPolarMotionCoefficients_;
 
     std::map< double, std::pair< double, double > > yPolarMotionCoefficients_;
-
 };
 
-std::shared_ptr< interpolators::CubicSplineInterpolator< double, Eigen::Vector3d > >
-createInterpolatorForPlanetaryRotationAngles( double intervalStart,
-                                              double intervalEnd,
-                                              double timeStep,
-                                              std::shared_ptr< PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator );
+std::shared_ptr< interpolators::CubicSplineInterpolator< double, Eigen::Vector3d > > createInterpolatorForPlanetaryRotationAngles(
+        double intervalStart,
+        double intervalEnd,
+        double timeStep,
+        std::shared_ptr< PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator );
 
-class PlanetaryRotationModel: public RotationalEphemeris
+class PlanetaryRotationModel : public RotationalEphemeris
 {
 public:
     PlanetaryRotationModel( const double angleN,
@@ -282,8 +280,7 @@ public:
 
     {
         rotationFromMeanOrbitToIcrf_ = spice_interface::computeRotationQuaternionBetweenFrames( "J2000", "ECLIPJ2000", 0.0 ) *
-                Eigen::AngleAxisd( angleN, Eigen::Vector3d::UnitZ( ) ) *
-                Eigen::AngleAxisd( angleJ, Eigen::Vector3d::UnitX( ) );
+                Eigen::AngleAxisd( angleN, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( angleJ, Eigen::Vector3d::UnitX( ) );
     }
 
     Eigen::Quaterniond getPolarMotionRotation( const double ephemerisTime );
@@ -301,8 +298,7 @@ public:
 
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double secondsSinceEpoch )
     {
-        return getDerivativeOfRotationToBaseFrame( secondsSinceEpoch ).
-                transpose( );
+        return getDerivativeOfRotationToBaseFrame( secondsSinceEpoch ).transpose( );
     }
 
     Eigen::Quaterniond getRotationFromMeanOrbitToIcrf( )
@@ -310,21 +306,19 @@ public:
         return rotationFromMeanOrbitToIcrf_;
     }
 
-    std::shared_ptr< PlanetaryOrientationAngleCalculator > getPlanetaryOrientationAngleCalculator()
+    std::shared_ptr< PlanetaryOrientationAngleCalculator > getPlanetaryOrientationAngleCalculator( )
     {
         return planetaryOrientationAnglesCalculator_;
     }
 
 private:
-
     std::shared_ptr< PlanetaryOrientationAngleCalculator > planetaryOrientationAnglesCalculator_;
 
     Eigen::Quaterniond rotationFromMeanOrbitToIcrf_;
-
 };
 
-}
+}  // namespace ephemerides
 
-}
+}  // namespace tudat
 
-#endif // FULLPLANETARYROTATIONMODEL_H
+#endif  // FULLPLANETARYROTATIONMODEL_H

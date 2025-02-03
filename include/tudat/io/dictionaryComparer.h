@@ -39,15 +39,11 @@ namespace dictionary
 class DictionaryComparer
 {
 public:
-
     //! Zombie constructor.
     /*!
      * Constructor that initializes all members with zombie state.
      */
-    DictionaryComparer( )
-        : dictionaryEntry( ),
-          parameterName( "" )
-    { }
+    DictionaryComparer( ): dictionaryEntry( ), parameterName( "" ) { }
 
     //! Constructor taking dictionary entry.
     /*!
@@ -56,9 +52,8 @@ public:
      * \param aDictionaryEntry Shared-pointer to a dictionary entry.
      * \sa DictionaryEntry.
      */
-    DictionaryComparer( const input_output::dictionary::DictionaryEntryPointer aDictionaryEntry )
-        : dictionaryEntry( aDictionaryEntry ),
-          parameterName( "" )
+    DictionaryComparer( const input_output::dictionary::DictionaryEntryPointer aDictionaryEntry ):
+        dictionaryEntry( aDictionaryEntry ), parameterName( "" )
     { }
 
     //! Constructor taking parameter name.
@@ -67,10 +62,7 @@ public:
      * The dictionary entry is initialized with zombie state.
      * \param aParameterName Parameter-name.
      */
-    DictionaryComparer( const std::string& aParameterName )
-        : dictionaryEntry( ),
-          parameterName( aParameterName )
-    { }
+    DictionaryComparer( const std::string& aParameterName ): dictionaryEntry( ), parameterName( aParameterName ) { }
 
     //! Overload ()-operator to compare dictionary entries.
     /*!
@@ -81,10 +73,9 @@ public:
      * \return True if parameter name of first dictionary entry should be sorted before parameter
      *          name of second dictionary entry.
      */
-    bool operator( )( DictionaryEntryPointer firstDictionaryEntry,
-                      DictionaryEntryPointer secondDictionaryEntry ) const
+    bool operator( )( DictionaryEntryPointer firstDictionaryEntry, DictionaryEntryPointer secondDictionaryEntry ) const
     {
-      return firstDictionaryEntry->parameterName < secondDictionaryEntry->parameterName;
+        return firstDictionaryEntry->parameterName < secondDictionaryEntry->parameterName;
     }
 
     //! Overload ()-operator to compare synonym with parameter name.
@@ -122,12 +113,10 @@ public:
      * \param dataLine Data line from input stream.
      * \return True if parameter name in data line matches dictionary entry.
      */
-    bool operator( )( const input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr&
-                      dataLine ) const;
+    bool operator( )( const input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr& dataLine ) const;
+
 protected:
-
 private:
-
     //! Dictionary entry.
     /*!
      * Shared-pointer to a dictionary entry.
@@ -144,8 +133,8 @@ private:
 //! Typedef for shared-pointer to DictionaryComparer object.
 typedef std::shared_ptr< DictionaryComparer > DictionaryComparerPointer;
 
-} // namespace dictionary
-} // namespace input_output
-} // namespace tudat
+}  // namespace dictionary
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_DICTIONARY_COMPARER_H
+#endif  // TUDAT_DICTIONARY_COMPARER_H

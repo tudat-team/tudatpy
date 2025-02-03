@@ -15,7 +15,6 @@
 
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 
-
 namespace tudat
 {
 
@@ -38,39 +37,35 @@ namespace simulation_setup
 class TorqueSettings
 {
 public:
-
     // Constructor, sets type of torque.
     /*!
      *  Constructor, sets type of torque.
      *  \param torqueType Type of torque from AvailableTorque enum.
      */
-    TorqueSettings( const basic_astrodynamics::AvailableTorque torqueType ) :
-        torqueType_( torqueType ){ }
+    TorqueSettings( const basic_astrodynamics::AvailableTorque torqueType ): torqueType_( torqueType ) { }
 
     // Destructor
-    virtual ~TorqueSettings( ){ }
+    virtual ~TorqueSettings( ) { }
 
     // Type of torque that is to be created.
     basic_astrodynamics::AvailableTorque torqueType_;
-
 };
 
 // Class to define settings for a spherical harmonic gravitational torque exerted by a point mass.
 //! @get_docstring(SphericalHarmonicTorqueSettings.__docstring__)
-class SphericalHarmonicTorqueSettings: public TorqueSettings
+class SphericalHarmonicTorqueSettings : public TorqueSettings
 {
 public:
-
     // Constructor
     /*!
      * Constructor
      * \param maximumDegree Maximum degree to which gravity field of body undergoing torque is to be exerted
      * \param maximumOrder Maximum order to which gravity field of body undergoing torque is to be exerted
      */
-    SphericalHarmonicTorqueSettings( const int maximumDegree,
-                                     const int maximumOrder ):
-        TorqueSettings( basic_astrodynamics::spherical_harmonic_gravitational_torque ),
-        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ){ }
+    SphericalHarmonicTorqueSettings( const int maximumDegree, const int maximumOrder ):
+        TorqueSettings( basic_astrodynamics::spherical_harmonic_gravitational_torque ), maximumDegree_( maximumDegree ),
+        maximumOrder_( maximumOrder )
+    { }
 
     // Maximum degree to which gravity field of body undergoing torque is to be exerted
     int maximumDegree_;
@@ -79,31 +74,26 @@ public:
     int maximumOrder_;
 };
 
-inline Eigen::Vector3d applyTorqueScalingFunction(
-        const std::function< Eigen::Vector3d( const double ) > torqueFunction,
-        const std::function< double( const double) > scalingFunction,
-        const double time )
+inline Eigen::Vector3d applyTorqueScalingFunction( const std::function< Eigen::Vector3d( const double ) > torqueFunction,
+                                                   const std::function< double( const double ) > scalingFunction,
+                                                   const double time )
 {
     return torqueFunction( time ) * scalingFunction( time );
 }
 
 //! @get_docstring(CustomTorqueSettings.__docstring__)
-class CustomTorqueSettings: public TorqueSettings
+class CustomTorqueSettings : public TorqueSettings
 {
 public:
+    CustomTorqueSettings( const std::function< Eigen::Vector3d( const double ) > torqueFunction ):
+        TorqueSettings( basic_astrodynamics::custom_torque ), torqueFunction_( torqueFunction )
+    { }
 
-    CustomTorqueSettings(
-            const std::function< Eigen::Vector3d( const double ) > torqueFunction  ):
+    CustomTorqueSettings( const std::function< Eigen::Vector3d( const double ) > torqueFunction,
+                          std::function< double( const double ) > scalingFunction ):
         TorqueSettings( basic_astrodynamics::custom_torque ),
-        torqueFunction_( torqueFunction ){ }
-
-    CustomTorqueSettings(
-            const std::function< Eigen::Vector3d( const double ) > torqueFunction,
-            std::function< double( const double) > scalingFunction ):
-        TorqueSettings( basic_astrodynamics::custom_torque ),
-        torqueFunction_(
-            std::bind( &applyTorqueScalingFunction, torqueFunction, scalingFunction,
-                       std::placeholders::_1 ) ){ }
+        torqueFunction_( std::bind( &applyTorqueScalingFunction, torqueFunction, scalingFunction, std::placeholders::_1 ) )
+    { }
 
     std::function< Eigen::Vector3d( const double ) > torqueFunction_;
 };
@@ -126,42 +116,34 @@ inline std::shared_ptr< TorqueSettings > secondDegreeGravitationalTorque( )
 }
 
 //! @get_docstring(sphericalHarmonicGravitationalTorque)
-inline std::shared_ptr< TorqueSettings > sphericalHarmonicGravitationalTorque(
-        const int maximumDegree, const int maximumOrder)
+inline std::shared_ptr< TorqueSettings > sphericalHarmonicGravitationalTorque( const int maximumDegree, const int maximumOrder )
 {
     return std::make_shared< SphericalHarmonicTorqueSettings >( maximumDegree, maximumOrder );
 }
 
-inline std::shared_ptr< TorqueSettings > dissipativeTorque(
-        const int maximumDegree, const int maximumOrder)
+inline std::shared_ptr< TorqueSettings > dissipativeTorque( const int maximumDegree, const int maximumOrder )
 {
     return std::make_shared< TorqueSettings >( basic_astrodynamics::dissipative_torque );
 }
 
 //! @get_docstring(customTorqueSettings)
-inline std::shared_ptr< TorqueSettings > customTorqueSettings(
-        const std::function< Eigen::Vector3d( const double ) > torqueFunction,
-        const std::function< double( const double ) > scalingFunction = nullptr )
+inline std::shared_ptr< TorqueSettings > customTorqueSettings( const std::function< Eigen::Vector3d( const double ) > torqueFunction,
+                                                               const std::function< double( const double ) > scalingFunction = nullptr )
 {
     if( scalingFunction == nullptr )
     {
-        return std::make_shared< CustomTorqueSettings >(
-                    torqueFunction );
+        return std::make_shared< CustomTorqueSettings >( torqueFunction );
     }
     else
     {
-        return std::make_shared< CustomTorqueSettings >(
-                    torqueFunction, scalingFunction );
+        return std::make_shared< CustomTorqueSettings >( torqueFunction, scalingFunction );
     }
 }
 
-
-
 typedef std::map< std::string, std::map< std::string, std::vector< std::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
 
+}  // namespace simulation_setup
 
-} // namespace simulation_setup
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_TORQUESETTINGS_H
+#endif  // TUDAT_TORQUESETTINGS_H

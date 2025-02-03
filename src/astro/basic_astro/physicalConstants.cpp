@@ -15,7 +15,6 @@ namespace tudat
 namespace physical_constants
 {
 
+}  // namespace physical_constants
 
-} // namespace physical_constants
-
-} // namespace tudat
+}  // namespace tudat

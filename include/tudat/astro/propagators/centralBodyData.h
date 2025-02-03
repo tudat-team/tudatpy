@@ -25,11 +25,10 @@ namespace propagators
 {
 
 //! Types of integration origins that can be used in the simulations.
-enum OriginType
-{
-    global_frame_origin,// origin is inertial.
-    from_ephemeris, // origin is moving with origin of body which is not propagated.
-    from_integration // origin is moving with origin of body which is propagated.
+enum OriginType {
+    global_frame_origin,  // origin is inertial.
+    from_ephemeris,       // origin is moving with origin of body which is not propagated.
+    from_integration      // origin is moving with origin of body which is propagated.
 };
 
 //! This class acts as a data container for properties of central bodies in a numerical integration
@@ -55,23 +54,19 @@ public:
      *  \param globalFrameOriginBarycentricStateFunction State function of global frame origin w.r.t. barycenter
      *  \param globalFrameOrigin Origin of global frame.
      */
-    CentralBodyData( const std::vector< std::string >& centralBodies,
-                     const std::vector< std::string >& bodiesToIntegrate,
-                     const std::map< std::string,
-                     std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
-                     bodyStateFunctions,
-                     const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
-                     globalFrameOriginBarycentricStateFunction,
-                     const std::string globalFrameOrigin ):
+    CentralBodyData(
+            const std::vector< std::string >& centralBodies,
+            const std::vector< std::string >& bodiesToIntegrate,
+            const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >& bodyStateFunctions,
+            const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > globalFrameOriginBarycentricStateFunction,
+            const std::string globalFrameOrigin ):
         centralBodies_( centralBodies ), globalFrameOriginBarycentricStateFunction_( globalFrameOriginBarycentricStateFunction )
     {
         // Check consistency of input.
         if( centralBodies.size( ) != bodiesToIntegrate.size( ) )
         {
-            throw std::runtime_error(
-                "Error in CentralBodyData, number of central bodies not equal to number of bodies to integrate " );
+            throw std::runtime_error( "Error in CentralBodyData, number of central bodies not equal to number of bodies to integrate " );
         }
-
 
         bodyOriginType_.resize( bodiesToIntegrate.size( ) );
 
@@ -96,8 +91,7 @@ public:
                         centralBodyIndex = j;
                         if( i == j )
                         {
-                            throw std::runtime_error( "Error, body " + bodiesToIntegrate[ j ] +
-                                                      " cannot be its own central body" );
+                            throw std::runtime_error( "Error, body " + bodiesToIntegrate[ j ] + " cannot be its own central body" );
                         }
                     }
                 }
@@ -106,8 +100,7 @@ public:
                 if( centralBodyIndex == -1 )
                 {
                     bodyOriginType_.at( i ) = from_ephemeris;
-                    centralBodiesFromEphemerides_[ i ]
-                        = bodyStateFunctions.at( centralBodies.at( i ) );
+                    centralBodiesFromEphemerides_[ i ] = bodyStateFunctions.at( centralBodies.at( i ) );
                 }
                 // Else, set body origin as being from another integrated body, set indices of both
                 // bodies in centralBodiesFromIntegration_
@@ -128,7 +121,7 @@ public:
         {
             // If body origin is not from another integrated body, order in update is irrelevant,
             // set at current index of vector.
-            if( bodyOriginType_.at( i ) == global_frame_origin || bodyOriginType_.at( i ) == from_ephemeris  )
+            if( bodyOriginType_.at( i ) == global_frame_origin || bodyOriginType_.at( i ) == from_ephemeris )
             {
                 updateOrder_[ currentUpdateIndex ] = i;
                 currentUpdateIndex++;
@@ -146,8 +139,7 @@ public:
         {
             for( unsigned int j = 0; j < i; j++ )
             {
-                if( centralBodies[ numericalBodies_[ j ] ]
-                    == bodiesToIntegrate[ numericalBodies_.at( i ) ] )
+                if( centralBodies[ numericalBodies_[ j ] ] == bodiesToIntegrate[ numericalBodies_.at( i ) ] )
                 {
                     // Move central body to index before integrated body.
                     bodyToMove = numericalBodies_.at( i );
@@ -168,7 +160,6 @@ public:
         localInternalState_.resize( 6 * bodiesToIntegrate.size( ), 1 );
     }
 
-
     //! Function to return the state of the central bodies in an inertial frame.
     /*!
      *  Function to return the state of the central bodies in an inertial frame. The states of the
@@ -183,12 +174,12 @@ public:
      *  \param areInputStateLocal True if the internalState vector is given in the local frames of the integrated
      *   bodies, or the global frame.
      */
-    void getReferenceFrameOriginInertialStates(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalState, const TimeType time,
-            std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& referenceFrameOriginStates,
-            const bool areInputStateLocal = true )
+    void getReferenceFrameOriginInertialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalState,
+                                                const TimeType time,
+                                                std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& referenceFrameOriginStates,
+                                                const bool areInputStateLocal = true )
     {
-        localInternalState_ =  internalState;
+        localInternalState_ = internalState;
         if( referenceFrameOriginStates.size( ) != updateOrder_.size( ) )
         {
             referenceFrameOriginStates.resize( updateOrder_.size( ) );
@@ -198,8 +189,7 @@ public:
         for( unsigned int i = 0; i < updateOrder_.size( ); i++ )
         {
             getSingleReferenceFrameOriginInertialState(
-                        localInternalState_, time, updateOrder_.at( i ),
-                        referenceFrameOriginStates.at( updateOrder_.at( i ) ));
+                    localInternalState_, time, updateOrder_.at( i ), referenceFrameOriginStates.at( updateOrder_.at( i ) ) );
 
             // Modify current input state to global frame if input is local (in propagation frame).
             if( areInputStateLocal )
@@ -210,21 +200,26 @@ public:
         }
     }
 
-
     //! Function to get the order in which the body states are to be called
     /*!
      * Function to get the order in which the body states are to be called when getting global
      * states.
      * \return Order in which the body states are to be called when getting global states.
      */
-    std::vector< int > getUpdateOrder( ){ return updateOrder_; }
+    std::vector< int > getUpdateOrder( )
+    {
+        return updateOrder_;
+    }
 
     //! Function to get the type of reference frame origin for each of the propagated bodies.
     /*!
      * Function to get the type of reference frame origin for each of the propagated bodies.
      * \return Type of reference frame origin for each of the propagated bodies.
      */
-    std::vector< OriginType > getBodyOriginType( ){ return bodyOriginType_; }
+    std::vector< OriginType > getBodyOriginType( )
+    {
+        return bodyOriginType_;
+    }
 
     //! Function to get the names of central bodies
     /*!
@@ -233,11 +228,12 @@ public:
      * \return Names of central bodies, belonging to the entries in the bodiesToIntegrate vector of
      * same index.
      */
-    std::vector< std::string > getCentralBodies( ){ return centralBodies_; }
-
+    std::vector< std::string > getCentralBodies( )
+    {
+        return centralBodies_;
+    }
 
 private:
-
     //! Names of central bodies, belonging to the entries in the bodiesToIntegrate vector of same
     //! index.
     std::vector< std::string > centralBodies_;
@@ -252,8 +248,7 @@ private:
     std::vector< OriginType > bodyOriginType_;
 
     //!  List of functions for the origins of selected bodies.
-    std::map< int, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
-        centralBodiesFromEphemerides_;
+    std::map< int, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > centralBodiesFromEphemerides_;
 
     //! Map defining frame origin body index, for bodies having one of the other propagated bodies
     //! as propagation origin
@@ -275,34 +270,31 @@ private:
      *  \param bodyIndex Index of the body for which the global origin state is to be retrieved
      *  \param originState Global origin state of the requested body (returned by reference).
      */
-    void getSingleReferenceFrameOriginInertialState(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution,
-            const TimeType time,
-            const int bodyIndex,
-            Eigen::Matrix< StateScalarType, 6, 1 >& originState )
+    void getSingleReferenceFrameOriginInertialState( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution,
+                                                     const TimeType time,
+                                                     const int bodyIndex,
+                                                     Eigen::Matrix< StateScalarType, 6, 1 >& originState )
     {
         // Check origin type.
         switch( bodyOriginType_[ bodyIndex ] )
         {
-        case global_frame_origin:
-            originState.setZero( );
-            break;
-        case from_ephemeris:
-            originState = centralBodiesFromEphemerides_.at( bodyIndex )( static_cast< double >( time ) );
-            break;
-        case from_integration:
-            originState = internalSolution.segment( centralBodiesFromIntegration_.at( bodyIndex ) * 6, 6 );
-            break;
-        default:
-            throw std::runtime_error( "Error, do not recognize boy origin type " +
-                              std::to_string( bodyOriginType_[ bodyIndex ] ) );
-            break;
+            case global_frame_origin:
+                originState.setZero( );
+                break;
+            case from_ephemeris:
+                originState = centralBodiesFromEphemerides_.at( bodyIndex )( static_cast< double >( time ) );
+                break;
+            case from_integration:
+                originState = internalSolution.segment( centralBodiesFromIntegration_.at( bodyIndex ) * 6, 6 );
+                break;
+            default:
+                throw std::runtime_error( "Error, do not recognize boy origin type " + std::to_string( bodyOriginType_[ bodyIndex ] ) );
+                break;
         }
     }
 };
 
+}  // namespace propagators
 
-} // namespace propagators
-
-} // namespace tudat
-#endif // TUDAT_CENTRALBODYDATA_H
+}  // namespace tudat
+#endif  // TUDAT_CENTRALBODYDATA_H

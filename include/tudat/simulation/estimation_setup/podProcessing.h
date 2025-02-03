@@ -26,8 +26,8 @@ namespace simulation_setup
 // *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
 // *  \return Concatenated vector of times.
 // */
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//std::vector< TimeType > getConcatenatedTimeVector(
+// template< typename ObservationScalarType = double, typename TimeType = double >
+// std::vector< TimeType > getConcatenatedTimeVector(
 //        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::EstimationInputType& measurementData )
 //{
 //    // Iterate over all observations and concatenate the time vectors.
@@ -81,8 +81,8 @@ namespace simulation_setup
 // *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
 // *  \return Concatenated vector of link end indices (first), mapping of LinkEnds to index (second)
 // */
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//std::pair< std::vector< int >, std::map< observation_models::LinkEnds, int > > getConcatenatedGroundStationIndex(
+// template< typename ObservationScalarType = double, typename TimeType = double >
+// std::pair< std::vector< int >, std::map< observation_models::LinkEnds, int > > getConcatenatedGroundStationIndex(
 //        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::EstimationInputType& measurementData )
 //{
 //    std::vector< int > concatenatedIds;
@@ -136,8 +136,8 @@ namespace simulation_setup
 // *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
 // *  \return Concatenated vector of observable types.
 // */
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//std::vector< int > getConcatenatedObservableTypes(
+// template< typename ObservationScalarType = double, typename TimeType = double >
+// std::vector< int > getConcatenatedObservableTypes(
 //        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::EstimationInputType& measurementData )
 //{
 //    std::vector< int > concatenatedIds;
@@ -174,8 +174,8 @@ namespace simulation_setup
 // *  \param measurementData Data structure containing all measurement data, first by observable type, then by link ends.
 // *  \return Concatenated vector of observations.
 // */
-//template< typename ObservationScalarType = double, typename TimeType = double >
-//Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedMeasurementVector(
+// template< typename ObservationScalarType = double, typename TimeType = double >
+// Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedMeasurementVector(
 //        const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::EstimationInputType& measurementData )
 //{
 //    typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
@@ -204,7 +204,6 @@ namespace simulation_setup
 //    return concatenatedObservations;
 //}
 
-
 //! Function to sort the information matrix by the time of the associated observations.
 /*!
  *  Function to sort the information matrix (e.g. matrix with partial derivatives of observables w.r.t. estimated parameters) by
@@ -228,22 +227,21 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedDesignMatrix
     std::vector< TimeType > concatenatedTimes = measurementData->getConcatenatedTimeVector( );
 
     // Sort the concatesnated time vector, and get the order of the sorting.
-    std::pair< std::vector< int >, std::vector< TimeType > > sortOutput = utilities::getSortOrderOfVectorAndSortedVector(
-                concatenatedTimes );
+    std::pair< std::vector< int >, std::vector< TimeType > > sortOutput =
+            utilities::getSortOrderOfVectorAndSortedVector( concatenatedTimes );
     timeOrder = sortOutput.first;
 
     // Retrieve sort order and check consistency of its size.
     std::vector< int > timeVectorSortOrder = sortOutput.first;
     if( static_cast< int >( timeVectorSortOrder.size( ) ) != typeAndLinkSortedDesignMatrix.rows( ) )
     {
-        std::cout<<timeVectorSortOrder.size( )<<std::endl<<typeAndLinkSortedDesignMatrix.rows( )<<std::endl;
+        std::cout << timeVectorSortOrder.size( ) << std::endl << typeAndLinkSortedDesignMatrix.rows( ) << std::endl;
         throw std::runtime_error( "Error when sorting information matrix by time, sizes incompatible" );
     }
 
     // Create information matrix with entries in order of time.
     int numberOfColumns = typeAndLinkSortedDesignMatrix.cols( );
-    Eigen::MatrixXd sortedMatrix = Eigen::MatrixXd::Zero( typeAndLinkSortedDesignMatrix.rows( ),
-                                                          typeAndLinkSortedDesignMatrix.cols( ) );
+    Eigen::MatrixXd sortedMatrix = Eigen::MatrixXd::Zero( typeAndLinkSortedDesignMatrix.rows( ), typeAndLinkSortedDesignMatrix.cols( ) );
     for( unsigned int i = 0; i < timeVectorSortOrder.size( ); i++ )
     {
         sortedMatrix.block( i, 0, 1, numberOfColumns ) =
@@ -279,13 +277,13 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
 {
     int totalNumberOfParameters = unnormalizedInverseAPrioriCovariance.cols( );
 
-    Eigen::MatrixXd normalizedInverseAPrioriCovariance = Eigen::MatrixXd(  totalNumberOfParameters, totalNumberOfParameters );
+    Eigen::MatrixXd normalizedInverseAPrioriCovariance = Eigen::MatrixXd( totalNumberOfParameters, totalNumberOfParameters );
     for( int j = 0; j < totalNumberOfParameters; j++ )
     {
         for( int k = 0; k < totalNumberOfParameters; k++ )
         {
-            normalizedInverseAPrioriCovariance( j, k ) = unnormalizedInverseAPrioriCovariance( j, k ) /
-                    ( normalizationFactors( j ) * normalizationFactors( k ) );
+            normalizedInverseAPrioriCovariance( j, k ) =
+                    unnormalizedInverseAPrioriCovariance( j, k ) / ( normalizationFactors( j ) * normalizationFactors( k ) );
         }
     }
 
@@ -298,25 +296,24 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
     if( typeAndLinkSortedNormalizedDesignMatrix.cols( ) != totalNumberOfParameters )
     {
         throw std::runtime_error(
-                    "Error when calculating covariance as function of time, number of parameters is inconsistent with information matrix" );
+                "Error when calculating covariance as function of time, number of parameters is inconsistent with information matrix" );
     }
 
     if( normalizationFactors.rows( ) != totalNumberOfParameters )
     {
         throw std::runtime_error(
-                    "Error when calculating covariance as function of time, number of parameters is inconsistent with normalization factors" );
+                "Error when calculating covariance as function of time, number of parameters is inconsistent with normalization factors" );
     }
     if( typeAndLinkSortedNormalizedDesignMatrix.rows( ) != diagonalOfWeightMatrix.rows( ) )
     {
-        throw std::runtime_error(
-                    "Error when calculating covariance as function of time, weights are inconsistent with partials" );
+        throw std::runtime_error( "Error when calculating covariance as function of time, weights are inconsistent with partials" );
     }
 
     // Order information matrix by time of observations
     std::vector< int > timeOrder;
     std::pair< Eigen::MatrixXd, std::vector< TimeType > > timeOrderedMatrixOutput =
             getTimeOrderedDesignMatrix< ObservationScalarType, TimeType >(
-                measurementData, typeAndLinkSortedNormalizedDesignMatrix, timeOrder );
+                    measurementData, typeAndLinkSortedNormalizedDesignMatrix, timeOrder );
     std::vector< TimeType > orderedTimeVector = timeOrderedMatrixOutput.second;
 
     Eigen::VectorXd timeOrderedDiagonalOfWeightMatrix = Eigen::VectorXd::Zero( diagonalOfWeightMatrix.rows( ) );
@@ -348,7 +345,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
 
         if( currentIndex != orderedTimeVector.size( ) - 1 )
         {
-            while( orderedTimeVector.at( currentIndex) == orderedTimeVector.at( currentIndex + 1 ) )
+            while( orderedTimeVector.at( currentIndex ) == orderedTimeVector.at( currentIndex + 1 ) )
             {
                 currentIndex++;
                 if( currentIndex == orderedTimeVector.size( ) - 1 )
@@ -364,12 +361,12 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         }
 
         // Create information matrix up to current time.
-        Eigen::MatrixXd currentDesignMatrix = timeOrderedMatrixOutput.first.block(
-                    0, 0, currentIndex + 1, timeOrderedMatrixOutput.first.cols( ) );
+        Eigen::MatrixXd currentDesignMatrix =
+                timeOrderedMatrixOutput.first.block( 0, 0, currentIndex + 1, timeOrderedMatrixOutput.first.cols( ) );
 
         // Create inverse of covariance matrix
         currentInverseNormalizedCovarianceMatrix = linear_algebra::calculateInverseOfUpdatedCovarianceMatrix(
-                    currentDesignMatrix, timeOrderedDiagonalOfWeightMatrix.segment( 0, currentIndex + 1 ), normalizedInverseAPrioriCovariance );
+                currentDesignMatrix, timeOrderedDiagonalOfWeightMatrix.segment( 0, currentIndex + 1 ), normalizedInverseAPrioriCovariance );
         Eigen::MatrixXd covarianceMatrix = currentInverseNormalizedCovarianceMatrix.inverse( );
 
         for( int i = 0; i < covarianceMatrix.rows( ); i++ )
@@ -383,7 +380,6 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         covarianceMatrixHistory[ currentTime ] = covarianceMatrix;
     }
 
-
     return covarianceMatrixHistory;
 }
 
@@ -396,8 +392,7 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& unnormalizedInverseAPrioriCovariance )
 {
-    Eigen::VectorXd timeVector =
-            utilities::convertStlVectorToEigenVector( measurementData->getConcatenatedTimeVector( ) );
+    Eigen::VectorXd timeVector = utilities::convertStlVectorToEigenVector( measurementData->getConcatenatedTimeVector( ) );
     double minimumTime = timeVector.minCoeff( );
     double maximumTime = timeVector.maxCoeff( );
     double currentTime = minimumTime;
@@ -411,9 +406,12 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         outputTimes.push_back( currentTime );
     }
 
-    return calculateCovarianceUsingDataUpToEpoch(
-                measurementData, typeAndLinkSortedNormalizedDesignMatrix, normalizationFactors,
-                outputTimes, diagonalOfWeightMatrix, unnormalizedInverseAPrioriCovariance );
+    return calculateCovarianceUsingDataUpToEpoch( measurementData,
+                                                  typeAndLinkSortedNormalizedDesignMatrix,
+                                                  normalizationFactors,
+                                                  outputTimes,
+                                                  diagonalOfWeightMatrix,
+                                                  unnormalizedInverseAPrioriCovariance );
 }
 
 //! Function to create a map of the estimation covariance as a function of time
@@ -424,36 +422,43 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
  *  \param outputTimes Times at which the covariance is to be computed for the output map.
  *  \return Covariance (map values) as a function of time (map keys) for the given estimation input settings and output times.
  */
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType,
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename StateScalarType = ObservationScalarType,
           typename ParameterScalarType = double >
-std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceUsingDataUpToEpoch(
+std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > >& podInputData,
         const std::shared_ptr< EstimationOutput< ParameterScalarType > >& podOutputData,
         const std::vector< double >& outputTimes )
 {
     return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
-                podInputData->getObservationsAndTimes( ), podOutputData->normalizedDesignMatrix_,
-                podOutputData->designMatrixTransformationDiagonal_, outputTimes,
-                podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance(
-                    podOutputData->numberOfParameters_ ) );
+            podInputData->getObservationsAndTimes( ),
+            podOutputData->normalizedDesignMatrix_,
+            podOutputData->designMatrixTransformationDiagonal_,
+            outputTimes,
+            podOutputData->weightsMatrixDiagonal_,
+            podInputData->getInverseOfAprioriCovariance( podOutputData->numberOfParameters_ ) );
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType,
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename StateScalarType = ObservationScalarType,
           typename ParameterScalarType = double >
-std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceUsingDataUpToEpoch(
+std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< EstimationInput< ObservationScalarType, TimeType > >& podInputData,
         const std::shared_ptr< EstimationOutput< ParameterScalarType > >& podOutputData,
         const double outputTimeStep )
 {
     return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
-                podInputData->getObservationCollection( ), podOutputData->normalizedDesignMatrix_,
-                podOutputData->designMatrixTransformationDiagonal_, outputTimeStep,
-                podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance(
-                    podOutputData->numberOfParameters_  ) );
+            podInputData->getObservationCollection( ),
+            podOutputData->normalizedDesignMatrix_,
+            podOutputData->designMatrixTransformationDiagonal_,
+            outputTimeStep,
+            podOutputData->weightsMatrixDiagonal_,
+            podInputData->getInverseOfAprioriCovariance( podOutputData->numberOfParameters_ ) );
 }
 
+}  // namespace simulation_setup
 
-}
-
-}
-#endif // TUDAT_PODPROCESSING_H
+}  // namespace tudat
+#endif  // TUDAT_PODPROCESSING_H

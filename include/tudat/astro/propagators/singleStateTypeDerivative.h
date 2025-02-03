@@ -27,14 +27,7 @@ namespace propagators
 // Enum listing types of dynamics that can be numerically integrated
 // ! @get_docstring(IntegratedStateType.__docstring__)
 
-enum IntegratedStateType
-{
-    hybrid = 0,
-    translational_state = 1,
-    rotational_state = 2,
-    body_mass_state = 3,
-    custom_state = 4
-};
+enum IntegratedStateType { hybrid = 0, translational_state = 1, rotational_state = 2, body_mass_state = 3, custom_state = 4 };
 
 std::string getIntegratedStateTypString( const IntegratedStateType stateType );
 
@@ -76,14 +69,12 @@ template< typename StateScalarType = double, typename TimeType = double >
 class SingleStateTypeDerivative
 {
 public:
-
     // Constructor.
     /*
      * Constructor.
      * \param integratedStateType Type of dynamics for whichh the state derivative is calculated.
      */
-    SingleStateTypeDerivative( const IntegratedStateType integratedStateType ):
-        integratedStateType_( integratedStateType )
+    SingleStateTypeDerivative( const IntegratedStateType integratedStateType ): integratedStateType_( integratedStateType )
     {
         if( isStateToBePostProcessed( ) )
         {
@@ -92,7 +83,7 @@ public:
     }
 
     // Virtual destructor.
-    virtual ~SingleStateTypeDerivative( ){ }
+    virtual ~SingleStateTypeDerivative( ) { }
 
     // Calculates the state derivative of the system of equations for the given type of dynamics
     /*
@@ -142,7 +133,8 @@ public:
      * coordinates, that can for instance be set directly  in the body object (returned by reference).
      */
     virtual void convertCurrentStateToGlobalRepresentation(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution,
+            const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
     // Function to convert the state in the conventional form to the propagator-specific form.
@@ -156,7 +148,8 @@ public:
      * \return State (outputSolution), converted to the 'propagator-specific form'
      */
     virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time ) = 0;
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution,
+            const TimeType& time ) = 0;
 
     // Function to convert the propagator-specific form of the state to the conventional form.
     /*
@@ -173,7 +166,8 @@ public:
      * reference).
      */
     virtual void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
+            const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
     // Function to return the size of the conventional state handled by the object.
@@ -234,7 +228,6 @@ public:
     }
 
 protected:
-
     // Type of dynamics for which the state derivative is calculated.
     IntegratedStateType integratedStateType_;
 
@@ -242,32 +235,28 @@ protected:
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > unprocessedState_;
 };
 
-//extern template class SingleStateTypeDerivative< double, double >;
+// extern template class SingleStateTypeDerivative< double, double >;
 
+}  // namespace propagators
 
-} // namespace propagators
-
-} // namespace tudat
-
+}  // namespace tudat
 
 namespace std
 {
 
 // Hash for IntegratedStateType enum.
-template< >
-struct hash< tudat::propagators::IntegratedStateType >
-{
+template<>
+struct hash< tudat::propagators::IntegratedStateType > {
     typedef tudat::propagators::IntegratedStateType argument_type;
     typedef size_t result_type;
 
-    result_type operator () (const argument_type& x) const
+    result_type operator( )( const argument_type& x ) const
     {
-        using type = typename std::underlying_type<argument_type>::type;
+        using type = typename std::underlying_type< argument_type >::type;
         return std::hash< type >( )( static_cast< type >( x ) );
     }
 };
 
-} // namespace std
+}  // namespace std
 
-
-#endif // TUDAT_STATEDERIVATIVE_H
+#endif  // TUDAT_STATEDERIVATIVE_H

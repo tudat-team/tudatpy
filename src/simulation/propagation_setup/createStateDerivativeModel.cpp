@@ -34,14 +34,16 @@ std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vect
 {
     // Create state derivative model
     std::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem > stateDerivativeModel =
-            std::make_shared< StateDerivativeCircularRestrictedThreeBodyProblem  >( massParameter );
+            std::make_shared< StateDerivativeCircularRestrictedThreeBodyProblem >( massParameter );
     std::function< Eigen::Vector6d( const double, const Eigen::Vector6d& ) > stateDerivativeFunction =
-            std::bind( &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative, stateDerivativeModel,
-                       std::placeholders::_1, std::placeholders::_2 );
+            std::bind( &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative,
+                       stateDerivativeModel,
+                       std::placeholders::_1,
+                       std::placeholders::_2 );
 
     // Create integrator object
     return numerical_integrators::createIntegrator< double, Eigen::Vector6d >(
-                stateDerivativeFunction, initialState, initialTime, integratorSettings );
+            stateDerivativeFunction, initialState, initialTime, integratorSettings );
 }
 
 //! Function to propagate the dynamics (in normalized units) in CR3BP
@@ -91,10 +93,8 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
         stateHistory[ currentTime ] = currentState;
     }
     return stateHistory;
-
 }
 
+}  // namespace propagators
 
-}
-
-}
+}  // namespace tudat

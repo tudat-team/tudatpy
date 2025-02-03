@@ -7,8 +7,10 @@
 
 #include <vector>
 
-namespace tudat {
-namespace input_output {
+namespace tudat
+{
+namespace input_output
+{
 //! Function to compare if two lists of aerodynamic coefficient independent variables are equal
 /*!
  * Function to compare if two lists of aerodynamic coefficient independent variables (vector of vector of doubles) are equal
@@ -16,10 +18,8 @@ namespace input_output {
  * \param list2 Second list that is to be compared.
  * \return True of the two lists are completely equal in size and contents, false otherwise.
  */
-bool compareIndependentVariables( const std::vector< std::vector< double > >& list1,
-                                  const std::vector< std::vector< double > >& list2 );
+bool compareIndependentVariables( const std::vector< std::vector< double > >& list1, const std::vector< std::vector< double > >& list2 );
 
-}
-}
-#endif //TUDAT_UTIL_H
-
+}  // namespace input_output
+}  // namespace tudat
+#endif  // TUDAT_UTIL_H

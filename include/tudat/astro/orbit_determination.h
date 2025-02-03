@@ -73,4 +73,4 @@
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "orbit_determination/stateDerivativePartial.h"
 
-#endif // TUDAT_ORBIT_DETERMINATION_H
+#endif  // TUDAT_ORBIT_DETERMINATION_H

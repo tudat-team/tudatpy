@@ -39,10 +39,8 @@ namespace basic_astrodynamics
 class TorqueModel
 {
 public:
-
     //! Constructor
-    TorqueModel( ):
-        currentTime_( TUDAT_NAN ){ }
+    TorqueModel( ): currentTime_( TUDAT_NAN ) { }
 
     //! Destructor
     virtual ~TorqueModel( ) { }
@@ -81,37 +79,32 @@ public:
     }
 
 protected:
-
     //! Last time at which the updateMembers was evaluated (or NaN if next call is to recompute torque).
     double currentTime_;
 
 private:
-
 };
 
 //! Function to compute the inertial torque term
 /*!
  *  Function to compute the inertial torque term, which is included as the angular velocity rate is computed in a body-fixed frame.
  */
-class InertialTorqueModel: public TorqueModel
+class InertialTorqueModel : public TorqueModel
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param angularVelocityFunction Function that returns body's body-fixed angular velocity vector
      * \param inertiaTensorFunction Function that returns body's inertia tensor
      */
-    InertialTorqueModel(
-            const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
-            const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction ):TorqueModel( ),
-    angularVelocityFunction_( angularVelocityFunction ),
-    inertiaTensorFunction_( inertiaTensorFunction ){ }
+    InertialTorqueModel( const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
+                         const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction ):
+        TorqueModel( ), angularVelocityFunction_( angularVelocityFunction ), inertiaTensorFunction_( inertiaTensorFunction )
+    { }
 
     //! Destructor
     ~InertialTorqueModel( ) { }
-
 
     //! Get inertial torque.
     /*!
@@ -141,7 +134,6 @@ public:
     }
 
 protected:
-
     //! Function that returns body's body-fixed angular velocity vector
     std::function< Eigen::Vector3d( ) > angularVelocityFunction_;
 
@@ -152,7 +144,6 @@ protected:
     Eigen::Vector3d currentTorque_;
 
 private:
-
 };
 
 //! Typedef for list of torques acting on a body (map key is body exerting torque).
@@ -170,11 +161,9 @@ typedef std::map< std::string, SingleBodyTorqueModelMap > TorqueModelMap;
  * \param currentTime Time at which torque model is to be updated.
  * \return Torque that is obtained following the member update.
  */
-Eigen::Vector3d updateAndGetTorque(
-        const std::shared_ptr< TorqueModel > torqueModel,
-        const double currentTime = TUDAT_NAN );
-}
+Eigen::Vector3d updateAndGetTorque( const std::shared_ptr< TorqueModel > torqueModel, const double currentTime = TUDAT_NAN );
+}  // namespace basic_astrodynamics
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_TORQUEMODEL_H
+#endif  // TUDAT_TORQUEMODEL_H

@@ -25,48 +25,41 @@ namespace shape_based_methods
 class BaseFunctionHodographicShapingSettings
 {
 public:
-
     //! Default, empty constructor.
-    BaseFunctionHodographicShapingSettings( ){ }
+    BaseFunctionHodographicShapingSettings( ) { }
 
     //! Destructor.
-    virtual ~BaseFunctionHodographicShapingSettings( ){ }
-
+    virtual ~BaseFunctionHodographicShapingSettings( ) { }
 };
 
-
 //! Settings class for hodographic shaping trigonometric function (either sine or cosine).
-class TrigonometricFunctionHodographicShapingSettings: public BaseFunctionHodographicShapingSettings
+class TrigonometricFunctionHodographicShapingSettings : public BaseFunctionHodographicShapingSettings
 {
 public:
-
     //! Constructor to set frequency for a trigonometric function (either sine or cosine).
     /*!
      *  Constructor to set frequency for a trigonometric function (either sine or cosine).
      *  \param frequency Frequency of the trigonometric function.
      */
-    TrigonometricFunctionHodographicShapingSettings( const double frequency ) :
-        frequency_( frequency ){ }
+    TrigonometricFunctionHodographicShapingSettings( const double frequency ): frequency_( frequency ) { }
 
     //! Frequency of the trigonometric function.
     double frequency_;
 };
 
-
 //! Settings class for hodographic shaping exponential function.
-class ExponentialFunctionHodographicShapingSettings: public BaseFunctionHodographicShapingSettings
+class ExponentialFunctionHodographicShapingSettings : public BaseFunctionHodographicShapingSettings
 {
 public:
-
     //! Constructor to set exponent, and possibly scaling factor for the exponential function.
     /*!
      *  Constructor to set exponent, and possibly scaling factor for the exponential function.
      *  \param exponent Exponent of the exponential function.
      *  \param scaleFactor Scaling factor for the exponential function.
      */
-    ExponentialFunctionHodographicShapingSettings( const double exponent,
-                                                   const double scaleFactor = 1.0 ) :
-        exponent_( exponent ), scaleFactor_( scaleFactor ){ }
+    ExponentialFunctionHodographicShapingSettings( const double exponent, const double scaleFactor = 1.0 ):
+        exponent_( exponent ), scaleFactor_( scaleFactor )
+    { }
 
     //! Exponent of the exponential function.
     double exponent_;
@@ -75,12 +68,10 @@ public:
     double scaleFactor_;
 };
 
-
 //! Settings class for hodographic shaping exponential times trigonometric function.
-class ExponentialTimesTrigonometricFunctionHodographicShapingSettings: public BaseFunctionHodographicShapingSettings
+class ExponentialTimesTrigonometricFunctionHodographicShapingSettings : public BaseFunctionHodographicShapingSettings
 {
 public:
-
     //! Constructor to set exponent, frequency, and possibly scaling factor for the exponential times sine or cosine function.
     /*!
      *  Constructor to set exponent, frequency, and possibly scaling factor for the exponential times sine or cosine function.
@@ -90,8 +81,9 @@ public:
      */
     ExponentialTimesTrigonometricFunctionHodographicShapingSettings( const double exponent,
                                                                      const double frequency,
-                                                                     const double scaleFactor = 1.0 ) :
-        exponent_( exponent ), frequency_( frequency ), scaleFactor_( scaleFactor ){ }
+                                                                     const double scaleFactor = 1.0 ):
+        exponent_( exponent ), frequency_( frequency ), scaleFactor_( scaleFactor )
+    { }
 
     //! Exponent of the exponential function.
     double exponent_;
@@ -103,21 +95,19 @@ public:
     double scaleFactor_;
 };
 
-
 //! Settings class for hodographic shaping power function.
-class PowerFunctionHodographicShapingSettings: public BaseFunctionHodographicShapingSettings
+class PowerFunctionHodographicShapingSettings : public BaseFunctionHodographicShapingSettings
 {
 public:
-
     //! Constructor to set exponent, and possibly scaling factor for the power function.
     /*!
      *  Constructor to set exponent, and possibly scaling factor for the power function.
      *  \param exponent Exponent of the power function.
      *  \param scaleFactor Scaling factor for the power function.
      */
-    PowerFunctionHodographicShapingSettings( const double exponent,
-                                             const double scaleFactor = 1.0 ) :
-        exponent_( exponent ), scaleFactor_( scaleFactor ){ }
+    PowerFunctionHodographicShapingSettings( const double exponent, const double scaleFactor = 1.0 ):
+        exponent_( exponent ), scaleFactor_( scaleFactor )
+    { }
 
     //! Exponent of the power function.
     double exponent_;
@@ -126,12 +116,10 @@ public:
     double scaleFactor_;
 };
 
-
 //! Settings class for hodographic shaping power times trigonometric function.
-class PowerTimesTrigonometricFunctionHodographicShapingSettings: public BaseFunctionHodographicShapingSettings
+class PowerTimesTrigonometricFunctionHodographicShapingSettings : public BaseFunctionHodographicShapingSettings
 {
 public:
-
     //! Constructor to set exponent, frequency, and possibly scaling factor for the power times sine or cosine function.
     /*!
      *  Constructor to set exponent, frequency, and possibly scaling factor for the power times sine or cosine function.
@@ -141,8 +129,9 @@ public:
      */
     PowerTimesTrigonometricFunctionHodographicShapingSettings( const double exponent,
                                                                const double frequency,
-                                                               const double scaleFactor = 1.0 ) :
-        exponent_( exponent ), frequency_( frequency ), scaleFactor_( scaleFactor ){ }
+                                                               const double scaleFactor = 1.0 ):
+        exponent_( exponent ), frequency_( frequency ), scaleFactor_( scaleFactor )
+    { }
 
     //! Exponent of the power function.
     double exponent_;
@@ -154,14 +143,12 @@ public:
     double scaleFactor_;
 };
 
-
 //! Function to create a base function for hodographic shaping.
 std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > createBaseFunctionHodographicShaping(
         const shape_based_methods::baseFunctionHodographicShapingType baseFunctionType,
         const std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapingSettings > baseFunctionSettings );
 
+}  // namespace shape_based_methods
+}  // namespace tudat
 
-} // namespace shape_based_methods
-} // namespace tudat
-
-#endif // TUDAT_CREATE_BASE_FUNCTION_HODOGRAPHIC_SHAPING_H
+#endif  // TUDAT_CREATE_BASE_FUNCTION_HODOGRAPHIC_SHAPING_H

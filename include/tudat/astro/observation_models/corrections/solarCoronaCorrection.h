@@ -32,10 +32,9 @@ namespace observation_models
 {
 
 // Abstract class. Doesn't implement any correction model.
-class SolarCoronaCorrection: public LightTimeCorrection
+class SolarCoronaCorrection : public LightTimeCorrection
 {
 public:
-
     /*!
      * Constructor.
      * @param lightTimeCorrectionType Type of light time correction.
@@ -47,43 +46,43 @@ public:
     SolarCoronaCorrection(
             const LightTimeCorrectionType lightTimeCorrectionType,
             const ObservableType observableType,
-            const std::function< Eigen::Vector6d ( double time ) > sunStateFunction,
-            const std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction ):
-        LightTimeCorrection( lightTimeCorrectionType ),
-        sunStateFunction_( sunStateFunction ),
+            const std::function< Eigen::Vector6d( double time ) > sunStateFunction,
+            const std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction ):
+        LightTimeCorrection( lightTimeCorrectionType ), sunStateFunction_( sunStateFunction ),
         transmittedFrequencyFunction_( transmittedFrequencyFunction )
     {
         // Sign according to Moyer (2000), section 10.4.2
-        if ( isRadiometricObservableType( observableType ) )
+        if( isRadiometricObservableType( observableType ) )
         {
-            if ( isGroupVelocityBasedObservableType( observableType ) )
+            if( isGroupVelocityBasedObservableType( observableType ) )
             {
                 sign_ = 1;
             }
-            else if ( isPhaseVelocityBasedObservableType( observableType ) )
+            else if( isPhaseVelocityBasedObservableType( observableType ) )
             {
                 sign_ = -1;
             }
             else
             {
-                throw std::runtime_error( "Error when creating solar corona correction: radiometric correction not "
-                                          "recognized." );
+                throw std::runtime_error(
+                        "Error when creating solar corona correction: radiometric correction not "
+                        "recognized." );
             }
         }
         else
         {
-            throw std::runtime_error( "Error when creating solar corona correction: correction is only valid for "
-                                      "radiometric types." );
+            throw std::runtime_error(
+                    "Error when creating solar corona correction: correction is only valid for "
+                    "radiometric types." );
         }
     }
 
-    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-            const Eigen::Vector6d& transmitterState,
-            const Eigen::Vector6d& receiverState,
-            const double transmissionTime,
-            const double receptionTime,
-            const LinkEndType fixedLinkEnd,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
+    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
+                                                                        const Eigen::Vector6d& receiverState,
+                                                                        const double transmissionTime,
+                                                                        const double receptionTime,
+                                                                        const LinkEndType fixedLinkEnd,
+                                                                        const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
         // TODO: Add computation of partial
         return 0.0;
@@ -101,16 +100,13 @@ public:
     }
 
 protected:
-
     /*!
      * Computes the minimum distance along the line of sight to the Sun. Used in some solar correction models.
      * @param transmitterPositionWrtSun Position of the transmitter with respect to the Sun.
      * @param receiverPositionWrtSun Position of the receiver with respect to the Sun.
      * @return Distance
      */
-    double computeMinimumDistanceOfLineOfSight(
-            Eigen::Vector3d transmitterPositionWrtSun,
-            Eigen::Vector3d receiverPositionWrtSun );
+    double computeMinimumDistanceOfLineOfSight( Eigen::Vector3d transmitterPositionWrtSun, Eigen::Vector3d receiverPositionWrtSun );
 
     /*!
      * Gets the frequency at the current leg using the ancillary settings.
@@ -118,10 +114,8 @@ protected:
      * @param transmissionTime Time at which the signal was transmitted.
      * @return Frequency at current leg.
      */
-    double getCurrentFrequency(
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings,
-            const double transmissionTime );
-
+    double getCurrentFrequency( const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings,
+                                const double transmissionTime );
 
     /*!
      * Computes the electron density at a certain position and time.
@@ -144,29 +138,26 @@ protected:
      *      unlikely that it ever becomes necessary to make a distinction between the reception and transmission time.
      * @return Integral.
      */
-    double computeElectronDensityIntegralNumerically(
-            const Eigen::Vector3d& transmitterPositionWrtSun,
-            const Eigen::Vector3d& receiverPositionWrtSun,
-            const double time );
+    double computeElectronDensityIntegralNumerically( const Eigen::Vector3d& transmitterPositionWrtSun,
+                                                      const Eigen::Vector3d& receiverPositionWrtSun,
+                                                      const double time );
 
     // Sign of the correction (+1 or -1)
     int sign_;
 
     // Function returning the state of the Sun
-    const std::function< Eigen::Vector6d ( double time ) > sunStateFunction_;
+    const std::function< Eigen::Vector6d( double time ) > sunStateFunction_;
 
     // Frequency at the link as a function of the frequency bands per link, and of the current time
-    std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction_;
+    std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction_;
 
 private:
-
 };
 
 // Inverse power series solar correction model, based on Verma et al. (2013).
-class InversePowerSeriesSolarCoronaCorrection: public SolarCoronaCorrection
+class InversePowerSeriesSolarCoronaCorrection : public SolarCoronaCorrection
 {
 public:
-
     /*!
      * Constructor. Model describes corrections for electron density of the form \sum c r^{-k}, mostly following
      * Verma et al. (2013). r corresponds to the dimensionless distance: distance / solar_radius. Model neglects the
@@ -188,38 +179,38 @@ public:
      */
     InversePowerSeriesSolarCoronaCorrection(
             const ObservableType observableType,
-            const std::function< Eigen::Vector6d ( double time ) > sunStateFunction,
-            const std::function< double ( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
-            const std::vector< double >& coefficients =
-                    { 1.31 * 5.97e6 * std::pow( physical_constants::ASTRONOMICAL_UNIT, 2.0 ) / std::pow( 696e6, 2 ) },
+            const std::function< Eigen::Vector6d( double time ) > sunStateFunction,
+            const std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
+            const std::vector< double >& coefficients = { 1.31 * 5.97e6 * std::pow( physical_constants::ASTRONOMICAL_UNIT, 2.0 ) /
+                                                          std::pow( 696e6, 2 ) },
             const std::vector< double >& positiveExponents = { 2.0 },
             const double criticalPlasmaDensityDelayCoefficient = 40.3,
             const double sunRadius = 696e6 ):
         SolarCoronaCorrection( inverse_power_series_solar_corona, observableType, sunStateFunction, transmittedFrequencyFunction ),
-        coefficients_( coefficients ),
-        positiveExponents_( positiveExponents ),
-        criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ),
-        sunRadius_( sunRadius )
+        coefficients_( coefficients ), positiveExponents_( positiveExponents ),
+        criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ), sunRadius_( sunRadius )
     {
-        if ( coefficients.size( ) != positiveExponents.size( ) )
+        if( coefficients.size( ) != positiveExponents.size( ) )
         {
-            throw std::runtime_error( "Error when creating inverse power series solar corona correction: number of coefficients ("
-                + std::to_string( coefficients.size( ) ) + ") and number of exponents (" + std::to_string( positiveExponents.size( ) ) +
-                ") are incompatible." );
+            throw std::runtime_error( "Error when creating inverse power series solar corona correction: number of coefficients (" +
+                                      std::to_string( coefficients.size( ) ) + ") and number of exponents (" +
+                                      std::to_string( positiveExponents.size( ) ) + ") are incompatible." );
         }
 
         exponentsAreIntegers_ = true;
-        for ( double exponent : positiveExponents )
+        for( double exponent: positiveExponents )
         {
             // Check if all exponents are positive
-            if ( exponent <= 0 )
+            if( exponent <= 0 )
             {
-                throw std::runtime_error( "Error when creating inverse power series solar corona correction: negative exponent was"
-                                          "provided (" + std::to_string( exponent ) + "). All provided exponents should be positive." );
+                throw std::runtime_error(
+                        "Error when creating inverse power series solar corona correction: negative exponent was"
+                        "provided (" +
+                        std::to_string( exponent ) + "). All provided exponents should be positive." );
             }
 
             // Check if all exponents are integers
-            if ( std::fmod( exponent, 1.0 ) != 0 )
+            if( std::fmod( exponent, 1.0 ) != 0 )
             {
                 exponentsAreIntegers_ = false;
             }
@@ -227,14 +218,14 @@ public:
     }
 
     /*!
-    * Function to compute the light-time correction, assuming an inverse power series model for the electron density
-    * distribution, according to Verma et al. (2013).
-    * @param linkEndsStates List of states at each link end during observation.
-    * @param linkEndsTimes List of times at each link end during observation.
-    * @param currentMultiLegTransmitterIndex Index in the linkEndsStates and linkEndsTimes of the transmitter in the current link.
-    * @param ancillarySettings Observation ancillary simulation settings.
-    * @return
-    */
+     * Function to compute the light-time correction, assuming an inverse power series model for the electron density
+     * distribution, according to Verma et al. (2013).
+     * @param linkEndsStates List of states at each link end during observation.
+     * @param linkEndsTimes List of times at each link end during observation.
+     * @param currentMultiLegTransmitterIndex Index in the linkEndsStates and linkEndsTimes of the transmitter in the current link.
+     * @param ancillarySettings Observation ancillary simulation settings.
+     * @return
+     */
     double calculateLightTimeCorrectionWithMultiLegLinkEndStates(
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
@@ -242,7 +233,6 @@ public:
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
 
 private:
-
     /*!
      * Computes the electron density, according to Verma et al. (2013).
      *
@@ -261,11 +251,10 @@ private:
      * @param positiveExponent Value of the k exponent. Should be an integer.
      * @return Integral value.
      */
-    double computeSingleTermIntegralAnalytically(
-            const Eigen::Vector3d& receiverPositionWrtSun,
-            const double sunReceiverTransmitterAngle,
-            const double receiverSunTransmitterAngle,
-            const unsigned int positiveExponent );
+    double computeSingleTermIntegralAnalytically( const Eigen::Vector3d& receiverPositionWrtSun,
+                                                  const double sunReceiverTransmitterAngle,
+                                                  const double receiverSunTransmitterAngle,
+                                                  const unsigned int positiveExponent );
 
     /*!
      * Computes the integral of (cos(x))^k analytically, for an integer k >= 0.
@@ -274,10 +263,7 @@ private:
      * @param positiveExponent Exponent k.
      * @return Integral value.
      */
-    double computeCosinePowerIntegral(
-            const double lowerBound,
-            const double upperBound,
-            const unsigned int positiveExponent );
+    double computeCosinePowerIntegral( const double lowerBound, const double upperBound, const unsigned int positiveExponent );
 
     // Vector containing the c coefficients of the electron density model (\sum c r^{-k}).
     const std::vector< double > coefficients_;
@@ -296,12 +282,10 @@ private:
 
     // Cache containing the integral of the already computed cosine-powers integrals.
     std::map< unsigned int, double > cosinePowersIntegralsCache_;
-
 };
 
+}  // namespace observation_models
 
-} // namespace observation_models
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif //TUDAT_SOLARCORONACORRECTION_H
+#endif  // TUDAT_SOLARCORONACORRECTION_H

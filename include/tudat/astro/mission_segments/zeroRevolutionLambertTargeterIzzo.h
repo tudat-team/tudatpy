@@ -24,9 +24,9 @@
 #ifndef TUDAT_ZERO_REVOLUTION_LAMBERT_TARGETER_IZZO_H
 #define TUDAT_ZERO_REVOLUTION_LAMBERT_TARGETER_IZZO_H
 
-#include <Eigen/Core> // For Vector3d
+#include <Eigen/Core>  // For Vector3d
 
-#include "tudat/astro/mission_segments/lambertTargeter.h" // base class
+#include "tudat/astro/mission_segments/lambertTargeter.h"  // base class
 
 namespace tudat
 {
@@ -35,20 +35,20 @@ namespace mission_segments
 
 //! Izzo Lambert targeting algorithm class (zero revolution).
 /*!
- * Solves the zero revolution Lambert problem using Izzo's algorithms, i.e. the two point boundary 
- * value problem of what kind of unperturbed Keplerian orbit connects two positions in a certain 
- * time of flight. 
- * 
- * This class uses lazy evaluation, solving the algorithm is postponed until the function call 
+ * Solves the zero revolution Lambert problem using Izzo's algorithms, i.e. the two point boundary
+ * value problem of what kind of unperturbed Keplerian orbit connects two positions in a certain
+ * time of flight.
+ *
+ * This class uses lazy evaluation, solving the algorithm is postponed until the function call
  * relying on the computations.
- * 
+ *
  * The algorithm used is based on the algorithm used in Izzo's PyKEP Keplerian toolbox, but is
  * implemented such that only one solution gets computed at a time. The approach from Izzo
  * transforms the problem into dimensionless parameters in terms of the initial position and
  * computes the solution in a 2D plane solving for Battin's x-variable. Contrasting the Izzo
  * approach, the non-dimensionalized parameters are stored internally in order to speed up future
  * recalculations.
- * 
+ *
  * \throws std::runtime_error For negative time of flight and gravitational parameter values.
  * \throws basic_mathematics::ConvergenceException When the internal rootfinding algorithm
  *              fails to converge within a reasonable amount of iterations.
@@ -56,7 +56,6 @@ namespace mission_segments
 class ZeroRevolutionLambertTargeterIzzo : public LambertTargeter
 {
 public:
-
     // Ensure that correctly aligned pointers are generated (Eigen, 2013).
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -81,15 +80,10 @@ public:
                                        const double aGravitationalParameter,
                                        const bool aIsRetrograde = false,
                                        const double aConvergenceTolerance = 1.0e-9,
-                                       const int aMaximumNumberOfIterations = 50 )
-        : LambertTargeter( aCartesianPositionAtDeparture,
-                           aCartesianPositionAtArrival,
-                           aTimeOfFlight,
-                           aGravitationalParameter ),
-          isRetrograde( aIsRetrograde ),
-          convergenceTolerance( aConvergenceTolerance ),
-          maximumNumberOfIterations( aMaximumNumberOfIterations ),
-          transformed( false )
+                                       const int aMaximumNumberOfIterations = 50 ):
+        LambertTargeter( aCartesianPositionAtDeparture, aCartesianPositionAtArrival, aTimeOfFlight, aGravitationalParameter ),
+        isRetrograde( aIsRetrograde ), convergenceTolerance( aConvergenceTolerance ),
+        maximumNumberOfIterations( aMaximumNumberOfIterations ), transformed( false )
     { }
 
     //! Get radial velocity at departure.
@@ -98,39 +92,38 @@ public:
      * \return radialVelocityAtDeparture Radial velocity at departure.                        [m/s]
      */
     double getRadialVelocityAtDeparture( );
-    
+
     //! Get transverse velocity at departure.
     /*!
      * Calculates and returns transverse velocity at departure position in S.I. units.
      * \return transverseVelocityAtDeparture Transverse velocity at departure.                [m/s]
      */
     double getTransverseVelocityAtDeparture( );
-    
+
     //! Get radial velocity at arrival.
     /*!
      * Calculates and returns radial velocity at arrival position in S.I. units.
      * \return radialVelocityAtArrival Radial velocity at arrival.                            [m/s]
      */
     double getRadialVelocityAtArrival( );
-    
+
     //! Get transverse velocity at arrival.
     /*!
      * Calculates and returns transverse velocity at arrival position in S.I. units.
      * \return transverseVelocityAtDeparture Transverse velocity at departure.                [m/s]
      */
     double getTransverseVelocityAtArrival( );
-    
+
     //! Get semi-major axis.
     /*!
      * Calculates and returns semi-major axis in S.I. units.
      * \return semiMajorAxis Semi-major axis of the problem's solution.                       [m/s]
      */
     double getSemiMajorAxis( );
-    
+
     // what about retrograde flag, tolerance and max number of iterations? Might be useful to check.
 
 protected:
-
     //! Execute the solving procedure.
     /*!
      * Solves the problem using dimensionless parameters by finding the root for the x-paramater and
@@ -156,7 +149,7 @@ protected:
      * stores relevant (no longer changing) sub results for recovering velocities.
      */
     void transformDimensions( );
-    
+
     //! Compute time-of-flight using Lagrange's equation.
     /*!
      * Computes the time-of-flight according to Lagrange's equation as a function of the
@@ -165,7 +158,7 @@ protected:
      * \return timeOfFlight Computed dimensionless time-of-flight.
      */
     virtual double computeTimeOfFlight( const double xParameter );
-    
+
     //! Solve the time of flight equation for x.
     /*!
      * Initializes and finds the root of the equation \f$ 0 = t_f - F( x ) \f$, where \f$ F( x ) \f$
@@ -174,7 +167,7 @@ protected:
      * \return xParameter Computed x parameter.
      */
     virtual double computeRootTimeOfFlight( );
-    
+
     //! Compute velocities at departure and arrival.
     /*!
      * Computes the inertial departure and arrival velocities according to Izzo's theory and
@@ -182,7 +175,7 @@ protected:
      * \param xParameter x-parameter in Izzo's theory.
      */
     void computeVelocities( const double xParameter );
-    
+
     //! Retrograde motion flag.
     /*!
      * Boolean indicator for retrograde motion.
@@ -295,7 +288,7 @@ protected:
 private:
 };
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat
 
-#endif // TUDAT_ZERO_REVOLUTION_LAMBERT_TARGETER_IZZO_H
+#endif  // TUDAT_ZERO_REVOLUTION_LAMBERT_TARGETER_IZZO_H

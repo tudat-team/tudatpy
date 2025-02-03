@@ -24,8 +24,7 @@ namespace aerodynamics
 // AtmosphereIndependentVariables
 
 //! Map of `AtmosphereIndependentVariables` string representations.
-static std::map< AtmosphereIndependentVariables, std::string > atmosphereIndependentVariables =
-{
+static std::map< AtmosphereIndependentVariables, std::string > atmosphereIndependentVariables = {
     { altitude_dependent_atmosphere, "altitude" },
     { longitude_dependent_atmosphere, "longitude" },
     { latitude_dependent_atmosphere, "latitude" },
@@ -47,12 +46,10 @@ inline void from_json( const nlohmann::json& jsonObject, AtmosphereIndependentVa
     atmosphereIndependentVariable = json_interface::enumFromString( jsonObject, atmosphereIndependentVariables );
 }
 
-
 // AtmosphereDependentVariables
 
 //! Map of `AtmosphereDependentVariables` string representations.
-static std::map< AtmosphereDependentVariables, std::string > atmosphereDependentVariables =
-{
+static std::map< AtmosphereDependentVariables, std::string > atmosphereDependentVariables = {
     { density_dependent_atmosphere, "density" },
     { pressure_dependent_atmosphere, "pressure" },
     { temperature_dependent_atmosphere, "temperature" },
@@ -76,8 +73,7 @@ inline void from_json( const nlohmann::json& jsonObject, AtmosphereDependentVari
     atmosphereDependentVariable = json_interface::enumFromString( jsonObject, atmosphereDependentVariables );
 }
 
-}
-
+}  // namespace aerodynamics
 
 namespace simulation_setup
 {
@@ -85,12 +81,9 @@ namespace simulation_setup
 // AtmosphereTypes
 
 //! Map of `AtmosphereTypes` string representations.
-static std::map< AtmosphereTypes, std::string > atmosphereTypes =
-{
-    { exponential_atmosphere, "exponential" },
-    { tabulated_atmosphere, "tabulated" },
-    { nrlmsise00, "nrlmsise00" }
-};
+static std::map< AtmosphereTypes, std::string > atmosphereTypes = { { exponential_atmosphere, "exponential" },
+                                                                    { tabulated_atmosphere, "tabulated" },
+                                                                    { nrlmsise00, "nrlmsise00" } };
 
 //! `AtmosphereTypes` not supported by `json_interface`.
 static std::vector< AtmosphereTypes > unsupportedAtmosphereTypes = { custom_constant_temperature_atmosphere };
@@ -107,7 +100,6 @@ inline void from_json( const nlohmann::json& jsonObject, AtmosphereTypes& atmosp
     atmosphereType = json_interface::enumFromString( jsonObject, atmosphereTypes );
 }
 
-
 // AtmosphereSettings
 
 //! Create a `json` object from a shared pointer to a `AtmosphereSettings` object.
@@ -116,8 +108,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AtmosphereSetti
 //! Create a shared pointer to a `AtmosphereSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AtmosphereSettings >& atmosphereSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_ATMOSPHERE_H
+#endif  // TUDAT_JSONINTERFACE_ATMOSPHERE_H

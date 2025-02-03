@@ -28,18 +28,16 @@ namespace statistics
  *  a runtime error is thrown if the cdf function is called.
  *  Model taken from Tong, Y. The Multivariate Normal Distribution Springer-Verslag, 1990
  */
-class GaussianDistributionXd: public ContinuousProbabilityDistribution< Eigen::VectorXd >
+class GaussianDistributionXd : public ContinuousProbabilityDistribution< Eigen::VectorXd >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param mean Mean values of distribution
      * \param covarianceMatrix Covariance matrix of distribution
      */
-    GaussianDistributionXd(
-            const Eigen::VectorXd& mean , const Eigen::MatrixXd& covarianceMatrix ):
+    GaussianDistributionXd( const Eigen::VectorXd& mean, const Eigen::MatrixXd& covarianceMatrix ):
         mean_( mean ), covarianceMatrix_( covarianceMatrix )
     {
         if( covarianceMatrix.rows( ) != covarianceMatrix.cols( ) )
@@ -61,12 +59,11 @@ public:
      */
     double evaluatePdf( const Eigen::VectorXd& independentVariables )
     {
-        Eigen::VectorXd distanceFromMean = ( independentVariables - mean_ ) ;
-        Eigen::MatrixXd location = -0.5 * (
-                    distanceFromMean.transpose( ) * inverseCovarianceMatrix_ * distanceFromMean ) ;
+        Eigen::VectorXd distanceFromMean = ( independentVariables - mean_ );
+        Eigen::MatrixXd location = -0.5 * ( distanceFromMean.transpose( ) * inverseCovarianceMatrix_ * distanceFromMean );
 
-        return std::exp( location( 0, 0 ) ) / ( std::pow( 2.0 * mathematical_constants::PI, dimension_ / 2.0 ) *
-                                                std::sqrt( determinant_ ) );
+        return std::exp( location( 0, 0 ) ) /
+                ( std::pow( 2.0 * mathematical_constants::PI, dimension_ / 2.0 ) * std::sqrt( determinant_ ) );
     }
 
     //! Function to evaluate cdf of multivariate Gaussian distribution (not yet implemented)
@@ -89,18 +86,17 @@ private:
     double dimension_;
 
     //! Mean vector of random variable X
-    Eigen::VectorXd mean_       ;
+    Eigen::VectorXd mean_;
 
     //! Covariance matrix of random variable X
-    Eigen::MatrixXd covarianceMatrix_    ;
+    Eigen::MatrixXd covarianceMatrix_;
 
     //! Determinant of covariance matrix
     double determinant_;
 
     //! Inverse of the covariance matrix
-    Eigen::MatrixXd inverseCovarianceMatrix_ ;
+    Eigen::MatrixXd inverseCovarianceMatrix_;
 };
-
 
 //! Implementation of Gaussian Copula Distribution.
 /*!
@@ -110,17 +106,15 @@ private:
  *  Source: Song, P. X.-K. Multivariate Dispersion Models Generated from Gaussian Copula Scandinavian Journal of
  *  statistics, 2000, 27, 305-320
  */
-class GaussianCopulaDistributionXd: public ContinuousProbabilityDistribution< Eigen::VectorXd >
+class GaussianCopulaDistributionXd : public ContinuousProbabilityDistribution< Eigen::VectorXd >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param correlationMatrix Correlation matrix of distribution
      */
-    GaussianCopulaDistributionXd( const Eigen::MatrixXd& correlationMatrix ):
-        correlationMatrix_( correlationMatrix )
+    GaussianCopulaDistributionXd( const Eigen::MatrixXd& correlationMatrix ): correlationMatrix_( correlationMatrix )
     {
         if( correlationMatrix.rows( ) != correlationMatrix.cols( ) )
         {
@@ -129,8 +123,8 @@ public:
 
         dimension_ = correlationMatrix.rows( );
 
-        inverseCorrelationMatrix_ = correlationMatrix_.inverse( ) ;
-        determinant_ = correlationMatrix_.determinant( ) ;
+        inverseCorrelationMatrix_ = correlationMatrix_.inverse( );
+        determinant_ = correlationMatrix_.determinant( );
     }
 
     //! Function to evaluate pdf of Gaussian cupola distribution
@@ -157,9 +151,7 @@ public:
     }
 
 protected:
-
 private:
-
     //! Dimension of the copula
     int dimension_;
 
@@ -173,8 +165,8 @@ private:
     double determinant_;
 };
 
-} // namespace statistics
+}  // namespace statistics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_PROBABILITY_DISTRIBUTIONS_H
+#endif  // TUDAT_PROBABILITY_DISTRIBUTIONS_H

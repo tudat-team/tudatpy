@@ -36,13 +36,7 @@ namespace numerical_derivatives
 /*!
  * List of available orders: 2, 4, 6, 8.
  */
-enum CentralDifferenceOrders
-{
-    order2 = 2,
-    order4 = 4,
-    order6 = 6,
-    order8 = 8
-};
+enum CentralDifferenceOrders { order2 = 2, order4 = 4, order6 = 6, order8 = 8 };
 
 //! Get coefficients of a certain order for central difference numerical derivatives.
 /*!
@@ -71,21 +65,23 @@ const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferen
  * \return Numerical derivative calculated from input
  */
 template< typename InputType, typename ResultType >
-ResultType computeCentralDifference( const InputType& input, const int derivativeIndex,
+ResultType computeCentralDifference( const InputType& input,
+                                     const int derivativeIndex,
                                      const std::function< ResultType( const InputType& ) >& function,
-                                     double minimumStep = 0.0, double relativeStepSize = 0.0,
+                                     double minimumStep = 0.0,
+                                     double relativeStepSize = 0.0,
                                      CentralDifferenceOrders order = order2 )
 {
     const std::map< int, double >& coefficients = getCentralDifferenceCoefficients( order );
 
-    if ( minimumStep == 0.0 )
+    if( minimumStep == 0.0 )
     {
         // Set the minimum step to a fourth of the amount of significant
         // digits in a double precision floating point.
         minimumStep = std::pow( 2.0, -13 );
     }
 
-    if ( relativeStepSize == 0.0 )
+    if( relativeStepSize == 0.0 )
     {
         // Set the relative step to half of the amount of significant digits
         // in a double precision floating point.
@@ -94,15 +90,14 @@ ResultType computeCentralDifference( const InputType& input, const int derivativ
 
     // Ensure proper rounding by storing the step in a temporary volatile, see
     // (Press W.H., et al., 2002).
-    const volatile double temporaryVariable = input( derivativeIndex ) +
-            std::max( minimumStep, std::abs( relativeStepSize * input( derivativeIndex ) ) );
+    const volatile double temporaryVariable =
+            input( derivativeIndex ) + std::max( minimumStep, std::abs( relativeStepSize * input( derivativeIndex ) ) );
     const double realStepSize = temporaryVariable - input( derivativeIndex );
 
     ResultType result;
 
     // Compute the numerical derivative.
-    for ( std::map< int, double >::const_iterator coefficient = coefficients.begin( );
-          coefficient != coefficients.end( ); coefficient++ )
+    for( std::map< int, double >::const_iterator coefficient = coefficients.begin( ); coefficient != coefficients.end( ); coefficient++ )
     {
         // Generate deviated input.
         InputType deviatedInput( input );
@@ -112,7 +107,7 @@ ResultType computeCentralDifference( const InputType& input, const int derivativ
         ResultType deviatedResult = function( deviatedInput );
 
         // Store the result.
-        if ( result.size( ) == 0 )
+        if( result.size( ) == 0 )
         {
             // Initialize the result.
             result = ResultType::Zero( deviatedResult.rows( ), deviatedResult.cols( ) );
@@ -137,9 +132,10 @@ ResultType computeCentralDifference( const InputType& input, const int derivativ
  * \param order The order of the algorithm to use. Will yield an assertion failure if not 2 or 4.
  * \return Numerical derivative calculated from input
  */
-Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const std::function<
-                                          Eigen::VectorXd( const Eigen::VectorXd& ) >& function,
-                                          double minimumStep = 0.0, double relativeStepSize = 0.0,
+Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input,
+                                          const std::function< Eigen::VectorXd( const Eigen::VectorXd& ) >& function,
+                                          double minimumStep = 0.0,
+                                          double relativeStepSize = 0.0,
                                           CentralDifferenceOrders order = order2 );
 
 template< typename DependentVariableType, typename IndependentVariableType >
@@ -156,8 +152,8 @@ DependentVariableType computeCentralDifferenceFromFunction(
     DependentVariableType numericalDerivative = IdentityElement::getAdditionIdentity< DependentVariableType >( );
 
     // Compute the numerical derivative.
-    for ( std::map< int, double >::const_iterator coefficientIterator = coefficients.begin( );
-          coefficientIterator != coefficients.end( ); coefficientIterator++ )
+    for( std::map< int, double >::const_iterator coefficientIterator = coefficients.begin( ); coefficientIterator != coefficients.end( );
+         coefficientIterator++ )
     {
         // Generate deviated input.
         perturbedInput = nominalIndependentVariable + coefficientIterator->first * independentVariableStepSize;
@@ -165,7 +161,7 @@ DependentVariableType computeCentralDifferenceFromFunction(
 
         if( coefficientIterator == coefficients.begin( ) )
         {
-             numericalDerivative = perturbedOutput * ( coefficientIterator->second / independentVariableStepSize );
+            numericalDerivative = perturbedOutput * ( coefficientIterator->second / independentVariableStepSize );
         }
         else
         {
@@ -174,11 +170,10 @@ DependentVariableType computeCentralDifferenceFromFunction(
     }
 
     return numericalDerivative;
-
 }
 
-} // namespace numerical_derivatives
+}  // namespace numerical_derivatives
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_NUMERICAL_DERIVATIVE_H
+#endif  // TUDAT_NUMERICAL_DERIVATIVE_H

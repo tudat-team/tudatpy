@@ -21,11 +21,9 @@ namespace estimatable_parameters
 {
 
 //! Interface class for the estimation of a constant body drag coefficient
-class YarkovskyParameter: public EstimatableParameter< double >
+class YarkovskyParameter : public EstimatableParameter< double >
 {
-
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -33,12 +31,10 @@ public:
      * consistent with this class, e.g. if the existing aerodynamic coefficients are constant
      * \param associatedBody Body for which the drag coefficient is considered.
      */
-    YarkovskyParameter(
-            const std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration,
-            const std::string& associatedBody,
-            const std::string& centralBody ):
-        EstimatableParameter< double >( yarkovsky_parameter, associatedBody, centralBody ),
-        yarkovskyAcceleration_( yarkovskyAcceleration )
+    YarkovskyParameter( const std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration,
+                        const std::string& associatedBody,
+                        const std::string& centralBody ):
+        EstimatableParameter< double >( yarkovsky_parameter, associatedBody, centralBody ), yarkovskyAcceleration_( yarkovskyAcceleration )
     {
         if( centralBody == "" )
         {
@@ -80,16 +76,13 @@ public:
     }
 
 protected:
-
 private:
-
     //! Object that contains the aerodynamic coefficients
     std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration_;
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_YARKOVSKYPARAMETER_H
+#endif  // TUDAT_YARKOVSKYPARAMETER_H

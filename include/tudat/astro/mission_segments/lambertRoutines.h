@@ -84,8 +84,10 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
  *          \f$ a_m = s / 2 \f$.
  * \return timeOfFlight Computed time-of-flight.
  */
-double computeTimeOfFlightIzzo( const double xParameter, const double semiParameter,
-                                const double chord, const bool isLongway,
+double computeTimeOfFlightIzzo( const double xParameter,
+                                const double semiParameter,
+                                const double chord,
+                                const bool isLongway,
                                 const double semiMajorAxisOfTheMinimumEnergyEllipse );
 
 //! Solve Lambert Problem using Gooding's algorithm.
@@ -110,8 +112,7 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
                                  const double gravitationalParameter,
                                  Eigen::Vector3d& cartesianVelocityAtDeparture,
                                  Eigen::Vector3d& cartesianVelocityAtArrival,
-                                 root_finders::RootFinderPointer rootFinder
-                                    = root_finders::RootFinderPointer( ) );
+                                 root_finders::RootFinderPointer rootFinder = root_finders::RootFinderPointer( ) );
 
 //! Gooding Lambert functions class.
 /*!
@@ -121,7 +122,6 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
 class LambertFunctionsGooding
 {
 public:
-
     //! Constructor with immediate definition of parameters.
     /*!
      * Constructor that sets all the parameters in the Lambert functions for use in the
@@ -129,9 +129,8 @@ public:
      * \param aQParameter The value of the Lambert q-parameter.                                 [-]
      * \param aNormalizedTimeOfFlight The normalized time-of-flight for the Lambert problem.    [-]
      */
-    LambertFunctionsGooding( const double aQParameter, const double aNormalizedTimeOfFlight )
-        : qParameter( aQParameter ),
-          normalizedTimeOfFlight( aNormalizedTimeOfFlight )
+    LambertFunctionsGooding( const double aQParameter, const double aNormalizedTimeOfFlight ):
+        qParameter( aQParameter ), normalizedTimeOfFlight( aNormalizedTimeOfFlight )
     { }
 
     //! Define general Lambert function.
@@ -183,9 +182,7 @@ public:
     double lambertFirstDerivativeFunctionNegativeGooding( const double xParameter );
 
 protected:
-
 private:
-
     //! Lambert q-parameter.
     /*!
      * Lambert q-parameter.
@@ -202,7 +199,7 @@ private:
 //! Typedef for shared-pointer to LambertFunctionsGooding object.
 typedef std::shared_ptr< LambertFunctionsGooding > LambertFunctionsGoodingPointer;
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat
 
-#endif // TUDAT_LAMBERT_ROUTINES_H
+#endif  // TUDAT_LAMBERT_ROUTINES_H

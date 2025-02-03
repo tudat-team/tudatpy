@@ -17,20 +17,21 @@ namespace tudat
 namespace aerodynamics
 {
 
-Eigen::Vector3d AerodynamicMomentContributionInterface::getMomentCoefficientsCorrection(
-    const Eigen::Vector3d& momentReferencePoint,
-    const Eigen::Vector3d& forceCoefficients,
-    const double referenceLength )
+Eigen::Vector3d AerodynamicMomentContributionInterface::getMomentCoefficientsCorrection( const Eigen::Vector3d& momentReferencePoint,
+                                                                                         const Eigen::Vector3d& forceCoefficients,
+                                                                                         const double referenceLength )
 {
-    return signMultiplier_ * ( bodyFixedToMomentFrameRotation_( ) * ( momentReferencePoint - centerOfMassPosition_( ) ) ).cross(
-        forceToMomentFrameRotation_( ) * forceCoefficients ) / referenceLength;
+    return signMultiplier_ *
+            ( bodyFixedToMomentFrameRotation_( ) * ( momentReferencePoint - centerOfMassPosition_( ) ) )
+                    .cross( forceToMomentFrameRotation_( ) * forceCoefficients ) /
+            referenceLength;
 }
 
 void AerodynamicCoefficientInterface::updateFullCurrentCoefficients(
-    const std::vector< double >& independentVariables,
-    const std::map< std::string, std::vector< double > >& controlSurfaceIndependentVariables,
-    const double currentTime,
-    const bool addMomentContributionIfPresent )
+        const std::vector< double >& independentVariables,
+        const std::map< std::string, std::vector< double > >& controlSurfaceIndependentVariables,
+        const double currentTime,
+        const bool addMomentContributionIfPresent )
 {
     updateCurrentCoefficients( independentVariables, currentTime );
 
@@ -39,23 +40,22 @@ void AerodynamicCoefficientInterface::updateFullCurrentCoefficients(
         currentControlSurfaceFreeForceCoefficients_ = currentForceCoefficients_;
         currentControlSurfaceFreeMomentCoefficients_ = currentMomentCoefficients_;
 
-        for ( std::map<std::string, std::vector<double> >::const_iterator controlSurfaceIterator =
-            controlSurfaceIndependentVariables.begin( );
-              controlSurfaceIterator != controlSurfaceIndependentVariables.end( );
-              controlSurfaceIterator++ )
+        for( std::map< std::string, std::vector< double > >::const_iterator controlSurfaceIterator =
+                     controlSurfaceIndependentVariables.begin( );
+             controlSurfaceIterator != controlSurfaceIndependentVariables.end( );
+             controlSurfaceIterator++ )
         {
-            updateCurrentControlSurfaceCoefficientsCoefficients(
-                controlSurfaceIterator->first, controlSurfaceIterator->second );
+            updateCurrentControlSurfaceCoefficientsCoefficients( controlSurfaceIterator->first, controlSurfaceIterator->second );
         }
     }
 
     if( momentContributionInterface_ != nullptr && addMomentContributionIfPresent )
     {
         currentMomentCoefficients_ += momentContributionInterface_->getMomentCoefficientsCorrection(
-            momentReferencePoint_, currentForceCoefficients_, referenceLength_ );
+                momentReferencePoint_, currentForceCoefficients_, referenceLength_ );
     }
 }
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat

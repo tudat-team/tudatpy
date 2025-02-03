@@ -32,8 +32,7 @@ namespace tudat
 namespace aerodynamics
 {
 
-enum AerodynamicCoefficientFrames
-{
+enum AerodynamicCoefficientFrames {
     body_fixed_frame_coefficients,
     negative_body_fixed_frame_coefficients,
     negative_aerodynamic_frame_coefficients,
@@ -65,8 +64,7 @@ inline std::pair< reference_frames::AerodynamicsReferenceFrames, double > conver
     return frameConversion;
 }
 
-inline reference_frames::AerodynamicsReferenceFrames getCompleteFrameForCoefficients(
-        const AerodynamicCoefficientFrames coefficientsFrame )
+inline reference_frames::AerodynamicsReferenceFrames getCompleteFrameForCoefficients( const AerodynamicCoefficientFrames coefficientsFrame )
 {
     reference_frames::AerodynamicsReferenceFrames completeFrame;
     switch( coefficientsFrame )
@@ -85,13 +83,11 @@ inline reference_frames::AerodynamicsReferenceFrames getCompleteFrameForCoeffici
             break;
         default:
             throw std::runtime_error( "Error when getting aerodynamic coefficient frame; frame not rezognized" );
-
     }
     return completeFrame;
 }
 
-inline bool areCoefficientsInNegativeDirection(
-        const AerodynamicCoefficientFrames coefficientsFrame )
+inline bool areCoefficientsInNegativeDirection( const AerodynamicCoefficientFrames coefficientsFrame )
 {
     bool areCoefficientsInNegativeDirection;
     switch( coefficientsFrame )
@@ -110,15 +106,12 @@ inline bool areCoefficientsInNegativeDirection(
             break;
         default:
             throw std::runtime_error( "Error when getting aerodynamic coefficient frame; frame not rezognized" );
-
     }
     return areCoefficientsInNegativeDirection;
 }
 
-
-inline AerodynamicCoefficientFrames getAerodynamicCoefficientFrame(
-    const bool areCoefficientsInAerodynamicFrame = true,
-    const bool areCoefficientsInNegativeAxisDirection = true )
+inline AerodynamicCoefficientFrames getAerodynamicCoefficientFrame( const bool areCoefficientsInAerodynamicFrame = true,
+                                                                    const bool areCoefficientsInNegativeAxisDirection = true )
 {
     AerodynamicCoefficientFrames coefficientsFrame = undefined_frame_coefficients;
     if( areCoefficientsInAerodynamicFrame && areCoefficientsInNegativeAxisDirection )
@@ -144,22 +137,18 @@ inline AerodynamicCoefficientFrames getAerodynamicCoefficientFrame(
     return coefficientsFrame;
 }
 
-struct AerodynamicMomentContributionInterface
-{
+struct AerodynamicMomentContributionInterface {
     AerodynamicMomentContributionInterface( const std::function< Eigen::Matrix3d( ) > forceToMomentFrameRotation,
                                             const std::function< Eigen::Matrix3d( ) > bodyFixedToMomentFrameRotation,
                                             const std::function< Eigen::Vector3d( ) > centerOfMassPosition,
                                             const double signMultiplier ):
-            forceToMomentFrameRotation_( forceToMomentFrameRotation ),
-            bodyFixedToMomentFrameRotation_( bodyFixedToMomentFrameRotation ),
-            centerOfMassPosition_( centerOfMassPosition ),
-            signMultiplier_( signMultiplier )
-            { }
+        forceToMomentFrameRotation_( forceToMomentFrameRotation ), bodyFixedToMomentFrameRotation_( bodyFixedToMomentFrameRotation ),
+        centerOfMassPosition_( centerOfMassPosition ), signMultiplier_( signMultiplier )
+    { }
 
-    Eigen::Vector3d getMomentCoefficientsCorrection(
-        const Eigen::Vector3d& momentReferencePoint,
-        const Eigen::Vector3d& forceCoefficients,
-        const double referenceLength );
+    Eigen::Vector3d getMomentCoefficientsCorrection( const Eigen::Vector3d& momentReferencePoint,
+                                                     const Eigen::Vector3d& forceCoefficients,
+                                                     const double referenceLength );
 
     std::function< Eigen::Matrix3d( ) > forceToMomentFrameRotation_;
     std::function< Eigen::Matrix3d( ) > bodyFixedToMomentFrameRotation_;
@@ -176,7 +165,6 @@ struct AerodynamicMomentContributionInterface
 class AerodynamicCoefficientInterface
 {
 public:
-
     friend class ScaledAerodynamicCoefficientInterface;
 
     //! Constructor.
@@ -199,21 +187,15 @@ public:
      *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction (default true).
      */
-    AerodynamicCoefficientInterface(
-            const double referenceLength,
-            const double referenceArea,
-            const Eigen::Vector3d& momentReferencePoint,
-            const std::vector< AerodynamicCoefficientsIndependentVariables >
-            independentVariableNames,
-            const AerodynamicCoefficientFrames forceCoefficientsFrame = negative_aerodynamic_frame_coefficients,
-            const AerodynamicCoefficientFrames momentCoefficientsFrame = body_fixed_frame_coefficients):
-        referenceLength_( referenceLength ),
-        referenceArea_( referenceArea ),
-        momentReferencePoint_( momentReferencePoint ),
-        independentVariableNames_( independentVariableNames ),
-        forceCoefficientsFrame_( forceCoefficientsFrame ),
-        momentCoefficientsFrame_( momentCoefficientsFrame ),
-        momentContributionInterface_( nullptr )
+    AerodynamicCoefficientInterface( const double referenceLength,
+                                     const double referenceArea,
+                                     const Eigen::Vector3d& momentReferencePoint,
+                                     const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+                                     const AerodynamicCoefficientFrames forceCoefficientsFrame = negative_aerodynamic_frame_coefficients,
+                                     const AerodynamicCoefficientFrames momentCoefficientsFrame = body_fixed_frame_coefficients ):
+        referenceLength_( referenceLength ), referenceArea_( referenceArea ), momentReferencePoint_( momentReferencePoint ),
+        independentVariableNames_( independentVariableNames ), forceCoefficientsFrame_( forceCoefficientsFrame ),
+        momentCoefficientsFrame_( momentCoefficientsFrame ), momentContributionInterface_( nullptr )
     {
         numberOfIndependentVariables_ = static_cast< unsigned int >( independentVariableNames.size( ) );
         referenceLengths_ = Eigen::Vector3d::Constant( referenceLength_ );
@@ -227,22 +209,30 @@ public:
      * Returns reference area used to non-dimensionalize aerodynamic forces and moments.
      * \return Aerodynamic reference area.
      */
-    double getReferenceArea( ) { return referenceArea_; }
+    double getReferenceArea( )
+    {
+        return referenceArea_;
+    }
 
     //! Get reference length.
     /*!
      * Returns reference length used to non-dimensionalize aerodynamic moments.
      * \return Aerodynamic reference length.
      */
-    double getReferenceLength( ) { return referenceLength_; }
-
+    double getReferenceLength( )
+    {
+        return referenceLength_;
+    }
 
     //! Get reference lengths.
     /*!
      * Returns the all reference lengths used to non-dimensionalize aerodynamic moments.
      * \return Aerodynamic reference lengths.
      */
-    Eigen::Vector3d getReferenceLengths( ) { return referenceLengths_; }
+    Eigen::Vector3d getReferenceLengths( )
+    {
+        return referenceLengths_;
+    }
 
     //! Get moment reference point.
     /*!
@@ -250,8 +240,10 @@ public:
      * determined.
      * \return Aerodynamic reference point.
      */
-    Eigen::VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
-
+    Eigen::VectorXd getMomentReferencePoint( )
+    {
+        return momentReferencePoint_;
+    }
 
     //! Compute the aerodynamic coefficients of the body itself (without control surfaces) at current flight condition.
     /*!
@@ -262,9 +254,7 @@ public:
      *  determination implemented by derived class
      *  \param currentTime Time to which coefficients are to be updated
      */
-    virtual void updateCurrentCoefficients(
-            const std::vector< double >& independentVariables,
-            const double currentTime = TUDAT_NAN ) = 0;
+    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables, const double currentTime = TUDAT_NAN ) = 0;
 
     //! Function to update the aerodynamic coefficients of the full body with control surfaces
     /*!
@@ -275,12 +265,11 @@ public:
      *  control surfaces, with map key denoting the control surface identifier.
      *  \param currentTime Time to which coefficients are to be updated.
      */
-    void updateFullCurrentCoefficients(
-            const std::vector< double >& independentVariables,
-            const std::map< std::string, std::vector< double > >& controlSurfaceIndependentVariables =
-            std::map< std::string, std::vector< double > > ( ),
-            const double currentTime = TUDAT_NAN,
-            const bool addMomentContributionIfPresent = true );
+    void updateFullCurrentCoefficients( const std::vector< double >& independentVariables,
+                                        const std::map< std::string, std::vector< double > >& controlSurfaceIndependentVariables =
+                                                std::map< std::string, std::vector< double > >( ),
+                                        const double currentTime = TUDAT_NAN,
+                                        const bool addMomentContributionIfPresent = true );
 
     /*!
     //! Function for calculating and returning aerodynamic force coefficients
@@ -313,8 +302,8 @@ public:
     {
         if( currentControlSurfaceForceCoefficient_.count( controlSurfaceName ) == 0 )
         {
-            throw std::runtime_error( "Error when getting current control surface force increment of surface "
-                + controlSurfaceName + ", no such control surface found" );
+            throw std::runtime_error( "Error when getting current control surface force increment of surface " + controlSurfaceName +
+                                      ", no such control surface found" );
         }
         else
         {
@@ -326,16 +315,14 @@ public:
     {
         if( currentControlSurfaceMomentCoefficient_.count( controlSurfaceName ) == 0 )
         {
-            throw std::runtime_error( "Error when getting current control surface moment increment of surface "
-                                      + controlSurfaceName + ", no such control surface found" );
+            throw std::runtime_error( "Error when getting current control surface moment increment of surface " + controlSurfaceName +
+                                      ", no such control surface found" );
         }
         else
         {
             return currentControlSurfaceMomentCoefficient_.at( controlSurfaceName );
         }
     }
-
-
 
     //! Function for calculating and returning aerodynamic moment coefficients
     /*!
@@ -363,7 +350,7 @@ public:
      *  Function for calculating and returning aerodynamic force and moment coefficients
      *  \return Force and moment coefficients at given independent variables
      */
-    Eigen::Vector6d getCurrentAerodynamicCoefficients(  )
+    Eigen::Vector6d getCurrentAerodynamicCoefficients( )
     {
         Eigen::Vector6d coefficients;
         coefficients.segment( 0, 3 ) = getCurrentForceCoefficients( );
@@ -391,17 +378,13 @@ public:
      *  \return The identifiers of the physical meaning of the independent variable at the position
      *  of the input variable.
      */
-    AerodynamicCoefficientsIndependentVariables getIndependentVariableName(
-            const unsigned int index )
+    AerodynamicCoefficientsIndependentVariables getIndependentVariableName( const unsigned int index )
     {
         if( index >= numberOfIndependentVariables_ )
         {
-            throw std::runtime_error(
-                        std::string( "Error when retrieving aerodynamic coefficient interface " ) +
-                        ( " variable name, requested variable index " ) +
-                        std::to_string( index ) +
-                        ", but only " + std::to_string(
-                            numberOfIndependentVariables_ ) + " variables available." );
+            throw std::runtime_error( std::string( "Error when retrieving aerodynamic coefficient interface " ) +
+                                      ( " variable name, requested variable index " ) + std::to_string( index ) + ", but only " +
+                                      std::to_string( numberOfIndependentVariables_ ) + " variables available." );
         }
 
         return independentVariableNames_.at( index );
@@ -419,7 +402,6 @@ public:
         return numberOfIndependentVariables_;
     }
 
-
     AerodynamicCoefficientFrames getForceCoefficientsFrame( )
     {
         return forceCoefficientsFrame_;
@@ -429,7 +411,6 @@ public:
     {
         return momentCoefficientsFrame_;
     }
-
 
     void resetForceCoefficientsFrame( const AerodynamicCoefficientFrames forceCoefficientsFrame )
     {
@@ -441,28 +422,25 @@ public:
         momentCoefficientsFrame_ = momentCoefficientsFrame;
     }
 
-
     //! Function to set the list of control surface aerodynamic coefficient interfaces
     /*!
      * Function to set the list of control surface aerodynamic coefficient interfaces
      * \param controlSurfaceIncrementInterfaces Map of ControlSurfaceIncrementAerodynamicInterface pointers, wach pointer
      * denoting the coefficient interface of a single control sureface, where the map key denotes the surface's name.
      */
-    void setControlSurfaceIncrements(
-            const std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
-            controlSurfaceIncrementInterfaces )
+    void setControlSurfaceIncrements( const std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
+                                              controlSurfaceIncrementInterfaces )
     {
         if( controlSurfaceIncrementInterfaces_.size( ) != 0 )
         {
-            std::cerr<<"Warning, overwriting existing control surface increments"<<std::endl;
+            std::cerr << "Warning, overwriting existing control surface increments" << std::endl;
         }
         controlSurfaceIncrementInterfaces_ = controlSurfaceIncrementInterfaces;
         controlSurfaceNames_ = utilities::createVectorFromMapKeys( controlSurfaceIncrementInterfaces_ );
     }
 
-    void addControlSurface(
-            const std::string& controlSurfaceName,
-            const std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceIncrementInterface )
+    void addControlSurface( const std::string& controlSurfaceName,
+                            const std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceIncrementInterface )
     {
         controlSurfaceNames_.push_back( controlSurfaceName );
         controlSurfaceIncrementInterfaces_[ controlSurfaceName ] = controlSurfaceIncrementInterface;
@@ -510,14 +488,13 @@ public:
      * Function to get the list of independent variables for all control surfaces
      * \return List of independent variables for all control surfaces, with map key denoting control surface identifier
      */
-    std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > >
-    getControlSurfaceIndependentVariables( )
+    std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > > getControlSurfaceIndependentVariables( )
     {
-        std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > >
-                controlSurfaceIndependentVariables;
-        for( std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >::iterator
-             contolSurfaceIterator = controlSurfaceIncrementInterfaces_.begin( );
-             contolSurfaceIterator != controlSurfaceIncrementInterfaces_.end( ); contolSurfaceIterator++ )
+        std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > > controlSurfaceIndependentVariables;
+        for( std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >::iterator contolSurfaceIterator =
+                     controlSurfaceIncrementInterfaces_.begin( );
+             contolSurfaceIterator != controlSurfaceIncrementInterfaces_.end( );
+             contolSurfaceIterator++ )
         {
             controlSurfaceIndependentVariables[ contolSurfaceIterator->first ] =
                     contolSurfaceIterator->second->getIndependentVariableNames( );
@@ -533,20 +510,19 @@ public:
      * \param index Index of independent variable of control surface
      * \return  Identifier for a requested independent variable for requested control surface
      */
-    AerodynamicCoefficientsIndependentVariables getControlSurfaceIndependentVariableName(
-            const std::string& controlSurface,
-            const unsigned int index )
+    AerodynamicCoefficientsIndependentVariables getControlSurfaceIndependentVariableName( const std::string& controlSurface,
+                                                                                          const unsigned int index )
     {
         if( controlSurfaceIncrementInterfaces_.count( controlSurface ) == 0 )
         {
             throw std::runtime_error(
-                        std::string( "Error when retrieving control surface aerodynamic coefficient interface variable name, requested surface " ) +
-                        controlSurface + " , requested surface not found." );
+                    std::string(
+                            "Error when retrieving control surface aerodynamic coefficient interface variable name, requested surface " ) +
+                    controlSurface + " , requested surface not found." );
         }
         else
         {
-            return controlSurfaceIncrementInterfaces_.at( controlSurface )->getIndependentVariableName(
-                        index );
+            return controlSurfaceIncrementInterfaces_.at( controlSurface )->getIndependentVariableName( index );
         }
     }
 
@@ -560,41 +536,33 @@ public:
         momentContributionInterface_ = momentContributionInterface;
     }
 
-
-
-
-
 protected:
+    //! Compute the aerodynamic coefficients for a single control surface, and add to full configuration coefficients.
+    /*!
+     *  Compures the aerodynamic coefficients for a single control surface at the current flight conditions, and adds these
+     *  to the coefficients of the full configuration, stored in class instance by currentForceCoefficients_ and
+     *  currentMomentCoefficients_ variables.
+     *  \param currentControlSurface Name of control surface that is to be updated.
+     *  \param controlSurfaceIndependentVariables Current values of independent variables of force and moment coefficient
+     *  of given control surface.
+     */
+    void updateCurrentControlSurfaceCoefficientsCoefficients( const std::string& currentControlSurface,
+                                                              std::vector< double > controlSurfaceIndependentVariables )
+    {
+        if( controlSurfaceIncrementInterfaces_.count( currentControlSurface ) == 0 )
+        {
+            throw std::runtime_error( "Error when updating coefficients, could not fid control surface " + currentControlSurface );
+        }
+        controlSurfaceIncrementInterfaces_.at( currentControlSurface )->updateCurrentCoefficients( controlSurfaceIndependentVariables );
 
+        currentControlSurfaceForceCoefficient_[ currentControlSurface ] =
+                controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentForceCoefficients( );
+        currentForceCoefficients_ += currentControlSurfaceForceCoefficient_.at( currentControlSurface );
 
-     //! Compute the aerodynamic coefficients for a single control surface, and add to full configuration coefficients.
-     /*!
-      *  Compures the aerodynamic coefficients for a single control surface at the current flight conditions, and adds these
-      *  to the coefficients of the full configuration, stored in class instance by currentForceCoefficients_ and
-      *  currentMomentCoefficients_ variables.
-      *  \param currentControlSurface Name of control surface that is to be updated.
-      *  \param controlSurfaceIndependentVariables Current values of independent variables of force and moment coefficient
-      *  of given control surface.
-      */
-     void updateCurrentControlSurfaceCoefficientsCoefficients(
-             const std::string& currentControlSurface,
-             std::vector< double > controlSurfaceIndependentVariables )
-     {
-         if( controlSurfaceIncrementInterfaces_.count( currentControlSurface ) == 0 )
-         {
-             throw std::runtime_error( "Error when updating coefficients, could not fid control surface " + currentControlSurface );
-         }
-         controlSurfaceIncrementInterfaces_.at( currentControlSurface )->updateCurrentCoefficients(
-                 controlSurfaceIndependentVariables );
-
-         currentControlSurfaceForceCoefficient_[ currentControlSurface ] =
-                 controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentForceCoefficients( );
-         currentForceCoefficients_ += currentControlSurfaceForceCoefficient_.at( currentControlSurface );
-
-         currentControlSurfaceMomentCoefficient_[ currentControlSurface ] =
-                 controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentMomentCoefficients( );
-         currentMomentCoefficients_ += currentControlSurfaceMomentCoefficient_.at( currentControlSurface );
-     }
+        currentControlSurfaceMomentCoefficient_[ currentControlSurface ] =
+                controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentMomentCoefficients( );
+        currentMomentCoefficients_ += currentControlSurfaceMomentCoefficient_.at( currentControlSurface );
+    }
 
     //! The current force coefficients.
     /*!
@@ -658,8 +626,7 @@ protected:
     std::shared_ptr< AerodynamicMomentContributionInterface > momentContributionInterface_;
 
     //! List of control surface aerodynamic coefficient interfaces
-    std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
-    controlSurfaceIncrementInterfaces_;
+    std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > > controlSurfaceIncrementInterfaces_;
 
     //! Explicit list of control surface names, in same order as iterator over controlSurfaceIncrementInterfaces_
     std::vector< std::string > controlSurfaceNames_;
@@ -667,29 +634,24 @@ protected:
 private:
 };
 
-class ScaledAerodynamicCoefficientInterface: public AerodynamicCoefficientInterface
+class ScaledAerodynamicCoefficientInterface : public AerodynamicCoefficientInterface
 {
 public:
-    ScaledAerodynamicCoefficientInterface(
-            const std::shared_ptr< AerodynamicCoefficientInterface > baseCoefficientInterface,
-            const std::function< Eigen::Vector3d( const double ) > forceCoefficientScalingFunction,
-            const std::function< Eigen::Vector3d( const double ) > momentCoefficientScalingFunction,
-            const bool isScalingRelative = true ):
-        AerodynamicCoefficientInterface(
-            baseCoefficientInterface->getReferenceLength( ),
-            baseCoefficientInterface->getReferenceArea( ),
-            baseCoefficientInterface->getMomentReferencePoint( ),
-            baseCoefficientInterface->getIndependentVariableNames( ),
-            baseCoefficientInterface->getForceCoefficientsFrame( ),
-            baseCoefficientInterface->getMomentCoefficientsFrame( ) ),
-    baseCoefficientInterface_( baseCoefficientInterface ),
-    forceCoefficientScalingFunction_( forceCoefficientScalingFunction ),
-    momentCoefficientScalingFunction_( momentCoefficientScalingFunction ),
-    isScalingRelative_( isScalingRelative){ }
+    ScaledAerodynamicCoefficientInterface( const std::shared_ptr< AerodynamicCoefficientInterface > baseCoefficientInterface,
+                                           const std::function< Eigen::Vector3d( const double ) > forceCoefficientScalingFunction,
+                                           const std::function< Eigen::Vector3d( const double ) > momentCoefficientScalingFunction,
+                                           const bool isScalingRelative = true ):
+        AerodynamicCoefficientInterface( baseCoefficientInterface->getReferenceLength( ),
+                                         baseCoefficientInterface->getReferenceArea( ),
+                                         baseCoefficientInterface->getMomentReferencePoint( ),
+                                         baseCoefficientInterface->getIndependentVariableNames( ),
+                                         baseCoefficientInterface->getForceCoefficientsFrame( ),
+                                         baseCoefficientInterface->getMomentCoefficientsFrame( ) ),
+        baseCoefficientInterface_( baseCoefficientInterface ), forceCoefficientScalingFunction_( forceCoefficientScalingFunction ),
+        momentCoefficientScalingFunction_( momentCoefficientScalingFunction ), isScalingRelative_( isScalingRelative )
+    { }
 
-    void updateCurrentCoefficients(
-            const std::vector< double >& independentVariables,
-            const double currentTime = TUDAT_NAN )
+    void updateCurrentCoefficients( const std::vector< double >& independentVariables, const double currentTime = TUDAT_NAN )
     {
         baseCoefficientInterface_->updateCurrentCoefficients( independentVariables, currentTime );
 
@@ -698,19 +660,17 @@ public:
 
         if( isScalingRelative_ )
         {
-            currentForceCoefficients_.array() *= forceCoefficientScalingFunction_( currentTime ).array();
-            currentMomentCoefficients_.array() *= momentCoefficientScalingFunction_( currentTime ).array();
+            currentForceCoefficients_.array( ) *= forceCoefficientScalingFunction_( currentTime ).array( );
+            currentMomentCoefficients_.array( ) *= momentCoefficientScalingFunction_( currentTime ).array( );
         }
         else
         {
             currentForceCoefficients_ += forceCoefficientScalingFunction_( currentTime );
             currentMomentCoefficients_ += momentCoefficientScalingFunction_( currentTime );
         }
-
     }
 
 private:
-
     std::shared_ptr< AerodynamicCoefficientInterface > baseCoefficientInterface_;
 
     std::function< Eigen::Vector3d( const double ) > forceCoefficientScalingFunction_;
@@ -718,15 +678,13 @@ private:
     std::function< Eigen::Vector3d( const double ) > momentCoefficientScalingFunction_;
 
     bool isScalingRelative_;
-
 };
 
 //! Typedef for shared-pointer to AerodynamicCoefficientInterface object.
-typedef std::shared_ptr< AerodynamicCoefficientInterface >
-AerodynamicCoefficientInterfacePointer;
+typedef std::shared_ptr< AerodynamicCoefficientInterface > AerodynamicCoefficientInterfacePointer;
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
+#endif  // TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H

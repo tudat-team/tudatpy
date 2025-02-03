@@ -34,11 +34,9 @@ namespace tudat
 namespace reference_frames
 {
 
-
 //! Enum to define ids for various reference frames for calculating between inertial and body-fixed
 //! frame, using transformation chain via aerodynamic frame.
-enum AerodynamicsReferenceFrames
-{
+enum AerodynamicsReferenceFrames {
     inertial_frame = -1,
     corotating_frame = 0,
     vertical_frame = 1,
@@ -49,8 +47,7 @@ enum AerodynamicsReferenceFrames
 
 // Enum defining identifiers of frames in which a user-specified thrust is defined.
 //! @get_docstring(ThrustFrames.__docstring__)
-enum SatelliteReferenceFrames
-{
+enum SatelliteReferenceFrames {
     unspecified_reference_frame = -1,
     global_reference_frame = 0,
     tnw_reference_frame = 1,
@@ -64,7 +61,6 @@ enum SatelliteReferenceFrames
  * \return String with reference frame id.
  */
 std::string getAerodynamicFrameName( const AerodynamicsReferenceFrames frame );
-
 
 //! Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
 /*!
@@ -82,9 +78,8 @@ Eigen::Vector3d calculateInertialToPlanetFixedRotationAnglesFromMatrix(
  * \param rotation Function returning the current rotation to the new frame
  * \return Vector originalVector, transformed to new frame.
  */
-Eigen::Vector3d transformVectorFromQuaternionFunction(
-        const Eigen::Vector3d& originalVector,
-        const std::function< Eigen::Quaterniond( ) > rotation );
+Eigen::Vector3d transformVectorFromQuaternionFunction( const Eigen::Vector3d& originalVector,
+                                                       const std::function< Eigen::Quaterniond( ) > rotation );
 
 //! Wrapper function to transform a vector to a different frame from a single transformation function.
 /*!
@@ -101,7 +96,6 @@ void transformVectorFunctionFromVectorReferenceFunctions(
         Eigen::Vector3d& transformedVector,
         const std::function< Eigen::Vector3d&( ) > originalVector,
         std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > transformationFunction );
-
 
 //! Wrapper function to transform a vector to a different frame from a list of transformation function.
 /*!
@@ -129,8 +123,7 @@ void transformVectorReferenceFromVectorFunctions(
  *          the rotational rate of the central body [rad/s] times the time from epoch [s].
  * \return Reference frame (R) to inertial reference frame (I) transformation matrix.
  */
-Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
-        const double angleFromXItoXR );
+Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double angleFromXItoXR );
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation quaternion.
 /*!
@@ -142,8 +135,7 @@ Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
  *          the rotational rate of the central body [rad/s] times the time from epoch [s].
  * \return Reference frame (R) to inertial reference frame (I) transformation quaternion.
  */
-Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
-        const double angleFromXItoXR );
+Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion( const double angleFromXItoXR );
 
 //! Get rotation from planet-fixed to inertial frame.
 /*!
@@ -156,15 +148,13 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
  * \param longitudeOfPrimeMeridian Longitude of body prime meridian.
  * \return Rotation quaternion computed.
  */
-Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
-        const double declinationOfPole,
-        const double rightAscensionOfPole,
-        const double longitudeOfPrimeMeridian );
+Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion( const double declinationOfPole,
+                                                                                     const double rightAscensionOfPole,
+                                                                                     const double longitudeOfPrimeMeridian );
 
-Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
-        const double declinationOfPole,
-        const double rightAscensionOfPole,
-        const double longitudeOfPrimeMeridian );
+Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double declinationOfPole,
+                                                                              const double rightAscensionOfPole,
+                                                                              const double longitudeOfPrimeMeridian );
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
 /*!
@@ -175,8 +165,7 @@ Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
  *          the rotational rate of the central body [rad/s] times the time from epoch [s].
  * \return Inertial (I) to planetocentric reference frame (R) transformation matrix.
  */
-Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
-        const double angleFromXItoXR );
+Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix( const double angleFromXItoXR );
 
 //! Get rotation from velocity based TNW frame to inertial (I) frame.
 /*!
@@ -192,15 +181,15 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
  * towards (if false) central body.
  * \return Velocity based TNW to inertial (I) frame transformation matrix.
  */
-Eigen::Matrix3d getTnwToInertialRotation(const Eigen::Vector6d& vehicleState,
-                                                       const Eigen::Vector6d& centralBodyState,
-                                                       const bool doesNaxisPointAwayFromCentralBody = true );
+Eigen::Matrix3d getTnwToInertialRotation( const Eigen::Vector6d& vehicleState,
+                                          const Eigen::Vector6d& centralBodyState,
+                                          const bool doesNaxisPointAwayFromCentralBody = true );
 
-Eigen::Matrix3d getTnwToInertialRotation(const Eigen::Vector6d& vehicleInertialState,
-                                         const bool doesNaxisPointAwayFromCentralBody = true );
+Eigen::Matrix3d getTnwToInertialRotation( const Eigen::Vector6d& vehicleInertialState,
+                                          const bool doesNaxisPointAwayFromCentralBody = true );
 
-Eigen::Matrix3d getInertialToTnwRotation(const Eigen::Vector6d& vehicleInertialState,
-                                         const bool doesNaxisPointAwayFromCentralBody = true );
+Eigen::Matrix3d getInertialToTnwRotation( const Eigen::Vector6d& vehicleInertialState,
+                                          const bool doesNaxisPointAwayFromCentralBody = true );
 
 //! Get rotation from velocity based TNW frame to inertial (I) frame.
 /*!
@@ -217,10 +206,9 @@ Eigen::Matrix3d getInertialToTnwRotation(const Eigen::Vector6d& vehicleInertialS
  * towards (if false) central body.
  * \return Velocity based TNW to inertial (I) frame transformation matrix.
  */
-Eigen::Matrix3d getTnwToInertialRotationFromFunctions(
-        const std::function< Eigen::Vector6d( ) >& vehicleStateFunction,
-        const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction,
-        bool doesNaxisPointAwayFromCentralBody = true );
+Eigen::Matrix3d getTnwToInertialRotationFromFunctions( const std::function< Eigen::Vector6d( ) >& vehicleStateFunction,
+                                                       const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction,
+                                                       bool doesNaxisPointAwayFromCentralBody = true );
 
 //! Get rotation from velocity based TNW frame to planet-fixed frame.
 /*!
@@ -239,8 +227,7 @@ Eigen::Matrix3d getTnwToInertialRotationFromFunctions(
  * \return Computed rotation quaternion.
  */
 //! Get rotation from velocity based TNW frame to planetocentric frame.
-Eigen::Quaterniond getTnwToPlanetocentricRotationKeplerian(
-        const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState );
+Eigen::Quaterniond getTnwToPlanetocentricRotationKeplerian( const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState );
 
 //! Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given.
 /*!
@@ -248,27 +235,17 @@ Eigen::Quaterniond getTnwToPlanetocentricRotationKeplerian(
  * \param bodyState State for which the RSW frame rotation is to be computed.
  * \return Rotation matrix to RSW frame
  */
-Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
-        const Eigen::Vector6d& bodyState );
+Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix( const Eigen::Vector6d& bodyState );
 
-Eigen::Matrix3d getRswSatelliteCenteredToInertialFrameRotationMatrix(
-        const Eigen::Vector6d& bodyState );
+Eigen::Matrix3d getRswSatelliteCenteredToInertialFrameRotationMatrix( const Eigen::Vector6d& bodyState );
 
-Eigen::Matrix3d getPqwPerifocalToInertialRotationMatrix(
-        const Eigen::Vector6d& bodyState,
-        const double gravitationalParameter );
+Eigen::Matrix3d getPqwPerifocalToInertialRotationMatrix( const Eigen::Vector6d& bodyState, const double gravitationalParameter );
 
-Eigen::Matrix3d getInertialToPqwPerifocalRotationMatrix(
-        const Eigen::Vector6d& bodyState,
-        const double gravitationalParameter  );
+Eigen::Matrix3d getInertialToPqwPerifocalRotationMatrix( const Eigen::Vector6d& bodyState, const double gravitationalParameter );
 
-Eigen::Matrix3d getEqwEquinoctialToInertialRotationMatrix(
-        const Eigen::Vector6d& bodyState,
-        const double gravitationalParameter );
+Eigen::Matrix3d getEqwEquinoctialToInertialRotationMatrix( const Eigen::Vector6d& bodyState, const double gravitationalParameter );
 
-Eigen::Matrix3d getInertialToEqwEquinoctialRotationMatrix(
-        const Eigen::Vector6d& bodyState,
-        const double gravitationalParameter );
+Eigen::Matrix3d getInertialToEqwEquinoctialRotationMatrix( const Eigen::Vector6d& bodyState, const double gravitationalParameter );
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion.
 /*!
@@ -280,8 +257,7 @@ Eigen::Matrix3d getInertialToEqwEquinoctialRotationMatrix(
  *          the rotational rate of the central body [rad/s] times the time from epoch [s].
  * \return Inertial (I) to planetocentric reference frame (R) transformation quaternion.
  */
-Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
-        const double angleFromXItoXR );
+Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion( const double angleFromXItoXR );
 
 //! Get rotation from inertial to planet-fixed frame.
 /*!
@@ -294,15 +270,13 @@ Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
  * \param longitudeOfPrimeMeridian Longitude of body prime meridian.
  * \return Rotation quaternion computed.
  */
-Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
-        const double declinationOfPole,
-        const double rightAscensionOfPole,
-        const double longitudeOfPrimeMeridian );
+Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion( const double declinationOfPole,
+                                                                             const double rightAscensionOfPole,
+                                                                             const double longitudeOfPrimeMeridian );
 
-Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
-        const double declinationOfPole,
-        const double rightAscensionOfPole,
-        const double longitudeOfPrimeMeridian );
+Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix( const double declinationOfPole,
+                                                                      const double rightAscensionOfPole,
+                                                                      const double longitudeOfPrimeMeridian );
 
 //! Create a Quaterniond rotation state object from four quaternion values in vector 4d.
 /*!
@@ -320,8 +294,7 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
  * \param vectorWithQuaternion A vector containing the quaternions of the rotation state
  * \return Transformation quaternion.
  */
-Eigen::Quaterniond getQuaternionObjectFromQuaternionValues(
-        const Eigen::Vector4d& vectorWithQuaternion );
+Eigen::Quaterniond getQuaternionObjectFromQuaternionValues( const Eigen::Vector4d& vectorWithQuaternion );
 
 //! Get transformation matrix from Planetocentric (R) to the Local vertical (V) frame.
 /*!
@@ -334,8 +307,7 @@ Eigen::Quaterniond getQuaternionObjectFromQuaternionValues(
  * \param latitude The latitude in the planetocentric reference frame in [rad].
  * \return Transformation matrix from Planetocentric (R) to the local vertical (V) frame.
  */
-Eigen::Matrix3d getRotatingPlanetocentricToLocalVerticalFrameTransformationMatrix(
-        const double longitude, const double latitude );
+Eigen::Matrix3d getRotatingPlanetocentricToLocalVerticalFrameTransformationMatrix( const double longitude, const double latitude );
 
 //! Get transformation quaternion from Planetocentric (R) to the local vertical (V) frame.
 /*!
@@ -349,19 +321,19 @@ Eigen::Matrix3d getRotatingPlanetocentricToLocalVerticalFrameTransformationMatri
  * \return Transformation quaternion from Planetocentric (R) to the local vertical (V) frame.
  */
 template< typename AngleScalarType = double >
-Eigen::Quaternion< AngleScalarType > getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-        const AngleScalarType longitude, const AngleScalarType latitude )
+Eigen::Quaternion< AngleScalarType > getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion( const AngleScalarType longitude,
+                                                                                                            const AngleScalarType latitude )
 {
     // Compute transformation quaternion.
     // Note the sign change, because how angleAxisd is defined.
-    Eigen::AngleAxis< AngleScalarType > RotationAroundZaxis = Eigen::AngleAxis< AngleScalarType >(
-                -longitude, Eigen::Matrix< AngleScalarType, 3, 1 >::UnitZ( ) );
+    Eigen::AngleAxis< AngleScalarType > RotationAroundZaxis =
+            Eigen::AngleAxis< AngleScalarType >( -longitude, Eigen::Matrix< AngleScalarType, 3, 1 >::UnitZ( ) );
     Eigen::AngleAxis< AngleScalarType > RotationAroundYaxis = Eigen::AngleAxis< AngleScalarType >(
-                -( -latitude - mathematical_constants::getPi< AngleScalarType >( ) /
-                   mathematical_constants::getFloatingInteger< AngleScalarType >( 2 ) ),
-                Eigen::Matrix< AngleScalarType, 3, 1 >::UnitY( ) );
-    Eigen::Quaternion< AngleScalarType > frameTransformationQuaternion = Eigen::Quaternion< AngleScalarType >(
-                ( RotationAroundYaxis * RotationAroundZaxis ) );
+            -( -latitude -
+               mathematical_constants::getPi< AngleScalarType >( ) / mathematical_constants::getFloatingInteger< AngleScalarType >( 2 ) ),
+            Eigen::Matrix< AngleScalarType, 3, 1 >::UnitY( ) );
+    Eigen::Quaternion< AngleScalarType > frameTransformationQuaternion =
+            Eigen::Quaternion< AngleScalarType >( ( RotationAroundYaxis * RotationAroundZaxis ) );
 
     // Return transformation quaternion.
     return frameTransformationQuaternion;
@@ -378,8 +350,7 @@ Eigen::Quaternion< AngleScalarType > getRotatingPlanetocentricToLocalVerticalFra
  * \param latitude The latitude in the planetocentric reference frame in [rad].
  * \return Transformation matrix from local vertical (V) to the Planetocentric (R) frame.
  */
-Eigen::Matrix3d getLocalVerticalToRotatingPlanetocentricFrameTransformationMatrix(
-        const double longitude, const double latitude );
+Eigen::Matrix3d getLocalVerticalToRotatingPlanetocentricFrameTransformationMatrix( const double longitude, const double latitude );
 
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
 /*!
@@ -393,13 +364,11 @@ Eigen::Matrix3d getLocalVerticalToRotatingPlanetocentricFrameTransformationMatri
  * \return Transformation quaternion from local vertical (V) to the Planetocentric (R) frame.
  */
 template< typename AngleScalarType = double >
-Eigen::Quaternion< AngleScalarType > getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-        const AngleScalarType longitude, const AngleScalarType latitude )
+Eigen::Quaternion< AngleScalarType > getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion( const AngleScalarType longitude,
+                                                                                                            const AngleScalarType latitude )
 {
-    return getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-            longitude, latitude ).inverse( );
+    return getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion( longitude, latitude ).inverse( );
 }
-
 
 //! Get transformation matrix from the TA/TG to the V-frame.
 /*!
@@ -412,8 +381,7 @@ Eigen::Quaternion< AngleScalarType > getLocalVerticalToRotatingPlanetocentricFra
  * \param headingAngle The trajectory's heading angle with respect to the North in [rad].
  * \return Transformation matrix from trajectory frame (T) to the local vertical frame (V).
  */
-Eigen::Matrix3d getTrajectoryToLocalVerticalFrameTransformationMatrix(
-        const double flightPathAngle, const double headingAngle );
+Eigen::Matrix3d getTrajectoryToLocalVerticalFrameTransformationMatrix( const double flightPathAngle, const double headingAngle );
 
 //! Get transformation quaternion from the TA/TG to the V-frame.
 /*!
@@ -426,8 +394,7 @@ Eigen::Matrix3d getTrajectoryToLocalVerticalFrameTransformationMatrix(
  * \param headingAngle The trajectory's heading angle with respect to the North in [rad].
  * \return Transformation quaternion from trajectory frame (T) to the local vertical frame (V).
  */
-Eigen::Quaterniond getTrajectoryToLocalVerticalFrameTransformationQuaternion(
-        const double flightPathAngle, const double headingAngle );
+Eigen::Quaterniond getTrajectoryToLocalVerticalFrameTransformationQuaternion( const double flightPathAngle, const double headingAngle );
 
 //! Get transformation matrix from the local V- to TA/TG-frame.
 /*!
@@ -440,8 +407,7 @@ Eigen::Quaterniond getTrajectoryToLocalVerticalFrameTransformationQuaternion(
  * \param headingAngle The trajectory's heading angle with respect to the North in [rad].
  * \return Transformation matrix from the local vertical (V) to the trajectory (T) frame.
  */
-Eigen::Matrix3d getLocalVerticalFrameToTrajectoryTransformationMatrix(
-        const double flightPathAngle, const double headingAngle );
+Eigen::Matrix3d getLocalVerticalFrameToTrajectoryTransformationMatrix( const double flightPathAngle, const double headingAngle );
 
 //! Get transformation quaternion from V- to the TA/TG-frame.
 /*!
@@ -454,8 +420,7 @@ Eigen::Matrix3d getLocalVerticalFrameToTrajectoryTransformationMatrix(
  * \param headingAngle The trajectory's heading angle with respect to the North in [rad].
  * \return Transformation quaternion from the local vertical (V) to the trajectory (T) frame.
  */
-Eigen::Quaterniond getLocalVerticalFrameToTrajectoryTransformationQuaternion(
-        const double flightPathAngle, const double headingAngle );
+Eigen::Quaterniond getLocalVerticalFrameToTrajectoryTransformationQuaternion( const double flightPathAngle, const double headingAngle );
 
 //! Get transformation matrix from the TA- to the AA-frame.
 /*!
@@ -475,8 +440,7 @@ Eigen::Matrix3d getTrajectoryToAerodynamicFrameTransformationMatrix( const doubl
  * \param bankAngle The object's bank angle in [rad].
  * \return Transformation quaternion from the TA- to the AA-frame.
  */
-Eigen::Quaterniond getTrajectoryToAerodynamicFrameTransformationQuaternion( 
-        const double bankAngle );
+Eigen::Quaterniond getTrajectoryToAerodynamicFrameTransformationQuaternion( const double bankAngle );
 
 //! Get transformation matrix from the AA- to the TA-frame.
 /*!
@@ -496,8 +460,7 @@ Eigen::Matrix3d getAerodynamicToTrajectoryFrameTransformationMatrix( const doubl
  * \param bankAngle The object's bank angle in [rad].
  * \return Transformation quaternion from the AA- to the TA-frame.
  */
-Eigen::Quaterniond getAerodynamicToTrajectoryFrameTransformationQuaternion(
-        const double bankAngle );
+Eigen::Quaterniond getAerodynamicToTrajectoryFrameTransformationQuaternion( const double bankAngle );
 
 //! Get transformation matrix fom the B- to the AA-frame.
 /*!
@@ -507,8 +470,7 @@ Eigen::Quaterniond getAerodynamicToTrajectoryFrameTransformationQuaternion(
  * \param angleOfSideslip The angle of sideslip in [rad].
  * \return Transformation matrix from the B- to the AA-frame.
  */
-Eigen::Matrix3d getBodyToAirspeedBasedAerodynamicFrameTransformationMatrix(
-        const double angleOfAttack, const double angleOfSideslip );
+Eigen::Matrix3d getBodyToAirspeedBasedAerodynamicFrameTransformationMatrix( const double angleOfAttack, const double angleOfSideslip );
 
 //! Get transformation quaternion fom the B- to the AA-frame.
 /*!
@@ -518,8 +480,8 @@ Eigen::Matrix3d getBodyToAirspeedBasedAerodynamicFrameTransformationMatrix(
  * \param angleOfSideslip The angle of sideslip in [rad].
  * \return Transformation quaternion from the B- to the AA-frame.
  */
-Eigen::Quaterniond getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion(
-        const double angleOfAttack, const double angleOfSideslip );
+Eigen::Quaterniond getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion( const double angleOfAttack,
+                                                                                   const double angleOfSideslip );
 
 //! Get transformation matrix fom the AA- to the B-frame.
 /*!
@@ -529,8 +491,7 @@ Eigen::Quaterniond getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternio
  * \param angleOfSideslip The angle of sideslip in [rad].
  * \return Transformation matrix from the AA- to the B-frame.
  */
-Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
-        const double angleOfAttack, const double angleOfSideslip );
+Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( const double angleOfAttack, const double angleOfSideslip );
 
 //! Get transformation quaternion fom the AA- to the B-frame.
 /*!
@@ -540,8 +501,8 @@ Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
  * \param angleOfSideslip The angle of sideslip in [rad].
  * \return Transformation quaternion from the AA- to the B-frame.
  */
-Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
-        const double angleOfAttack, const double angleOfSideslip );
+Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion( const double angleOfAttack,
+                                                                                   const double angleOfSideslip );
 
 //! Calculate current heading angle.
 /*!
@@ -567,8 +528,8 @@ double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame 
  *  \param latitude Latitude of position.
  *  \return Transformation quaternion.
  */
-Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformationQuaternion(
-        const double longitude, const double latitude );
+Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformationQuaternion( const double longitude,
+                                                                                             const double latitude );
 
 //! Get V-frame to ECEF quaternion
 /*!
@@ -578,41 +539,32 @@ Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformatio
  *  \param latitude Latitude of position.
  *  \return Transformation quaternion.
  */
-Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-        const double longitude, const double latitude );
+Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion( const double longitude,
+                                                                                             const double latitude );
 
 //! Get transformation matrix from J2000 to ECLIPJ2000. Transformation matrix with values from SPICE
 /*!
  * @return Transformation matrix
  */
-Eigen::Matrix3d getJ2000toECLIPJ2000TransformationMatrix ();
+Eigen::Matrix3d getJ2000toECLIPJ2000TransformationMatrix( );
 
 //! Get transformation matrix from ECLIPJ2000 to J2000. Transformation matrix with values from SPICE
 /*!
  * @return Transformation matrix
  */
-Eigen::Matrix3d getECLIPJ2000toJ2000TransformationMatrix ();
+Eigen::Matrix3d getECLIPJ2000toJ2000TransformationMatrix( );
 
 //! Pre-multiplier used to take derivative of rotation matrix about x-axis w.r.t. the rotation angle
 static const Eigen::Matrix3d X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
-        ( Eigen::Matrix3d( ) <<
-          0.0, 0.0, 0.0,
-          0.0, 0.0, 1.0,
-          0.0, -1.0, 0.0 ).finished( );
+        ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0 ).finished( );
 
 //! Pre-multiplier used to take derivative of rotation matrix about y-axis w.r.t. the rotation angle
 static const Eigen::Matrix3d Y_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
-        ( Eigen::Matrix3d( ) <<
-          0.0, 0.0, -1.0,
-          0.0, 0.0, 0.0,
-          1.0, 0.0, 0.0 ).finished( );
+        ( Eigen::Matrix3d( ) << 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0 ).finished( );
 
 //! Pre-multiplier used to take derivative of rotation matrix about z-axis w.r.t. the rotation angle
 static const Eigen::Matrix3d Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
-        ( Eigen::Matrix3d( ) <<
-          0.0, 1.0, 0.0,
-          -1.0, 0.0, 0.0,
-          0.0, 0.0, 0.0 ).finished( );
+        ( Eigen::Matrix3d( ) << 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( );
 
 //! Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle
 /*!
@@ -670,10 +622,9 @@ Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rot
  * \param orientationFunctionOfCentralBody Function returning rotation from inertial to body-fixed frame.
  * \return Body-fixed relative cartesian position
  */
-Eigen::Vector3d getBodyFixedCartesianPosition(
-        const std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
-        const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
-        const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
+Eigen::Vector3d getBodyFixedCartesianPosition( const std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+                                               const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+                                               const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
 
 //! Function to compute a body-fixed relative spherical position
 /*!
@@ -683,15 +634,13 @@ Eigen::Vector3d getBodyFixedCartesianPosition(
  * \param orientationFunctionOfCentralBody Function returning rotation from inertial to body-fixed frame.
  * \return Body-fixed relative sphericall position
  */
-Eigen::Vector3d getBodyFixedSphericalPosition(
-        const std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
-        const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
-        const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
+Eigen::Vector3d getBodyFixedSphericalPosition( const std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+                                               const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+                                               const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
 
-Eigen::Matrix3d getRotationBetweenSatelliteFrames(
-        const Eigen::Vector6d relativeInertialCartesianState,
-        const SatelliteReferenceFrames originalFrame,
-        const SatelliteReferenceFrames targetFrame );
+Eigen::Matrix3d getRotationBetweenSatelliteFrames( const Eigen::Vector6d relativeInertialCartesianState,
+                                                   const SatelliteReferenceFrames originalFrame,
+                                                   const SatelliteReferenceFrames targetFrame );
 
 /*! Compute the rotation matrix between ITRF2014 and another ITRF frame.
  *
@@ -734,10 +683,9 @@ Eigen::Vector6d getItrf2014ToArbitraryItrfTranslation( const std::string& target
  * @param targetFrame Desired frame
  * @return Ground station state at specified epoch with respect to targetFrame.
  */
-Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf(
-        const Eigen::Vector6d& groundStationStateAtEpoch,
-        double epoch,
-        const std::string& targetFrame );
+Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf( const Eigen::Vector6d& groundStationStateAtEpoch,
+                                                                  double epoch,
+                                                                  const std::string& targetFrame );
 
 /*! Function to convert the state of a ground station from some ITRS realization to ITRF2014.
  *
@@ -750,10 +698,9 @@ Eigen::Vector6d convertGroundStationStateItrf2014ToArbitraryItrf(
  * @param baseFrame Frame with resoect to which the specified state is defined.
  * @return Ground station state at specified epoch with respect to ITRF2014.
  */
-Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014(
-        const Eigen::Vector6d& groundStationStateAtEpoch,
-        double epoch,
-        const std::string& baseFrame );
+Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014( const Eigen::Vector6d& groundStationStateAtEpoch,
+                                                                  double epoch,
+                                                                  const std::string& baseFrame );
 
 /*! Function to convert between two ITRF frames.
  *
@@ -767,15 +714,13 @@ Eigen::Vector6d convertGroundStationStateArbitraryItrfToItrf2014(
  * @param targetFrame Frame with resoect to which the output state is defined.
  * @return Ground station state at specified epoch with respect to targetFrame.
  */
-Eigen::Vector6d convertGroundStationStateBetweenItrfFrames(
-        const Eigen::Vector6d& groundStationStateAtEpoch,
-        double epoch,
-        const std::string& baseFrame,
-        const std::string& targetFrame );
+Eigen::Vector6d convertGroundStationStateBetweenItrfFrames( const Eigen::Vector6d& groundStationStateAtEpoch,
+                                                            double epoch,
+                                                            const std::string& baseFrame,
+                                                            const std::string& targetFrame );
 
+}  // namespace reference_frames
 
-} // namespace reference_frames
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
+#endif  // TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H

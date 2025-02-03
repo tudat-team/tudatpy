@@ -74,35 +74,34 @@ ScalarType computeModulo( const ScalarType dividend, const ScalarType divisor )
  * \param numberOfDivisors Number of times divisor goes into dividend (returned by reference).
  */
 template< typename ScalarType >
-constexpr void computeModuloAndRemainder( const ScalarType dividend, const ScalarType divisor,
-                                       ScalarType& moduloValue, int& numberOfDivisors )
+constexpr void computeModuloAndRemainder( const ScalarType dividend,
+                                          const ScalarType divisor,
+                                          ScalarType& moduloValue,
+                                          int& numberOfDivisors )
 {
     numberOfDivisors = utilities::constexpr_int_floor< ScalarType >( dividend / divisor );
     moduloValue = dividend - divisor * static_cast< ScalarType >( numberOfDivisors );
 }
 
-
 //! Raise floating point variable to integer power.
 template< typename ScalarType >
-ScalarType raiseToIntegerPower( const ScalarType baseValue,
-                                const int integerPower )
+ScalarType raiseToIntegerPower( const ScalarType baseValue, const int integerPower )
 {
     // Declare local variable.
     // Declare result of raising base to integer power.
     // Initialise with value.
     ScalarType resultOfRaisingBaseToIntegerPower = 1;
     // Declare absolute value of integerPower.
-    int absoluteValueOfIntegerPower
-            = std::abs( integerPower );
+    int absoluteValueOfIntegerPower = std::abs( integerPower );
     // Declare copy of base value.
     ScalarType copyOfBaseValue = baseValue;
 
     // Compute the result here using exponentiation by squares.
     // Stop loop when absolute value of integer power is equal to zero.
-    while ( absoluteValueOfIntegerPower )
+    while( absoluteValueOfIntegerPower )
     {
         // Check that absolute value of integer power.
-        if ( absoluteValueOfIntegerPower & 1 )
+        if( absoluteValueOfIntegerPower & 1 )
         {
             // Compute intermediate result.
             resultOfRaisingBaseToIntegerPower *= copyOfBaseValue;
@@ -116,21 +115,18 @@ ScalarType raiseToIntegerPower( const ScalarType baseValue,
     }
 
     // Check if sign of integerPower is negative.
-    if ( integerPower < 0 )
+    if( integerPower < 0 )
     {
         // Switch sign of result.
-        resultOfRaisingBaseToIntegerPower
-                = 1.0 / resultOfRaisingBaseToIntegerPower;
+        resultOfRaisingBaseToIntegerPower = 1.0 / resultOfRaisingBaseToIntegerPower;
     }
 
     // Return result of raising base to integer power.
     return resultOfRaisingBaseToIntegerPower;
 }
 
+}  // namespace basic_mathematics
 
-} // namespace basic_mathematics
+}  // namespace tudat
 
-} // namespace tudat
-
-
-#endif // TUDAT_BASIC_MATHEMATICS_FUNCTIONS_H
+#endif  // TUDAT_BASIC_MATHEMATICS_FUNCTIONS_H

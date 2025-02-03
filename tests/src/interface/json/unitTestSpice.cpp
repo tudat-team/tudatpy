@@ -20,8 +20,7 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_spice )
 
@@ -31,8 +30,7 @@ BOOST_AUTO_TEST_CASE( test_json_spice_standard )
     using namespace json_interface;
 
     // Create SpiceSettings from JSON file
-    const std::shared_ptr< SpiceSettings > fromFileSettings =
-            parseJSONFile< std::shared_ptr< SpiceSettings > >( INPUT( "standard" ) );
+    const std::shared_ptr< SpiceSettings > fromFileSettings = parseJSONFile< std::shared_ptr< SpiceSettings > >( INPUT( "standard" ) );
 
     // Create SpiceSettings manually
     std::shared_ptr< SpiceSettings > manualSettings = std::make_shared< SpiceSettings >( );
@@ -50,8 +48,7 @@ BOOST_AUTO_TEST_CASE( test_json_spice_alternative )
     using namespace json_interface;
 
     // Create SpiceSettings from JSON file
-    const std::shared_ptr< SpiceSettings > fromFileSettings =
-            parseJSONFile< std::shared_ptr< SpiceSettings > >( INPUT( "alternative" ) );
+    const std::shared_ptr< SpiceSettings > fromFileSettings = parseJSONFile< std::shared_ptr< SpiceSettings > >( INPUT( "alternative" ) );
 
     // Create SpiceSettings manually
     std::shared_ptr< SpiceSettings > manualSettings = std::make_shared< SpiceSettings >( );
@@ -69,8 +66,7 @@ BOOST_AUTO_TEST_CASE( test_json_spice_custom )
     using namespace json_interface;
 
     // Create SpiceSettings from JSON file
-    const std::shared_ptr< SpiceSettings > fromFileSettings =
-            parseJSONFile< std::shared_ptr< SpiceSettings > >( INPUT( "custom" ) );
+    const std::shared_ptr< SpiceSettings > fromFileSettings = parseJSONFile< std::shared_ptr< SpiceSettings > >( INPUT( "custom" ) );
 
     // Create SpiceSettings manually
     std::shared_ptr< SpiceSettings > manualSettings = std::make_shared< SpiceSettings >( );
@@ -85,6 +81,6 @@ BOOST_AUTO_TEST_CASE( test_json_spice_custom )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

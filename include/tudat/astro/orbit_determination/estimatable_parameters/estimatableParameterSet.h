@@ -17,8 +17,6 @@
 #include <vector>
 #include <map>
 
-
-
 #include <memory>
 #include <Eigen/Geometry>
 
@@ -33,9 +31,9 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-//#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//extern template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-//#endif
+// #if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+// extern template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+// #endif
 
 //! Container class for all parameters that are to be estimated.
 /*!
@@ -46,7 +44,6 @@ template< typename InitialStateParameterType = double >
 class EstimatableParameterSet
 {
 public:
-
     //! Constructor of parameter set.
     /*!
      *  Constructor of parameter set.
@@ -57,13 +54,13 @@ public:
     EstimatableParameterSet(
             const std::vector< std::shared_ptr< EstimatableParameter< double > > >& estimatedDoubleParameters,
             const std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& estimatedVectorParameters,
-            const std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix
-            < InitialStateParameterType, Eigen::Dynamic, 1 > > > >& estimateInitialStateParameters =
-            ( std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix
-              < InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ),
-              const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = nullptr ):
-        estimatedDoubleParameters_( estimatedDoubleParameters ), estimatedVectorParameters_( estimatedVectorParameters ), considerParameters_( considerParameters ),
-        totalConstraintSize_( 0 )
+            const std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >&
+                    estimateInitialStateParameters =
+                            ( std::vector< std::shared_ptr<
+                                      EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ),
+            const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = nullptr ):
+        estimatedDoubleParameters_( estimatedDoubleParameters ), estimatedVectorParameters_( estimatedVectorParameters ),
+        considerParameters_( considerParameters ), totalConstraintSize_( 0 )
     {
         // Initialize total number of parameters to 0.
         estimatedParameterSetSize_ = 0;
@@ -85,15 +82,15 @@ public:
         }
 
         estimateInitialStateParameters_ = estimateSingleArcInitialStateParameters_;
-        estimateInitialStateParameters_.insert(
-                    estimateInitialStateParameters_.end( ), estimateMultiArcInitialStateParameters_.begin( ),
-                    estimateMultiArcInitialStateParameters_.end( ) );
+        estimateInitialStateParameters_.insert( estimateInitialStateParameters_.end( ),
+                                                estimateMultiArcInitialStateParameters_.begin( ),
+                                                estimateMultiArcInitialStateParameters_.end( ) );
 
         for( unsigned int i = 0; i < estimateSingleArcInitialStateParameters_.size( ); i++ )
         {
             initialStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters_[ i ];
-            parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_,
-                                                         estimateInitialStateParameters_[ i ]->getParameterSize( ) ) );
+            parameterIndices_.push_back(
+                    std::make_pair( estimatedParameterSetSize_, estimateInitialStateParameters_[ i ]->getParameterSize( ) ) );
             totalConstraintSize_ += estimateInitialStateParameters_[ i ]->getConstraintSize( );
 
             initialDynamicalSingleArcStateParameterSize_ += estimateSingleArcInitialStateParameters_[ i ]->getParameterSize( );
@@ -103,12 +100,11 @@ public:
             estimatedParameterSetSize_ += estimateSingleArcInitialStateParameters_[ i ]->getParameterSize( );
         }
 
-
         for( unsigned int i = 0; i < estimateMultiArcInitialStateParameters_.size( ); i++ )
         {
             initialStateParameters_[ estimatedParameterSetSize_ ] = estimateMultiArcInitialStateParameters_[ i ];
-            parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_,
-                                                         estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( ) ) );
+            parameterIndices_.push_back(
+                    std::make_pair( estimatedParameterSetSize_, estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( ) ) );
 
             initialDynamicalMultiArcStateParameterSize_ += estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( );
             initialMultiArcStateParameters_[ estimatedParameterSetSize_ ] = estimateMultiArcInitialStateParameters_[ i ];
@@ -116,7 +112,6 @@ public:
             initialDynamicalStateParameterSize_ += estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( );
             estimatedParameterSetSize_ += estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( );
         }
-
 
         // Iterate over all double parameters and add to parameter size and set indices in parameterIndices_
         for( unsigned int i = 0; i < estimatedDoubleParameters_.size( ); i++ )
@@ -134,8 +129,8 @@ public:
             vectorParameters_[ estimatedParameterSetSize_ ] = estimatedVectorParameters_[ i ];
             totalConstraintSize_ += estimatedVectorParameters_[ i ]->getConstraintSize( );
 
-            parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_,
-                                                         estimatedVectorParameters_[ i ]->getParameterSize( ) ) );
+            parameterIndices_.push_back(
+                    std::make_pair( estimatedParameterSetSize_, estimatedVectorParameters_[ i ]->getParameterSize( ) ) );
             estimatedParameterSetSize_ += estimatedVectorParameters_[ i ]->getParameterSize( );
         }
 
@@ -217,7 +212,7 @@ public:
     template< typename ParameterScalar >
     Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 > getFullParameterValues( )
     {
-        Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 >  parameterValues =
+        Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 > parameterValues =
                 Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 >::Zero( totalParameterSetSize_ );
 
         int currentStartIndex = 0;
@@ -233,8 +228,7 @@ public:
         // Retrieve double parameter values.
         for( unsigned int i = 0; i < estimatedDoubleParameters_.size( ); i++ )
         {
-            parameterValues( currentStartIndex ) = static_cast< ParameterScalar >(
-                        estimatedDoubleParameters_[ i ]->getParameterValue( ) );
+            parameterValues( currentStartIndex ) = static_cast< ParameterScalar >( estimatedDoubleParameters_[ i ]->getParameterValue( ) );
             currentStartIndex++;
         }
 
@@ -252,7 +246,8 @@ public:
     //! Function to reset all parameter values.
     /*!
      *  Function to reset all parameter values.
-     *  \param newParameterValues New parameter values. Order of values in vector must be same order as return vector of getFullParameterValues
+     *  \param newParameterValues New parameter values. Order of values in vector must be same order as return vector of
+     * getFullParameterValues
      */
     template< typename ParameterScalar >
     void resetParameterValues( const Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 >& newParameterValues )
@@ -261,48 +256,49 @@ public:
         if( newParameterValues.rows( ) != totalParameterSetSize_ )
         {
             throw std::runtime_error( "Error when resetting parameters of parameter set, given vector has size " +
-                                      std::to_string( newParameterValues.rows( ) ) +
-                                      ", while internal size is " + std::to_string( totalParameterSetSize_ ) );
+                                      std::to_string( newParameterValues.rows( ) ) + ", while internal size is " +
+                                      std::to_string( totalParameterSetSize_ ) );
         }
         else
         {
             int currentStartIndex = 0;
 
-//            std::cout << "before reset initial state parameters" << "\n\n";
+            //            std::cout << "before reset initial state parameters" << "\n\n";
             for( unsigned int i = 0; i < estimateInitialStateParameters_.size( ); i++ )
             {
                 estimateInitialStateParameters_[ i ]->setParameterValue(
-                            newParameterValues.segment( currentStartIndex, estimateInitialStateParameters_[ i ]->getParameterSize( ) ).
-                            template cast< InitialStateParameterType >( ) );
+                        newParameterValues.segment( currentStartIndex, estimateInitialStateParameters_[ i ]->getParameterSize( ) )
+                                .template cast< InitialStateParameterType >( ) );
                 currentStartIndex += estimateInitialStateParameters_[ i ]->getParameterSize( );
             }
-//            std::cout << "after reset initial state parameters" << "\n\n";
+            //            std::cout << "after reset initial state parameters" << "\n\n";
 
             // Set double parameter values.
-//            std::cout << "before reset double parameters" << "\n\n";
+            //            std::cout << "before reset double parameters" << "\n\n";
             for( unsigned int i = 0; i < estimatedDoubleParameters_.size( ); i++ )
             {
                 estimatedDoubleParameters_[ i ]->setParameterValue( static_cast< double >( newParameterValues( currentStartIndex ) ) );
                 currentStartIndex++;
             }
-//            std::cout << "after reset double parameters" << "\n\n";
+            //            std::cout << "after reset double parameters" << "\n\n";
 
             // Set vector parameter values.
-//            std::cout << "before reset vector parameters" << "\n\n";
-//            std::cout << "new parameters values: " << newParameterValues.transpose( ) << "\n\n";
+            //            std::cout << "before reset vector parameters" << "\n\n";
+            //            std::cout << "new parameters values: " << newParameterValues.transpose( ) << "\n\n";
             for( unsigned int i = 0; i < estimatedVectorParameters_.size( ); i++ )
             {
-//                std::cout << "current start index: " << currentStartIndex << "\n\n";
-//                std::cout << "current parameter size: " << estimatedVectorParameters_[ i ]->getParameterSize( ) << "\n\n";
-//                std::cout << "newParameterValues current parameter: "
-//                          << newParameterValues.segment( currentStartIndex, estimatedVectorParameters_[ i ]->getParameterSize( ) ).transpose( ) << "\n\n";
+                //                std::cout << "current start index: " << currentStartIndex << "\n\n";
+                //                std::cout << "current parameter size: " << estimatedVectorParameters_[ i ]->getParameterSize( ) << "\n\n";
+                //                std::cout << "newParameterValues current parameter: "
+                //                          << newParameterValues.segment( currentStartIndex, estimatedVectorParameters_[ i
+                //                          ]->getParameterSize( ) ).transpose( ) << "\n\n";
                 estimatedVectorParameters_[ i ]->setParameterValue(
-                            newParameterValues.segment( currentStartIndex, estimatedVectorParameters_[ i ]->getParameterSize( ) ).
-                            template cast< double >( ) );
+                        newParameterValues.segment( currentStartIndex, estimatedVectorParameters_[ i ]->getParameterSize( ) )
+                                .template cast< double >( ) );
 
                 currentStartIndex += estimatedVectorParameters_[ i ]->getParameterSize( );
             }
-//            std::cout << "after reset vector parameters" << "\n\n";
+            //            std::cout << "after reset vector parameters" << "\n\n";
         }
     }
 
@@ -326,7 +322,8 @@ public:
         return vectorParameters_;
     }
 
-    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getInitialStateParameters( )
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+    getInitialStateParameters( )
     {
         return initialStateParameters_;
     }
@@ -337,8 +334,8 @@ public:
      *  \return Map containing all single-arc initial state parameter objects, with map key start index of parameter in total
      *  vector.
      */
-    std::map< int, std::shared_ptr<
-    EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getInitialSingleArcStateParameters( )
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+    getInitialSingleArcStateParameters( )
     {
         return initialSingleArcStateParameters_;
     }
@@ -349,7 +346,8 @@ public:
      *  \return Map containing all multi-arc initial state parameter objects, with map key start index of parameter in total
      * vector.
      */
-    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getInitialMultiArcStateParameters( )
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+    getInitialMultiArcStateParameters( )
     {
         return initialMultiArcStateParameters_;
     }
@@ -375,12 +373,11 @@ public:
      * \param requiredParameterId Parameter identifier that is to be searched in full list of patameters
      * \return List of start indices and sizes of parameters corresponding to requiredParameterId
      */
-    std::vector< std::pair< int, int > > getIndicesForParameterType(
-            const EstimatebleParameterIdentifier requiredParameterId )
+    std::vector< std::pair< int, int > > getIndicesForParameterType( const EstimatebleParameterIdentifier requiredParameterId )
     {
         std::vector< std::pair< int, int > > typeIndices;
 
-        for( auto parameterIterator : initialSingleArcStateParameters_ )
+        for( auto parameterIterator: initialSingleArcStateParameters_ )
         {
             if( parameterIterator.second->getParameterName( ) == requiredParameterId )
             {
@@ -388,7 +385,7 @@ public:
             }
         }
 
-        for( auto parameterIterator : initialMultiArcStateParameters_ )
+        for( auto parameterIterator: initialMultiArcStateParameters_ )
         {
             if( parameterIterator.second->getParameterName( ) == requiredParameterId )
             {
@@ -396,7 +393,7 @@ public:
             }
         }
 
-        for( auto parameterIterator : doubleParameters_ )
+        for( auto parameterIterator: doubleParameters_ )
         {
             if( parameterIterator.second->getParameterName( ) == requiredParameterId )
             {
@@ -404,7 +401,7 @@ public:
             }
         }
 
-        for( auto parameterIterator : vectorParameters_ )
+        for( auto parameterIterator: vectorParameters_ )
         {
             if( parameterIterator.second->getParameterName( ) == requiredParameterId )
             {
@@ -421,67 +418,75 @@ public:
      * \param requiredParameterDescription Parameter description that is to be searched in full list of parameters
      * \return Pair of start indices and sizes of parameters corresponding to requiredParameterDescription
      */
-    std::pair< int, int > getIndicesForParameterDescription(
-            const std::string requiredParameterDescription )
+    std::pair< int, int > getIndicesForParameterDescription( const std::string requiredParameterDescription )
     {
         std::pair< int, int > parameterIndices;
         bool detectedParameter = false;
 
-        for( auto parameterIterator : initialSingleArcStateParameters_ )
+        for( auto parameterIterator: initialSingleArcStateParameters_ )
         {
             if( parameterIterator.second->getParameterDescription( ) == requiredParameterDescription )
             {
-                if ( detectedParameter )
+                if( detectedParameter )
                 {
-                    throw std::runtime_error( "Error when looking for parameter indices based on description, more than one parameter found for: " + requiredParameterDescription );
+                    throw std::runtime_error(
+                            "Error when looking for parameter indices based on description, more than one parameter found for: " +
+                            requiredParameterDescription );
                 }
                 parameterIndices = std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) );
                 detectedParameter = true;
             }
         }
 
-        for( auto parameterIterator : initialMultiArcStateParameters_ )
+        for( auto parameterIterator: initialMultiArcStateParameters_ )
         {
             if( parameterIterator.second->getParameterDescription( ) == requiredParameterDescription )
             {
-                if ( detectedParameter )
+                if( detectedParameter )
                 {
-                    throw std::runtime_error( "Error when looking for parameter indices based on description, more than one parameter found for: " + requiredParameterDescription );
+                    throw std::runtime_error(
+                            "Error when looking for parameter indices based on description, more than one parameter found for: " +
+                            requiredParameterDescription );
                 }
                 parameterIndices = std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) );
                 detectedParameter = true;
             }
         }
 
-        for( auto parameterIterator : doubleParameters_ )
+        for( auto parameterIterator: doubleParameters_ )
         {
             if( parameterIterator.second->getParameterDescription( ) == requiredParameterDescription )
             {
-                if ( detectedParameter )
+                if( detectedParameter )
                 {
-                    throw std::runtime_error( "Error when looking for parameter indices based on description, more than one parameter found for: " + requiredParameterDescription );
+                    throw std::runtime_error(
+                            "Error when looking for parameter indices based on description, more than one parameter found for: " +
+                            requiredParameterDescription );
                 }
                 parameterIndices = std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) );
                 detectedParameter = true;
             }
         }
 
-        for( auto parameterIterator : vectorParameters_ )
+        for( auto parameterIterator: vectorParameters_ )
         {
             if( parameterIterator.second->getParameterDescription( ) == requiredParameterDescription )
             {
-                if ( detectedParameter )
+                if( detectedParameter )
                 {
-                    throw std::runtime_error( "Error when looking for parameter indices based on description, more than one parameter found for: " + requiredParameterDescription );
+                    throw std::runtime_error(
+                            "Error when looking for parameter indices based on description, more than one parameter found for: " +
+                            requiredParameterDescription );
                 }
                 parameterIndices = std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) );
                 detectedParameter = true;
             }
         }
 
-        if ( !detectedParameter )
+        if( !detectedParameter )
         {
-            throw std::runtime_error( "Error when looking for parameter indices based on description, no parameter found for: " + requiredParameterDescription );
+            throw std::runtime_error( "Error when looking for parameter indices based on description, no parameter found for: " +
+                                      requiredParameterDescription );
         }
 
         return parameterIndices;
@@ -496,15 +501,15 @@ public:
     {
         std::vector< std::string > parametersDescriptions;
 
-        for ( auto itr : doubleParameters_ )
+        for( auto itr: doubleParameters_ )
         {
             parametersDescriptions.push_back( itr.second->getParameterDescription( ) );
         }
-        for ( auto itr : vectorParameters_ )
+        for( auto itr: vectorParameters_ )
         {
             parametersDescriptions.push_back( itr.second->getParameterDescription( ) );
         }
-        for ( auto itr : initialStateParameters_ )
+        for( auto itr: initialStateParameters_ )
         {
             parametersDescriptions.push_back( itr.second->getParameterDescription( ) );
         }
@@ -580,29 +585,29 @@ public:
             currentConstraintSize = parameterIterator->second->getConstraintSize( );
             if( currentConstraintSize > 0 )
             {
-                constraintStateMultiplier.block(
-                            currentConstraintRow, parameterIterator->first, currentConstraintSize,
-                            parameterIterator->second->getParameterSize( )  ) =
+                constraintStateMultiplier.block( currentConstraintRow,
+                                                 parameterIterator->first,
+                                                 currentConstraintSize,
+                                                 parameterIterator->second->getParameterSize( ) ) =
                         parameterIterator->second->getConstraintStateMultipler( );
                 constraintRightHandSide.segment( currentConstraintRow, currentConstraintSize ) =
                         parameterIterator->second->getConstraintRightHandSide( );
 
                 currentConstraintRow += currentConstraintSize;
             }
-
         }
 
         // Iterate over all double parameters
-        for( auto parameterIterator = doubleParameters_.begin( ); parameterIterator != doubleParameters_.end( );
-             parameterIterator++ )
+        for( auto parameterIterator = doubleParameters_.begin( ); parameterIterator != doubleParameters_.end( ); parameterIterator++ )
         {
             // Add constraint if of non-zero size
             currentConstraintSize = parameterIterator->second->getConstraintSize( );
             if( currentConstraintSize > 0 )
             {
-                constraintStateMultiplier.block(
-                            currentConstraintRow, parameterIterator->first, currentConstraintSize,
-                            parameterIterator->second->getParameterSize( )  ) =
+                constraintStateMultiplier.block( currentConstraintRow,
+                                                 parameterIterator->first,
+                                                 currentConstraintSize,
+                                                 parameterIterator->second->getParameterSize( ) ) =
                         parameterIterator->second->getConstraintStateMultipler( );
                 constraintRightHandSide.segment( currentConstraintRow, currentConstraintSize ) =
                         parameterIterator->second->getConstraintRightHandSide( );
@@ -612,16 +617,16 @@ public:
         }
 
         // Iterate over all vector parameters
-        for( auto parameterIterator = vectorParameters_.begin( ); parameterIterator != vectorParameters_.end( );
-             parameterIterator++ )
+        for( auto parameterIterator = vectorParameters_.begin( ); parameterIterator != vectorParameters_.end( ); parameterIterator++ )
         {
             // Add constraint if of non-zero size
             currentConstraintSize = parameterIterator->second->getConstraintSize( );
             if( currentConstraintSize > 0 )
             {
-                constraintStateMultiplier.block(
-                            currentConstraintRow, parameterIterator->first, currentConstraintSize,
-                            parameterIterator->second->getParameterSize( )  ) =
+                constraintStateMultiplier.block( currentConstraintRow,
+                                                 parameterIterator->first,
+                                                 currentConstraintSize,
+                                                 parameterIterator->second->getParameterSize( ) ) =
                         parameterIterator->second->getConstraintStateMultipler( );
                 constraintRightHandSide.segment( currentConstraintRow, currentConstraintSize ) =
                         parameterIterator->second->getConstraintRightHandSide( );
@@ -663,11 +668,13 @@ public:
 
     //! Function to return a map with the multi-arc state parameters to estimate, ordered per arc (with the map keys containing the arc starting times)
     /*!
-     * Function to return a map with the multi-arc state parameters to estimate, ordered per arc (with the map keys containing the arc starting times)
+     * Function to return a map with the multi-arc state parameters to estimate, ordered per arc (with the map keys containing the arc
+     * starting times)
      * \return Map with multi-arc state parameters to be estimated, for each arc (key = arc starting time).
      */
-    std::map< double, std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > >
-            getMultiArcInitialStateParametersPerArc( )
+    std::map< double,
+              std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > >
+    getMultiArcInitialStateParametersPerArc( )
     {
         return multiArcInitialStateParametersPerArc_;
     }
@@ -677,9 +684,9 @@ public:
      * Function to return the number of arcs detected from the multi-arc parameters to b estimated.
      * \return Number of arcs detected from the multi-arc parameters to estimated.
      */
-     int getNumberArcsFromMultiArcInitialStateParameters( )
+    int getNumberArcsFromMultiArcInitialStateParameters( )
     {
-         return bodiesToEstimatePerArc_.size( );
+        return bodiesToEstimatePerArc_.size( );
     }
 
     //! Function to return the arc starting times detected from the multi-arc parameters to be estimated.
@@ -687,13 +694,12 @@ public:
      * Function to return the arc starting times detected from the multi-arc parameters to be estimated.
      * \return Vector containing the arc starting times detected from the multi-arc dynamical parameters.
      */
-     std::vector< double > getArcStartingTimes( )
+    std::vector< double > getArcStartingTimes( )
     {
-         return utilities::createVectorFromMapKeys( bodiesToEstimatePerArc_ );
+        return utilities::createVectorFromMapKeys( bodiesToEstimatePerArc_ );
     }
 
 protected:
-
     //! Total size of all initial dynamical states that are to be estimated.
     int initialDynamicalStateParameterSize_;
 
@@ -724,15 +730,15 @@ protected:
 
     //! List of initial dynamical states that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
-    estimateInitialStateParameters_;
+            estimateInitialStateParameters_;
 
     //! List of initial single-arc dynamical states that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
-    estimateSingleArcInitialStateParameters_;
+            estimateSingleArcInitialStateParameters_;
 
     //! List of initial multi-arc dynamical states that are to be estimated.
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
-    estimateMultiArcInitialStateParameters_;
+            estimateMultiArcInitialStateParameters_;
 
     //! Set of consider parameters.
     std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters_;
@@ -744,19 +750,19 @@ protected:
     std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters_;
 
     //! Map of initial dynamical states that are to be estimated, with start index in total parameter vector as key.
-    std::map< int, std::shared_ptr<
-    EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters_;
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialStateParameters_;
 
     //! Size of linear constraint that is to be applied during estimation
     int totalConstraintSize_;
 
     //! Map containing all single-arc initial state parameter objects, with map key start index of parameter in total vector.
-    std::map< int, std::shared_ptr<
-    EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialSingleArcStateParameters_;
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialSingleArcStateParameters_;
 
     //! Map containing all multi-arc initial state parameter objects, with map key start index of parameter in total vector.
-    std::map< int, std::shared_ptr<
-    EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialMultiArcStateParameters_;
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialMultiArcStateParameters_;
 
     //! Map containing the names of the multi-arc bodies to be estimated for each arc, with map key being the arc starting time.
     std::map< double, std::vector< std::string > > bodiesToEstimatePerArc_;
@@ -765,9 +771,9 @@ protected:
     std::vector< int > multiArcStateParametersSizePerArc_;
 
     //! List of initial multi-arc dynamical states that are to be estimated, for each arc.
-    std::map< double, std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > >
-    multiArcInitialStateParametersPerArc_;
-
+    std::map< double,
+              std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > >
+            multiArcInitialStateParametersPerArc_;
 };
 
 //! Function to create a subset of all estimated parameters, with either only single-arc or multi-arc initial state parameter
@@ -781,61 +787,63 @@ protected:
 template< typename StateScalarType >
 std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > createEstimatableParameterSetArcSubSet(
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-        const bool getSingleArcParameters)
+        const bool getSingleArcParameters )
 {
     if( getSingleArcParameters )
     {
         return std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
-                    parametersToEstimate->getEstimatedDoubleParameters( ),
-                    parametersToEstimate->getEstimatedVectorParameters( ),
-                    parametersToEstimate->getEstimatedSingleArcInitialStateParameters( ) );
+                parametersToEstimate->getEstimatedDoubleParameters( ),
+                parametersToEstimate->getEstimatedVectorParameters( ),
+                parametersToEstimate->getEstimatedSingleArcInitialStateParameters( ) );
     }
     else
     {
         return std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
-                    parametersToEstimate->getEstimatedDoubleParameters( ),
-                    parametersToEstimate->getEstimatedVectorParameters( ),
-                    parametersToEstimate->getEstimatedMultiArcInitialStateParameters( )  );
+                parametersToEstimate->getEstimatedDoubleParameters( ),
+                parametersToEstimate->getEstimatedVectorParameters( ),
+                parametersToEstimate->getEstimatedMultiArcInitialStateParameters( ) );
     }
 }
 
 template< typename InitialStateParameterType >
-void printEstimatableParameterEntries(
-        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+void printEstimatableParameterEntries( const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
-    std::map< int, std::shared_ptr<
-            EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters =
-            estimatableParameters->getInitialStateParameters( );
-    std::map< int, std::shared_ptr<
-            EstimatableParameter< double > > > doubleParameters = estimatableParameters->getDoubleParameters( );
-    std::map< int, std::shared_ptr<
-            EstimatableParameter< Eigen::VectorXd > > > vectorParameters = estimatableParameters->getVectorParameters( );
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialStateParameters = estimatableParameters->getInitialStateParameters( );
+    std::map< int, std::shared_ptr< EstimatableParameter< double > > > doubleParameters = estimatableParameters->getDoubleParameters( );
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
+            estimatableParameters->getVectorParameters( );
 
     std::cout << "Parameter start index, Parameter definition" << std::endl;
-    for( typename  std::map< int, std::shared_ptr<  EstimatableParameter< Eigen::Matrix<
-         InitialStateParameterType, Eigen::Dynamic, 1 > > > >::const_iterator parameterIterator = initialStateParameters.begin( );
-         parameterIterator != initialStateParameters.end( ); parameterIterator++ )
+    for( typename std::map< int,
+                            std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >::
+                 const_iterator parameterIterator = initialStateParameters.begin( );
+         parameterIterator != initialStateParameters.end( );
+         parameterIterator++ )
     {
         std::cout << parameterIterator->first << ", " << parameterIterator->second->getParameterDescription( ) << std::endl;
     }
 
-    for( typename  std::map< int, std::shared_ptr<  EstimatableParameter< double > > >::const_iterator
-         parameterIterator = doubleParameters.begin( );
-         parameterIterator != doubleParameters.end( ); parameterIterator++ )
+    for( typename std::map< int, std::shared_ptr< EstimatableParameter< double > > >::const_iterator parameterIterator =
+                 doubleParameters.begin( );
+         parameterIterator != doubleParameters.end( );
+         parameterIterator++ )
     {
         std::cout << parameterIterator->first << ", " << parameterIterator->second->getParameterDescription( ) << std::endl;
     }
 
-    for( typename  std::map< int, std::shared_ptr<  EstimatableParameter< Eigen::VectorXd > > >::const_iterator
-         parameterIterator = vectorParameters.begin( );
-         parameterIterator != vectorParameters.end( ); parameterIterator++ )
+    for( typename std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >::const_iterator parameterIterator =
+                 vectorParameters.begin( );
+         parameterIterator != vectorParameters.end( );
+         parameterIterator++ )
     {
         std::cout << parameterIterator->first << ", " << parameterIterator->second->getParameterDescription( ) << std::endl;
     }
     std::cout << std::endl;
 
-    std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = estimatableParameters->getConsiderParameters( );
-    if ( considerParameters != nullptr )
+    std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters =
+            estimatableParameters->getConsiderParameters( );
+    if( considerParameters != nullptr )
     {
         std::cout << "Consider parameters: " << "\n\n";
         printEstimatableParameterEntries( considerParameters );
@@ -855,16 +863,15 @@ std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
     std::vector< std::string > bodiesToEstimate;
 
     // Retrieve initial dynamical parameters.
-    std::vector< std::shared_ptr< EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )
         {
-            bodiesToEstimate.push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+            bodiesToEstimate.push_back( initialDynamicalParameters.at( i )->getParameterName( ).second.first );
         }
     }
 
@@ -884,15 +891,14 @@ std::vector< std::string > getListOfBodiesWithRotationalStateToEstimate(
     std::vector< std::string > bodiesToEstimate;
 
     // Retrieve initial dynamical parameters.
-    std::vector< std::shared_ptr< EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
 
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state )
         {
-            bodiesToEstimate.push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+            bodiesToEstimate.push_back( initialDynamicalParameters.at( i )->getParameterName( ).second.first );
         }
     }
 
@@ -906,15 +912,14 @@ std::vector< std::string > getListOfBodiesWithMassStateToEstimate(
     std::vector< std::string > bodiesToEstimate;
 
     // Retrieve initial dynamical parameters.
-    std::vector< std::shared_ptr< EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
 
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_mass_state )
         {
-            bodiesToEstimate.push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+            bodiesToEstimate.push_back( initialDynamicalParameters.at( i )->getParameterName( ).second.first );
         }
     }
 
@@ -928,26 +933,23 @@ std::vector< std::string > getListOfBodiesWithMassStateToEstimate(
  * \return List of parameters (with body names as keys) used for the multi-arc estimation of initial translational state
  */
 template< typename InitialStateParameterType >
-std::map< std::string, std::shared_ptr< EstimatableParameter<
-Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  > > >
+std::map< std::string, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
 getListOfBodiesWithTranslationalMultiArcStateToEstimate(
         const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
-    std::map< std::string, std::shared_ptr< EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  > > > bodiesToEstimate;
+    std::map< std::string, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            bodiesToEstimate;
 
     // Retrieve initial dynamical parameters.
-    std::vector< std::shared_ptr< EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
         {
-            bodiesToEstimate[ initialDynamicalParameters.at( i )->getParameterName( ).second.first ] =
-                    initialDynamicalParameters.at( i );
+            bodiesToEstimate[ initialDynamicalParameters.at( i )->getParameterName( ).second.first ] = initialDynamicalParameters.at( i );
         }
     }
 
@@ -966,22 +968,23 @@ std::map< propagators::IntegratedStateType, std::vector< std::string > > getList
 {
     std::map< propagators::IntegratedStateType, std::vector< std::string > > bodiesToEstimate;
 
-    std::vector< std::shared_ptr< EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )  ||
-                ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
+            ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
-            bodiesToEstimate[ propagators::translational_state ].push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+            bodiesToEstimate[ propagators::translational_state ].push_back(
+                    initialDynamicalParameters.at( i )->getParameterName( ).second.first );
         }
         else if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state ) )
-         {
-             bodiesToEstimate[ propagators::rotational_state ].push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
-         }
+        {
+            bodiesToEstimate[ propagators::rotational_state ].push_back(
+                    initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+        }
     }
 
     return bodiesToEstimate;
@@ -994,23 +997,25 @@ std::map< propagators::IntegratedStateType, std::vector< std::string > > getList
  * \return List of translational state parameters
  */
 template< typename InitialStateParameterType >
-std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getListOfTranslationalStateParametersToEstimate(
+std::vector<
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+getListOfTranslationalStateParametersToEstimate(
         const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > translationalStateParameters;
+    std::vector< std::shared_ptr<
+            estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr<
+            estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            translationalStateParameters;
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )  ||
-                ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
+            ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
-            translationalStateParameters.push_back(  initialDynamicalParameters.at( i ) );
+            translationalStateParameters.push_back( initialDynamicalParameters.at( i ) );
         }
     }
 
@@ -1024,22 +1029,24 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
  * \return List of rotational state parameters
  */
 template< typename InitialStateParameterType >
-std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getListOfRotationalStateParametersToEstimate(
+std::vector<
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+getListOfRotationalStateParametersToEstimate(
         const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > rotationalStateParameters;
+    std::vector< std::shared_ptr<
+            estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr<
+            estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            rotationalStateParameters;
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state )   )
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state ) )
         {
-            rotationalStateParameters.push_back(  initialDynamicalParameters.at( i ) );
+            rotationalStateParameters.push_back( initialDynamicalParameters.at( i ) );
         }
     }
 
@@ -1047,22 +1054,24 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
 }
 
 template< typename InitialStateParameterType >
-std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getListOfMassStateParametersToEstimate(
+std::vector<
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+getListOfMassStateParametersToEstimate(
         const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > massStateParameters;
+    std::vector< std::shared_ptr<
+            estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr<
+            estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            massStateParameters;
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_mass_state )   )
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_mass_state ) )
         {
-            massStateParameters.push_back(  initialDynamicalParameters.at( i ) );
+            massStateParameters.push_back( initialDynamicalParameters.at( i ) );
         }
     }
 
@@ -1082,29 +1091,29 @@ getListOfInitialDynamicalStateParametersEstimate(
         const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
     // Retrieve initial dynamical parameters.
-    std::vector< std::shared_ptr< EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
 
-    std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > > initialDynamicalStateParametersEstimate;
+    std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
+            initialDynamicalStateParametersEstimate;
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
-                ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
+            ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
             initialDynamicalStateParametersEstimate[ propagators::translational_state ].push_back(
-                        initialDynamicalParameters.at( i )->getParameterName( ).second );
+                    initialDynamicalParameters.at( i )->getParameterName( ).second );
         }
         else if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state ) )
         {
             initialDynamicalStateParametersEstimate[ propagators::rotational_state ].push_back(
-                        initialDynamicalParameters.at( i )->getParameterName( ).second );
+                    initialDynamicalParameters.at( i )->getParameterName( ).second );
         }
         else if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_mass_state ) )
         {
             initialDynamicalStateParametersEstimate[ propagators::body_mass_state ].push_back(
-                        initialDynamicalParameters.at( i )->getParameterName( ).second );
+                    initialDynamicalParameters.at( i )->getParameterName( ).second );
         }
     }
 
@@ -1123,14 +1132,13 @@ Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getInitialStateVec
         const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
     // Retrieve initial dynamical parameters.
-    std::vector< std::shared_ptr< EstimatableParameter<
-            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
 
     // Initialize state vector.
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateVector =
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >::Zero(
-                estimatableParameters->getInitialDynamicalStateParameterSize( ), 1 );
+                    estimatableParameters->getInitialDynamicalStateParameterSize( ), 1 );
 
     int vectorSize = 0;
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
@@ -1158,48 +1166,54 @@ Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getInitialStateVec
  */
 template< typename InitialStateParameterType >
 std::map< double, std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > >
-        getMultiArcDynamicalStateToEstimatePerArc(
-                const std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >&
-                        initialMultiArcStateParameters,
-                std::map< double, std::vector< std::string > >& bodiesToEstimatePerArc,
-                std::vector< int >& multiArcStateParametersSizePerArc )
+getMultiArcDynamicalStateToEstimatePerArc(
+        const std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >&
+                initialMultiArcStateParameters,
+        std::map< double, std::vector< std::string > >& bodiesToEstimatePerArc,
+        std::vector< int >& multiArcStateParametersSizePerArc )
 {
     bodiesToEstimatePerArc.clear( );
     multiArcStateParametersSizePerArc.clear( );
-    std::map< double, std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > >
+    std::map< double,
+              std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > >
             multiArcDynamicalStateParametersPerArc;
     std::map< double, int > arcWiseParameterSize;
 
-    for ( unsigned int j = 0 ; j < initialMultiArcStateParameters.size( ) ; j++ )
+    for( unsigned int j = 0; j < initialMultiArcStateParameters.size( ); j++ )
     {
-        switch ( initialMultiArcStateParameters.at( j )->getParameterName( ).first )
+        switch( initialMultiArcStateParameters.at( j )->getParameterName( ).first )
         {
-            case arc_wise_initial_body_state:
-            {
-                std::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > > arcWiseTranslationalStateParameter =
-                        std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >( initialMultiArcStateParameters.at( j ) );
+            case arc_wise_initial_body_state: {
+                std::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >
+                        arcWiseTranslationalStateParameter =
+                                std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+                                        initialMultiArcStateParameters.at( j ) );
                 std::vector< double > currentArcTimes = arcWiseTranslationalStateParameter->getArcStartTimes( );
 
-                for ( unsigned int i = 0 ; i < currentArcTimes.size( ) ; i++ )
+                for( unsigned int i = 0; i < currentArcTimes.size( ); i++ )
                 {
                     // Multi-arc state parameter limited to current arc.
                     std::vector< double > currentArcStartTime = { currentArcTimes.at( i ) };
                     std::vector< std::string > currentArcCentralBody = { arcWiseTranslationalStateParameter->getCentralBodies( ).at( i ) };
-                    std::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > > currentArcTranslationalStateParameter =
-                            std::make_shared< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
-                                    arcWiseTranslationalStateParameter->getParameterName( ).second.first,
-                                    currentArcStartTime, arcWiseTranslationalStateParameter->getParameterValue( ).segment( i * 6, 6 ),
-                                    currentArcCentralBody, arcWiseTranslationalStateParameter->getFrameOrientation( ) );
+                    std::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >
+                            currentArcTranslationalStateParameter =
+                                    std::make_shared< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+                                            arcWiseTranslationalStateParameter->getParameterName( ).second.first,
+                                            currentArcStartTime,
+                                            arcWiseTranslationalStateParameter->getParameterValue( ).segment( i * 6, 6 ),
+                                            currentArcCentralBody,
+                                            arcWiseTranslationalStateParameter->getFrameOrientation( ) );
 
                     // Check whether the current arc was already detected for other multi-arc initial state parameters
                     // and add the current parameter to the per-arc list.
                     bool alreadyDetectedArc = false;
-                    for ( auto itr: multiArcDynamicalStateParametersPerArc )
+                    for( auto itr: multiArcDynamicalStateParametersPerArc )
                     {
                         if( std::fabs( currentArcTimes.at( i ) - itr.first ) <
                             std::max( 4.0 * itr.first * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
                         {
-                            bodiesToEstimatePerArc[ itr.first ].push_back( arcWiseTranslationalStateParameter->getParameterName( ).second.first );
+                            bodiesToEstimatePerArc[ itr.first ].push_back(
+                                    arcWiseTranslationalStateParameter->getParameterName( ).second.first );
                             itr.second.push_back( currentArcTranslationalStateParameter );
                             arcWiseParameterSize[ itr.first ] += 6;
                             alreadyDetectedArc = true;
@@ -1207,9 +1221,11 @@ std::map< double, std::vector< std::shared_ptr< EstimatableParameter< Eigen::Mat
                     }
                     // Create a new entry in the per-arc list of  multi-arc initial state parameters if the current arc is detected
                     // for the first time.
-                    if ( !alreadyDetectedArc )
+                    if( !alreadyDetectedArc )
                     {
-                        bodiesToEstimatePerArc[ currentArcTimes.at( i ) ] = { arcWiseTranslationalStateParameter->getParameterName( ).second.first };
+                        bodiesToEstimatePerArc[ currentArcTimes.at( i ) ] = {
+                            arcWiseTranslationalStateParameter->getParameterName( ).second.first
+                        };
                         multiArcDynamicalStateParametersPerArc[ currentArcTimes.at( i ) ] = { currentArcTranslationalStateParameter };
                         arcWiseParameterSize[ currentArcTimes.at( i ) ] = 6;
                     }
@@ -1220,8 +1236,9 @@ std::map< double, std::vector< std::shared_ptr< EstimatableParameter< Eigen::Mat
                 break;
             }
             default:
-                throw std::runtime_error( "Multi-arc dynamical parameter not recognised (only multi-arc translational initial state currently "
-                                          " implemented.)" );
+                throw std::runtime_error(
+                        "Multi-arc dynamical parameter not recognised (only multi-arc translational initial state currently "
+                        " implemented.)" );
         }
     }
 
@@ -1235,39 +1252,39 @@ std::map< double, std::vector< std::shared_ptr< EstimatableParameter< Eigen::Mat
  *  \return Size of parameter set.
  */
 template< typename InitialStateParameterType = double >
-int getSingleArcParameterSetSize(
-        std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet,
-        const int arcIndex = 0 )
+int getSingleArcParameterSetSize( std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet,
+                                  const int arcIndex = 0 )
 {
     // Check the consistency of the arc index
     int detectedNumberArcs = estimatableParameterSet->getNumberArcsFromMultiArcInitialStateParameters( );
-    if ( ( ( arcIndex < 0 ) || ( arcIndex + 1 > detectedNumberArcs ) ) && ( detectedNumberArcs > 0 ) )
+    if( ( ( arcIndex < 0 ) || ( arcIndex + 1 > detectedNumberArcs ) ) && ( detectedNumberArcs > 0 ) )
     {
-//        std::cout << "detected number arcs: " << detectedNumberArcs << "\n\n";
-//        std::cout << "arc index: " << arcIndex << "\n\n";
-        throw std::runtime_error( "Error when getting single arc parameter size for a given arc, the required arc index is unconsistent with "
-                                  "the detected number of arcs." );
+        //        std::cout << "detected number arcs: " << detectedNumberArcs << "\n\n";
+        //        std::cout << "arc index: " << arcIndex << "\n\n";
+        throw std::runtime_error(
+                "Error when getting single arc parameter size for a given arc, the required arc index is unconsistent with "
+                "the detected number of arcs." );
     }
 
-
     // Check consistency between number of detected arcs and size of the vector containing the multi-arc dynamical state sizes.
-    if ( static_cast< unsigned int >( detectedNumberArcs ) != estimatableParameterSet->getMultiArcStateParametersSizePerArc( ).size( ) )
+    if( static_cast< unsigned int >( detectedNumberArcs ) != estimatableParameterSet->getMultiArcStateParametersSizePerArc( ).size( ) )
     {
-        throw std::runtime_error(  "Error when getting single arc parameter size for a given arc, inconsistency between the detected number of arcs and "
-                                   "the vector giving the multi-arc dynamical state parameter sizes per arc." );
+        throw std::runtime_error(
+                "Error when getting single arc parameter size for a given arc, inconsistency between the detected number of arcs and "
+                "the vector giving the multi-arc dynamical state parameter sizes per arc." );
     }
 
     // Compute parameter size for the given arc.
-    if ( detectedNumberArcs > 0 )
+    if( detectedNumberArcs > 0 )
     {
         return estimatableParameterSet->getInitialDynamicalSingleArcStateParameterSize( ) +
-               estimatableParameterSet->getNonDynamicalStateParameterSize( ) +
-               estimatableParameterSet->getMultiArcStateParametersSizePerArc( ).at(arcIndex);
+                estimatableParameterSet->getNonDynamicalStateParameterSize( ) +
+                estimatableParameterSet->getMultiArcStateParametersSizePerArc( ).at( arcIndex );
     }
     else
     {
         return estimatableParameterSet->getInitialDynamicalSingleArcStateParameterSize( ) +
-               estimatableParameterSet->getNonDynamicalStateParameterSize( );
+                estimatableParameterSet->getNonDynamicalStateParameterSize( );
     }
 }
 
@@ -1301,11 +1318,11 @@ std::vector< double > getMultiArcStateEstimationArcStartTimes(
 
 {
     // Retrieve initial dynamical parameters.
-    std::vector< std::shared_ptr< EstimatableParameter<
-                                  Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-    estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = estimatableParameters->getEstimatedInitialStateParameters( );
 
-    // Iterate over list of bodies of which the partials of the accelerations acting on them are required and check if multi-arc dynamics are detected.
+    // Iterate over list of bodies of which the partials of the accelerations acting on them are required and check if multi-arc dynamics
+    // are detected.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( initialDynamicalParameters.at( i )->getParameterName( ).first != arc_wise_initial_body_state )
@@ -1338,17 +1355,19 @@ void getParametersToEstimatePerArcTest(
     arcWiseParametersToEstimate.clear( );
 
     // Get list of objets and associated bodies to estimate initial arc-wise translational states
-    typedef std::map< std::string, std::shared_ptr< estimatable_parameters::EstimatableParameter<
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > > ArcWiseParameterList;
-    ArcWiseParameterList estimatedBodies = estimatable_parameters::getListOfBodiesWithTranslationalMultiArcStateToEstimate(
-            parametersToEstimate );
+    typedef std::map<
+            std::string,
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
+            ArcWiseParameterList;
+    ArcWiseParameterList estimatedBodies =
+            estimatable_parameters::getListOfBodiesWithTranslationalMultiArcStateToEstimate( parametersToEstimate );
 
     int numberEstimatedBodies = estimatedBodies.size( );
 
     // Check that the arc starting times are provided in correct order.
-    for ( unsigned int i = 0 ; i < arcStartTimes.size( ) - 1 ; i++ )
+    for( unsigned int i = 0; i < arcStartTimes.size( ) - 1; i++ )
     {
-        if ( ( arcStartTimes[ i + 1 ] - arcStartTimes[ i ] ) < 0.0 )
+        if( ( arcStartTimes[ i + 1 ] - arcStartTimes[ i ] ) < 0.0 )
         {
             throw std::runtime_error( "Error, arc start times not provided in increasing order." );
         }
@@ -1356,7 +1375,7 @@ void getParametersToEstimatePerArcTest(
 
     // Initialising vector keeping track of whether each arc is associated with at least one body whose multi-arc state is to be estimated.
     std::vector< bool > detectedEstimatedStatesPerArc;
-    for ( unsigned int i = 0 ; i < arcStartTimes.size( ) ; i++ )
+    for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
         detectedEstimatedStatesPerArc.push_back( false );
     }
@@ -1364,7 +1383,7 @@ void getParametersToEstimatePerArcTest(
     estimatedBodiesPerArc.clear( );
     arcIndicesPerBody.clear( );
     std::vector< int > counterStateIndicesPerBody;
-    for ( int i = 0 ; i < numberEstimatedBodies ; i++ )
+    for( int i = 0; i < numberEstimatedBodies; i++ )
     {
         counterStateIndicesPerBody.push_back( 0 );
     }
@@ -1372,25 +1391,26 @@ void getParametersToEstimatePerArcTest(
     // Iterate over all parameters and check consistency
     unsigned int counterEstimatedBody = 0;
     for( typename ArcWiseParameterList::const_iterator parameterIterator = estimatedBodies.begin( );
-      parameterIterator != estimatedBodies.end( ); parameterIterator++ )
+         parameterIterator != estimatedBodies.end( );
+         parameterIterator++ )
     {
         // Get arc start times of current parameter
         std::vector< double > parameterArcStartTimes =
-                std::dynamic_pointer_cast< estimatable_parameters::
-                ArcWiseInitialTranslationalStateParameter< StateScalarType > >(
-                        parameterIterator->second )->getArcStartTimes( );
+                std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >(
+                        parameterIterator->second )
+                        ->getArcStartTimes( );
 
         // Check that each arc has at least one body whose state is to be estimated.
-        for ( unsigned int i = 0 ; i < parameterArcStartTimes.size( ) ; i++ )
+        for( unsigned int i = 0; i < parameterArcStartTimes.size( ); i++ )
         {
-//            bool detectedArc = false;
+            //            bool detectedArc = false;
             int indexDetectedArc = 0;
-            for ( unsigned int j = indexDetectedArc ; j < arcStartTimes.size( ) ; j++ )
+            for( unsigned int j = indexDetectedArc; j < arcStartTimes.size( ); j++ )
             {
                 if( std::fabs( arcStartTimes.at( j ) - parameterArcStartTimes.at( i ) ) <
                     std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
                 {
-//                    detectedArc = true;
+                    //                    detectedArc = true;
                     indexDetectedArc = j;
                     detectedEstimatedStatesPerArc[ j ] = true;
 
@@ -1413,65 +1433,72 @@ void getParametersToEstimatePerArcTest(
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parametersToEstimate->getEstimatedVectorParameters( );
 
-    for ( unsigned int arc = 0 ; arc < estimatedBodiesPerArc.size( ) ; arc++ )
+    for( unsigned int arc = 0; arc < estimatedBodiesPerArc.size( ); arc++ )
     {
         std::vector< std::string > arcWiseBodiesToEstimate = estimatedBodiesPerArc.at( arc );
 
-        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
+        std::vector<
+                std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
                 arcWiseStatesParameters;
 
-        for ( unsigned int j = 0 ; j < initialStatesParameters.size( ) ; j++ )
+        for( unsigned int j = 0; j < initialStatesParameters.size( ); j++ )
         {
-            for ( unsigned int body = 0 ; body < arcWiseBodiesToEstimate.size( ) ; body++ )
+            for( unsigned int body = 0; body < arcWiseBodiesToEstimate.size( ); body++ )
             {
-                if ( arcWiseBodiesToEstimate[ body ] == initialStatesParameters[ j ]->getParameterName( ).second.first )
+                if( arcWiseBodiesToEstimate[ body ] == initialStatesParameters[ j ]->getParameterName( ).second.first )
                 {
-                    //arcWiseStatesParameters.push_back( initialStatesParameters[ j ] );
+                    // arcWiseStatesParameters.push_back( initialStatesParameters[ j ] );
 
-                    std::shared_ptr< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > > currentArcInitialStateParameter =
-                            std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >
-                                    ( initialStatesParameters[ j ] );
+                    std::shared_ptr< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >
+                            currentArcInitialStateParameter = std::dynamic_pointer_cast<
+                                    estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >(
+                                    initialStatesParameters[ j ] );
 
-                    if ( currentArcInitialStateParameter == nullptr )
+                    if( currentArcInitialStateParameter == nullptr )
                     {
-                        throw std::runtime_error( "Error, initial state parameter type for multi-arc is not ArcWiseInitialTranslationalStateParameter." );
+                        throw std::runtime_error(
+                                "Error, initial state parameter type for multi-arc is not ArcWiseInitialTranslationalStateParameter." );
                     }
                     else
                     {
                         int arcIndexForBody = arcIndicesPerBody.at( arc ).at( arcWiseBodiesToEstimate[ body ] );
-                        std::vector< double > currentArcStartTime = { currentArcInitialStateParameter->getArcStartTimes( )[ arcIndexForBody ] };
-                        std::vector< std::string > currentArcCentralBody = { currentArcInitialStateParameter->getCentralBodies( )[ arcIndexForBody ] };
+                        std::vector< double > currentArcStartTime = {
+                            currentArcInitialStateParameter->getArcStartTimes( )[ arcIndexForBody ]
+                        };
+                        std::vector< std::string > currentArcCentralBody = {
+                            currentArcInitialStateParameter->getCentralBodies( )[ arcIndexForBody ]
+                        };
 
                         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentArcInitialState =
                                 currentArcInitialStateParameter->getParameterValue( ).block( 6 * arcIndexForBody, 0, 6, 1 );
 
-                        std::shared_ptr< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > > arcWiseInitialStateParameter
-                                = std::make_shared< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >
-                                        ( arcWiseBodiesToEstimate[ body ], currentArcStartTime,
-                                         currentArcInitialState, currentArcCentralBody,
-                                         currentArcInitialStateParameter->getFrameOrientation( ) );
+                        std::shared_ptr< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >
+                                arcWiseInitialStateParameter = std::make_shared<
+                                        estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >(
+                                        arcWiseBodiesToEstimate[ body ],
+                                        currentArcStartTime,
+                                        currentArcInitialState,
+                                        currentArcCentralBody,
+                                        currentArcInitialStateParameter->getFrameOrientation( ) );
 
                         arcWiseStatesParameters.push_back( arcWiseInitialStateParameter );
 
-//                        arcWiseStatesParameters.push_back( initialStatesParameters[ j ] );
-
+                        //                        arcWiseStatesParameters.push_back( initialStatesParameters[ j ] );
                     }
                 }
             }
         }
 
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > arcWiseEstimatableParamatersSet =
-                std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >
-                        ( doubleParameters, vectorParameters, arcWiseStatesParameters );
+                std::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
+                        doubleParameters, vectorParameters, arcWiseStatesParameters );
 
         arcWiseParametersToEstimate.push_back( arcWiseEstimatableParamatersSet );
-
     }
 }
 
+}  // namespace estimatable_parameters
 
-} // namespace estimatable_parameters
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_ESTIMATABLEPARAMETERSET_H
+#endif  // TUDAT_ESTIMATABLEPARAMETERSET_H

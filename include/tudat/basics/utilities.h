@@ -40,13 +40,12 @@ namespace utilities
  *  ( old key - offset ) * constant, where the choise between these two is provided by an input boolean.
  *  \param originalMap Orignal, unscaled map
  *  \param offset Offset that is to be applied to (subtracted from) map keys
- *  \param scale Value by which existing map keys are to be scaled (either before or agter application of offset variabled, depending on value
- *  of isOffsetAppliedFirst input variable)
+ *  \param scale Value by which existing map keys are to be scaled (either before or agter application of offset variabled, depending on
+ * value of isOffsetAppliedFirst input variable)
  *  \param isOffsetAppliedFirst Boolean denoting order in which offset and scale are to be applied to existing map keys.
  */
 template< typename S, typename T >
-std::map< S, T > linearlyScaleKeyOfMap(
-        const std::map< S, T >& originalMap, S offset, S scale, bool isOffsetAppliedFirst = true )
+std::map< S, T > linearlyScaleKeyOfMap( const std::map< S, T >& originalMap, S offset, S scale, bool isOffsetAppliedFirst = true )
 {
     // Declare new map
     std::map< S, T > scaledMap;
@@ -73,8 +72,8 @@ std::map< S, T > linearlyScaleKeyOfMap(
 
 //! Function to create a vector from the values of a map
 /*!
- *  Function to create a vector from the values of a map. The output vector is in the order of the map entries, i.e. as provided by a forward iterator.
- *  The map keys are not used for the return vector.
+ *  Function to create a vector from the values of a map. The output vector is in the order of the map entries, i.e. as provided by a
+ * forward iterator. The map keys are not used for the return vector.
  *  \param inputMap Original map from which the vector is to be created
  *  \return Vector created from the map values
  */
@@ -87,8 +86,8 @@ std::vector< VectorArgument > createVectorFromMapValues( const std::map< KeyType
 
     // Iterate over all map entries and create vector
     int currentIndex = 0;
-    for( typename std::map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
-         mapIterator != inputMap.end( ); mapIterator++, currentIndex++ )
+    for( typename std::map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( ); mapIterator != inputMap.end( );
+         mapIterator++, currentIndex++ )
     {
         outputVector[ currentIndex ] = mapIterator->second;
     }
@@ -106,7 +105,8 @@ std::vector< KeyType > createVectorFromUnorderedMapKeys( const std::unordered_ma
     // Iterate over all map entries and create vector
     int currentIndex = 0;
     for( typename std::unordered_map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
-         mapIterator != inputMap.end( ); mapIterator++, currentIndex++ )
+         mapIterator != inputMap.end( );
+         mapIterator++, currentIndex++ )
     {
         outputVector[ currentIndex ] = mapIterator->first;
     }
@@ -114,11 +114,10 @@ std::vector< KeyType > createVectorFromUnorderedMapKeys( const std::unordered_ma
     return outputVector;
 }
 
-
 //! Function to create a vector from the keys of a map
 /*!
- *  Function to create a vector from the keys of a map. The output vector is in the order of the map entries, i.e. as provided by a forward iterator.
- *  The map values are not used for the return vector.
+ *  Function to create a vector from the keys of a map. The output vector is in the order of the map entries, i.e. as provided by a forward
+ * iterator. The map values are not used for the return vector.
  *  \param inputMap Original map from which the vector is to be created
  *  \return Vector created from the map keys
  */
@@ -131,8 +130,8 @@ std::vector< KeyType > createVectorFromMapKeys( const std::map< KeyType, VectorA
 
     // Iterate over all map entries and create vector
     int currentIndex = 0;
-    for( typename std::map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
-         mapIterator != inputMap.end( ); mapIterator++, currentIndex++ )
+    for( typename std::map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( ); mapIterator != inputMap.end( );
+         mapIterator++, currentIndex++ )
     {
         outputVector[ currentIndex ] = mapIterator->first;
     }
@@ -175,16 +174,17 @@ S subtractFunctionReturn( const std::function< S( ) > function1, const std::func
  *  \param segmentSize Number of rows in vector.
  */
 template< typename S, typename T >
-void createVectorBlockMatrixHistory(
-        const std::map< S, Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > >& matrixHistory,
-        std::map< S, Eigen::Matrix< T, Eigen::Dynamic, 1 > >& blockMatrixHistory,
-        const std::pair< int, int > startIndices, const int segmentSize )
+void createVectorBlockMatrixHistory( const std::map< S, Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > >& matrixHistory,
+                                     std::map< S, Eigen::Matrix< T, Eigen::Dynamic, 1 > >& blockMatrixHistory,
+                                     const std::pair< int, int > startIndices,
+                                     const int segmentSize )
 {
     blockMatrixHistory.clear( );
 
     // Loop over integration output and put results in corresponding data structures.
     for( typename std::map< S, Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > >::const_iterator matrixIterator = matrixHistory.begin( );
-         matrixIterator != matrixHistory.end( ); matrixIterator++ )
+         matrixIterator != matrixHistory.end( );
+         matrixIterator++ )
     {
         // Set numerically integrated states of bodies.
         blockMatrixHistory[ matrixIterator->first ] =
@@ -200,8 +200,7 @@ void createVectorBlockMatrixHistory(
 template< typename S, typename T >
 void printMapContents( const std::map< S, T >& mapToPrint )
 {
-    for( typename std::map< S, T >::const_iterator mapIterator = mapToPrint.begin( );
-         mapIterator != mapToPrint.end( ); mapIterator++ )
+    for( typename std::map< S, T >::const_iterator mapIterator = mapToPrint.begin( ); mapIterator != mapToPrint.end( ); mapIterator++ )
     {
         std::cout << mapIterator->first << ", " << mapIterator->second << std::endl;
     }
@@ -215,11 +214,12 @@ void printMapContents( const std::map< S, T >& mapToPrint )
  */
 template< typename S, typename T, typename U, typename V, int Rows, int Columns >
 void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& originalMap,
-                          std::map< U, Eigen::Matrix< V, Rows, Columns > >& newTypesMap )
+                    std::map< U, Eigen::Matrix< V, Rows, Columns > >& newTypesMap )
 {
     newTypesMap.clear( );
     for( typename std::map< S, Eigen::Matrix< T, Rows, Columns > >::const_iterator mapIterator = originalMap.begin( );
-         mapIterator != originalMap.end( ); mapIterator++ )
+         mapIterator != originalMap.end( );
+         mapIterator++ )
     {
         newTypesMap[ static_cast< U >( mapIterator->first ) ] = mapIterator->second.template cast< V >( );
     }
@@ -227,13 +227,13 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
 
 //! Function to dynamic cast vector of shared pointers of one type to shared pointers of another type.
 /*!
- *  Function to dynamic cast vector of shared pointers of one type (S) to shared pointers of another type (T). The dynamic cast must be permissible,
- *  i.e. an S pointer must succesfully dynamic cast to a T pointer (T shoudl typically derive from S).
+ *  Function to dynamic cast vector of shared pointers of one type (S) to shared pointers of another type (T). The dynamic cast must be
+ * permissible, i.e. an S pointer must succesfully dynamic cast to a T pointer (T shoudl typically derive from S).
  *  \param originalVector Vector of S shared pointers.
  *  \return Dynamic casted vector of T shared pointers.
  */
 template< typename S, typename T >
-std::vector< std::shared_ptr< T > >dynamicCastSVectorToTVector( const std::vector< std::shared_ptr< S > >& originalVector )
+std::vector< std::shared_ptr< T > > dynamicCastSVectorToTVector( const std::vector< std::shared_ptr< S > >& originalVector )
 {
     std::vector< std::shared_ptr< T > > castVector;
 
@@ -270,7 +270,9 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedE
 
         outputVector.resize( inputMap.size( ) * NumberOfRows, columns );
         for( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > >::const_iterator mapIterator =
-             inputMap.begin( ); mapIterator != inputMap.end( ); mapIterator++ )
+                     inputMap.begin( );
+             mapIterator != inputMap.end( );
+             mapIterator++ )
         {
             outputVector.block( counter, 0, NumberOfRows, columns ) = mapIterator->second;
             counter += NumberOfRows;
@@ -281,7 +283,9 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedE
         int concatenatedSize = 0;
 
         for( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > >::const_iterator mapIterator =
-             inputMap.begin( ); mapIterator != inputMap.end( ); mapIterator++ )
+                     inputMap.begin( );
+             mapIterator != inputMap.end( );
+             mapIterator++ )
         {
             concatenatedSize += mapIterator->second.rows( );
         }
@@ -291,7 +295,9 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedE
         int counter = 0;
 
         for( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > >::const_iterator mapIterator =
-             inputMap.begin( ); mapIterator != inputMap.end( ); mapIterator++ )
+                     inputMap.begin( );
+             mapIterator != inputMap.end( );
+             mapIterator++ )
         {
             currentSize = mapIterator->second.rows( );
             outputVector.block( counter, 0, currentSize, columns ) = mapIterator->second;
@@ -322,8 +328,9 @@ extractKeyAndValuesFromMap( const std::map< KeyType, Eigen::Matrix< ScalarType, 
 
     // Loop over map and save elements
     int i = 0;
-    for ( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, 1 > >::const_iterator
-          mapIterator = inputMap.begin( ); mapIterator != inputMap.end( ); mapIterator++, i++ )
+    for( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, 1 > >::const_iterator mapIterator = inputMap.begin( );
+         mapIterator != inputMap.end( );
+         mapIterator++, i++ )
     {
         keyValuesVector[ i ] = mapIterator->first;
         mappedValuesMatrix.col( i ) = mapIterator->second;
@@ -365,7 +372,7 @@ Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > convertStlVectorToEigenMatrix
 {
     // Create empty vector
     int numberOfRows = Rows;
-    if ( numberOfRows == Eigen::Dynamic )
+    if( numberOfRows == Eigen::Dynamic )
     {
         numberOfRows = stlVector.front( ).rows( );
     }
@@ -430,12 +437,12 @@ void copyMultiArray( const boost::multi_array< S, NumberOfDimensions >& arrayToC
  */
 template< unsigned int NumberOfDimensions >
 typename boost::multi_array< double, NumberOfDimensions >::index getMultiArrayIndex(
-        const typename boost::multi_array< double, NumberOfDimensions >& multiArray, const double* requestedElement,
+        const typename boost::multi_array< double, NumberOfDimensions >& multiArray,
+        const double* requestedElement,
         const unsigned short int direction )
 {
     int offset = requestedElement - multiArray.origin( );
-    return( offset / multiArray.strides( )[ direction ] % multiArray.shape( )[ direction ] +
-            multiArray.index_bases( )[ direction ] );
+    return ( offset / multiArray.strides( )[ direction ] % multiArray.shape( )[ direction ] + multiArray.index_bases( )[ direction ] );
 }
 
 //! Get indices of pointer to single entry in multi-array (size 1) of doubles
@@ -445,8 +452,8 @@ typename boost::multi_array< double, NumberOfDimensions >::index getMultiArrayIn
  *  \param requestedElement Pointer to element for which index is to be retrieved
  *  \return Indices of pointer to single entry in multi-array of doubles
  */
-boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 1 >& multiArray, const double* requestedElement );
+boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray( const boost::multi_array< double, 1 >& multiArray,
+                                                                                   const double* requestedElement );
 
 //! Get indices of pointer to single entry in multi-array (size 2) of doubles
 /*!
@@ -455,8 +462,8 @@ boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArra
  *  \param requestedElement Pointer to element for which index is to be retrieved
  *  \return Indices of pointer to single entry in multi-array of doubles
  */
-boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 2 >& multiArray, const double* requestedElement );
+boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray( const boost::multi_array< double, 2 >& multiArray,
+                                                                                   const double* requestedElement );
 
 //! Get indices of pointer to single entry in multi-array (size 3) of doubles
 /*!
@@ -465,8 +472,8 @@ boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArra
  *  \param requestedElement Pointer to element for which index is to be retrieved
  *  \return Indices of pointer to single entry in multi-array of doubles
  */
-boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 3 >& multiArray, const double* requestedElement );
+boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray( const boost::multi_array< double, 3 >& multiArray,
+                                                                                   const double* requestedElement );
 
 template< typename S, typename T >
 std::vector< S > createVectorFromVectorOfPairFirsts( const std::vector< std::pair< S, T > > inputVector )
@@ -501,8 +508,8 @@ std::vector< int > getSortOrderOfVector( const std::vector< T > unsortedVector )
 
 //! Function to create a vector from the values of a multimap
 /*!
- *  Function to create a vector from the values of a multimap. The output vector is in the order of the multimap entries, i.e. as provided by a
- *  forward iterator. The multimap keys are not used for the return vector.
+ *  Function to create a vector from the values of a multimap. The output vector is in the order of the multimap entries, i.e. as provided
+ * by a forward iterator. The multimap keys are not used for the return vector.
  *  \param inputMap Original multimap from which the vector is to be created
  *  \return Vector created from the multimap values
  */
@@ -515,8 +522,8 @@ std::vector< VectorArgument > createVectorFromMultiMapValues( const std::multima
 
     // Iterate over all map entries and create vector
     int currentIndex = 0;
-    for( typename std::multimap< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
-         mapIterator != inputMap.end( ); mapIterator++ )
+    for( typename std::multimap< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( ); mapIterator != inputMap.end( );
+         mapIterator++ )
     {
         outputVector[ currentIndex ] = mapIterator->second;
         currentIndex++;
@@ -527,8 +534,8 @@ std::vector< VectorArgument > createVectorFromMultiMapValues( const std::multima
 
 //! Function to create a vector from the keys of a multimap
 /*!
- *  Function to create a vector from the keys of a multimap. The output vector is in the order of the multimap entries, i.e. as provided by a
- *  forward iterator. The multimap values are not used for the return vector.
+ *  Function to create a vector from the keys of a multimap. The output vector is in the order of the multimap entries, i.e. as provided by
+ * a forward iterator. The multimap values are not used for the return vector.
  *  \param inputMap Original multimap from which the vector is to be created
  *  \return Vector created from the multimap keys
  */
@@ -541,8 +548,8 @@ std::vector< KeyType > createVectorFromMultiMapKeys( const std::multimap< KeyTyp
 
     // Iterate over all map entries and create vector
     int currentIndex = 0;
-    for( typename std::multimap< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
-         mapIterator != inputMap.end( ); mapIterator++ )
+    for( typename std::multimap< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( ); mapIterator != inputMap.end( );
+         mapIterator++ )
     {
         outputVector[ currentIndex ] = mapIterator->first;
         currentIndex++;
@@ -571,8 +578,7 @@ std::pair< std::vector< int >, std::vector< T > > getSortOrderOfVectorAndSortedV
 }
 
 template< typename T >
-bool doStlVectorContentsMatch(
-        const std::vector< T >& vectorA, const std::vector< T >& vectorB )
+bool doStlVectorContentsMatch( const std::vector< T >& vectorA, const std::vector< T >& vectorB )
 {
     bool doVectorsMatch = true;
     if( vectorA.size( ) != vectorB.size( ) )
@@ -584,7 +590,7 @@ bool doStlVectorContentsMatch(
         for( unsigned int i = 0; i < vectorA.size( ); i++ )
         {
             if( std::count( vectorB.begin( ), vectorB.end( ), vectorA.at( i ) ) !=
-                    std::count( vectorA.begin( ), vectorA.end( ), vectorA.at( i ) ))
+                std::count( vectorA.begin( ), vectorA.end( ), vectorA.at( i ) ) )
             {
                 doVectorsMatch = false;
             }
@@ -600,10 +606,10 @@ std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertStlVect
         std::map< MapKey, std::vector< ScalarType > > stlVectorMap )
 {
     std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > eigenMap;
-    for ( auto ent: stlVectorMap )
+    for( auto ent: stlVectorMap )
     {
         Eigen::Array< ScalarType, Eigen::Dynamic, 1 > array( ent.second.size( ) );
-        for ( int i = 0; i < array.rows( ); i++ )
+        for( int i = 0; i < array.rows( ); i++ )
         {
             array.row( i ) = ent.second.at( i );
         }
@@ -614,24 +620,26 @@ std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertStlVect
 
 //! Function to slice standard library vector, given an optional initial and final slicing values.
 template< typename T >
-std::vector< T > sliceStlVector( const std::vector< T >& vectorToBeSliced, unsigned int startIndex = 0,
+std::vector< T > sliceStlVector( const std::vector< T >& vectorToBeSliced,
+                                 unsigned int startIndex = 0,
                                  unsigned int endIndex = std::numeric_limits< unsigned int >::signaling_NaN( ) )
 {
     // Declare output vector
     std::vector< T > slicedVector;
 
     // Give value to end index
-    if ( endIndex == std::numeric_limits< unsigned int >::signaling_NaN( ) )
+    if( endIndex == std::numeric_limits< unsigned int >::signaling_NaN( ) )
     {
         endIndex = vectorToBeSliced.size( ) - 1;
     }
 
     // Check that boundaries make sense
-    if ( startIndex > endIndex )
+    if( startIndex > endIndex )
     {
         // Warn user of inconsistency
         std::cerr << "Warning in slicing of std::vector. The starting index is greater than the end index. "
-                     "The indices will be swapped." << std::endl;
+                     "The indices will be swapped."
+                  << std::endl;
 
         // Swap indices
         unsigned int temporaryIndex = startIndex;
@@ -640,7 +648,7 @@ std::vector< T > sliceStlVector( const std::vector< T >& vectorToBeSliced, unsig
     }
 
     // Transfer values to sliced array
-    for ( unsigned int i = startIndex; i < ( endIndex + 1 ); i++ )
+    for( unsigned int i = startIndex; i < ( endIndex + 1 ); i++ )
     {
         slicedVector.push_back( vectorToBeSliced.at( i ) );
     }
@@ -648,11 +656,10 @@ std::vector< T > sliceStlVector( const std::vector< T >& vectorToBeSliced, unsig
 }
 
 template< typename KeyType, typename ScalarType, int FixedSize >
-void castDynamicToFixedSizeEigenVectorMap(
-        std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& originalMap,
-        std::map< KeyType, Eigen::Matrix< ScalarType, FixedSize, 1 > >& fixedSizeMap )
+void castDynamicToFixedSizeEigenVectorMap( std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& originalMap,
+                                           std::map< KeyType, Eigen::Matrix< ScalarType, FixedSize, 1 > >& fixedSizeMap )
 {
-    for( auto mapIterator : originalMap )
+    for( auto mapIterator: originalMap )
     {
         fixedSizeMap[ mapIterator.first ] = mapIterator.second;
     }
@@ -663,36 +670,39 @@ void castDynamicToFixedSizeEigenVectorMap(
  *  \param val Variable for which sign is to be determined
  *  \return Sign of variable
  */
-template < typename T > int sgn( const T& val )
+template< typename T >
+int sgn( const T& val )
 {
     return ( T( 0 ) < val ) - ( val < T( 0 ) );
 }
 
 //! From https://stackoverflow.com/questions/27028226/python-linspace-in-c
-template<typename T>
-std::vector< T > linspace(T start_in, T end_in, int num_in)
+template< typename T >
+std::vector< T > linspace( T start_in, T end_in, int num_in )
 {
+    std::vector< double > linspaced;
 
-    std::vector<double> linspaced;
+    T start = static_cast< T >( start_in );
+    T end = static_cast< T >( end_in );
+    T num = static_cast< T >( num_in );
 
-    T start = static_cast< T >(start_in);
-    T end = static_cast< T >(end_in);
-    T num = static_cast< T >(num_in);
-
-    if (num == 0) { return linspaced; }
-    if (num == 1)
+    if( num == 0 )
     {
-        linspaced.push_back(start);
+        return linspaced;
+    }
+    if( num == 1 )
+    {
+        linspaced.push_back( start );
         return linspaced;
     }
 
-    double delta = (end - start) / (num - 1);
+    double delta = ( end - start ) / ( num - 1 );
 
-    for(int i=0; i < num-1; ++i)
+    for( int i = 0; i < num - 1; ++i )
     {
-        linspaced.push_back(start + delta * i);
+        linspaced.push_back( start + delta * i );
     }
-    linspaced.push_back(end);
+    linspaced.push_back( end );
     return linspaced;
 }
 
@@ -703,17 +713,17 @@ std::map< NewKeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > sliceMatr
 {
     std::map< NewKeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > slicedHistory;
 
-    for( auto mapIterator : fullHistory )
+    for( auto mapIterator: fullHistory )
     {
-        slicedHistory[ static_cast< NewKeyType >( mapIterator.first ) ] = mapIterator.second.segment(
-                    sliceStartIndexAndSize.first, sliceStartIndexAndSize.second );
+        slicedHistory[ static_cast< NewKeyType >( mapIterator.first ) ] =
+                mapIterator.second.segment( sliceStartIndexAndSize.first, sliceStartIndexAndSize.second );
     }
     return slicedHistory;
 }
 
 template< typename KeyType, typename ScalarType >
 Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > convertVectorHistoryToMatrix(
-    const std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& vectorHistory )
+        const std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& vectorHistory )
 {
     int numberOfRows = vectorHistory.size( );
     int numberOfColumns = 0;
@@ -722,9 +732,9 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > convertVectorHistory
         numberOfColumns = vectorHistory.begin( )->second.rows( );
     }
     Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > concatenatedMatrix =
-        Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic >::Zero( numberOfRows, numberOfColumns );
+            Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic >::Zero( numberOfRows, numberOfColumns );
     int counter = 0;
-    for( auto it : vectorHistory )
+    for( auto it: vectorHistory )
     {
         Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > currentVector = it.second;
         if( currentVector.rows( ) != numberOfColumns )
@@ -738,8 +748,7 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > convertVectorHistory
 }
 
 template< typename KeyType, typename ValueType >
-std::map< KeyType, ValueType > concatenateMaps(
-        const std::vector< std::map< KeyType, ValueType > >& mapList )
+std::map< KeyType, ValueType > concatenateMaps( const std::vector< std::map< KeyType, ValueType > >& mapList )
 {
     std::map< KeyType, ValueType > concatenatedMaps;
 
@@ -752,9 +761,7 @@ std::map< KeyType, ValueType > concatenateMaps(
 }
 
 template< typename KeyType, typename ValueType >
-std::map< KeyType, ValueType > createMapFromVectors(
-        const std::vector< KeyType >& keyList,
-        const std::vector< ValueType >& valueList )
+std::map< KeyType, ValueType > createMapFromVectors( const std::vector< KeyType >& keyList, const std::vector< ValueType >& valueList )
 {
     if( keyList.size( ) != valueList.size( ) )
     {
@@ -766,15 +773,15 @@ std::map< KeyType, ValueType > createMapFromVectors(
         createdMap[ keyList.at( i ) ] = valueList.at( i );
     }
     return createdMap;
-
 }
 
 template< typename KeyType, typename ScalarType, int SizeType >
 std::map< KeyType, ScalarType > getSingleVectorEntryHistory(
-        const std::map< KeyType, Eigen::Matrix< ScalarType, SizeType, 1 > > originalMap, int vectorEntry )
+        const std::map< KeyType, Eigen::Matrix< ScalarType, SizeType, 1 > > originalMap,
+        int vectorEntry )
 {
     std::map< KeyType, ScalarType > extractedMap;
-    for( auto mapIterator : originalMap )
+    for( auto mapIterator: originalMap )
     {
         extractedMap[ mapIterator.first ] = mapIterator.second( vectorEntry );
     }
@@ -793,17 +800,14 @@ std::vector< ValueType > getVectorEntries( const std::vector< ValueType >& fullV
     return subVector;
 }
 
-
 template< typename A >
-std::shared_ptr< A > deepcopyPointer(
-        const std::shared_ptr< A > originalPointer )
+std::shared_ptr< A > deepcopyPointer( const std::shared_ptr< A > originalPointer )
 {
     return std::make_shared< A >( *originalPointer );
 }
 
 template< typename A >
-std::vector< std::shared_ptr< A > > deepcopyDuplicatePointers(
-        const std::vector< std::shared_ptr< A > > originalPointers )
+std::vector< std::shared_ptr< A > > deepcopyDuplicatePointers( const std::vector< std::shared_ptr< A > > originalPointers )
 {
     std::vector< std::shared_ptr< A > > noDuplicatePointers;
     for( unsigned int i = 0; i < originalPointers.size( ); i++ )
@@ -821,8 +825,7 @@ std::vector< std::shared_ptr< A > > deepcopyDuplicatePointers(
 }
 
 template< typename A >
-std::vector< std::shared_ptr< A > > cloneDuplicatePointers(
-        const std::vector< std::shared_ptr< A > > originalPointers )
+std::vector< std::shared_ptr< A > > cloneDuplicatePointers( const std::vector< std::shared_ptr< A > > originalPointers )
 {
     std::vector< std::shared_ptr< A > > noDuplicatePointers;
     for( unsigned int i = 0; i < originalPointers.size( ); i++ )
@@ -840,16 +843,14 @@ std::vector< std::shared_ptr< A > > cloneDuplicatePointers(
 }
 
 template< typename A, typename B >
-std::vector< std::pair< A, B > > mergeVectorsIntoVectorOfPairs(
-        const std::vector< A >& firstVector,
-        const std::vector< B >& secondVector )
+std::vector< std::pair< A, B > > mergeVectorsIntoVectorOfPairs( const std::vector< A >& firstVector, const std::vector< B >& secondVector )
 {
     std::vector< std::pair< A, B > > mergedVector;
     if( firstVector.size( ) != secondVector.size( ) )
     {
         throw std::runtime_error( "Error when merging vectors in vector of pairs; size is inconsistent" );
     }
-    for( unsigned  int i = 0; i < firstVector.size( ); i++ )
+    for( unsigned int i = 0; i < firstVector.size( ); i++ )
     {
         mergedVector.push_back( std::make_pair( firstVector.at( i ), secondVector.at( i ) ) );
     }
@@ -868,16 +869,14 @@ std::vector< A > getFirstTupleEntryVector( const std::vector< std::tuple< A, Arg
 }
 
 template< typename T >
-constexpr int constexpr_int_floor(const T& f)
+constexpr int constexpr_int_floor( const T& f )
 {
-    const int i = static_cast<int>(f);
+    const int i = static_cast< int >( f );
     return f < i ? i - 1 : i;
 }
 
 template< typename IntType >
-std::string paddedZeroIntString(
-    const IntType valueToConvert,
-    const int numberOfDigits )
+std::string paddedZeroIntString( const IntType valueToConvert, const int numberOfDigits )
 {
     std::stringstream intStream;
     intStream << std::setw( numberOfDigits ) << std::setfill( '0' ) << valueToConvert;
@@ -885,20 +884,20 @@ std::string paddedZeroIntString(
     return intString;
 }
 
-template <typename T>
-std::string to_string_with_precision(const T a_value, const int n = 6)
+template< typename T >
+std::string to_string_with_precision( const T a_value, const int n = 6 )
 {
     std::ostringstream out;
-    out.precision(n);
+    out.precision( n );
     out << std::fixed << a_value;
-    return std::move(out).str();
+    return std::move( out ).str( );
 }
-template <typename T>
+template< typename T >
 std::vector< T > getStlVectorSegment( const std::vector< T > originalVector, const int startIndex, const int size )
 {
-    typename std::vector< T >::const_iterator first = originalVector.begin() + startIndex;
-    typename std::vector< T >::const_iterator last = originalVector.begin() + startIndex + size;
-    return std::vector< T >(first, last);
+    typename std::vector< T >::const_iterator first = originalVector.begin( ) + startIndex;
+    typename std::vector< T >::const_iterator last = originalVector.begin( ) + startIndex + size;
+    return std::vector< T >( first, last );
 }
 
 template< typename T, typename S >
@@ -916,20 +915,20 @@ template< typename T, typename S, typename U >
 std::map< T, U > staticCastMapKeys( const std::map< S, U >& originalMap )
 {
     std::map< T, U > castMap;
-    for( auto it : originalMap )
+    for( auto it: originalMap )
     {
-        castMap[ static_cast< T >( it.first) ] = it.second;
+        castMap[ static_cast< T >( it.first ) ] = it.second;
     }
     return castMap;
 }
 
-template <typename T>
-Eigen::Matrix< T, Eigen::Dynamic, 1 > getSuccesivelyConcatenatedVector(
-    const Eigen::Matrix< T, Eigen::Dynamic, 1 > baseVector, const unsigned int numberOfConcatenations )
+template< typename T >
+Eigen::Matrix< T, Eigen::Dynamic, 1 > getSuccesivelyConcatenatedVector( const Eigen::Matrix< T, Eigen::Dynamic, 1 > baseVector,
+                                                                        const unsigned int numberOfConcatenations )
 {
     int singleSize = baseVector.rows( );
-    Eigen::Matrix< T, Eigen::Dynamic, 1 > concatenatedVector = Eigen::Matrix< T, Eigen::Dynamic, 1 >::Zero(
-        numberOfConcatenations * singleSize );
+    Eigen::Matrix< T, Eigen::Dynamic, 1 > concatenatedVector =
+            Eigen::Matrix< T, Eigen::Dynamic, 1 >::Zero( numberOfConcatenations * singleSize );
     for( unsigned int i = 0; i < numberOfConcatenations; i++ )
     {
         concatenatedVector.segment( i * singleSize, singleSize ) = baseVector;
@@ -937,7 +936,7 @@ Eigen::Matrix< T, Eigen::Dynamic, 1 > getSuccesivelyConcatenatedVector(
     return concatenatedVector;
 }
 
-template <typename T>
+template< typename T >
 int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& value )
 {
     int counter = 0;
@@ -958,11 +957,11 @@ int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& va
  * @return true if all elements from searchArray are in referenceArray
  */
 template< typename T, typename U >
-bool containsAll(const T& referenceArray, const U searchArray)
+bool containsAll( const T& referenceArray, const U searchArray )
 {
-    for (auto search_element: searchArray)
+    for( auto search_element: searchArray )
     {
-        if (std::find(referenceArray.begin(), referenceArray.end(), search_element) == referenceArray.end())
+        if( std::find( referenceArray.begin( ), referenceArray.end( ), search_element ) == referenceArray.end( ) )
         {
             return false;
         }
@@ -972,19 +971,21 @@ bool containsAll(const T& referenceArray, const U searchArray)
 
 //! Convert a vector to a set
 template< typename T >
-std::set<T> vectorToSet(std::vector<T> vector)
+std::set< T > vectorToSet( std::vector< T > vector )
 {
-  std::set<T> set;
-  for (T& elem : vector) {
-    set.insert(elem);
-  }
-  return set;
+    std::set< T > set;
+    for( T& elem: vector )
+    {
+        set.insert( elem );
+    }
+    return set;
 }
 
 //! Base case for the commonVectorSizeOrZero function
-template<typename T>
-size_t commonVectorSizeOrZero(const T& first) {
-    return first.size(); // Base case: single vector, return its size
+template< typename T >
+size_t commonVectorSizeOrZero( const T& first )
+{
+    return first.size( );  // Base case: single vector, return its size
 }
 
 /*!
@@ -993,15 +994,15 @@ size_t commonVectorSizeOrZero(const T& first) {
  * \param args any number of vectors
  * \return size of all vectors if they have the same size, 0 otherwise
  */
-template<typename T, typename... Args>
-size_t commonVectorSizeOrZero(const T& first, const Args&... args) {
-    size_t sizeFirst = first.size();
-    size_t sizeRest = commonVectorSizeOrZero(args...);
+template< typename T, typename... Args >
+size_t commonVectorSizeOrZero( const T& first, const Args&... args )
+{
+    size_t sizeFirst = first.size( );
+    size_t sizeRest = commonVectorSizeOrZero( args... );
 
     // Return size of all vectors if they have the same size, 0 otherwise
-    return (sizeFirst == sizeRest) ? sizeFirst : 0;
+    return ( sizeFirst == sizeRest ) ? sizeFirst : 0;
 }
-
 
 /*!
  * Apply a function that takes multiple arguments to operate on all the rows of vectors.
@@ -1010,30 +1011,42 @@ size_t commonVectorSizeOrZero(const T& first, const Args&... args) {
  * \param args any number of vectors. the total arguments must be compatible with the required arguments for convertFunc
  */
 template< typename ScalarType, typename ConvertFunc, typename FirstArg, typename... Args >
-std::vector< ScalarType > convertVectors(ConvertFunc convertFunc, const std::vector<FirstArg>& firstArg, const std::vector<Args>& ... args)
+std::vector< ScalarType > convertVectors( ConvertFunc convertFunc,
+                                          const std::vector< FirstArg >& firstArg,
+                                          const std::vector< Args >&... args )
 {
-    std::vector<ScalarType> result;
-    size_t N = commonVectorSizeOrZero(firstArg, args...);
+    std::vector< ScalarType > result;
+    size_t N = commonVectorSizeOrZero( firstArg, args... );
 
-    if (!N) {
-        throw std::runtime_error("Error when applying conversion function: Vectors have different sizes");
+    if( !N )
+    {
+        throw std::runtime_error( "Error when applying conversion function: Vectors have different sizes" );
     }
 
-    for (size_t i = 0; i < N; ++i) {
-        result.push_back(convertFunc(firstArg[i], args[i]...));
-    }    
+    for( size_t i = 0; i < N; ++i )
+    {
+        result.push_back( convertFunc( firstArg[ i ], args[ i ]... ) );
+    }
     return result;
 }
 
-
-template<typename T, typename U>
-std::map<T, U> getMapFromFile(std::string fileName, char commentSymbol='#', std::string separators="\t", const int skipNumberOfEntries = 0 );
+template< typename T, typename U >
+std::map< T, U > getMapFromFile( std::string fileName,
+                                 char commentSymbol = '#',
+                                 std::string separators = "\t",
+                                 const int skipNumberOfEntries = 0 );
 
 template<>
-std::map<std::string, Eigen::Vector3d> getMapFromFile<std::string, Eigen::Vector3d>(std::string fileName, char commentSymbol, std::string separators, const int skipNumberOfEntries);
+std::map< std::string, Eigen::Vector3d > getMapFromFile< std::string, Eigen::Vector3d >( std::string fileName,
+                                                                                         char commentSymbol,
+                                                                                         std::string separators,
+                                                                                         const int skipNumberOfEntries );
 
 template<>
-std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std::string fileName, char commentSymbol, std::string separators, const int skipNumberOfEntries);
+std::map< std::string, std::string > getMapFromFile< std::string, std::string >( std::string fileName,
+                                                                                 char commentSymbol,
+                                                                                 std::string separators,
+                                                                                 const int skipNumberOfEntries );
 
 /*!
  * Utility function to get a value from a string map where the keys are all uppercase
@@ -1042,59 +1055,57 @@ std::map<std::string, std::string> getMapFromFile<std::string, std::string>(std:
  * @return value in the map
  */
 template< typename T >
-T upperCaseFromMap(const std::string& strValue, const std::map<std::string, T>& upperCaseMapping)
+T upperCaseFromMap( const std::string& strValue, const std::map< std::string, T >& upperCaseMapping )
 {
-  std::string upperCaseStrValue = boost::to_upper_copy(strValue);
-  const auto iter = upperCaseMapping.find(upperCaseStrValue);
-  if (iter != upperCaseMapping.cend()) {
-    return iter->second;
-  }
-  throw std::runtime_error("Invalid key found in map while converting tracking data");
-}
-
-template<typename T>
-std::vector< std::vector< T > > getTwoDimensionalVector( const int firstDimension, const int secondDimension, const T initializationValue )
-{
-    return std::vector< std::vector< T > >(firstDimension, std::vector<T>(secondDimension, initializationValue));
-}
-
-template<typename T>
-std::vector< std::vector< std::vector< T > > > getThreeDimensionalVector( const int firstDimension, const int secondDimension, const int thirdDimension, const T initializationValue )
-{
-    return std::vector< std::vector< std::vector< T > > >(firstDimension, std::vector< std::vector<T> >(secondDimension, std::vector<T>( thirdDimension, initializationValue) ) );
+    std::string upperCaseStrValue = boost::to_upper_copy( strValue );
+    const auto iter = upperCaseMapping.find( upperCaseStrValue );
+    if( iter != upperCaseMapping.cend( ) )
+    {
+        return iter->second;
+    }
+    throw std::runtime_error( "Invalid key found in map while converting tracking data" );
 }
 
 template< typename T >
-void getVectorStartBlock(
-    std::vector< T >& newVector,
-    const std::vector< T >& originalVector,
-    const int numberOfEntries )
+std::vector< std::vector< T > > getTwoDimensionalVector( const int firstDimension, const int secondDimension, const T initializationValue )
+{
+    return std::vector< std::vector< T > >( firstDimension, std::vector< T >( secondDimension, initializationValue ) );
+}
+
+template< typename T >
+std::vector< std::vector< std::vector< T > > > getThreeDimensionalVector( const int firstDimension,
+                                                                          const int secondDimension,
+                                                                          const int thirdDimension,
+                                                                          const T initializationValue )
+{
+    return std::vector< std::vector< std::vector< T > > >(
+            firstDimension, std::vector< std::vector< T > >( secondDimension, std::vector< T >( thirdDimension, initializationValue ) ) );
+}
+
+template< typename T >
+void getVectorStartBlock( std::vector< T >& newVector, const std::vector< T >& originalVector, const int numberOfEntries )
 {
     newVector = std::vector< T >( originalVector.begin( ), originalVector.begin( ) + numberOfEntries );
 }
 
 template< typename T >
-void getVectorEndBlock(
-    std::vector< T >& newVector,
-    const std::vector< T >& originalVector,
-    const int numberOfEntries )
+void getVectorEndBlock( std::vector< T >& newVector, const std::vector< T >& originalVector, const int numberOfEntries )
 {
     newVector = std::vector< T >( originalVector.end( ) - numberOfEntries, originalVector.end( ) );
 }
 
-
-template<typename T>
-bool compareStlVectors( const std::vector<T>& v1, const std::vector<T>& v2)
+template< typename T >
+bool compareStlVectors( const std::vector< T >& v1, const std::vector< T >& v2 )
 {
     auto v1Sort = v1;
     auto v2Sort = v2;
 
-    std::sort(v1Sort.begin(), v1Sort.end());
-    std::sort(v2Sort.begin(), v2Sort.end());
+    std::sort( v1Sort.begin( ), v1Sort.end( ) );
+    std::sort( v2Sort.begin( ), v2Sort.end( ) );
     return v1Sort == v2Sort;
 }
-} // namespace utilities
+}  // namespace utilities
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_UTILITIES_H
+#endif  // TUDAT_UTILITIES_H

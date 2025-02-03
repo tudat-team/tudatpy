@@ -16,7 +16,6 @@
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/sphericalHarmonicAccelerationPartial.h"
 
-
 namespace tudat
 {
 
@@ -28,10 +27,9 @@ namespace acceleration_partials
  *  MutualSphericalHarmonicsGravitationalAccelerationModel class. It incorporate the extended body - point mass and point mass -
  *  extended body interactions.
  */
-class MutualSphericalHarmonicsGravityPartial: public AccelerationPartial
+class MutualSphericalHarmonicsGravityPartial : public AccelerationPartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor from partial objects of the two spherical harmonic gravity accelerations that nuild up the mutual acceleration.
@@ -48,17 +46,16 @@ public:
      * if the variable is true.
      */
     MutualSphericalHarmonicsGravityPartial(
-            const std::shared_ptr< SphericalHarmonicsGravityPartial >
-            accelerationPartialOfShExpansionOfBodyExertingAcceleration,
-            const std::shared_ptr< SphericalHarmonicsGravityPartial >
-            accelerationPartialOfShExpansionOfBodyUndergoingAcceleration,
-            const std::string& acceleratedBody, const std::string& acceleratingBody, const bool accelerationUsesMutualAttraction ):
+            const std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartialOfShExpansionOfBodyExertingAcceleration,
+            const std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartialOfShExpansionOfBodyUndergoingAcceleration,
+            const std::string& acceleratedBody,
+            const std::string& acceleratingBody,
+            const bool accelerationUsesMutualAttraction ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::mutual_spherical_harmonic_gravity ),
-        accelerationPartialOfShExpansionOfBodyExertingAcceleration_(
-            accelerationPartialOfShExpansionOfBodyExertingAcceleration ),
-        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_(
-            accelerationPartialOfShExpansionOfBodyUndergoingAcceleration ),
-        accelerationUsesMutualAttraction_( accelerationUsesMutualAttraction ){ }
+        accelerationPartialOfShExpansionOfBodyExertingAcceleration_( accelerationPartialOfShExpansionOfBodyExertingAcceleration ),
+        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_( accelerationPartialOfShExpansionOfBodyUndergoingAcceleration ),
+        accelerationUsesMutualAttraction_( accelerationUsesMutualAttraction )
+    { }
 
     //! Destructor
     ~MutualSphericalHarmonicsGravityPartial( ) { }
@@ -74,14 +71,15 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtPositionOfAcceleratedBody(
-                Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         accelerationPartialOfShExpansionOfBodyExertingAcceleration_->wrtPositionOfAcceleratedBody(
-                    partialMatrix, addContribution, startRow, startColumn );
+                partialMatrix, addContribution, startRow, startColumn );
         accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->wrtPositionOfAcceleratingBody(
-                    partialMatrix, !addContribution, startRow, startColumn );
+                partialMatrix, !addContribution, startRow, startColumn );
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration.
@@ -95,14 +93,15 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtPositionOfAcceleratingBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         accelerationPartialOfShExpansionOfBodyExertingAcceleration_->wrtPositionOfAcceleratingBody(
-                    partialMatrix, addContribution, startRow, startColumn );
+                partialMatrix, addContribution, startRow, startColumn );
         accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->wrtPositionOfAcceleratedBody(
-                    partialMatrix, !addContribution, startRow, startColumn );
+                partialMatrix, !addContribution, startRow, startColumn );
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state
@@ -114,18 +113,15 @@ public:
      *  \param integratedStateType Type of propagated state for which partial is to be computed.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      */
-    void wrtNonTranslationalStateOfAdditionalBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType,
-            const bool addContribution )
+    void wrtNonTranslationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                   const std::pair< std::string, std::string >& stateReferencePoint,
+                                                   const propagators::IntegratedStateType integratedStateType,
+                                                   const bool addContribution )
     {
-        accelerationPartialOfShExpansionOfBodyExertingAcceleration_->
-                        wrtNonTranslationalStateOfAdditionalBody(
-                            partialMatrix, stateReferencePoint, integratedStateType, true );
-        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->
-                        wrtNonTranslationalStateOfAdditionalBody(
-                            partialMatrix, stateReferencePoint, integratedStateType, false );
+        accelerationPartialOfShExpansionOfBodyExertingAcceleration_->wrtNonTranslationalStateOfAdditionalBody(
+                partialMatrix, stateReferencePoint, integratedStateType, true );
+        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->wrtNonTranslationalStateOfAdditionalBody(
+                partialMatrix, stateReferencePoint, integratedStateType, false );
     }
 
     //! Function for determining if the acceleration is dependent on a non-translational integrated state.
@@ -137,14 +133,13 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-                const std::pair< std::string, std::string >& stateReferencePoint,
-                const propagators::IntegratedStateType integratedStateType )
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType )
     {
-        if( accelerationPartialOfShExpansionOfBodyExertingAcceleration_->
-                isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) ||
-                accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->
-                isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
+        if( accelerationPartialOfShExpansionOfBodyExertingAcceleration_->isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
+                    stateReferencePoint, integratedStateType ) ||
+            accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
+                    stateReferencePoint, integratedStateType ) )
         {
             return true;
         }
@@ -171,9 +166,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< std::function<void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
-
 
     //! Function to calculate the partial wrt the gravitational parameter.
     /*!
@@ -185,10 +179,8 @@ public:
      */
     void wrtGravitationalParameter( Eigen::MatrixXd& partialMatrix )
     {
-        accelerationPartialOfShExpansionOfBodyExertingAcceleration_->wrtGravitationalParameterOfCentralBody(
-                    partialMatrix, 0 );
-        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->wrtGravitationalParameterOfCentralBody(
-                    partialMatrix, -1 );
+        accelerationPartialOfShExpansionOfBodyExertingAcceleration_->wrtGravitationalParameterOfCentralBody( partialMatrix, 0 );
+        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->wrtGravitationalParameterOfCentralBody( partialMatrix, -1 );
     }
 
     //! Function for updating the partial object to current state and time.
@@ -203,7 +195,6 @@ public:
         accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->update( currentTime );
 
         currentTime_ = currentTime;
-
     }
 
     //! Function to set a dependency of this partial object w.r.t. a given double parameter.
@@ -213,8 +204,7 @@ public:
      * \param parameter Partial w.r.t. which dependency is to be checked and set.
      * \return Size (number of columns) of parameter partial. Zero if no dependency, 1 otherwise.
      */
-    int setParameterPartialUpdateFunction(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    int setParameterPartialUpdateFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function to set a dependency of this partial object w.r.t. a given vector parameter.
     /*!
@@ -223,11 +213,9 @@ public:
      * \param parameter Partial w.r.t. which dependency is to be checked and set.
      * \return Size (number of columns) of parameter partial. Zero if no dependency, size of parameter otherwise.
      */
-    int setParameterPartialUpdateFunction(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+    int setParameterPartialUpdateFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
 protected:
-
     //! Function to reset the constituent SphericalHarmonicsGravityPartial objects to the current time.
     void resetCurrentTimeOfMemberObjects( )
     {
@@ -256,11 +244,10 @@ protected:
      *  into account as an inertial effect.
      */
     bool accelerationUsesMutualAttraction_;
-
 };
 
-}
+}  // namespace acceleration_partials
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_MUTUALSPHERICALHARMONICGRAVITYPARTIAL_H
+#endif  // TUDAT_MUTUALSPHERICALHARMONICGRAVITYPARTIAL_H

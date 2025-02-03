@@ -37,14 +37,13 @@ namespace propagators
  * \param pParameterVector Value of the vector gamma (see Vittaldev, 2010)
  * \return Time derivatives of USMEM elements.
  */
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
-        const Eigen::Vector7d& currentUnifiedStateModelElements,
-        const Eigen::Vector3d& accelerationsInRswFrame,
-        const double sineLambdaParameter,
-        const double cosineLambdaParameter,
-        const double gammaParameter,
-        const Eigen::Vector3d& rotationalVelocityVector,
-        const Eigen::Vector3d& pParameterVector );
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap( const Eigen::Vector7d& currentUnifiedStateModelElements,
+                                                                          const Eigen::Vector3d& accelerationsInRswFrame,
+                                                                          const double sineLambdaParameter,
+                                                                          const double cosineLambdaParameter,
+                                                                          const double gammaParameter,
+                                                                          const Eigen::Vector3d& rotationalVelocityVector,
+                                                                          const Eigen::Vector3d& pParameterVector );
 
 //! Function to evaluate the equations of motion for the unifies state model with exponential map (USMEM)
 /*!
@@ -56,16 +55,15 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
  * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
  * \return Time derivatives of USMEM elements.
  */
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
-        const Eigen::Vector7d& currentUnifiedStateModelElements,
-        const Eigen::Vector3d& accelerationsInRswFrame,
-        const double centralBodyGravitationalParameter );
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap( const Eigen::Vector7d& currentUnifiedStateModelElements,
+                                                                          const Eigen::Vector3d& accelerationsInRswFrame,
+                                                                          const double centralBodyGravitationalParameter );
 
 //! Function to evaluate the equations of motion for the unifies state model with exponential map (USMEM)
 /*!
  * Function to evaluate the equations of motion for the unifies state model with exponential map (USMEM), providing the
- * time-derivatives of USMEM elements from the accelerations expressed in an RSW frame (see Vallado, 2001). This function takes the accelerations
- * in the inertial frame, as well as the Cartesian inertial state, and converts the accelerations to the RSW frame.
+ * time-derivatives of USMEM elements from the accelerations expressed in an RSW frame (see Vallado, 2001). This function takes the
+ * accelerations in the inertial frame, as well as the Cartesian inertial state, and converts the accelerations to the RSW frame.
  * \param currentUnifiedStateModelElements Current USMEM elements of the body for which the equations of motion are
  * to be evaluated
  * \param currentCartesianState Current Cartesian state of the body for which the equations of motion are to be evaluated
@@ -73,11 +71,10 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
  * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
  * \return Time derivatives of USMEM elements.
  */
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
-        const Eigen::Vector7d& currentUnifiedStateModelElements,
-        const Eigen::Vector6d& currentCartesianState,
-        const Eigen::Vector3d& accelerationsInInertialFrame,
-        const double centralBodyGravitationalParameter );
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap( const Eigen::Vector7d& currentUnifiedStateModelElements,
+                                                                          const Eigen::Vector6d& currentCartesianState,
+                                                                          const Eigen::Vector3d& accelerationsInInertialFrame,
+                                                                          const double centralBodyGravitationalParameter );
 
 //! Class for computing the state derivative of translational motion of N bodies, using a Gauss method with
 //! unified state model with exponential map (USMEM).
@@ -87,10 +84,9 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
  * Cartesian accelerations, with the USMEM elements of the bodies the states being numerically propagated.
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class NBodyUnifiedStateModelExponentialMapStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
+class NBodyUnifiedStateModelExponentialMapStateDerivative : public NBodyStateDerivative< StateScalarType, TimeType >
 {
 public:
-
     using SingleStateTypeDerivative< StateScalarType, TimeType >::postProcessState;
 
     //! Constructor
@@ -110,19 +106,22 @@ public:
             const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
             const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
             const std::vector< std::string >& bodiesToIntegrate ):
-        NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, unified_state_model_exponential_map, bodiesToIntegrate, true )
+        NBodyStateDerivative< StateScalarType, TimeType >( accelerationModelsPerBody,
+                                                           centralBodyData,
+                                                           unified_state_model_exponential_map,
+                                                           bodiesToIntegrate,
+                                                           true )
     {
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
-        centralBodyGravitationalParameters_ =
-                removeCentralGravityAccelerations(
-                    centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
-                    this->accelerationModelsPerBody_, this->removedCentralAccelerations_ );
+        centralBodyGravitationalParameters_ = removeCentralGravityAccelerations( centralBodyData->getCentralBodies( ),
+                                                                                 this->bodiesToBeIntegratedNumerically_,
+                                                                                 this->accelerationModelsPerBody_,
+                                                                                 this->removedCentralAccelerations_ );
         this->createAccelerationModelList( );
     }
 
     //! Destructor
-    ~NBodyUnifiedStateModelExponentialMapStateDerivative( ){ }
+    ~NBodyUnifiedStateModelExponentialMapStateDerivative( ) { }
 
     //! Calculates the state derivative of the translational motion of the system, using the equations of motion for the
     //! unified state model with exponential map (USMEM).
@@ -138,9 +137,9 @@ public:
      *  \param stateDerivative Current derivative of the USMEM elements of the
      *  system of bodies integrated numerically (returned by reference).
      */
-    void calculateSystemStateDerivative(
-            const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
+    void calculateSystemStateDerivative( const TimeType time,
+                                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+                                         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         // Get total inertial accelerations acting on bodies
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > currentAccelerationInIntertialFrame;
@@ -153,12 +152,15 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
-                        currentCartesianLocalSolution_.segment( i * 6, 6 ).template cast< double >( ) ) *
+                                                    currentCartesianLocalSolution_.segment( i * 6, 6 ).template cast< double >( ) ) *
                     currentAccelerationInIntertialFrame.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
-            stateDerivative.block( i * 7, 0, 7, 1 ) = computeStateDerivativeForUnifiedStateModelExponentialMap(
-                        stateOfSystemToBeIntegrated.block( i * 7, 0, 7, 1 ).template cast< double >( ), currentAccelerationInRswFrame,
-                        centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
+            stateDerivative.block( i * 7, 0, 7, 1 ) =
+                    computeStateDerivativeForUnifiedStateModelExponentialMap(
+                            stateOfSystemToBeIntegrated.block( i * 7, 0, 7, 1 ).template cast< double >( ),
+                            currentAccelerationInRswFrame,
+                            centralBodyGravitationalParameters_.at( i )( ) )
+                            .template cast< StateScalarType >( );
         }
     }
 
@@ -179,10 +181,10 @@ public:
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( getPropagatedStateSize( ) );
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentState.segment( i * 7, 7 ) =
-                    orbital_element_conversions::convertCartesianToUnifiedStateModelExponentialMapElements(
-                        cartesianSolution.block( i * 6, 0, 6, 1 ).template cast< double >( ), static_cast< double >(
-                            centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
+            currentState.segment( i * 7, 7 ) = orbital_element_conversions::convertCartesianToUnifiedStateModelExponentialMapElements(
+                                                       cartesianSolution.block( i * 6, 0, 6, 1 ).template cast< double >( ),
+                                                       static_cast< double >( centralBodyGravitationalParameters_.at( i )( ) ) )
+                                                       .template cast< StateScalarType >( );
         }
         return currentState;
     }
@@ -200,17 +202,18 @@ public:
      * \param currentCartesianLocalSolution State (internalSolution, which is USMEM-formulation),
      * converted to the 'conventional form' (returned by reference).
      */
-    void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
+    void convertToOutputSolution( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
+                                  const TimeType& time,
+                                  Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
     {
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentCartesianLocalSolution.block( i * 6, 0, 6, 1 ) =
                     orbital_element_conversions::convertUnifiedStateModelExponentialMapToCartesianElements(
-                        internalSolution.block( i * 7, 0, 7, 1 ).template cast< double >( ), static_cast< double >(
-                            centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
+                            internalSolution.block( i * 7, 0, 7, 1 ).template cast< double >( ),
+                            static_cast< double >( centralBodyGravitationalParameters_.at( i )( ) ) )
+                            .template cast< StateScalarType >( );
         }
         currentCartesianLocalSolution_ = currentCartesianLocalSolution;
     }
@@ -242,11 +245,11 @@ public:
             // Convert to/from shadow exponential map (SEM) (transformation is the same either way)
             exponentialMapVector = unprocessedState.block( i * 7 + 3, 0, 3, 1 );
             exponentialMapMagnitude = exponentialMapVector.norm( );
-            if ( exponentialMapMagnitude >= mathematical_constants::PI )
+            if( exponentialMapMagnitude >= mathematical_constants::PI )
             {
                 // Invert flag
-                unprocessedState.block( i * 7 + 6, 0, 1, 1 ) = ( unprocessedState.block( i * 7 + 6, 0, 1, 1 ) -
-                                                             Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
+                unprocessedState.block( i * 7 + 6, 0, 1, 1 ) =
+                        ( unprocessedState.block( i * 7 + 6, 0, 1, 1 ) - Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
 
                 // Convert to EM/SEM
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
@@ -268,13 +271,11 @@ public:
     }
 
 private:
-
     //!  Gravitational parameters of central bodies used to convert Cartesian to Keplerian orbits, and vice versa
     std::vector< std::function< double( ) > > centralBodyGravitationalParameters_;
 
     //! Central body accelerations for each propagated body, which has been removed from accelerationModelsPerBody_
-    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
-    centralAccelerations_;
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > centralAccelerations_;
 
     //! Current full Cartesian state of the propagated bodies, w.r.t. the central bodies
     /*!
@@ -282,13 +283,12 @@ private:
      *  the convertToOutputSolution function.
      */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentCartesianLocalSolution_;
-
 };
 
-//extern template class NBodyUnifiedStateModelExponentialMapStateDerivative< double, double >;
+// extern template class NBodyUnifiedStateModelExponentialMapStateDerivative< double, double >;
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_NUNIFIEDSTATEMODELEXPONENTIALMAPSTATEDERIVATIVE_H
+#endif  // TUDAT_NUNIFIEDSTATEMODELEXPONENTIALMAPSTATEDERIVATIVE_H

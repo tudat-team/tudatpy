@@ -23,8 +23,6 @@
 #ifndef TUDAT_GRAVITY_ASSIST_H
 #define TUDAT_GRAVITY_ASSIST_H
 
-
-
 #include <Eigen/Core>
 
 #include "tudat/math/root_finders/newtonRaphson.h"
@@ -41,8 +39,7 @@ double calculateUnpoweredGravityAssistPericenter(
         const double absoluteOutgoingSemiMajorAxis,
         const double bendingAngle,
         const double initialGuess,
-        const root_finders::RootFinderPointer rootFinder =
-        std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
+        const root_finders::RootFinderPointer rootFinder = std::make_shared< root_finders::NewtonRaphson<> >( 1.0e-12, 1000 ) );
 
 double calculateGravityAssistDeltaVThroughPericenter(
         const double centralBodyGravitationalParameter,
@@ -50,16 +47,14 @@ double calculateGravityAssistDeltaVThroughPericenter(
         const double absoluteOutgoingExcessVelocity,
         const double bendingAngle,
         const double initialGuess,
-        const root_finders::RootFinderPointer rootFinder =
-        std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
+        const root_finders::RootFinderPointer rootFinder = std::make_shared< root_finders::NewtonRaphson<> >( 1.0e-12, 1000 ) );
 
 double calculateGravityAssistDeltaVThroughEccentricity(
         const double centralBodyGravitationalParameter,
         const double absoluteIncomingExcessVelocity,
         const double absoluteOutgoingExcessVelocity,
         const double bendingAngle,
-        const root_finders::RootFinderPointer rootFinder =
-        std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
+        const root_finders::RootFinderPointer rootFinder = std::make_shared< root_finders::NewtonRaphson<> >( 1.0e-12, 1000 ) );
 
 //! Calculate deltaV of a gravity assist.
 /*!
@@ -88,8 +83,7 @@ double calculateGravityAssistDeltaV(
         const double smallestPeriapsisDistance,
         const bool useEccentricityInsteadOfPericenter = true,
         const double speedTolerance = 1.0e-6,
-        root_finders::RootFinderPointer rootFinder
-        = std::make_shared< root_finders::NewtonRaphson< > >( 1.0e-12, 1000 ) );
+        root_finders::RootFinderPointer rootFinder = std::make_shared< root_finders::NewtonRaphson<> >( 1.0e-12, 1000 ) );
 
 //! Propagate an unpowered gravity assist.
 /*!
@@ -104,12 +98,11 @@ double calculateGravityAssistDeltaV(
  * \param pericenterRadius Pericenter radius of the swing-by maneuver.                          [m]
  * \return outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.    [m s^-1]
  */
-Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity(
-        const double centralBodyGravitationalParameter,
-        const Eigen::Vector3d& centralBodyVelocity,
-        const Eigen::Vector3d& incomingVelocity,
-        const double outgoingVelocityRotationAngle,
-        const double pericenterRadius );
+Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity( const double centralBodyGravitationalParameter,
+                                                                 const Eigen::Vector3d& centralBodyVelocity,
+                                                                 const Eigen::Vector3d& incomingVelocity,
+                                                                 const double outgoingVelocityRotationAngle,
+                                                                 const double pericenterRadius );
 
 //! Propagate a powered gravity assist.
 /*!
@@ -126,13 +119,12 @@ Eigen::Vector3d calculateUnpoweredGravityAssistOutgoingVelocity(
  * \param deltaV DeltaV magnitude of the gravity assist that is applied at pericenter      [m s^-1]
  * \return outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.    [m s^-1]
  */
-Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
-        const double centralBodyGravitationalParameter,
-        const Eigen::Vector3d& centralBodyVelocity,
-        const Eigen::Vector3d& incomingVelocity,
-        const double outgoingVelocityRotationAngle,
-        const double pericenterRadius,
-        const double deltaV );
+Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity( const double centralBodyGravitationalParameter,
+                                                               const Eigen::Vector3d& centralBodyVelocity,
+                                                               const Eigen::Vector3d& incomingVelocity,
+                                                               const double outgoingVelocityRotationAngle,
+                                                               const double pericenterRadius,
+                                                               const double deltaV );
 
 //! Backward propagate a powered gravity assist.
 /*!
@@ -149,13 +141,12 @@ Eigen::Vector3d calculatePoweredGravityAssistOutgoingVelocity(
  * @param deltaV DeltaV magnitude of the gravity assist that is applied at pericenter      [m s^-1]
  * @return incomingVelocity Heliocentric velocity of the spacecraft before the swing-by.    [m s^-1]
  */
-Eigen::Vector3d calculatePoweredGravityAssistIncomingVelocity(
-        const double centralBodyGravitationalParameter,
-        const Eigen::Vector3d& centralBodyVelocity,
-        const Eigen::Vector3d& outgoingVelocity,
-        const double incomingVelocityRotationAngle,
-        const double pericenterRadius,
-        const double deltaV );
+Eigen::Vector3d calculatePoweredGravityAssistIncomingVelocity( const double centralBodyGravitationalParameter,
+                                                               const Eigen::Vector3d& centralBodyVelocity,
+                                                               const Eigen::Vector3d& outgoingVelocity,
+                                                               const double incomingVelocityRotationAngle,
+                                                               const double pericenterRadius,
+                                                               const double deltaV );
 
 //! Pericenter finding functions class.
 /*!
@@ -165,7 +156,6 @@ Eigen::Vector3d calculatePoweredGravityAssistIncomingVelocity(
 class PericenterFindingFunctions
 {
 public:
-
     //! Constructor with immediate definition of parameters.
     /*!
      * Constructor that sets all the parameters in the pericenter finding functions for use in the
@@ -178,12 +168,11 @@ public:
      *          leg.                                                                            [m]
      * \param bendingAngle The bending angle between the excess velocities.                   [rad]
      */
-    PericenterFindingFunctions ( const double absoluteIncomingSemiMajorAxis,
-                                 const double absoluteOutgoingSemiMajorAxis,
-                                 const double bendingAngle )
-        : absoluteIncomingSemiMajorAxis_( absoluteIncomingSemiMajorAxis ),
-          absoluteOutgoingSemiMajorAxis_( absoluteOutgoingSemiMajorAxis ),
-          bendingAngle_( bendingAngle )
+    PericenterFindingFunctions( const double absoluteIncomingSemiMajorAxis,
+                                const double absoluteOutgoingSemiMajorAxis,
+                                const double bendingAngle ):
+        absoluteIncomingSemiMajorAxis_( absoluteIncomingSemiMajorAxis ), absoluteOutgoingSemiMajorAxis_( absoluteOutgoingSemiMajorAxis ),
+        bendingAngle_( bendingAngle )
     { }
 
     //! Compute pericenter radius function.
@@ -208,9 +197,7 @@ public:
     double computeFirstDerivativePericenterRadiusFunction( const double pericenterRadius );
 
 protected:
-
 private:
-
     //! The absolute semi-major axis of the incoming hyperbolic leg.
     /*!
      * The absolute semi-major axis of the incoming hyperbolic leg. The absolute value is required
@@ -245,7 +232,6 @@ typedef std::shared_ptr< PericenterFindingFunctions > PericenterFindingFunctions
 class EccentricityFindingFunctions
 {
 public:
-
     //! Constructor with immediate definition of parameters.
     /*!
      * Constructor that sets all the parameters in the eccentricity finding functions for use in
@@ -254,12 +240,8 @@ public:
      * \param outgoingSemiMajorAxis The semi-major axis of the outgoing hyperbolic leg.         [m]
      * \param bendingAngle The bending angle between the excess velocities.                   [rad]
      */
-    EccentricityFindingFunctions( const double incomingSemiMajorAxis,
-                                  const double outgoingSemiMajorAxis,
-                                  const double bendingAngle )
-        : incomingSemiMajorAxis_( incomingSemiMajorAxis),
-          outgoingSemiMajorAxis_( outgoingSemiMajorAxis ),
-          bendingAngle_( bendingAngle )
+    EccentricityFindingFunctions( const double incomingSemiMajorAxis, const double outgoingSemiMajorAxis, const double bendingAngle ):
+        incomingSemiMajorAxis_( incomingSemiMajorAxis ), outgoingSemiMajorAxis_( outgoingSemiMajorAxis ), bendingAngle_( bendingAngle )
     { }
 
     //! Compute incoming eccentricity function.
@@ -285,9 +267,7 @@ public:
     double computeFirstDerivativeIncomingEccentricityFunction( const double incomingEccentricity );
 
 protected:
-
 private:
-
     //! Semi-major axis of the incoming hyperbolic leg.
     /*!
      * Semi-major axis of the incoming hyperbolic leg.
@@ -310,7 +290,7 @@ private:
 //! Typedef for shared-pointer to EccentricityFindingFunctions object.
 typedef std::shared_ptr< EccentricityFindingFunctions > EccentricityFindingFunctionsPointer;
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat
 
-#endif // TUDAT_GRAVITY_ASSIST_H
+#endif  // TUDAT_GRAVITY_ASSIST_H

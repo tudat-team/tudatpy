@@ -14,7 +14,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/io/extractor.h"
 #include "tudat/io/parsedDataVectorUtilities.h"
 
@@ -27,7 +26,6 @@ namespace input_output
 class DummyExtractor : public Extractor< double >
 {
 public:
-
     // Implement extract function, which simply returns a pointer to a double.
     std::shared_ptr< double > extract( parsed_data_vector_utilities::ParsedDataLineMapPtr data )
     {
@@ -42,28 +40,25 @@ public:
     bool dummyCheckOptionalFieldType( ParsedDataLineMapPtr dataLineMap,
                                       int numberOfFields,
                                       input_output::FieldType firstFieldType,
-                                      input_output::FieldType secondFieldType)
+                                      input_output::FieldType secondFieldType )
     {
-        return checkOptionalFieldType( dataLineMap, numberOfFields,
-                                       firstFieldType, secondFieldType );
+        return checkOptionalFieldType( dataLineMap, numberOfFields, firstFieldType, secondFieldType );
     }
 
     // Function to access protected checkRequiredFieldType function.
     void dummyCheckRequiredFieldType( ParsedDataLineMapPtr dataLineMap,
                                       int numberOfFields,
                                       input_output::FieldType firstFieldType,
-                                      input_output::FieldType secondFieldType)
-   {
-       checkRequiredFieldType( dataLineMap, numberOfFields, firstFieldType, secondFieldType );
-   }
+                                      input_output::FieldType secondFieldType )
+    {
+        checkRequiredFieldType( dataLineMap, numberOfFields, firstFieldType, secondFieldType );
+    }
 
 protected:
-
 private:
-
 };
 
-} // namespace input_output
+}  // namespace input_output
 
 namespace unit_tests
 {
@@ -78,16 +73,14 @@ BOOST_AUTO_TEST_CASE( extractor_Extract )
     namespace field_types = input_output::field_types;
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< input_output::FieldType,
-                          parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Create extractor.
     DummyExtractor testExtractor;
 
     // Extract test data map.
-    std::shared_ptr<double> returnedValue = testExtractor.extract( testDataMap );
+    std::shared_ptr< double > returnedValue = testExtractor.extract( testDataMap );
 
     // Verify that the returned value corresponds to the expected value.
     BOOST_CHECK_EQUAL( *returnedValue, 2.0 );
@@ -102,24 +95,20 @@ BOOST_AUTO_TEST_CASE( extractor_CheckOptionalFieldTypes )
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< input_output::FieldType,
-                       parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
+    typedef std::pair< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings.
     std::string testStringName = "TestName", testStringEpoch = "2456067";
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueName(
-                new input_output::FieldValue( field_types::general::name,
-                                                     testStringName ) );
+            new input_output::FieldValue( field_types::general::name, testStringName ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch(
-                new input_output::FieldValue( field_types::time::epoch, testStringEpoch ) );
+            new input_output::FieldValue( field_types::time::epoch, testStringEpoch ) );
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< input_output::FieldType,
-                parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map.
     testDataMap->insert( FieldDataPair( field_types::general::name, testFieldValueName ) );
@@ -129,20 +118,20 @@ BOOST_AUTO_TEST_CASE( extractor_CheckOptionalFieldTypes )
     DummyExtractor testExtractor;
 
     // Check that the extractor finds the optional fields.
-    bool areNameAndEpochFound = testExtractor.dummyCheckOptionalFieldType(
-                testDataMap, 2, field_types::general::name, field_types::time::epoch );
+    bool areNameAndEpochFound =
+            testExtractor.dummyCheckOptionalFieldType( testDataMap, 2, field_types::general::name, field_types::time::epoch );
 
     BOOST_CHECK_EQUAL( areNameAndEpochFound, true );
 
     // Check that the extractor does not find absent fields.
-    bool areIdAndInclinationFound = testExtractor.dummyCheckOptionalFieldType(
-                testDataMap, 2, field_types::general::id, field_types::state::inclination );
+    bool areIdAndInclinationFound =
+            testExtractor.dummyCheckOptionalFieldType( testDataMap, 2, field_types::general::id, field_types::state::inclination );
 
     BOOST_CHECK_EQUAL( areIdAndInclinationFound, false );
 
     // Check that the function returns false if one of the fields is absent.
-    bool areNameAndIdFound = testExtractor.dummyCheckOptionalFieldType(
-                testDataMap, 2, field_types::general::name, field_types::general::id );
+    bool areNameAndIdFound =
+            testExtractor.dummyCheckOptionalFieldType( testDataMap, 2, field_types::general::name, field_types::general::id );
 
     BOOST_CHECK_EQUAL( areNameAndIdFound, false );
 }
@@ -156,24 +145,20 @@ BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< input_output::FieldType,
-                       parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
+    typedef std::pair< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings.
     std::string testStringName = "TestName", testStringEpoch = "2456067";
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueName(
-                new input_output::FieldValue( field_types::general::name,
-                                                     testStringName ) );
+            new input_output::FieldValue( field_types::general::name, testStringName ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch(
-                new input_output::FieldValue( field_types::time::epoch, testStringEpoch ) );
+            new input_output::FieldValue( field_types::time::epoch, testStringEpoch ) );
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< input_output::FieldType,
-                          parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map.
     testDataMap->insert( FieldDataPair( field_types::general::name, testFieldValueName ) );
@@ -189,9 +174,7 @@ BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
     try
     {
         // Check for required field types, name and epoch.
-        testExtractor.dummyCheckRequiredFieldType( testDataMap, 2,
-                                                   field_types::general::name,
-                                                   field_types::time::epoch );
+        testExtractor.dummyCheckRequiredFieldType( testDataMap, 2, field_types::general::name, field_types::time::epoch );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -208,9 +191,7 @@ BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
     try
     {
         // Check for required field types, name and epoch.
-        testExtractor.dummyCheckRequiredFieldType( testDataMap, 2,
-                                                   field_types::general::id,
-                                                   field_types::state::inclination );
+        testExtractor.dummyCheckRequiredFieldType( testDataMap, 2, field_types::general::id, field_types::state::inclination );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -227,9 +208,7 @@ BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
     try
     {
         // Check for required field types, name and epoch.
-        testExtractor.dummyCheckRequiredFieldType( testDataMap, 2,
-                                                   field_types::general::id,
-                                                   field_types::general::name );
+        testExtractor.dummyCheckRequiredFieldType( testDataMap, 2, field_types::general::id, field_types::general::name );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -245,5 +224,5 @@ BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

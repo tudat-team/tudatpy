@@ -18,4 +18,4 @@
 #include "propulsion/thrustGuidance.h"
 #include "propulsion/thrustMagnitudeWrapper.h"
 
-#endif // TUDAT_PROPULSION_H
+#endif  // TUDAT_PROPULSION_H

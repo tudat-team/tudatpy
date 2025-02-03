@@ -19,12 +19,11 @@ namespace tudat
 namespace observation_models
 {
 
-inline double getDifferencedNWayRangeScalingFactor(
-        const observation_models::LinkEndType referenceLinkEnd,
-        const std::vector< Eigen::Vector6d >& linkEndStates,
-        const std::vector< double >& linkEndTimes,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
-        const bool isFirstPartial )
+inline double getDifferencedNWayRangeScalingFactor( const observation_models::LinkEndType referenceLinkEnd,
+                                                    const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                    const std::vector< double >& linkEndTimes,
+                                                    const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+                                                    const bool isFirstPartial )
 {
     double integrationTime;
     try
@@ -34,20 +33,17 @@ inline double getDifferencedNWayRangeScalingFactor(
     catch( std::runtime_error& caughtException )
     {
         throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
-                        std::string( caughtException.what( ) ) );
+                                  std::string( caughtException.what( ) ) );
     }
     return 1.0 / integrationTime;
 }
 
-
-template< typename ObservationScalarType = double,
-          typename TimeType = double >
-class NWayDifferencedRangeObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
+template< typename ObservationScalarType = double, typename TimeType = double >
+class NWayDifferencedRangeObservationModel : public ObservationModel< 1, ObservationScalarType, TimeType >
 {
-public:    
+public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
     typedef Eigen::Matrix< ObservationScalarType, 3, 1 > PositionType;
-
 
     NWayDifferencedRangeObservationModel(
             const LinkEnds& linkEnds,
@@ -55,12 +51,12 @@ public:
             const std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_differenced_range, linkEnds, observationBiasCalculator ),
-        arcStartObservationModel_( arcStartObservationModel ),
-        arcEndObservationModel_( arcEndObservationModel ),
-        numberOfLinkEnds_( linkEnds.size( ) ){ }
+        arcStartObservationModel_( arcStartObservationModel ), arcEndObservationModel_( arcEndObservationModel ),
+        numberOfLinkEnds_( linkEnds.size( ) )
+    { }
 
     //! Destructor
-    ~NWayDifferencedRangeObservationModel( ){ }
+    ~NWayDifferencedRangeObservationModel( ) { }
 
     //! Function to compute one-way range rate observation at given time.
     /*!
@@ -77,10 +73,8 @@ public:
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
 
-        return computeIdealObservationsWithLinkEndData(
-                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+        return computeIdealObservationsWithLinkEndData( time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
     }
-
 
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
@@ -102,14 +96,20 @@ public:
         catch( std::runtime_error& caughtException )
         {
             throw std::runtime_error( "Error when retrieving integration time for one-way averaged Doppler observable: " +
-                            std::string( caughtException.what( ) ) );
+                                      std::string( caughtException.what( ) ) );
         }
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
-                ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
-                    time + integrationTime / 2.0, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancilliarySetings ) -
-                arcStartObservationModel_->computeIdealObservationsWithLinkEndData(
-                    time - integrationTime / 2.0, linkEndAssociatedWithTime, arcStartLinkEndTimes, arcStartLinkEndStates, ancilliarySetings ) ) /
+                ( arcEndObservationModel_->computeIdealObservationsWithLinkEndData( time + integrationTime / 2.0,
+                                                                                    linkEndAssociatedWithTime,
+                                                                                    arcEndLinkEndTimes,
+                                                                                    arcEndLinkEndStates,
+                                                                                    ancilliarySetings ) -
+                  arcStartObservationModel_->computeIdealObservationsWithLinkEndData( time - integrationTime / 2.0,
+                                                                                      linkEndAssociatedWithTime,
+                                                                                      arcStartLinkEndTimes,
+                                                                                      arcStartLinkEndStates,
+                                                                                      ancilliarySetings ) ) /
                 static_cast< ObservationScalarType >( integrationTime );
 
         linkEndTimes.clear( );
@@ -117,7 +117,7 @@ public:
         linkEndTimes.resize( 4 * ( numberOfLinkEnds_ - 1 ) );
         linkEndStates.resize( 4 * ( numberOfLinkEnds_ - 1 ) );
 
-        for( int i = 0; i < 2 * ( numberOfLinkEnds_ - 1 ) ; i++ )
+        for( int i = 0; i < 2 * ( numberOfLinkEnds_ - 1 ); i++ )
         {
             linkEndTimes[ i ] = arcStartLinkEndTimes[ i ];
             linkEndTimes[ i + 2 * ( numberOfLinkEnds_ - 1 ) ] = arcEndLinkEndTimes[ i ];
@@ -138,18 +138,17 @@ public:
     {
         return arcStartObservationModel_;
     }
-private:
 
+private:
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel_;
 
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcEndObservationModel_;
 
     int numberOfLinkEnds_;
-
 };
 
-} // namespace observation_models
+}  // namespace observation_models
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_NWAYRANGERATEOBSERVATIONMODEL_H
+#endif  // TUDAT_NWAYRANGERATEOBSERVATIONMODEL_H

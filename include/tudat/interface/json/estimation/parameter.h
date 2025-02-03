@@ -21,12 +21,10 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-
 // PropagationDependentVariables
 
 //! Map of `PropagationDependentVariables` string representations.
-static std::map< EstimatebleParametersEnum, std::string > estimatedParameterTypes =
-{
+static std::map< EstimatebleParametersEnum, std::string > estimatedParameterTypes = {
     { arc_wise_initial_body_state, "arcWiseInitialBodyState" },
     { initial_body_state, "initialBodyState" },
     { gravitational_parameter, "gravitationalParameter" },
@@ -52,7 +50,6 @@ static std::map< EstimatebleParametersEnum, std::string > estimatedParameterType
     { direct_dissipation_tidal_time_lag, "directDissipationTidalTimeLag" }
 };
 
-
 //! Convert `PropagationDependentVariables` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const EstimatebleParametersEnum& parameterType )
 {
@@ -65,16 +62,14 @@ inline void from_json( const nlohmann::json& jsonObject, EstimatebleParametersEn
     parameterType = json_interface::enumFromString( jsonObject, estimatedParameterTypes );
 }
 
-
 //! Create a `json` object from a shared pointer to a `EstimatableParameterSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< EstimatableParameterSettings >& parameterSettings );
 
 //! Create a shared pointer to a `EstimatableParameterSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< EstimatableParameterSettings >& parameterSettings );
 
+}  // namespace estimatable_parameters
 
-} // namespace propagators
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_JSONINTERFACE_PARAMETER_H
+#endif  // TUDAT_JSONINTERFACE_PARAMETER_H

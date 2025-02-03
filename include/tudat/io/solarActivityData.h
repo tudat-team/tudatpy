@@ -44,10 +44,8 @@ namespace solar_activity
  * file, describing "space weather" on each day since October 1957. See reference for details on
  * variables.
  */
-struct SolarActivityData
-{
+struct SolarActivityData {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor.
@@ -71,8 +69,8 @@ public:
 
     //! Sum of the 8 planetary range indices.
     /*! Sum of the 8 planetary range indices (Kp) for the day expressed to the nearest third of a
-    *   unit.
-    */
+     *   unit.
+     */
     unsigned int planetaryRangeIndexSum;
 
     //! Arithmetic average of the 8 planetary equivalent amplitudes (Ap) indices for the day.
@@ -129,10 +127,10 @@ public:
     double solarRadioFlux107Observed;
 
     //! Centered 81-day arithmetic average of F10.7 (observed).
-    double  centered81DaySolarRadioFlux107Observed;
+    double centered81DaySolarRadioFlux107Observed;
 
     //! Last 81-day arithmetic average of F10.7 (observed).
-    double  last81DaySolarRadioFlux107Observed;
+    double last81DaySolarRadioFlux107Observed;
 
     //! Vector containing 3-hourly planetary range indices (Kp).
     /*! Vector of eight 3-hourly planetary range indices.
@@ -156,11 +154,9 @@ public:
     /*! Overloaded ostream to print class information; prints all converted Solar Activity
      * variables listed in the http://celestrak.com/SpaceData/sw19571001.txt file.
      */
-    friend std::ostream& operator << ( std::ostream& stream,
-                                     SolarActivityData& solarActivityData );
+    friend std::ostream& operator<<( std::ostream& stream, SolarActivityData& solarActivityData );
 
 protected:
-
 private:
 };
 
@@ -168,17 +164,14 @@ private:
 typedef std::shared_ptr< SolarActivityData > SolarActivityDataPtr;
 
 //! Data map of SolarActivityData structure Pointers
-typedef std::map< double , SolarActivityDataPtr >  SolarActivityDataMap ;
+typedef std::map< double, SolarActivityDataPtr > SolarActivityDataMap;
 
-struct SolarActivityContainer
-{
-    SolarActivityContainer(
-            const std::map< double, SolarActivityDataPtr >& solarActivityDataMap ):
+struct SolarActivityContainer {
+    SolarActivityContainer( const std::map< double, SolarActivityDataPtr >& solarActivityDataMap ):
         solarActivityDataMap_( solarActivityDataMap )
     {
-
         lookUpScheme_ = std::make_shared< interpolators::BinarySearchLookupScheme< double > >(
-                    utilities::createVectorFromMapKeys( solarActivityDataMap ) );
+                utilities::createVectorFromMapKeys( solarActivityDataMap ) );
     }
 
     std::shared_ptr< SolarActivityData > getSolarActivityData( const double time )
@@ -189,8 +182,7 @@ struct SolarActivityContainer
 
     std::shared_ptr< SolarActivityData > getSolarActivityDataAtJulianDay( const double julianDay )
     {
-        double nearestJulianDay = lookUpScheme_->getIndependentVariableValue(
-                    lookUpScheme_->findNearestLowerNeighbour( julianDay ) );
+        double nearestJulianDay = lookUpScheme_->getIndependentVariableValue( lookUpScheme_->findNearestLowerNeighbour( julianDay ) );
         return solarActivityDataMap_.at( nearestJulianDay );
     }
 
@@ -199,13 +191,10 @@ struct SolarActivityContainer
         return solarActivityDataMap_;
     }
 
-
 private:
+    std::map< double, SolarActivityDataPtr > solarActivityDataMap_;
 
-     std::map< double, SolarActivityDataPtr > solarActivityDataMap_;
-
-     std::shared_ptr< interpolators::LookUpScheme< double > > lookUpScheme_;
-
+    std::shared_ptr< interpolators::LookUpScheme< double > > lookUpScheme_;
 };
 
 //! Function that reads a SpaceWeather data file
@@ -215,10 +204,10 @@ private:
  * \param filePath std::string
  * \return solarActivityDataMap std::map< double , SolarActivityDataPtr >
  */
-SolarActivityDataMap readSolarActivityData( std::string filePath ) ;
+SolarActivityDataMap readSolarActivityData( std::string filePath );
 
-} // namespace solar_activity
-} // namespace input_output
-} // namespace tudat
+}  // namespace solar_activity
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_SOLAR_ACTIVITY_DATA_H
+#endif  // TUDAT_SOLAR_ACTIVITY_DATA_H

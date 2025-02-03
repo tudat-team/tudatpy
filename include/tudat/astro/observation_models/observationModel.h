@@ -43,13 +43,12 @@ enum ObservationAncilliarySimulationVariable {
 };
 
 struct ObservationAncilliarySimulationSettings {
-   public:
+public:
     ObservationAncilliarySimulationSettings( ) { }
 
     virtual ~ObservationAncilliarySimulationSettings( ) { }
 
-    void setAncilliaryDoubleData( const ObservationAncilliarySimulationVariable &variableType,
-                                  const double variable )
+    void setAncilliaryDoubleData( const ObservationAncilliarySimulationVariable &variableType, const double variable )
     {
         switch( variableType )
         {
@@ -69,8 +68,7 @@ struct ObservationAncilliarySimulationSettings {
         }
     }
 
-    void setAncilliaryDoubleVectorData( const ObservationAncilliarySimulationVariable &variableType,
-                                        const std::vector< double > &variable )
+    void setAncilliaryDoubleVectorData( const ObservationAncilliarySimulationVariable &variableType, const std::vector< double > &variable )
     {
         switch( variableType )
         {
@@ -86,8 +84,7 @@ struct ObservationAncilliarySimulationSettings {
         }
     }
 
-    double getAncilliaryDoubleData( const ObservationAncilliarySimulationVariable &variableType,
-                                    const bool throwException = true )
+    double getAncilliaryDoubleData( const ObservationAncilliarySimulationVariable &variableType, const bool throwException = true )
     {
         double returnVariable = TUDAT_NAN;
         try
@@ -126,9 +123,8 @@ struct ObservationAncilliarySimulationSettings {
         return returnVariable;
     }
 
-    std::vector< double > getAncilliaryDoubleVectorData(
-            const ObservationAncilliarySimulationVariable &variableType,
-            const bool throwException = true )
+    std::vector< double > getAncilliaryDoubleVectorData( const ObservationAncilliarySimulationVariable &variableType,
+                                                         const bool throwException = true )
     {
         std::vector< double > returnVariable;
         try
@@ -205,8 +201,7 @@ struct ObservationAncilliarySimulationSettings {
 
     bool operator==( const ObservationAncilliarySimulationSettings &rightSettings )
     {
-        return doubleData_ == rightSettings.doubleData_ &&
-                doubleVectorData_ == rightSettings.doubleVectorData_;
+        return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
     }
 
     std::map< ObservationAncilliarySimulationVariable, double > getDoubleData( ) const
@@ -214,21 +209,18 @@ struct ObservationAncilliarySimulationSettings {
         return doubleData_;
     }
 
-    std::map< ObservationAncilliarySimulationVariable, std::vector< double > >
-    getDoubleVectorData( ) const
+    std::map< ObservationAncilliarySimulationVariable, std::vector< double > > getDoubleVectorData( ) const
     {
         return doubleVectorData_;
     }
 
-   protected:
+protected:
     std::map< ObservationAncilliarySimulationVariable, double > doubleData_;
     std::map< ObservationAncilliarySimulationVariable, std::vector< double > > doubleVectorData_;
-
-
 };
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings >
-getAveragedDopplerAncilliarySettings( const double integrationTime = 60.0 )
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getAveragedDopplerAncilliarySettings(
+        const double integrationTime = 60.0 )
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
@@ -243,13 +235,11 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayRangeAn
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
     ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancilliarySettings->setAncilliaryDoubleVectorData(
-            frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancilliarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
     return ancilliarySettings;
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings >
-getNWayAveragedDopplerAncilliarySettings(
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayAveragedDopplerAncilliarySettings(
         const double integrationTime = 60.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
         const std::vector< FrequencyBands > &frequencyBands = std::vector< FrequencyBands >( ) )
@@ -258,27 +248,23 @@ getNWayAveragedDopplerAncilliarySettings(
             std::make_shared< ObservationAncilliarySimulationSettings >( );
     ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
     ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancilliarySettings->setAncilliaryDoubleVectorData(
-            frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancilliarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
     return ancilliarySettings;
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayRangeAncilliarySettings(
-        const double retransmissionTime )
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayRangeAncilliarySettings( const double retransmissionTime )
 {
     return getNWayRangeAncilliarySettings( std::vector< double >( { retransmissionTime } ) );
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings >
-getTwoWayAveragedDopplerAncilliarySettings( const double integrationTime = 60.0,
-                                            const double retransmissionTime = 0.0 )
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayAveragedDopplerAncilliarySettings(
+        const double integrationTime = 60.0,
+        const double retransmissionTime = 0.0 )
 {
-    return getNWayAveragedDopplerAncilliarySettings(
-            integrationTime, std::vector< double >( { retransmissionTime } ) );
+    return getNWayAveragedDopplerAncilliarySettings( integrationTime, std::vector< double >( { retransmissionTime } ) );
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings >
-getDsnNWayAveragedDopplerAncillarySettings(
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
         const std::vector< FrequencyBands > &frequencyBands,
         const FrequencyBands receptionReferenceFrequencyBand,
         const double referenceFrequency,
@@ -290,12 +276,10 @@ getDsnNWayAveragedDopplerAncillarySettings(
 
     ancillarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
     ancillarySettings->setAncilliaryDoubleData( doppler_reference_frequency, referenceFrequency );
-    ancillarySettings->setAncilliaryDoubleData(
-            reception_reference_frequency_band,
-            convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
+    ancillarySettings->setAncilliaryDoubleData( reception_reference_frequency_band,
+                                                convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
 
-    ancillarySettings->setAncilliaryDoubleVectorData(
-            frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
@@ -311,32 +295,28 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRang
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
 
-    ancillarySettings->setAncilliaryDoubleData( sequential_range_lowest_ranging_component,
-                                                lowestRangingComponent );
-    ancillarySettings->setAncilliaryDoubleData( sequential_range_reference_frequency,
-                                                referenceFrequency );
+    ancillarySettings->setAncilliaryDoubleData( sequential_range_lowest_ranging_component, lowestRangingComponent );
+    ancillarySettings->setAncilliaryDoubleData( sequential_range_reference_frequency, referenceFrequency );
 
-    ancillarySettings->setAncilliaryDoubleVectorData(
-            frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings >
-getDopplerMeasuredFrequencyAncilliarySettings( const std::vector< FrequencyBands > &frequencyBands )
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDopplerMeasuredFrequencyAncilliarySettings(
+        const std::vector< FrequencyBands > &frequencyBands )
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
 
-    ancillarySettings->setAncilliaryDoubleVectorData(
-            frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
 
     return ancillarySettings;
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings >
-getDefaultAncilliaryObservationSettings( const observation_models::ObservableType observableType )
+inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDefaultAncilliaryObservationSettings(
+        const observation_models::ObservableType observableType )
 {
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr;
     switch( observableType )
@@ -369,12 +349,10 @@ getDefaultAncilliaryObservationSettings( const observation_models::ObservableTyp
 template< int ObservationSize = Eigen::Dynamic,
           typename ObservationScalarType = double,
           typename TimeType = double,
-          typename std::enable_if<
-                  is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value,
-                  int >::type = 0 >
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 class ObservationModel
 {
-   public:
+public:
     //! Constructor
     /*!
      * Base class constructor.
@@ -386,10 +364,8 @@ class ObservationModel
      */
     ObservationModel( const ObservableType observableType,
                       const LinkEnds linkEnds,
-                      const std::shared_ptr< ObservationBias< ObservationSize > >
-                              observationBiasCalculator = nullptr ) :
-        observableType_( observableType ), linkEnds_( linkEnds ),
-        observationBiasCalculator_( observationBiasCalculator )
+                      const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr ):
+        observableType_( observableType ), linkEnds_( linkEnds ), observationBiasCalculator_( observationBiasCalculator )
     {
         // Check if bias is empty
         if( observationBiasCalculator_ != nullptr )
@@ -443,14 +419,12 @@ class ObservationModel
      * states at each link end during observation (returned by reference).
      *  \return Ideal observable.
      */
-    virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >
-    computeIdealObservationsWithLinkEndData(
+    virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double > &linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings =
-                    nullptr ) = 0;
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr ) = 0;
 
     //! Function to compute full observation at given time.
     /*!
@@ -470,17 +444,13 @@ class ObservationModel
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double > &linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings =
-                    nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         // Check if any non-ideal models are set.
         if( isBiasNullptr_ )
         {
-            return computeIdealObservationsWithLinkEndData( time,
-                                                            linkEndAssociatedWithTime,
-                                                            linkEndTimes,
-                                                            linkEndStates,
-                                                            ancilliarySetings );
+            return computeIdealObservationsWithLinkEndData(
+                    time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
         }
         else
         {
@@ -489,24 +459,17 @@ class ObservationModel
 
             if( this->observationBiasCalculator_->getHasTimeBias( ) )
             {
-                observationTime -= this->observationBiasCalculator_->getTimeBias(
-                        observationTime, linkEndAssociatedWithTime );
+                observationTime -= this->observationBiasCalculator_->getTimeBias( observationTime, linkEndAssociatedWithTime );
             }
 
             // Compute ideal observable
-            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation =
-                    computeIdealObservationsWithLinkEndData( observationTime,
-                                                             linkEndAssociatedWithTime,
-                                                             linkEndTimes,
-                                                             linkEndStates,
-                                                             ancilliarySetings );
+            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
+                    observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
 
             // Add correction
             return currentObservation +
                     this->observationBiasCalculator_
-                            ->getObservationBias( linkEndTimes,
-                                                  linkEndStates,
-                                                  currentObservation.template cast< double >( ) )
+                            ->getObservationBias( linkEndTimes, linkEndStates, currentObservation.template cast< double >( ) )
                             .template cast< ObservationScalarType >( );
         }
     }
@@ -527,15 +490,11 @@ class ObservationModel
     virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings =
-                    nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         // Compute ideal observable from derived class.
-        return this->computeIdealObservationsWithLinkEndData( time,
-                                                              linkEndAssociatedWithTime,
-                                                              this->linkEndTimes_,
-                                                              this->linkEndStates_,
-                                                              ancilliarySetings );
+        return this->computeIdealObservationsWithLinkEndData(
+                time, linkEndAssociatedWithTime, this->linkEndTimes_, this->linkEndStates_, ancilliarySetings );
     }
 
     //! Function to compute full observation at given time.
@@ -549,17 +508,13 @@ class ObservationModel
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings =
-                    nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         // Check if any non-ideal models are set.
         if( isBiasNullptr_ )
         {
-            return computeIdealObservationsWithLinkEndData( time,
-                                                            linkEndAssociatedWithTime,
-                                                            linkEndTimes_,
-                                                            linkEndStates_,
-                                                            ancilliarySetings );
+            return computeIdealObservationsWithLinkEndData(
+                    time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancilliarySetings );
         }
         else
         {
@@ -568,24 +523,17 @@ class ObservationModel
 
             if( this->observationBiasCalculator_->getHasTimeBias( ) )
             {
-                observationTime -= this->observationBiasCalculator_->getTimeBias(
-                        observationTime, linkEndAssociatedWithTime );
+                observationTime -= this->observationBiasCalculator_->getTimeBias( observationTime, linkEndAssociatedWithTime );
             }
 
             // Compute ideal observable
-            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation =
-                    computeIdealObservationsWithLinkEndData( observationTime,
-                                                             linkEndAssociatedWithTime,
-                                                             linkEndTimes_,
-                                                             linkEndStates_,
-                                                             ancilliarySetings );
+            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation = computeIdealObservationsWithLinkEndData(
+                    observationTime, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_, ancilliarySetings );
 
             // Add correction
             return currentObservation +
                     this->observationBiasCalculator_
-                            ->getObservationBias( linkEndTimes_,
-                                                  linkEndStates_,
-                                                  currentObservation.template cast< double >( ) )
+                            ->getObservationBias( linkEndTimes_, linkEndStates_, currentObservation.template cast< double >( ) )
                             .template cast< ObservationScalarType >( );
         }
     }
@@ -605,13 +553,11 @@ class ObservationModel
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             const int observationEntry,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings =
-                    nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         if( observationEntry < ObservationSize )
         {
-            return computeObservations(
-                    time, linkEndAssociatedWithTime, ancilliarySetings )( observationEntry );
+            return computeObservations( time, linkEndAssociatedWithTime, ancilliarySetings )( observationEntry );
         }
         else
         {
@@ -642,7 +588,7 @@ class ObservationModel
         return observationBiasCalculator_;
     }
 
-   protected:
+protected:
     //! Type of observable, used for derived class type identification without explicit casts.
     ObservableType observableType_;
 
@@ -683,14 +629,12 @@ class ObservationModel
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 double getSizeOneObservationAtDoublePrecision(
-        std::function< Eigen::Matrix< ObservationScalarType, 1, 1 >(
-                const TimeType,
-                const observation_models::LinkEndType ) > observationFunction,
+        std::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) >
+                observationFunction,
         const double currentTime,
         const LinkEndType referenceLinkEnd )
 {
-    return static_cast< double >(
-            observationFunction( static_cast< TimeType >( currentTime ), referenceLinkEnd )( 0 ) );
+    return static_cast< double >( observationFunction( static_cast< TimeType >( currentTime ), referenceLinkEnd )( 0 ) );
 }
 
 //! Function to generate a function that computes a size 1 observation at double precision, from a templated observation function.
@@ -703,11 +647,9 @@ double getSizeOneObservationAtDoublePrecision(
  * reference link end time.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::function< double( const double, const observation_models::LinkEndType ) >
-getSizeOneObservationFunctionAtDoublePrecision(
-        std::function< Eigen::Matrix< ObservationScalarType, 1, 1 >(
-                const TimeType,
-                const observation_models::LinkEndType ) > observationFunction )
+std::function< double( const double, const observation_models::LinkEndType ) > getSizeOneObservationFunctionAtDoublePrecision(
+        std::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) >
+                observationFunction )
 {
     return std::bind( &getSizeOneObservationAtDoublePrecision< ObservationScalarType, TimeType >,
                       observationFunction,
@@ -726,12 +668,9 @@ getSizeOneObservationFunctionAtDoublePrecision(
  * time.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::function<
-        Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType,
-                                                      const observation_models::LinkEndType ) >
+std::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) >
 getSizeOneObservationFunctionFromObservationModel(
-        const std::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > >
-                observationModel )
+        const std::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
 {
     return std::bind( &ObservationModel< 1, ObservationScalarType, TimeType >::computeObservations,
                       observationModel,
@@ -754,11 +693,9 @@ getSizeOneObservationFunctionFromObservationModel(
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::function< double( const double, const observation_models::LinkEndType ) >
 getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel(
-        const std::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > >
-                observationModel )
+        const std::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
 {
-    return getSizeOneObservationFunctionAtDoublePrecision(
-            getSizeOneObservationFunctionFromObservationModel( observationModel ) );
+    return getSizeOneObservationFunctionAtDoublePrecision( getSizeOneObservationFunctionFromObservationModel( observationModel ) );
 }
 
 //! Function to extract a list of observtion bias models from a list of observation models.
@@ -771,29 +708,20 @@ getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel(
  * observation bias objects (per LinkEnds), as extracted from observationModels
  * (nullptr bias objects not added to list).
  */
-template< int ObservationSize = Eigen::Dynamic,
-          typename ObservationScalarType = double,
-          typename TimeType = double >
-std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > >
-extractObservationBiasList(
-        std::map< LinkEnds,
-                  std::shared_ptr<
-                          ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
-                observationModels )
+template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double >
+std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > > extractObservationBiasList(
+        std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModels )
 {
     std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > > biasList;
-    for( typename std::map<
-                 LinkEnds,
-                 std::shared_ptr<
-                         ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >::
-                 const_iterator observationModelIterator = observationModels.begin( );
+    for( typename std::map< LinkEnds,
+                            std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >::const_iterator
+                 observationModelIterator = observationModels.begin( );
          observationModelIterator != observationModels.end( );
          observationModelIterator++ )
     {
         if( observationModelIterator->second->getObservationBiasCalculator( ) != nullptr )
         {
-            biasList[ observationModelIterator->first ] =
-                    observationModelIterator->second->getObservationBiasCalculator( );
+            biasList[ observationModelIterator->first ] = observationModelIterator->second->getObservationBiasCalculator( );
         }
     }
     return biasList;

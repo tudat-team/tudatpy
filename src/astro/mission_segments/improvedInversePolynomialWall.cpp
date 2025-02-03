@@ -43,109 +43,89 @@ double ImprovedInversePolynomialWall::evaluate( const double anAzimuthalAngle )
 {
     // Inverse polynomial function (improved version from Wall et al. [2010]).
     const double radialDistance = 1.0 /
-            ( boundaryParameters_(  ).first( 0 )
-              + boundaryParameters_(  ).first( 1 )
-              * std::cos( anAzimuthalAngle + boundaryParameters_(  ).first( 2 ) )
-              + timeDependentParameter_(  )
-                * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
-              + boundaryParameters_(  ).second( 0 ) * anAzimuthalAngle * anAzimuthalAngle
-                * anAzimuthalAngle * anAzimuthalAngle
-              + boundaryParameters_(  ).second( 1 ) * anAzimuthalAngle * anAzimuthalAngle
-                * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
-              + boundaryParameters_(  ).second( 2 ) * anAzimuthalAngle * anAzimuthalAngle
-                * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle );
+            ( boundaryParameters_( ).first( 0 ) +
+              boundaryParameters_( ).first( 1 ) * std::cos( anAzimuthalAngle + boundaryParameters_( ).first( 2 ) ) +
+              timeDependentParameter_( ) * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle +
+              boundaryParameters_( ).second( 0 ) * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle +
+              boundaryParameters_( ).second( 1 ) * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle *
+                      anAzimuthalAngle +
+              boundaryParameters_( ).second( 2 ) * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle *
+                      anAzimuthalAngle * anAzimuthalAngle );
 
     return radialDistance;
 }
 
 //! Compute the derivative of the function.
-double ImprovedInversePolynomialWall::computeDerivative(
-        const unsigned int order,
-        const double anAzimuthalAngle )
+double ImprovedInversePolynomialWall::computeDerivative( const unsigned int order, const double anAzimuthalAngle )
 {
     // Function itself.
-    if ( order == 0 )
+    if( order == 0 )
     {
         return evaluate( anAzimuthalAngle );
     }
     // First derivative.
-    else if ( order == 1 )
+    else if( order == 1 )
     {
         // Radial distance.
         double radialDistance = evaluate( anAzimuthalAngle );
 
         // First derivative of the inverse polynomial function with respect to the (in-plane)
         // azimuthal angle.
-        const double firstDerivative = -1.0 * radialDistance * radialDistance
-                * ( -1.0 * boundaryParameters_(  ).first( 1 )
-                    * std::sin( anAzimuthalAngle + boundaryParameters_(  ).first( 2 ) )
-                    + 3.0 * timeDependentParameter_(  ) * anAzimuthalAngle * anAzimuthalAngle
-                    + 4.0 * boundaryParameters_(  ).second( 0 )
-                        * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
-                    + 5.0 * boundaryParameters_(  ).second( 1 )
-                        * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
-                    + 6.0 * boundaryParameters_(  ).second( 2 )
-                        * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
-                        * anAzimuthalAngle );
+        const double firstDerivative = -1.0 * radialDistance * radialDistance *
+                ( -1.0 * boundaryParameters_( ).first( 1 ) * std::sin( anAzimuthalAngle + boundaryParameters_( ).first( 2 ) ) +
+                  3.0 * timeDependentParameter_( ) * anAzimuthalAngle * anAzimuthalAngle +
+                  4.0 * boundaryParameters_( ).second( 0 ) * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle +
+                  5.0 * boundaryParameters_( ).second( 1 ) * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle +
+                  6.0 * boundaryParameters_( ).second( 2 ) * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle *
+                          anAzimuthalAngle );
 
         return firstDerivative;
     }
     // Second derivative.
-    else if ( order == 2 )
+    else if( order == 2 )
     {
         // Radial distance.
         double radialDistance = evaluate( anAzimuthalAngle );
 
         // First derivative.
-        double firstDerivative = computeDerivative( 1 , anAzimuthalAngle );
+        double firstDerivative = computeDerivative( 1, anAzimuthalAngle );
 
         // Second derivative of the inverse polynomial function with respect to the (in-plane)
         // azimuthal angle.
-        const double secondDerivative = ( 2.0 / radialDistance )
-                * firstDerivative * firstDerivative
-                - radialDistance * radialDistance
-                * ( -1.0 * boundaryParameters_(  ).first( 1 )
-                    * std::cos( anAzimuthalAngle + boundaryParameters_(  ).first( 2 ) )
-                    + 6.0 * timeDependentParameter_(  ) * anAzimuthalAngle
-                    + 12.0 * boundaryParameters_(  ).second( 0 )
-                        * anAzimuthalAngle * anAzimuthalAngle
-                    + 20.0 * boundaryParameters_(  ).second( 1 )
-                        * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
-                    + 30.0 * boundaryParameters_(  ).second( 2 )
-                        * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
-                        * anAzimuthalAngle );
+        const double secondDerivative = ( 2.0 / radialDistance ) * firstDerivative * firstDerivative -
+                radialDistance * radialDistance *
+                        ( -1.0 * boundaryParameters_( ).first( 1 ) * std::cos( anAzimuthalAngle + boundaryParameters_( ).first( 2 ) ) +
+                          6.0 * timeDependentParameter_( ) * anAzimuthalAngle +
+                          12.0 * boundaryParameters_( ).second( 0 ) * anAzimuthalAngle * anAzimuthalAngle +
+                          20.0 * boundaryParameters_( ).second( 1 ) * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle +
+                          30.0 * boundaryParameters_( ).second( 2 ) * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle *
+                                  anAzimuthalAngle );
 
         return secondDerivative;
     }
     // Third derivative.
-    else if ( order == 3 )
+    else if( order == 3 )
     {
         // Radial distance.
         double radialDistance = evaluate( anAzimuthalAngle );
 
         // First derivative.
-        double firstDerivative = computeDerivative( 1 , anAzimuthalAngle );
+        double firstDerivative = computeDerivative( 1, anAzimuthalAngle );
 
         // Second derivative.
-        double secondDerivative = computeDerivative( 2 , anAzimuthalAngle );
+        double secondDerivative = computeDerivative( 2, anAzimuthalAngle );
 
         // Third derivative of the inverse polynomial function with respect to the (in-plane)
         // azimuthal angle.
-        const double thirdDerivative = 6.0 *
-                ( ( firstDerivative * firstDerivative * firstDerivative ) /
-                  ( radialDistance * radialDistance ) )
-                - 6.0 * ( firstDerivative / radialDistance ) * (
-                    ( ( 2.0 * firstDerivative * firstDerivative ) / radialDistance )
-                    - secondDerivative )
-                - radialDistance * radialDistance * (
-                    boundaryParameters_(  ).first( 1 )
-                    * std::sin( anAzimuthalAngle + boundaryParameters_(  ).first( 2 ) )
-                    + 6.0 * timeDependentParameter_(  )
-                    + 24.0 * boundaryParameters_(  ).second( 0 ) * anAzimuthalAngle
-                    + 60.0 * boundaryParameters_(  ).second( 1 )
-                        * anAzimuthalAngle * anAzimuthalAngle
-                    + 120.0 * boundaryParameters_(  ).second( 2 )
-                        * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle );
+        const double thirdDerivative =
+                6.0 * ( ( firstDerivative * firstDerivative * firstDerivative ) / ( radialDistance * radialDistance ) ) -
+                6.0 * ( firstDerivative / radialDistance ) *
+                        ( ( ( 2.0 * firstDerivative * firstDerivative ) / radialDistance ) - secondDerivative ) -
+                radialDistance * radialDistance *
+                        ( boundaryParameters_( ).first( 1 ) * std::sin( anAzimuthalAngle + boundaryParameters_( ).first( 2 ) ) +
+                          6.0 * timeDependentParameter_( ) + 24.0 * boundaryParameters_( ).second( 0 ) * anAzimuthalAngle +
+                          60.0 * boundaryParameters_( ).second( 1 ) * anAzimuthalAngle * anAzimuthalAngle +
+                          120.0 * boundaryParameters_( ).second( 2 ) * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle );
 
         return thirdDerivative;
     }
@@ -157,8 +137,7 @@ double ImprovedInversePolynomialWall::computeDerivative(
 }
 
 //! Compute the definite integral of the function.
-double ImprovedInversePolynomialWall::computeDefiniteIntegral(
-        const unsigned int order, const double lowerBound, const double upperBound )
+double ImprovedInversePolynomialWall::computeDefiniteIntegral( const unsigned int order, const double lowerBound, const double upperBound )
 {
     // Declare unused parameters.
     TUDAT_UNUSED_PARAMETER( order );
@@ -169,5 +148,5 @@ double ImprovedInversePolynomialWall::computeDefiniteIntegral(
     throw std::runtime_error( "Cannot compute the integral, this is not supported for this function class." );
 }
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat

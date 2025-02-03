@@ -21,30 +21,22 @@ namespace tudat
 namespace acceleration_partials
 {
 
-Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedBody(
-    const Eigen::Vector6d& relativeState,
-    const double yarkovskyParameter );
+Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedBody( const Eigen::Vector6d& relativeState,
+                                                                                     const double yarkovskyParameter );
 
-
-Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedBody(
-    const Eigen::Vector6d& relativeState,
-    const double yarkovskyParameter );
-
+Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedBody( const Eigen::Vector6d& relativeState,
+                                                                                     const double yarkovskyParameter );
 
 //! Class to calculate the partials of the yarkovsky acceleration w.r.t. parameters and states.
-class YarkovskyAccelerationPartial: public AccelerationPartial
+class YarkovskyAccelerationPartial : public AccelerationPartial
 {
 public:
-
-    YarkovskyAccelerationPartial(
-            const std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration,
-            const std::string acceleratedBody,
-            const std::string acceleratingBody ):
+    YarkovskyAccelerationPartial( const std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration,
+                                  const std::string acceleratedBody,
+                                  const std::string acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::yarkovsky_acceleration ),
         yarkovskyAcceleration_( yarkovskyAcceleration )
-    {
-
-    }
+    { }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -57,9 +49,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtPositionOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -83,7 +76,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -106,9 +101,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtVelocityOfAcceleratedBody(
-        Eigen::Block< Eigen::MatrixXd > partialMatrix,
-        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -132,7 +128,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -153,9 +151,8 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-                const std::pair< std::string, std::string >& stateReferencePoint,
-                const propagators::IntegratedStateType integratedStateType )
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType )
     {
         return 0;
     }
@@ -167,8 +164,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -197,19 +194,16 @@ public:
         if( !( currentTime_ == currentTime ) )
         {
             currentPartialWrtPosition_ = calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedBody(
-                        yarkovskyAcceleration_->getCurrentState( ),
-                        yarkovskyAcceleration_->getYarkovskyParameter( ) );
+                    yarkovskyAcceleration_->getCurrentState( ), yarkovskyAcceleration_->getYarkovskyParameter( ) );
 
             currentPartialWrtVelocity_ = calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedBody(
-                yarkovskyAcceleration_->getCurrentState( ),
-                yarkovskyAcceleration_->getYarkovskyParameter( ) );
+                    yarkovskyAcceleration_->getCurrentState( ), yarkovskyAcceleration_->getYarkovskyParameter( ) );
 
             currentTime_ = currentTime;
         }
     }
 
 protected:
-
     //! Function to calculate central gravity partial w.r.t. central body gravitational parameter.
     void wrtYarkovskyParameter( Eigen::MatrixXd& yarkovskyPartial );
 
@@ -224,12 +218,10 @@ protected:
     Eigen::Matrix3d currentPartialWrtPosition_;
 
     Eigen::Matrix3d currentPartialWrtVelocity_;
-
-
 };
 
-} // namespace acceleration_partials
+}  // namespace acceleration_partials
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_YARKOVSKYACCELERATIONPARTIALS_H
+#endif  // TUDAT_YARKOVSKYACCELERATIONPARTIALS_H

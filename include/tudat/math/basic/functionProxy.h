@@ -14,9 +14,6 @@
 
 #include <map>
 
-
-
-
 #include <functional>
 
 #include <memory>
@@ -36,7 +33,7 @@ namespace basic_mathematics
  * Adds the ability for an already defined C++ function to be evaluated as a mathematical function.
  *
  * You need to set one C++ binding representing the mathematical function in the constructor.
- * Additional derivative and integral forms can be set using the addBinding function. If no 
+ * Additional derivative and integral forms can be set using the addBinding function. If no
  * explicit binding is found, numerical techniques are used to solve for derivatives and integrals.
  * \tparam IndependentVariable Mathematical variable for independent input (e.g., x).
  * \tparam DependentVariable Mathematical variable for dependent output (e.g., y=f(x)).
@@ -45,7 +42,6 @@ template< typename IndependentVariable = double, typename DependentVariable = do
 class FunctionProxy : public BasicFunction< IndependentVariable, DependentVariable >
 {
 public:
-
     // Useful definitions.
     //! Typedef for a basic function.
     /*!
@@ -62,12 +58,11 @@ public:
     //! Typedef for a shared pointer to the class FunctionProxy
     typedef std::shared_ptr< FunctionProxy > FunctionProxyPointer;
 
-
     //! Create a Function object, using a specified function pointer.
     /*!
      * \param realFunction C++ function that will be used to evaluate this mathematical function.
      */
-    FunctionProxy( FunctionSignature realFunction ) : realFunction_( realFunction ) { }
+    FunctionProxy( FunctionSignature realFunction ): realFunction_( realFunction ) { }
 
     //! Evaluate the mathematical function.
     /*!
@@ -88,8 +83,7 @@ public:
      * \param independentVariable     Location where to evaluate the derivative.
      * \return                        The function that gives the derivative.
      */
-    DependentVariable computeDerivative( const unsigned int order,
-                                         const IndependentVariable independentVariable )
+    DependentVariable computeDerivative( const unsigned int order, const IndependentVariable independentVariable )
     {
         // Find the corresponding function and evaluate it immediately at x.
         return findBinding( -static_cast< int >( order ) )( independentVariable );
@@ -110,7 +104,7 @@ public:
     {
         functionCallTable_[ order ] = function;
     }
-    
+
     //! Get a function representing the derivative or integral previously set.
     /*!
      * Retrieves a binding that was set using FunctionProxy::addBinding(int, FunctionSignature)
@@ -120,7 +114,7 @@ public:
     FunctionSignature findBinding( int order = 0 )
     {
         // If 0th order, return the function itself.
-        if ( order == 0 )
+        if( order == 0 )
         {
             return realFunction_;
         }
@@ -130,15 +124,12 @@ public:
     }
 
 protected:
-
 private:
-
     //! Function representing the 0th order of this mathematical function.
     FunctionSignature realFunction_;
 
     //! Lookup table used to find explicit derivative or integral forms.
-    std::map< int, FunctionSignature >  functionCallTable_;
-
+    std::map< int, FunctionSignature > functionCallTable_;
 };
 
 // Type definitions for the commonly used double form.
@@ -164,8 +155,7 @@ inline UnivariateProxyPointer univariateProxy( UnivariateSignature function )
  *                  function1.
  * \param function1 Additional derivative or integral representation to bind.
  */
-inline UnivariateProxyPointer univariateProxy( UnivariateSignature function,
-                                               const int order1, UnivariateSignature function1 )
+inline UnivariateProxyPointer univariateProxy( UnivariateSignature function, const int order1, UnivariateSignature function1 )
 {
     // Create shared pointer to univariate function.
     UnivariateProxyPointer functionPointer = std::make_shared< UnivariateProxy >( function );
@@ -189,8 +179,10 @@ inline UnivariateProxyPointer univariateProxy( UnivariateSignature function,
  * \param function2 Second additional derivative or integral representation to bind.
  */
 inline UnivariateProxyPointer univariateProxy( UnivariateSignature function,
-                                               const int order1, UnivariateSignature function1,
-                                               const int order2, UnivariateSignature function2 )
+                                               const int order1,
+                                               UnivariateSignature function1,
+                                               const int order2,
+                                               UnivariateSignature function2 )
 {
     // Create shared pointer to univariate function.
     UnivariateProxyPointer functionPointer = std::make_shared< UnivariateProxy >( function );
@@ -218,9 +210,12 @@ inline UnivariateProxyPointer univariateProxy( UnivariateSignature function,
  * \param function3 Third additional derivative or integral representation to bind.
  */
 inline UnivariateProxyPointer univariateProxy( UnivariateSignature function,
-                                               const int order1, UnivariateSignature function1,
-                                               const int order2, UnivariateSignature function2,
-                                               const int order3, UnivariateSignature function3 )
+                                               const int order1,
+                                               UnivariateSignature function1,
+                                               const int order2,
+                                               UnivariateSignature function2,
+                                               const int order3,
+                                               UnivariateSignature function3 )
 {
     // Create shared pointer to univariate function.
     UnivariateProxyPointer functionPointer = std::make_shared< UnivariateProxy >( function );
@@ -234,8 +229,8 @@ inline UnivariateProxyPointer univariateProxy( UnivariateSignature function,
     return functionPointer;
 }
 
-} // namespace basic_mathematics
+}  // namespace basic_mathematics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_FUNCTION_PROXY_H
+#endif  // TUDAT_FUNCTION_PROXY_H

@@ -35,7 +35,7 @@ ParsedDataVectorPtr TextParser::parse( std::istream& stream )
     // Clear parsedData variable.
     parsedData->clear( );
 
-    if ( parseAsStream )
+    if( parseAsStream )
     {
         // Stream based parsing.
         parseStream( stream );
@@ -43,7 +43,7 @@ ParsedDataVectorPtr TextParser::parse( std::istream& stream )
     else
     {
         // Line based parsing
-        while ( !stream.fail( ) && !stream.eof( ) )
+        while( !stream.fail( ) && !stream.eof( ) )
         {
             std::string line;
             std::getline( stream, line );
@@ -55,5 +55,5 @@ ParsedDataVectorPtr TextParser::parse( std::istream& stream )
     return parsedData;
 }
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat

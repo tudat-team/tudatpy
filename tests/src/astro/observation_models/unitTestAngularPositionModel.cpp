@@ -16,7 +16,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
@@ -37,9 +36,7 @@ using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
 
-
 BOOST_AUTO_TEST_SUITE( test_angular_position_model )
-
 
 BOOST_AUTO_TEST_CASE( testAngularPositionModel )
 {
@@ -59,108 +56,104 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
 
     // Create bodies settings needed in simulation
     BodyListSettings defaultBodySettings =
-            getDefaultBodySettings(
-                bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+            getDefaultBodySettings( bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
-    
-
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "" );
-    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
     // Create light-time correction settings
     std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
     std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
-    lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                                lightTimePerturbingBodies ) );
+    lightTimeCorrectionSettings.push_back(
+            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( lightTimePerturbingBodies ) );
 
     // Create observation settings
-    std::shared_ptr< ObservationModelSettings > observableSettings = std::make_shared< ObservationModelSettings >
-            ( angular_position, linkEnds, lightTimeCorrectionSettings,
-              std::make_shared< ConstantObservationBiasSettings >(
-                  ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ), true ) );
+    std::shared_ptr< ObservationModelSettings > observableSettings = std::make_shared< ObservationModelSettings >(
+            angular_position,
+            linkEnds,
+            lightTimeCorrectionSettings,
+            std::make_shared< ConstantObservationBiasSettings >( ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ), true ) );
 
     // Create observation model.
     std::shared_ptr< ObservationModel< 2, double, double > > observationModel =
-           ObservationModelCreator< 2, double, double >::createObservationModel(
-                observableSettings, bodies );
+            ObservationModelCreator< 2, double, double >::createObservationModel( observableSettings, bodies );
     std::shared_ptr< ObservationBias< 2 > > observationBias = observationModel->getObservationBiasCalculator( );
-
 
     // Compute observation separately with two functions.
     double receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Vector6d > linkEndStates;
-    Eigen::Vector2d observationFromReceptionTime = observationModel->computeObservations(
-                receiverObservationTime, receiver );
-    Eigen::Vector2d observationFromReceptionTime2 = observationModel->computeObservationsWithLinkEndData(
-                receiverObservationTime, receiver, linkEndTimes, linkEndStates );
+    Eigen::Vector2d observationFromReceptionTime = observationModel->computeObservations( receiverObservationTime, receiver );
+    Eigen::Vector2d observationFromReceptionTime2 =
+            observationModel->computeObservationsWithLinkEndData( receiverObservationTime, receiver, linkEndTimes, linkEndStates );
     BOOST_CHECK_EQUAL( linkEndTimes.size( ), 2 );
     BOOST_CHECK_EQUAL( linkEndStates.size( ), 2 );
 
     // Manually create and compute light time corrections
     std::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculator =
-            createLightTimeCorrections(
-                lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds, transmitter, receiver );
+            createLightTimeCorrections( lightTimeCorrectionSettings.at( 0 ), bodies, linkEnds, transmitter, receiver );
     double lightTimeCorrection = lightTimeCorrectionCalculator->calculateLightTimeCorrection(
-                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) );
+            linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) );
 
     // Check equality of computed observations.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                observationFromReceptionTime, observationFromReceptionTime2, std::numeric_limits< double >::epsilon( ) );
+            observationFromReceptionTime, observationFromReceptionTime2, std::numeric_limits< double >::epsilon( ) );
 
     // Check consistency of link end states and time.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                linkEndStates.at( 0 ), bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes.at( 0 ) ),
-                std::numeric_limits< double >::epsilon( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                linkEndStates.at( 1 ), bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( linkEndTimes.at( 1 ) ),
-                std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStates.at( 0 ),
+                                       bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes.at( 0 ) ),
+                                       std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStates.at( 1 ),
+                                       bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( linkEndTimes.at( 1 ) ),
+                                       std::numeric_limits< double >::epsilon( ) );
 
     // Check that reception time is kept fixed.
-    BOOST_CHECK_CLOSE_FRACTION( static_cast< double >( receiverObservationTime ),
-                                linkEndTimes[ 1 ], std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            static_cast< double >( receiverObservationTime ), linkEndTimes[ 1 ], std::numeric_limits< double >::epsilon( ) );
 
     // Manually compute light time
     Eigen::Vector3d positionDifference = ( linkEndStates[ 0 ] - linkEndStates[ 1 ] ).segment( 0, 3 );
-    BOOST_CHECK_CLOSE_FRACTION(
-                positionDifference.norm( ) / physical_constants::SPEED_OF_LIGHT + lightTimeCorrection,
-                linkEndTimes[ 1 ] - linkEndTimes[ 0 ],
-                std::numeric_limits< double >::epsilon( ) * 1000.0 );
-                        // Poor tolerance due to rounding errors when subtracting times
+    BOOST_CHECK_CLOSE_FRACTION( positionDifference.norm( ) / physical_constants::SPEED_OF_LIGHT + lightTimeCorrection,
+                                linkEndTimes[ 1 ] - linkEndTimes[ 0 ],
+                                std::numeric_limits< double >::epsilon( ) * 1000.0 );
+    // Poor tolerance due to rounding errors when subtracting times
 
     // Check computed right ascension/declination from link end states
-//    Eigen::Vector3d sphericalRelativeCoordinates = coordinate_conversions::convertCartesianToSpherical(
-//                positionDifference );
-    double rightAscension = 2.0 * std::atan( positionDifference[ 1 ] /
-            ( std::sqrt( positionDifference[ 0 ] * positionDifference[ 0 ] + positionDifference[ 1 ] * positionDifference[ 1 ] ) + positionDifference[ 0 ] ) );
+    //    Eigen::Vector3d sphericalRelativeCoordinates = coordinate_conversions::convertCartesianToSpherical(
+    //                positionDifference );
+    double rightAscension = 2.0 *
+            std::atan( positionDifference[ 1 ] /
+                       ( std::sqrt( positionDifference[ 0 ] * positionDifference[ 0 ] +
+                                    positionDifference[ 1 ] * positionDifference[ 1 ] ) +
+                         positionDifference[ 0 ] ) );
     double declination = mathematical_constants::PI / 2.0 - std::acos( positionDifference[ 2 ] / positionDifference.norm( ) );
-    BOOST_CHECK_CLOSE_FRACTION( rightAscension + observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
-                                observationFromReceptionTime( 0 ),
-                                std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( declination + observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d>( ) ).y( ),
-                                observationFromReceptionTime( 1 ),
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            rightAscension + observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
+            observationFromReceptionTime( 0 ),
+            std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+            declination + observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).y( ),
+            observationFromReceptionTime( 1 ),
+            std::numeric_limits< double >::epsilon( ) );
 
     // Compute transmission time from light time.
     double transmitterObservationTime = receiverObservationTime - ( linkEndTimes[ 1 ] - linkEndTimes[ 0 ] );
 
     // Compare computed against returned transmission time.
     BOOST_CHECK_CLOSE_FRACTION(
-                static_cast< double >( transmitterObservationTime ), linkEndTimes[ 0 ],
-            std::numeric_limits< double >::epsilon( ) );
+            static_cast< double >( transmitterObservationTime ), linkEndTimes[ 0 ], std::numeric_limits< double >::epsilon( ) );
 
     // Recompute observable while fixing transmission time.
     std::vector< double > linkEndTimes2;
     std::vector< Eigen::Vector6d > linkEndStates2;
-    Eigen::Vector2d observationFromTransmissionTime = observationModel->computeObservations(
-                transmitterObservationTime, transmitter );
-    Eigen::Vector2d observationFromTransmissionTime2 = observationModel->computeObservationsWithLinkEndData(
-                transmitterObservationTime, transmitter, linkEndTimes2, linkEndStates2 );
+    Eigen::Vector2d observationFromTransmissionTime = observationModel->computeObservations( transmitterObservationTime, transmitter );
+    Eigen::Vector2d observationFromTransmissionTime2 =
+            observationModel->computeObservationsWithLinkEndData( transmitterObservationTime, transmitter, linkEndTimes2, linkEndStates2 );
 
     // Compare results against those obtained when keeping reception fixed.
     for( unsigned int i = 0; i < 2; i++ )
@@ -170,19 +163,17 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
         BOOST_CHECK_CLOSE_FRACTION( linkEndTimes2.at( i ), linkEndTimes2.at( i ), 1.0E-15 );
     }
 
-
     // Check consistency of link end states and time.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                linkEndStates2.at( 0 ), bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes2.at( 0 ) ),
-                std::numeric_limits< double >::epsilon( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                linkEndStates2.at( 1 ), bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( linkEndTimes2.at( 1 ) ),
-                std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStates2.at( 0 ),
+                                       bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( linkEndTimes2.at( 0 ) ),
+                                       std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStates2.at( 1 ),
+                                       bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( linkEndTimes2.at( 1 ) ),
+                                       std::numeric_limits< double >::epsilon( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
+}  // namespace tudat

@@ -17,8 +17,6 @@ namespace tudat
 namespace input_output
 {
 
-
-
 }
 
-}
+}  // namespace tudat
