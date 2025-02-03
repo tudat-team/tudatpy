@@ -12,7 +12,6 @@
 #ifndef TUDAT_TABULATEDROTATIONALEPHEMERIS_H
 #define TUDAT_TABULATEDROTATIONALEPHEMERIS_H
 
-
 #include <map>
 #include <vector>
 
@@ -31,7 +30,6 @@ namespace tudat
 namespace ephemerides
 {
 
-
 //! Class that computes the current rotational state from tabulated values of the rotational state with the use of an interpolator
 /*!
  *  Class that computes the current rotational state from tabulated values of the rotational state with the use of an interpolator
@@ -43,7 +41,6 @@ template< typename StateScalarType = double, typename TimeType = double >
 class TabulatedRotationalEphemeris : public RotationalEphemeris
 {
 public:
-
     typedef Eigen::Matrix< StateScalarType, 7, 1 > StateType;
     typedef Eigen::Matrix< StateScalarType, 4, 1 > OrientationType;
 
@@ -57,16 +54,14 @@ public:
      * \param baseFrameOrientation Base frame identifier.
      * \param targetFrameOrientation Target frame identifier.
      */
-    TabulatedRotationalEphemeris(
-            const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > >
-            interpolator,
-            const std::string& baseFrameOrientation = "ECLIPJ2000",
-            const std::string& targetFrameOrientation = "" ):
-        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), interpolator_( interpolator ),
-    currentTime_( TUDAT_NAN ){  }
+    TabulatedRotationalEphemeris( const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > > interpolator,
+                                  const std::string& baseFrameOrientation = "ECLIPJ2000",
+                                  const std::string& targetFrameOrientation = "" ):
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), interpolator_( interpolator ), currentTime_( TUDAT_NAN )
+    { }
 
     //! Destructor
-    ~TabulatedRotationalEphemeris( ){ }
+    ~TabulatedRotationalEphemeris( ) { }
 
     //! Function to reset the rotational state interpolator.
     /*!
@@ -154,8 +149,8 @@ public:
         updateInterpolator( secondsSinceEpoch );
 
         return getDerivativeOfRotationMatrixToFrame(
-                    ( currentRotationToBaseFrame_.inverse( ) ).toRotationMatrix( ).template cast< double >( ),
-                    ( currentRotationToBaseFrame_ * currentRotationalVelocityVectorInTargetFrame_ ).template cast< double >( ) );
+                ( currentRotationToBaseFrame_.inverse( ) ).toRotationMatrix( ).template cast< double >( ),
+                ( currentRotationToBaseFrame_ * currentRotationalVelocityVectorInTargetFrame_ ).template cast< double >( ) );
     }
 
     //! Function to calculate the derivative of the rotation matrix from target frame to base frame.
@@ -171,9 +166,7 @@ public:
         return getDerivativeOfRotationToTargetFrame( secondsSinceEpoch ).transpose( );
     }
 
-
 private:
-
     //! Function to retrieve the current rotational state from the interpolator
     /*!
      * Function to retrieve the current rotational state from the interpolator
@@ -189,9 +182,10 @@ private:
             // Normalize quaternion and set current rotation quaternion
             double quaternionNorm = ( currentRotationalState_.block( 0, 0, 4, 1 ) ).norm( );
             currentRotationalState_.block( 0, 0, 4, 1 ) = currentRotationalState_.block( 0, 0, 4, 1 ) / quaternionNorm;
-            currentRotationToBaseFrame_ = Eigen::Quaternion< StateScalarType >(
-                        currentRotationalState_( 0 ), currentRotationalState_( 1 ),
-                        currentRotationalState_( 2 ), currentRotationalState_( 3 ) );
+            currentRotationToBaseFrame_ = Eigen::Quaternion< StateScalarType >( currentRotationalState_( 0 ),
+                                                                                currentRotationalState_( 1 ),
+                                                                                currentRotationalState_( 2 ),
+                                                                                currentRotationalState_( 3 ) );
 
             // Set current angular velocity vector.
             currentRotationalVelocityVectorInTargetFrame_ = currentRotationalState_.block( 4, 0, 3, 1 );
@@ -220,7 +214,6 @@ private:
 
     //! Rotation from body-fixed frame to base frame obtained at last call to updateInterpolator.
     Eigen::Quaternion< StateScalarType > currentRotationToBaseFrame_;
-
 };
 
 //! Create a tabulated rotation model from a given rotation model and interpolation settings
@@ -240,12 +233,12 @@ std::shared_ptr< RotationalEphemeris > getTabulatedRotationalEphemeris(
         const TimeType endTime,
         const TimeType timeStep,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+                std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
     typedef Eigen::Matrix< StateScalarType, 7, 1 > StateType;
 
     // Create state map that is to be interpolated
-    std::map< TimeType, StateType >  stateMap;
+    std::map< TimeType, StateType > stateMap;
     TimeType currentTime = startTime;
     while( currentTime <= endTime )
     {
@@ -255,20 +248,17 @@ std::shared_ptr< RotationalEphemeris > getTabulatedRotationalEphemeris(
 
     // Create tabulated ephemeris model
     return std::make_shared< TabulatedRotationalEphemeris< StateScalarType, TimeType > >(
-                interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings ),
-                ephemerisToInterrogate->getBaseFrameOrientation( ),
-                ephemerisToInterrogate->getTargetFrameOrientation( ) );
-
+            interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings ),
+            ephemerisToInterrogate->getBaseFrameOrientation( ),
+            ephemerisToInterrogate->getTargetFrameOrientation( ) );
 }
 
-//extern template class TabulatedRotationalEphemeris< double, double >;
-
+// extern template class TabulatedRotationalEphemeris< double, double >;
 
 bool isTabulatedRotationalEphemeris( const std::shared_ptr< RotationalEphemeris > rotationalEphemeris );
 
-}
+}  // namespace ephemerides
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_TABULATEDROTATIONALEPHEMERIS_H
-
+#endif  // TUDAT_TABULATEDROTATIONALEPHEMERIS_H

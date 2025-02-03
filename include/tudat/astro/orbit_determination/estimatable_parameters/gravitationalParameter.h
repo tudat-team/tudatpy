@@ -21,21 +21,18 @@ namespace estimatable_parameters
 {
 
 //! Interface class for the estimation of a gravitational parameter
-class GravitationalParameter: public EstimatableParameter< double >
+class GravitationalParameter : public EstimatableParameter< double >
 {
-
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param gravityFieldModel Gravity field object containing the gravitational parameter to be estimated.
      * \param associatedBody Name of body containing the gravityFieldModel object
      */
-    GravitationalParameter(
-            const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel, const std::string& associatedBody ):
-        EstimatableParameter< double >( gravitational_parameter, associatedBody ),
-        gravityFieldModel_( gravityFieldModel ){ }
+    GravitationalParameter( const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel, const std::string& associatedBody ):
+        EstimatableParameter< double >( gravitational_parameter, associatedBody ), gravityFieldModel_( gravityFieldModel )
+    { }
 
     //! Destructor
     ~GravitationalParameter( ) { }
@@ -71,17 +68,13 @@ public:
     }
 
 protected:
-
 private:
-
     //! Gravity field object containing the gravitational parameter to be estimated.
     std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
-
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_GRAVITATIONALPARAMETER_H
+#endif  // TUDAT_GRAVITATIONALPARAMETER_H

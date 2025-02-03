@@ -13,20 +13,18 @@
 
 #include "tudat/simulation/simulation.h"
 
-
 namespace tudat
 {
 
 namespace propagators
 {
 
-simulation_setup::BodyListSettings setupBodySettingsCR3BP(
-        const double distancePrimarySecondary,
-        const std::string& namePrimaryBody,
-        const std::string& nameSecondaryBody,
-        const std::string& frameOrientation = "ECLIPJ2000",
-        const double primaryGravitationalParameter = TUDAT_NAN,
-        const double secondaryGravitationalParameter = TUDAT_NAN );
+simulation_setup::BodyListSettings setupBodySettingsCR3BP( const double distancePrimarySecondary,
+                                                           const std::string& namePrimaryBody,
+                                                           const std::string& nameSecondaryBody,
+                                                           const std::string& frameOrientation = "ECLIPJ2000",
+                                                           const double primaryGravitationalParameter = TUDAT_NAN,
+                                                           const double secondaryGravitationalParameter = TUDAT_NAN );
 
 //! Setup CR3BP system of bodies.
 /*!
@@ -42,14 +40,13 @@ simulation_setup::BodyListSettings setupBodySettingsCR3BP(
  * \param secondaryGravitationalParameter Gravitational parameter of secondary
  * \return Body Map modelling the CR3BP.
  */
-simulation_setup::SystemOfBodies setupBodyMapCR3BP(
-        const double distancePrimarySecondary,
-        const std::string& namePrimaryBody,
-        const std::string& nameSecondaryBody,
-        const std::string& nameBodyToPropagate,
-        const std::string& frameOrientation = "ECLIPJ2000",
-        const double primaryGravitationalParameter = TUDAT_NAN,
-        const double secondaryGravitationalParameter = TUDAT_NAN );
+simulation_setup::SystemOfBodies setupBodyMapCR3BP( const double distancePrimarySecondary,
+                                                    const std::string& namePrimaryBody,
+                                                    const std::string& nameSecondaryBody,
+                                                    const std::string& nameBodyToPropagate,
+                                                    const std::string& frameOrientation = "ECLIPJ2000",
+                                                    const double primaryGravitationalParameter = TUDAT_NAN,
+                                                    const double secondaryGravitationalParameter = TUDAT_NAN );
 
 //! Setup CR3BP acceleration map.
 /*!
@@ -62,12 +59,11 @@ simulation_setup::SystemOfBodies setupBodyMapCR3BP(
  * \param bodies CR3BP system of bodies.
  * \return Acceleration map for the CR3BP.
  */
-basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
-        const std::string& namePrimaryBody,
-        const std::string& nameSecondaryBody,
-        const std::string& nameBodyToPropagate,
-        const std::string& centralBody,
-        const simulation_setup::SystemOfBodies& bodies );
+basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP( const std::string& namePrimaryBody,
+                                                                const std::string& nameSecondaryBody,
+                                                                const std::string& nameBodyToPropagate,
+                                                                const std::string& centralBody,
+                                                                const simulation_setup::SystemOfBodies& bodies );
 
 //! Propagate CR3BP from CR3BP environment
 /*!
@@ -82,22 +78,21 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
  * \param stateHistory Propagated states of the CR3BP (returned by reference)
  * \param outputInNormalizedCoordinates Boolean denoting whether output is to be in dimensionless quantities (if true)
  */
-void propagateCR3BPFromEnvironment(
-        const double initialTime,
-        const double finalPropagationTime,
-        const Eigen::Vector6d& initialState,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::vector < std::string >& bodiesCR3BP,
-        std::map< double, Eigen::Vector6d >& stateHistory,
-        const bool outputInNormalizedCoordinates = false );
+void propagateCR3BPFromEnvironment( const double initialTime,
+                                    const double finalPropagationTime,
+                                    const Eigen::Vector6d& initialState,
+                                    const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+                                    const simulation_setup::SystemOfBodies& bodies,
+                                    const std::vector< std::string >& bodiesCR3BP,
+                                    std::map< double, Eigen::Vector6d >& stateHistory,
+                                    const bool outputInNormalizedCoordinates = false );
 
 void propagateCR3BPAndFullDynamicsProblem(
         const double initialTime,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettings,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::vector < std::string >& bodiesCR3BP,
+        const std::vector< std::string >& bodiesCR3BP,
         std::map< double, Eigen::Vector6d >& directPropagationResult,
         std::map< double, Eigen::Vector6d >& cr3bpPropagationResult,
         std::map< double, Eigen::VectorXd >& dependentVariableValues );
@@ -118,18 +113,17 @@ void propagateCR3BPAndFullDynamicsProblem(
  * \param directPropagation Propagated states of the full dynamics problem (returned by reference)
  * \param cr3bpPropagation Propagated states of the CR3BP, converted to dimensional coordinates (returned by reference)
  */
-void propagateCR3BPAndFullDynamicsProblem(
-        const double initialTime,
-        const double finalTime,
-        const Eigen::Vector6d& initialState,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-        const std::vector< std::string >& bodiesToPropagate,
-        const std::vector< std::string >& centralBodies,
-        const simulation_setup::SystemOfBodies& bodies,
-        const std::vector < std::string >& bodiesCR3BP,
-        std::map< double, Eigen::Vector6d >& directPropagation,
-        std::map< double, Eigen::Vector6d >& cr3bpPropagation );
+void propagateCR3BPAndFullDynamicsProblem( const double initialTime,
+                                           const double finalTime,
+                                           const Eigen::Vector6d& initialState,
+                                           const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+                                           const basic_astrodynamics::AccelerationMap& accelerationModelMap,
+                                           const std::vector< std::string >& bodiesToPropagate,
+                                           const std::vector< std::string >& centralBodies,
+                                           const simulation_setup::SystemOfBodies& bodies,
+                                           const std::vector< std::string >& bodiesCR3BP,
+                                           std::map< double, Eigen::Vector6d >& directPropagation,
+                                           std::map< double, Eigen::Vector6d >& cr3bpPropagation );
 
 //! Propagate the CR3BP and the full dynamics problem and compute the state difference at the end of the propagation.
 /*!
@@ -156,11 +150,10 @@ Eigen::Vector6d getFinalStateDifferenceFullPropagationWrtCR3BP(
         const std::vector< std::string >& bodiesToPropagate,
         const std::vector< std::string >& centralBodies,
         const simulation_setup::SystemOfBodies& bodies,
-        const std::vector < std::string >& bodiesCR3BP );
+        const std::vector< std::string >& bodiesCR3BP );
 
-}
+}  // namespace propagators
 
-}
+}  // namespace tudat
 
-
-#endif // TUDAT_PROPAGATION_CR3BP_FULL
+#endif  // TUDAT_PROPAGATION_CR3BP_FULL

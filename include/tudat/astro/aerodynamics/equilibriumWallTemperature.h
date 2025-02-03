@@ -24,7 +24,7 @@ namespace aerodynamics
 {
 
 //! Function that is used to compute the net heat flux from a given heat input and wall temperature
-class EquilibriumTemperatureFunction: public basic_mathematics::Function<double,double>
+class EquilibriumTemperatureFunction : public basic_mathematics::Function< double, double >
 {
 public:
     //! Constructor.
@@ -34,15 +34,15 @@ public:
      * \param wallEmissivity Emmissivity of the wall to which heat transfer is taking place
      * \param adiabaticWallTemperature Adiabatic wall temperature
      */
-    EquilibriumTemperatureFunction(
-            const std::function< double( const double ) > heatTransferFunction,
-            const double wallEmissivity,
-            double adiabaticWallTemperature ):
-       heatTransferFunction_( heatTransferFunction ), wallEmissivity_( wallEmissivity ),
-       adiabaticWallTemperature_( adiabaticWallTemperature ){ }
+    EquilibriumTemperatureFunction( const std::function< double( const double ) > heatTransferFunction,
+                                    const double wallEmissivity,
+                                    double adiabaticWallTemperature ):
+        heatTransferFunction_( heatTransferFunction ), wallEmissivity_( wallEmissivity ),
+        adiabaticWallTemperature_( adiabaticWallTemperature )
+    { }
 
     //! Destructor.
-    ~EquilibriumTemperatureFunction(){}
+    ~EquilibriumTemperatureFunction( ) { }
 
     //! Compute net heat flux at given wall temperature
     /*!
@@ -52,8 +52,8 @@ public:
      */
     double evaluate( const double currentWallTemperature )
     {
-        return heatTransferFunction_( currentWallTemperature )
-                - wallEmissivity_ * electromagnetism::computeBlackbodyRadiationIntensity( currentWallTemperature );
+        return heatTransferFunction_( currentWallTemperature ) -
+                wallEmissivity_ * electromagnetism::computeBlackbodyRadiationIntensity( currentWallTemperature );
     }
 
     //! Compute first derivative of net heat flux at given wall temperature (FUNCTION NOT IMPLEMENTED)
@@ -71,16 +71,24 @@ public:
     }
 
     //! Function to retrieve the lower bound of the wall temperature.
-    double getLowerBound( ) { return 0.0; }
+    double getLowerBound( )
+    {
+        return 0.0;
+    }
 
     //! Function to retrieve the upper bound of the wall temperature.
-    double getUpperBound( ) { return adiabaticWallTemperature_; }
+    double getUpperBound( )
+    {
+        return adiabaticWallTemperature_;
+    }
 
     //! Function to retrieve the initial guess of the wall temperature.
-    double getInitialGuess( ) { return adiabaticWallTemperature_ * 0.01; }
+    double getInitialGuess( )
+    {
+        return adiabaticWallTemperature_ * 0.01;
+    }
 
 protected:
-
 private:
     //! Function that returns the heat input as a function of wall temperature.
     std::function< double( const double ) > heatTransferFunction_;
@@ -102,13 +110,12 @@ private:
  * generate an initial giess for the equilibrium temperature
  * \return Wall temperature at which input and output of heat are in equilibrium.
  */
-double computeEquilibiumWallTemperature(
-        const std::function< double( const double ) > heatTransferFunction,
-        const double wallEmmisivity,
-        const double adiabaticWallTemperature );
+double computeEquilibiumWallTemperature( const std::function< double( const double ) > heatTransferFunction,
+                                         const double wallEmmisivity,
+                                         const double adiabaticWallTemperature );
 
-} //namespace_aerodynamics
+}  // namespace aerodynamics
 
-} //namespace_tudat
+}  // namespace tudat
 
-#endif //TUDAT_EQUILIBRIUMWALLTEMPERATURE_H
+#endif  // TUDAT_EQUILIBRIUMWALLTEMPERATURE_H

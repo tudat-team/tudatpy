@@ -36,28 +36,23 @@ namespace solar_activity
  * This class extracts the numeric information from a ParsedDataLineMapPtr containing parsed
  * solar activity data designed and placec them in a container of class SolarActivityData
  */
-class ExtractSolarActivityData : public tudat::input_output::Extractor<
-            tudat::input_output::solar_activity::SolarActivityData >
+class ExtractSolarActivityData : public tudat::input_output::Extractor< tudat::input_output::solar_activity::SolarActivityData >
 {
-
 public:
-
     //! Extracts the solar activity data to a SolarActivityData container.
     /*!
      * Extracts the solar activity data from a "ParsedDataLineMap" object and saves it in a
      * "SolarActivityData" contatiner.
      */
     std::shared_ptr< tudat::input_output::solar_activity::SolarActivityData > extract(
-                tudat::input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr data );
+            tudat::input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr data );
 
 protected:
-
 private:
-
 };
 
-}   // namespace solar_activity
-}   // namespace input_output
-}   // namespace tudat
+}  // namespace solar_activity
+}  // namespace input_output
+}  // namespace tudat
 
 #endif  // TUDAT_EXTRACTSOLARACTIVITY_H

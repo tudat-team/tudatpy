@@ -31,8 +31,7 @@ namespace orbital_element_conversions
  * \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
  * \return Current heading angle.
  */
-double calculateHeadingAngle(
-        const Eigen::Vector3d& velocityInVerticalFrame );
+double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame );
 
 //! Calculate current flight path angle. Angle is defined positive upwards.
 /*!
@@ -43,8 +42,7 @@ double calculateHeadingAngle(
  *  \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
  *  \return Current flight path angle.
  */
-double calculateFlightPathAngle(
-        const Eigen::Vector3d& velocityInVerticalFrame );
+double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame );
 
 //! Function to convert a Cartesian to a spherical orbital state.
 /*!
@@ -59,8 +57,7 @@ double calculateFlightPathAngle(
  * \param bodyFixedCartesianState Vehicle state in a frame fixed to the body w.r.t. which the state is to be computed.
  * \return Spherical orbital state representation of bodyFixedCartesianState
  */
-Eigen::Vector6d convertCartesianToSphericalOrbitalState(
-        const Eigen::Vector6d& bodyFixedCartesianState );
+Eigen::Vector6d convertCartesianToSphericalOrbitalState( const Eigen::Vector6d& bodyFixedCartesianState );
 
 //! Function to convert a spherical orbital to a Cartesian state.
 /*!
@@ -84,10 +81,10 @@ Eigen::Matrix< StateScalarType, 6, 1 > convertSphericalOrbitalToCartesianState(
 
     // Compute Cartesian position
     Eigen::Matrix< StateScalarType, 3, 1 > sphericalPosition = sphericalOrbitalState.segment( 0, 3 );
-    sphericalPosition( 1 ) = mathematical_constants::getPi< StateScalarType >( ) /
-            mathematical_constants::getFloatingInteger< StateScalarType >( 2 ) - sphericalOrbitalState( 1 );
-    cartesianState.segment( 0, 3 ) = coordinate_conversions::convertSphericalToCartesian< StateScalarType >(
-                sphericalPosition );
+    sphericalPosition( 1 ) =
+            mathematical_constants::getPi< StateScalarType >( ) / mathematical_constants::getFloatingInteger< StateScalarType >( 2 ) -
+            sphericalOrbitalState( 1 );
+    cartesianState.segment( 0, 3 ) = coordinate_conversions::convertSphericalToCartesian< StateScalarType >( sphericalPosition );
 
     // Check whether flight path angle and heading angle are valid (corresponding velocity components are zero otherwise)
     bool isFlightPathAngleValid = ( sphericalOrbitalState( flightPathIndex ) == sphericalOrbitalState( flightPathIndex ) );
@@ -97,44 +94,40 @@ Eigen::Matrix< StateScalarType, 6, 1 > convertSphericalOrbitalToCartesianState(
     Eigen::Matrix< StateScalarType, 3, 1 > velocityInVerticalFrame = Eigen::Matrix< StateScalarType, 3, 1 >::Zero( );
     if( isFlightPathAngleValid && isHeadingAngleValid )
     {
-        velocityInVerticalFrame( 0 ) = sphericalOrbitalState( speedIndex ) *
-                std::cos( sphericalOrbitalState( flightPathIndex ) ) *
+        velocityInVerticalFrame( 0 ) = sphericalOrbitalState( speedIndex ) * std::cos( sphericalOrbitalState( flightPathIndex ) ) *
                 std::cos( sphericalOrbitalState( headingAngleIndex ) );
-        velocityInVerticalFrame( 1 ) = sphericalOrbitalState( speedIndex ) *
-                std::cos( sphericalOrbitalState( flightPathIndex ) ) *
+        velocityInVerticalFrame( 1 ) = sphericalOrbitalState( speedIndex ) * std::cos( sphericalOrbitalState( flightPathIndex ) ) *
                 std::sin( sphericalOrbitalState( headingAngleIndex ) );
     }
 
     if( isFlightPathAngleValid )
     {
-        velocityInVerticalFrame( 2 ) = -sphericalOrbitalState( speedIndex ) *
-                std::sin( sphericalOrbitalState( flightPathIndex ) );
+        velocityInVerticalFrame( 2 ) = -sphericalOrbitalState( speedIndex ) * std::sin( sphericalOrbitalState( flightPathIndex ) );
     }
 
     // Set velocity in body-fixed frame.
     cartesianState.segment( 3, 3 ) = reference_frames::getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-                sphericalOrbitalState( longitudeIndex ), sphericalOrbitalState( latitudeIndex ) ) * velocityInVerticalFrame;
+                                             sphericalOrbitalState( longitudeIndex ), sphericalOrbitalState( latitudeIndex ) ) *
+            velocityInVerticalFrame;
 
     return cartesianState;
 }
 
 template< typename StateScalarType = double >
-Eigen::Matrix< StateScalarType, 6, 1 > convertSphericalOrbitalToCartesianState(
-        const StateScalarType radialDistance,
-        const StateScalarType latitude,
-        const StateScalarType longitude,
-        const StateScalarType speed,
-        const StateScalarType flightPathAngle,
-        const StateScalarType headingAngle )
+Eigen::Matrix< StateScalarType, 6, 1 > convertSphericalOrbitalToCartesianState( const StateScalarType radialDistance,
+                                                                                const StateScalarType latitude,
+                                                                                const StateScalarType longitude,
+                                                                                const StateScalarType speed,
+                                                                                const StateScalarType flightPathAngle,
+                                                                                const StateScalarType headingAngle )
 {
     return convertSphericalOrbitalToCartesianState< StateScalarType >(
-                ( Eigen::Matrix< StateScalarType, 6, 1 >( ) <<
-                      radialDistance, latitude, longitude, speed, flightPathAngle, headingAngle ).finished( ) );
+            ( Eigen::Matrix< StateScalarType, 6, 1 >( ) << radialDistance, latitude, longitude, speed, flightPathAngle, headingAngle )
+                    .finished( ) );
 }
 
-} // namespace orbital_element_conversions
+}  // namespace orbital_element_conversions
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_SPHERICALSTATECONVERSIONS_H
+#endif  // TUDAT_SPHERICALSTATECONVERSIONS_H

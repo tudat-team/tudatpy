@@ -23,9 +23,9 @@ std::pair< std::vector< double >, std::vector< double > > grailAntennaFileReader
 
     // Open file
     std::ifstream dataFile( antennaFile );
-    if ( !dataFile.good( ) )
+    if( !dataFile.good( ) )
     {
-        throw std::runtime_error( "Error when opening GRAIL antenna file, file " + antennaFile +  " could not be opened." );
+        throw std::runtime_error( "Error when opening GRAIL antenna file, file " + antennaFile + " could not be opened." );
     }
 
     unsigned int numberHeaderLines = 20;
@@ -34,7 +34,7 @@ std::pair< std::vector< double >, std::vector< double > > grailAntennaFileReader
 
     // Line based parsing
     std::string line;
-    while ( dataFile.good( ) && !dataFile.eof( ) )
+    while( dataFile.good( ) && !dataFile.eof( ) )
     {
         // Get line from stream
         std::getline( dataFile, line );
@@ -42,32 +42,34 @@ std::pair< std::vector< double >, std::vector< double > > grailAntennaFileReader
         // Skip empty lines
         std::string trimmedLine = line;
         boost::algorithm::trim( trimmedLine );
-        if ( trimmedLine.empty( ) )
+        if( trimmedLine.empty( ) )
         {
             continue;
         }
 
-        if ( isHeaderParsed )
+        if( isHeaderParsed )
         {
             std::vector< std::string > vectorOfIndividualStrings;
-            boost::algorithm::split( vectorOfIndividualStrings, line,
-                                     boost::algorithm::is_any_of( " " ), boost::algorithm::token_compress_on );
+            boost::algorithm::split(
+                    vectorOfIndividualStrings, line, boost::algorithm::is_any_of( " " ), boost::algorithm::token_compress_on );
             // Check if last string is empty and remove it if so
-            if ( vectorOfIndividualStrings.back( ).empty( ) )
+            if( vectorOfIndividualStrings.back( ).empty( ) )
             {
                 vectorOfIndividualStrings.pop_back( );
             }
 
-            if ( vectorOfIndividualStrings.size( ) != 7 )
+            if( vectorOfIndividualStrings.size( ) != 7 )
             {
-                throw std::runtime_error( "Error when reading antenna switch file for GRAIL, inconsistent format. Number of entries is "
-                    + std::to_string( vectorOfIndividualStrings.size( ) ) + ", should be 7." );
+                throw std::runtime_error( "Error when reading antenna switch file for GRAIL, inconsistent format. Number of entries is " +
+                                          std::to_string( vectorOfIndividualStrings.size( ) ) + ", should be 7." );
             }
 
             std::string emptyFlags = vectorOfIndividualStrings.at( 6 );
-            if ( emptyFlags.compare( "00000000" ) != 1 )
+            if( emptyFlags.compare( "00000000" ) != 1 )
             {
-                throw std::runtime_error( "Error when reading antenna switch file for GRAIL, inconsistent entry. The last eights digits should be set to zero." );
+                throw std::runtime_error(
+                        "Error when reading antenna switch file for GRAIL, inconsistent entry. The last eights digits should be set to "
+                        "zero." );
             }
 
             double switchTimeTbd = std::stod( vectorOfIndividualStrings.at( 0 ) );
@@ -75,7 +77,8 @@ std::pair< std::vector< double >, std::vector< double > > grailAntennaFileReader
             double xAxisCosinus = std::stod( vectorOfIndividualStrings.at( 3 ) );
             double yAxisCosinus = std::stod( vectorOfIndividualStrings.at( 4 ) );
             double zAxisCosinus = std::stod( vectorOfIndividualStrings.at( 5 ) );
-            Eigen::Vector3d antennaPosition = antennaPositionNorm * ( Eigen::Vector3d( ) << xAxisCosinus, yAxisCosinus, zAxisCosinus  ).finished( );
+            Eigen::Vector3d antennaPosition =
+                    antennaPositionNorm * ( Eigen::Vector3d( ) << xAxisCosinus, yAxisCosinus, zAxisCosinus ).finished( );
 
             switchTimes.push_back( switchTimeTbd );
             antennaPositions.push_back( antennaPosition[ 0 ] );
@@ -84,7 +87,7 @@ std::pair< std::vector< double >, std::vector< double > > grailAntennaFileReader
         }
 
         numberLinesParsed++;
-        if ( numberLinesParsed >= numberHeaderLines  )
+        if( numberLinesParsed >= numberHeaderLines )
         {
             isHeaderParsed = true;
         }
@@ -100,9 +103,9 @@ std::map< double, double > grailMassLevel0FileReader( const std::string massFile
 
     // Open file
     std::ifstream dataFile( massFile );
-    if ( !dataFile.good( ) )
+    if( !dataFile.good( ) )
     {
-        throw std::runtime_error( "Error when opening GRAIL mass file (level 0), file " + massFile +  " could not be opened." );
+        throw std::runtime_error( "Error when opening GRAIL mass file (level 0), file " + massFile + " could not be opened." );
     }
 
     unsigned int numberHeaderLines = 4;
@@ -112,7 +115,7 @@ std::map< double, double > grailMassLevel0FileReader( const std::string massFile
 
     // Line based parsing
     std::string line;
-    while ( dataFile.good( ) && !dataFile.eof( ) )
+    while( dataFile.good( ) && !dataFile.eof( ) )
     {
         // Get line from stream
         std::getline( dataFile, line );
@@ -120,12 +123,12 @@ std::map< double, double > grailMassLevel0FileReader( const std::string massFile
         // Skip empty lines
         std::string trimmedLine = line;
         boost::algorithm::trim( trimmedLine );
-        if ( trimmedLine.empty( ) )
+        if( trimmedLine.empty( ) )
         {
             continue;
         }
 
-        if ( isHeaderParsed )
+        if( isHeaderParsed )
         {
             std::vector< std::string > vectorOfIndividualStrings;
 
@@ -138,16 +141,16 @@ std::map< double, double > grailMassLevel0FileReader( const std::string massFile
                 line.erase( 0, positionInLine + delimiter.size( ) );
             }
 
-//            // Check if last string is empty and remove it if so
-//            if ( vectorOfIndividualStrings.back( ).empty( ) )
-//            {
-//                vectorOfIndividualStrings.pop_back( );
-//            }
+            //            // Check if last string is empty and remove it if so
+            //            if ( vectorOfIndividualStrings.back( ).empty( ) )
+            //            {
+            //                vectorOfIndividualStrings.pop_back( );
+            //            }
 
-            if ( vectorOfIndividualStrings.size( ) != 13 )
+            if( vectorOfIndividualStrings.size( ) != 13 )
             {
-                throw std::runtime_error( "Error when reading mass level 0 file for GRAIL, inconsistent format. Number of entries is "
-                                          + std::to_string( vectorOfIndividualStrings.size( ) ) + ", should be 13." );
+                throw std::runtime_error( "Error when reading mass level 0 file for GRAIL, inconsistent format. Number of entries is " +
+                                          std::to_string( vectorOfIndividualStrings.size( ) ) + ", should be 13." );
             }
 
             // Retrieve manoeuvre date
@@ -158,7 +161,8 @@ std::map< double, double > grailMassLevel0FileReader( const std::string massFile
             // Retrieve manoeuvre end time (UTC)
             std::string manoeuvreEndTimeUtc = vectorOfIndividualStrings.at( 3 );
             std::vector< std::string > individualStrTime;
-            boost::algorithm::split( individualStrTime, manoeuvreEndTimeUtc, boost::algorithm::is_any_of( ":" ), boost::algorithm::token_compress_on );
+            boost::algorithm::split(
+                    individualStrTime, manoeuvreEndTimeUtc, boost::algorithm::is_any_of( ":" ), boost::algorithm::token_compress_on );
 
             // Compute time UTC in seconds
             int year = std::stoi( individualStrDate.at( 2 ) );
@@ -169,7 +173,6 @@ std::map< double, double > grailMassLevel0FileReader( const std::string massFile
             double seconds = stod( individualStrTime.at( 2 ) );
             double timeInSecondsUtc = basic_astrodynamics::timeFromDecomposedDateTime< double >( year, month, day, hour, minutes, seconds );
 
-
             double timeInSecondsTdb = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< double >(
                     basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, timeInSecondsUtc, Eigen::Vector3d::Zero( ) );
             double mass = std::stod( vectorOfIndividualStrings.at( 6 ) );
@@ -177,7 +180,7 @@ std::map< double, double > grailMassLevel0FileReader( const std::string massFile
         }
 
         numberLinesParsed++;
-        if ( numberLinesParsed >= numberHeaderLines  )
+        if( numberLinesParsed >= numberHeaderLines )
         {
             isHeaderParsed = true;
         }
@@ -188,10 +191,9 @@ std::map< double, double > grailMassLevel0FileReader( const std::string massFile
     return massHistory;
 }
 
-std::map< double, double > grailMassLevel1FileReader( const std::string massFile,
-                                                      const std::string dataLevel )
+std::map< double, double > grailMassLevel1FileReader( const std::string massFile, const std::string dataLevel )
 {
-    if ( dataLevel != "1a" && dataLevel != "1b" )
+    if( dataLevel != "1a" && dataLevel != "1b" )
     {
         throw std::runtime_error( "Error when reading level 1 mass file for GRAIL, the input dataLevel should be set to either 1a or 1b." );
     }
@@ -200,9 +202,9 @@ std::map< double, double > grailMassLevel1FileReader( const std::string massFile
 
     // Open file
     std::ifstream dataFile( massFile );
-    if ( !dataFile.good( ) )
+    if( !dataFile.good( ) )
     {
-        throw std::runtime_error( "Error when opening GRAIL mass file (level 1), file " + massFile +  " could not be opened." );
+        throw std::runtime_error( "Error when opening GRAIL mass file (level 1), file " + massFile + " could not be opened." );
     }
 
     unsigned int numberHeaderLines = 20;
@@ -212,7 +214,7 @@ std::map< double, double > grailMassLevel1FileReader( const std::string massFile
 
     // Line based parsing
     std::string line;
-    while ( dataFile.good( ) && !dataFile.eof( ) )
+    while( dataFile.good( ) && !dataFile.eof( ) )
     {
         // Get line from stream
         std::getline( dataFile, line );
@@ -220,50 +222,52 @@ std::map< double, double > grailMassLevel1FileReader( const std::string massFile
         // Skip empty lines
         std::string trimmedLine = line;
         boost::algorithm::trim( trimmedLine );
-        if ( trimmedLine.empty( ) )
+        if( trimmedLine.empty( ) )
         {
             continue;
         }
 
-        if ( isHeaderParsed )
+        if( isHeaderParsed )
         {
             std::vector< std::string > vectorOfIndividualStrings;
-            boost::algorithm::split( vectorOfIndividualStrings, line,
-                                     boost::algorithm::is_any_of( " " ), boost::algorithm::token_compress_on );
+            boost::algorithm::split(
+                    vectorOfIndividualStrings, line, boost::algorithm::is_any_of( " " ), boost::algorithm::token_compress_on );
             // Check if last string is empty and remove it if so
-            if ( vectorOfIndividualStrings.back( ).empty( ) )
+            if( vectorOfIndividualStrings.back( ).empty( ) )
             {
                 vectorOfIndividualStrings.pop_back( );
             }
 
-            if ( vectorOfIndividualStrings.size( ) != 7 )
+            if( vectorOfIndividualStrings.size( ) != 7 )
             {
-                throw std::runtime_error( "Error when reading mass level 1 file for GRAIL, inconsistent format. Number of entries is "
-                                          + std::to_string( vectorOfIndividualStrings.size( ) ) + ", should be 7." );
+                throw std::runtime_error( "Error when reading mass level 1 file for GRAIL, inconsistent format. Number of entries is " +
+                                          std::to_string( vectorOfIndividualStrings.size( ) ) + ", should be 7." );
             }
 
             std::string firstFlagSet = vectorOfIndividualStrings.at( 4 );
             std::string secondFlagSet = vectorOfIndividualStrings.at( 5 );
-            if ( firstFlagSet != "00000000" )
+            if( firstFlagSet != "00000000" )
             {
-                throw std::runtime_error( "Error when reading mass level 1 file for GRAIL, inconsistent entry. "
-                                          "In the first set of flags, all digits should be set to zero." );
+                throw std::runtime_error(
+                        "Error when reading mass level 1 file for GRAIL, inconsistent entry. "
+                        "In the first set of flags, all digits should be set to zero." );
             }
-            if ( secondFlagSet != "00000001" )
+            if( secondFlagSet != "00000001" )
             {
-                throw std::runtime_error( "Error when reading mass level 1 file for GRAIL, inconsistent entry. "
-                                          "In the second set of flags, only digit 0 should be set to 1." );
+                throw std::runtime_error(
+                        "Error when reading mass level 1 file for GRAIL, inconsistent entry. "
+                        "In the second set of flags, only digit 0 should be set to 1." );
             }
 
             // Retrieve mass and time
             double timeTdb;
-            if ( dataLevel == "1a" )
+            if( dataLevel == "1a" )
             {
-               double timeUtcScet = std::stod( vectorOfIndividualStrings.at( 0 ) ) + std::stod( vectorOfIndividualStrings.at( 1 ) );
-               timeTdb = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< double >(
-                       basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, timeUtcScet, Eigen::Vector3d::Zero( ) );
+                double timeUtcScet = std::stod( vectorOfIndividualStrings.at( 0 ) ) + std::stod( vectorOfIndividualStrings.at( 1 ) );
+                timeTdb = earth_orientation::TerrestrialTimeScaleConverter( ).getCurrentTime< double >(
+                        basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, timeUtcScet, Eigen::Vector3d::Zero( ) );
             }
-            if ( dataLevel == "1b" )
+            if( dataLevel == "1b" )
             {
                 timeTdb = std::stod( vectorOfIndividualStrings.at( 0 ) ) + std::stod( vectorOfIndividualStrings.at( 1 ) );
             }
@@ -273,7 +277,7 @@ std::map< double, double > grailMassLevel1FileReader( const std::string massFile
         }
 
         numberLinesParsed++;
-        if ( numberLinesParsed >= numberHeaderLines  )
+        if( numberLinesParsed >= numberHeaderLines )
         {
             isHeaderParsed = true;
         }
@@ -284,8 +288,6 @@ std::map< double, double > grailMassLevel1FileReader( const std::string massFile
     return massHistory;
 }
 
+}  // namespace input_output
 
-
-} // namespace input_output
-
-} // namespace tudat
+}  // namespace tudat

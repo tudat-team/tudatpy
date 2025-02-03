@@ -29,7 +29,6 @@ namespace input_output
 class FixedWidthParser : public TextParser
 {
 public:
-
     //! Create a parser that parses based on specified field widths and field type list.
     /*!
      * \param numberOfFields Number of fields to parse.
@@ -40,20 +39,24 @@ public:
     FixedWidthParser( int numberOfFields, ... );
 
     //! Set trim: Trim whitespace off fields (default=true).
-    void setTrim( bool trim ) { doTrim = trim; }
+    void setTrim( bool trim )
+    {
+        doTrim = trim;
+    }
 
     //! Get trim setting: Trim whitespace off fields (default=true).
-    bool getTrim( ) { return doTrim; }
+    bool getTrim( )
+    {
+        return doTrim;
+    }
 
     //! Set unit transformation map.
-    void setUnitTransformationMap (
-            std::map< FieldType, std::shared_ptr< FieldTransform > > unitTransformationMap )
+    void setUnitTransformationMap( std::map< FieldType, std::shared_ptr< FieldTransform > > unitTransformationMap )
     {
         unitTransformationMap_ = unitTransformationMap;
     }
 
 protected:
-
     //! Parses one line of text.
     /*!
      * Parses one line of text by dividing the line in fields using specified field widths.
@@ -63,7 +66,6 @@ protected:
     void parseLine( std::string& line );
 
 private:
-
     //! Number of fields that is parsed.
     unsigned int numberOfFields_;
 
@@ -83,7 +85,7 @@ private:
 //! Typedef for shared-pointer to FixedWidthParser object.
 typedef std::shared_ptr< FixedWidthParser > FixedWidthParserPointer;
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_FIXED_WIDTH_PARSER_H
+#endif  // TUDAT_FIXED_WIDTH_PARSER_H

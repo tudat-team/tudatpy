@@ -27,7 +27,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-
 //! Function to retrieve the effective thrust direction from a set of thrust sources.
 /*!
  * Function to retrieve the effective thrust direction from a set of thrust sources.
@@ -35,9 +34,8 @@ namespace simulation_setup
  * \param thrustMagnitudes List of functions returning thrust magnitude.
  * \return Effective thrust direction.
  */
-Eigen::Vector3d getCombinedThrustDirection(
-        const std::vector< std::function< Eigen::Vector3d( )> >& thrustDirections,
-        const std::vector< std::function< double( )> >& thrustMagnitudes );
+Eigen::Vector3d getCombinedThrustDirection( const std::vector< std::function< Eigen::Vector3d( ) > >& thrustDirections,
+                                            const std::vector< std::function< double( ) > >& thrustMagnitudes );
 
 //! Function to create a function that returns the thrust direction in the body-fixed frame.
 /*!
@@ -47,10 +45,9 @@ Eigen::Vector3d getCombinedThrustDirection(
  * \param bodyName Name of body for which thrust is to be created.
  * \return Function that returns the thrust direction in the body-fixed frame.
  */
-std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
-        const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
-        const SystemOfBodies& bodies,
-        const std::string bodyName );
+std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection( const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
+                                                                 const SystemOfBodies& bodies,
+                                                                 const std::string bodyName );
 
 //! Function to create a wrapper object that computes the thrust magnitude
 /*!
@@ -75,7 +72,7 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
 // * \param thrustDirectionGuidance Object used during propagation to compute the body-fixed thrust direction
 // * \param currentTime Time to which objects are to be updated.
 // */
-//void updateThrustSettings(
+// void updateThrustSettings(
 //        const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
 //        const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
 //        const double currentTime );
@@ -89,13 +86,13 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
 //* \param thrustDirectionGuidance Object used during propagation to compute the body-fixed thrust direction
 //* \param currentTime New current time variable that is to be set.
 //*/
-//void resetThrustSettingsTime(
+// void resetThrustSettingsTime(
 //        const std::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
 //        const std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
 //        const double currentTime = TUDAT_NAN);
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CREATETHRUSTMODELGUIDANCE_H
+#endif  // TUDAT_CREATETHRUSTMODELGUIDANCE_H

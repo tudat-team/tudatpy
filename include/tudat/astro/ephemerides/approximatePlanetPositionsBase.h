@@ -35,7 +35,6 @@ namespace tudat
 namespace ephemerides
 {
 
-
 int getPlanetIndex( const std::string& bodyName );
 
 //! Ephemeris base class using JPL "Approximate Positions of Major Planets".
@@ -45,8 +44,6 @@ int getPlanetIndex( const std::string& bodyName );
 class ApproximateJplSolarSystemEphemerisBase : public Ephemeris
 {
 public:
-
-
     //! Default constructor.
     /*!
      * Default constructor of the base class, initializes the gravitational parameter of the Sun to
@@ -55,14 +52,9 @@ public:
      * \param sunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
      * \sa ApproximateJplEphemeris, ApproximateJplCircularCoplanarEphemeris.
      */
-    ApproximateJplSolarSystemEphemerisBase( const double sunGravitationalParameter )
-        : Ephemeris( "Sun", "ECLIPJ2000" ),
-          sunGravitationalParameter_( sunGravitationalParameter ),
-          planetGravitationalParameter_( 0.0 ),
-          julianDate_( -0.0 ),
-          meanLongitudeAtGivenJulianDate_( -0.0 ),
-          numberOfCenturiesPastJ2000_( -0.0 ),
-          ephemerisLineData_( )
+    ApproximateJplSolarSystemEphemerisBase( const double sunGravitationalParameter ):
+        Ephemeris( "Sun", "ECLIPJ2000" ), sunGravitationalParameter_( sunGravitationalParameter ), planetGravitationalParameter_( 0.0 ),
+        julianDate_( -0.0 ), meanLongitudeAtGivenJulianDate_( -0.0 ), numberOfCenturiesPastJ2000_( -0.0 ), ephemerisLineData_( )
     { }
 
     //! Default destructor.
@@ -97,12 +89,17 @@ public:
      *  Returns the gravitational parameter of the Sun that is used in the calculations.
      *  \return Gravitational parameter of the Sun.
      */
-    double getSunGravitationalParameter( ){ return sunGravitationalParameter_; }
+    double getSunGravitationalParameter( )
+    {
+        return sunGravitationalParameter_;
+    }
 
-    double getPlanetGravitationalParameter( ){ return planetGravitationalParameter_; }
+    double getPlanetGravitationalParameter( )
+    {
+        return planetGravitationalParameter_;
+    }
 
 protected:
-
     //! Set planet.
     /*!
      * Sets planet to retrieve ephemeris data for.
@@ -167,7 +164,7 @@ private:
 //! Typedef for shared-pointer to ApproximateJplSolarSystemEphemerisBase object.
 typedef std::shared_ptr< ApproximateJplSolarSystemEphemerisBase > ApproximateJplSolarSystemEphemerisBasePointer;
 
-} // namespace ephemerides
-} // namespace tudat
+}  // namespace ephemerides
+}  // namespace tudat
 
-#endif // TUDAT_APPROXIMATE_PLANET_POSITIONS_BASE_H
+#endif  // TUDAT_APPROXIMATE_PLANET_POSITIONS_BASE_H

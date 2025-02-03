@@ -18,14 +18,14 @@ namespace tudat
 namespace json_interface
 {
 
-//template class JsonSimulationManager< double, double >;
+// template class JsonSimulationManager< double, double >;
 
-#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-//template class JsonSimulationManager< double, long double >;
+#if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+// template class JsonSimulationManager< double, long double >;
 ////template class JsonSimulationManager< Time, double >;
 ////template class JsonSimulationManager< Time, long double >;
 #endif
 
-}
+}  // namespace json_interface
 
-}
+}  // namespace tudat

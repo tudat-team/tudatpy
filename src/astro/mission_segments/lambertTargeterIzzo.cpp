@@ -35,9 +35,14 @@ namespace mission_segments
 void LambertTargeterIzzo::execute( )
 {
     // Call Izzo's Lambert targeting routine.
-    solveLambertProblemIzzo( cartesianPositionAtDeparture, cartesianPositionAtArrival,
-                             timeOfFlight, gravitationalParameter, cartesianVelocityAtDeparture,
-                             cartesianVelocityAtArrival, isRetrograde_, convergenceTolerance_,
+    solveLambertProblemIzzo( cartesianPositionAtDeparture,
+                             cartesianPositionAtArrival,
+                             timeOfFlight,
+                             gravitationalParameter,
+                             cartesianVelocityAtDeparture,
+                             cartesianVelocityAtArrival,
+                             isRetrograde_,
+                             convergenceTolerance_,
                              maximumNumberOfIterations_ );
 }
 
@@ -45,8 +50,7 @@ void LambertTargeterIzzo::execute( )
 double LambertTargeterIzzo::getRadialVelocityAtDeparture( )
 {
     // Determine radial unit vector.
-    const Eigen::Vector3d radialUnitVectorAtDeparture
-            = cartesianPositionAtDeparture.normalized( );
+    const Eigen::Vector3d radialUnitVectorAtDeparture = cartesianPositionAtDeparture.normalized( );
 
     // Compute radial velocity at departure.
     return cartesianVelocityAtDeparture.dot( radialUnitVectorAtDeparture );
@@ -66,19 +70,16 @@ double LambertTargeterIzzo::getRadialVelocityAtArrival( )
 double LambertTargeterIzzo::getTransverseVelocityAtDeparture( )
 {
     // Compute angular momemtum vector.
-    const Eigen::Vector3d angularMomentumVector =
-            cartesianPositionAtDeparture.cross( cartesianVelocityAtDeparture );
+    const Eigen::Vector3d angularMomentumVector = cartesianPositionAtDeparture.cross( cartesianVelocityAtDeparture );
 
     // Compute normalized angular momentum vector.
     const Eigen::Vector3d angularMomentumUnitVector = angularMomentumVector.normalized( );
 
     // Determine radial unit vector.
-    const Eigen::Vector3d radialUnitVectorAtDeparture
-            = cartesianPositionAtDeparture.normalized( );
+    const Eigen::Vector3d radialUnitVectorAtDeparture = cartesianPositionAtDeparture.normalized( );
 
     // Compute tangential unit vector.
-    Eigen::Vector3d tangentialUnitVectorAtDeparture =
-                angularMomentumUnitVector.cross( radialUnitVectorAtDeparture );
+    Eigen::Vector3d tangentialUnitVectorAtDeparture = angularMomentumUnitVector.cross( radialUnitVectorAtDeparture );
 
     // Compute tangential velocity at departure.
     return cartesianVelocityAtDeparture.dot( tangentialUnitVectorAtDeparture );
@@ -88,8 +89,7 @@ double LambertTargeterIzzo::getTransverseVelocityAtDeparture( )
 double LambertTargeterIzzo::getTransverseVelocityAtArrival( )
 {
     // Compute angular momemtum vector.
-    const Eigen::Vector3d angularMomentumVector =
-            cartesianPositionAtArrival.cross( cartesianVelocityAtArrival );
+    const Eigen::Vector3d angularMomentumVector = cartesianPositionAtArrival.cross( cartesianVelocityAtArrival );
 
     // Compute normalized angular momentum vector.
     const Eigen::Vector3d angularMomentumUnitVector = angularMomentumVector.normalized( );
@@ -98,8 +98,7 @@ double LambertTargeterIzzo::getTransverseVelocityAtArrival( )
     const Eigen::Vector3d radialUnitVectorAtArrival = cartesianPositionAtArrival.normalized( );
 
     // Compute tangential unit vector.
-    Eigen::Vector3d tangentialUnitVectorAtArrival
-            = angularMomentumUnitVector.cross( radialUnitVectorAtArrival );
+    Eigen::Vector3d tangentialUnitVectorAtArrival = angularMomentumUnitVector.cross( radialUnitVectorAtArrival );
 
     // Compute tangential velocity at departure.
     return cartesianVelocityAtArrival.dot( tangentialUnitVectorAtArrival );
@@ -109,12 +108,12 @@ double LambertTargeterIzzo::getTransverseVelocityAtArrival( )
 double LambertTargeterIzzo::getSemiMajorAxis( )
 {
     // Compute specific orbital energy: eps = v^2/ - mu/r.
-    const double specificOrbitalEnergy = cartesianVelocityAtDeparture.squaredNorm( ) / 2.0
-            - gravitationalParameter / cartesianPositionAtDeparture.norm( );
+    const double specificOrbitalEnergy =
+            cartesianVelocityAtDeparture.squaredNorm( ) / 2.0 - gravitationalParameter / cartesianPositionAtDeparture.norm( );
 
     // Compute semi-major axis: a = -mu / 2*eps.
     return -gravitationalParameter / ( 2.0 * specificOrbitalEnergy );
 }
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat

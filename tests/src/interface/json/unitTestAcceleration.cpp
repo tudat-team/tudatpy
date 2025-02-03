@@ -20,17 +20,14 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_acceleration )
 
 // Test 1: acceleration types
 BOOST_AUTO_TEST_CASE( test_json_acceleration_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
-                            basic_astrodynamics::accelerationTypes,
-                            basic_astrodynamics::unsupportedAccelerationTypes );
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ), basic_astrodynamics::accelerationTypes, basic_astrodynamics::unsupportedAccelerationTypes );
 }
 
 // Test 2: sphericalHarmonicGravity
@@ -44,8 +41,7 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
             parseJSONFile< std::shared_ptr< AccelerationSettings > >( INPUT( "sphericalHarmonicGravity" ) );
 
     // Create AccelerationSettings manually
-    const std::shared_ptr< AccelerationSettings > manualSettings =
-            std::make_shared< SphericalHarmonicAccelerationSettings >( 7, 2 );
+    const std::shared_ptr< AccelerationSettings > manualSettings = std::make_shared< SphericalHarmonicAccelerationSettings >( 7, 2 );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -69,13 +65,12 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_mutualSphericalHarmonicGravity )
     const unsigned int maximumDegreeOfCentralBody = 5;
     const unsigned int maximumOrderOfCentralBody = 4;
     const std::shared_ptr< AccelerationSettings > manualSettings =
-            std::make_shared< MutualSphericalHarmonicAccelerationSettings >(
-                maximumDegreeOfBodyExertingAcceleration,
-                maximumOrderOfBodyExertingAcceleration,
-                maximumDegreeOfBodyUndergoingAcceleration,
-                maximumOrderOfBodyUndergoingAcceleration,
-                maximumDegreeOfCentralBody,
-                maximumOrderOfCentralBody );
+            std::make_shared< MutualSphericalHarmonicAccelerationSettings >( maximumDegreeOfBodyExertingAcceleration,
+                                                                             maximumOrderOfBodyExertingAcceleration,
+                                                                             maximumDegreeOfBodyUndergoingAcceleration,
+                                                                             maximumOrderOfBodyUndergoingAcceleration,
+                                                                             maximumDegreeOfCentralBody,
+                                                                             maximumOrderOfCentralBody );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -99,10 +94,10 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_relativisticCorrection )
     const Eigen::Vector3d centralBodyAngularMomentum = ( Eigen::Vector3d( ) << 7.0E-9, 8.0E-10, 5.0E-5 ).finished( );
     const std::shared_ptr< AccelerationSettings > manualSettings =
             std::make_shared< RelativisticAccelerationCorrectionSettings >( calculateSchwarzschildCorrection,
-                                                                              calculateLenseThirringCorrection,
-                                                                              calculateDeSitterCorrection,
-                                                                              primaryBody,
-                                                                              centralBodyAngularMomentum );
+                                                                            calculateLenseThirringCorrection,
+                                                                            calculateDeSitterCorrection,
+                                                                            primaryBody,
+                                                                            centralBodyAngularMomentum );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -123,9 +118,7 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_empirical )
     const Eigen::Vector3d sineAcceleration = ( Eigen::Vector3d( ) << 0.0, 0.02, 0.0 ).finished( );
     const Eigen::Vector3d cosineAcceleration = ( Eigen::Vector3d( ) << -0.01, 0.0, 0.0 ).finished( );
     const std::shared_ptr< AccelerationSettings > manualSettings =
-            std::make_shared< EmpiricalAccelerationSettings >( constantAcceleration,
-                                                                 sineAcceleration,
-                                                                 cosineAcceleration );
+            std::make_shared< EmpiricalAccelerationSettings >( constantAcceleration, sineAcceleration, cosineAcceleration );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -133,6 +126,6 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_empirical )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

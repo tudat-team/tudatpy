@@ -35,14 +35,11 @@ Eigen::Vector3d computeAerodynamicForce( const double dynamicPressure,
  * \return Resultant aerodynamic force, given in reference frame in which the
  *          aerodynamic coefficients were given.
  */
-Eigen::Vector3d computeAerodynamicForce(
-        const double dynamicPressure,
-        AerodynamicCoefficientInterfacePointer coefficientInterface )
+Eigen::Vector3d computeAerodynamicForce( const double dynamicPressure, AerodynamicCoefficientInterfacePointer coefficientInterface )
 {
-    return computeAerodynamicForce( dynamicPressure,
-                                    coefficientInterface->getReferenceArea( ),
-                                    coefficientInterface->getCurrentForceCoefficients( ) );
+    return computeAerodynamicForce(
+            dynamicPressure, coefficientInterface->getReferenceArea( ), coefficientInterface->getCurrentForceCoefficients( ) );
 }
 
-} // namespace aerodynamics
-} // namespace tudat
+}  // namespace aerodynamics
+}  // namespace tudat

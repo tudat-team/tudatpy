@@ -9,7 +9,6 @@
  *
  */
 
-
 #include <cmath>
 #include <iostream>
 #include "tudat/astro/low_thrust/shape_based/compositeFunctionHodographicShaping.h"
@@ -19,76 +18,67 @@ namespace tudat
 namespace shape_based_methods
 {
 
-
-void CompositeFunctionHodographicShaping::resetCompositeFunctionCoefficients(
-        const Eigen::VectorXd& compositeFunctionCoefficients )
+void CompositeFunctionHodographicShaping::resetCompositeFunctionCoefficients( const Eigen::VectorXd& compositeFunctionCoefficients )
 {
     // Check whether the size is correct.
-    if( compositeFunctionCoefficients.rows() == static_cast< int >( compositeFunctionComponents_.size( ) ) )
+    if( compositeFunctionCoefficients.rows( ) == static_cast< int >( compositeFunctionComponents_.size( ) ) )
     {
         compositeFunctionCoefficients_ = compositeFunctionCoefficients;
     }
     else
     {
         std::cerr << "The number of composite function coefficients is incorrect!" << std::endl
-             << compositeFunctionCoefficients.size() << " coefficients were put in, however, "
-             << compositeFunctionComponents_.size() << " are required. The composite function coefficients are not reset!\n";
+                  << compositeFunctionCoefficients.size( ) << " coefficients were put in, however, " << compositeFunctionComponents_.size( )
+                  << " are required. The composite function coefficients are not reset!\n";
     }
 }
 
-
-double CompositeFunctionHodographicShaping::evaluateCompositeFunctionCurrentValue (const double independentVariable )
+double CompositeFunctionHodographicShaping::evaluateCompositeFunctionCurrentValue( const double independentVariable )
 {
     double functionValue = 0.0;
-    for( unsigned int i = 0; i < compositeFunctionComponents_.size(); i++ )
+    for( unsigned int i = 0; i < compositeFunctionComponents_.size( ); i++ )
     {
-        functionValue += compositeFunctionCoefficients_[i] * compositeFunctionComponents_[ i ]->evaluateFunction( independentVariable );
+        functionValue += compositeFunctionCoefficients_[ i ] * compositeFunctionComponents_[ i ]->evaluateFunction( independentVariable );
     }
     return functionValue;
 }
-
 
 double CompositeFunctionHodographicShaping::evaluateCompositeFunctionDerivativeCurrentValue( const double independentVariable )
 {
     double functionValue = 0.0;
-    for( unsigned int i = 0; i < compositeFunctionComponents_.size(); i++ )
+    for( unsigned int i = 0; i < compositeFunctionComponents_.size( ); i++ )
     {
-        functionValue += compositeFunctionCoefficients_[i] * compositeFunctionComponents_[ i ]->evaluateDerivative( independentVariable );
+        functionValue += compositeFunctionCoefficients_[ i ] * compositeFunctionComponents_[ i ]->evaluateDerivative( independentVariable );
     }
     return functionValue;
 }
 
-
-double CompositeFunctionHodographicShaping::evaluateCompositeFunctionIntegralCurrentValue (const double independentVariable )
+double CompositeFunctionHodographicShaping::evaluateCompositeFunctionIntegralCurrentValue( const double independentVariable )
 {
     double functionValue = 0.0;
-    for( unsigned int i = 0; i < compositeFunctionComponents_.size(); i++ )
+    for( unsigned int i = 0; i < compositeFunctionComponents_.size( ); i++ )
     {
-        functionValue += compositeFunctionCoefficients_[i] * compositeFunctionComponents_[ i ]->evaluateIntegral( independentVariable );
+        functionValue += compositeFunctionCoefficients_[ i ] * compositeFunctionComponents_[ i ]->evaluateIntegral( independentVariable );
     }
     return functionValue;
 }
 
-
-double CompositeFunctionHodographicShaping::getComponentFunctionDerivativeCurrentValue(
-        const int componentIndex, const double independentVariable )
+double CompositeFunctionHodographicShaping::getComponentFunctionDerivativeCurrentValue( const int componentIndex,
+                                                                                        const double independentVariable )
 {
-    return compositeFunctionComponents_[ componentIndex ]->evaluateDerivative(independentVariable );
+    return compositeFunctionComponents_[ componentIndex ]->evaluateDerivative( independentVariable );
 }
 
-
-double CompositeFunctionHodographicShaping::getComponentFunctionCurrentValue(
-        const int componentIndex, const double independentVariable )
+double CompositeFunctionHodographicShaping::getComponentFunctionCurrentValue( const int componentIndex, const double independentVariable )
 {
-    return compositeFunctionComponents_[ componentIndex ]->evaluateFunction(independentVariable );
+    return compositeFunctionComponents_[ componentIndex ]->evaluateFunction( independentVariable );
 }
 
-
-double CompositeFunctionHodographicShaping::getComponentFunctionIntegralCurrentValue(
-        const int componentIndex, const double independentVariable )
+double CompositeFunctionHodographicShaping::getComponentFunctionIntegralCurrentValue( const int componentIndex,
+                                                                                      const double independentVariable )
 {
-    return compositeFunctionComponents_[ componentIndex ]->evaluateIntegral(independentVariable );
+    return compositeFunctionComponents_[ componentIndex ]->evaluateIntegral( independentVariable );
 }
 
-} // namespace shape_based_methods
-} // namespace tudat
+}  // namespace shape_based_methods
+}  // namespace tudat

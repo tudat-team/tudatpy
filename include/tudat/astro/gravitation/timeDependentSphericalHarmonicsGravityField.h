@@ -13,14 +13,12 @@
 
 #include <functional>
 
-
 #include <vector>
 
 #include "tudat/math/interpolators/cubicSplineInterpolator.h"
 
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityField.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
-
 
 namespace tudat
 {
@@ -36,10 +34,9 @@ namespace gravitation
  *  per variation). All spherical harmonic coefficients used in this class, as well as the
  *  variations, are implicitly assumed to be geodesy-normalized.
  */
-class TimeDependentSphericalHarmonicsGravityField: public SphericalHarmonicsGravityField
+class TimeDependentSphericalHarmonicsGravityField : public SphericalHarmonicsGravityField
 {
 public:
-
     //! Semi-dummy constructor, used for setting up gravity field and variations.
     /*!
      *  Semi-dummy constructor, used for setting up gravity field and variations.  This constructor
@@ -59,17 +56,19 @@ public:
      *  \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default
      *  empty)
      */
-    TimeDependentSphericalHarmonicsGravityField(
-            const double gravitationalParameter, const double referenceRadius,
-            const Eigen::MatrixXd& nominalCosineCoefficients,
-            const Eigen::MatrixXd& nominalSineCoefficients,
-            const std::string& fixedReferenceFrame = "",
-            const double scaledMeanMomentOfInertia = TUDAT_NAN ):
-        SphericalHarmonicsGravityField(
-            gravitationalParameter, referenceRadius, nominalCosineCoefficients,
-            nominalSineCoefficients, fixedReferenceFrame, scaledMeanMomentOfInertia ),
-        nominalSineCoefficients_( nominalSineCoefficients ),
-        nominalCosineCoefficients_( nominalCosineCoefficients )
+    TimeDependentSphericalHarmonicsGravityField( const double gravitationalParameter,
+                                                 const double referenceRadius,
+                                                 const Eigen::MatrixXd& nominalCosineCoefficients,
+                                                 const Eigen::MatrixXd& nominalSineCoefficients,
+                                                 const std::string& fixedReferenceFrame = "",
+                                                 const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+        SphericalHarmonicsGravityField( gravitationalParameter,
+                                        referenceRadius,
+                                        nominalCosineCoefficients,
+                                        nominalSineCoefficients,
+                                        fixedReferenceFrame,
+                                        scaledMeanMomentOfInertia ),
+        nominalSineCoefficients_( nominalSineCoefficients ), nominalCosineCoefficients_( nominalCosineCoefficients )
     { }
 
     //! Full class constructor.
@@ -86,18 +85,20 @@ public:
      *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is
      *  fixed (optional).
      */
-    TimeDependentSphericalHarmonicsGravityField(
-            const double gravitationalParameter, const double referenceRadius,
-            const Eigen::MatrixXd& nominalCosineCoefficients,
-            const Eigen::MatrixXd& nominalSineCoefficients,
-            const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
-            const std::string& fixedReferenceFrame = "",
-            const double scaledMeanMomentOfInertia = TUDAT_NAN ):
-        SphericalHarmonicsGravityField(
-            gravitationalParameter, referenceRadius,
-            nominalCosineCoefficients, nominalSineCoefficients, fixedReferenceFrame, scaledMeanMomentOfInertia ),
-        nominalSineCoefficients_( nominalSineCoefficients ),
-        nominalCosineCoefficients_( nominalCosineCoefficients ),
+    TimeDependentSphericalHarmonicsGravityField( const double gravitationalParameter,
+                                                 const double referenceRadius,
+                                                 const Eigen::MatrixXd& nominalCosineCoefficients,
+                                                 const Eigen::MatrixXd& nominalSineCoefficients,
+                                                 const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
+                                                 const std::string& fixedReferenceFrame = "",
+                                                 const double scaledMeanMomentOfInertia = TUDAT_NAN ):
+        SphericalHarmonicsGravityField( gravitationalParameter,
+                                        referenceRadius,
+                                        nominalCosineCoefficients,
+                                        nominalSineCoefficients,
+                                        fixedReferenceFrame,
+                                        scaledMeanMomentOfInertia ),
+        nominalSineCoefficients_( nominalSineCoefficients ), nominalCosineCoefficients_( nominalCosineCoefficients ),
         gravityFieldVariationsSet_( gravityFieldVariationUpdateSettings )
     {
         updateCorrectionFunctions( );
@@ -107,7 +108,7 @@ public:
     /*!
      *  Destructor
      */
-    ~TimeDependentSphericalHarmonicsGravityField( ){ }
+    ~TimeDependentSphericalHarmonicsGravityField( ) { }
 
     //! Update gravity field to current time.
     /*!
@@ -134,7 +135,6 @@ public:
             // Reset correction functions.
             correctionFunctions_ = gravityFieldVariationsSet_->getVariationFunctions( );
         }
-
     }
 
     //! Function to (re)set the gravity field variations
@@ -146,9 +146,8 @@ public:
      *  \param updateCorrections Flag to determine whether the gravity field variation functions
      *  should be immediately updated with new settings.
      */
-    void setFieldVariationSettings(
-           const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
-           const bool updateCorrections = 1 );
+    void setFieldVariationSettings( const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
+                                    const bool updateCorrections = 1 );
 
     //! Function to clear all gravity field variations
     /*!
@@ -174,33 +173,27 @@ public:
      * \param maximumOrder Maximum order of coefficients
      * \return Total correction to cosine coefficients up to given degree and order
      */
-    Eigen::MatrixXd getTotalCosineCoefficientCorrection(
-            const int maximumDegree, const int maximumOrder )
+    Eigen::MatrixXd getTotalCosineCoefficientCorrection( const int maximumDegree, const int maximumOrder )
     {
         if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
         {
             throw std::runtime_error( "Error when retrieving cosine spherical harmonic coefficient time variation up to D/O " +
-                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) +
-                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) + " maximum D/O is " +
                                       std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
         }
-
 
         return cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
                 nominalCosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
 
-    double getSingleCosineCoefficientCorrection(
-            const int degree, const int order )
+    double getSingleCosineCoefficientCorrection( const int degree, const int order )
     {
         if( degree > maximumDegree_ || order > maximumOrder_ )
         {
             throw std::runtime_error( "Error when retrieving cosine spherical harmonic coefficient time variation at D/O " +
-                                      std::to_string( degree ) + "/" + std::to_string( order ) +
-                                      " maximum D/O is " +
+                                      std::to_string( degree ) + "/" + std::to_string( order ) + " maximum D/O is " +
                                       std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
         }
-
 
         return cosineCoefficients_( degree, order ) - nominalCosineCoefficients_( degree, order );
     }
@@ -212,34 +205,28 @@ public:
      * \param maximumOrder Maximum order of coefficients
      * \return Total correction to sine coefficients up to given degree and order
      */
-    Eigen::MatrixXd getTotalSineCoefficientCorrection(
-            const int maximumDegree, const int maximumOrder )
+    Eigen::MatrixXd getTotalSineCoefficientCorrection( const int maximumDegree, const int maximumOrder )
 
     {
         if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
         {
             throw std::runtime_error( "Error when retrieving sine spherical harmonic coefficient time variation up to D/O " +
-                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) +
-                                      " maximum D/O is " +
+                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) + " maximum D/O is " +
                                       std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
         }
-
 
         return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
                 nominalSineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
 
-    double getSingleSineCoefficientCorrection(
-            const int degree, const int order )
+    double getSingleSineCoefficientCorrection( const int degree, const int order )
     {
         if( degree > maximumDegree_ || order > maximumOrder_ )
         {
             throw std::runtime_error( "Error when retrieving sine spherical harmonic coefficient time variation at D/O " +
-                                      std::to_string( degree ) + "/" + std::to_string( order ) +
-                                      " maximum D/O is " +
+                                      std::to_string( degree ) + "/" + std::to_string( order ) + " maximum D/O is " +
                                       std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
         }
-
 
         return sineCoefficients_( degree, order ) - nominalSineCoefficients_( degree, order );
     }
@@ -263,8 +250,7 @@ public:
      */
     void setNominalCosineCoefficient( const int degree, const int order, const double coefficient )
     {
-        if( degree <= nominalCosineCoefficients_.rows( ) &&
-                order <= nominalCosineCoefficients_.cols( ) )
+        if( degree <= nominalCosineCoefficients_.rows( ) && order <= nominalCosineCoefficients_.cols( ) )
         {
             nominalCosineCoefficients_( degree, order ) = coefficient;
         }
@@ -303,8 +289,7 @@ public:
      */
     void setNominalSineCoefficient( const int degree, const int order, const double coefficient )
     {
-        if( degree <= nominalSineCoefficients_.rows( ) &&
-                order <= nominalSineCoefficients_.cols( ) )
+        if( degree <= nominalSineCoefficients_.rows( ) && order <= nominalSineCoefficients_.cols( ) )
         {
             nominalSineCoefficients_( degree, order ) = coefficient;
         }
@@ -329,7 +314,6 @@ public:
     }
 
 private:
-
     //! Nominal (i.e. with zero variations) cosine coefficients.
     /*!
      *  Nominal (i.e. with zero variations) cosine coefficients. When calling the update function,
@@ -353,8 +337,7 @@ private:
      *  created from a GravityFieldVariations object, or the addSphericalHarmonicsCorrections of the
      *  GravityFieldVariations object directly.
      */
-    std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
-        correctionFunctions_;
+    std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > > correctionFunctions_;
 
     //! Object containing all GravityFieldVariations objects and update settings.
     /*!
@@ -362,11 +345,10 @@ private:
      *  (i.e. time settings for interpolator)
      */
     std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationsSet_;
-
 };
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H
+#endif  // TUDAT_TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H

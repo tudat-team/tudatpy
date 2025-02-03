@@ -22,8 +22,9 @@ Eigen::Vector3d stateFunction( const double time, const Eigen::Vector3d& state, 
     TUDAT_UNUSED_PARAMETER( control );
     Eigen::Vector3d stateDerivative = Eigen::Vector3d::Zero( );
     stateDerivative[ 0 ] = state[ 1 ];
-    stateDerivative[ 1 ] = 0.0034 * gravitationalParameter * std::exp( - state[ 0 ] / 22000.0 ) *
-            std::pow( state[ 1 ], 2 ) / ( 2.0 * state[ 2 ] ) - gravitationalParameter;
+    stateDerivative[ 1 ] =
+            0.0034 * gravitationalParameter * std::exp( -state[ 0 ] / 22000.0 ) * std::pow( state[ 1 ], 2 ) / ( 2.0 * state[ 2 ] ) -
+            gravitationalParameter;
     return stateDerivative;
 }
 
@@ -43,12 +44,11 @@ Eigen::Matrix3d stateJacobianFunction( const double time, const Eigen::Vector3d&
     TUDAT_UNUSED_PARAMETER( control );
     Eigen::Matrix3d stateJacobian = Eigen::Matrix3d::Zero( );
     stateJacobian( 0, 1 ) = 1.0;
-    stateJacobian( 1, 0 ) = - 0.0034 * gravitationalParameter * std::exp( - state[ 0 ] / 22000.0 ) *
-            std::pow( state[ 1 ], 2 ) / ( 44000.0 * state[ 2 ] );
-    stateJacobian( 1, 1 ) = 0.0034 * gravitationalParameter * std::exp( - state[ 0 ] / 22000.0 ) *
-            state[ 1 ] / state[ 2 ];
-    stateJacobian( 1, 2 ) = - 0.0034 * gravitationalParameter * std::exp( - state[ 0 ] / 22000.0 ) *
-            std::pow( state[ 1 ], 2 ) / ( 2.0 * std::pow( state[ 2 ], 2 ) );
+    stateJacobian( 1, 0 ) =
+            -0.0034 * gravitationalParameter * std::exp( -state[ 0 ] / 22000.0 ) * std::pow( state[ 1 ], 2 ) / ( 44000.0 * state[ 2 ] );
+    stateJacobian( 1, 1 ) = 0.0034 * gravitationalParameter * std::exp( -state[ 0 ] / 22000.0 ) * state[ 1 ] / state[ 2 ];
+    stateJacobian( 1, 2 ) = -0.0034 * gravitationalParameter * std::exp( -state[ 0 ] / 22000.0 ) * std::pow( state[ 1 ], 2 ) /
+            ( 2.0 * std::pow( state[ 2 ], 2 ) );
     return stateJacobian;
 }
 
@@ -67,21 +67,18 @@ template< typename IndependentVariableType, typename DependentVariableType, int 
 class ControlSystem
 {
 public:
-
     //! Typedef of the control vector.
     typedef Eigen::Matrix< DependentVariableType, NumberOfElements, 1 > DependentVector;
 
     //! Typedef of the function describing the system.
-    typedef std::function< DependentVector( const IndependentVariableType,
-                                            const DependentVector& ) > ControlFunction;
+    typedef std::function< DependentVector( const IndependentVariableType, const DependentVector& ) > ControlFunction;
 
     //! Default constructor.
     /*!
      *  Default constructor.
      *  \param controlFunction Function to compute the control vector.
      */
-    ControlSystem( const ControlFunction& controlFunction ) :
-        controlFunction_( controlFunction )
+    ControlSystem( const ControlFunction& controlFunction ): controlFunction_( controlFunction )
     {
         // Set control vector to zero
         currentControlVector_.setZero( );
@@ -108,20 +105,17 @@ public:
      *  \param currentTime Double denoting the current time.
      *  \param currentStateVector Vector denoting the current state.
      */
-    void setCurrentControlVector( const IndependentVariableType currentTime,
-                                  const DependentVector& currentStateVector )
+    void setCurrentControlVector( const IndependentVariableType currentTime, const DependentVector& currentStateVector )
     {
         currentControlVector_ = controlFunction_( currentTime, currentStateVector );
     }
 
 private:
-
     //! Function to compute the control vector.
     ControlFunction controlFunction_;
 
     //! Vector denoting the current control.
     DependentVector currentControlVector_;
-
 };
 
 //! Execute examples on tabulated atmosphere.
@@ -160,61 +154,63 @@ int main( )
     measurementUncertainty[ 0 ] = std::pow( 25.0, 2 );
 
     // Set integrator settings
-    std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
-            std::make_shared< numerical_integrators::IntegratorSettings< > > (
-                numerical_integrators::euler, initialTime, timeStepSize );
+    std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::euler, initialTime, timeStepSize );
 
     // Create control classes
     // These are only included to show how a control system would need to be implemented, but they have no effect at all on the
     // results of this example.
-    std::shared_ptr< ControlSystem< double, double, 3 > > extendedControl =
-            std::make_shared< ControlSystem< double, double, 3 > >(
-                [ ]( const double, const Eigen::Vector3d& ){ return Eigen::Vector3d::Zero( ); } );
-    std::shared_ptr< ControlSystem< double, double, 3 > > unscentedControl =
-            std::make_shared< ControlSystem< double, double, 3 > >(
-                [ ]( const double, const Eigen::Vector3d& ){ return Eigen::Vector3d::Zero( ); } );
+    std::shared_ptr< ControlSystem< double, double, 3 > > extendedControl = std::make_shared< ControlSystem< double, double, 3 > >(
+            []( const double, const Eigen::Vector3d& ) { return Eigen::Vector3d::Zero( ); } );
+    std::shared_ptr< ControlSystem< double, double, 3 > > unscentedControl = std::make_shared< ControlSystem< double, double, 3 > >(
+            []( const double, const Eigen::Vector3d& ) { return Eigen::Vector3d::Zero( ); } );
 
     // Create filter settings
     std::shared_ptr< FilterSettings< double, double > > extendedFilterSettings =
-            std::make_shared< ExtendedKalmanFilterSettings< double, double > >(
-                systemUncertainty,
-                measurementUncertainty,
-                timeStepSize,
-                initialTime,
-                initialEstimatedStateVector,
-                initialEstimatedStateCovarianceMatrix,
-                integratorSettings );
+            std::make_shared< ExtendedKalmanFilterSettings< double, double > >( systemUncertainty,
+                                                                                measurementUncertainty,
+                                                                                timeStepSize,
+                                                                                initialTime,
+                                                                                initialEstimatedStateVector,
+                                                                                initialEstimatedStateCovarianceMatrix,
+                                                                                integratorSettings );
     std::shared_ptr< FilterSettings< double, double > > unscentedFilterSettings =
-            std::make_shared< UnscentedKalmanFilterSettings< double, double > >(
-                systemUncertainty,
-                measurementUncertainty,
-                timeStepSize,
-                initialTime,
-                initialEstimatedStateVector,
-                initialEstimatedStateCovarianceMatrix,
-                integratorSettings );
+            std::make_shared< UnscentedKalmanFilterSettings< double, double > >( systemUncertainty,
+                                                                                 measurementUncertainty,
+                                                                                 timeStepSize,
+                                                                                 initialTime,
+                                                                                 initialEstimatedStateVector,
+                                                                                 initialEstimatedStateCovarianceMatrix,
+                                                                                 integratorSettings );
 
     // Create filter objects
     std::shared_ptr< FilterBase< double, double > > extendedFilter = createFilter< double, double >(
-                extendedFilterSettings,
-                std::bind( &stateFunction, std::placeholders::_1, std::placeholders::_2,
-                           std::bind( &ControlSystem< double, double, 3 >::getCurrentControlVector, extendedControl ) ),
-                std::bind( &measurementFunction, std::placeholders::_1, std::placeholders::_2 ),
-                std::bind( &stateJacobianFunction, std::placeholders::_1, std::placeholders::_2,
-                           std::bind( &ControlSystem< double, double, 3 >::getCurrentControlVector, extendedControl ) ),
-                ( [ ]( double, const Eigen::VectorXd& ){ return  Eigen::Matrix3d::Identity( ); } ),
-                std::bind( &measurementJacobianFunction, std::placeholders::_1, std::placeholders::_2 ),
-                ( [ ]( double, const Eigen::VectorXd& ){ return Eigen::Vector1d::Identity( ); } ) );
+            extendedFilterSettings,
+            std::bind( &stateFunction,
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::bind( &ControlSystem< double, double, 3 >::getCurrentControlVector, extendedControl ) ),
+            std::bind( &measurementFunction, std::placeholders::_1, std::placeholders::_2 ),
+            std::bind( &stateJacobianFunction,
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::bind( &ControlSystem< double, double, 3 >::getCurrentControlVector, extendedControl ) ),
+            ( []( double, const Eigen::VectorXd& ) { return Eigen::Matrix3d::Identity( ); } ),
+            std::bind( &measurementJacobianFunction, std::placeholders::_1, std::placeholders::_2 ),
+            ( []( double, const Eigen::VectorXd& ) { return Eigen::Vector1d::Identity( ); } ) );
 
     std::shared_ptr< FilterBase< double, double > > unscentedFilter = createFilter< double, double >(
-                unscentedFilterSettings,
-                std::bind( &stateFunction, std::placeholders::_1, std::placeholders::_2,
-                           std::bind( &ControlSystem< double, double, 3 >::getCurrentControlVector, unscentedControl ) ),
-                std::bind( &measurementFunction, std::placeholders::_1, std::placeholders::_2 ) );
+            unscentedFilterSettings,
+            std::bind( &stateFunction,
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::bind( &ControlSystem< double, double, 3 >::getCurrentControlVector, unscentedControl ) ),
+            std::bind( &measurementFunction, std::placeholders::_1, std::placeholders::_2 ) );
 
     // Loop over each time step
     const bool showProgress = false;
-    double currentTime = extendedFilter->getCurrentTime( );;
+    double currentTime = extendedFilter->getCurrentTime( );
+    ;
     Eigen::Vector3d currentActualStateVector = initialStateVector;
     Eigen::Vector3d currentNoisyStateVector;
     Eigen::Vector3d currentControlVector = Eigen::Vector3d::Zero( );
@@ -222,13 +218,14 @@ int main( )
     std::map< double, Eigen::Vector3d > actualStateVectorHistory;
     std::map< double, Eigen::Vector1d > measurementVectorHistory;
     actualStateVectorHistory[ initialTime ] = initialStateVector;
-    for ( unsigned int i = 0; i < numberOfTimeSteps; i++ )
+    for( unsigned int i = 0; i < numberOfTimeSteps; i++ )
     {
         // Compute actual values and perturb them
-        currentActualStateVector += ( stateFunction( currentTime, currentActualStateVector, currentControlVector ) +
-                                      unscentedFilter->produceSystemNoise( ) ) * timeStepSize;
-        currentMeasurementVector = measurementFunction( currentTime, currentActualStateVector ) +
-                unscentedFilter->produceMeasurementNoise( );
+        currentActualStateVector +=
+                ( stateFunction( currentTime, currentActualStateVector, currentControlVector ) + unscentedFilter->produceSystemNoise( ) ) *
+                timeStepSize;
+        currentMeasurementVector =
+                measurementFunction( currentTime, currentActualStateVector ) + unscentedFilter->produceMeasurementNoise( );
 
         // Update control classes
         extendedControl->setCurrentControlVector( currentTime, extendedFilter->getCurrentStateEstimate( ) );
@@ -246,12 +243,13 @@ int main( )
         measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Print progress
-        if ( showProgress )
+        if( showProgress )
         {
             std::cout << "Time: " << currentTime << std::endl
                       << "Measurement: " << currentMeasurementVector.transpose( ) << std::endl
                       << "EKF Estimated State: " << extendedFilter->getCurrentStateEstimate( ).transpose( ) << std::endl
-                      << "UKF Estimated State: " << unscentedFilter->getCurrentStateEstimate( ).transpose( ) << std::endl << std::endl;
+                      << "UKF Estimated State: " << unscentedFilter->getCurrentStateEstimate( ).transpose( ) << std::endl
+                      << std::endl;
         }
     }
 
@@ -259,16 +257,16 @@ int main( )
     input_output::writeDataMapToTextFile( actualStateVectorHistory, "actualStateHistory.dat", getOutputPath( "FilterEstimation" ) );
 
     // Extract and save Kalman filter state histories
-    input_output::writeDataMapToTextFile( extendedFilter->getEstimatedStateHistory( ),
-                                          "EKFEstimatedStateHistory.dat", getOutputPath( "FilterEstimation" ) );
-    input_output::writeDataMapToTextFile( unscentedFilter->getEstimatedStateHistory( ),
-                                          "UKFEstimatedStateHistory.dat", getOutputPath( "FilterEstimation" ) );
+    input_output::writeDataMapToTextFile(
+            extendedFilter->getEstimatedStateHistory( ), "EKFEstimatedStateHistory.dat", getOutputPath( "FilterEstimation" ) );
+    input_output::writeDataMapToTextFile(
+            unscentedFilter->getEstimatedStateHistory( ), "UKFEstimatedStateHistory.dat", getOutputPath( "FilterEstimation" ) );
 
     // Extract and save Kalman filter covariance histories
-    input_output::writeDataMapToTextFile( extendedFilter->getEstimatedCovarianceHistory( ),
-                                          "EKFEstimatedCovarianceHistory.dat", getOutputPath( "FilterEstimation" ) );
-    input_output::writeDataMapToTextFile( unscentedFilter->getEstimatedCovarianceHistory( ),
-                                          "UKFEstimatedCovarianceHistory.dat", getOutputPath( "FilterEstimation" ) );
+    input_output::writeDataMapToTextFile(
+            extendedFilter->getEstimatedCovarianceHistory( ), "EKFEstimatedCovarianceHistory.dat", getOutputPath( "FilterEstimation" ) );
+    input_output::writeDataMapToTextFile(
+            unscentedFilter->getEstimatedCovarianceHistory( ), "UKFEstimatedCovarianceHistory.dat", getOutputPath( "FilterEstimation" ) );
 
     // Extract and save noise history
     std::pair< std::vector< Eigen::VectorXd >, std::vector< Eigen::VectorXd > > noiseHistory = unscentedFilter->getNoiseHistory( );

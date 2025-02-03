@@ -66,10 +66,8 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
  * \return designMatrix, premultiplied by square matrix with diagonalOfWeightMatrix as diagonal elements
  */
-Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix(
-        const Eigen::MatrixXd& designMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix );
-
+Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix( const Eigen::MatrixXd& designMatrix,
+                                                            const Eigen::VectorXd& diagonalOfWeightMatrix );
 
 //! Function to compute inverse of covariance matrix at current iteration, including influence of a priori information
 /*!
@@ -82,14 +80,12 @@ Eigen::MatrixXd multiplyDesignMatrixByDiagonalWeightMatrix(
  * \return Inverse of covariance matrix at current iteration
  */
 
-Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
-        const Eigen::MatrixXd& designMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
-        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
-        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
-        const double limitConditionNumberForWarning = 1.0E8 );
-
+Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
+                                                           const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                           const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+                                                           const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+                                                           const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ),
+                                                           const double limitConditionNumberForWarning = 1.0E8 );
 
 //! Function to compute inverse of covariance matrix at current iteration
 /*!
@@ -99,17 +95,15 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
  * \return Inverse of covariance matrix at current iteration
  */
-Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
-        const Eigen::MatrixXd& designMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const double limitConditionNumberForWarning = 1.0E8 );
+Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix( const Eigen::MatrixXd& designMatrix,
+                                                           const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                           const double limitConditionNumberForWarning = 1.0E8 );
 
-Eigen::MatrixXd calculateConsiderParametersCovarianceContribution(
-        const Eigen::MatrixXd& normalisedCovarianceMatrix,
-        const Eigen::MatrixXd& designMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& considerDesignMatrix,
-        const Eigen::MatrixXd& considerCovariance );
+Eigen::MatrixXd calculateConsiderParametersCovarianceContribution( const Eigen::MatrixXd& normalisedCovarianceMatrix,
+                                                                   const Eigen::MatrixXd& designMatrix,
+                                                                   const Eigen::VectorXd& diagonalOfWeightMatrix,
+                                                                   const Eigen::MatrixXd& considerDesignMatrix,
+                                                                   const Eigen::MatrixXd& considerCovariance );
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
 //! information
@@ -173,11 +167,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromD
         const Eigen::VectorXd& observationResiduals,
         const double limitConditionNumberForWarning = 1.0E8 );
 
-
-Eigen::VectorXd evaluatePolynomial(
-    const Eigen::VectorXd& independentValues,
-    const Eigen::VectorXd& polynomialCoefficients,
-    const std::vector< double >& polynomialPowers );
+Eigen::VectorXd evaluatePolynomial( const Eigen::VectorXd& independentValues,
+                                    const Eigen::VectorXd& polynomialCoefficients,
+                                    const std::vector< double >& polynomialPowers );
 
 //! Function to fit a univariate polynomial through a set of data
 /*!
@@ -190,10 +182,9 @@ Eigen::VectorXd evaluatePolynomial(
  *  \param polynomialPowers List of powers of indepent variables for which coefficients are to be estimated.
  *  \return Coefficients of the polynomial powers, as estimated from the input data (in same order as polynomialPowers).
  */
-Eigen::VectorXd getLeastSquaresPolynomialFit(
-        const Eigen::VectorXd& independentValues,
-        const Eigen::VectorXd& dependentValues,
-        const std::vector< double >& polynomialPowers );
+Eigen::VectorXd getLeastSquaresPolynomialFit( const Eigen::VectorXd& independentValues,
+                                              const Eigen::VectorXd& dependentValues,
+                                              const std::vector< double >& polynomialPowers );
 
 //! Function to fit a univariate polynomial through a set of data
 /*!
@@ -205,9 +196,8 @@ Eigen::VectorXd getLeastSquaresPolynomialFit(
  *  \param polynomialPowers List of powers of indepent variables for which coefficients are to be estimated.
  *  \return Coefficients of the polynomial powers, as estimated from the input data (in same order as polynomialPowers).
  */
-std::vector< double > getLeastSquaresPolynomialFit(
-        const std::map< double, double >& independentDependentValueMap,
-        const std::vector< double >& polynomialPowers );
+std::vector< double > getLeastSquaresPolynomialFit( const std::map< double, double >& independentDependentValueMap,
+                                                    const std::vector< double >& polynomialPowers );
 
 //! Function to perform a non-linear least squares estimation with the Levenberg-Marquardt method.
 /*!
@@ -230,11 +220,14 @@ std::vector< double > getLeastSquaresPolynomialFit(
  */
 Eigen::VectorXd nonLinearLeastSquaresFit(
         const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
-        const Eigen::VectorXd& initialEstimate, const Eigen::VectorXd& actualObservations, const double initialScaling = 1.0e-6,
-        const double convergenceTolerance = 1.0e-8, const unsigned int maximumNumberOfIterations = 25 );
+        const Eigen::VectorXd& initialEstimate,
+        const Eigen::VectorXd& actualObservations,
+        const double initialScaling = 1.0e-6,
+        const double convergenceTolerance = 1.0e-8,
+        const unsigned int maximumNumberOfIterations = 25 );
 
-} // namespace linear_algebra
+}  // namespace linear_algebra
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_LEASTSQUARESESTIMATION_H
+#endif  // TUDAT_LEASTSQUARESESTIMATION_H

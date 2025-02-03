@@ -38,26 +38,27 @@ int main( )
 
         // Create a tabulated atmosphere object.
         std::string tabulatedAtmosphereFile = paths::getAtmosphereTablesPath( ) + "/MCDMeanAtmosphere.dat";
-        TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFile, // path to file
-                                                 dependentVariables, // list of dependent variables
-                                                 0.0, // gas constant (value does not matter, since it is specified as dependent variable)
-                                                 0.0, // specific heat ratio (see above)
-                                                 boundaryHandling ); // choice of boundary handling method in case of out-of-range altitude
+        TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFile,  // path to file
+                                                 dependentVariables,       // list of dependent variables
+                                                 0.0,  // gas constant (value does not matter, since it is specified as dependent variable)
+                                                 0.0,  // specific heat ratio (see above)
+                                                 boundaryHandling );  // choice of boundary handling method in case of out-of-range altitude
 
         // Set altitudes at which density and speed of sound need to be retireved
         // Note that the atmosphere is only defined between 50 and 10000 kilometers altitude
         std::vector< double > vectorOfAltitudes;
-        vectorOfAltitudes.push_back( 0.0 ); // 0 km altitude, will return lower boundary (same as output of conditions below)
-        vectorOfAltitudes.push_back( 50.0e3 ); // 50 km altitude
-        vectorOfAltitudes.push_back( 10.0e6 ); // 10 000 km altitude
-        vectorOfAltitudes.push_back( 100.0e6 ); // 100 000 km altitude, will return upper boundary (same as output of conditions above)
+        vectorOfAltitudes.push_back( 0.0 );      // 0 km altitude, will return lower boundary (same as output of conditions below)
+        vectorOfAltitudes.push_back( 50.0e3 );   // 50 km altitude
+        vectorOfAltitudes.push_back( 10.0e6 );   // 10 000 km altitude
+        vectorOfAltitudes.push_back( 100.0e6 );  // 100 000 km altitude, will return upper boundary (same as output of conditions above)
 
         // Retrieve values of atmosphere at some specified conditions
-        for ( unsigned int i = 0; i < vectorOfAltitudes.size( ); i++ )
+        for( unsigned int i = 0; i < vectorOfAltitudes.size( ); i++ )
         {
-            std::cout << "Altitude: " << vectorOfAltitudes.at( i ) / 1.0e3 << " km. Density: "
-                      << tabulatedAtmosphere.getDensity( vectorOfAltitudes.at( i ) ) << " kg/m^3. Speed of sound: "
-                      << tabulatedAtmosphere.getSpeedOfSound( vectorOfAltitudes.at( i ) ) << " m/s." << std::endl;
+            std::cout << "Altitude: " << vectorOfAltitudes.at( i ) / 1.0e3
+                      << " km. Density: " << tabulatedAtmosphere.getDensity( vectorOfAltitudes.at( i ) )
+                      << " kg/m^3. Speed of sound: " << tabulatedAtmosphere.getSpeedOfSound( vectorOfAltitudes.at( i ) ) << " m/s."
+                      << std::endl;
         }
     }
 
@@ -91,71 +92,73 @@ int main( )
 
         // Set default value for each independent variable
         std::vector< std::vector< std::pair< double, double > > > defaultExtrapolationValues =
-                            std::vector< std::vector< std::pair< double, double > > >(
-                                5, std::vector< std::pair< double, double > >( 3, std::make_pair( 0.0, 0.0 ) ) );
+                std::vector< std::vector< std::pair< double, double > > >(
+                        5, std::vector< std::pair< double, double > >( 3, std::make_pair( 0.0, 0.0 ) ) );
         // In Tudat, longitude and latitude are always wrapped between 0 and 2 PI, thus there is no need to specify bounds for
         // these two variables. However, if you want to specify the default values for altitude, you also need to do so for these
         // other two (although you can set their boundaryHandling to something like use_boundary_value and whatever you input here
         // will be safely ignored).
 
         // Overwrite values corresponding to latitude with NaNs
-        defaultExtrapolationValues.at( 0 ).at( 1 ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ); // for density
-        defaultExtrapolationValues.at( 1 ).at( 1 ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ); // for pressure
-        defaultExtrapolationValues.at( 2 ).at( 1 ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ); // for temperature
-        defaultExtrapolationValues.at( 3 ).at( 1 ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ); // for gas constant
-        defaultExtrapolationValues.at( 4 ).at( 1 ) = std::make_pair( TUDAT_NAN, TUDAT_NAN ); // for specific heat ratio
+        defaultExtrapolationValues.at( 0 ).at( 1 ) = std::make_pair( TUDAT_NAN, TUDAT_NAN );  // for density
+        defaultExtrapolationValues.at( 1 ).at( 1 ) = std::make_pair( TUDAT_NAN, TUDAT_NAN );  // for pressure
+        defaultExtrapolationValues.at( 2 ).at( 1 ) = std::make_pair( TUDAT_NAN, TUDAT_NAN );  // for temperature
+        defaultExtrapolationValues.at( 3 ).at( 1 ) = std::make_pair( TUDAT_NAN, TUDAT_NAN );  // for gas constant
+        defaultExtrapolationValues.at( 4 ).at( 1 ) = std::make_pair( TUDAT_NAN, TUDAT_NAN );  // for specific heat ratio
 
         // Overwrite values corresponding to altitude with desired numbers
         defaultExtrapolationValues.at( 0 ).at( 2 ) = std::make_pair( 0.02, 0.0 );
         // for density, give 0.02 kg/m^3 if altitude goes below the lower bound (this roughly corresponds to the density at
         // zero altitude), and give 0.0 kg/m^3 if above the largest value
-        defaultExtrapolationValues.at( 1 ).at( 2 ) = std::make_pair( 2.35, 0.0 ); // for pressure
-        defaultExtrapolationValues.at( 2 ).at( 2 ) = std::make_pair( 161.0, 186.813 ); // for temperature
-        defaultExtrapolationValues.at( 3 ).at( 2 ) = std::make_pair( 190.7, 8183.0 ); // for gas constant
-        defaultExtrapolationValues.at( 4 ).at( 2 ) = std::make_pair( 1.377, 1.667 ); // for specific heat ratio
+        defaultExtrapolationValues.at( 1 ).at( 2 ) = std::make_pair( 2.35, 0.0 );       // for pressure
+        defaultExtrapolationValues.at( 2 ).at( 2 ) = std::make_pair( 161.0, 186.813 );  // for temperature
+        defaultExtrapolationValues.at( 3 ).at( 2 ) = std::make_pair( 190.7, 8183.0 );   // for gas constant
+        defaultExtrapolationValues.at( 4 ).at( 2 ) = std::make_pair( 1.377, 1.667 );    // for specific heat ratio
 
         // Create a tabulated atmosphere object.
-        TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFiles, // path to file
-                                                 independentVariables,  // list of independent variables
-                                                 dependentVariables, // list of dependent variables
-                                                 boundaryHandling, // choise of boundary handling method in case of out-of-range altitude
-                                                 defaultExtrapolationValues ); // value to be output in case of out-of-range altitude
+        TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFiles,  // path to file
+                                                 independentVariables,      // list of independent variables
+                                                 dependentVariables,        // list of dependent variables
+                                                 boundaryHandling,  // choise of boundary handling method in case of out-of-range altitude
+                                                 defaultExtrapolationValues );  // value to be output in case of out-of-range altitude
         // Here, the constructor that does not require the input of of constant values for the gas constant and specific heat ratio
         // is used, since they are defined as dependent variables
 
         // Set longitudes at which density and speed of sound need to be retireved
         std::vector< double > vectorOfLongitudes;
-        vectorOfLongitudes.push_back( convertDegreesToRadians( 360.0 ) ); // will return 0.0
-        vectorOfLongitudes.push_back( convertDegreesToRadians( 135.0 ) ); // within bounds
+        vectorOfLongitudes.push_back( convertDegreesToRadians( 360.0 ) );  // will return 0.0
+        vectorOfLongitudes.push_back( convertDegreesToRadians( 135.0 ) );  // within bounds
 
         // Set longitudes at which density and speed of sound need to be retireved
         std::vector< double > vectorOfLatitudes;
-        vectorOfLatitudes.push_back( convertDegreesToRadians( -180.0 ) ); // will return NaN
-        vectorOfLatitudes.push_back( convertDegreesToRadians( 45.0 ) ); // within bounds
+        vectorOfLatitudes.push_back( convertDegreesToRadians( -180.0 ) );  // will return NaN
+        vectorOfLatitudes.push_back( convertDegreesToRadians( 45.0 ) );    // within bounds
 
         // Set altitudes at which density and speed of sound need to be retireved
         // Note that the atmosphere is only defined between 50 and 10000 kilometers altitude
         std::vector< double > vectorOfAltitudes;
-        vectorOfAltitudes.push_back( 0.0 ); // will return 0.02
-        vectorOfAltitudes.push_back( 100.0e3 ); // within bounds
+        vectorOfAltitudes.push_back( 0.0 );      // will return 0.02
+        vectorOfAltitudes.push_back( 100.0e3 );  // within bounds
 
         // Retrieve values of atmosphere at some specified conditions
-        for ( unsigned int i = 0; i < vectorOfLongitudes.size( ); i++ )
+        for( unsigned int i = 0; i < vectorOfLongitudes.size( ); i++ )
         {
-            for ( unsigned int j = 0; j < vectorOfLatitudes.size( ); j++ )
+            for( unsigned int j = 0; j < vectorOfLatitudes.size( ); j++ )
             {
-                for ( unsigned int k = 0; k < vectorOfAltitudes.size( ); k++ )
+                for( unsigned int k = 0; k < vectorOfAltitudes.size( ); k++ )
                 {
                     std::cout << "Longitude: " << convertRadiansToDegrees( vectorOfLongitudes.at( i ) ) << " deg. "
                               << "Latitude: " << convertRadiansToDegrees( vectorOfLatitudes.at( j ) ) << " deg. "
-                              << "Altitude: " << vectorOfAltitudes.at( k ) / 1.0e3 << " km. " << std::endl << "    "
-                              << "Density: " << tabulatedAtmosphere.getDensity( vectorOfAltitudes.at( k ),
-                                                                                vectorOfLongitudes.at( i ),
-                                                                                vectorOfLatitudes.at( j ) ) << " kg/m^3. "
-                              << "Speed of sound: " << tabulatedAtmosphere.getSpeedOfSound( vectorOfAltitudes.at( k ),
-                                                                                            vectorOfLongitudes.at( i ),
-                                                                                            vectorOfLatitudes.at( j ) ) << " m/s."
-                              << std::endl;
+                              << "Altitude: " << vectorOfAltitudes.at( k ) / 1.0e3 << " km. " << std::endl
+                              << "    "
+                              << "Density: "
+                              << tabulatedAtmosphere.getDensity(
+                                         vectorOfAltitudes.at( k ), vectorOfLongitudes.at( i ), vectorOfLatitudes.at( j ) )
+                              << " kg/m^3. "
+                              << "Speed of sound: "
+                              << tabulatedAtmosphere.getSpeedOfSound(
+                                         vectorOfAltitudes.at( k ), vectorOfLongitudes.at( i ), vectorOfLatitudes.at( j ) )
+                              << " m/s." << std::endl;
                 }
             }
         }
@@ -163,4 +166,3 @@ int main( )
 
     return EXIT_SUCCESS;
 }
-

@@ -33,22 +33,21 @@ namespace coordinate_conversions
 {
 
 //! Convert cylindrical to Cartesian coordinates.
-Eigen::Vector3d convertCylindricalToCartesian( const double radius,
-                                               const double azimuthAngle, const double z )
+Eigen::Vector3d convertCylindricalToCartesian( const double radius, const double azimuthAngle, const double z )
 {
     // Create Cartesian coordinates vector.
     Eigen::Vector3d cartesianCoordinates;
 
     // If radius < 0, then give warning.
-    if ( radius < 0.0 )
+    if( radius < 0.0 )
     {
         std::cerr << "Warning: cylindrical radial coordinate is negative!, This could give incorrect results!" << std::endl;
     }
 
     // Compute and set Cartesian coordinates.
-    cartesianCoordinates << radius * std::cos( azimuthAngle ),   // x-coordinate
-                            radius * std::sin( azimuthAngle ),   // y-coordinate
-                            z;                                   // z-coordinate
+    cartesianCoordinates << radius * std::cos( azimuthAngle ),  // x-coordinate
+            radius * std::sin( azimuthAngle ),                  // y-coordinate
+            z;                                                  // z-coordinate
 
     return cartesianCoordinates;
 }
@@ -60,25 +59,21 @@ Eigen::Vector3d convertCylindricalToCartesian( const Eigen::Vector3d& cylindrica
     Eigen::Vector3d cartesianCoordinates;
 
     // If radius < 0, then give warning.
-    if ( cylindricalCoordinates( 0 ) < 0.0 )
+    if( cylindricalCoordinates( 0 ) < 0.0 )
     {
         std::cerr << "Warning: cylindrical radial coordinate is negative!, This could give incorrect results!" << std::endl;
     }
 
     // Compute and set Cartesian coordinates.
-    cartesianCoordinates
-            << cylindricalCoordinates( 0 )
-               * std::cos( cylindricalCoordinates( 1 ) ),    // x-coordinate
-               cylindricalCoordinates( 0 )
-               * std::sin( cylindricalCoordinates( 1 ) ),    // y-coordinate
-               cylindricalCoordinates( 2 );                  // z-coordinate
+    cartesianCoordinates << cylindricalCoordinates( 0 ) * std::cos( cylindricalCoordinates( 1 ) ),  // x-coordinate
+            cylindricalCoordinates( 0 ) * std::sin( cylindricalCoordinates( 1 ) ),                  // y-coordinate
+            cylindricalCoordinates( 2 );                                                            // z-coordinate
 
     return cartesianCoordinates;
 }
 
 //! Convert cylindrical to Cartesian state.
-Eigen::Vector6d convertCylindricalToCartesianState(
-        const Eigen::Vector6d& cylindricalState )
+Eigen::Vector6d convertCylindricalToCartesianState( const Eigen::Vector6d& cylindricalState )
 {
     // Create Cartesian state vector, initialized with zero entries.
     Eigen::Vector6d cartesianState = Eigen::Vector6d::Zero( );
@@ -87,31 +82,29 @@ Eigen::Vector6d convertCylindricalToCartesianState(
     double azimuthAngle = cylindricalState( 1 );
 
     // Compute and set Cartesian coordinates.
-    cartesianState.head( 3 ) = convertCylindricalToCartesian(
-                Eigen::Vector3d( cylindricalState.head( 3 ) ) );
+    cartesianState.head( 3 ) = convertCylindricalToCartesian( Eigen::Vector3d( cylindricalState.head( 3 ) ) );
 
     // If r = 0 AND Vtheta > 0, then give warning and assume Vtheta=0.
-    if ( std::fabs(cylindricalState( 0 )) <= std::numeric_limits< double >::epsilon( )
-         && std::fabs(cylindricalState( 4 )) > std::numeric_limits< double >::epsilon( ) )
+    if( std::fabs( cylindricalState( 0 ) ) <= std::numeric_limits< double >::epsilon( ) &&
+        std::fabs( cylindricalState( 4 ) ) > std::numeric_limits< double >::epsilon( ) )
     {
-        std::cerr << "Warning: cylindrical velocity Vtheta (r*thetadot) does not equal zero while the radius (r) is zero! Vtheta is taken equal to zero!" << std::endl;
+        std::cerr << "Warning: cylindrical velocity Vtheta (r*thetadot) does not equal zero while the radius (r) is zero! Vtheta is taken "
+                     "equal to zero!"
+                  << std::endl;
 
         // Compute and set Cartesian velocities.
-        cartesianState.tail( 3 )
-                << cylindricalState( 3 ) * std::cos( azimuthAngle ),   // xdot
-                   cylindricalState( 3 ) * std::sin( azimuthAngle ),   // ydot
-                   cylindricalState( 5 );                              // zdot
+        cartesianState.tail( 3 ) << cylindricalState( 3 ) * std::cos( azimuthAngle ),  // xdot
+                cylindricalState( 3 ) * std::sin( azimuthAngle ),                      // ydot
+                cylindricalState( 5 );                                                 // zdot
     }
 
     else
     {
         // Compute and set Cartesian velocities.
-        cartesianState.tail( 3 )
-                << cylindricalState( 3 ) * std::cos( azimuthAngle )
-                   - cylindricalState( 4 ) * std::sin( azimuthAngle ),   // xdot
-                   cylindricalState( 3 ) * std::sin( azimuthAngle )
-                   + cylindricalState( 4 ) * std::cos( azimuthAngle ),   // ydot
-                   cylindricalState( 5 );                                // zdot
+        cartesianState.tail( 3 ) << cylindricalState( 3 ) * std::cos( azimuthAngle ) -
+                        cylindricalState( 4 ) * std::sin( azimuthAngle ),                                             // xdot
+                cylindricalState( 3 ) * std::sin( azimuthAngle ) + cylindricalState( 4 ) * std::cos( azimuthAngle ),  // ydot
+                cylindricalState( 5 );                                                                                // zdot
     }
 
     return cartesianState;
@@ -131,61 +124,52 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
        else azimuthAngle = arctan(y/x).
     */
     using mathematical_constants::PI;
-    if ( std::fabs(cartesianCoordinates( 0 ) ) <= std::numeric_limits< double >::epsilon( ) )
+    if( std::fabs( cartesianCoordinates( 0 ) ) <= std::numeric_limits< double >::epsilon( ) )
     {
-        azimuthAngle = basic_mathematics::computeModulo(
-                    static_cast< double >( boost::math::sign( cartesianCoordinates( 1 ) ) )
-                    * 0.5 * PI, 2.0 * PI );
+        azimuthAngle = basic_mathematics::computeModulo( static_cast< double >( boost::math::sign( cartesianCoordinates( 1 ) ) ) * 0.5 * PI,
+                                                         2.0 * PI );
     }
 
     else
     {
-        azimuthAngle = basic_mathematics::computeModulo(
-                    std::atan2( cartesianCoordinates( 1 ),
-                                cartesianCoordinates( 0 ) ), 2.0 * PI );
+        azimuthAngle = basic_mathematics::computeModulo( std::atan2( cartesianCoordinates( 1 ), cartesianCoordinates( 0 ) ), 2.0 * PI );
     }
 
     // Compute and set cylindrical coordinates.
-    cylindricalCoordinates <<
-        std::sqrt( pow( cartesianCoordinates( 0 ), 2 )
-                   + pow( cartesianCoordinates( 1 ), 2 ) ), // Radius
-        azimuthAngle,                                       // Azimuth angle, theta
-        cartesianCoordinates( 2 );                          // z-coordinate
+    cylindricalCoordinates << std::sqrt( pow( cartesianCoordinates( 0 ), 2 ) + pow( cartesianCoordinates( 1 ), 2 ) ),  // Radius
+            azimuthAngle,               // Azimuth angle, theta
+            cartesianCoordinates( 2 );  // z-coordinate
 
     return cylindricalCoordinates;
 }
 
 //! Convert Cartesian to cylindrical state.
-Eigen::Vector6d convertCartesianToCylindricalState(
-        const Eigen::Vector6d& cartesianState )
+Eigen::Vector6d convertCartesianToCylindricalState( const Eigen::Vector6d& cartesianState )
 {
     // Create cylindrical state vector, initialized with zero entries.
     Eigen::Vector6d cylindricalState = Eigen::Vector6d::Zero( );
 
     // Compute and set cylindrical coordinates.
-    cylindricalState.head( 3 ) = convertCartesianToCylindrical(
-                Eigen::Vector3d( cartesianState.head( 3 ) ) );
+    cylindricalState.head( 3 ) = convertCartesianToCylindrical( Eigen::Vector3d( cartesianState.head( 3 ) ) );
 
     // Compute and set cylindrical velocities.
     /* If radius = 0, then Vr = sqrt(xdot^2+ydot^2) and Vtheta = 0,
        else Vr = (x*xdot+y*ydot)/radius and Vtheta = (x*ydot-y*xdot)/radius.
     */
-    if ( cylindricalState( 0 ) <= std::numeric_limits< double >::epsilon( ) )
+    if( cylindricalState( 0 ) <= std::numeric_limits< double >::epsilon( ) )
     {
-        cylindricalState.tail( 3 ) <<
-            std::sqrt( pow( cartesianState( 3 ), 2 ) + pow( cartesianState( 4 ), 2 ) ), // Vr
-            0.0,                                                                        // Vtheta
-            cartesianState( 5 );                                                        // Vz
+        cylindricalState.tail( 3 ) << std::sqrt( pow( cartesianState( 3 ), 2 ) + pow( cartesianState( 4 ), 2 ) ),  // Vr
+                0.0,                                                                                               // Vtheta
+                cartesianState( 5 );                                                                               // Vz
     }
 
     else
     {
-        cylindricalState.tail( 3 ) <<
-            ( cartesianState( 0 ) * cartesianState( 3 )
-              + cartesianState( 1 ) * cartesianState( 4 ) ) / cylindricalState( 0 ),    // Vr
-            ( cartesianState( 0 ) * cartesianState( 4 )
-              - cartesianState( 1 ) * cartesianState( 3 ) ) / cylindricalState( 0 ),    // Vtheta
-                cartesianState( 5 );                                                    // Vz
+        cylindricalState.tail( 3 ) << ( cartesianState( 0 ) * cartesianState( 3 ) + cartesianState( 1 ) * cartesianState( 4 ) ) /
+                        cylindricalState( 0 ),  // Vr
+                ( cartesianState( 0 ) * cartesianState( 4 ) - cartesianState( 1 ) * cartesianState( 3 ) ) /
+                cylindricalState( 0 ),  // Vtheta
+                cartesianState( 5 );    // Vz
     }
 
     return cylindricalState;
@@ -195,38 +179,35 @@ Eigen::Vector6d convertCartesianToCylindricalState(
 Eigen::Matrix3d getSphericalToCartesianGradientMatrix( const Eigen::Vector3d& cartesianCoordinates )
 {
     // Compute radius.
-    const double radius = std::sqrt( cartesianCoordinates( 0 ) * cartesianCoordinates( 0 )
-                                     + cartesianCoordinates( 1 ) * cartesianCoordinates( 1 )
-                                     + cartesianCoordinates( 2 ) * cartesianCoordinates( 2 ) );
+    const double radius =
+            std::sqrt( cartesianCoordinates( 0 ) * cartesianCoordinates( 0 ) + cartesianCoordinates( 1 ) * cartesianCoordinates( 1 ) +
+                       cartesianCoordinates( 2 ) * cartesianCoordinates( 2 ) );
 
     // Compute square of distance within xy-plane.
-    const double xyDistanceSquared = cartesianCoordinates( 0 ) * cartesianCoordinates( 0 )
-            + cartesianCoordinates( 1 ) * cartesianCoordinates( 1 );
+    const double xyDistanceSquared =
+            cartesianCoordinates( 0 ) * cartesianCoordinates( 0 ) + cartesianCoordinates( 1 ) * cartesianCoordinates( 1 );
 
     // Compute distance within xy-plane.
     const double xyDistance = std::sqrt( xyDistanceSquared );
 
     // Compute transformation matrix.
-    const Eigen::Matrix3d transformationMatrix = (
-                Eigen::Matrix3d( 3, 3 ) <<
-                cartesianCoordinates( 0 ) / radius,
-                - cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) / ( radius * radius * xyDistance ),
-                - cartesianCoordinates( 1 ) / xyDistanceSquared,
-                cartesianCoordinates( 1 ) / radius,
-                - cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) / ( radius * radius * xyDistance ),
-                + cartesianCoordinates( 0 ) / xyDistanceSquared,
-                cartesianCoordinates( 2 ) / radius,
-                xyDistance / ( radius * radius ),   0.0
-                ).finished( );
+    const Eigen::Matrix3d transformationMatrix =
+            ( Eigen::Matrix3d( 3, 3 ) << cartesianCoordinates( 0 ) / radius,
+              -cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) / ( radius * radius * xyDistance ),
+              -cartesianCoordinates( 1 ) / xyDistanceSquared,
+              cartesianCoordinates( 1 ) / radius,
+              -cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) / ( radius * radius * xyDistance ),
+              +cartesianCoordinates( 0 ) / xyDistanceSquared,
+              cartesianCoordinates( 2 ) / radius,
+              xyDistance / ( radius * radius ),
+              0.0 )
+                    .finished( );
     return transformationMatrix;
 }
 
 //! Convert spherical to Cartesian gradient.
-Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient,
-                                                     const Eigen::Vector3d& cartesianCoordinates )
+Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient, const Eigen::Vector3d& cartesianCoordinates )
 {
-
-
     // Return Cartesian gradient.
     return getSphericalToCartesianGradientMatrix( cartesianCoordinates ) * sphericalGradient;
 }
@@ -242,8 +223,8 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
 
     // Precomputed quantities
     double radius = cartesianCoordinates.norm( );
-    const double xyDistanceSquared = cartesianCoordinates( 0 ) * cartesianCoordinates( 0 )
-            + cartesianCoordinates( 1 ) * cartesianCoordinates( 1 );
+    const double xyDistanceSquared =
+            cartesianCoordinates( 0 ) * cartesianCoordinates( 0 ) + cartesianCoordinates( 1 ) * cartesianCoordinates( 1 );
     const double xyDistance = std::sqrt( xyDistanceSquared );
     const double radiusSquaredXyDistance = xyDistance * radius * radius;
 
@@ -251,14 +232,12 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
     Eigen::Vector3d oneOverRPartial = -cartesianCoordinates / ( radius * radius * radius );
     Eigen::Vector3d oneOverRSquaredPartial = -2.0 * cartesianCoordinates / ( radius * radius * radius * radius );
     Eigen::Vector3d oneOverXyDistancePartial =
-            -( Eigen::Vector3d( ) << cartesianCoordinates( 0 ), cartesianCoordinates( 1 ), 0.0 ).finished( )/
+            -( Eigen::Vector3d( ) << cartesianCoordinates( 0 ), cartesianCoordinates( 1 ), 0.0 ).finished( ) /
             ( xyDistanceSquared * xyDistance );
-    Eigen::Vector3d oneOverXyDistanceSquaredPartial =
-            -2.0 * ( Eigen::Vector3d( ) << cartesianCoordinates( 0 ), cartesianCoordinates( 1 ), 0.0 ).finished( )/
+    Eigen::Vector3d oneOverXyDistanceSquaredPartial = -2.0 *
+            ( Eigen::Vector3d( ) << cartesianCoordinates( 0 ), cartesianCoordinates( 1 ), 0.0 ).finished( ) /
             ( xyDistanceSquared * xyDistanceSquared );
-    Eigen::Vector3d oneOverRSquaredXyDistancePartial =
-            oneOverRSquaredPartial / xyDistance + oneOverXyDistancePartial / ( radius * radius );
-
+    Eigen::Vector3d oneOverRSquaredXyDistancePartial = oneOverRSquaredPartial / xyDistance + oneOverXyDistancePartial / ( radius * radius );
 
     Eigen::Vector3d xyDistancePartial =
             ( Eigen::Vector3d( ) << cartesianCoordinates( 0 ), cartesianCoordinates( 1 ), 0.0 ).finished( ) / xyDistance;
@@ -269,49 +248,40 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
         currentPartialMatrix.setZero( );
         switch( i )
         {
-        case 0:
-        {
-            currentPartialMatrix << 1.0 / radius + cartesianCoordinates( 0 ) * oneOverRPartial ( 0 ),
-                    - cartesianCoordinates( 2 ) / radiusSquaredXyDistance -
-                    cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 0 ),
-                    - cartesianCoordinates( 1 ) * oneOverXyDistanceSquaredPartial( 0 ),
-                    cartesianCoordinates( 1 ) * oneOverRPartial( 0 ),
-                     - cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 0 ),
-                    1.0 / ( xyDistanceSquared ) + cartesianCoordinates( 0 ) * oneOverXyDistanceSquaredPartial( 0 ),
-                     cartesianCoordinates( 2 ) * oneOverRPartial( 0 ),
-                    xyDistance * oneOverRSquaredPartial( 0 ) + 1.0 / ( radius * radius ) * xyDistancePartial( 0 ),
-                    0.0 ;
-            break;
-        }
-        case 1:
-        {
-            currentPartialMatrix << cartesianCoordinates( 0 ) * oneOverRPartial ( 1 ),
-                    - cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 1 ),
-                    -1.0 / ( xyDistanceSquared ) - cartesianCoordinates( 1 ) * oneOverXyDistanceSquaredPartial( 1 ),
-                    1.0 / radius + cartesianCoordinates( 1 ) * oneOverRPartial ( 1 ),
-                    - cartesianCoordinates( 2 ) / radiusSquaredXyDistance -
-                    cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 1 ),
-                    cartesianCoordinates( 0 ) * oneOverXyDistanceSquaredPartial( 1 ),
-                     cartesianCoordinates( 2 ) * oneOverRPartial( 1 ),
-                    xyDistance * oneOverRSquaredPartial( 1 ) + 1.0 / ( radius * radius ) * xyDistancePartial( 1 ),
-                    0.0 ;
-            break;
-        }
-        case 2:
-        {
-            currentPartialMatrix <<  cartesianCoordinates( 0 ) * oneOverRPartial ( 2 ),
-                    - cartesianCoordinates( 0 ) / radiusSquaredXyDistance -
-                    cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 2 ),
-                    - cartesianCoordinates( 1 ) * oneOverXyDistanceSquaredPartial( 2 ),
-                    cartesianCoordinates( 1 ) * oneOverRPartial( 2 ),
-                    - cartesianCoordinates( 1 ) / radiusSquaredXyDistance -
-                    cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 2 ),
-                    cartesianCoordinates( 0 ) * oneOverXyDistanceSquaredPartial( 2 ),
-                     1.0 / radius + cartesianCoordinates( 2 ) * oneOverRPartial( 2 ),
-                    xyDistance * oneOverRSquaredPartial( 2 ) +  + 1.0 / ( radius * radius ) * xyDistancePartial( 2 ),
-                    0.0 ;
-            break;
-        }
+            case 0: {
+                currentPartialMatrix << 1.0 / radius + cartesianCoordinates( 0 ) * oneOverRPartial( 0 ),
+                        -cartesianCoordinates( 2 ) / radiusSquaredXyDistance -
+                        cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 0 ),
+                        -cartesianCoordinates( 1 ) * oneOverXyDistanceSquaredPartial( 0 ), cartesianCoordinates( 1 ) * oneOverRPartial( 0 ),
+                        -cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 0 ),
+                        1.0 / ( xyDistanceSquared ) + cartesianCoordinates( 0 ) * oneOverXyDistanceSquaredPartial( 0 ),
+                        cartesianCoordinates( 2 ) * oneOverRPartial( 0 ),
+                        xyDistance * oneOverRSquaredPartial( 0 ) + 1.0 / ( radius * radius ) * xyDistancePartial( 0 ), 0.0;
+                break;
+            }
+            case 1: {
+                currentPartialMatrix << cartesianCoordinates( 0 ) * oneOverRPartial( 1 ),
+                        -cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 1 ),
+                        -1.0 / (xyDistanceSquared)-cartesianCoordinates( 1 ) * oneOverXyDistanceSquaredPartial( 1 ),
+                        1.0 / radius + cartesianCoordinates( 1 ) * oneOverRPartial( 1 ),
+                        -cartesianCoordinates( 2 ) / radiusSquaredXyDistance -
+                        cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 1 ),
+                        cartesianCoordinates( 0 ) * oneOverXyDistanceSquaredPartial( 1 ), cartesianCoordinates( 2 ) * oneOverRPartial( 1 ),
+                        xyDistance * oneOverRSquaredPartial( 1 ) + 1.0 / ( radius * radius ) * xyDistancePartial( 1 ), 0.0;
+                break;
+            }
+            case 2: {
+                currentPartialMatrix << cartesianCoordinates( 0 ) * oneOverRPartial( 2 ),
+                        -cartesianCoordinates( 0 ) / radiusSquaredXyDistance -
+                        cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 2 ),
+                        -cartesianCoordinates( 1 ) * oneOverXyDistanceSquaredPartial( 2 ), cartesianCoordinates( 1 ) * oneOverRPartial( 2 ),
+                        -cartesianCoordinates( 1 ) / radiusSquaredXyDistance -
+                        cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 2 ),
+                        cartesianCoordinates( 0 ) * oneOverXyDistanceSquaredPartial( 2 ),
+                        1.0 / radius + cartesianCoordinates( 2 ) * oneOverRPartial( 2 ),
+                        xyDistance * oneOverRSquaredPartial( 2 ) + +1.0 / ( radius * radius ) * xyDistancePartial( 2 ), 0.0;
+                break;
+            }
         }
 
         // Save computed matrix
@@ -331,13 +301,11 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
                                                              const Eigen::Vector3d& cartesianCoordinates )
 {
     static std::vector< Eigen::Matrix3d > subMatrices( 3 );
-    return getDerivativeOfSphericalToCartesianGradient(
-                sphericalGradient, cartesianCoordinates, subMatrices );
+    return getDerivativeOfSphericalToCartesianGradient( sphericalGradient, cartesianCoordinates, subMatrices );
 }
 
 //! Convert spherical to Cartesian state.
-Eigen::Vector6d convertSphericalToCartesianState(
-        const Eigen::Vector6d& sphericalState )
+Eigen::Vector6d convertSphericalToCartesianState( const Eigen::Vector6d& sphericalState )
 {
     // Create Cartesian state vector, initialized with zero entries.
     Eigen::Vector6d convertedCartesianState = Eigen::Vector6d::Zero( );
@@ -370,9 +338,8 @@ Eigen::Vector6d convertSphericalToCartesianState(
     transformationMatrixCylindricalToCartesian( 2, 2 ) = 1.0;
 
     // Compute transformation matrix for spherical to Cartesian conversion.
-    const Eigen::Matrix3d transformationMatrixSphericalToCartesian
-            = transformationMatrixCylindricalToCartesian
-            * transformationMatrixSphericalToCylindrical;
+    const Eigen::Matrix3d transformationMatrixSphericalToCartesian =
+            transformationMatrixCylindricalToCartesian * transformationMatrixSphericalToCylindrical;
 
     // Perform transformation of position coordinates.
     convertedCartesianState( 0 ) = radius * cosineOfAzimuthAngle * cosineOfElevationAngle;
@@ -380,16 +347,14 @@ Eigen::Vector6d convertSphericalToCartesianState(
     convertedCartesianState( 2 ) = radius * sineOfElevationAngle;
 
     // Perform transformation of velocity vector.
-    convertedCartesianState.segment( 3, 3 ) =
-        transformationMatrixSphericalToCartesian * sphericalState.segment( 3, 3 );
+    convertedCartesianState.segment( 3, 3 ) = transformationMatrixSphericalToCartesian * sphericalState.segment( 3, 3 );
 
     // Return Cartesian state vector.
     return convertedCartesianState;
 }
 
 //! Convert Cartesian to spherical state.
-Eigen::Vector6d convertCartesianToSphericalState(
-        const Eigen::Vector6d& cartesianState )
+Eigen::Vector6d convertCartesianToSphericalState( const Eigen::Vector6d& cartesianState )
 {
     // Create spherical state vector, initialized with zero entries.
     Eigen::Vector6d convertedSphericalState = Eigen::Vector6d::Zero( );
@@ -403,14 +368,13 @@ Eigen::Vector6d convertCartesianToSphericalState(
      * If r = 0, the coordinates are at the origin, the elevation and azimuth angles equal to zero.
      * Since the state vector was initialized with zeroes, this is already the case.
      */
-    if ( convertedSphericalState( 0 ) > std::numeric_limits< double >::epsilon( ) )
+    if( convertedSphericalState( 0 ) > std::numeric_limits< double >::epsilon( ) )
     {
         // Compute elevation and azimuth angles using trigonometric relationships.
         // Azimuth angle.
         convertedSphericalState( 1 ) = std::atan2( cartesianState( 1 ), cartesianState( 0 ) );
         // Elevation angle.
-        convertedSphericalState( 2 ) = std::asin( cartesianState( 2 )
-                                                   / convertedSphericalState( 0 ) );
+        convertedSphericalState( 2 ) = std::asin( cartesianState( 2 ) / convertedSphericalState( 0 ) );
     }
 
     // Precompute sine/cosine of angles, which has multiple usages, to save computation time.
@@ -436,18 +400,16 @@ Eigen::Vector6d convertCartesianToSphericalState(
     transformationMatrixCartesianToCylindrical( 2, 2 ) = 1.0;
 
     // Compute transformation matrix for Cartesian to spherical conversion.
-    const Eigen::Matrix3d transformationMatrixCartesianToSpherical
-            = transformationMatrixCylindricalToSpherical
-            * transformationMatrixCartesianToCylindrical;
+    const Eigen::Matrix3d transformationMatrixCartesianToSpherical =
+            transformationMatrixCylindricalToSpherical * transformationMatrixCartesianToCylindrical;
 
     // Perform transformation of velocity vector.
-    convertedSphericalState.segment( 3, 3 )
-            = transformationMatrixCartesianToSpherical * cartesianState.segment( 3, 3 );
+    convertedSphericalState.segment( 3, 3 ) = transformationMatrixCartesianToSpherical * cartesianState.segment( 3, 3 );
 
     // Return spherical state vector.
     return convertedSphericalState;
 }
 
-} // namespace coordinate_conversions
+}  // namespace coordinate_conversions
 
-} // namespace tudat
+}  // namespace tudat

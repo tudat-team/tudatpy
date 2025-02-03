@@ -24,18 +24,17 @@ namespace observation_models
 {
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
-createLightTimeCalculator(
-    const std::shared_ptr< ephemerides::Ephemeris >& transmitterCompleteEphemeris,
-    const std::shared_ptr< ephemerides::Ephemeris >& receiverCompleteEphemeris,
-    const simulation_setup::SystemOfBodies& bodies,
-    const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections,
-    const LinkEnds& linkEnds,
-    const LinkEndType& transmittingLinkEndType,
-    const LinkEndType& receivingLinkEndType,
-    const ObservableType observableType,
-    const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-    = std::make_shared< LightTimeConvergenceCriteria >( )  )
+std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > createLightTimeCalculator(
+        const std::shared_ptr< ephemerides::Ephemeris >& transmitterCompleteEphemeris,
+        const std::shared_ptr< ephemerides::Ephemeris >& receiverCompleteEphemeris,
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections,
+        const LinkEnds& linkEnds,
+        const LinkEndType& transmittingLinkEndType,
+        const LinkEndType& receivingLinkEndType,
+        const ObservableType observableType,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     std::vector< std::shared_ptr< LightTimeCorrection > > lightTimeCorrectionFunctions;
 
@@ -43,19 +42,17 @@ createLightTimeCalculator(
     for( unsigned int i = 0; i < lightTimeCorrections.size( ); i++ )
     {
         std::shared_ptr< LightTimeCorrection > lightTimeCorrectionFunction = createLightTimeCorrections(
-            lightTimeCorrections[ i ], bodies, linkEnds, transmittingLinkEndType,
-            receivingLinkEndType, observableType );
+                lightTimeCorrections[ i ], bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType, observableType );
 
-        if ( lightTimeCorrectionFunction != nullptr )
+        if( lightTimeCorrectionFunction != nullptr )
         {
             lightTimeCorrectionFunctions.push_back( lightTimeCorrectionFunction );
         }
     }
 
     // Create light time calculator.
-    return std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >
-        ( transmitterCompleteEphemeris, receiverCompleteEphemeris, lightTimeCorrectionFunctions,
-          lightTimeConvergenceCriteria );
+    return std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
+            transmitterCompleteEphemeris, receiverCompleteEphemeris, lightTimeCorrectionFunctions, lightTimeConvergenceCriteria );
 }
 
 //! Function to create a light-time calculation object
@@ -71,8 +68,7 @@ createLightTimeCalculator(
  *  \param receivingLinkEnd Identifier for receiving link end.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
-createLightTimeCalculator(
+std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > createLightTimeCalculator(
         const std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& transmitterCompleteEphemeris,
         const std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& receiverCompleteEphemeris,
         const simulation_setup::SystemOfBodies& bodies,
@@ -81,13 +77,21 @@ createLightTimeCalculator(
         const LinkEndType& transmittingLinkEndType,
         const LinkEndType& receivingLinkEndType,
         const ObservableType observableType,
-        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-            = std::make_shared< LightTimeConvergenceCriteria >( )  )
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     return createLightTimeCalculator< ObservationScalarType, TimeType >(
-        std::make_shared< ephemerides::CustomEphemeris< TimeType, ObservationScalarType > >( transmitterCompleteEphemeris, bodies.getFrameOrigin( ), bodies.getFrameOrientation( ) ),
-        std::make_shared< ephemerides::CustomEphemeris< TimeType, ObservationScalarType > >( transmitterCompleteEphemeris, bodies.getFrameOrigin( ), bodies.getFrameOrientation( ) ),
-            bodies, lightTimeCorrections, linkEnds, transmittingLinkEndType, receivingLinkEndType, observableType, lightTimeConvergenceCriteria );
+            std::make_shared< ephemerides::CustomEphemeris< TimeType, ObservationScalarType > >(
+                    transmitterCompleteEphemeris, bodies.getFrameOrigin( ), bodies.getFrameOrientation( ) ),
+            std::make_shared< ephemerides::CustomEphemeris< TimeType, ObservationScalarType > >(
+                    transmitterCompleteEphemeris, bodies.getFrameOrigin( ), bodies.getFrameOrientation( ) ),
+            bodies,
+            lightTimeCorrections,
+            linkEnds,
+            transmittingLinkEndType,
+            receivingLinkEndType,
+            observableType,
+            lightTimeConvergenceCriteria );
 }
 
 //! Function to create a light-time calculation object
@@ -101,27 +105,29 @@ createLightTimeCalculator(
  *  light time.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
-createLightTimeCalculator(
+std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > createLightTimeCalculator(
         const LinkEnds& linkEnds,
         const LinkEndType& transmittingLinkEndType,
         const LinkEndType& receivingLinkEndType,
         const simulation_setup::SystemOfBodies& bodies,
         const ObservableType observableType = undefined_observation_model,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
-            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria
-            = std::make_shared< LightTimeConvergenceCriteria >( ) )
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
-
     // Get link end state functions and create light time calculator.
     return createLightTimeCalculator< ObservationScalarType, TimeType >(
-                simulation_setup::getLinkEndCompleteEphemeris< TimeType, ObservationScalarType >(
-                    linkEnds.at( transmittingLinkEndType ), bodies ),
-                simulation_setup::getLinkEndCompleteEphemeris< TimeType, ObservationScalarType >(
-                    linkEnds.at( receivingLinkEndType ), bodies ),
-                bodies, lightTimeCorrections, linkEnds, transmittingLinkEndType, receivingLinkEndType,
-                observableType, lightTimeConvergenceCriteria );
+            simulation_setup::getLinkEndCompleteEphemeris< TimeType, ObservationScalarType >( linkEnds.at( transmittingLinkEndType ),
+                                                                                              bodies ),
+            simulation_setup::getLinkEndCompleteEphemeris< TimeType, ObservationScalarType >( linkEnds.at( receivingLinkEndType ), bodies ),
+            bodies,
+            lightTimeCorrections,
+            linkEnds,
+            transmittingLinkEndType,
+            receivingLinkEndType,
+            observableType,
+            lightTimeConvergenceCriteria );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -129,14 +135,13 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
         const LinkEnds& linkEnds,
         const simulation_setup::SystemOfBodies& bodies,
         const ObservableType observableType = undefined_observation_model,
-        const std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > >& lightTimeCorrections
-            = std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > >( ),
-        const std::vector< std::shared_ptr< LightTimeConvergenceCriteria > >& singleLegsLightTimeConvergenceCriteria
-            = std::vector< std::shared_ptr< LightTimeConvergenceCriteria > >( ),
-        const std::shared_ptr< LightTimeConvergenceCriteria > multiLegLightTimeConvergenceCriteria
-            = std::make_shared< LightTimeConvergenceCriteria >( ) )
+        const std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > >& lightTimeCorrections =
+                std::vector< std::vector< std::shared_ptr< LightTimeCorrectionSettings > > >( ),
+        const std::vector< std::shared_ptr< LightTimeConvergenceCriteria > >& singleLegsLightTimeConvergenceCriteria =
+                std::vector< std::shared_ptr< LightTimeConvergenceCriteria > >( ),
+        const std::shared_ptr< LightTimeConvergenceCriteria > multiLegLightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
-
     // Check if link ends contain a receiver and a transmitter
     if( linkEnds.count( receiver ) == 0 )
     {
@@ -148,8 +153,7 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
     }
 
     // Check link end consistency.
-    for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
-         linkEndIterator++ )
+    for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
     {
         if( ( linkEndIterator->first != transmitter ) && ( linkEndIterator->first != receiver ) )
         {
@@ -166,19 +170,17 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
 
     // Check consistency of convergence criteria size, corrections size, and number of link ends
     unsigned int numberOfLinks = linkEnds.size( ) - 1;
-    if ( !( lightTimeCorrections.size( ) == numberOfLinks || lightTimeCorrections.empty( ) ) )
+    if( !( lightTimeCorrections.size( ) == numberOfLinks || lightTimeCorrections.empty( ) ) )
     {
-        throw std::runtime_error(
-                "Error when making multi-leg light time calculator: size of single-leg light time corrections (" +
-                std::to_string( lightTimeCorrections.size( ) ) +
-                ") are inconsistent with number of links (" + std::to_string( numberOfLinks ) + ")." );
+        throw std::runtime_error( "Error when making multi-leg light time calculator: size of single-leg light time corrections (" +
+                                  std::to_string( lightTimeCorrections.size( ) ) + ") are inconsistent with number of links (" +
+                                  std::to_string( numberOfLinks ) + ")." );
     }
-    else if ( !( singleLegsLightTimeConvergenceCriteria.size( ) == numberOfLinks || singleLegsLightTimeConvergenceCriteria.empty( ) ) )
+    else if( !( singleLegsLightTimeConvergenceCriteria.size( ) == numberOfLinks || singleLegsLightTimeConvergenceCriteria.empty( ) ) )
     {
-        throw std::runtime_error(
-                "Error when making multi-leg light time calculator: size of single-leg convergence criteria (" +
-                std::to_string( singleLegsLightTimeConvergenceCriteria.size( ) ) +
-                ") are inconsistent with number of links (" + std::to_string( numberOfLinks ) + ")." );
+        throw std::runtime_error( "Error when making multi-leg light time calculator: size of single-leg convergence criteria (" +
+                                  std::to_string( singleLegsLightTimeConvergenceCriteria.size( ) ) +
+                                  ") are inconsistent with number of links (" + std::to_string( numberOfLinks ) + ")." );
     }
 
     // Define light-time calculator list
@@ -193,7 +195,7 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
     {
         // Get convergence criteria of current leg
         std::shared_ptr< LightTimeConvergenceCriteria > currentConvergenceCriteria;
-        if ( singleLegsLightTimeConvergenceCriteria.empty( ) )
+        if( singleLegsLightTimeConvergenceCriteria.empty( ) )
         {
             currentConvergenceCriteria = std::make_shared< LightTimeConvergenceCriteria >( );
         }
@@ -204,25 +206,28 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
 
         // Get light time corrections of current leg
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > currentLightTimeCorrections;
-        if ( lightTimeCorrections.empty( ) )
-        { }
+        if( lightTimeCorrections.empty( ) )
+        {
+        }
         else
         {
             currentLightTimeCorrections = lightTimeCorrections.at( i );
         }
 
-        lightTimeCalculators.push_back(
-                createLightTimeCalculator< ObservationScalarType, TimeType >(
-                        linkEnds, transmitterIterator->first, receiverIterator->first,
-                        bodies, observableType, currentLightTimeCorrections,
-                        currentConvergenceCriteria ) );
+        lightTimeCalculators.push_back( createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                                                      transmitterIterator->first,
+                                                                                                      receiverIterator->first,
+                                                                                                      bodies,
+                                                                                                      observableType,
+                                                                                                      currentLightTimeCorrections,
+                                                                                                      currentConvergenceCriteria ) );
 
         // Check whether any of the corrections requires multi-leg iterations
-        if ( !multiLegIterationsRequired )
+        if( !multiLegIterationsRequired )
         {
-            for ( unsigned j = 0; j < currentLightTimeCorrections.size( ); ++j )
+            for( unsigned j = 0; j < currentLightTimeCorrections.size( ); ++j )
             {
-                if ( requiresMultiLegIterations( currentLightTimeCorrections.at( j )->getCorrectionType( ) ) )
+                if( requiresMultiLegIterations( currentLightTimeCorrections.at( j )->getCorrectionType( ) ) )
                 {
                     multiLegIterationsRequired = true;
                     break;
@@ -235,17 +240,15 @@ std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > 
     }
 
     // Create multi-leg light time calculator
-    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
-            multiLegLightTimeCalculator = std::make_shared< observation_models::MultiLegLightTimeCalculator<
-                    ObservationScalarType, TimeType > >(
-                            lightTimeCalculators, multiLegLightTimeConvergenceCriteria, multiLegIterationsRequired );
+    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator =
+            std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
+                    lightTimeCalculators, multiLegLightTimeConvergenceCriteria, multiLegIterationsRequired );
 
     return multiLegLightTimeCalculator;
 }
 
+}  // namespace observation_models
 
-} // namespace observation_models
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_CREATELIGHTTIMECALCULATOR_H
+#endif  // TUDAT_CREATELIGHTTIMECALCULATOR_H

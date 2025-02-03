@@ -24,14 +24,9 @@ namespace reference_frames
 // AerodynamicsReferenceFrames
 
 //! Map of `AerodynamicsReferenceFrames` string representations.
-static std::map< AerodynamicsReferenceFrames, std::string > aerodynamicsReferenceFrames =
-{
-    { inertial_frame, "intertial" },
-    { corotating_frame, "corotating" },
-    { vertical_frame, "vertical" },
-    { trajectory_frame, "trajectory" },
-    { aerodynamic_frame, "aerodynamic" },
-    { body_frame, "body" }
+static std::map< AerodynamicsReferenceFrames, std::string > aerodynamicsReferenceFrames = {
+    { inertial_frame, "intertial" },    { corotating_frame, "corotating" },   { vertical_frame, "vertical" },
+    { trajectory_frame, "trajectory" }, { aerodynamic_frame, "aerodynamic" }, { body_frame, "body" }
 };
 
 //! `AerodynamicsReferenceFrames` not supported by `json_interface`.
@@ -46,24 +41,19 @@ inline void to_json( nlohmann::json& jsonObject, const AerodynamicsReferenceFram
 //! Convert `json` to `AerodynamicsReferenceFrames`.
 inline void from_json( const nlohmann::json& jsonObject, AerodynamicsReferenceFrames& aerodynamicsReferenceFrame )
 {
-    aerodynamicsReferenceFrame =
-            json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrames );
+    aerodynamicsReferenceFrame = json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrames );
 }
-
 
 // AerodynamicsReferenceFrameAngles
 
 //! Map of `AerodynamicsReferenceFrameAngles` string representations.
-static std::map< AerodynamicsReferenceFrameAngles, std::string > aerodynamicsReferenceFrameAngles =
-{
-    { latitude_angle, "latitude" },
-    { longitude_angle, "longitude" },
-    { heading_angle, "heading" },
-    { flight_path_angle, "flightPath" },
-    { angle_of_attack, "angleOfAttach" },
-    { angle_of_sideslip, "sideslip" },
-    { bank_angle, "bank" }
-};
+static std::map< AerodynamicsReferenceFrameAngles, std::string > aerodynamicsReferenceFrameAngles = { { latitude_angle, "latitude" },
+                                                                                                      { longitude_angle, "longitude" },
+                                                                                                      { heading_angle, "heading" },
+                                                                                                      { flight_path_angle, "flightPath" },
+                                                                                                      { angle_of_attack, "angleOfAttach" },
+                                                                                                      { angle_of_sideslip, "sideslip" },
+                                                                                                      { bank_angle, "bank" } };
 
 //! `AerodynamicsReferenceFrameAngles` not supported by `json_interface`.
 static std::vector< AerodynamicsReferenceFrameAngles > unsupportedAerodynamicsReferenceFrameAngles = { };
@@ -77,12 +67,11 @@ inline void to_json( nlohmann::json& jsonObject, const AerodynamicsReferenceFram
 //! Convert `json` to `AerodynamicsReferenceFrameAngles`.
 inline void from_json( const nlohmann::json& jsonObject, AerodynamicsReferenceFrameAngles& aerodynamicsReferenceFrameAngle )
 {
-    aerodynamicsReferenceFrameAngle =
-            json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrameAngles );
+    aerodynamicsReferenceFrameAngle = json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrameAngles );
 }
 
-} // namespace reference_frames
+}  // namespace reference_frames
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_REFERENCEFRAMES_H
+#endif  // TUDAT_JSONINTERFACE_REFERENCEFRAMES_H

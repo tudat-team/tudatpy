@@ -25,8 +25,7 @@ namespace simulation_setup
 // ThrustDirectionGuidanceTypes
 
 //! Map of `ThrustDirectionGuidanceTypes` string representations.
-static std::map< ThrustDirectionGuidanceTypes, std::string > thrustDirectionTypes =
-{
+static std::map< ThrustDirectionGuidanceTypes, std::string > thrustDirectionTypes = {
     { colinear_with_state_segment_thrust_direction, "colinearWithStateSegment" },
     { thrust_direction_from_existing_body_orientation, "fromExistingBodyOrientation" },
     { custom_thrust_direction, "customDirection" },
@@ -34,11 +33,7 @@ static std::map< ThrustDirectionGuidanceTypes, std::string > thrustDirectionType
 };
 
 //! `ThrustDirectionGuidanceTypes` not supported by `json_interface`.
-static std::vector< ThrustDirectionGuidanceTypes > unsupportedThrustDirectionTypes =
-{
-    custom_thrust_direction,
-    custom_thrust_orientation
-};
+static std::vector< ThrustDirectionGuidanceTypes > unsupportedThrustDirectionTypes = { custom_thrust_direction, custom_thrust_orientation };
 
 //! Convert `ThrustDirectionGuidanceTypes` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const ThrustDirectionGuidanceTypes& thrustDirectionType )
@@ -52,7 +47,6 @@ inline void from_json( const nlohmann::json& jsonObject, ThrustDirectionGuidance
     thrustDirectionType = json_interface::enumFromString( jsonObject, thrustDirectionTypes );
 }
 
-
 // ThrustDirectionGuidanceSettings
 
 //! Create a `json` object from a shared pointer to a `ThrustDirectionGuidanceSettings` object.
@@ -61,12 +55,10 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustDirection
 //! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings );
 
-
 // ThrustMagnitudeTypes
 
 //! Map of `ThrustMagnitudeTypes` string representations.
-static std::map< ThrustMagnitudeTypes, std::string > thrustMagnitudeTypes =
-{
+static std::map< ThrustMagnitudeTypes, std::string > thrustMagnitudeTypes = {
     { constant_thrust_magnitude, "constant" },
     { from_engine_properties_thrust_magnitude, "fromEngineProperties" },
     { thrust_magnitude_from_time_function, "timeDependent" },
@@ -74,11 +66,8 @@ static std::map< ThrustMagnitudeTypes, std::string > thrustMagnitudeTypes =
 };
 
 //! `ThrustMagnitudeTypes` not supported by `json_interface`.
-static std::vector< ThrustMagnitudeTypes > unsupportedThrustMagnitudeTypes =
-{
-    thrust_magnitude_from_time_function,
-    thrust_magnitude_from_dependent_variables
-};
+static std::vector< ThrustMagnitudeTypes > unsupportedThrustMagnitudeTypes = { thrust_magnitude_from_time_function,
+                                                                               thrust_magnitude_from_dependent_variables };
 
 //! Convert `ThrustMagnitudeTypes` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const ThrustMagnitudeTypes& thrustMagnitudeType )
@@ -92,7 +81,6 @@ inline void from_json( const nlohmann::json& jsonObject, ThrustMagnitudeTypes& t
     thrustMagnitudeType = json_interface::enumFromString( jsonObject, thrustMagnitudeTypes );
 }
 
-
 // ThrustMagnitudeSettings
 
 //! Create a `json` object from a shared pointer to a `ThrustMagnitudeSettings` object.
@@ -100,8 +88,6 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustMagnitude
 
 //! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustMagnitudeSettings >& magnitudeSettings );
-
-
 
 // Thrust
 
@@ -111,8 +97,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustAccelerat
 //! Create a shared pointer to a `ThrustAccelerationSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_THRUST_H
+#endif  // TUDAT_JSONINTERFACE_THRUST_H

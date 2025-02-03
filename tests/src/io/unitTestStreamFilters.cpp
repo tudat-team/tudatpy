@@ -26,21 +26,21 @@ namespace unit_tests
 /*!
  * This defines all the predefined memebers and functions that are available to each test.
  */
-struct StreamFilterFixture
-{
+struct StreamFilterFixture {
 public:
-
     //! Constructor.
     /*!
      * Constructor. DO NOT INDENT testString initialization all spaces will end up in the test
      * string!
      */
-    StreamFilterFixture( ) :
-    testString("\
+    StreamFilterFixture( ):
+        testString(
+                "\
 The first header line\n\
 A line with partial comment # this is comment\n\
 # Complete comment line\n\
--> odd data <-\n\0") { }
+-> odd data <-\n\0" )
+    { }
 
     //! Container for the test data.
     /*!
@@ -55,7 +55,6 @@ A line with partial comment # this is comment\n\
     std::string filteredData;
 
 protected:
-
 private:
 };
 
@@ -64,7 +63,7 @@ BOOST_FIXTURE_TEST_SUITE( test_suite_streamFilters, StreamFilterFixture )
 
 //! Test with remove line endings on the skipped lines.
 BOOST_AUTO_TEST_CASE( test_skipFirstLines_noEmptyLines )
-{  
+{
     // Create a filter chain, attach the test filter and push in the testStream.
     // Filter chain object.
     boost::iostreams::filtering_ostream filterProcessor;
@@ -73,7 +72,7 @@ BOOST_AUTO_TEST_CASE( test_skipFirstLines_noEmptyLines )
     filterProcessor.push( input_output::stream_filters::SkipFirstLines( 2, true ) );
 
     // Last step in the chain; store the resulting string in result.
-    filterProcessor.push(boost::iostreams::back_inserter( filteredData ) );
+    filterProcessor.push( boost::iostreams::back_inserter( filteredData ) );
 
     // Push in test data.
     filterProcessor << testString;
@@ -82,9 +81,7 @@ BOOST_AUTO_TEST_CASE( test_skipFirstLines_noEmptyLines )
     filterProcessor.flush( );
 
     // Check if the results match the expected result.
-    BOOST_CHECK( filteredData.compare(
-"# Complete comment line\n-> odd data <-\n"
-                     ) == 0 );
+    BOOST_CHECK( filteredData.compare( "# Complete comment line\n-> odd data <-\n" ) == 0 );
 }
 
 //! Test with don't remove line endings on the skipped lines.
@@ -107,9 +104,7 @@ BOOST_AUTO_TEST_CASE( test_skipFirstLines_emptyLines )
     filterProcessor.flush( );
 
     // Check if the results match the expected result.
-    BOOST_CHECK( filteredData.compare(
-"\n\n# Complete comment line\n-> odd data <-\n"
-                     ) == 0 );
+    BOOST_CHECK( filteredData.compare( "\n\n# Complete comment line\n-> odd data <-\n" ) == 0 );
 }
 
 //! Test with remove line endings on the tested lines.
@@ -132,9 +127,7 @@ BOOST_AUTO_TEST_CASE( test_removeComment_noEmptyLines )
     filterProcessor.flush( );
 
     // Check if the results match the expected result
-    BOOST_CHECK( filteredData.compare(
-"The first header line\nA line with partial comment \n-> odd data <-\n"
-                     ) == 0 );
+    BOOST_CHECK( filteredData.compare( "The first header line\nA line with partial comment \n-> odd data <-\n" ) == 0 );
 }
 
 //! Test with dont remove line endings on the tested lines.
@@ -148,7 +141,7 @@ BOOST_AUTO_TEST_CASE( test_removeComment_emptyLines )
     filterProcessor.push( input_output::stream_filters::RemoveComment( '#', false ) );
 
     // Last step in the chain; store the resulting string in result
-    filterProcessor.push(boost::iostreams::back_inserter( filteredData ) );
+    filterProcessor.push( boost::iostreams::back_inserter( filteredData ) );
 
     // Push in test data.
     filterProcessor << testString;
@@ -157,9 +150,7 @@ BOOST_AUTO_TEST_CASE( test_removeComment_emptyLines )
     filterProcessor.flush( );
 
     // Check if the results match the expected result.
-    BOOST_CHECK( filteredData.compare(
-"The first header line\nA line with partial comment \n\n-> odd data <-\n"
-                    ) == 0 );
+    BOOST_CHECK( filteredData.compare( "The first header line\nA line with partial comment \n\n-> odd data <-\n" ) == 0 );
 }
 
 //! Test with remove line endings on the tested lines.
@@ -170,8 +161,7 @@ BOOST_AUTO_TEST_CASE( test_replaceElements_delete_noEmptyLines )
     boost::iostreams::filtering_ostream filterProcessor;
 
     // Regex '-.*-' is everything between two dashes and replace with nothing.
-    filterProcessor.push( input_output::stream_filters::ReplaceElements(
-                    boost::regex("-.*-"), "", false) );
+    filterProcessor.push( input_output::stream_filters::ReplaceElements( boost::regex( "-.*-" ), "", false ) );
 
     // Last step in the chain; store the resulting string in result.
     filterProcessor.push( boost::iostreams::back_inserter( filteredData ) );
@@ -184,10 +174,9 @@ BOOST_AUTO_TEST_CASE( test_replaceElements_delete_noEmptyLines )
 
     // Check if the results match the expected result.
     BOOST_CHECK( filteredData.compare(
-// DONT INDENT! all spaces will end up in the test line
-"The first header line\nA line with partial comment # this is comment\n\
-# Complete comment line\n\n"
-        ) == 0 );
+                         // DONT INDENT! all spaces will end up in the test line
+                         "The first header line\nA line with partial comment # this is comment\n\
+# Complete comment line\n\n" ) == 0 );
 }
 
 //! Test with don't remove line endings on the tested lines.
@@ -198,8 +187,7 @@ BOOST_AUTO_TEST_CASE( test_replaceElements_delete_emptyLines )
     boost::iostreams::filtering_ostream filterProcessor;
 
     // Regex '-.*-' is everything between two dashes and replace with nothing.
-    filterProcessor.push( input_output::stream_filters::ReplaceElements(
-                     boost::regex( "-.*-" ), "", false ) );
+    filterProcessor.push( input_output::stream_filters::ReplaceElements( boost::regex( "-.*-" ), "", false ) );
 
     // Last step in the chain; store the resulting string in result.
     filterProcessor.push( boost::iostreams::back_inserter( filteredData ) );
@@ -212,22 +200,20 @@ BOOST_AUTO_TEST_CASE( test_replaceElements_delete_emptyLines )
 
     // Check if the results match the expected result
     BOOST_CHECK( filteredData.compare(
-// DONT INDENT! all spaces will end up in the test line
-"The first header line\nA line with partial comment # this is comment\n\
-# Complete comment line\n\n"
-        ) == 0 );
+                         // DONT INDENT! all spaces will end up in the test line
+                         "The first header line\nA line with partial comment # this is comment\n\
+# Complete comment line\n\n" ) == 0 );
 }
 
 //! Test with remove line endings on the tested lines.
-BOOST_AUTO_TEST_CASE(test_replaceElements_replace)
+BOOST_AUTO_TEST_CASE( test_replaceElements_replace )
 {
     // Create a filter chain, attach the test filter and push in the testStream.
     // Filter chain object.
     boost::iostreams::filtering_ostream filterProcessor;
 
     // Regex '>.*<' is everything between two angle brackets and replace with 'foobar'.
-    filterProcessor.push( input_output::stream_filters::ReplaceElements(
-                    boost::regex(">.*<"), "foobar", true) );
+    filterProcessor.push( input_output::stream_filters::ReplaceElements( boost::regex( ">.*<" ), "foobar", true ) );
 
     // Last step in the chain; store the resulting string in result.
     filterProcessor.push( boost::iostreams::back_inserter( filteredData ) );
@@ -240,22 +226,20 @@ BOOST_AUTO_TEST_CASE(test_replaceElements_replace)
 
     // Check if the results match the expected result.
     BOOST_CHECK( filteredData.compare(
-// DONT INDENT! all spaces will end up in the test line
-"The first header line\nA line with partial comment # this is comment\n\
-# Complete comment line\n-foobar-\n"
-        ) == 0 );
+                         // DONT INDENT! all spaces will end up in the test line
+                         "The first header line\nA line with partial comment # this is comment\n\
+# Complete comment line\n-foobar-\n" ) == 0 );
 }
 
 //! Test with creating a literal search string (so no regex object but just literal string)
-BOOST_AUTO_TEST_CASE(test_replaceElements_literalConstuctor)
+BOOST_AUTO_TEST_CASE( test_replaceElements_literalConstuctor )
 {
     // Create a filter chain, attach the test filter and push in the testStream.
     // Filter chain object.
     boost::iostreams::filtering_ostream filterProcessor;
 
     // Search for all the special regex characters and replace with foobar
-    filterProcessor.push( input_output::stream_filters::ReplaceElements(
-        ".[]{}()\\*+?|^$", "foobar", true) );
+    filterProcessor.push( input_output::stream_filters::ReplaceElements( ".[]{}()\\*+?|^$", "foobar", true ) );
 
     // Last step in the chain; store the resulting string in result.
     filterProcessor.push( boost::iostreams::back_inserter( filteredData ) );
@@ -267,10 +251,10 @@ BOOST_AUTO_TEST_CASE(test_replaceElements_literalConstuctor)
     filterProcessor.flush( );
 
     // Check if the results match the expected result.
-    BOOST_CHECK( filteredData.compare("->foobar<-\n") == 0 );
+    BOOST_CHECK( filteredData.compare( "->foobar<-\n" ) == 0 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( );
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

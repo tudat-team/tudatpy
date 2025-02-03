@@ -39,22 +39,18 @@ namespace unit_tests
 {
 BOOST_AUTO_TEST_SUITE( test_numerical_integrator_orders )
 
-Eigen::Vector6d getFinalIntegrationError(
-    const std::shared_ptr< IntegratorSettings< > > integratorSettings,
-    const double numberOfOrbits,
-    const double eccentricity)
+Eigen::Vector6d getFinalIntegrationError( const std::shared_ptr< IntegratorSettings<> > integratorSettings,
+                                          const double numberOfOrbits,
+                                          const double eccentricity )
 {
     // Define bodies in simulation.
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings =
-        getDefaultBodySettings(
-            bodyNames, "Earth", "ECLIPJ2000" );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
     SystemOfBodies bodies = createSystemOfBodies< double, double >( bodySettings );
     bodies.createEmptyBody( "Vehicle" );
-
 
     // Propagate the moon only
     std::vector< std::string > bodiesToIntegrate;
@@ -67,8 +63,7 @@ Eigen::Vector6d getFinalIntegrationError(
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
-    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-        bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
     Eigen::Vector6d initialKeplerElements = Eigen::Vector6d::Zero( );
     initialKeplerElements[ semiMajorAxisIndex ] = 7.50E6;
@@ -80,26 +75,27 @@ Eigen::Vector6d getFinalIntegrationError(
 
     // Specify initial time
     double initialEphemerisTime = 0.0;
-    double finalEphemerisTime = numberOfOrbits * mathematical_constants::PI * std::sqrt(
-        std::pow( initialKeplerElements[ semiMajorAxisIndex ], 3.0 ) /
-            bodies.getBody( "Earth" )->getGravitationalParameter( ) );
+    double finalEphemerisTime = numberOfOrbits * mathematical_constants::PI *
+            std::sqrt( std::pow( initialKeplerElements[ semiMajorAxisIndex ], 3.0 ) /
+                       bodies.getBody( "Earth" )->getGravitationalParameter( ) );
 
-    Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
-        initialKeplerElements, bodies.getBody( "Earth" )->getGravitationalParameter( ) );
+    Eigen::VectorXd systemInitialState =
+            convertKeplerianToCartesianElements( initialKeplerElements, bodies.getBody( "Earth" )->getGravitationalParameter( ) );
 
-    std::shared_ptr<TranslationalStatePropagatorSettings<double, double> > propagatorSettings =
-        std::make_shared<TranslationalStatePropagatorSettings<double, double> >
-        ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
-            initialEphemerisTime, integratorSettings,
-            std::make_shared<PropagationTimeTerminationSettings>( finalEphemerisTime, true ) );
+    std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime, true ) );
 
     // Create dynamics simulation object.
-    SingleArcDynamicsSimulator<double, double> dynamicsSimulator(
-        bodies, propagatorSettings );
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator( bodies, propagatorSettings );
 
     return ( dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second - systemInitialState );
-
-
 }
 
 //! This tests the order of the fixed-step Runge-Kutta methods, for those with a scheme that only
@@ -113,29 +109,19 @@ Eigen::Vector6d getFinalIntegrationError(
 //! where the time step is expected to behave well.
 BOOST_AUTO_TEST_CASE( testPureFixedMultiStageNumericalIntegratorOrder )
 {
-
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // List of schemes for which to test
     std::vector< CoefficientSets > coefficients = {
-        rungeKutta4Classic,
-        explicitMidPoint,
-        explicitTrapezoidRule,
-        ralston,
-        rungeKutta3,
-        ralston3,
-        SSPRK3,
-        ralston4,
-        threeEighthRuleRK4 };
+        rungeKutta4Classic, explicitMidPoint, explicitTrapezoidRule, ralston, rungeKutta3, ralston3, SSPRK3, ralston4, threeEighthRuleRK4
+    };
 
     // Multiplication of nominal time step for each method
-    std::vector< double > timeStepMultiplications = {
-        1.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 1.0, 1.0 };
+    std::vector< double > timeStepMultiplications = { 1.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 1.0, 1.0 };
 
     // Ideal order of each method
-    std::vector< double > expectedOrders = {
-        4.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0 };
+    std::vector< double > expectedOrders = { 4.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0 };
 
     // Calculate final state error for each method
     for( unsigned int j = 0; j < coefficients.size( ); j++ )
@@ -144,26 +130,26 @@ BOOST_AUTO_TEST_CASE( testPureFixedMultiStageNumericalIntegratorOrder )
         std::vector< double > errors;
         std::vector< double > calculatedOrder;
 
-        for ( unsigned int i = 0; i < timeSteps.size( ); i++ )
+        for( unsigned int i = 0; i < timeSteps.size( ); i++ )
         {
             Eigen::VectorXd finalState = getFinalIntegrationError(
-                rungeKuttaFixedStepSettings(
-                    timeStepMultiplications.at( j ) * timeSteps.at( i ), coefficients.at( j ) ), 10.0, 0.01 );
-            errors.push_back( finalState.segment( 0, 3 ).norm( ));
+                    rungeKuttaFixedStepSettings( timeStepMultiplications.at( j ) * timeSteps.at( i ), coefficients.at( j ) ), 10.0, 0.01 );
+            errors.push_back( finalState.segment( 0, 3 ).norm( ) );
 
             // Calculate the order p from two subsequent errors, using the fact that
             // error_{i} / error_{i-1} = ( step_{i} / step_{i-1} )^p
-            if ( i > 0 )
+            if( i > 0 )
             {
-                calculatedOrder.push_back( std::log2( errors.at( i ) / errors.at( i - 1 )));
+                calculatedOrder.push_back( std::log2( errors.at( i ) / errors.at( i - 1 ) ) );
             }
         }
 
         // Calculate mean and standard deviation of values of order computed from eacg two subsequent steps
         double meanOrder = std::accumulate( calculatedOrder.begin( ), calculatedOrder.end( ), 0.0 ) / calculatedOrder.size( );
-        double standardDeviationOrder = std::sqrt(
-            std::inner_product( calculatedOrder.begin( ), calculatedOrder.end( ), calculatedOrder.begin( ), 0.0 ) /
-            calculatedOrder.size( ) - meanOrder * meanOrder );
+        double standardDeviationOrder =
+                std::sqrt( std::inner_product( calculatedOrder.begin( ), calculatedOrder.end( ), calculatedOrder.begin( ), 0.0 ) /
+                                   calculatedOrder.size( ) -
+                           meanOrder * meanOrder );
 
         // Check that the value of the order is correct, and reasonably constant
         // Note that, in some cases, the order computed from the subsequent time steps is
@@ -172,7 +158,6 @@ BOOST_AUTO_TEST_CASE( testPureFixedMultiStageNumericalIntegratorOrder )
         BOOST_CHECK( meanOrder > expectedOrders.at( j ) - 0.01 );
         BOOST_CHECK( meanOrder < expectedOrders.at( j ) + 1.0 );
         BOOST_CHECK( standardDeviationOrder < 0.2 );
-
     }
 }
 
@@ -187,76 +172,71 @@ BOOST_AUTO_TEST_CASE( testPureFixedMultiStageNumericalIntegratorOrder )
 //! where the time step is expected to behave well.
 BOOST_AUTO_TEST_CASE( testFixedMultiStageNumericalIntegratorOrder )
 {
-
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    std::vector< CoefficientSets > coefficients = {
-//        heunEuler,
-//        rungeKuttaFehlberg12,
-        rungeKuttaFehlberg45,
-        rungeKuttaFehlberg56,
-        rungeKuttaFehlberg78,
-        rungeKutta87DormandPrince,
-        rungeKuttaFehlberg89,
-        rungeKuttaVerner89,
-        rungeKuttaFeagin108,
-        rungeKuttaFeagin1210,
-        rungeKuttaFeagin1412 };
+    std::vector< CoefficientSets > coefficients = { //        heunEuler,
+                                                    //        rungeKuttaFehlberg12,
+                                                    rungeKuttaFehlberg45,      rungeKuttaFehlberg56, rungeKuttaFehlberg78,
+                                                    rungeKutta87DormandPrince, rungeKuttaFehlberg89, rungeKuttaVerner89,
+                                                    rungeKuttaFeagin108,       rungeKuttaFeagin1210, rungeKuttaFeagin1412
+    };
 
     // Multiplication of nominal time step for each method
-    std::vector< double > timeStepMultiplications = {
-//        0.25, 0.25,
-        0.25, 1.0, 1.0, 1.0, 1.0, 1.0,
-        1.0, 1.1, 1.5 };
+    std::vector< double > timeStepMultiplications = { //        0.25, 0.25,
+                                                      0.25, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.5
+    };
 
     // Ideal order of each method (lower)
-    std::vector< double > expectedLowerOrders = {
-//        1.0, 1.0,
-        4.0, 5.0, 7.0, 7.0, 8.0, 8.0, 8.0, 10.0, 12.0 };
+    std::vector< double > expectedLowerOrders = { //        1.0, 1.0,
+                                                  4.0, 5.0, 7.0, 7.0, 8.0, 8.0, 8.0, 10.0, 12.0
+    };
 
     // Ideal order of each method (higher)
-    std::vector< double > expectedHigherOrders = {
-//        2.0, 2.0,
-        5.0, 6.0, 8.0, 8.0, 9.0, 9.0, 10.0, 12.0, 14.0 };
+    std::vector< double > expectedHigherOrders = { //        2.0, 2.0,
+                                                   5.0, 6.0, 8.0, 8.0, 9.0, 9.0, 10.0, 12.0, 14.0
+    };
 
     // Time steps that are taken form methods
-    std::vector<double> timeSteps = { 316.22776602, 237.13737057, 177.827941, 133.35214322, 100. };
-    std::vector<double> timeStepsHigh = { 316.22776602, 273.84196343, 237.13737057, 205.35250265, 177.827941};
+    std::vector< double > timeSteps = { 316.22776602, 237.13737057, 177.827941, 133.35214322, 100. };
+    std::vector< double > timeStepsHigh = { 316.22776602, 273.84196343, 237.13737057, 205.35250265, 177.827941 };
 
     // Run test for higher and lower coefficient set
     for( unsigned int k = 0; k < 2; k++ )
     {
         // Calculate final state error for each method
-        for ( unsigned int j = 0; j < coefficients.size( ); j++ )
+        for( unsigned int j = 0; j < coefficients.size( ); j++ )
         {
-            std::vector<double> timeStepsToUse = ( j < coefficients.size( ) - 2 ) ? timeSteps : timeStepsHigh;
-            std::vector<double> errors;
-            std::vector<double> calculatedOrder;
+            std::vector< double > timeStepsToUse = ( j < coefficients.size( ) - 2 ) ? timeSteps : timeStepsHigh;
+            std::vector< double > errors;
+            std::vector< double > calculatedOrder;
 
-            for ( unsigned int i = 0; i < timeStepsToUse.size( ); i++ )
+            for( unsigned int i = 0; i < timeStepsToUse.size( ); i++ )
             {
                 Eigen::VectorXd finalState = getFinalIntegrationError(
-                    rungeKuttaFixedStepSettings(
-                        timeStepMultiplications.at( j ) * timeStepsToUse.at( i ), coefficients.at( j ),
-                        static_cast< RungeKuttaCoefficients::OrderEstimateToIntegrate >( k ) ), 10.0, 0.01 );
-                errors.push_back( finalState.segment( 0, 3 ).norm( ));
+                        rungeKuttaFixedStepSettings( timeStepMultiplications.at( j ) * timeStepsToUse.at( i ),
+                                                     coefficients.at( j ),
+                                                     static_cast< RungeKuttaCoefficients::OrderEstimateToIntegrate >( k ) ),
+                        10.0,
+                        0.01 );
+                errors.push_back( finalState.segment( 0, 3 ).norm( ) );
 
                 // Calculate the order p from two subsequent errors, using the fact that
                 // error_{i} / error_{i-1} = ( step_{i} / step_{i-1} )^p
                 // NOTE, the first run on the 10(8), 12(10) and 14(12) method is omitted due to error stability issues
-                if ( i > 0 && !( ( j > 5 ) && ( i == 1 ) ) )
+                if( i > 0 && !( ( j > 5 ) && ( i == 1 ) ) )
                 {
-                    calculatedOrder.push_back( std::log( errors.at( i ) / errors.at( i - 1 )) /
-                                            std::log( timeStepsToUse.at( i ) / timeStepsToUse.at( i - 1 )));
+                    calculatedOrder.push_back( std::log( errors.at( i ) / errors.at( i - 1 ) ) /
+                                               std::log( timeStepsToUse.at( i ) / timeStepsToUse.at( i - 1 ) ) );
                 }
             }
 
             // Calculate mean and standard deviation of values of order computed from eacg two subsequent steps
             double meanOrder = std::accumulate( calculatedOrder.begin( ), calculatedOrder.end( ), 0.0 ) / calculatedOrder.size( );
-            double standardDeviationOrder = std::sqrt(
-                std::inner_product( calculatedOrder.begin( ), calculatedOrder.end( ), calculatedOrder.begin( ), 0.0 ) /
-                calculatedOrder.size( ) - meanOrder * meanOrder );
+            double standardDeviationOrder =
+                    std::sqrt( std::inner_product( calculatedOrder.begin( ), calculatedOrder.end( ), calculatedOrder.begin( ), 0.0 ) /
+                                       calculatedOrder.size( ) -
+                               meanOrder * meanOrder );
 
             // Check that the value of the order is correct, and reasonably constant
             // Note that, in some cases, the order computed from the subsequent time steps is
@@ -265,7 +245,6 @@ BOOST_AUTO_TEST_CASE( testFixedMultiStageNumericalIntegratorOrder )
             //
             if( k == 0 )
             {
-
                 BOOST_CHECK( meanOrder > expectedLowerOrders.at( j ) - 0.5 );
                 BOOST_CHECK( meanOrder < expectedLowerOrders.at( j ) + ( j == 8 ) ? 2.0 : 1.0 );
                 BOOST_CHECK( standardDeviationOrder < 0.4 );
@@ -275,12 +254,10 @@ BOOST_AUTO_TEST_CASE( testFixedMultiStageNumericalIntegratorOrder )
                 BOOST_CHECK( meanOrder > expectedHigherOrders.at( j ) - 0.5 );
                 BOOST_CHECK( meanOrder < expectedHigherOrders.at( j ) + 1.0 );
                 BOOST_CHECK( standardDeviationOrder < ( j == 6 ) ? 1.0 : 0.4 );
-
             }
         }
     }
 }
-
 
 //! This tests the order of the fixed-step Bulirsch-Stoer integrtor, using an unperturbed Earth orbiter.
 //! For a method using k substeps, the order should ideally be 2*k + 1.
@@ -292,61 +269,63 @@ BOOST_AUTO_TEST_CASE( testFixedMultiStageNumericalIntegratorOrder )
 //! substantial tuning (for a 10th order method, a factor 2 in time step will result in a factor 1024 in error)
 BOOST_AUTO_TEST_CASE( testFixedBulirschStoerNumericalIntegratorOrder )
 {
-
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    std::vector<double> timeSteps = { 400.0, 350.0, 300.0, 250.0, 200.0 };
+    std::vector< double > timeSteps = { 400.0, 350.0, 300.0, 250.0, 200.0 };
 
     // Run test for different sequences
     for( unsigned int k = 0; k < 2; k++ )
     {
         // Run test for different number of substeps
-        for ( unsigned int j = 3; j < 7; j++ )
+        for( unsigned int j = 3; j < 7; j++ )
         {
             // Use higher time step for highest order method
             double multiplicationFactor = ( j == 6 ) ? 1.8 : 1.0;
 
             // Calculate final state error for each method
-            std::vector<double> errors;
-            std::vector<double> calculatedOrder;
-            for ( unsigned int i = 0; i < timeSteps.size( ); i++ )
+            std::vector< double > errors;
+            std::vector< double > calculatedOrder;
+            for( unsigned int i = 0; i < timeSteps.size( ); i++ )
             {
                 Eigen::VectorXd finalState = getFinalIntegrationError(
-                    bulirschStoerFixedStepIntegratorSettings(
-                        multiplicationFactor * timeSteps.at( i ), static_cast< ExtrapolationMethodStepSequences >( k ), j ), 10.0, 0.01 );
-                errors.push_back( finalState.segment( 0, 3 ).norm( ));
+                        bulirschStoerFixedStepIntegratorSettings(
+                                multiplicationFactor * timeSteps.at( i ), static_cast< ExtrapolationMethodStepSequences >( k ), j ),
+                        10.0,
+                        0.01 );
+                errors.push_back( finalState.segment( 0, 3 ).norm( ) );
 
                 // Calculate the order p from two subsequent errors, using the fact that
                 // error_{i} / error_{i-1} = ( step_{i} / step_{i-1} )^p
-                if ( i > 0 )
+                if( i > 0 )
                 {
                     calculatedOrder.push_back( std::log( errors.at( i ) / errors.at( i - 1 ) ) /
-                                            std::log( timeSteps.at( i ) / timeSteps.at( i - 1 ) ) );
+                                               std::log( timeSteps.at( i ) / timeSteps.at( i - 1 ) ) );
                 }
             }
 
             // Calculate mean and standard deviation of values of order computed from eacg two subsequent steps
             double meanOrder = std::accumulate( calculatedOrder.begin( ), calculatedOrder.end( ), 0.0 ) / calculatedOrder.size( );
-            double standardDeviationOrder = std::sqrt(
-                std::inner_product( calculatedOrder.begin( ), calculatedOrder.end( ), calculatedOrder.begin( ), 0.0 ) /
-                calculatedOrder.size( ) - meanOrder * meanOrder );
+            double standardDeviationOrder =
+                    std::sqrt( std::inner_product( calculatedOrder.begin( ), calculatedOrder.end( ), calculatedOrder.begin( ), 0.0 ) /
+                                       calculatedOrder.size( ) -
+                               meanOrder * meanOrder );
 
-            std::cout<<j<<" "<<k<<" "<<meanOrder<<" "<<standardDeviationOrder<<std::endl;
+            std::cout << j << " " << k << " " << meanOrder << " " << standardDeviationOrder << std::endl;
 
-            //TODO: reinstate testst
-            // Check that the order is in the right range.
-            //BOOST_CHECK( meanOrder > ( 2.0 * static_cast< double >( j ) ) );
-            //BOOST_CHECK( meanOrder < ( 2.0 * static_cast< double >( j ) ) + 2 );
+            // TODO: reinstate testst
+            //  Check that the order is in the right range.
+            // BOOST_CHECK( meanOrder > ( 2.0 * static_cast< double >( j ) ) );
+            // BOOST_CHECK( meanOrder < ( 2.0 * static_cast< double >( j ) ) + 2 );
 
             // Check that the value of the order is reasonable constant; the high value for the test here is only needed for
             // the 13th order method.
-            //BOOST_CHECK( standardDeviationOrder < 1.0 );
+            // BOOST_CHECK( standardDeviationOrder < 1.0 );
         }
     }
 }
 //
-//BOOST_AUTO_TEST_CASE( testFixedAbmNumericalIntegratorOrder )
+// BOOST_AUTO_TEST_CASE( testFixedAbmNumericalIntegratorOrder )
 //{
 //
 //    std::vector<double> multiplicationFactors =
@@ -400,5 +379,5 @@ BOOST_AUTO_TEST_CASE( testFixedBulirschStoerNumericalIntegratorOrder )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

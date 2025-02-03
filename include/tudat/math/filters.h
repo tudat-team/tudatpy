@@ -18,4 +18,4 @@
 #include "filters/linearKalmanFilter.h"
 #include "filters/unscentedKalmanFilter.h"
 
-#endif // TUDAT_FILTERS_H
+#endif  // TUDAT_FILTERS_H

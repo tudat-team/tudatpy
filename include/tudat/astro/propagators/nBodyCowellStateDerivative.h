@@ -21,10 +21,9 @@ namespace propagators
 
 //! Class for computing the state derivative of translational motion of N bodies, using a Cowell propagator.
 template< typename StateScalarType = double, typename TimeType = double >
-class NBodyCowellStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
+class NBodyCowellStateDerivative : public NBodyStateDerivative< StateScalarType, TimeType >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -41,11 +40,11 @@ public:
     NBodyCowellStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
                                 const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                                 const std::vector< std::string >& bodiesToIntegrate ):
-        NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, cowell, bodiesToIntegrate ){ }
+        NBodyStateDerivative< StateScalarType, TimeType >( accelerationModelsPerBody, centralBodyData, cowell, bodiesToIntegrate )
+    { }
 
     //! Destructor
-    ~NBodyCowellStateDerivative( ){ }
+    ~NBodyCowellStateDerivative( ) { }
 
     //! Calculates the state derivative of the translational motion of the system.
     /*!
@@ -58,9 +57,9 @@ public:
      *  \param stateDerivative Current state derivative (velocity+acceleration) of system of bodies integrated numerically
      *  (returned by reference).
      */
-    void calculateSystemStateDerivative(
-            const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
+    void calculateSystemStateDerivative( const TimeType time,
+                                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+                                         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         stateDerivative.setZero( );
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, true );
@@ -74,9 +73,9 @@ public:
      * \param time Current time at which the state is valid (not used in this class).
      * \return State (outputSolution), converted to the 'propagator-specific form' (which is equal to outputSolution).
      */
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
-        convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution, const TimeType& time )
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution,
+            const TimeType& time )
     {
         return cartesianSolution;
     }
@@ -94,19 +93,18 @@ public:
      * \param currentCartesianLocalSoluton State (internalSolution), converted to the 'conventional form',
      *  which is equal to outputSolution for this class (returned by reference).
      */
-    void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
+    void convertToOutputSolution( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
+                                  const TimeType& time,
+                                  Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
         currentCartesianLocalSoluton = internalSolution;
     }
-
 };
 
-//extern template class NBodyCowellStateDerivative< double, double >;
+// extern template class NBodyCowellStateDerivative< double, double >;
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_NBODYCOWELLSTATEDERIVATIVE_H
+#endif  // TUDAT_NBODYCOWELLSTATEDERIVATIVE_H

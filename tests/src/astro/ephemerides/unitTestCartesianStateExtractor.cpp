@@ -21,7 +21,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/astro/basic_astro/stateVectorIndices.h"
 #include "tudat/astro/ephemerides/cartesianStateExtractor.h"
 #include "tudat/io/parsedDataVectorUtilities.h"
@@ -48,8 +47,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_Extract )
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< input_output::FieldType,
-                       parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
+    typedef std::pair< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
     std::string testXCoordinate = "-62163980.78633109";
@@ -69,64 +67,43 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_Extract )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
-                                              testXCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianXCoordinate, testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
-                                              testYCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianYCoordinate, testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
-                                              testZCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianZCoordinate, testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new input_output::FieldValue( field_types::state::cartesianXVelocity,
-                                              testXVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianXVelocity, testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new input_output::FieldValue( field_types::state::cartesianYVelocity,
-                                              testYVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianYVelocity, testYVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new input_output::FieldValue( field_types::state::cartesianZVelocity,
-                                              testZVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianZVelocity, testZVelocity ) );
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< input_output::FieldType,
-                          parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map.
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate,
-                                        testFieldValueXCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate,
-                                        testFieldValueYCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate,
-                                        testFieldValueZCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity,
-                                        testFieldValueXVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity,
-                                        testFieldValueYVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity,
-                                        testFieldValueZVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate, testFieldValueXCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate, testFieldValueYCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate, testFieldValueZCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity, testFieldValueXVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity, testFieldValueYVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity, testFieldValueZVelocity ) );
 
     // Create Cartesian state extractor.
     CartesianStateExtractor testCartesianStateExtractor;
 
     // Extract test data map.
-    std::shared_ptr< Vector6d > returnedCartesianElements =
-            testCartesianStateExtractor.extract( testDataMap );
+    std::shared_ptr< Vector6d > returnedCartesianElements = testCartesianStateExtractor.extract( testDataMap );
 
     // Verify that the returned value corresponds to the expected value.
-    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( xCartesianPositionIndex ),
-                       expectedXCoordinate );
-    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( yCartesianPositionIndex ),
-                       expectedYCoordinate );
-    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( zCartesianPositionIndex ),
-                       expectedZCoordinate );
-    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( xCartesianVelocityIndex ),
-                       expectedXVelocity );
-    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( yCartesianVelocityIndex ),
-                       expectedYVelocity );
-    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( zCartesianVelocityIndex ),
-                       expectedZVelocity );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( xCartesianPositionIndex ), expectedXCoordinate );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( yCartesianPositionIndex ), expectedYCoordinate );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( zCartesianPositionIndex ), expectedZCoordinate );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( xCartesianVelocityIndex ), expectedXVelocity );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( yCartesianVelocityIndex ), expectedYVelocity );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( zCartesianVelocityIndex ), expectedZVelocity );
 }
 
 //! Test if the extract function throws the necessary exceptions.
@@ -138,8 +115,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingX )
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< input_output::FieldType,
-                       parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
+    typedef std::pair< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
     std::string testYCoordinate = "-138702420.4967065";
@@ -150,38 +126,26 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingX )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
-                                                     testYCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianYCoordinate, testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
-                                                     testZCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianZCoordinate, testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new input_output::FieldValue( field_types::state::cartesianXVelocity,
-                                                     testXVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianXVelocity, testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new input_output::FieldValue( field_types::state::cartesianYVelocity,
-                                                     testYVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianYVelocity, testYVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new input_output::FieldValue( field_types::state::cartesianZVelocity,
-                                                     testZVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianZVelocity, testZVelocity ) );
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< input_output::FieldType,
-                          parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate,
-                                        testFieldValueYCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate,
-                                        testFieldValueZCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity,
-                                        testFieldValueXVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity,
-                                        testFieldValueYVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity,
-                                        testFieldValueZVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate, testFieldValueYCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate, testFieldValueZCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity, testFieldValueXVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity, testFieldValueYVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity, testFieldValueZVelocity ) );
 
     // Create Cartesian state extractor.
     CartesianStateExtractor testCartesianStateExtractor;
@@ -193,8 +157,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingX )
     try
     {
         // Extract test data map.
-        std::shared_ptr< Vector6d > returnedCartesianElements =
-                testCartesianStateExtractor.extract( testDataMap );
+        std::shared_ptr< Vector6d > returnedCartesianElements = testCartesianStateExtractor.extract( testDataMap );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -217,8 +180,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingY )
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< input_output::FieldType,
-                       parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
+    typedef std::pair< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
     std::string testXCoordinate = "-62163980.78633109";
@@ -229,38 +191,26 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingY )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
-                                                     testXCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianXCoordinate, testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
-                                                     testZCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianZCoordinate, testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new input_output::FieldValue( field_types::state::cartesianXVelocity,
-                                                     testXVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianXVelocity, testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new input_output::FieldValue( field_types::state::cartesianYVelocity,
-                                                     testYVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianYVelocity, testYVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new input_output::FieldValue( field_types::state::cartesianZVelocity,
-                                                     testZVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianZVelocity, testZVelocity ) );
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< input_output::FieldType,
-                          parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate,
-                                        testFieldValueXCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate,
-                                        testFieldValueZCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity,
-                                        testFieldValueXVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity,
-                                        testFieldValueYVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity,
-                                        testFieldValueZVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate, testFieldValueXCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate, testFieldValueZCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity, testFieldValueXVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity, testFieldValueYVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity, testFieldValueZVelocity ) );
 
     // Create Cartesian state extractor.
     CartesianStateExtractor testCartesianStateExtractor;
@@ -272,8 +222,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingY )
     try
     {
         // Extract test data map.
-        std::shared_ptr< Vector6d > returnedCartesianElements =
-                testCartesianStateExtractor.extract( testDataMap );
+        std::shared_ptr< Vector6d > returnedCartesianElements = testCartesianStateExtractor.extract( testDataMap );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -296,8 +245,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZ )
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< input_output::FieldType,
-                       parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
+    typedef std::pair< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
     std::string testXCoordinate = "-62163980.78633109";
@@ -308,38 +256,26 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZ )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
-                                                     testXCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianXCoordinate, testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
-                                                     testYCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianYCoordinate, testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new input_output::FieldValue( field_types::state::cartesianXVelocity,
-                                                     testXVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianXVelocity, testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new input_output::FieldValue( field_types::state::cartesianYVelocity,
-                                                     testYVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianYVelocity, testYVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new input_output::FieldValue( field_types::state::cartesianZVelocity,
-                                                     testZVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianZVelocity, testZVelocity ) );
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< input_output::FieldType,
-                          parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate,
-                                        testFieldValueXCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate,
-                                        testFieldValueYCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity,
-                                        testFieldValueXVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity,
-                                        testFieldValueYVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity,
-                                        testFieldValueZVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate, testFieldValueXCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate, testFieldValueYCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity, testFieldValueXVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity, testFieldValueYVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity, testFieldValueZVelocity ) );
 
     // Create Cartesian state extractor.
     CartesianStateExtractor testCartesianStateExtractor;
@@ -351,8 +287,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZ )
     try
     {
         // Extract test data map.
-        std::shared_ptr< Vector6d > returnedCartesianElements =
-                testCartesianStateExtractor.extract( testDataMap );
+        std::shared_ptr< Vector6d > returnedCartesianElements = testCartesianStateExtractor.extract( testDataMap );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -375,8 +310,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingXDot )
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< input_output::FieldType,
-                       parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
+    typedef std::pair< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
     std::string testXCoordinate = "-62163980.78633109";
@@ -387,38 +321,26 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingXDot )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
-                                                     testXCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianXCoordinate, testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
-                                                     testYCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianYCoordinate, testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
-                                                     testZCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianZCoordinate, testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new input_output::FieldValue( field_types::state::cartesianYVelocity,
-                                                     testYVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianYVelocity, testYVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new input_output::FieldValue( field_types::state::cartesianZVelocity,
-                                                     testZVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianZVelocity, testZVelocity ) );
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< input_output::FieldType,
-                          parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate,
-                                        testFieldValueXCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate,
-                                        testFieldValueYCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate,
-                                        testFieldValueZCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity,
-                                        testFieldValueYVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity,
-                                        testFieldValueZVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate, testFieldValueXCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate, testFieldValueYCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate, testFieldValueZCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity, testFieldValueYVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity, testFieldValueZVelocity ) );
 
     // Create Cartesian state extractor.
     CartesianStateExtractor testCartesianStateExtractor;
@@ -430,8 +352,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingXDot )
     try
     {
         // Extract test data map.
-        std::shared_ptr< Vector6d > returnedCartesianElements =
-                testCartesianStateExtractor.extract( testDataMap );
+        std::shared_ptr< Vector6d > returnedCartesianElements = testCartesianStateExtractor.extract( testDataMap );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -454,8 +375,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingYDot )
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< input_output::FieldType,
-                       parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
+    typedef std::pair< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
     std::string testXCoordinate = "-62163980.78633109";
@@ -466,38 +386,26 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingYDot )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
-                                                     testXCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianXCoordinate, testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
-                                                     testYCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianYCoordinate, testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
-                                                     testZCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianZCoordinate, testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new input_output::FieldValue( field_types::state::cartesianXVelocity,
-                                                     testXVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianXVelocity, testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new input_output::FieldValue( field_types::state::cartesianZVelocity,
-                                                     testZVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianZVelocity, testZVelocity ) );
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< input_output::FieldType,
-                          parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate,
-                                        testFieldValueXCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate,
-                                        testFieldValueYCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate,
-                                        testFieldValueZCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity,
-                                        testFieldValueXVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity,
-                                        testFieldValueZVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate, testFieldValueXCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate, testFieldValueYCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate, testFieldValueZCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity, testFieldValueXVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZVelocity, testFieldValueZVelocity ) );
 
     // Create Cartesian state extractor.
     CartesianStateExtractor testCartesianStateExtractor;
@@ -509,8 +417,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingYDot )
     try
     {
         // Extract test data map.
-        std::shared_ptr< Vector6d > returnedCartesianElements =
-                testCartesianStateExtractor.extract( testDataMap );
+        std::shared_ptr< Vector6d > returnedCartesianElements = testCartesianStateExtractor.extract( testDataMap );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -533,8 +440,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZDot )
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< input_output::FieldType,
-                       parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
+    typedef std::pair< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
     std::string testXCoordinate = "-62163980.78633109";
@@ -545,38 +451,26 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZDot )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
-                                                     testXCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianXCoordinate, testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
-                                                     testYCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianYCoordinate, testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
-                                                     testZCoordinate ) );
+            new input_output::FieldValue( field_types::state::cartesianZCoordinate, testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new input_output::FieldValue( field_types::state::cartesianXVelocity,
-                                                     testXVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianXVelocity, testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new input_output::FieldValue( field_types::state::cartesianYVelocity,
-                                                     testYVelocity ) );
+            new input_output::FieldValue( field_types::state::cartesianYVelocity, testYVelocity ) );
 
     // Create a new pointer to data map.
-    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< input_output::FieldType,
-                          parsed_data_vector_utilities::FieldValuePtr >( ) );
+    parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap = std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::map< input_output::FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate,
-                                        testFieldValueXCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate,
-                                        testFieldValueYCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate,
-                                        testFieldValueZCoordinate ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity,
-                                        testFieldValueXVelocity ) );
-    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity,
-                                        testFieldValueYVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXCoordinate, testFieldValueXCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYCoordinate, testFieldValueYCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianZCoordinate, testFieldValueZCoordinate ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianXVelocity, testFieldValueXVelocity ) );
+    testDataMap->insert( FieldDataPair( field_types::state::cartesianYVelocity, testFieldValueYVelocity ) );
 
     // Create Cartesian state extractor.
     CartesianStateExtractor testCartesianStateExtractor;
@@ -588,8 +482,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZDot )
     try
     {
         // Extract test data map.
-        std::shared_ptr< Vector6d > returnedCartesianElements =
-                testCartesianStateExtractor.extract( testDataMap );
+        std::shared_ptr< Vector6d > returnedCartesianElements = testCartesianStateExtractor.extract( testDataMap );
     }
 
     // Catch the expected runtime error, and set the boolean flag to false.
@@ -605,5 +498,5 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZDot )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

@@ -30,10 +30,8 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
+}  // namespace basic_astrodynamics
 
+}  // namespace tudat
 
-} // namespace basic_astrodynamics
-
-} // namespace tudat
-
-#endif // TUDAT_TLE_ELEMENTS_CONVERSIONS_H
+#endif  // TUDAT_TLE_ELEMENTS_CONVERSIONS_H

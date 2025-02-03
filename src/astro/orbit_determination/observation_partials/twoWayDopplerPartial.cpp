@@ -37,8 +37,7 @@ void TwoWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     double observationTime = TUDAT_NAN;
     // Find index in link ends for fixed (reference) link ends
     observation_models::LinkEndType referenceLinkEnd;
-    int fixedLinkEndIndex = observation_models::getNWayLinkIndexFromLinkEndType(
-                fixedLinkEnd, 3 );
+    int fixedLinkEndIndex = observation_models::getNWayLinkIndexFromLinkEndType( fixedLinkEnd, 3 );
     {
         singleLinkEndStates[ 0 ] = linkEndStates.at( 0 );
         singleLinkEndStates[ 1 ] = linkEndStates.at( 1 );
@@ -97,7 +96,6 @@ void TwoWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     projectedRelativeVelocityRatios_[ 1 ] = uplinkDoppler + 1.0;
 }
 
-
 //! Function to calculate the observation partial(s) at required time and state
 TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calculatePartial(
         const std::vector< Eigen::Vector6d >& states,
@@ -135,7 +133,8 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         subLinkTimes[ 1 ] = times[ 2 * dopplerPartialIterator_->first + 1 ];
 
         // Compute value by which one-way range should be scaled for inclusion into n-way range
-        currentPartialMultiplier = frequencyScaling * twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( dopplerPartialIterator_->first );
+        currentPartialMultiplier =
+                frequencyScaling * twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( dopplerPartialIterator_->first );
 
         if( dopplerPartialIterator_->first >= referenceStartLinkEndIndex )
         {
@@ -146,10 +145,9 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
             subLinkReference = observation_models::receiver;
         }
 
-
         // Compute one-way range partials
-        currentPartialSet = dopplerPartialIterator_->second->calculatePartial(
-                subLinkStates, subLinkTimes, subLinkReference, ancillarySettings );
+        currentPartialSet =
+                dopplerPartialIterator_->second->calculatePartial( subLinkStates, subLinkTimes, subLinkReference, ancillarySettings );
 
         // Scale partials by required amount and add to return map.
         for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
@@ -158,19 +156,19 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         }
         completePartialSet.insert( completePartialSet.end( ), currentPartialSet.begin( ), currentPartialSet.end( ) );
 
-
         if( rangePartialList_.count( dopplerPartialIterator_->first ) > 0 )
         {
-            if( ( linkEndOfFixedTime == observation_models::transmitter && dopplerPartialIterator_->first == 1 )||
-                    ( linkEndOfFixedTime == observation_models::receiver && dopplerPartialIterator_->first == 0 ) )
+            if( ( linkEndOfFixedTime == observation_models::transmitter && dopplerPartialIterator_->first == 1 ) ||
+                ( linkEndOfFixedTime == observation_models::receiver && dopplerPartialIterator_->first == 0 ) )
             {
-                currentPartialSet = rangePartialList_.at( dopplerPartialIterator_->first )->calculatePartial(
-                            subLinkStates, subLinkTimes, subLinkReference, ancillarySettings );
+                currentPartialSet = rangePartialList_.at( dopplerPartialIterator_->first )
+                                            ->calculatePartial( subLinkStates, subLinkTimes, subLinkReference, ancillarySettings );
 
                 for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
                 {
-                    currentPartialSet[ i ].first *= ( currentPartialMultiplier ) *
-                            twoWayDopplerScaler_->getRelevantOneWayDopplerTimePartial( linkEndOfFixedTime ) / physical_constants::SPEED_OF_LIGHT;
+                    currentPartialSet[ i ].first *=
+                            (currentPartialMultiplier)*twoWayDopplerScaler_->getRelevantOneWayDopplerTimePartial( linkEndOfFixedTime ) /
+                            physical_constants::SPEED_OF_LIGHT;
                 }
                 completePartialSet.insert( completePartialSet.end( ), currentPartialSet.begin( ), currentPartialSet.end( ) );
             }
@@ -180,8 +178,6 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
     return completePartialSet;
 }
 
-}
+}  // namespace observation_partials
 
-}
-
-
+}  // namespace tudat

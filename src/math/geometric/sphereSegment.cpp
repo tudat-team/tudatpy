@@ -28,7 +28,7 @@ using unit_conversions::convertRadiansToDegrees;
 
 SphereSegment::SphereSegment( const double radius,
                               const double minimumAzimuthAngle,
-                               const double maximumAzimuthAngle,
+                              const double maximumAzimuthAngle,
                               const double minimumZenithAngle,
                               const double maximumZenithAngle )
 {
@@ -40,15 +40,12 @@ SphereSegment::SphereSegment( const double radius,
 }
 
 //! Get surface point on sphere segment.
-Eigen::VectorXd SphereSegment::getSurfacePoint( const double azimuthAngle,
-                                                const double zenithAngle )
+Eigen::VectorXd SphereSegment::getSurfacePoint( const double azimuthAngle, const double zenithAngle )
 {
     Eigen::Vector3d sphericalPositionVector = Eigen::Vector3d( radius_, zenithAngle, azimuthAngle );
 
     // Gets surface point on sphere, unrotated and centered at origin.
-    cartesianPositionVector_
-            = coordinate_conversions::convertSphericalToCartesian(
-                sphericalPositionVector );
+    cartesianPositionVector_ = coordinate_conversions::convertSphericalToCartesian( sphericalPositionVector );
 
     // Translate point.
     transformPoint( cartesianPositionVector_ );
@@ -68,7 +65,7 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative( const double azimuthAngle,
 
     // Go through the different possibilities for the values of the power
     // of the derivative.
-    if ( powerOfAzimuthAngleDerivative < 0 || powerOfZenithAngleDerivative < 0 )
+    if( powerOfAzimuthAngleDerivative < 0 || powerOfZenithAngleDerivative < 0 )
     {
         derivative_( 0 ) = 0.0;
         derivative_( 1 ) = 0.0;
@@ -80,7 +77,7 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative( const double azimuthAngle,
     // When requesting the zeroth derivative with respect to the two
     // independent variables, the surface point is returned. Note that this
     // does include the offset.
-    else if ( powerOfAzimuthAngleDerivative == 0 && powerOfZenithAngleDerivative == 0 )
+    else if( powerOfAzimuthAngleDerivative == 0 && powerOfZenithAngleDerivative == 0 )
     {
         derivative_ = getSurfacePoint( azimuthAngle, zenithAngle );
     }
@@ -100,75 +97,76 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative( const double azimuthAngle,
         // basic_mathematics::coordinateConversions::convertSphericalToCartesian
         switch( powerOfAzimuthAngleDerivative % 4 )
         {
-        case( 0 ):
+            case( 0 ):
 
-            derivative1Contribution_( 0 ) = cos( azimuthAngle );
-            derivative1Contribution_( 1 ) = sin( azimuthAngle );
-            derivative1Contribution_( 2 ) = 0.0;
-            break;
+                derivative1Contribution_( 0 ) = cos( azimuthAngle );
+                derivative1Contribution_( 1 ) = sin( azimuthAngle );
+                derivative1Contribution_( 2 ) = 0.0;
+                break;
 
-        case( 1 ):
+            case( 1 ):
 
-            derivative1Contribution_( 0 ) = -sin( azimuthAngle );
-            derivative1Contribution_( 1 ) = cos( azimuthAngle );
-            derivative1Contribution_( 2 ) = 0.0;
-            break;
+                derivative1Contribution_( 0 ) = -sin( azimuthAngle );
+                derivative1Contribution_( 1 ) = cos( azimuthAngle );
+                derivative1Contribution_( 2 ) = 0.0;
+                break;
 
-        case( 2 ):
+            case( 2 ):
 
-            derivative1Contribution_( 0 ) = -cos( azimuthAngle );
-            derivative1Contribution_( 1 ) = -sin( azimuthAngle );
-            derivative1Contribution_( 2 ) = 0.0;
-            break;
+                derivative1Contribution_( 0 ) = -cos( azimuthAngle );
+                derivative1Contribution_( 1 ) = -sin( azimuthAngle );
+                derivative1Contribution_( 2 ) = 0.0;
+                break;
 
-        case( 3 ):
+            case( 3 ):
 
-            derivative1Contribution_( 0 ) = sin( azimuthAngle );
-            derivative1Contribution_( 1 ) = -cos( azimuthAngle );
-            derivative1Contribution_( 2 ) = 0.0;
-            break;
+                derivative1Contribution_( 0 ) = sin( azimuthAngle );
+                derivative1Contribution_( 1 ) = -cos( azimuthAngle );
+                derivative1Contribution_( 2 ) = 0.0;
+                break;
 
-        default:
+            default:
 
-            throw std::runtime_error( " Bad value for powerOfAzimuthAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 in sphere segment." );
-
+                throw std::runtime_error(
+                        " Bad value for powerOfAzimuthAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 in sphere segment." );
         }
 
         // This derivative is "cyclical" in the same manner as the derivative
         // with respect to the 1st independent variable.
-        switch( powerOfZenithAngleDerivative %4 )
+        switch( powerOfZenithAngleDerivative % 4 )
         {
-        case( 0 ):
+            case( 0 ):
 
-            derivative2Contribution_( 0 ) = sin( zenithAngle );
-            derivative2Contribution_( 1 ) = sin( zenithAngle );
-            derivative2Contribution_( 2 ) = cos( zenithAngle );
-            break;
+                derivative2Contribution_( 0 ) = sin( zenithAngle );
+                derivative2Contribution_( 1 ) = sin( zenithAngle );
+                derivative2Contribution_( 2 ) = cos( zenithAngle );
+                break;
 
-        case( 1 ):
+            case( 1 ):
 
-            derivative2Contribution_( 0 ) = cos( zenithAngle );
-            derivative2Contribution_( 1 ) = cos( zenithAngle );
-            derivative2Contribution_( 2 ) = -sin( zenithAngle );
-            break;
+                derivative2Contribution_( 0 ) = cos( zenithAngle );
+                derivative2Contribution_( 1 ) = cos( zenithAngle );
+                derivative2Contribution_( 2 ) = -sin( zenithAngle );
+                break;
 
-        case( 2 ):
+            case( 2 ):
 
-            derivative2Contribution_( 0 ) = -sin( zenithAngle );
-            derivative2Contribution_( 1 ) = -sin( zenithAngle );
-            derivative2Contribution_( 2 ) = -cos( zenithAngle );
-            break;
+                derivative2Contribution_( 0 ) = -sin( zenithAngle );
+                derivative2Contribution_( 1 ) = -sin( zenithAngle );
+                derivative2Contribution_( 2 ) = -cos( zenithAngle );
+                break;
 
-        case( 3 ):
+            case( 3 ):
 
-            derivative2Contribution_( 0 ) = -cos( zenithAngle );
-            derivative2Contribution_( 1 ) = -cos( zenithAngle );
-            derivative2Contribution_( 2 ) = sin( zenithAngle );
-            break;
+                derivative2Contribution_( 0 ) = -cos( zenithAngle );
+                derivative2Contribution_( 1 ) = -cos( zenithAngle );
+                derivative2Contribution_( 2 ) = sin( zenithAngle );
+                break;
 
-        default:
+            default:
 
-            throw std::runtime_error( " Bad value for powerOfZenithAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 in sphere segment." );
+                throw std::runtime_error(
+                        " Bad value for powerOfZenithAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 in sphere segment." );
         }
 
         // Construct the full derivative.
@@ -190,7 +188,7 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative( const double azimuthAngle,
 double SphereSegment::getParameter( const int index )
 {
     // Check if parameter is radius.
-    if ( index == 0 )
+    if( index == 0 )
     {
         parameter_ = radius_;
     }
@@ -207,25 +205,19 @@ double SphereSegment::getParameter( const int index )
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator << ( std::ostream& stream, SphereSegment& sphereSegment )
+std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment )
 {
     stream << "This is a sphere segment geometry." << std::endl;
     stream << "The range of the independent variables are: " << std::endl;
-    stream << "Azimuth angle: "
-           << convertRadiansToDegrees( sphereSegment.getMinimumIndependentVariable( 1 ) )
-           << " degrees to "
-           << convertRadiansToDegrees( sphereSegment.getMaximumIndependentVariable( 1 ) )
-           << " degrees" << std::endl;
-    stream << "Zenith angle: "
-           << convertRadiansToDegrees( sphereSegment.getMinimumIndependentVariable( 2 ) )
-           << " degrees to "
-           << convertRadiansToDegrees( sphereSegment.getMaximumIndependentVariable( 2 ) )
-           << " degrees" << std::endl;
+    stream << "Azimuth angle: " << convertRadiansToDegrees( sphereSegment.getMinimumIndependentVariable( 1 ) ) << " degrees to "
+           << convertRadiansToDegrees( sphereSegment.getMaximumIndependentVariable( 1 ) ) << " degrees" << std::endl;
+    stream << "Zenith angle: " << convertRadiansToDegrees( sphereSegment.getMinimumIndependentVariable( 2 ) ) << " degrees to "
+           << convertRadiansToDegrees( sphereSegment.getMaximumIndependentVariable( 2 ) ) << " degrees" << std::endl;
     stream << "The radius is: " << sphereSegment.getRadius( ) << " meter." << std::endl;
 
     // Return stream.
     return stream;
 }
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat

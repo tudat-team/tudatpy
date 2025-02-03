@@ -66,8 +66,10 @@ void checkRequiredParameters( const DictionaryPointer& aDictionary );
  * \param isCaseSensitive Flag to indicate if parameter name (and any synonyms) are case-sensitive.
  * \param someSynonyms Set of synonyms.
  */
-void addEntry( const DictionaryPointer& dictionary, const std::string& parameterName,
-               const bool isRequired, const bool isCaseSensitive,
+void addEntry( const DictionaryPointer& dictionary,
+               const std::string& parameterName,
+               const bool isRequired,
+               const bool isCaseSensitive,
                const StringSet& someSynonyms = StringSet( ) );
 
 //! Find entry.
@@ -80,8 +82,7 @@ void addEntry( const DictionaryPointer& dictionary, const std::string& parameter
  * \return Iterator to matched dictionary entry (this will not be returned if the runtime error is
  *          triggered, in case the entry cannot be found).
  */
-DictionaryIterator findEntry( const  DictionaryPointer dictionary,
-                              const std::string& parameterName );
+DictionaryIterator findEntry( const DictionaryPointer dictionary, const std::string& parameterName );
 
 //! Convert dummy value.
 /*!
@@ -90,7 +91,11 @@ DictionaryIterator findEntry( const  DictionaryPointer dictionary,
  * \param value Input value.
  * \return Unaffected input value.
  */
-template< typename DataType > DataType convertDummy( DataType value ) { return value; }
+template< typename DataType >
+DataType convertDummy( DataType value )
+{
+    return value;
+}
 
 //! Extract parameter value.
 /*!
@@ -117,24 +122,20 @@ DataType extractParameterValue( const DataLineIterator& firstDataLine,
                                 const DataLineIterator& lastDataLine,
                                 const DictionaryIterator& dictionaryEntry,
                                 const DataType& defaultValue = DataType( ),
-                                const std::function< DataType( DataType ) >& convert
-                                = &convertDummy< DataType > )
+                                const std::function< DataType( DataType ) >& convert = &convertDummy< DataType > )
 {
     // Attempt to match dictionary entry with any data lines.
-    DataLineIterator parsedDataVectorIterator
-            = std::find_if( firstDataLine, lastDataLine, DictionaryComparer( *dictionaryEntry ) );
+    DataLineIterator parsedDataVectorIterator = std::find_if( firstDataLine, lastDataLine, DictionaryComparer( *dictionaryEntry ) );
 
     // If the data line found is the last data line (typically iterator to the end of the
     // container), then check if the dictionary entry is required.
-    if ( parsedDataVectorIterator == lastDataLine )
+    if( parsedDataVectorIterator == lastDataLine )
     {
         // If the entry is required, throw an error indicating that the parameter cannot be found
         // in the input stream.
-        if ( ( *dictionaryEntry )->isRequired )
+        if( ( *dictionaryEntry )->isRequired )
         {
-           throw std::runtime_error(
-                                "Required parameter " + ( *dictionaryEntry )->parameterName
-                                + " not found in input stream! "  );
+            throw std::runtime_error( "Required parameter " + ( *dictionaryEntry )->parameterName + " not found in input stream! " );
         }
 
         // Else, return the default value specified.
@@ -150,16 +151,16 @@ DataType extractParameterValue( const DataLineIterator& firstDataLine,
     {
         ( *dictionaryEntry )->isExtracted = true;
 
-        return convert( parsed_data_vector_utilities::getField< DataType >(
-                    *parsedDataVectorIterator, field_types::general::parameterValue ) );
+        return convert(
+                parsed_data_vector_utilities::getField< DataType >( *parsedDataVectorIterator, field_types::general::parameterValue ) );
     }
 
     // Dummy return to ensure no warnings are output.
     return DataType( );
 }
 
-} // namespace dictionary
-} // namespace input_output
-} // namespace tudat
+}  // namespace dictionary
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_DICTIONARY_TOOLS_H
+#endif  // TUDAT_DICTIONARY_TOOLS_H

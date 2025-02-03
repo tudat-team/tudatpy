@@ -4,24 +4,22 @@
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
-
 namespace tudat
 {
 
 namespace estimatable_parameters
 {
 
-class GlobalPolynomialClockCorrections: public EstimatableParameter< Eigen::VectorXd >
+class GlobalPolynomialClockCorrections : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
-
     GlobalPolynomialClockCorrections( const std::shared_ptr< system_models::TimingSystem > timingSystem,
                                       const std::vector< int > correctionPowers,
                                       const std::string& associatedBody,
                                       const std::string& associatedStation ):
-        EstimatableParameter< Eigen::VectorXd  >( global_polynomial_clock_corrections, associatedBody, associatedStation ),
-        timingSystem_( timingSystem ), correctionPowers_( correctionPowers ){ }
+        EstimatableParameter< Eigen::VectorXd >( global_polynomial_clock_corrections, associatedBody, associatedStation ),
+        timingSystem_( timingSystem ), correctionPowers_( correctionPowers )
+    { }
 
     //! Destructor
     /*!
@@ -29,7 +27,7 @@ public:
      */
     ~GlobalPolynomialClockCorrections( ) { }
 
-    Eigen::VectorXd  getParameterValue( )
+    Eigen::VectorXd getParameterValue( )
     {
         Eigen::VectorXd currentParameterValues = Eigen::VectorXd::Zero( getParameterSize( ) );
         for( unsigned int i = 0; i < correctionPowers_.size( ); i++ )
@@ -69,28 +67,22 @@ public:
         return observation_models::LinkEndId( parameterName_.second );
     }
 
-
-
 protected:
-
 private:
-
     std::shared_ptr< system_models::TimingSystem > timingSystem_;
 
     std::vector< int > correctionPowers_;
 };
 
-class MultiArcClockCorrections: public EstimatableParameter< Eigen::VectorXd >
+class MultiArcClockCorrections : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
-
     MultiArcClockCorrections( const std::shared_ptr< system_models::TimingSystem > timingSystem,
                               const std::vector< int > correctionPowers,
                               const std::vector< int > arcIndices,
                               const std::string& associatedBody,
                               const std::string& associatedStation ):
-        EstimatableParameter< Eigen::VectorXd  >( arc_wise_polynomial_clock_corrections, associatedBody, associatedStation ),
+        EstimatableParameter< Eigen::VectorXd >( arc_wise_polynomial_clock_corrections, associatedBody, associatedStation ),
         timingSystem_( timingSystem ), correctionPowers_( correctionPowers ), arcIndices_( arcIndices )
     { }
 
@@ -100,7 +92,7 @@ public:
      */
     ~MultiArcClockCorrections( ) { }
 
-    Eigen::VectorXd  getParameterValue( )
+    Eigen::VectorXd getParameterValue( )
     {
         Eigen::VectorXd currentParameterValues = Eigen::VectorXd::Zero( getParameterSize( ) );
 
@@ -109,7 +101,8 @@ public:
         {
             for( unsigned int j = 0; j < correctionPowers_.size( ); j++ )
             {
-                currentParameterValues[ counter ] = timingSystem_->getPolynomialDriftCoefficients( correctionPowers_[ j ], arcIndices_[ i ] );
+                currentParameterValues[ counter ] =
+                        timingSystem_->getPolynomialDriftCoefficients( correctionPowers_[ j ], arcIndices_[ i ] );
                 counter++;
             }
         }
@@ -159,9 +152,7 @@ public:
     }
 
 protected:
-
 private:
-
     std::shared_ptr< system_models::TimingSystem > timingSystem_;
 
     std::vector< int > correctionPowers_;
@@ -169,8 +160,8 @@ private:
     std::vector< int > arcIndices_;
 };
 
-}
+}  // namespace estimatable_parameters
 
-}
+}  // namespace tudat
 
-#endif // POLYNOMIALCLOCKCORRECTIONS_H
+#endif  // POLYNOMIALCLOCKCORRECTIONS_H

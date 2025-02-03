@@ -19,4 +19,4 @@
 #include "earth_orientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "earth_orientation/terrestrialTimeScaleConverter.h"
 
-#endif // TUDAT_EARTH_ORIENTATION_H
+#endif  // TUDAT_EARTH_ORIENTATION_H

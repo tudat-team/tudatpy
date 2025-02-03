@@ -32,7 +32,6 @@
 
 #include <functional>
 
-
 #include <Eigen/Core>
 
 #include "tudat/math/basic/function.h"
@@ -59,10 +58,9 @@ namespace mission_segments
  * std::functions to facilitate the flexible external manipulation of their values.
  *
  */
-class OscillatingFunctionNovak : public basic_mathematics::Function< >
+class OscillatingFunctionNovak : public basic_mathematics::Function<>
 {
 public:
-
     //! Default constructor with immediate definition of parameters.
     /*!
      * Default constructor with immediate definition of parameters through std::functions.
@@ -76,15 +74,15 @@ public:
      *      aSetOfBoundaryParameters.second( 0 ) = b2
      *      aSetOfBoundaryParameters.second( 1 ) = b3
      */
-    OscillatingFunctionNovak( const std::function< std::pair< Eigen::Vector2d,
-                              const Eigen::Vector2d >(  ) > aSetOfBoundaryParameters ) :
-        boundaryParameters_( aSetOfBoundaryParameters ){  }
+    OscillatingFunctionNovak( const std::function< std::pair< Eigen::Vector2d, const Eigen::Vector2d >( ) > aSetOfBoundaryParameters ):
+        boundaryParameters_( aSetOfBoundaryParameters )
+    { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~OscillatingFunctionNovak(  ){  }
+    ~OscillatingFunctionNovak( ) { }
 
     //! Evaluate the function value for a given (in-plane) azimuthal angle.
     /*!
@@ -159,14 +157,10 @@ public:
      *
      * \throws std::runtime_error when this function is used.
      */
-    double computeDefiniteIntegral( const unsigned int order,
-                                    const double lowerBound,
-                                    const double upperBound );
+    double computeDefiniteIntegral( const unsigned int order, const double lowerBound, const double upperBound );
 
 protected:
-
 private:
-
     //! The parameters of the function, related to the boundary conditions.
     /*!
      * The four parameters of the function. These parameters determine the shape of the trajectory
@@ -183,13 +177,13 @@ private:
      * boundaryParameters_.second( 0 ) = b_2
      * boundaryParameters_.second( 1 ) = b_3
      */
-    std::function< std::pair< Eigen::Vector2d, Eigen::Vector2d >(  ) > boundaryParameters_;
+    std::function< std::pair< Eigen::Vector2d, Eigen::Vector2d >( ) > boundaryParameters_;
 };
 
 //! Typedef for shared-pointer to oscillatingFunctionNovak object.
 typedef std::shared_ptr< OscillatingFunctionNovak > OscillatingFunctionNovakPointer;
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat
 
-#endif // TUDAT_OSCILLATING_FUNCTION_NOVAK_H
+#endif  // TUDAT_OSCILLATING_FUNCTION_NOVAK_H

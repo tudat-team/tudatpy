@@ -14,26 +14,24 @@
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
-
 namespace tudat
 {
 namespace electromagnetism
 {
 
-void RadiationPressureTargetModel::updateMembers(const double currentTime)
+void RadiationPressureTargetModel::updateMembers( const double currentTime )
 {
-    if(currentTime_ != currentTime)
+    if( currentTime_ != currentTime )
     {
         currentTime_ = currentTime;
-        updateMembers_(currentTime);
+        updateMembers_( currentTime );
     }
 }
 
-void CannonballRadiationPressureTargetModel::updateRadiationPressureForcing(
-    double sourceIrradiance,
-    const Eigen::Vector3d &sourceToTargetDirection,
-    const bool resetForces,
-    const std::string sourceName )
+void CannonballRadiationPressureTargetModel::updateRadiationPressureForcing( double sourceIrradiance,
+                                                                             const Eigen::Vector3d& sourceToTargetDirection,
+                                                                             const bool resetForces,
+                                                                             const std::string sourceName )
 {
     if( resetForces )
     {
@@ -45,15 +43,15 @@ void CannonballRadiationPressureTargetModel::updateRadiationPressureForcing(
     this->currentRadiationPressureForce_[ sourceName ] += currentCoefficient_ * area_ * radiationPressure * sourceToTargetDirection;
     if( computeTorques_ )
     {
-        this->currentRadiationPressureTorque_[ sourceName ] += -centerOfMassFunction_( ).cross( this->currentRadiationPressureForce_.at( sourceName ) );
+        this->currentRadiationPressureTorque_[ sourceName ] +=
+                -centerOfMassFunction_( ).cross( this->currentRadiationPressureForce_.at( sourceName ) );
     }
 }
 
-void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
-        double sourceIrradiance,
-        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
-        const bool resetForces,
-        const std::string sourceName )
+void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double sourceIrradiance,
+                                                                          const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
+                                                                          const bool resetForces,
+                                                                          const std::string sourceName )
 {
     double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
 
@@ -86,26 +84,27 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing(
         }
 
         const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& currentPanels_ =
-            ( i == 0 ) ? bodyFixedPanels_ : segmentFixedPanels_.at( segmentFixedPanelsIterator->first );
+                ( i == 0 ) ? bodyFixedPanels_ : segmentFixedPanels_.at( segmentFixedPanelsIterator->first );
         for( unsigned int j = 0; j < currentPanels_.size( ); j++ )
         {
             surfaceNormals_[ counter ] = currentOrientation * currentPanels_.at( j )->getFrameFixedSurfaceNormal( )( );
-            surfacePanelCosines_[ counter ] = (-sourceToTargetDirectionLocalFrame).dot(surfaceNormals_[ counter ]);
+            surfacePanelCosines_[ counter ] = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ counter ] );
             if( computeTorques_ )
             {
-                panelCentroidMomentArms_[ counter ] = currentOrientation * ( currentPanels_.at( j )->getFrameFixedPositionVector( )( ) - currentCenterOfMass );
+                panelCentroidMomentArms_[ counter ] =
+                        currentOrientation * ( currentPanels_.at( j )->getFrameFixedPositionVector( )( ) - currentCenterOfMass );
             }
-            if (surfacePanelCosines_[ counter ] > 0)
+            if( surfacePanelCosines_[ counter ] > 0 )
             {
-                currentPanelForce = radiationPressure * currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ] *
-                    currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVector(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
+                currentPanelForce = radiationPressure * currentPanels_.at( j )->getPanelArea( ) * surfacePanelCosines_[ counter ] *
+                        currentPanels_.at( j )->getReflectionLaw( )->evaluateReactionVector( surfaceNormals_[ counter ],
+                                                                                             sourceToTargetDirectionLocalFrame );
                 this->currentRadiationPressureForce_[ sourceName ] += currentPanelForce;
                 if( computeTorques_ )
                 {
                     currentPanelTorque = panelCentroidMomentArms_[ counter ].cross( currentPanelForce );
-                    this->currentRadiationPressureTorque_[ sourceName ]  += currentPanelTorque;
+                    this->currentRadiationPressureTorque_[ sourceName ] += currentPanelTorque;
                 }
-
             }
             else
             {
@@ -141,12 +140,11 @@ void PaneledRadiationPressureTargetModel::saveLocalComputations( const std::stri
     panelTorquesPerSource_[ sourceName ] = panelTorques_;
 }
 
-
 Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureForcePartialWrtDiffuseReflectivity(
         double sourceIrradiance,
-        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame)
+        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame )
 {
-    Eigen::Vector3d forcePartialWrtDiffuseReflectivity = Eigen::Vector3d::Zero();
+    Eigen::Vector3d forcePartialWrtDiffuseReflectivity = Eigen::Vector3d::Zero( );
 
     double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
@@ -159,20 +157,20 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
         if( i > 0 )
         {
             currentOrientation = segmentFixedToBodyFixedRotations_.at( segmentFixedPanelsIterator->first )( );
-
         }
 
         const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& currentPanels_ =
-            ( i == 0 ) ? bodyFixedPanels_ : segmentFixedPanels_.at( segmentFixedPanelsIterator->first );
+                ( i == 0 ) ? bodyFixedPanels_ : segmentFixedPanels_.at( segmentFixedPanelsIterator->first );
         for( unsigned int j = 0; j < currentPanels_.size( ); j++ )
         {
             surfaceNormals_[ counter ] = currentOrientation * currentPanels_.at( j )->getFrameFixedSurfaceNormal( )( );
-            surfacePanelCosines_[ counter ] = (-sourceToTargetDirectionLocalFrame).dot(surfaceNormals_[ counter ]);
+            surfacePanelCosines_[ counter ] = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ counter ] );
 
-            if (surfacePanelCosines_[ counter ] > 0)
+            if( surfacePanelCosines_[ counter ] > 0 )
             {
-                Eigen::Vector3d panelForce = radiationPressure * currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ] *
-                    currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVectorPartialWrtDiffuseReflectivity(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
+                Eigen::Vector3d panelForce = radiationPressure * currentPanels_.at( j )->getPanelArea( ) * surfacePanelCosines_[ counter ] *
+                        currentPanels_.at( j )->getReflectionLaw( )->evaluateReactionVectorPartialWrtDiffuseReflectivity(
+                                surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
                 forcePartialWrtDiffuseReflectivity += panelForce;
             }
 
@@ -188,9 +186,9 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
 
 Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureForcePartialWrtSpecularReflectivity(
         double sourceIrradiance,
-        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame)
+        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame )
 {
-    Eigen::Vector3d forcePartialWrtSpecularReflectivity = Eigen::Vector3d::Zero();
+    Eigen::Vector3d forcePartialWrtSpecularReflectivity = Eigen::Vector3d::Zero( );
 
     double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
@@ -203,20 +201,20 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
         if( i > 0 )
         {
             currentOrientation = segmentFixedToBodyFixedRotations_.at( segmentFixedPanelsIterator->first )( );
-
         }
 
         const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& currentPanels_ =
-            ( i == 0 ) ? bodyFixedPanels_ : segmentFixedPanels_.at( segmentFixedPanelsIterator->first );
+                ( i == 0 ) ? bodyFixedPanels_ : segmentFixedPanels_.at( segmentFixedPanelsIterator->first );
         for( unsigned int j = 0; j < currentPanels_.size( ); j++ )
         {
             surfaceNormals_[ counter ] = currentOrientation * currentPanels_.at( j )->getFrameFixedSurfaceNormal( )( );
-            surfacePanelCosines_[ counter ] = (-sourceToTargetDirectionLocalFrame).dot(surfaceNormals_[ counter ]);
+            surfacePanelCosines_[ counter ] = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ counter ] );
 
-            if (surfacePanelCosines_[ counter ] > 0)
+            if( surfacePanelCosines_[ counter ] > 0 )
             {
-                Eigen::Vector3d panelForce = radiationPressure * currentPanels_.at( j )->getPanelArea() * surfacePanelCosines_[ counter ] *
-                    currentPanels_.at( j )->getReflectionLaw()->evaluateReactionVectorPartialWrtSpecularReflectivity(surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
+                Eigen::Vector3d panelForce = radiationPressure * currentPanels_.at( j )->getPanelArea( ) * surfacePanelCosines_[ counter ] *
+                        currentPanels_.at( j )->getReflectionLaw( )->evaluateReactionVectorPartialWrtSpecularReflectivity(
+                                surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
                 forcePartialWrtSpecularReflectivity += panelForce;
             }
 
@@ -230,10 +228,7 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
     return forcePartialWrtSpecularReflectivity;
 }
 
-void PaneledRadiationPressureTargetModel::updateMembers_(double currentTime)
-{
+void PaneledRadiationPressureTargetModel::updateMembers_( double currentTime ) { }
 
-}
-
-} // tudat
-} // electromagnetism
+}  // namespace electromagnetism
+}  // namespace tudat

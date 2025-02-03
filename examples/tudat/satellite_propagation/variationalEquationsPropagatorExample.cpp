@@ -66,20 +66,19 @@ int main( )
     // Create spacecraft object.
     bodies[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
     bodies[ "Asterix" ]->setConstantBodyMass( 400.0 );
-    bodies[ "Asterix" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
-                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                            < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
+    bodies[ "Asterix" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris<> >(
+            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
     double aerodynamicCoefficient = 1.2;
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
     bodies[ "Asterix" ]->setAerodynamicCoefficientInterface(
-                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+            createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -88,13 +87,11 @@ int main( )
     occultingBodies.push_back( "Earth" );
     std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
             std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
     bodies[ "Asterix" ]->setRadiationPressureInterface(
-                "Sun", createRadiationPressureInterface(
-                    asterixRadiationPressureSettings, "Asterix", bodies ) );
-
+            "Sun", createRadiationPressureInterface( asterixRadiationPressureSettings, "Asterix", bodies ) );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodies, "SSB", "J2000" );
@@ -112,25 +109,20 @@ int main( )
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
     accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
-    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( 
-                                                   basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Venus" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::cannon_ball_radiation_pressure ) );
-    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::aerodynamic ) );
+    accelerationsOfAsterix[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Venus" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Sun" ].push_back(
+            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
 
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "Asterix" );
     centralBodies.push_back( "Earth" );
 
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -146,16 +138,16 @@ int main( )
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+    const Eigen::Vector6d asterixInitialState =
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
+                    centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
 
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////    DEFINE PARAMETERS FOR WHICH SENSITIVITY IS TO BE COMPUTED   ////////////////////////////////
@@ -164,13 +156,13 @@ int main( )
     // Define list of parameters to estimate.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                                  "Asterix", asterixInitialState, "Earth" ) );
+            "Asterix", asterixInitialState, "Earth" ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Asterix", radiation_pressure_coefficient ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Asterix", constant_drag_coefficient ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 0, 2, 2, "Earth", spherical_harmonics_cosine_coefficient_block ) );
+            2, 0, 2, 2, "Earth", spherical_harmonics_cosine_coefficient_block ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 1, 2, 2, "Earth", spherical_harmonics_sine_coefficient_block ) );
+            2, 1, 2, 2, "Earth", spherical_harmonics_sine_coefficient_block ) );
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
@@ -184,9 +176,15 @@ int main( )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    SingleArcVariationalEquationsSolver< > variationalEquationsSimulator(
-                bodies, integratorSettings, propagatorSettings, parametersToEstimate, true,
-                std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true );
+    SingleArcVariationalEquationsSolver<> variationalEquationsSimulator(
+            bodies,
+            integratorSettings,
+            propagatorSettings,
+            parametersToEstimate,
+            true,
+            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+            false,
+            true );
 
     std::map< double, Eigen::MatrixXd > stateTransitionResult =
             variationalEquationsSimulator.getNumericalVariationalEquationsSolution( ).at( 0 );
@@ -226,9 +224,7 @@ int main( )
                                           std::numeric_limits< double >::digits10,
                                           "," );
 
-
     // Final statement.
     // The exit code EXIT_SUCCESS indicates that the program was successfully executed.
     return EXIT_SUCCESS;
 }
-

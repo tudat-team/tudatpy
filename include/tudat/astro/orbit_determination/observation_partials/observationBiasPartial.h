@@ -35,28 +35,27 @@ template< int ObservationSize >
 class TimeBiasPartial
 {
 public:
-
     TimeBiasPartial(
-        const observation_models::LinkEnds linkEnds,
-        const observation_models::ObservableType observableType,
-        const observation_models::LinkEndType referenceLinkEnd,
-        const std::shared_ptr< observation_partials::DirectObservationPartial< ObservationSize > > transmitterWrtLinkEndStatePartial,
-        const std::shared_ptr< observation_partials::DirectObservationPartial< ObservationSize > > receiverWrtLinkEndStatePartial,
-        const std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
-        const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction ):
-            linkEnds_( linkEnds ), observableType_( observableType ), referenceLinkEnd_( referenceLinkEnd ),
-            transmitterWrtLinkEndStatePartial_( transmitterWrtLinkEndStatePartial ),
-            receiverWrtLinkEndStatePartial_( receiverWrtLinkEndStatePartial ),
-            transmitterAccelerationFunction_( transmitterAccelerationFunction ),
-            receiverAccelerationFunction_( receiverAccelerationFunction ){ }
+            const observation_models::LinkEnds linkEnds,
+            const observation_models::ObservableType observableType,
+            const observation_models::LinkEndType referenceLinkEnd,
+            const std::shared_ptr< observation_partials::DirectObservationPartial< ObservationSize > > transmitterWrtLinkEndStatePartial,
+            const std::shared_ptr< observation_partials::DirectObservationPartial< ObservationSize > > receiverWrtLinkEndStatePartial,
+            const std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
+            const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction ):
+        linkEnds_( linkEnds ), observableType_( observableType ), referenceLinkEnd_( referenceLinkEnd ),
+        transmitterWrtLinkEndStatePartial_( transmitterWrtLinkEndStatePartial ),
+        receiverWrtLinkEndStatePartial_( receiverWrtLinkEndStatePartial ),
+        transmitterAccelerationFunction_( transmitterAccelerationFunction ), receiverAccelerationFunction_( receiverAccelerationFunction )
+    { }
 
     std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > getObservationPartialWrtObservationTime(
-        const std::vector< Eigen::Vector6d >& states,
-        const std::vector< double >& times,
-        const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-        const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-        Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
+            const std::vector< Eigen::Vector6d >& states,
+            const std::vector< double >& times,
+            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
+                    Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         if( referenceLinkEnd_ != linkEndOfFixedTime )
         {
@@ -79,11 +78,11 @@ public:
             }
 
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > transmitterStatePartials =
-                transmitterWrtLinkEndStatePartial_->calculatePartial(
-                    states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
+                    transmitterWrtLinkEndStatePartial_->calculatePartial(
+                            states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > receiverStatePartials =
-                receiverWrtLinkEndStatePartial_->calculatePartial(
-                    states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
+                    receiverWrtLinkEndStatePartial_->calculatePartial(
+                            states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
 
             transmitterWrtLinkEndStatePartial_->setFixLinkEndTime( false );
             receiverWrtLinkEndStatePartial_->setFixLinkEndTime( false );
@@ -107,9 +106,7 @@ public:
         return linkEnds_;
     }
 
-
 protected:
-
     observation_models::LinkEnds linkEnds_;
 
     observation_models::ObservableType observableType_;
@@ -132,10 +129,9 @@ protected:
  *  (constant time drift bias), not the type of observable: the implementation is identical for each observable.
  */
 template< int ObservationSize >
-class ObservationPartialWrtConstantTimeDriftBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtConstantTimeDriftBias : public ObservationPartial< ObservationSize >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -148,18 +144,18 @@ public:
                                                 const observation_models::LinkEnds& linkEnds,
                                                 const int linkEndIndex,
                                                 const double referenceEpoch ):
-        ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::constant_time_drift_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_time_drift_observation_bias,
+                                                               linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds ), linkEndIndex_( linkEndIndex ), referenceEpoch_( referenceEpoch )
-    {  }
+    { }
 
     //! Destructor
-    ~ObservationPartialWrtConstantTimeDriftBias( ){ }
+    ~ObservationPartialWrtConstantTimeDriftBias( ) { }
 
     //! Function to calculate the observation partial w.r.t. time drift bias
     /*!
-     *  Function to calculate the observation partial w.r.t. time drift bias. Note that output is dependent on input times but independent of
-     *  states. Associated time defined at times[ 0 ].
+     *  Function to calculate the observation partial w.r.t. time drift bias. Note that output is dependent on input times but independent
+     * of states. Associated time defined at times[ 0 ].
      *  \param states Link end states (unused).
      *  \param times Link end times  (unused).
      *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable  (unused).
@@ -167,15 +163,15 @@ public:
      *  \return Vector of pairs containing partial values and associated times.
      */
     std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
-        const std::vector< Eigen::Vector6d >& states,
-        const std::vector< double >& times,
-        const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-        const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-        Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
+            const std::vector< Eigen::Vector6d >& states,
+            const std::vector< double >& times,
+            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
+                    Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         Eigen::Matrix< double, ObservationSize, 1 > observationTime;
-        for ( unsigned int i = 0 ; i < ObservationSize ; i++ )
+        for( unsigned int i = 0; i < ObservationSize; i++ )
         {
             observationTime( i, 0 ) = times.at( linkEndIndex_ ) - referenceEpoch_;
         }
@@ -183,7 +179,6 @@ public:
     }
 
 private:
-
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
 
@@ -197,19 +192,17 @@ private:
     double referenceEpoch_;
 };
 
-
 //! Class for computing the derivative of any observable w.r.t. an arc-wise time drift bias
 /*!
-*  Class for computing the derivative of any observable w.r.t. an arc-wise time drift bias. Note that this
-*  partial is distinct from most other ObservationPartial partial derived classes, as its implementation is based on the
-*  parameter (arc-wise time drift bias), not the type of observable: the implementation is identical for each
-*  observable.
-*/
+ *  Class for computing the derivative of any observable w.r.t. an arc-wise time drift bias. Note that this
+ *  partial is distinct from most other ObservationPartial partial derived classes, as its implementation is based on the
+ *  parameter (arc-wise time drift bias), not the type of observable: the implementation is identical for each
+ *  observable.
+ */
 template< int ObservationSize >
-class ObservationPartialWrtArcWiseTimeDriftBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtArcWiseTimeDriftBias : public ObservationPartial< ObservationSize >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -226,15 +219,16 @@ public:
                                                const int linkEndIndex,
                                                const int numberOfArcs,
                                                const std::vector< double > referenceEpochs ):
-        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_drift_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( )  ) ),
-        observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
-        linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs ), referenceEpochs_( referenceEpochs )
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_drift_observation_bias,
+                                                               linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
+        observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ), linkEndIndex_( linkEndIndex ),
+        numberOfArcs_( numberOfArcs ), referenceEpochs_( referenceEpochs )
     {
         totalPartial_ = Eigen::VectorXd::Zero( ObservationSize * numberOfArcs_ );
     }
 
     //! Destructor
-    ~ObservationPartialWrtArcWiseTimeDriftBias( ){ }
+    ~ObservationPartialWrtArcWiseTimeDriftBias( ) { }
 
     //! Function to calculate the observation partial w.r.t. arc-wise time drift bias
     /*!
@@ -247,17 +241,16 @@ public:
      *  \return Vector of pairs containing partial values and associated times.
      */
     std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
-        const std::vector< Eigen::Vector6d >& states,
-        const std::vector< double >& times,
-        const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-        const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-        Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
+            const std::vector< Eigen::Vector6d >& states,
+            const std::vector< double >& times,
+            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
         int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
 
         Eigen::Matrix< double, ObservationSize, 1 > observationTime;
-        for ( unsigned int i = 0 ; i < ObservationSize ; i++ )
+        for( unsigned int i = 0; i < ObservationSize; i++ )
         {
             observationTime( i, 0 ) = times.at( linkEndIndex_ ) - referenceEpochs_.at( currentIndex );
         }
@@ -269,7 +262,6 @@ public:
     }
 
 private:
-
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
 
@@ -290,7 +282,6 @@ private:
 
     //! Reference epochs (per arc) at which the time drift biases are initialised.
     std::vector< double > referenceEpochs_;
-
 };
 
 //! Class for computing the derivative of any observable w.r.t. a constant time bias
@@ -300,10 +291,9 @@ private:
  *  (constant time bias), not the type of observable: the implementation is identical for each observable.
  */
 template< int ObservationSize >
-class ObservationPartialWrtConstantTimeBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtConstantTimeBias : public ObservationPartial< ObservationSize >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -312,9 +302,9 @@ public:
      * \param linkEndIndex Link end index from which the 'current time' is determined
      */
     ObservationPartialWrtConstantTimeBias( const std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial ):
-            ObservationPartial< ObservationSize >(
-                    std::make_pair( estimatable_parameters::constant_time_observation_bias, timeBiasPartial->getLinkEnds( ).begin( )->second.getDualStringLinkEnd( ) ) ),
-            timeBiasPartial_( timeBiasPartial )
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_time_observation_bias,
+                                                               timeBiasPartial->getLinkEnds( ).begin( )->second.getDualStringLinkEnd( ) ) ),
+        timeBiasPartial_( timeBiasPartial )
     {
         if( timeBiasPartial == nullptr )
         {
@@ -323,7 +313,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtConstantTimeBias( ){ }
+    ~ObservationPartialWrtConstantTimeBias( ) { }
 
     //! Function to calculate the observation partial w.r.t. time bias
     /*!
@@ -341,30 +331,27 @@ public:
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
+                    Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         return { timeBiasPartial_->getObservationPartialWrtObservationTime(
-            states, times, linkEndOfFixedTime, ancillarySettings, currentObservation ) };
+                states, times, linkEndOfFixedTime, ancillarySettings, currentObservation ) };
     }
 
 private:
-
     std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial_;
 };
 
-
 //! Class for computing the derivative of any observable w.r.t. an arc-wise time bias
 /*!
-*  Class for computing the derivative of any observable w.r.t. an arc-wise time bias. Note that this
-*  partial is distinct from most other ObservationPartial partial derived classes, as its implementation is based on the
-*  parameter (arc-wise time bias), not the type of observable: the implementation is identical for each
-*  observable.
-*/
+ *  Class for computing the derivative of any observable w.r.t. an arc-wise time bias. Note that this
+ *  partial is distinct from most other ObservationPartial partial derived classes, as its implementation is based on the
+ *  parameter (arc-wise time bias), not the type of observable: the implementation is identical for each
+ *  observable.
+ */
 template< int ObservationSize >
-class ObservationPartialWrtArcWiseTimeBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtArcWiseTimeBias : public ObservationPartial< ObservationSize >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -378,16 +365,16 @@ public:
                                           const std::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme,
                                           const int linkEndIndex,
                                           const int numberOfArcs ):
-            ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_observation_bias,
-                                                                   timeBiasPartial->getLinkEnds( ).begin( )->second.getDualStringLinkEnd( ) ) ),
-            timeBiasPartial_( timeBiasPartial ), arcLookupScheme_( arcLookupScheme ),
-            linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs )
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arc_wise_time_observation_bias,
+                                                               timeBiasPartial->getLinkEnds( ).begin( )->second.getDualStringLinkEnd( ) ) ),
+        timeBiasPartial_( timeBiasPartial ), arcLookupScheme_( arcLookupScheme ), linkEndIndex_( linkEndIndex ),
+        numberOfArcs_( numberOfArcs )
     {
         totalPartial_ = Eigen::MatrixXd::Zero( ObservationSize, numberOfArcs_ );
     }
 
     //! Destructor
-    ~ObservationPartialWrtArcWiseTimeBias( ){ }
+    ~ObservationPartialWrtArcWiseTimeBias( ) { }
 
     //! Function to calculate the observation partial w.r.t. arc-wise time bias
     /*!
@@ -404,20 +391,19 @@ public:
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
         totalPartial_.setZero( );
         int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( 1 ) );
 
-        std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > timeBiasPartialPair = timeBiasPartial_->getObservationPartialWrtObservationTime(
-            states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
+        std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > timeBiasPartialPair =
+                timeBiasPartial_->getObservationPartialWrtObservationTime(
+                        states, times, linkEndOfFixedTime, ancillarySettings, currentObservation );
         totalPartial_.block( 0, currentIndex, ObservationSize, 1 ) = timeBiasPartialPair.first;
         return { std::make_pair( totalPartial_, timeBiasPartialPair.second ) };
     }
 
 private:
-
     std::shared_ptr< TimeBiasPartial< ObservationSize > > timeBiasPartial_;
 
     //! Object used to determine the index from observationBiases_ to be used, based on the current time.
@@ -431,14 +417,10 @@ private:
 
     //! Pre-allocated partial vector
     Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > totalPartial_;
-
 };
 
+}  // namespace observation_partials
 
+}  // namespace tudat
 
-
-}
-
-}
-
-#endif // OBSERVATIONPARTIAL_H
+#endif  // OBSERVATIONPARTIAL_H

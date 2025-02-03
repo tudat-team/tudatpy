@@ -29,8 +29,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodySettings >&
 
 void to_json( nlohmann::json& jsonObject, const BodyListSettings& bodyListSettings );
 
-} // namespace simulation_setup
-
+}  // namespace simulation_setup
 
 namespace json_interface
 {
@@ -70,14 +69,13 @@ void updateBodySettings( std::shared_ptr< simulation_setup::BodySettings >& body
  * \p spiceSettings is `nullptr` or \p integratorSettings is `nullptr` and Spice is configured to preload kernels.
  */
 template< typename TimeType = double >
-void updateBodiesFromJSON(
-        const nlohmann::json& jsonObject,
-        simulation_setup::SystemOfBodies& bodies,
-        simulation_setup::BodyListSettings& bodySettingsMap,
-        const std::string globalFrameOrigin,
-        const std::string globalFrameOrientation,
-        const std::shared_ptr< SpiceSettings >& spiceSettings,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings = nullptr )
+void updateBodiesFromJSON( const nlohmann::json& jsonObject,
+                           simulation_setup::SystemOfBodies& bodies,
+                           simulation_setup::BodyListSettings& bodySettingsMap,
+                           const std::string globalFrameOrigin,
+                           const std::string globalFrameOrientation,
+                           const std::shared_ptr< SpiceSettings >& spiceSettings,
+                           const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings = nullptr )
 {
     using namespace simulation_setup;
 
@@ -88,30 +86,30 @@ void updateBodiesFromJSON(
             getValue< std::map< std::string, nlohmann::json > >( jsonObject, Keys::bodies );
 
     std::vector< std::string > defaultBodyNames;
-    for ( auto entry : jsonBodySettingsMap )
+    for( auto entry: jsonBodySettingsMap )
     {
         const std::string bodyName = entry.first;
-        if ( getValue( jsonObject, Keys::bodies / bodyName / Keys::Body::useDefaultSettings, false ) )
+        if( getValue( jsonObject, Keys::bodies / bodyName / Keys::Body::useDefaultSettings, false ) )
         {
             defaultBodyNames.push_back( bodyName );
         }
     }
 
     // Create map with default body settings.
-    if ( ! defaultBodyNames.empty( ) )
+    if( !defaultBodyNames.empty( ) )
     {
-        if ( spiceSettings )
+        if( spiceSettings )
         {
-            if ( spiceSettings->preloadEphemeris_ )
+            if( spiceSettings->preloadEphemeris_ )
             {
-                if ( integratorSettings )
+                if( integratorSettings )
                 {
                     const TimeType initialEpoch = integratorSettings->initialTime_;
                     const TimeType finalEpoch = getValue< TimeType >( jsonObject, Keys::finalEpoch );
-                    const TimeType earliestInterpolationEpoch = std::min( initialEpoch, finalEpoch ) -
-                            std::fabs( spiceSettings->getInitialOffset( ) );
-                    const TimeType latestInterpolationEpoch = std::max( initialEpoch, finalEpoch ) +
-                            std::fabs( spiceSettings->getFinalOffset( ) );
+                    const TimeType earliestInterpolationEpoch =
+                            std::min( initialEpoch, finalEpoch ) - std::fabs( spiceSettings->getInitialOffset( ) );
+                    const TimeType latestInterpolationEpoch =
+                            std::max( initialEpoch, finalEpoch ) + std::fabs( spiceSettings->getFinalOffset( ) );
                     bodySettingsMap = getDefaultBodySettings( defaultBodyNames,
                                                               earliestInterpolationEpoch,
                                                               latestInterpolationEpoch,
@@ -122,8 +120,8 @@ void updateBodiesFromJSON(
                 else
                 {
                     throw std::runtime_error(
-                                "Could not get default bodies settings because the initial time is not known. "
-                                "Provide a valid IntegratorSettings object or turn Spice's preloadEphemeris off." );
+                            "Could not get default bodies settings because the initial time is not known. "
+                            "Provide a valid IntegratorSettings object or turn Spice's preloadEphemeris off." );
                 }
             }
             else
@@ -138,19 +136,19 @@ void updateBodiesFromJSON(
     }
 
     // Get body settings from JSON.
-    for ( auto entry : jsonBodySettingsMap )
+    for( auto entry: jsonBodySettingsMap )
     {
         const std::string bodyName = entry.first;
         const nlohmann::json jsonBodySettings = jsonBodySettingsMap.at( bodyName );
-        if ( bodySettingsMap.count( bodyName ) )
+        if( bodySettingsMap.count( bodyName ) )
         {
             std::shared_ptr< BodySettings > bodySettings = bodySettingsMap.at( bodyName );
             // Reset ephemeris and rotational models frames.
-            if ( bodySettings->ephemerisSettings )
+            if( bodySettings->ephemerisSettings )
             {
                 bodySettings->ephemerisSettings->resetFrameOrientation( globalFrameOrientation );
             }
-            if ( bodySettings->rotationModelSettings )
+            if( bodySettings->rotationModelSettings )
             {
                 bodySettings->rotationModelSettings->resetOriginalFrame( globalFrameOrientation );
             }
@@ -166,12 +164,10 @@ void updateBodiesFromJSON(
 
     // Create bodies.
     bodies = createSystemOfBodies( bodySettingsMap );
-
-    
 }
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_BODY_H
+#endif  // TUDAT_JSONINTERFACE_BODY_H

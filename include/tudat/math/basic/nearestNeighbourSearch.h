@@ -14,7 +14,7 @@
  */
 
 #ifndef TUDAT_NEAREST_NEIGHBOR_SEARCH_H
-#define TUDAT_NEAREST_NEIGHBOR_SEARCH_H 
+#define TUDAT_NEAREST_NEIGHBOR_SEARCH_H
 
 #include <map>
 #include <stdexcept>
@@ -35,8 +35,7 @@ namespace basic_mathematics
  * \param targetValueInVectorOfSortedData Target value in vector of sorted data.
  * \return Index of nearest left neighbor to target value.
  */
-int computeNearestLeftNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSortedData,
-                                                 const double targetValueInVectorOfSortedData );
+int computeNearestLeftNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSortedData, const double targetValueInVectorOfSortedData );
 
 //! Nearest neighbor binary search.
 /*!
@@ -46,8 +45,7 @@ int computeNearestLeftNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOf
  * \param targetValueInVectorOfSortedData Target value in vector of sorted data.
  * \return Index of nearest neighbor to target value.
  */
-int computeNearestNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSortedData,
-                                             const double targetValueInVectorOfSortedData );
+int computeNearestNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSortedData, const double targetValueInVectorOfSortedData );
 
 //! Nearest left neighbor binary search.
 /*!
@@ -58,9 +56,8 @@ int computeNearestNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSort
  * \param targetValueInMapOfData Target value in map of sorted data.
  * \return Index of nearest left neighbor to target value.
  */
-int computeNearestLeftNeighborUsingBinarySearch(
-        const std::map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
-        const double targetValueInMapOfData );
+int computeNearestLeftNeighborUsingBinarySearch( const std::map< double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
+                                                 const double targetValueInMapOfData );
 
 //! Templated nearest left neighbor binary search.
 /*!
@@ -72,9 +69,8 @@ int computeNearestLeftNeighborUsingBinarySearch(
  *  neighbour is to be determined.
  */
 template< typename IndependentVariableType >
-int computeNearestLeftNeighborUsingBinarySearch(
-        const std::vector< IndependentVariableType > vectorOfSortedData,
-        const IndependentVariableType targetValueInVectorOfSortedData )
+int computeNearestLeftNeighborUsingBinarySearch( const std::vector< IndependentVariableType > vectorOfSortedData,
+                                                 const IndependentVariableType targetValueInVectorOfSortedData )
 {
     // Declare local variables.
     // Declare bounds of vector of sorted data and current position.
@@ -88,15 +84,14 @@ int computeNearestLeftNeighborUsingBinarySearch(
 
     // Check if data is sorted in ascending order.
     // ( true if ascending, else false ).
-    bool isVectorOfSortedDataAscending
-            = ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ]
-                >= vectorOfSortedData[ leftLimitOfVectorOfSortedData ] );
+    bool isVectorOfSortedDataAscending =
+            ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ] >= vectorOfSortedData[ leftLimitOfVectorOfSortedData ] );
 
     // Check if target value is to the right of largest limit
-    if ( std::max( { vectorOfSortedData[ rightLimitOfVectorOfSortedData ], vectorOfSortedData[ leftLimitOfVectorOfSortedData ] } )
-            <= targetValueInVectorOfSortedData )
+    if( std::max( { vectorOfSortedData[ rightLimitOfVectorOfSortedData ], vectorOfSortedData[ leftLimitOfVectorOfSortedData ] } ) <=
+        targetValueInVectorOfSortedData )
     {
-        if ( isVectorOfSortedDataAscending )
+        if( isVectorOfSortedDataAscending )
         {
             leftLimitOfVectorOfSortedData = rightLimitOfVectorOfSortedData;
         }
@@ -108,19 +103,14 @@ int computeNearestLeftNeighborUsingBinarySearch(
 
     // Loop through vector of sorted data until left and right limits
     // are neighbours.
-    while ( rightLimitOfVectorOfSortedData
-            - leftLimitOfVectorOfSortedData > 1 )
+    while( rightLimitOfVectorOfSortedData - leftLimitOfVectorOfSortedData > 1 )
     {
         // Compute midpoint ( bitshift is same as division by 2.0 ).
-        currentPositionInVectorOfSortedData
-                = ( rightLimitOfVectorOfSortedData
-                    + leftLimitOfVectorOfSortedData ) >> 1;
+        currentPositionInVectorOfSortedData = ( rightLimitOfVectorOfSortedData + leftLimitOfVectorOfSortedData ) >> 1;
 
         // Check which limit to replace ( if ascending and target datum
         // is in right half, replace left limit ).
-        if ( targetValueInVectorOfSortedData
-             >= vectorOfSortedData[ currentPositionInVectorOfSortedData ]
-             && isVectorOfSortedDataAscending )
+        if( targetValueInVectorOfSortedData >= vectorOfSortedData[ currentPositionInVectorOfSortedData ] && isVectorOfSortedDataAscending )
         {
             // Set left limit to current position in vector of sorted data.
             leftLimitOfVectorOfSortedData = currentPositionInVectorOfSortedData;
@@ -136,7 +126,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
     // Set current position to left limit.
     currentPositionInVectorOfSortedData = leftLimitOfVectorOfSortedData;
     // Check if independent variable coincide with found upper index. In that case the upper index is the true nearest lower index.
-    if ( targetValueInVectorOfSortedData == vectorOfSortedData[ rightLimitOfVectorOfSortedData ] )
+    if( targetValueInVectorOfSortedData == vectorOfSortedData[ rightLimitOfVectorOfSortedData ] )
     {
         currentPositionInVectorOfSortedData = rightLimitOfVectorOfSortedData;
     }
@@ -164,16 +154,16 @@ bool isIndependentVariableInInterval( const int lowerIndex,
 {
     bool isInInterval = false;
 
-    //Check if value is in interval.
+    // Check if value is in interval.
     if( lowerIndex == static_cast< int >( independentValues.size( ) - 1 ) )
     {
-        if ( independentVariableValue > independentValues.at( lowerIndex ))
+        if( independentVariableValue > independentValues.at( lowerIndex ) )
         {
             isInInterval = true;
         }
     }
-    else if ( independentVariableValue >= independentValues.at( lowerIndex ) &&
-              independentVariableValue < independentValues.at( lowerIndex + 1 ) )
+    else if( independentVariableValue >= independentValues.at( lowerIndex ) &&
+             independentVariableValue < independentValues.at( lowerIndex + 1 ) )
     {
         isInInterval = true;
     }
@@ -197,10 +187,9 @@ bool isIndependentVariableInInterval( const int lowerIndex,
  * \return Index of independentValues_ that is the nearest left neighbour
  */
 template< typename IndependentVariableType >
-int findNearestLeftNeighbourUsingHuntingAlgorithm(
-        const IndependentVariableType independentVariableValue,
-        const int previousNearestLowerIndex_,
-        const std::vector< IndependentVariableType >& independentValues_ )
+int findNearestLeftNeighbourUsingHuntingAlgorithm( const IndependentVariableType independentVariableValue,
+                                                   const int previousNearestLowerIndex_,
+                                                   const std::vector< IndependentVariableType >& independentValues_ )
 {
     // Initialize return variable for new nearest left neighbor.
     int newNearestLowerIndex = 0;
@@ -222,30 +211,29 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
     }
 
     // Check whether initial estimate is possible.
-    if ( previousNearestLowerIndex_ < 0 ||
-         previousNearestLowerIndex_ > static_cast< int >( independentValues_.size( ) - 2 ) )
+    if( previousNearestLowerIndex_ < 0 || previousNearestLowerIndex_ > static_cast< int >( independentValues_.size( ) - 2 ) )
     {
         // throw std::runtime_error( "Error, initial guess for nearest neighbour search not within allowable bounds." );
-        newNearestLowerIndex = computeNearestLeftNeighborUsingBinarySearch< IndependentVariableType >(
-                independentValues_, independentVariableValue );
+        newNearestLowerIndex =
+                computeNearestLeftNeighborUsingBinarySearch< IndependentVariableType >( independentValues_, independentVariableValue );
         isFound = 1;
     }
 
     // Check if independent variable value falls within region of values provided.
-    if ( independentVariableValue <= independentValues_[ 0 ] )
+    if( independentVariableValue <= independentValues_[ 0 ] )
     {
         newNearestLowerIndex = 0;
         isFound = 1;
     }
 
-    else if ( independentVariableValue >= independentValues_[ independentValueVectorSize - 1 ] )
+    else if( independentVariableValue >= independentValues_[ independentValueVectorSize - 1 ] )
     {
         newNearestLowerIndex = independentValueVectorSize - 1;
         isFound = 1;
     }
 
     // Perform hunting algorithm if requested value is not outside given range.
-    if ( !isFound )
+    if( !isFound )
     {
         // Create indices delimiting interval under consideration.
         int upperIndex, lowerIndex;
@@ -255,7 +243,7 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
         int jumpDirection;
 
         // Check direction of jumps that is needed.
-        if ( independentVariableValue >= independentValues_[ previousNearestLowerIndex_ ] )
+        if( independentVariableValue >= independentValues_[ previousNearestLowerIndex_ ] )
         {
             jumpDirection = 1;
             lowerIndex = previousNearestLowerIndex_;
@@ -272,11 +260,11 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
         bool isRegionReached = 0;
 
         // While nearest lower neighbour is not found, continue algorithm.
-        while ( !isFound )
+        while( !isFound )
         {
             // Check if value is in regio under consideration.
             if( independentVariableValue >= independentValues_[ lowerIndex ] &&
-                    independentVariableValue <= independentValues_[ upperIndex ] )
+                independentVariableValue <= independentValues_[ upperIndex ] )
             {
                 isRegionReached = 1;
             }
@@ -286,14 +274,14 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
             {
                 // Double jump size.
                 jumpSize *= 2;
-                if ( jumpDirection == 1 )
+                if( jumpDirection == 1 )
                 {
                     // Reset interval under consideration.
                     lowerIndex = upperIndex;
                     upperIndex += jumpSize;
 
                     // Correct jump size if it would bring interval out of bounds.
-                    if ( upperIndex > independentValueVectorSize - 1 )
+                    if( upperIndex > independentValueVectorSize - 1 )
                     {
                         upperIndex = independentValueVectorSize - 1;
                         jumpSize = upperIndex - lowerIndex;
@@ -306,7 +294,7 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
                     lowerIndex -= jumpSize;
 
                     // Correct jump size if it would bring interval out of bounds.
-                    if ( lowerIndex < 0 )
+                    if( lowerIndex < 0 )
                     {
                         lowerIndex = 0;
                         jumpSize = upperIndex;
@@ -316,30 +304,28 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
 
             // Independent variable value has been identified to be between upperIndex and
             // lowerIndex. Perform bisection of interval to decrease interval to size 1.
-            if ( isRegionReached )
+            if( isRegionReached )
             {
                 while( !isFound )
                 {
-
                     int middleIndex;
 
-                    if( !( upperIndex - lowerIndex  > 0 ) )
+                    if( !( upperIndex - lowerIndex > 0 ) )
                     {
                         throw std::runtime_error( "Error, upper and lower indices are inconsistent in nearest neighbour search" +
-                                                  std::to_string( upperIndex ) + " " +
-                                                  std::to_string( lowerIndex ) );
+                                                  std::to_string( upperIndex ) + " " + std::to_string( lowerIndex ) );
                     }
 
                     // If the upper and lower indices have a difference of exactly one, the
                     // interval has been found.
-                    if ( upperIndex - lowerIndex == 1 )
+                    if( upperIndex - lowerIndex == 1 )
                     {
                         isFound = 1;
                         newNearestLowerIndex = lowerIndex;
 
                         // Check if independent variable coincides with upper index. In that case the upper index is
                         // true lower index
-                        if ( independentVariableValue == independentValues_[ upperIndex ] )
+                        if( independentVariableValue == independentValues_[ upperIndex ] )
                         {
                             newNearestLowerIndex = upperIndex;
                         }
@@ -351,7 +337,7 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
                         middleIndex = lowerIndex + jumpSize;
 
                         // Check which half of interval is to be new interval.
-                        if ( independentVariableValue < independentValues_[ middleIndex ] )
+                        if( independentVariableValue < independentValues_[ middleIndex ] )
                         {
                             upperIndex = middleIndex;
                         }
@@ -370,7 +356,7 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
     return newNearestLowerIndex;
 }
 
-} // namespace basic_mathematics
-} // namespace tudat
+}  // namespace basic_mathematics
+}  // namespace tudat
 
-#endif // TUDAT_NEAREST_NEIGHBOR_SEARCH_H 
+#endif  // TUDAT_NEAREST_NEIGHBOR_SEARCH_H

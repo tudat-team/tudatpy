@@ -42,9 +42,8 @@ int main( )
 
     // Create bodies in simulation
     std::vector< std::string > bodiesToCreate = { "Sun", "Earth", "Moon", "Mars", "Venus" };
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - environmentTimeBuffer,
-                                    simulationEndEpoch + environmentTimeBuffer,  "Earth", "J2000" );
+    BodyListSettings bodySettings = getDefaultBodySettings(
+            bodiesToCreate, simulationStartEpoch - environmentTimeBuffer, simulationEndEpoch + environmentTimeBuffer, "Earth", "J2000" );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,20 +58,16 @@ int main( )
     double referenceArea = 4.0;
     double aerodynamicCoefficient = 1.2;
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-            constantAerodynamicCoefficientSettings(
-                referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
-    addAerodynamicCoefficientInterface(
-                bodies, "Asterix", aerodynamicCoefficientSettings );
+            constantAerodynamicCoefficientSettings( referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+    addAerodynamicCoefficientInterface( bodies, "Asterix", aerodynamicCoefficientSettings );
 
     // Create and add radiation pressure interace
     double referenceAreaRadiation = 4.0;
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies = { "Earth" };
     std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            cannonBallRadiationPressureSettings(
-                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
-    addRadiationPressureInterface(
-                bodies, "Asterix", asterixRadiationPressureSettings );
+            cannonBallRadiationPressureSettings( "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+    addRadiationPressureInterface( bodies, "Asterix", asterixRadiationPressureSettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
@@ -82,22 +77,15 @@ int main( )
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
 
     using namespace tudat::basic_astrodynamics;
-    accelerationsOfAsterix[ "Earth" ] = {
-            sphericalHarmonicAcceleration( 8, 8 ),
-            aerodynamicAcceleration() };
+    accelerationsOfAsterix[ "Earth" ] = { sphericalHarmonicAcceleration( 8, 8 ), aerodynamicAcceleration( ) };
 
-    accelerationsOfAsterix[ "Sun" ] = {
-            pointMassGravityAcceleration( ),
-            cannonBallRadiationPressureAcceleration( ) };
+    accelerationsOfAsterix[ "Sun" ] = { pointMassGravityAcceleration( ), cannonBallRadiationPressureAcceleration( ) };
 
-    accelerationsOfAsterix[ "Mars" ] = {
-            pointMassGravityAcceleration( ) };
+    accelerationsOfAsterix[ "Mars" ] = { pointMassGravityAcceleration( ) };
 
-    accelerationsOfAsterix[ "Venus" ] = {
-            pointMassGravityAcceleration( ) };
+    accelerationsOfAsterix[ "Venus" ] = { pointMassGravityAcceleration( ) };
 
-    accelerationsOfAsterix[ "Moon" ] = {
-            pointMassGravityAcceleration( ) };
+    accelerationsOfAsterix[ "Moon" ] = { pointMassGravityAcceleration( ) };
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationSettingsList;
@@ -106,8 +94,8 @@ int main( )
     std::vector< std::string > bodiesToPropagate = { "Asterix" };
     std::vector< std::string > centralBodies = { "Earth" };
 
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationSettingsList, bodiesToPropagate, centralBodies );
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationSettingsList, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -123,27 +111,24 @@ int main( )
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     double earthGravitationalParameter = getBodyGravitationalParameter( bodies, "Earth" );
-    const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+    const Eigen::Vector6d asterixInitialState =
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
 
     const double fixedStepSize = 10.0;
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, 0.0, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////        PROVIDE OUTPUT TO CONSOLE AND FILES           //////////////////////////////////////////
@@ -151,20 +136,19 @@ int main( )
 
     std::string outputSubFolder = "PerturbedSatelliteExample/";
 
-    Eigen::VectorXd finalIntegratedState = (--integrationResult.end( ) )->second;
+    Eigen::VectorXd finalIntegratedState = ( --integrationResult.end( ) )->second;
     // Print the position (in km) and the velocity (in km/s) at t = 0.
-    std::cout << "Single Earth-Orbiting Satellite Example." << std::endl <<
-                 "The initial position vector of Asterix is [km]:" << std::endl <<
-                 asterixInitialState.segment( 0, 3 ) / 1E3 << std::endl <<
-                 "The initial velocity vector of Asterix is [km/s]:" << std::endl <<
-                 asterixInitialState.segment( 3, 3 ) / 1E3 << std::endl;
+    std::cout << "Single Earth-Orbiting Satellite Example." << std::endl
+              << "The initial position vector of Asterix is [km]:" << std::endl
+              << asterixInitialState.segment( 0, 3 ) / 1E3 << std::endl
+              << "The initial velocity vector of Asterix is [km/s]:" << std::endl
+              << asterixInitialState.segment( 3, 3 ) / 1E3 << std::endl;
 
     // Print the position (in km) and the velocity (in km/s) at t = 86400.
-    std::cout << "After " << simulationEndEpoch <<
-                 " seconds, the position vector of Asterix is [km]:" << std::endl <<
-                 finalIntegratedState.segment( 0, 3 ) / 1E3 << std::endl <<
-                 "And the velocity vector of Asterix is [km/s]:" << std::endl <<
-                 finalIntegratedState.segment( 3, 3 ) / 1E3 << std::endl;
+    std::cout << "After " << simulationEndEpoch << " seconds, the position vector of Asterix is [km]:" << std::endl
+              << finalIntegratedState.segment( 0, 3 ) / 1E3 << std::endl
+              << "And the velocity vector of Asterix is [km/s]:" << std::endl
+              << finalIntegratedState.segment( 3, 3 ) / 1E3 << std::endl;
 
     // Write perturbed satellite propagation history to file.
     input_output::writeDataMapToTextFile( integrationResult,
@@ -174,7 +158,6 @@ int main( )
                                           std::numeric_limits< double >::digits10,
                                           std::numeric_limits< double >::digits10,
                                           "," );
-
 
     // Final statement.
     // The exit code EXIT_SUCCESS indicates that the program was successfully executed.

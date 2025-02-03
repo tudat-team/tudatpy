@@ -44,9 +44,8 @@ namespace observation_partials
 class PositionPartialScaling
 {
 public:
-
     //! Destructor
-    virtual ~PositionPartialScaling( ){ }
+    virtual ~PositionPartialScaling( ) { }
 
     //! Update the scaling object to the current times and states (pure virtual).
     /*!
@@ -61,20 +60,15 @@ public:
                          const std::vector< double >& times,
                          const observation_models::LinkEndType fixedLinkEnd,
                          const Eigen::VectorXd currentObservation ) = 0;
-
-
 };
 
 template< int ObservationSize >
-class DirectPositionPartialScaling: public PositionPartialScaling
+class DirectPositionPartialScaling : public PositionPartialScaling
 {
 public:
+    DirectPositionPartialScaling( const observation_models::ObservableType observableType ): observableType_( observableType ) { }
 
-    DirectPositionPartialScaling( const observation_models::ObservableType observableType ):
-        observableType_( observableType )
-    { }
-
-    virtual ~DirectPositionPartialScaling( ){ }
+    virtual ~DirectPositionPartialScaling( ) { }
 
     virtual observation_models::LinkEndType getCurrentLinkEndType( ) = 0;
 
@@ -85,16 +79,18 @@ public:
         return Eigen::MatrixXd::Zero( ObservationSize, 3 );
     }
 
-    virtual Eigen::Matrix< double, ObservationSize, 3 > getFixedTimePositionScalingFactor( const observation_models::LinkEndType linkEndType )
+    virtual Eigen::Matrix< double, ObservationSize, 3 > getFixedTimePositionScalingFactor(
+            const observation_models::LinkEndType linkEndType )
     {
-        throw std::runtime_error( "Error, fixed-time position partial not yet implemented for observable " + std::to_string( observableType_ ) );
+        throw std::runtime_error( "Error, fixed-time position partial not yet implemented for observable " +
+                                  std::to_string( observableType_ ) );
     }
 
-    virtual Eigen::Matrix< double, ObservationSize, 3 > getFixedTimeVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
+    virtual Eigen::Matrix< double, ObservationSize, 3 > getFixedTimeVelocityScalingFactor(
+            const observation_models::LinkEndType linkEndType )
     {
         return Eigen::MatrixXd::Zero( ObservationSize, 3 );
     }
-
 
     virtual Eigen::Matrix< double, ObservationSize, 1 > getLightTimePartialScalingFactor( ) = 0;
 
@@ -114,24 +110,22 @@ public:
         if( useLinkIndependentPartials( ) == false )
         {
             throw std::runtime_error( "Error when getting link independent partials of observable type " +
-                                      observation_models::getObservableName( observableType_) +
-                                      ", no such model is defined." );
+                                      observation_models::getObservableName( observableType_ ) + ", no such model is defined." );
         }
         else
         {
             throw std::runtime_error( "Error when getting link independent partials of observable type " +
-                                      observation_models::getObservableName( observableType_) +
+                                      observation_models::getObservableName( observableType_ ) +
                                       ", derived class model is not implemented." );
         }
     }
 
-    virtual Eigen::Matrix< double, ObservationSize, 3 > getLightTimeGradientPartialScalingFactor( const observation_models::LinkEndType linkEndType )
+    virtual Eigen::Matrix< double, ObservationSize, 3 > getLightTimeGradientPartialScalingFactor(
+            const observation_models::LinkEndType linkEndType )
     {
         throw std::runtime_error( "Error when getting light time gradient partials of observable type " +
-                                  observation_models::getObservableName( observableType_) +
-                                  ", derived class model is not implemented." );
+                                  observation_models::getObservableName( observableType_ ) + ", derived class model is not implemented." );
     }
-
 
     virtual bool useLinkIndependentPartials( )
     {
@@ -144,7 +138,6 @@ public:
     }
 
 protected:
-
     observation_models::ObservableType observableType_;
 
     bool doesVelocityScalingFactorExist_;
@@ -159,14 +152,14 @@ template< int ObservationSize >
 class ObservationPartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param parameterIdentifier Parameter id of for specifc parameter of which partial is computed by object.
      */
     ObservationPartial( const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
-        parameterIdentifier_( parameterIdentifier ){ }
+        parameterIdentifier_( parameterIdentifier )
+    { }
 
     //! Virtual destructor.
     /*!
@@ -192,7 +185,7 @@ public:
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) ) = 0;
+                    Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) ) = 0;
 
     //! Function to get parameter id of for specifc parameter of which partial is computed by object.
     /*!
@@ -204,13 +197,10 @@ public:
         return parameterIdentifier_;
     }
 
-
 protected:
-
     //! Parameter id of for specifc parameter of which partial is computed by object.
     estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier_;
 };
-
 
 //! Class for computing the derivative of any observable w.r.t. a constant absolute observation bias
 /*!
@@ -219,10 +209,9 @@ protected:
  *  (constant observation bias), not the type of observable: the implementation is identical for each observable.
  */
 template< int ObservationSize >
-class ObservationPartialWrtConstantAbsoluteBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtConstantAbsoluteBias : public ObservationPartial< ObservationSize >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -231,8 +220,8 @@ public:
      */
     ObservationPartialWrtConstantAbsoluteBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds ):
-        ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_additive_observation_bias,
+                                                               linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
     {
         // Compute partial (vector of ObservationSize with 1.0 entries).
@@ -240,7 +229,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtConstantAbsoluteBias( ){ }
+    ~ObservationPartialWrtConstantAbsoluteBias( ) { }
 
     //! Function to calculate the observation partial w.r.t. constant absolute bias
     /*!
@@ -257,14 +246,12 @@ public:
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
         return { std::make_pair( constantPartial_, times.at( 0 ) ) };
     }
 
 private:
-
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
 
@@ -273,9 +260,7 @@ private:
 
     //! Observation partial: constant for all conditions.
     Eigen::Matrix< double, ObservationSize, ObservationSize > constantPartial_;
-
 };
-
 
 //! Class for computing the derivative of any observable w.r.t. an arc-wise constant absolute observation bias
 /*!
@@ -285,10 +270,9 @@ private:
  *  observable.
  */
 template< int ObservationSize >
-class ObservationPartialWrtArcWiseAbsoluteBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtArcWiseAbsoluteBias : public ObservationPartial< ObservationSize >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -299,22 +283,21 @@ public:
      * \param numberOfArcs Number of arcs for which biases are defined
      */
     ObservationPartialWrtArcWiseAbsoluteBias( const observation_models::ObservableType observableType,
-                                               const observation_models::LinkEnds& linkEnds,
-                                               const std::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme,
-                                               const int linkEndIndex,
-                                               const int numberOfArcs ):
-        ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::arcwise_constant_additive_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
-        observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
-        linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs )
+                                              const observation_models::LinkEnds& linkEnds,
+                                              const std::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme,
+                                              const int linkEndIndex,
+                                              const int numberOfArcs ):
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arcwise_constant_additive_observation_bias,
+                                                               linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
+        observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ), linkEndIndex_( linkEndIndex ),
+        numberOfArcs_( numberOfArcs )
     {
         constantPartial_ = Eigen::Matrix< double, ObservationSize, ObservationSize >::Identity( );
-        totalPartial_ = Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >::Zero(
-                    ObservationSize, ObservationSize * numberOfArcs_ );
+        totalPartial_ = Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >::Zero( ObservationSize, ObservationSize * numberOfArcs_ );
     }
 
     //! Destructor
-    ~ObservationPartialWrtArcWiseAbsoluteBias( ){ }
+    ~ObservationPartialWrtArcWiseAbsoluteBias( ) { }
 
     //! Function to calculate the observation partial w.r.t. arc-wise constant absolute bias
     /*!
@@ -331,12 +314,10 @@ public:
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
-//        std::cout << "TEST CALCULATE PARTIALS W.R.T. ARC WISE CONSTANT BIAS" << "\n\n";
+        //        std::cout << "TEST CALCULATE PARTIALS W.R.T. ARC WISE CONSTANT BIAS" << "\n\n";
         int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
-
 
         totalPartial_.setZero( );
         if( arcLookupScheme_->getMinimumValue( ) <= times.at( linkEndIndex_ ) )
@@ -349,7 +330,6 @@ public:
     }
 
 private:
-
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
 
@@ -365,12 +345,11 @@ private:
     //! Number of arcs for which biases are defined
     int numberOfArcs_;
 
-       //! Observation partial for singe arc: constant for all conditions.
+    //! Observation partial for singe arc: constant for all conditions.
     Eigen::Matrix< double, ObservationSize, ObservationSize > constantPartial_;
 
     //! Pre-allocated partial vector
     Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > totalPartial_;
-
 };
 
 //! Class for computing the derivative of any observable w.r.t. a constant relative observation bias
@@ -380,10 +359,9 @@ private:
  *  (constant observation bias), not the type of observable: the implementation is identical for each observable.
  */
 template< int ObservationSize >
-class ObservationPartialWrtConstantRelativeBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtConstantRelativeBias : public ObservationPartial< ObservationSize >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -392,13 +370,13 @@ public:
      */
     ObservationPartialWrtConstantRelativeBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds ):
-        ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_additive_observation_bias,
+                                                               linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
-    {  }
+    { }
 
     //! Destructor
-    ~ObservationPartialWrtConstantRelativeBias( ){ }
+    ~ObservationPartialWrtConstantRelativeBias( ) { }
 
     //! Function to calculate the observation partial w.r.t. constant relative bias
     /*!
@@ -416,13 +394,12 @@ public:
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
+                    Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
         return { std::make_pair( currentObservation, times.at( 0 ) ) };
     }
 
 private:
-
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
 
@@ -438,10 +415,9 @@ private:
  *  observable.
  */
 template< int ObservationSize >
-class ObservationPartialWrtArcWiseRelativeBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtArcWiseRelativeBias : public ObservationPartial< ObservationSize >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -452,20 +428,20 @@ public:
      * \param numberOfArcs Number of arcs for which biases are defined
      */
     ObservationPartialWrtArcWiseRelativeBias( const observation_models::ObservableType observableType,
-                                               const observation_models::LinkEnds& linkEnds,
-                                               const std::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme,
-                                               const int linkEndIndex,
-                                               const int numberOfArcs ):
-        ObservationPartial< ObservationSize >(
-            std::make_pair( estimatable_parameters::arcwise_constant_relative_observation_bias, linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
-        observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
-        linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs )
+                                              const observation_models::LinkEnds& linkEnds,
+                                              const std::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme,
+                                              const int linkEndIndex,
+                                              const int numberOfArcs ):
+        ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::arcwise_constant_relative_observation_bias,
+                                                               linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
+        observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ), linkEndIndex_( linkEndIndex ),
+        numberOfArcs_( numberOfArcs )
     {
-       totalPartial_ = Eigen::VectorXd::Zero( ObservationSize * numberOfArcs_ );
+        totalPartial_ = Eigen::VectorXd::Zero( ObservationSize * numberOfArcs_ );
     }
 
     //! Destructor
-    ~ObservationPartialWrtArcWiseRelativeBias( ){ }
+    ~ObservationPartialWrtArcWiseRelativeBias( ) { }
 
     //! Function to calculate the observation partial w.r.t. arc-wise constant relative bias
     /*!
@@ -482,8 +458,7 @@ public:
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-                Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation = Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
     {
         totalPartial_.setZero( );
 
@@ -496,7 +471,6 @@ public:
     }
 
 private:
-
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
 
@@ -514,33 +488,27 @@ private:
 
     //! Pre-allocated partial vector
     Eigen::VectorXd totalPartial_;
-
 };
 
+// extern template class ObservationPartial< 1 >;
+// extern template class ObservationPartial< 2 >;
+// extern template class ObservationPartial< 3 >;
 
+// extern template class ObservationPartialWrtConstantAbsoluteBias< 1 >;
+// extern template class ObservationPartialWrtConstantAbsoluteBias< 2 >;
+// extern template class ObservationPartialWrtConstantAbsoluteBias< 3 >;
 
-//extern template class ObservationPartial< 1 >;
-//extern template class ObservationPartial< 2 >;
-//extern template class ObservationPartial< 3 >;
+// extern template class ObservationPartialWrtArcWiseAbsoluteBias< 1 >;
+// extern template class ObservationPartialWrtArcWiseAbsoluteBias< 2 >;
+// extern template class ObservationPartialWrtArcWiseAbsoluteBias< 3 >;
 
-//extern template class ObservationPartialWrtConstantAbsoluteBias< 1 >;
-//extern template class ObservationPartialWrtConstantAbsoluteBias< 2 >;
-//extern template class ObservationPartialWrtConstantAbsoluteBias< 3 >;
+// extern template class ObservationPartialWrtConstantRelativeBias< 1 >;
+// extern template class ObservationPartialWrtConstantRelativeBias< 2 >;
+// extern template class ObservationPartialWrtConstantRelativeBias< 3 >;
 
-//extern template class ObservationPartialWrtArcWiseAbsoluteBias< 1 >;
-//extern template class ObservationPartialWrtArcWiseAbsoluteBias< 2 >;
-//extern template class ObservationPartialWrtArcWiseAbsoluteBias< 3 >;
-
-//extern template class ObservationPartialWrtConstantRelativeBias< 1 >;
-//extern template class ObservationPartialWrtConstantRelativeBias< 2 >;
-//extern template class ObservationPartialWrtConstantRelativeBias< 3 >;
-
-//extern template class ObservationPartialWrtArcWiseRelativeBias< 1 >;
-//extern template class ObservationPartialWrtArcWiseRelativeBias< 2 >;
-//extern template class ObservationPartialWrtArcWiseRelativeBias< 3 >;
-
-
-
+// extern template class ObservationPartialWrtArcWiseRelativeBias< 1 >;
+// extern template class ObservationPartialWrtArcWiseRelativeBias< 2 >;
+// extern template class ObservationPartialWrtArcWiseRelativeBias< 3 >;
 
 //! Typedef for map of observation partials.
 /*!
@@ -569,9 +537,8 @@ typedef std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 2 
  */
 typedef std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 3 > > > SingleLinkObservationThreePartialList;
 
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-}
-
-#endif // OBSERVATIONPARTIAL_H
+#endif  // OBSERVATIONPARTIAL_H

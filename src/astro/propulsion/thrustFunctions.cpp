@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include "tudat/astro/propulsion/thrustFunctions.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
@@ -19,21 +18,17 @@ namespace propulsion
 {
 
 //! Function to compute engine thrust from propellant mass rate and specific impulse
-double computeThrustFromSpecificImpulse(
-         const double propellantMassRate, const double specificImpulse )
+double computeThrustFromSpecificImpulse( const double propellantMassRate, const double specificImpulse )
 {
-    return  physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * specificImpulse * propellantMassRate;
+    return physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * specificImpulse * propellantMassRate;
 }
 
 //! Function to compute propellant mass rate from engine thrust and specific impulse
-double computePropellantMassRateFromSpecificImpulse(
-         const double thrustMagnitude, const double specificImpulse )
+double computePropellantMassRateFromSpecificImpulse( const double thrustMagnitude, const double specificImpulse )
 {
-    return  thrustMagnitude / ( physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * specificImpulse );
+    return thrustMagnitude / ( physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * specificImpulse );
 }
 
+}  // namespace propulsion
 
-} // namespace propulsion
-
-} // namespace tudat
-
+}  // namespace tudat

@@ -28,7 +28,6 @@
 #include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
 
-
 int main( )
 {
     using namespace tudat;
@@ -37,25 +36,24 @@ int main( )
 
     spice_interface::loadStandardSpiceKernels( );
 
-
     // Global characteristics of the problem
     double distanceSunJupiter = 778.0e9;
 
     // Initialise the spacecraft state (B. Taylor, D. (1981). Horseshoe periodic orbits in the restricted problem of three bodies
     // for a sun-Jupiter mass ratio. Astronomy and Astrophysics. 103. 288-294.)
-    Eigen::Vector6d initialState = Eigen::Vector6d::Zero();
-    initialState[0] = - 7.992e11;
-    initialState[4] =  -1.29e4;
+    Eigen::Vector6d initialState = Eigen::Vector6d::Zero( );
+    initialState[ 0 ] = -7.992e11;
+    initialState[ 4 ] = -1.29e4;
 
     // Create integrator settings.
     double initialTime = 0.0;
     const double fixedStepSize = 100000.0;
-    std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
-            std::make_shared < numerical_integrators::IntegratorSettings < > >
-            ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize );
+    std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings<> >(
+                    numerical_integrators::rungeKutta4, initialTime, fixedStepSize );
 
     // Create system of bodies.
-    std::vector < std::string > bodiesCR3BP;
+    std::vector< std::string > bodiesCR3BP;
     bodiesCR3BP.push_back( "Sun" );
     bodiesCR3BP.push_back( "Jupiter" );
 
@@ -66,119 +64,113 @@ int main( )
     centralBodies.push_back( "SSB" );
 
     // Define final time for the propagation.
-    double gravitationalParameterSun = createGravityFieldModel(
-                getDefaultGravityFieldSettings(
-                    "Sun", TUDAT_NAN, TUDAT_NAN ), "Sun" )->getGravitationalParameter( );
-    double gravitationalParameterJupiter = createGravityFieldModel(
-                getDefaultGravityFieldSettings(
-                    "Jupiter", TUDAT_NAN, TUDAT_NAN ), "Jupiter" )->getGravitationalParameter( );
+    double gravitationalParameterSun =
+            createGravityFieldModel( getDefaultGravityFieldSettings( "Sun", TUDAT_NAN, TUDAT_NAN ), "Sun" )->getGravitationalParameter( );
+    double gravitationalParameterJupiter =
+            createGravityFieldModel( getDefaultGravityFieldSettings( "Jupiter", TUDAT_NAN, TUDAT_NAN ), "Jupiter" )
+                    ->getGravitationalParameter( );
     double finalTime = tudat::circular_restricted_three_body_problem::convertDimensionlessTimeToDimensionalTime(
-                29.2386 * ( 2.0 * mathematical_constants::PI ), gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter);
+            29.2386 * ( 2.0 * mathematical_constants::PI ), gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter );
 
-    SystemOfBodies idealBodyMap = propagators::setupBodyMapCR3BP(
-                distanceSunJupiter, "Sun", "Jupiter", "Spacecraft" );
+    SystemOfBodies idealBodyMap = propagators::setupBodyMapCR3BP( distanceSunJupiter, "Sun", "Jupiter", "Spacecraft" );
 
-    std::map< double, Eigen::Vector6d> fullPropagation;
-    std::map< double, Eigen::Vector6d> cr3bpPropagation;
+    std::map< double, Eigen::Vector6d > fullPropagation;
+    std::map< double, Eigen::Vector6d > cr3bpPropagation;
 
     /// Ideal case: full dynamics problem with the CR3BP assumtions
     {
-
-
         // Create acceleration map.
-        basic_astrodynamics::AccelerationMap accelerationModelMap = propagators::setupAccelerationMapCR3BP(
-                    "Sun", "Jupiter", bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), idealBodyMap );
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                propagators::setupAccelerationMapCR3BP( "Sun", "Jupiter", bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), idealBodyMap );
 
         // Calculate the difference between CR3BP and full problem.
-        propagators::propagateCR3BPAndFullDynamicsProblem(
-                    initialTime, finalTime, initialState, integratorSettings, accelerationModelMap,
-                    bodiesToPropagate, centralBodies, idealBodyMap, bodiesCR3BP, fullPropagation,
-                    cr3bpPropagation );
+        propagators::propagateCR3BPAndFullDynamicsProblem( initialTime,
+                                                           finalTime,
+                                                           initialState,
+                                                           integratorSettings,
+                                                           accelerationModelMap,
+                                                           bodiesToPropagate,
+                                                           centralBodies,
+                                                           idealBodyMap,
+                                                           bodiesCR3BP,
+                                                           fullPropagation,
+                                                           cr3bpPropagation );
 
-        Eigen::Vector6d stateDifference =
-                fullPropagation.rbegin( )->second - cr3bpPropagation.rbegin( )->second;
+        Eigen::Vector6d stateDifference = fullPropagation.rbegin( )->second - cr3bpPropagation.rbegin( )->second;
 
         std::cout << "state difference at final time: " << stateDifference << std::endl;
     }
 
-
-    std::map< double, Eigen::Vector6d> fullPropagationPerturbedCase;
-    std::map< double, Eigen::Vector6d> cr3bpPropagationPerturbedCase;
+    std::map< double, Eigen::Vector6d > fullPropagationPerturbedCase;
+    std::map< double, Eigen::Vector6d > cr3bpPropagationPerturbedCase;
 
     /// Perturbed case
     {
-
         std::string frameOrigin = "SSB";
         std::string frameOrientation = "ECLIPJ2000";
 
         SystemOfBodies perturbedBodyMap;
 
-
         std::vector< std::string > additionalBodies = { "Earth", "Mars", "Venus", "Saturn" };
         for( unsigned int i = 0; i < additionalBodies.size( ); i++ )
         {
-
             perturbedBodyMap[ additionalBodies.at( i ) ] = std::make_shared< Body >( );
             perturbedBodyMap[ additionalBodies.at( i ) ]->setEphemeris(
-                        std::make_shared< ephemerides::ApproximatePlanetPositions>(
-                                additionalBodies.at( i ) ) );
+                    std::make_shared< ephemerides::ApproximatePlanetPositions >( additionalBodies.at( i ) ) );
             perturbedBodyMap[ additionalBodies.at( i ) ]->setGravityFieldModel(
-                        createGravityFieldModel(
-                            std::make_shared< CentralGravityFieldSettings >(
-                                spice_interface::getBodyGravitationalParameter(
-                                    additionalBodies.at( i ) ) ), additionalBodies.at( i ) ) );
+                    createGravityFieldModel( std::make_shared< CentralGravityFieldSettings >(
+                                                     spice_interface::getBodyGravitationalParameter( additionalBodies.at( i ) ) ),
+                                             additionalBodies.at( i ) ) );
         }
 
         perturbedBodyMap[ "Sun" ] = idealBodyMap[ "Sun" ];
         perturbedBodyMap[ "Jupiter" ] = idealBodyMap[ "Jupiter" ];
 
-
         // Create the body to be propagated.
         perturbedBodyMap[ "Spacecraft" ] = std::make_shared< Body >( );
-        perturbedBodyMap[ "Spacecraft" ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                            < double, Eigen::Vector6d > >( ), "SSB", frameOrientation ) );
+        perturbedBodyMap[ "Spacecraft" ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris<> >(
+                std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ), "SSB", frameOrientation ) );
 
         setGlobalFrameBodyEphemerides( perturbedBodyMap, frameOrigin, frameOrientation );
 
-
         // Set of accelerations experienced by the spacecraft.
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > bodyToPropagateAccelerations;
-        bodyToPropagateAccelerations["Sun"].push_back(std::make_shared< AccelerationSettings >(
-                                                          basic_astrodynamics::central_gravity ) );
-        bodyToPropagateAccelerations["Jupiter"].push_back(std::make_shared< AccelerationSettings >(
-                                                              basic_astrodynamics::central_gravity ) );
-        bodyToPropagateAccelerations["Earth"].push_back(std::make_shared< AccelerationSettings >(
-                                                            basic_astrodynamics::central_gravity ) );
-        bodyToPropagateAccelerations["Mars"].push_back(std::make_shared< AccelerationSettings >(
-                                                           basic_astrodynamics::central_gravity ) );
-        bodyToPropagateAccelerations["Venus"].push_back(std::make_shared< AccelerationSettings >(
-                                                            basic_astrodynamics::central_gravity ) );
-        bodyToPropagateAccelerations["Saturn"].push_back(std::make_shared< AccelerationSettings >(
-                                                             basic_astrodynamics::central_gravity ) );
+        bodyToPropagateAccelerations[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+        bodyToPropagateAccelerations[ "Jupiter" ].push_back(
+                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+        bodyToPropagateAccelerations[ "Earth" ].push_back(
+                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+        bodyToPropagateAccelerations[ "Mars" ].push_back(
+                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+        bodyToPropagateAccelerations[ "Venus" ].push_back(
+                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+        bodyToPropagateAccelerations[ "Saturn" ].push_back(
+                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
 
         SelectedAccelerationMap accelerationMap;
         accelerationMap[ "Spacecraft" ] = bodyToPropagateAccelerations;
 
-
         // Create the acceleration map.
-        basic_astrodynamics::AccelerationMap accelerationModelMapPerturbedCase = createAccelerationModelsMap(
-                    perturbedBodyMap, accelerationMap, bodiesToPropagate, centralBodies );
-
+        basic_astrodynamics::AccelerationMap accelerationModelMapPerturbedCase =
+                createAccelerationModelsMap( perturbedBodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Calculate the difference between CR3BP and full problem.
-        propagators::propagateCR3BPAndFullDynamicsProblem(
-                    initialTime, finalTime, initialState, integratorSettings,
-                    accelerationModelMapPerturbedCase,
-                    bodiesToPropagate, centralBodies, perturbedBodyMap, bodiesCR3BP,
-                    fullPropagationPerturbedCase,
-                    cr3bpPropagationPerturbedCase );
+        propagators::propagateCR3BPAndFullDynamicsProblem( initialTime,
+                                                           finalTime,
+                                                           initialState,
+                                                           integratorSettings,
+                                                           accelerationModelMapPerturbedCase,
+                                                           bodiesToPropagate,
+                                                           centralBodies,
+                                                           perturbedBodyMap,
+                                                           bodiesCR3BP,
+                                                           fullPropagationPerturbedCase,
+                                                           cr3bpPropagationPerturbedCase );
 
         Eigen::Vector6d stateDifferencePerturbedCase =
                 fullPropagationPerturbedCase.rbegin( )->second - cr3bpPropagationPerturbedCase.rbegin( )->second;
 
         std::cout << "state difference at final time for the perturbed case: " << stateDifferencePerturbedCase << std::endl;
-
     }
 
     /// Ouputs
@@ -186,19 +178,20 @@ int main( )
     // Outputs for the ideal case
     {
         std::map< double, Eigen::Vector6d > fullPropagationNormalisedCoRotatingFrame;
-        for( std::map< double, Eigen::Vector6d >::iterator itr = fullPropagation.begin( );
-             itr != fullPropagation.end( ); itr++ ){
-            fullPropagationNormalisedCoRotatingFrame[ itr->first ] = tudat::circular_restricted_three_body_problem::convertCartesianToCorotatingNormalizedCoordinates(
-                        gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter, itr->second, itr->first);
+        for( std::map< double, Eigen::Vector6d >::iterator itr = fullPropagation.begin( ); itr != fullPropagation.end( ); itr++ )
+        {
+            fullPropagationNormalisedCoRotatingFrame[ itr->first ] =
+                    tudat::circular_restricted_three_body_problem::convertCartesianToCorotatingNormalizedCoordinates(
+                            gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter, itr->second, itr->first );
         }
 
         std::map< double, Eigen::Vector6d > cr3bpNormalisedCoRotatingFrame;
-        for( std::map< double, Eigen::Vector6d >::iterator itr = cr3bpPropagation.begin( );
-             itr != cr3bpPropagation.end( ); itr++ ){
-            cr3bpNormalisedCoRotatingFrame[ itr->first ] = tudat::circular_restricted_three_body_problem::convertCartesianToCorotatingNormalizedCoordinates(
-                        gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter, itr->second, itr->first);
+        for( std::map< double, Eigen::Vector6d >::iterator itr = cr3bpPropagation.begin( ); itr != cr3bpPropagation.end( ); itr++ )
+        {
+            cr3bpNormalisedCoRotatingFrame[ itr->first ] =
+                    tudat::circular_restricted_three_body_problem::convertCartesianToCorotatingNormalizedCoordinates(
+                            gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter, itr->second, itr->first );
         }
-
 
         input_output::writeDataMapToTextFile( fullPropagation,
                                               "fullProblemPropagation.dat",
@@ -237,20 +230,23 @@ int main( )
     {
         std::map< double, Eigen::Vector6d > fullPropagationNormalisedCoRotatingFramePerturbedCase;
         for( std::map< double, Eigen::Vector6d >::iterator itr = fullPropagationPerturbedCase.begin( );
-             itr != fullPropagationPerturbedCase.end( ); itr++ ){
-            fullPropagationNormalisedCoRotatingFramePerturbedCase[ itr->first ] = tudat::circular_restricted_three_body_problem::
-                    convertCartesianToCorotatingNormalizedCoordinates(gravitationalParameterSun, gravitationalParameterJupiter,
-                                                                      distanceSunJupiter, itr->second, itr->first);
+             itr != fullPropagationPerturbedCase.end( );
+             itr++ )
+        {
+            fullPropagationNormalisedCoRotatingFramePerturbedCase[ itr->first ] =
+                    tudat::circular_restricted_three_body_problem::convertCartesianToCorotatingNormalizedCoordinates(
+                            gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter, itr->second, itr->first );
         }
 
         std::map< double, Eigen::Vector6d > cr3bpNormalisedCoRotatingFramePerturbedCase;
         for( std::map< double, Eigen::Vector6d >::iterator itr = cr3bpPropagationPerturbedCase.begin( );
-             itr != cr3bpPropagationPerturbedCase.end( ); itr++ ){
-            cr3bpNormalisedCoRotatingFramePerturbedCase[ itr->first ] = tudat::circular_restricted_three_body_problem::
-                    convertCartesianToCorotatingNormalizedCoordinates(
-                        gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter, itr->second, itr->first);
+             itr != cr3bpPropagationPerturbedCase.end( );
+             itr++ )
+        {
+            cr3bpNormalisedCoRotatingFramePerturbedCase[ itr->first ] =
+                    tudat::circular_restricted_three_body_problem::convertCartesianToCorotatingNormalizedCoordinates(
+                            gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter, itr->second, itr->first );
         }
-
 
         input_output::writeDataMapToTextFile( fullPropagationPerturbedCase,
                                               "fullProblemPropagationPerturbedCase.dat",

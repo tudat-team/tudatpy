@@ -25,46 +25,41 @@ namespace low_thrust_trajectories
 class HybridMethodModel
 {
 public:
-
     //! Constructor.
     HybridMethodModel( const Eigen::Vector6d& stateAtDeparture,
-                     const Eigen::Vector6d& stateAtArrival,
-                     const Eigen::VectorXd& initialCoStates,
-                     const Eigen::VectorXd& finalCoStates,
+                       const Eigen::Vector6d& stateAtArrival,
+                       const Eigen::VectorXd& initialCoStates,
+                       const Eigen::VectorXd& finalCoStates,
                        const double centralBodyGravitationalParameter,
-                     const double maximumThrust,
-                     const double specificImpulse,
-                     const double timeOfFlight ):
-    stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), initialCoStates_( initialCoStates ),
-    finalCoStates_( finalCoStates ), centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-      maximumThrust_( maximumThrust ),
-    specificImpulse_( specificImpulse ), timeOfFlight_( timeOfFlight )
+                       const double maximumThrust,
+                       const double specificImpulse,
+                       const double timeOfFlight ):
+        stateAtDeparture_( stateAtDeparture ), stateAtArrival_( stateAtArrival ), initialCoStates_( initialCoStates ),
+        finalCoStates_( finalCoStates ), centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+        maximumThrust_( maximumThrust ), specificImpulse_( specificImpulse ), timeOfFlight_( timeOfFlight )
     {
         // Initialise value of the total deltaV.
         totalDeltaV_ = 0.0;
 
         // Retrieve initial mass of the spacecraft.
-        initialSpacecraftMass_ = bodies_[ bodyToPropagate_ ]->getBodyMass();
+        initialSpacecraftMass_ = bodies_[ bodyToPropagate_ ]->getBodyMass( );
 
         // Define function returning the current MEE costates.
-        costatesFunction_ = [ = ]( const double currentTime )
-        {
+        costatesFunction_ = [ = ]( const double currentTime ) {
             Eigen::VectorXd currentCostates;
             currentCostates.resize( 5 );
 
-            for ( int i = 0 ; i < 5 ; i++ )
+            for( int i = 0; i < 5; i++ )
             {
-                currentCostates[ i ] = initialCoStates_[ i ]
-                        + ( currentTime / timeOfFlight_ ) * ( finalCoStates_[ i ] - initialCoStates_[ i ] );
+                currentCostates[ i ] =
+                        initialCoStates_[ i ] + ( currentTime / timeOfFlight_ ) * ( finalCoStates_[ i ] - initialCoStates_[ i ] );
             }
             return currentCostates;
         };
 
         // Initialise mass at time of flight (before propagation).
-       Eigen::Vector6d propagatedStateAtTimeOfFlight = propagateTrajectory( );
-
+        Eigen::Vector6d propagatedStateAtTimeOfFlight = propagateTrajectory( );
     }
-
 
     //! Default destructor.
     ~HybridMethodModel( ) { }
@@ -82,11 +77,11 @@ public:
     Eigen::Vector6d propagateTrajectory( );
 
     //! Propagate the spacecraft trajectory to a given time.
-    Eigen::Vector6d  propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass );
+    Eigen::Vector6d propagateTrajectory( double initialTime, double finalTime, Eigen::Vector6d initialState, double initialMass );
 
     //! Propagate the trajectory to set of epochs.
-    std::map< double, Eigen::Vector6d > propagateTrajectory(
-            std::vector< double > epochs, std::map< double, Eigen::Vector6d >& propagatedTrajectory );
+    std::map< double, Eigen::Vector6d > propagateTrajectory( std::vector< double > epochs,
+                                                             std::map< double, Eigen::Vector6d >& propagatedTrajectory );
 
     //! Return the deltaV associated with the thrust profile of the trajectory.
     double computeDeltaV( );
@@ -134,9 +129,7 @@ public:
     }
 
 protected:
-
 private:
-
     //! State vector of the vehicle at the leg departure.
     Eigen::Vector6d stateAtDeparture_;
 
@@ -174,11 +167,9 @@ private:
 
     //! Mass of the spacecraft at the end of the propagation.
     double massAtTimeOfFlight_;
-
 };
 
+}  // namespace low_thrust_trajectories
+}  // namespace tudat
 
-} // namespace low_thrust_trajectories
-} // namespace tudat
-
-#endif // TUDAT_HYBRID_METHOD_MODEL_H
+#endif  // TUDAT_HYBRID_METHOD_MODEL_H

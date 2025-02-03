@@ -70,14 +70,10 @@ BOOST_AUTO_TEST_CASE( testSimpleLinearRegressionBF )
     simpleLinearRegression.computeFit( );
 
     // Check that computed coefficient of constant term matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( expectedCoefficientOfConstantTerm,
-                                simpleLinearRegression.getCoefficientOfConstantTerm( ),
-                                1.0e-14 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedCoefficientOfConstantTerm, simpleLinearRegression.getCoefficientOfConstantTerm( ), 1.0e-14 );
 
     // Check that computed coefficient of linear term matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( expectedCoefficientOfLinearTerm,
-                                simpleLinearRegression.getCoefficientOfLinearTerm( ),
-                                1.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedCoefficientOfLinearTerm, simpleLinearRegression.getCoefficientOfLinearTerm( ), 1.0e-15 );
 
     // Compute linear fit errors.
     simpleLinearRegression.computeFitErrors( );
@@ -85,21 +81,17 @@ BOOST_AUTO_TEST_CASE( testSimpleLinearRegressionBF )
     // Check that computed standard deviation of coefficient of constant term matches expected
     // value.
     BOOST_CHECK_CLOSE_FRACTION( expectedStandardDeviationOfCoefficientOfConstantTerm,
-                                simpleLinearRegression
-                                .getStandardDeviationOfCoefficientOfConstantTerm( ),
+                                simpleLinearRegression.getStandardDeviationOfCoefficientOfConstantTerm( ),
                                 1.0e-13 );
 
     // Check that computed standard deviation of coefficient of linear term matches expected
     // value.
     BOOST_CHECK_CLOSE_FRACTION( expectedStandardDeviationOfCoefficientOfLinearTerm,
-                                simpleLinearRegression
-                                .getStandardDeviationOfCoefficientOfLinearTerm( ),
+                                simpleLinearRegression.getStandardDeviationOfCoefficientOfLinearTerm( ),
                                 1.0e-13 );
 
     // Check that computed chi-squared fit matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( expectedChiSquared,
-                                simpleLinearRegression.getChiSquared( ),
-                                1.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedChiSquared, simpleLinearRegression.getChiSquared( ), 1.0e-15 );
 }
 
 BOOST_AUTO_TEST_CASE( testSimpleLinearRegressionHorizontal )
@@ -126,28 +118,22 @@ BOOST_AUTO_TEST_CASE( testSimpleLinearRegressionHorizontal )
     simpleLinearRegression.computeFit( );
 
     // Check that computed coefficient of constant term is zero.
-    BOOST_CHECK_SMALL( simpleLinearRegression.getCoefficientOfConstantTerm( ),
-                       std::numeric_limits< double >::min( ) );
+    BOOST_CHECK_SMALL( simpleLinearRegression.getCoefficientOfConstantTerm( ), std::numeric_limits< double >::min( ) );
 
     // Check that computed coefficient of linear term matches is zero.
-    BOOST_CHECK_SMALL( simpleLinearRegression.getCoefficientOfLinearTerm( ),
-                       std::numeric_limits< double >::min( ) );
+    BOOST_CHECK_SMALL( simpleLinearRegression.getCoefficientOfLinearTerm( ), std::numeric_limits< double >::min( ) );
 
     // Compute linear fit errors.
     simpleLinearRegression.computeFitErrors( );
 
     // Check that computed standard deviation of coefficient of constant term is zero.
-    BOOST_CHECK_SMALL( simpleLinearRegression.getStandardDeviationOfCoefficientOfConstantTerm( ),
-                       std::numeric_limits< double >::min( ) );
-
+    BOOST_CHECK_SMALL( simpleLinearRegression.getStandardDeviationOfCoefficientOfConstantTerm( ), std::numeric_limits< double >::min( ) );
 
     // Check that computed standard deviation of coefficient of linear term is zero.
-    BOOST_CHECK_SMALL( simpleLinearRegression.getStandardDeviationOfCoefficientOfLinearTerm( ),
-                       std::numeric_limits< double >::min( ) );
+    BOOST_CHECK_SMALL( simpleLinearRegression.getStandardDeviationOfCoefficientOfLinearTerm( ), std::numeric_limits< double >::min( ) );
 
     // Check that computed chi-squared fit is zero.
-    BOOST_CHECK_SMALL( simpleLinearRegression.getChiSquared( ),
-                       std::numeric_limits< double >::min( ) );
+    BOOST_CHECK_SMALL( simpleLinearRegression.getChiSquared( ), std::numeric_limits< double >::min( ) );
 }
 
 BOOST_AUTO_TEST_CASE( testSimpleLinearRegressionVertical )
@@ -184,19 +170,17 @@ BOOST_AUTO_TEST_CASE( testSimpleLinearRegressionVertical )
 
     // Check that computed standard deviation of coefficient of constant term matches expected
     // value.
-    BOOST_CHECK( boost::math::isnan( simpleLinearRegression
-                             .getStandardDeviationOfCoefficientOfConstantTerm( ) ) );
+    BOOST_CHECK( boost::math::isnan( simpleLinearRegression.getStandardDeviationOfCoefficientOfConstantTerm( ) ) );
 
     // Check that computed standard deviation of coefficient of linear term matches expected
     // value.
-    BOOST_CHECK( boost::math::isnan(simpleLinearRegression
-                            .getStandardDeviationOfCoefficientOfLinearTerm( ) ) );
+    BOOST_CHECK( boost::math::isnan( simpleLinearRegression.getStandardDeviationOfCoefficientOfLinearTerm( ) ) );
 
     // Check that computed chi-squared fit matches expected value.
-    BOOST_CHECK( boost::math::isnan(simpleLinearRegression.getChiSquared( ) ) );
+    BOOST_CHECK( boost::math::isnan( simpleLinearRegression.getChiSquared( ) ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

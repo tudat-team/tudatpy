@@ -27,14 +27,14 @@ boost::filesystem::path getPathForJSONFile( const std::string& file, const boost
 {
     // Get absolute path to input file
     boost::filesystem::path filePath = file;
-    if ( ! filePath.is_absolute( ) )
+    if( !filePath.is_absolute( ) )
     {
         filePath = basePath / filePath;
     }
 
-    if ( boost::filesystem::exists( filePath ) )
+    if( boost::filesystem::exists( filePath ) )
     {
-        if ( boost::filesystem::is_directory( filePath ) )
+        if( boost::filesystem::is_directory( filePath ) )
         {
             // If it's a directory, try to find a "main.json" file in that directory
             return getPathForJSONFile( "main.json", filePath );
@@ -49,7 +49,7 @@ boost::filesystem::path getPathForJSONFile( const std::string& file, const boost
         // Try appending extension
         const boost::filesystem::path originalFilePath = filePath;
         filePath += ".json";
-        if ( boost::filesystem::exists( filePath ) )
+        if( boost::filesystem::exists( filePath ) )
         {
             return filePath;
         }
@@ -78,10 +78,10 @@ std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, co
     unsigned int line = 1;
     std::streampos col;
     std::streampos lastPos = stream.tellg( );
-    while ( std::getline( stream, lineContents ) )
+    while( std::getline( stream, lineContents ) )
     {
         const std::streampos currentPos = stream.tellg( );
-        if ( currentPos > position )
+        if( currentPos > position )
         {
             col = position - lastPos;
             break;
@@ -118,17 +118,20 @@ std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, co
  * \param rootFilePath Path to the root file that was passed as command-line argument to the application.
  * (equal to \p filePath if \p jsonObject was defined at \p rootFilePath).
  */
-void updatePaths( nlohmann::json& jsonObject, const boost::filesystem::path& filePath, const boost::filesystem::path& parentFilePath, const boost::filesystem::path& rootFilePath )
+void updatePaths( nlohmann::json& jsonObject,
+                  const boost::filesystem::path& filePath,
+                  const boost::filesystem::path& parentFilePath,
+                  const boost::filesystem::path& rootFilePath )
 {
-    if ( jsonObject.is_structured( ) )
+    if( jsonObject.is_structured( ) )
     {
-        for ( nlohmann::json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+        for( nlohmann::json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
         {
             nlohmann::json& subjson = it.value( );
             updatePaths( subjson, filePath, parentFilePath, rootFilePath );
         }
     }
-    else if ( jsonObject.is_string( ) )
+    else if( jsonObject.is_string( ) )
     {
         std::string str = jsonObject;
 
@@ -146,10 +149,10 @@ void updatePaths( nlohmann::json& jsonObject, const boost::filesystem::path& fil
         // Fix relative paths
         boost::cmatch groups;
         boost::regex_match( str.c_str( ), groups, boost::regex( R"(\@path\((.*)\))" ) );
-        if ( groups[ 1 ].matched )
+        if( groups[ 1 ].matched )
         {
             const boost::filesystem::path providedPath = std::string( groups[ 1 ] );
-            if ( providedPath.is_relative( ) )
+            if( providedPath.is_relative( ) )
             {
                 const boost::filesystem::path rel = boost::filesystem::relative( filePath.parent_path( ), rootFilePath.parent_path( ) );
                 str = ( *rel.filename( ).c_str( ) == '.' ? providedPath : rel / providedPath ).string( );
@@ -157,7 +160,7 @@ void updatePaths( nlohmann::json& jsonObject, const boost::filesystem::path& fil
             else
             {
                 const boost::filesystem::path rel = boost::filesystem::relative( providedPath, rootFilePath.parent_path( ) );
-                str = ( ( ! rel.empty( ) && rel.size( ) < providedPath.size( ) ) ? rel : providedPath ).string( );
+                str = ( ( !rel.empty( ) && rel.size( ) < providedPath.size( ) ) ? rel : providedPath ).string( );
             }
         }
 
@@ -166,7 +169,9 @@ void updatePaths( nlohmann::json& jsonObject, const boost::filesystem::path& fil
 }
 
 //! Read a JSON file into a `json` object.
-nlohmann::json readJSON( const boost::filesystem::path& filePath, const boost::filesystem::path& parentFilePath, const boost::filesystem::path& rootFilePath )
+nlohmann::json readJSON( const boost::filesystem::path& filePath,
+                         const boost::filesystem::path& parentFilePath,
+                         const boost::filesystem::path& rootFilePath )
 {
     std::ifstream stream( filePath.string( ) );
     nlohmann::json jsonObject;
@@ -174,15 +179,15 @@ nlohmann::json readJSON( const boost::filesystem::path& filePath, const boost::f
     {
         jsonObject = nlohmann::json::parse( stream );
     }
-    catch ( const nlohmann::detail::parse_error& error )
+    catch( const nlohmann::detail::parse_error& error )
     {
         std::pair< unsigned int, unsigned int > errorLineCol = getLineAndCol( stream, error.byte );
-        std::cerr << "Parse error in file " << filePath
-                  << " at line " << errorLineCol.first << ", col " << errorLineCol.second << "." << std::endl;
+        std::cerr << "Parse error in file " << filePath << " at line " << errorLineCol.first << ", col " << errorLineCol.second << "."
+                  << std::endl;
         throw error;
     }
-    updatePaths( jsonObject, filePath, parentFilePath.empty( ) ? filePath : parentFilePath,
-                 rootFilePath.empty( ) ? filePath : rootFilePath );
+    updatePaths(
+            jsonObject, filePath, parentFilePath.empty( ) ? filePath : parentFilePath, rootFilePath.empty( ) ? filePath : rootFilePath );
     return jsonObject;
 }
 
@@ -201,32 +206,32 @@ nlohmann::json readJSON( const boost::filesystem::path& filePath, const boost::f
  */
 void mergeJSON( nlohmann::json& jsonObject, const boost::filesystem::path& filePath )
 {
-    if ( jsonObject.is_array( ) )
+    if( jsonObject.is_array( ) )
     {
         nlohmann::json jsonArray = jsonObject;
-        for ( nlohmann::json::iterator it = jsonArray.begin( ); it != jsonArray.end( ); ++it )
+        for( nlohmann::json::iterator it = jsonArray.begin( ); it != jsonArray.end( ); ++it )
         {
             nlohmann::json subjson = it.value( );
             mergeJSON( subjson, filePath );
-            if ( it == jsonArray.begin( ) )
+            if( it == jsonArray.begin( ) )
             {
                 jsonObject = subjson;
             }
             else
             {
-                for ( nlohmann::json::iterator subit = subjson.begin( ); subit != subjson.end( ); ++subit )
+                for( nlohmann::json::iterator subit = subjson.begin( ); subit != subjson.end( ); ++subit )
                 {
                     const KeyPath keyPath( subit.key( ) );
                     try
                     {
                         nlohmann::json newValue = subit.value( );
-                        for ( unsigned int j = 0; j < keyPath.size( ); ++j )
+                        for( unsigned int j = 0; j < keyPath.size( ); ++j )
                         {
                             nlohmann::json updatedsonObject = jsonObject;
-                            for ( unsigned int i = 0; i < keyPath.size( ) - j; ++i )
+                            for( unsigned int i = 0; i < keyPath.size( ) - j; ++i )
                             {
                                 const std::string key = keyPath.at( i );
-                                if ( i < keyPath.size( ) - 1 - j )
+                                if( i < keyPath.size( ) - 1 - j )
                                 {
                                     updatedsonObject = valueAt( updatedsonObject, key );
                                 }
@@ -239,10 +244,9 @@ void mergeJSON( nlohmann::json& jsonObject, const boost::filesystem::path& fileP
                         }
                         jsonObject = newValue;
                     }
-                    catch ( ... )
+                    catch( ... )
                     {
-                        std::cerr << "Could not update value for " << keyPath << " referenced from file "
-                                  << filePath << std::endl;
+                        std::cerr << "Could not update value for " << keyPath << " referenced from file " << filePath << std::endl;
                         throw;
                     }
                 }
@@ -282,34 +286,36 @@ void mergeJSON( nlohmann::json& jsonObject, const boost::filesystem::path& fileP
  * \param rootFilePath Path to the root file that was passed as command-line argument to the application
  * (empty if \p filePath is equal to \p rootFilePath).
  */
-void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path& filePath,
-                       nlohmann::json parentObject = nlohmann::json( ), boost::filesystem::path rootFilePath = boost::filesystem::path( ) )
+void parseModularJSON( nlohmann::json& jsonObject,
+                       const boost::filesystem::path& filePath,
+                       nlohmann::json parentObject = nlohmann::json( ),
+                       boost::filesystem::path rootFilePath = boost::filesystem::path( ) )
 {
-    if ( parentObject.is_null( ) )
+    if( parentObject.is_null( ) )
     {
         parentObject = jsonObject;
     }
-    if ( rootFilePath.empty( ) )
+    if( rootFilePath.empty( ) )
     {
         rootFilePath = filePath;
     }
-    if ( jsonObject.is_object( ) )
+    if( jsonObject.is_object( ) )
     {
-        for ( nlohmann::json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+        for( nlohmann::json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
         {
             nlohmann::json& subjson = it.value( );
             parseModularJSON( subjson, filePath, jsonObject, rootFilePath );
         }
     }
-    else if ( jsonObject.is_array( ) )
+    else if( jsonObject.is_array( ) )
     {
-        for ( unsigned int i = 0; i < jsonObject.size( ); ++i )
+        for( unsigned int i = 0; i < jsonObject.size( ); ++i )
         {
             nlohmann::json& subjson = jsonObject.at( i );
             parseModularJSON( subjson, filePath, jsonObject, rootFilePath );
         }
     }
-    else if ( jsonObject.is_string( ) )
+    else if( jsonObject.is_string( ) )
     {
         std::string objectString = jsonObject.get< std::string >( );
         if( objectString.size( ) > 3 )
@@ -387,16 +393,16 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
                     const nlohmann::json importedJsonObject = readJSON( importPath, filePath, rootFilePath );
                     std::vector< std::string > keys;
                     std::vector< KeyPath > keyPaths;
-                    if ( vars.empty( ) )
+                    if( vars.empty( ) )
                     {
                         keyPaths = { KeyPath( ) };
                     }
                     else
                     {
-                        for ( const std::string variable : split( vars, ',' ) )
+                        for( const std::string variable: split( vars, ',' ) )
                         {
                             const std::vector< std::string > keyVar = split( variable, ':' );
-                            if ( keyVar.size( ) == 2 )
+                            if( keyVar.size( ) == 2 )
                             {
                                 keys.push_back( keyVar.front( ) );
                             }
@@ -404,11 +410,11 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
                         }
                     }
                     nlohmann::json parsedJsonObject;
-                    for ( unsigned int i = 0; i < keyPaths.size( ); ++i )
+                    for( unsigned int i = 0; i < keyPaths.size( ); ++i )
                     {
                         const KeyPath keyPath = keyPaths.at( i );
                         nlohmann::json subJsonObject = importedJsonObject;
-                        if ( keyPath.empty( ) )
+                        if( keyPath.empty( ) )
                         {
                             parseModularJSON( subJsonObject, importPath, parentObject, rootFilePath );
                         }
@@ -417,16 +423,16 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
                             try
                             {
                                 // Recursively update jsonObject for every key in keyPath
-                                for ( const std::string key : keyPath )
+                                for( const std::string key: keyPath )
                                 {
                                     subJsonObject = valueAt( subJsonObject, key );
                                     parseModularJSON( subJsonObject, importPath, parentObject, rootFilePath );
                                 }
                             }
-                            catch ( ... )
+                            catch( ... )
                             {
                                 std::cerr << "Could not load ";
-                                if ( ! keyPath.empty( ) )
+                                if( !keyPath.empty( ) )
                                 {
                                     std::cerr << "value for " << keyPath << " from ";
                                 }
@@ -434,7 +440,7 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
                                 throw;
                             }
                         }
-                        if ( keys.size( ) > 0 )
+                        if( keys.size( ) > 0 )
                         {
                             parsedJsonObject[ keys.at( i ) ] = subJsonObject;
                         }
@@ -443,7 +449,7 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
                             parsedJsonObject[ i ] = subJsonObject;
                         }
                     }
-                    if ( keyPaths.size( ) == 1 && keys.size( ) == 0 && vars.find( ',' ) == std::string::npos )
+                    if( keyPaths.size( ) == 1 && keys.size( ) == 0 && vars.find( ',' ) == std::string::npos )
                     {
                         jsonObject = parsedJsonObject.front( );
                     }
@@ -454,7 +460,8 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
                 }
                 else
                 {
-                    throw std::runtime_error( "Error in JSON file deserialization, found none of '(', ')' '{'  or '}' in string starting with '$' " );
+                    throw std::runtime_error(
+                            "Error in JSON file deserialization, found none of '(', ')' '{'  or '}' in string starting with '$' " );
                 }
             }
         }

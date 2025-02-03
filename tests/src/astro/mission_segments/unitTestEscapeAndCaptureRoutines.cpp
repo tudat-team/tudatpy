@@ -47,8 +47,8 @@ BOOST_AUTO_TEST_CASE( testDeltaVEscape )
     const double excessVelocity = 2944.61246668719;
 
     // Compute delta-V of escape phase.
-    const double deltaVEscape = mission_segments::computeEscapeOrCaptureDeltaV(
-                gravitationalParameterEarth, semiMajorAxis, eccentricity, excessVelocity );
+    const double deltaVEscape =
+            mission_segments::computeEscapeOrCaptureDeltaV( gravitationalParameterEarth, semiMajorAxis, eccentricity, excessVelocity );
 
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance.
@@ -73,8 +73,8 @@ BOOST_AUTO_TEST_CASE( testDeltaVCapture )
     const double excessVelocity = 2648.83359973278;
 
     // Compute delta-V of escape phase.
-    const double deltaVCapture = mission_segments::computeEscapeOrCaptureDeltaV(
-                gravitationalParameterMars, semiMajorAxis, eccentricity, excessVelocity );
+    const double deltaVCapture =
+            mission_segments::computeEscapeOrCaptureDeltaV( gravitationalParameterMars, semiMajorAxis, eccentricity, excessVelocity );
 
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance.
@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE( testDeltaVEscapeElliptical )
     const double excessVelocity = 2944.61246668719;
 
     // Compute delta-V of escape phase.
-    const double deltaVEscape = mission_segments::computeEscapeOrCaptureDeltaV(
-                gravitationalParameterEarth, semiMajorAxis, eccentricity, excessVelocity );
+    const double deltaVEscape =
+            mission_segments::computeEscapeOrCaptureDeltaV( gravitationalParameterEarth, semiMajorAxis, eccentricity, excessVelocity );
 
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance.
@@ -108,5 +108,5 @@ BOOST_AUTO_TEST_CASE( testDeltaVEscapeElliptical )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

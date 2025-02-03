@@ -59,8 +59,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
         double gravitationalParameterSun = 1.32712440018e20;
 
         // Set mass parameter of Sun-Jupiter system.
-        double massParameter = gravitationalParameterJupiter
-                / ( gravitationalParameterJupiter + gravitationalParameterSun );
+        double massParameter = gravitationalParameterJupiter / ( gravitationalParameterJupiter + gravitationalParameterSun );
 
         // Set dimensionless state of the Sun.
         using orbital_element_conversions::xCartesianPositionIndex;
@@ -81,16 +80,13 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
         Eigen::VectorXd computedDimensionalStateOfTestParticle( 6 );
         computedDimensionalStateOfTestParticle =
                 circular_restricted_three_body_problem::convertDimensionlessCartesianStateToDimensionalUnits(
-                    dimensionlessStateOfTestParticle, gravitationalParameterSun,
-                    gravitationalParameterJupiter, distanceSunJupiter );
+                        dimensionlessStateOfTestParticle, gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter );
 
         // Check if computed position and velocity matches expected value.
         BOOST_CHECK_CLOSE_FRACTION( distanceSunJupiter,
                                     computedDimensionalStateOfTestParticle( xCartesianPositionIndex ),
                                     std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_CLOSE_FRACTION( velocitySunJupiter,
-                                    computedDimensionalStateOfTestParticle( yCartesianVelocityIndex ),
-                                    1.0e-2 );
+        BOOST_CHECK_CLOSE_FRACTION( velocitySunJupiter, computedDimensionalStateOfTestParticle( yCartesianVelocityIndex ), 1.0e-2 );
     }
 }
 
@@ -112,19 +108,16 @@ BOOST_AUTO_TEST_CASE( testTimeConversionCircularRestrictedThreeBodyProblem )
         double gravitationalParameterSun = 1.32712440018e20;
 
         // Compute dimensional time for one complete orbit.
-        double computedDimensionalTime =
-                circular_restricted_three_body_problem::convertDimensionlessTimeToDimensionalTime(
-                    2.0 * PI, gravitationalParameterSun, gravitationalParameterJupiter,
-                    distanceSunJupiter );
+        double computedDimensionalTime = circular_restricted_three_body_problem::convertDimensionlessTimeToDimensionalTime(
+                2.0 * PI, gravitationalParameterSun, gravitationalParameterJupiter, distanceSunJupiter );
 
         // Set expected orbital period of system [s].
         double expectedOrbitalPeriodOfSunJupiterSystem = 3.733e08;
 
         // Check if computed orbital period matches expected value.
-        BOOST_CHECK_CLOSE_FRACTION( expectedOrbitalPeriodOfSunJupiterSystem,
-                                    computedDimensionalTime, 1.0e-2 );
+        BOOST_CHECK_CLOSE_FRACTION( expectedOrbitalPeriodOfSunJupiterSystem, computedDimensionalTime, 1.0e-2 );
     }
 }
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

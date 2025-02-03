@@ -25,7 +25,7 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `AccelerationSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings )
 {
-    if ( ! directionSettings )
+    if( !directionSettings )
     {
         return;
     }
@@ -36,22 +36,21 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustDirection
     jsonObject[ K::type ] = directionType;
     jsonObject[ K::relativeBody ] = directionSettings->relativeBody_;
 
-    switch ( directionType ) {
-    case colinear_with_state_segment_thrust_direction:
+    switch( directionType )
     {
-        std::shared_ptr< ThrustDirectionFromStateGuidanceSettings > directionFromStateGuidanceSettings
-                = std::dynamic_pointer_cast< ThrustDirectionFromStateGuidanceSettings >( directionSettings );
-        assertNonnullptrPointer( directionFromStateGuidanceSettings );
-        jsonObject[ K::colinearWithVelocity ] = directionFromStateGuidanceSettings->isColinearWithVelocity_;
-        jsonObject[ K::towardsRelativeBody ] = directionFromStateGuidanceSettings->directionIsOppositeToVector_;
-        return;
-    }
-    case thrust_direction_from_existing_body_orientation:
-    {
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( directionType, thrustDirectionTypes, unsupportedThrustDirectionTypes );
+        case colinear_with_state_segment_thrust_direction: {
+            std::shared_ptr< ThrustDirectionFromStateGuidanceSettings > directionFromStateGuidanceSettings =
+                    std::dynamic_pointer_cast< ThrustDirectionFromStateGuidanceSettings >( directionSettings );
+            assertNonnullptrPointer( directionFromStateGuidanceSettings );
+            jsonObject[ K::colinearWithVelocity ] = directionFromStateGuidanceSettings->isColinearWithVelocity_;
+            jsonObject[ K::towardsRelativeBody ] = directionFromStateGuidanceSettings->directionIsOppositeToVector_;
+            return;
+        }
+        case thrust_direction_from_existing_body_orientation: {
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( directionType, thrustDirectionTypes, unsupportedThrustDirectionTypes );
     }
 }
 
@@ -64,32 +63,30 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustDirecti
     const ThrustDirectionGuidanceTypes directionType = getValue< ThrustDirectionGuidanceTypes >( jsonObject, K::type );
     const std::string relativeBody = getValue< std::string >( jsonObject, K::relativeBody );
 
-    switch ( directionType ) {
-    case colinear_with_state_segment_thrust_direction:
+    switch( directionType )
     {
-        directionSettings = std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
-                    relativeBody,
-                    getValue< bool >( jsonObject, K::colinearWithVelocity),
-                    getValue< bool >( jsonObject, K::towardsRelativeBody ) );
-        return;
-    }
-    case thrust_direction_from_existing_body_orientation:
-    {
-        directionSettings = std::make_shared< ThrustDirectionGuidanceSettings >( directionType, relativeBody );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( directionType, thrustDirectionTypes, unsupportedThrustDirectionTypes );
+        case colinear_with_state_segment_thrust_direction: {
+            directionSettings =
+                    std::make_shared< ThrustDirectionFromStateGuidanceSettings >( relativeBody,
+                                                                                  getValue< bool >( jsonObject, K::colinearWithVelocity ),
+                                                                                  getValue< bool >( jsonObject, K::towardsRelativeBody ) );
+            return;
+        }
+        case thrust_direction_from_existing_body_orientation: {
+            directionSettings = std::make_shared< ThrustDirectionGuidanceSettings >( directionType, relativeBody );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( directionType, thrustDirectionTypes, unsupportedThrustDirectionTypes );
     }
 }
-
 
 // ThrustMagnitudeSettings
 
 //! Create a `json` object from a shared pointer to a `ThrustMagnitudeSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustMagnitudeSettings >& magnitudeSettings )
 {
-    if ( ! magnitudeSettings )
+    if( !magnitudeSettings )
     {
         return;
     }
@@ -100,27 +97,26 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustMagnitude
     jsonObject[ K::type ] = magnitudeType;
     assignIfNotEmpty( jsonObject, K::originID, magnitudeSettings->thrustOriginId_ );
 
-    switch ( magnitudeType ) {
-    case constant_thrust_magnitude:
+    switch( magnitudeType )
     {
-        std::shared_ptr< ConstantThrustMagnitudeSettings > contantMagnitudeSettings
-                = std::dynamic_pointer_cast< ConstantThrustMagnitudeSettings >( magnitudeSettings );
-        assertNonnullptrPointer( contantMagnitudeSettings );
-        jsonObject[ K::constantMagnitude ] = contantMagnitudeSettings->thrustMagnitude_;
-        jsonObject[ K::specificImpulse ] = contantMagnitudeSettings->specificImpulse_;
-        jsonObject[ K::bodyFixedDirection ] = contantMagnitudeSettings->bodyFixedThrustDirection_;
-        return;
-    }
-    case from_engine_properties_thrust_magnitude:
-    {
-        std::shared_ptr< FromBodyThrustMagnitudeSettings > fromBodyMagnitudeSettings
-                = std::dynamic_pointer_cast< FromBodyThrustMagnitudeSettings >( magnitudeSettings );
-        assertNonnullptrPointer( fromBodyMagnitudeSettings );
-        jsonObject[ K::useAllEngines ] = fromBodyMagnitudeSettings->useAllEngines_;
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( magnitudeType, thrustMagnitudeTypes, unsupportedThrustMagnitudeTypes );
+        case constant_thrust_magnitude: {
+            std::shared_ptr< ConstantThrustMagnitudeSettings > contantMagnitudeSettings =
+                    std::dynamic_pointer_cast< ConstantThrustMagnitudeSettings >( magnitudeSettings );
+            assertNonnullptrPointer( contantMagnitudeSettings );
+            jsonObject[ K::constantMagnitude ] = contantMagnitudeSettings->thrustMagnitude_;
+            jsonObject[ K::specificImpulse ] = contantMagnitudeSettings->specificImpulse_;
+            jsonObject[ K::bodyFixedDirection ] = contantMagnitudeSettings->bodyFixedThrustDirection_;
+            return;
+        }
+        case from_engine_properties_thrust_magnitude: {
+            std::shared_ptr< FromBodyThrustMagnitudeSettings > fromBodyMagnitudeSettings =
+                    std::dynamic_pointer_cast< FromBodyThrustMagnitudeSettings >( magnitudeSettings );
+            assertNonnullptrPointer( fromBodyMagnitudeSettings );
+            jsonObject[ K::useAllEngines ] = fromBodyMagnitudeSettings->useAllEngines_;
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( magnitudeType, thrustMagnitudeTypes, unsupportedThrustMagnitudeTypes );
     }
 }
 
@@ -132,36 +128,34 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustMagnitu
 
     const ThrustMagnitudeTypes magnitudeType = getValue< ThrustMagnitudeTypes >( jsonObject, K::type );
 
-    switch ( magnitudeType ) {
-    case constant_thrust_magnitude:
+    switch( magnitudeType )
     {
-        ConstantThrustMagnitudeSettings defaults( TUDAT_NAN, TUDAT_NAN );
-        magnitudeSettings = std::make_shared< ConstantThrustMagnitudeSettings >(
+        case constant_thrust_magnitude: {
+            ConstantThrustMagnitudeSettings defaults( TUDAT_NAN, TUDAT_NAN );
+            magnitudeSettings = std::make_shared< ConstantThrustMagnitudeSettings >(
                     getValue< double >( jsonObject, K::constantMagnitude ),
                     getValue< double >( jsonObject, K::specificImpulse ),
                     getValue( jsonObject, K::bodyFixedDirection, defaults.bodyFixedThrustDirection_ ) );
-        return;
-    }
-    case from_engine_properties_thrust_magnitude:
-    {
-        FromBodyThrustMagnitudeSettings defaults;
-        magnitudeSettings = std::make_shared< FromBodyThrustMagnitudeSettings >(
-                    getValue( jsonObject, K::useAllEngines, defaults.useAllEngines_ ),
-                    getValue( jsonObject, K::originID, defaults.thrustOriginId_ ) );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( magnitudeType, thrustMagnitudeTypes, unsupportedThrustMagnitudeTypes );
+            return;
+        }
+        case from_engine_properties_thrust_magnitude: {
+            FromBodyThrustMagnitudeSettings defaults;
+            magnitudeSettings =
+                    std::make_shared< FromBodyThrustMagnitudeSettings >( getValue( jsonObject, K::useAllEngines, defaults.useAllEngines_ ),
+                                                                         getValue( jsonObject, K::originID, defaults.thrustOriginId_ ) );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( magnitudeType, thrustMagnitudeTypes, unsupportedThrustMagnitudeTypes );
     }
 }
-
 
 // Thrust
 
 //! Create a `json` object from a shared pointer to a `ThrustAccelerationSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings )
 {
-    if ( ! thrustAccelerationSettings )
+    if( !thrustAccelerationSettings )
     {
         return;
     }
@@ -171,7 +165,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustAccelerat
 
     jsonObject[ Keys::Propagator::Acceleration::type ] = basic_astrodynamics::thrust_acceleration;
 
-    if ( thrustAccelerationSettings->dataInterpolationSettings_ )
+    if( thrustAccelerationSettings->dataInterpolationSettings_ )
     {
         jsonObject[ K::dataInterpolation ] = thrustAccelerationSettings->dataInterpolationSettings_;
         jsonObject[ K::specificImpulse ] = thrustAccelerationSettings->constantSpecificImpulse_;
@@ -192,23 +186,22 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustAcceler
     using namespace interpolators;
     using K = Keys::Propagator::Acceleration::Thrust;
 
-    if ( isDefined( jsonObject, K::dataInterpolation ) )
+    if( isDefined( jsonObject, K::dataInterpolation ) )
     {
         thrustAccelerationSettings = std::make_shared< ThrustAccelerationSettings >(
-                    getValue< std::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > >(
-                        jsonObject, K::dataInterpolation ),
-                    getValue< double >( jsonObject, K::specificImpulse ),
-                    getValue< ThrustFrames >( jsonObject, K::frame ),
-                    getValue< std::string >( jsonObject, K::centralBody ) );
+                getValue< std::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > >( jsonObject, K::dataInterpolation ),
+                getValue< double >( jsonObject, K::specificImpulse ),
+                getValue< ThrustFrames >( jsonObject, K::frame ),
+                getValue< std::string >( jsonObject, K::centralBody ) );
     }
     else
     {
         thrustAccelerationSettings = std::make_shared< ThrustAccelerationSettings >(
-                    getValue< std::shared_ptr< ThrustDirectionGuidanceSettings > >( jsonObject, K::direction ),
-                    getValue< std::shared_ptr< ThrustMagnitudeSettings > >( jsonObject, K::magnitude ) );
+                getValue< std::shared_ptr< ThrustDirectionGuidanceSettings > >( jsonObject, K::direction ),
+                getValue< std::shared_ptr< ThrustMagnitudeSettings > >( jsonObject, K::magnitude ) );
     }
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

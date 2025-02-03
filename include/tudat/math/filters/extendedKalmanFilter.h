@@ -29,10 +29,9 @@ namespace filters
  *  \tparam DependentVariableType Type of dependent variable. Default is double.
  */
 template< typename IndependentVariableType = double, typename DependentVariableType = double >
-class ExtendedKalmanFilter: public KalmanFilterBase< IndependentVariableType, DependentVariableType >
+class ExtendedKalmanFilter : public KalmanFilterBase< IndependentVariableType, DependentVariableType >
 {
 public:
-
     //! Inherit typedefs from base class.
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentVector DependentVector;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
@@ -78,41 +77,45 @@ public:
                           const IndependentVariableType initialTime,
                           const DependentVector& initialStateVector,
                           const DependentMatrix& initialCovarianceMatrix,
-                          const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
-        KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
-                                                                            filteringStepSize, initialTime, initialStateVector,
-                                                                            initialCovarianceMatrix, integratorSettings ),
+                          const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ):
+        KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty,
+                                                                            measurementUncertainty,
+                                                                            filteringStepSize,
+                                                                            initialTime,
+                                                                            initialStateVector,
+                                                                            initialCovarianceMatrix,
+                                                                            integratorSettings ),
         inputSystemFunction_( systemFunction ), inputMeasurementFunction_( measurementFunction ),
         stateJacobianFunction_( stateJacobianFunction ), stateNoiseJacobianFunction_( stateNoiseJacobianFunction ),
         measurementJacobianFunction_( measurementJacobianFunction ), measurementNoiseJacobianFunction_( measurementNoiseJacobianFunction )
     {
         // Compute the discrete-time version of the system Jacobians
-        if ( this->isStateToBeIntegrated_ )
+        if( this->isStateToBeIntegrated_ )
         {
-            discreteTimeStateJacobians_ = std::bind( &ExtendedKalmanFilter< IndependentVariableType,
-                                                     DependentVariableType >::generateDiscreteTimeSystemJacobians, this,
-                                                     std::placeholders::_1 );
+            discreteTimeStateJacobians_ =
+                    std::bind( &ExtendedKalmanFilter< IndependentVariableType, DependentVariableType >::generateDiscreteTimeSystemJacobians,
+                               this,
+                               std::placeholders::_1 );
         }
     }
 
     //! Destructor.
-    ~ExtendedKalmanFilter( ){ }
+    ~ExtendedKalmanFilter( ) { }
 
     //! Function to update the filter with the new step data.
     /*!
      *  Function to update the filter with the new step data.
      *  \param currentMeasurementVector Vector representing current measurement.
      */
-	void updateFilter( const DependentVector& currentMeasurementVector )
+    void updateFilter( const DependentVector& currentMeasurementVector )
     {
         // Prediction step
         DependentVector aPrioriStateEstimate = this->predictState( );
         DependentMatrix currentStateJacobianMatrix;
         DependentMatrix currentStateNoiseJacobianMatrix;
-        if ( this->isStateToBeIntegrated_ )
+        if( this->isStateToBeIntegrated_ )
         {
-            std::pair< DependentMatrix, DependentMatrix > discreteTimeJacobians =
-                    discreteTimeStateJacobians_( aPrioriStateEstimate );
+            std::pair< DependentMatrix, DependentMatrix > discreteTimeJacobians = discreteTimeStateJacobians_( aPrioriStateEstimate );
             currentStateJacobianMatrix = discreteTimeJacobians.first;
             currentStateNoiseJacobianMatrix = discreteTimeJacobians.second;
         }
@@ -125,18 +128,20 @@ public:
 
         // Compute remaining Jacobians
         DependentMatrix currentMeasurementJacobianMatrix = measurementJacobianFunction_( this->currentTime_, aPrioriStateEstimate );
-        DependentMatrix currentMeasurementNoiseJacobianMatrix = measurementNoiseJacobianFunction_( this->currentTime_, aPrioriStateEstimate );
+        DependentMatrix currentMeasurementNoiseJacobianMatrix =
+                measurementNoiseJacobianFunction_( this->currentTime_, aPrioriStateEstimate );
 
         // Prediction step (continued)
-        DependentMatrix aPrioriCovarianceEstimate = currentStateJacobianMatrix * this->aPosterioriCovarianceEstimate_ *
-                currentStateJacobianMatrix.transpose( ) + currentStateNoiseJacobianMatrix * this->systemUncertainty_ *
-                currentStateNoiseJacobianMatrix.transpose( );
+        DependentMatrix aPrioriCovarianceEstimate =
+                currentStateJacobianMatrix * this->aPosterioriCovarianceEstimate_ * currentStateJacobianMatrix.transpose( ) +
+                currentStateNoiseJacobianMatrix * this->systemUncertainty_ * currentStateNoiseJacobianMatrix.transpose( );
 
         // Compute Kalman gain
-        DependentMatrix kalmanGain = aPrioriCovarianceEstimate * currentMeasurementJacobianMatrix.transpose( ) * (
-                    currentMeasurementJacobianMatrix * aPrioriCovarianceEstimate * currentMeasurementJacobianMatrix.transpose( ) +
-                    currentMeasurementNoiseJacobianMatrix * this->measurementUncertainty_ *
-                    currentMeasurementNoiseJacobianMatrix.transpose( ) ).inverse( );
+        DependentMatrix kalmanGain = aPrioriCovarianceEstimate * currentMeasurementJacobianMatrix.transpose( ) *
+                ( currentMeasurementJacobianMatrix * aPrioriCovarianceEstimate * currentMeasurementJacobianMatrix.transpose( ) +
+                  currentMeasurementNoiseJacobianMatrix * this->measurementUncertainty_ *
+                          currentMeasurementNoiseJacobianMatrix.transpose( ) )
+                        .inverse( );
 
         // Correction step
         this->currentTime_ += this->filteringStepSize_;
@@ -145,7 +150,6 @@ public:
     }
 
 private:
-
     //! Function to create the function that defines the system model.
     /*!
      *  Function to create the function that defines the system model. The output of this function is then bound
@@ -154,8 +158,7 @@ private:
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated state.
      */
-    DependentVector createSystemFunction( const IndependentVariableType currentTime,
-                                          const DependentVector& currentStateVector )
+    DependentVector createSystemFunction( const IndependentVariableType currentTime, const DependentVector& currentStateVector )
     {
         return inputSystemFunction_( currentTime, currentStateVector );
     }
@@ -168,8 +171,7 @@ private:
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated measurement.
      */
-    DependentVector createMeasurementFunction( const IndependentVariableType currentTime,
-                                               const DependentVector& currentStateVector )
+    DependentVector createMeasurementFunction( const IndependentVariableType currentTime, const DependentVector& currentStateVector )
     {
         return inputMeasurementFunction_( currentTime, currentStateVector );
     }
@@ -181,8 +183,7 @@ private:
      *  \param currentStateVector Vector representing the current state.
      *  \return Pair of discrete-time state and noise Jacobians.
      */
-    std::pair< DependentMatrix, DependentMatrix > generateDiscreteTimeSystemJacobians(
-            const DependentVector& currentStateVector )
+    std::pair< DependentMatrix, DependentMatrix > generateDiscreteTimeSystemJacobians( const DependentVector& currentStateVector )
     {
         // Pre-compute Jacobians
         DependentMatrix stateJacobian = stateJacobianFunction_( this->currentTime_, currentStateVector );
@@ -246,17 +247,16 @@ private:
      *  generateDiscreteTimeSystemJacobians.
      */
     std::function< std::pair< DependentMatrix, DependentMatrix >( const DependentVector& ) > discreteTimeStateJacobians_;
-
 };
 
 //! Typedef for a filter with double data type.
-typedef ExtendedKalmanFilter< > ExtendedKalmanFilterDouble;
+typedef ExtendedKalmanFilter<> ExtendedKalmanFilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
 typedef std::shared_ptr< ExtendedKalmanFilterDouble > ExtendedKalmanFilterDoublePointer;
 
-} // namespace filters
+}  // namespace filters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_EXTENDED_KALMAN_FILTER_H
+#endif  // TUDAT_EXTENDED_KALMAN_FILTER_H

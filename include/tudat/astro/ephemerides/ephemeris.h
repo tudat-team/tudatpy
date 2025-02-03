@@ -35,10 +35,9 @@ namespace ephemerides
  * \param time Time at which state functions are to be evaluated
  * \return Relative state of body w.r.t. central body at requested time.
  */
-Eigen::Vector6d getDifferenceBetweenStates(
-        const std::function< Eigen::Vector6d( const double ) > stateFunction,
-        const std::function< Eigen::Vector6d( const double ) > centralBodyStateFunction,
-        const double time );
+Eigen::Vector6d getDifferenceBetweenStates( const std::function< Eigen::Vector6d( const double ) > stateFunction,
+                                            const std::function< Eigen::Vector6d( const double ) > centralBodyStateFunction,
+                                            const double time );
 
 //! Ephemeris base class.
 /*!
@@ -47,17 +46,14 @@ Eigen::Vector6d getDifferenceBetweenStates(
 class Ephemeris
 {
 public:
-
     //! Constructor
     /*!
      *  Constructor, sets reference frame associated with ephemeris (default empty).
      *  \param referenceFrameOrigin Origin of reference frame (string identifier).
      *  \param referenceFrameOrientation Orientation of reference frame (string identifier).
      */
-    Ephemeris( const std::string& referenceFrameOrigin = "",
-               const std::string& referenceFrameOrientation = "" ):
-        referenceFrameOrigin_( referenceFrameOrigin ),
-        referenceFrameOrientation_( referenceFrameOrientation )
+    Ephemeris( const std::string& referenceFrameOrigin = "", const std::string& referenceFrameOrientation = "" ):
+        referenceFrameOrigin_( referenceFrameOrigin ), referenceFrameOrientation_( referenceFrameOrientation )
     { }
 
     //! Default destructor.
@@ -72,8 +68,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
-    virtual Eigen::Vector6d getCartesianState(
-            const double secondsSinceEpoch ) = 0;
+    virtual Eigen::Vector6d getCartesianState( const double secondsSinceEpoch ) = 0;
 
     //! Get position from ephemeris.
     /*!
@@ -81,8 +76,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Position from ephemeris.
      */
-    Eigen::Vector3d getCartesianPosition(
-            const double secondsSinceEpoch )
+    Eigen::Vector3d getCartesianPosition( const double secondsSinceEpoch )
     {
         return getCartesianState( secondsSinceEpoch ).segment( 0, 3 );
     }
@@ -93,8 +87,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Velocity from ephemeris.
      */
-    Eigen::Vector3d getCartesianVelocity(
-            const double secondsSinceEpoch )
+    Eigen::Vector3d getCartesianVelocity( const double secondsSinceEpoch )
     {
         return getCartesianState( secondsSinceEpoch ).segment( 3, 3 );
     }
@@ -107,12 +100,10 @@ public:
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return State from ephemeris with long double as state scalar
      */
-    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongState(
-            const double secondsSinceEpoch )
+    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double secondsSinceEpoch )
     {
         return getCartesianState( secondsSinceEpoch ).cast< long double >( );
     }
-
 
     //! Get state from ephemeris (with double as state scalar and Time as time type).
     /*!
@@ -122,8 +113,7 @@ public:
      * \param currentTime Time at which state is to be evaluated
      * \return State from ephemeris with double as state scalar
      */
-    virtual Eigen::Vector6d getCartesianStateFromExtendedTime(
-            const Time& currentTime )
+    virtual Eigen::Vector6d getCartesianStateFromExtendedTime( const Time& currentTime )
     {
         return getCartesianState( currentTime.getSeconds< double >( ) );
     }
@@ -136,8 +126,7 @@ public:
      * \param currentTime Time at which state is to be evaluated
      * \return State from ephemeris with long double as state scalar
      */
-    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
-            const Time& currentTime )
+    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime )
     {
         return getCartesianLongState( currentTime.getSeconds< double >( ) );
     }
@@ -156,25 +145,29 @@ public:
      * Returns reference frame origin as a string.
      * \return Reference frame origin.
      */
-    std::string getReferenceFrameOrigin( ) { return referenceFrameOrigin_; }
+    std::string getReferenceFrameOrigin( )
+    {
+        return referenceFrameOrigin_;
+    }
 
     //! Get reference frame orientation.
     /*!
      * Returns the reference frame orientation as a string.
      * \return Reference frame orientation
      */
-    std::string getReferenceFrameOrientation( ) { return referenceFrameOrientation_; }
+    std::string getReferenceFrameOrientation( )
+    {
+        return referenceFrameOrientation_;
+    }
 
     Eigen::Vector3d getCartesianAcceleration( const double time, const double finiteDifferenceStep )
     {
-        return (
-            -getCartesianVelocity( time + 2.0 * finiteDifferenceStep )
-            + 8.0 * getCartesianVelocity( time + finiteDifferenceStep )
-            - 8.0 * getCartesianVelocity( time - finiteDifferenceStep )
-            + getCartesianVelocity( time - 2.0 * finiteDifferenceStep ) ) / ( 12.0 * finiteDifferenceStep );
+        return ( -getCartesianVelocity( time + 2.0 * finiteDifferenceStep ) + 8.0 * getCartesianVelocity( time + finiteDifferenceStep ) -
+                 8.0 * getCartesianVelocity( time - finiteDifferenceStep ) + getCartesianVelocity( time - 2.0 * finiteDifferenceStep ) ) /
+                ( 12.0 * finiteDifferenceStep );
     }
-protected:
 
+protected:
     //! Reference frame origin.
     /*!
      * Reference frame origin. This identifier gives only the origin of the reference frame,
@@ -188,23 +181,19 @@ protected:
      * reference frame, the origin is defined by the referenceFrameOrigin_ variable.
      */
     std::string referenceFrameOrientation_;
-
 };
 
-class ScaledEphemeris: public Ephemeris
+class ScaledEphemeris : public Ephemeris
 {
 public:
-    ScaledEphemeris(
-            const std::shared_ptr< Ephemeris > baseEphemeris,
-            const std::function< Eigen::Vector6d( const double ) > stateScalingFunction,
-            const bool isScalingAbsolute = true ):
+    ScaledEphemeris( const std::shared_ptr< Ephemeris > baseEphemeris,
+                     const std::function< Eigen::Vector6d( const double ) > stateScalingFunction,
+                     const bool isScalingAbsolute = true ):
         Ephemeris( baseEphemeris->getReferenceFrameOrigin( ), baseEphemeris->getReferenceFrameOrientation( ) ),
-    baseEphemeris_( baseEphemeris ),
-    stateScalingFunction_( stateScalingFunction ),
-    isScalingAbsolute_( isScalingAbsolute ){ }
+        baseEphemeris_( baseEphemeris ), stateScalingFunction_( stateScalingFunction ), isScalingAbsolute_( isScalingAbsolute )
+    { }
 
-    Eigen::Vector6d getCartesianState(
-            const double secondsSinceEpoch  )
+    Eigen::Vector6d getCartesianState( const double secondsSinceEpoch )
     {
         Eigen::Vector6d currentState = baseEphemeris_->getCartesianState( secondsSinceEpoch );
         Eigen::Vector6d stateScaling = stateScalingFunction_( secondsSinceEpoch );
@@ -214,13 +203,12 @@ public:
         }
         else
         {
-           currentState +=  stateScaling;
+            currentState += stateScaling;
         }
         return currentState;
     }
 
 private:
-
     std::shared_ptr< Ephemeris > baseEphemeris_;
 
     std::function< Eigen::Vector6d( const double ) > stateScalingFunction_;
@@ -228,10 +216,8 @@ private:
     bool isScalingAbsolute_;
 };
 
-
 //! Typedef for shared-pointer to Ephemeris object.
 typedef std::shared_ptr< Ephemeris > EphemerisPointer;
-
 
 //! Function to compute the relative state from two state functions.
 /*!
@@ -242,13 +228,12 @@ typedef std::shared_ptr< Ephemeris > EphemerisPointer;
  *  \param stateFunctionOfCentralBody Function returning state of central body w.r.t. which the relative state is to be
  *  computed.
  */
-void getRelativeState(
-        Eigen::Vector6d& relativeState,
-        const std::function< Eigen::Vector6d( ) > stateFunctionOfBody,
-        const std::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody );
+void getRelativeState( Eigen::Vector6d& relativeState,
+                       const std::function< Eigen::Vector6d( ) > stateFunctionOfBody,
+                       const std::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody );
 
-} // namespace ephemerides
+}  // namespace ephemerides
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_EPHEMERIS_H
+#endif  // TUDAT_EPHEMERIS_H

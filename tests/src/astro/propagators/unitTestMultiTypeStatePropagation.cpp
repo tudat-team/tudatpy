@@ -11,10 +11,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
-
-
-
 #include <memory>
 #include <boost/test/unit_test.hpp>
 
@@ -34,8 +30,6 @@
 #include "tudat/simulation/environment_setup/createBodies.h"
 #include "tudat/simulation/estimation_setup/createNumericalSimulator.h"
 
-
-
 namespace tudat
 {
 namespace unit_tests
@@ -45,10 +39,9 @@ using namespace mathematical_constants;
 
 BOOST_AUTO_TEST_SUITE( test_hybrid_state_derivative_model )
 
-std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
-        const int simulationCase )
+std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState( const int simulationCase )
 {
-    std::cout<<simulationCase<<std::endl<<std::endl<<std::endl;
+    std::cout << simulationCase << std::endl << std::endl << std::endl;
     using namespace simulation_setup;
     using namespace propagators;
     using namespace numerical_integrators;
@@ -70,8 +63,8 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     // Define body settings for simulation.
     BodyListSettings bodySettings = BodyListSettings( "SSB", "J2000" );
     bodySettings.addSettings( "Earth" );
-    bodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
-                Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+    bodySettings.at( "Earth" )->ephemerisSettings =
+            std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
     bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     // Create Earth object
@@ -87,82 +80,85 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
 
     // Define propagation settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::point_mass_gravity ) );
+    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
     accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "Asterix" );
     centralBodies.push_back( "Earth" );
 
     // Create acceleration models and propagation settings.
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Set Keplerian elements for Asterix.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
     asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );
-    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-            = convertDegreesToRadians( 235.7 );
-    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-            = convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
 
     // Convert Asterix state from Keplerian elements to Cartesian elements.
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements,
-                earthGravitationalParameter );
+    Eigen::VectorXd systemInitialState =
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Define integrator settings
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-            std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, 0.0, fixedStepSize );
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, fixedStepSize );
 
     std::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, 0.0, integratorSettings,
-              std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    systemInitialState,
+                    0.0,
+                    integratorSettings,
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create mass rate model and mass propagation settings
     std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels;
-    massRateModels[ "Asterix" ].push_back( std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                [ ]( const double ){ return -0.01; } ) );
+    massRateModels[ "Asterix" ].push_back(
+            std::make_shared< basic_astrodynamics::CustomMassRateModel >( []( const double ) { return -0.01; } ) );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
-    std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
-            std::make_shared< MassPropagatorSettings< double > >(
-                std::vector< std::string >{ "Asterix" }, massRateModels, initialMass, 0.0, integratorSettings,
-                std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+    std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings = std::make_shared< MassPropagatorSettings< double > >(
+            std::vector< std::string >{ "Asterix" },
+            massRateModels,
+            initialMass,
+            0.0,
+            integratorSettings,
+            std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create total propagator settings, depending on current case.
     std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings;
-    if( ( simulationCase  % 3 ) == 0 )
+    if( ( simulationCase % 3 ) == 0 )
     {
         propagatorSettings = translationalPropagatorSettings;
     }
-    else if( ( simulationCase  % 3 ) == 1 )
+    else if( ( simulationCase % 3 ) == 1 )
     {
         propagatorSettings = massPropagatorSettings;
     }
-    else if( ( simulationCase  % 3 ) == 2 )
+    else if( ( simulationCase % 3 ) == 2 )
     {
-        std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
+        std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList;
         propagatorSettingsList.push_back( translationalPropagatorSettings );
         propagatorSettingsList.push_back( massPropagatorSettings );
 
         propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
-                    propagatorSettingsList, integratorSettings, 0.0,
-                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+                propagatorSettingsList,
+                integratorSettings,
+                0.0,
+                std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
     }
 
     propagatorSettings->getOutputSettings( )->setIntegratedResult( true );
     propagatorSettings->getOutputSettings( )->getPrintSettings( )->enableAllPrinting( );
 
     // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodies, propagatorSettings );
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 
     // Return propagated dynamics (if simulationCase < 3) or interpolated dynamics (else)
     if( simulationCase < 3 )
@@ -179,7 +175,6 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
         // Interpolate dynamics for range of times.
         while( currentTime < simulationEndEpoch - 4.0 * fixedStepSize )
         {
-
             // Interpolate propagated dynamics type
             if( simulationCase == 3 )
             {
@@ -195,7 +190,6 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
                 returnMap[ currentTime ] = Eigen::VectorXd::Zero( 7 );
                 returnMap[ currentTime ].segment( 0, 6 ) = bodies.at( "Asterix" )->getEphemeris( )->getCartesianState( currentTime );
                 returnMap[ currentTime ]( 6 ) = bodies.at( "Asterix" )->getBodyMassFunction( )( currentTime );
-
             }
 
             // Increment time (non-resonant with integration time step).
@@ -204,7 +198,6 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
 
         return returnMap;
     }
-
 }
 //! Test if conversion from Keplerian elements to Cartesian elements is working correctly.
 BOOST_AUTO_TEST_CASE( testHybridStateDerivativeModel )
@@ -216,13 +209,13 @@ BOOST_AUTO_TEST_CASE( testHybridStateDerivativeModel )
         int simulationCaseToAdd = 3;
         if( useCase == 0 )
         {
-             simulationCaseToAdd = 0;
+            simulationCaseToAdd = 0;
         }
 
         // Propagate dynamics for translational, mass and combined state.
-        std::map< double, Eigen::VectorXd >  translationalState = propagateKeplerOrbitAndMassState( 0 + simulationCaseToAdd );
-        std::map< double, Eigen::VectorXd >  massState = propagateKeplerOrbitAndMassState( 1 + simulationCaseToAdd );
-        std::map< double, Eigen::VectorXd >  combinedState = propagateKeplerOrbitAndMassState( 2  + simulationCaseToAdd );
+        std::map< double, Eigen::VectorXd > translationalState = propagateKeplerOrbitAndMassState( 0 + simulationCaseToAdd );
+        std::map< double, Eigen::VectorXd > massState = propagateKeplerOrbitAndMassState( 1 + simulationCaseToAdd );
+        std::map< double, Eigen::VectorXd > combinedState = propagateKeplerOrbitAndMassState( 2 + simulationCaseToAdd );
 
         BOOST_CHECK_EQUAL( translationalState.size( ), combinedState.size( ) );
         BOOST_CHECK_EQUAL( translationalState.size( ), massState.size( ) );
@@ -237,10 +230,10 @@ BOOST_AUTO_TEST_CASE( testHybridStateDerivativeModel )
             BOOST_CHECK_EQUAL( stateIterator->first, combinedIterator->first );
             BOOST_CHECK_EQUAL( stateIterator->first, massIterator->first );
 
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateIterator->second, combinedIterator->second.segment( 0, 6 ),
-                                               std::numeric_limits< double >::epsilon( ) );
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( massIterator->second, combinedIterator->second.segment( 6, 1 ),
-                                               std::numeric_limits< double >::epsilon( ) );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    stateIterator->second, combinedIterator->second.segment( 0, 6 ), std::numeric_limits< double >::epsilon( ) );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    massIterator->second, combinedIterator->second.segment( 6, 1 ), std::numeric_limits< double >::epsilon( ) );
             stateIterator++;
             massIterator++;
             combinedIterator++;
@@ -250,6 +243,6 @@ BOOST_AUTO_TEST_CASE( testHybridStateDerivativeModel )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

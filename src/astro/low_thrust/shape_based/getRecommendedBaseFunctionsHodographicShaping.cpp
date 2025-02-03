@@ -30,11 +30,11 @@ void getRecommendedBaseFunctions(
     // Create components of the radial velocity composite function.
     radialVelocityFunctionComponents.clear( );
     radialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::constant, firstRadialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::constant, firstRadialVelocityBaseFunctionSettings ) );
     radialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, secondRadialVelocityBaseFunctionSettings ) );
     radialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
 
     // Create base function settings for the components of the normal velocity composite function.
     std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapingSettings > firstNormalVelocityBaseFunctionSettings =
@@ -47,31 +47,31 @@ void getRecommendedBaseFunctions(
     // Create components of the normal velocity composite function.
     normalVelocityFunctionComponents.clear( );
     normalVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::constant, firstNormalVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::constant, firstNormalVelocityBaseFunctionSettings ) );
     normalVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, secondNormalVelocityBaseFunctionSettings ) );
     normalVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, thirdNormalVelocityBaseFunctionSettings ) );
-
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, thirdNormalVelocityBaseFunctionSettings ) );
 
     // Create base function settings for the components of the axial velocity composite function.
     std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapingSettings > firstAxialVelocityBaseFunctionSettings =
-            std::make_shared< shape_based_methods::TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+            std::make_shared< shape_based_methods::TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) *
+                                                                                                      frequency );
     std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapingSettings > secondAxialVelocityBaseFunctionSettings =
-            std::make_shared< shape_based_methods::PowerTimesTrigonometricFunctionHodographicShapingSettings >
-            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+            std::make_shared< shape_based_methods::PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                    3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
     std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapingSettings > thirdAxialVelocityBaseFunctionSettings =
             std::make_shared< shape_based_methods::PowerTimesTrigonometricFunctionHodographicShapingSettings >(
-                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+                    3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
 
     // Set components for the axial velocity function.
     axialVelocityFunctionComponents.clear( );
     axialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::cosine, firstAxialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::cosine, firstAxialVelocityBaseFunctionSettings ) );
     axialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
     axialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
 
     // Initialize free coefficients vector for radial velocity function.
     freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
@@ -81,9 +81,7 @@ void getRecommendedBaseFunctions(
 
     // Initialize free coefficients vector for axial velocity function.
     freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-
 }
-
 
 void getRecommendedRadialVelocityBaseFunctions(
         std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& radialVelocityFunctionComponents,
@@ -103,17 +101,15 @@ void getRecommendedRadialVelocityBaseFunctions(
     // Create components of the radial velocity composite function.
     radialVelocityFunctionComponents.clear( );
     radialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::constant, firstRadialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::constant, firstRadialVelocityBaseFunctionSettings ) );
     radialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, secondRadialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, secondRadialVelocityBaseFunctionSettings ) );
     radialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, thirdRadialVelocityBaseFunctionSettings ) );
 
     // Initialize free coefficients vector for radial velocity function.
     freeCoefficientsRadialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-
 }
-
 
 void getRecommendedNormalBaseFunctions(
         std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > >& normalVelocityFunctionComponents,
@@ -133,16 +129,14 @@ void getRecommendedNormalBaseFunctions(
     // Create components of the normal velocity composite function.
     normalVelocityFunctionComponents.clear( );
     normalVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::constant, firstNormalVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::constant, firstNormalVelocityBaseFunctionSettings ) );
     normalVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, secondNormalVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, secondNormalVelocityBaseFunctionSettings ) );
     normalVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, thirdNormalVelocityBaseFunctionSettings ) );
-
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPower, thirdNormalVelocityBaseFunctionSettings ) );
 
     // Initialize free coefficients vector for normal velocity function.
     freeCoefficientsNormalVelocityFunction = Eigen::VectorXd::Zero( 0 );
-
 }
 
 void getRecommendedAxialVelocityBaseFunctions(
@@ -156,26 +150,26 @@ void getRecommendedAxialVelocityBaseFunctions(
 
     // Create base function settings for the components of the axial velocity composite function.
     std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapingSettings > firstAxialVelocityBaseFunctionSettings =
-            std::make_shared< shape_based_methods::TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) * frequency );
+            std::make_shared< shape_based_methods::TrigonometricFunctionHodographicShapingSettings >( ( numberOfRevolutions + 0.5 ) *
+                                                                                                      frequency );
     std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapingSettings > secondAxialVelocityBaseFunctionSettings =
-            std::make_shared< shape_based_methods::PowerTimesTrigonometricFunctionHodographicShapingSettings >
-            ( 3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+            std::make_shared< shape_based_methods::PowerTimesTrigonometricFunctionHodographicShapingSettings >(
+                    3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
     std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapingSettings > thirdAxialVelocityBaseFunctionSettings =
             std::make_shared< shape_based_methods::PowerTimesTrigonometricFunctionHodographicShapingSettings >(
-                3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
+                    3.0, ( numberOfRevolutions + 0.5 ) * frequency, scaleFactor );
 
     // Set components for the axial velocity function.
     axialVelocityFunctionComponents.clear( );
     axialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::cosine, firstAxialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::cosine, firstAxialVelocityBaseFunctionSettings ) );
     axialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPowerCosine, secondAxialVelocityBaseFunctionSettings ) );
     axialVelocityFunctionComponents.push_back(
-                createBaseFunctionHodographicShaping( shape_based_methods::scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
+            createBaseFunctionHodographicShaping( shape_based_methods::scaledPowerSine, thirdAxialVelocityBaseFunctionSettings ) );
 
     // Initialize free coefficients vector for axial velocity function.
     freeCoefficientsAxialVelocityFunction = Eigen::VectorXd::Zero( 0 );
-
 }
 
 std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > getRecommendedRadialVelocityBaseFunctions(
@@ -205,10 +199,9 @@ std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShapin
     std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > functionComponents;
     Eigen::VectorXd freeCoefficients;
 
-    getRecommendedAxialVelocityBaseFunctions( functionComponents, freeCoefficients, timeOfFlight,numberOfRevolutions );
+    getRecommendedAxialVelocityBaseFunctions( functionComponents, freeCoefficients, timeOfFlight, numberOfRevolutions );
     return functionComponents;
 }
 
-} // namespace shape_based_methods
-} // namespace tudat
-
+}  // namespace shape_based_methods
+}  // namespace tudat

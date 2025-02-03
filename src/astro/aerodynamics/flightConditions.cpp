@@ -8,11 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include <memory>
-
-
-
 
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/astro/aerodynamics/flightConditions.h"
@@ -26,28 +22,24 @@ namespace tudat
 namespace aerodynamics
 {
 
-
 //! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
 FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
-                  const std::string& centralBodyName,
-                  const std::shared_ptr< reference_frames::AerodynamicAngleCalculator >
-                  aerodynamicAngleCalculator ):
-    shapeModel_( shapeModel ),
-    centralBody_( centralBodyName ),
-    aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
+                                    const std::string& centralBodyName,
+                                    const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator ):
+    shapeModel_( shapeModel ), centralBody_( centralBodyName ), aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
     currentTime_( TUDAT_NAN )
 {
     // Link body-state function.
-    bodyCenteredPseudoBodyFixedStateFunction_ = std::bind(
-                &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
+    bodyCenteredPseudoBodyFixedStateFunction_ =
+            std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
 
     // Check if given body shape is an oblate spheroid and set geodetic latitude function if so
     if( std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != nullptr )
     {
-        geodeticLatitudeFunction_ = std::bind(
-                    &basic_astrodynamics::OblateSpheroidBodyShapeModel::getGeodeticLatitude,
-                    std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ),
-                    std::placeholders::_1, 1.0E-4 );
+        geodeticLatitudeFunction_ = std::bind( &basic_astrodynamics::OblateSpheroidBodyShapeModel::getGeodeticLatitude,
+                                               std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ),
+                                               std::placeholders::_1,
+                                               1.0E-4 );
     }
     scalarFlightConditions_.resize( 12 );
     isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
@@ -56,13 +48,12 @@ FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::
 //! Function to update all flight conditions.
 void FlightConditions::updateConditions( const double currentTime )
 {
-
     if( !( currentTime == currentTime_ ) )
     {
         currentTime_ = currentTime;
 
         // Update aerodynamic angles (but not angles w.r.t. body-fixed frame).
-        if( aerodynamicAngleCalculator_!= nullptr )
+        if( aerodynamicAngleCalculator_ != nullptr )
         {
             aerodynamicAngleCalculator_->update( currentTime, false );
         }
@@ -71,14 +62,12 @@ void FlightConditions::updateConditions( const double currentTime )
         currentBodyCenteredAirspeedBasedBodyFixedState_ = bodyCenteredPseudoBodyFixedStateFunction_( );
 
         // Update angles from aerodynamic to body-fixed frame (if relevant).
-        if( aerodynamicAngleCalculator_!= nullptr )
+        if( aerodynamicAngleCalculator_ != nullptr )
         {
             aerodynamicAngleCalculator_->update( currentTime, true );
         }
-
     }
 }
-
 
 //! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
 AtmosphericFlightConditions::AtmosphericFlightConditions(
@@ -88,13 +77,11 @@ AtmosphericFlightConditions::AtmosphericFlightConditions(
         const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const std::string centralBodyName,
         const std::function< double( const std::string& ) > controlSurfaceDeflectionFunction ):
-    FlightConditions( shapeModel, centralBodyName, aerodynamicAngleCalculator ),
-    atmosphereModel_( atmosphereModel ),
+    FlightConditions( shapeModel, centralBodyName, aerodynamicAngleCalculator ), atmosphereModel_( atmosphereModel ),
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
     controlSurfaceDeflectionFunction_( controlSurfaceDeflectionFunction )
 {
-
-    if(  aerodynamicAngleCalculator_== nullptr )
+    if( aerodynamicAngleCalculator_ == nullptr )
     {
         throw std::runtime_error( "Error when making flight conditions, angles are to be updated, but no calculator is set" );
     }
@@ -107,10 +94,8 @@ void AtmosphericFlightConditions::setAerodynamicCoefficientsIndependentVariableF
 {
     if( ( independentVariable != undefined_independent_variable ) && independentVariable != control_surface_deflection_dependent )
     {
-        throw std::runtime_error(
-                    std::string( "Error when setting aerodynamic coefficient function dependency, value of parameter " ) +
-                    std::to_string( independentVariable ) +
-                    std::string(", will not  be used." ) );
+        throw std::runtime_error( std::string( "Error when setting aerodynamic coefficient function dependency, value of parameter " ) +
+                                  std::to_string( independentVariable ) + std::string( ", will not  be used." ) );
     }
     else
     {
@@ -126,7 +111,7 @@ void AtmosphericFlightConditions::updateConditions( const double currentTime )
         currentTime_ = currentTime;
 
         // Update aerodynamic angles (but not angles w.r.t. body-fixed frame).
-        if( aerodynamicAngleCalculator_!= nullptr )
+        if( aerodynamicAngleCalculator_ != nullptr )
         {
             aerodynamicAngleCalculator_->update( currentTime, false );
         }
@@ -137,7 +122,7 @@ void AtmosphericFlightConditions::updateConditions( const double currentTime )
         updateAerodynamicCoefficientInput( );
 
         // Update angles from aerodynamic to body-fixed frame (if relevant).
-        if( aerodynamicAngleCalculator_!= nullptr )
+        if( aerodynamicAngleCalculator_ != nullptr )
         {
             aerodynamicAngleCalculator_->update( currentTime, true );
             updateAerodynamicCoefficientInput( );
@@ -147,12 +132,10 @@ void AtmosphericFlightConditions::updateConditions( const double currentTime )
         if( aerodynamicCoefficientInterface_ != nullptr )
         {
             aerodynamicCoefficientInterface_->updateFullCurrentCoefficients(
-                        aerodynamicCoefficientIndependentVariables_, controlSurfaceAerodynamicCoefficientIndependentVariables_,
-                        currentTime_ );
+                    aerodynamicCoefficientIndependentVariables_, controlSurfaceAerodynamicCoefficientIndependentVariables_, currentTime_ );
         }
     }
 }
-
 
 void AtmosphericFlightConditions::updateAtmosphereInput( )
 {
@@ -168,7 +151,6 @@ void AtmosphericFlightConditions::updateAtmosphereInput( )
     }
 }
 
-
 //! Function to (compute and) retrieve the value of an independent variable of aerodynamic coefficients
 double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable(
         const AerodynamicCoefficientsIndependentVariables independentVariableType,
@@ -177,91 +159,86 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
     double currentIndependentVariable;
     switch( independentVariableType )
     {
-    //Calculate Mach number if needed.
-    case mach_number_dependent:
-        currentIndependentVariable = getCurrentMachNumber( );
-        break;
-        //Get angle of attack if needed.
-    case angle_of_attack_dependent:
-        if( aerodynamicAngleCalculator_== nullptr )
-        {
-            throw std::runtime_error( "Error, aerodynamic angle calculator is nullptr, but require angle of attack" );
-        }
-        currentIndependentVariable = aerodynamicAngleCalculator_->getAerodynamicAngle(
-                    reference_frames::angle_of_attack );
-        break;
-        //Get angle of sideslip if needed.
-    case angle_of_sideslip_dependent:
-        if( aerodynamicAngleCalculator_== nullptr )
-        {
-            throw std::runtime_error( "Error, aerodynamic angle calculator is nullptr, but require angle of sideslip" );
-        }
-        currentIndependentVariable = aerodynamicAngleCalculator_->getAerodynamicAngle(
-                    reference_frames::angle_of_sideslip );
-        break;
-    case altitude_dependent:
-        currentIndependentVariable = getCurrentAltitude( );
-        break;
-    case time_dependent:
-        currentIndependentVariable = currentTime_;
-        break;
-    case temperature_dependent:
-        currentIndependentVariable = getCurrentFreestreamTemperature( );
-        break;
-    case velocity_dependent:
-        currentIndependentVariable = getCurrentAirspeed( );
-        break;
+        // Calculate Mach number if needed.
+        case mach_number_dependent:
+            currentIndependentVariable = getCurrentMachNumber( );
+            break;
+            // Get angle of attack if needed.
+        case angle_of_attack_dependent:
+            if( aerodynamicAngleCalculator_ == nullptr )
+            {
+                throw std::runtime_error( "Error, aerodynamic angle calculator is nullptr, but require angle of attack" );
+            }
+            currentIndependentVariable = aerodynamicAngleCalculator_->getAerodynamicAngle( reference_frames::angle_of_attack );
+            break;
+            // Get angle of sideslip if needed.
+        case angle_of_sideslip_dependent:
+            if( aerodynamicAngleCalculator_ == nullptr )
+            {
+                throw std::runtime_error( "Error, aerodynamic angle calculator is nullptr, but require angle of sideslip" );
+            }
+            currentIndependentVariable = aerodynamicAngleCalculator_->getAerodynamicAngle( reference_frames::angle_of_sideslip );
+            break;
+        case altitude_dependent:
+            currentIndependentVariable = getCurrentAltitude( );
+            break;
+        case time_dependent:
+            currentIndependentVariable = currentTime_;
+            break;
+        case temperature_dependent:
+            currentIndependentVariable = getCurrentFreestreamTemperature( );
+            break;
+        case velocity_dependent:
+            currentIndependentVariable = getCurrentAirspeed( );
+            break;
 
+        // number density of atmospheric species
+        case he_number_density_dependent:
+            currentIndependentVariable = getCurrentNumberDensity( he_species );
+            break;
+        case o_number_density_dependent:
+            currentIndependentVariable = getCurrentNumberDensity( o_species );
+            break;
+        case n2_number_density_dependent:
+            currentIndependentVariable = getCurrentNumberDensity( n2_species );
+            break;
+        case o2_number_density_dependent:
+            currentIndependentVariable = getCurrentNumberDensity( o2_species );
+            break;
+        case ar_number_density_dependent:
+            currentIndependentVariable = getCurrentNumberDensity( ar_species );
+            break;
+        case h_number_density_dependent:
+            currentIndependentVariable = getCurrentNumberDensity( h_species );
+            break;
+        case n_number_density_dependent:
+            currentIndependentVariable = getCurrentNumberDensity( n_species );
+            break;
+        case anomalous_o_number_density_dependent:
+            currentIndependentVariable = getCurrentNumberDensity( anomalous_o_species );
+            break;
 
-    // number density of atmospheric species
-    case he_number_density_dependent:
-        currentIndependentVariable = getCurrentNumberDensity( he_species );
-        break;
-    case o_number_density_dependent:
-        currentIndependentVariable = getCurrentNumberDensity( o_species );
-        break;
-    case n2_number_density_dependent:
-        currentIndependentVariable = getCurrentNumberDensity( n2_species );
-        break;
-    case o2_number_density_dependent:
-        currentIndependentVariable = getCurrentNumberDensity( o2_species );
-        break;
-    case ar_number_density_dependent:
-        currentIndependentVariable = getCurrentNumberDensity( ar_species );
-        break;
-    case h_number_density_dependent:
-        currentIndependentVariable = getCurrentNumberDensity( h_species );
-        break;
-    case n_number_density_dependent:
-        currentIndependentVariable = getCurrentNumberDensity( n_species );
-        break;
-    case anomalous_o_number_density_dependent:
-        currentIndependentVariable = getCurrentNumberDensity( anomalous_o_species );
-        break;
-
-
-    case control_surface_deflection_dependent:
-    {
-        try
-        {
-            currentIndependentVariable = controlSurfaceDeflectionFunction_( secondaryIdentifier );
+        case control_surface_deflection_dependent: {
+            try
+            {
+                currentIndependentVariable = controlSurfaceDeflectionFunction_( secondaryIdentifier );
+            }
+            catch( std::runtime_error const& )
+            {
+                throw std::runtime_error( "Error, control surface " + secondaryIdentifier + "not recognized when updating coefficients" );
+            }
+            break;
         }
-        catch( std::runtime_error const& )
-        {
-            throw std::runtime_error( "Error, control surface " + secondaryIdentifier + "not recognized when updating coefficients" );
-        }
-        break;
-    }
-    default:
-        if( customCoefficientDependencies_.count( independentVariableType ) == 0 )
-        {
-            throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency "
-                                      + std::to_string( independentVariableType ) );
-        }
-        else
-        {
-            currentIndependentVariable = customCoefficientDependencies_.at( independentVariableType )( );
-        }
+        default:
+            if( customCoefficientDependencies_.count( independentVariableType ) == 0 )
+            {
+                throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency " +
+                                          std::to_string( independentVariableType ) );
+            }
+            else
+            {
+                currentIndependentVariable = customCoefficientDependencies_.at( independentVariableType )( );
+            }
     }
 
     return currentIndependentVariable;
@@ -270,35 +247,33 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
 //! Function to update the independent variables of the aerodynamic coefficient interface
 void AtmosphericFlightConditions::updateAerodynamicCoefficientInput( )
 {
-
     if( aerodynamicCoefficientInterface_ != nullptr )
     {
         aerodynamicCoefficientIndependentVariables_.clear( );
         // Calculate independent variables for aerodynamic coefficients.
-        for ( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ); i++ )
+        for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ); i++ )
         {
             aerodynamicCoefficientIndependentVariables_.push_back(
-                getAerodynamicCoefficientIndependentVariable(
-                    aerodynamicCoefficientInterface_->getIndependentVariableName( i )));
+                    getAerodynamicCoefficientIndependentVariable( aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) );
         }
 
         controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
-        for ( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfControlSurfaces( ); i++ )
+        for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfControlSurfaces( ); i++ )
         {
             std::string currentControlSurface = aerodynamicCoefficientInterface_->getControlSurfaceName( i );
-            for ( unsigned int j = 0; j <
-                                      aerodynamicCoefficientInterface_->getNumberOfControlSurfaceIndependentVariables(
-                                          currentControlSurface ); j++ )
+            for( unsigned int j = 0;
+                 j < aerodynamicCoefficientInterface_->getNumberOfControlSurfaceIndependentVariables( currentControlSurface );
+                 j++ )
             {
                 controlSurfaceAerodynamicCoefficientIndependentVariables_[ currentControlSurface ].push_back(
-                    getAerodynamicCoefficientIndependentVariable(
-                        aerodynamicCoefficientInterface_->getControlSurfaceIndependentVariableName(
-                            currentControlSurface, j ), currentControlSurface ));
+                        getAerodynamicCoefficientIndependentVariable(
+                                aerodynamicCoefficientInterface_->getControlSurfaceIndependentVariableName( currentControlSurface, j ),
+                                currentControlSurface ) );
             }
         }
     }
 }
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat

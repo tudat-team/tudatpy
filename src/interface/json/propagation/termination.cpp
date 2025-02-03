@@ -22,10 +22,9 @@ namespace propagators
 // PropagationHybridTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationHybridTerminationSettings` object.
-void to_json( nlohmann::json& jsonObject,
-              const std::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings )
 {
-    if ( ! hybridTerminationSettings )
+    if( !hybridTerminationSettings )
     {
         return;
     }
@@ -37,36 +36,35 @@ void to_json( nlohmann::json& jsonObject,
 }
 
 //! Create a shared pointer to a `PropagationHybridTerminationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject,
-                std::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings )
 {
     using namespace json_interface;
     using K = Keys::Termination;
 
     // Not-hybrid
-    if ( ! isDefined( jsonObject, K::allOf ) && ! isDefined( jsonObject, K::anyOf ) )
+    if( !isDefined( jsonObject, K::allOf ) && !isDefined( jsonObject, K::anyOf ) )
     {
         hybridTerminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
-                    std::vector< std::shared_ptr< PropagationTerminationSettings > >(
-        { getAs< std::shared_ptr< PropagationTerminationSettings > >( jsonObject ) } ), true );
+                std::vector< std::shared_ptr< PropagationTerminationSettings > >(
+                        { getAs< std::shared_ptr< PropagationTerminationSettings > >( jsonObject ) } ),
+                true );
     }
     else
     {
         const bool meetAnyCondition = isDefined( jsonObject, K::anyOf );
         hybridTerminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
-                    getValue< std::vector< std::shared_ptr< PropagationTerminationSettings > > >(
-                        jsonObject, meetAnyCondition ? K::anyOf : K::allOf ), meetAnyCondition );
+                getValue< std::vector< std::shared_ptr< PropagationTerminationSettings > > >( jsonObject,
+                                                                                              meetAnyCondition ? K::anyOf : K::allOf ),
+                meetAnyCondition );
     }
 }
-
 
 // PropagationTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationTerminationSettings` object.
-void to_json( nlohmann::json& jsonObject,
-              const std::shared_ptr< PropagationTerminationSettings >& terminationSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< PropagationTerminationSettings >& terminationSettings )
 {
-    if ( ! terminationSettings )
+    if( !terminationSettings )
     {
         return;
     }
@@ -76,7 +74,7 @@ void to_json( nlohmann::json& jsonObject,
     // hybrid
     std::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
             std::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
-    if ( hybridTerminationSettings )
+    if( hybridTerminationSettings )
     {
         jsonObject = hybridTerminationSettings;
         return;
@@ -85,7 +83,7 @@ void to_json( nlohmann::json& jsonObject,
     // time
     std::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
             std::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
-    if ( timeTerminationSettings )
+    if( timeTerminationSettings )
     {
         jsonObject[ K::variable ] = std::make_shared< VariableSettings >( independentVariable );
         jsonObject[ K::upperLimit ] = timeTerminationSettings->terminationTime_;
@@ -95,7 +93,7 @@ void to_json( nlohmann::json& jsonObject,
     // cpu time
     std::shared_ptr< PropagationCPUTimeTerminationSettings > cpuTimeTerminationSettings =
             std::dynamic_pointer_cast< PropagationCPUTimeTerminationSettings >( terminationSettings );
-    if ( cpuTimeTerminationSettings )
+    if( cpuTimeTerminationSettings )
     {
         jsonObject[ K::variable ] = std::make_shared< VariableSettings >( cpuTimeVariable );
         jsonObject[ K::upperLimit ] = cpuTimeTerminationSettings->cpuTerminationTime_;
@@ -104,8 +102,7 @@ void to_json( nlohmann::json& jsonObject,
 
     // dependent variable
     std::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
-            std::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >(
-                terminationSettings );
+            std::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings );
     assertNonnullptrPointer( dependentVariableTerminationSettings );
     jsonObject[ K::variable ] = dependentVariableTerminationSettings->dependentVariableSettings_;
     jsonObject[ dependentVariableTerminationSettings->useAsLowerLimit_ ? K::lowerLimit : K::upperLimit ] =
@@ -113,88 +110,80 @@ void to_json( nlohmann::json& jsonObject,
 }
 
 //! Create a shared pointer to a `PropagationTerminationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject,
-                std::shared_ptr< PropagationTerminationSettings >& terminationSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< PropagationTerminationSettings >& terminationSettings )
 {
     using namespace json_interface;
     using K = Keys::Termination;
 
     // Hybrid
-    if ( isDefined( jsonObject, K::allOf ) || isDefined( jsonObject, K::anyOf ) )
+    if( isDefined( jsonObject, K::allOf ) || isDefined( jsonObject, K::anyOf ) )
     {
         terminationSettings = getAs< std::shared_ptr< PropagationHybridTerminationSettings > >( jsonObject );
         return;
     }
 
-    const std::shared_ptr< VariableSettings > variable =
-            getValue< std::shared_ptr< VariableSettings > >( jsonObject, K::variable );
-    switch ( variable->variableType_ )
+    const std::shared_ptr< VariableSettings > variable = getValue< std::shared_ptr< VariableSettings > >( jsonObject, K::variable );
+    switch( variable->variableType_ )
     {
-    case independentVariable:
-    {
-        terminationSettings = std::make_shared< PropagationTimeTerminationSettings >(
+        case independentVariable: {
+            terminationSettings = std::make_shared< PropagationTimeTerminationSettings >(
                     getValue< double >( jsonObject, { K::upperLimit, SpecialKeys::root / Keys::finalEpoch } ) );
-        return;
-    }
-    case cpuTimeVariable:
-    {
-        terminationSettings = std::make_shared< PropagationCPUTimeTerminationSettings >(
-                    getValue< double >( jsonObject, K::upperLimit ) );
-        return;
-    }
-    case dependentVariable:
-    {
-        // If both lower limit and upper limit, create hybrid satistying any of the two conditions
-        if ( isDefined( jsonObject, K::lowerLimit ) && isDefined( jsonObject, K::upperLimit ) )
-        {
-            // Lower limit
-            nlohmann::json lowerLimitObject = jsonObject;
-            lowerLimitObject.erase( K::upperLimit );
-            std::shared_ptr< PropagationTerminationSettings > lowerLimitCondition =
-                    getAs< std::shared_ptr< PropagationTerminationSettings > >( lowerLimitObject );
-
-            // Upper limit
-            nlohmann::json upperLimitObject = jsonObject;
-            upperLimitObject.erase( K::lowerLimit );
-            std::shared_ptr< PropagationTerminationSettings > upperLimitCondition =
-                    getAs< std::shared_ptr< PropagationTerminationSettings > >( upperLimitObject );
-
-            // Combine
-            terminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
-                        std::vector< std::shared_ptr< PropagationTerminationSettings > >(
-            { lowerLimitObject, upperLimitObject } ), true );
             return;
         }
-
-        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVar =
-                std::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-        assertNonnullptrPointer( dependentVar );
-
-        // Limit value
-        double limitValue;
-        bool useLowerLimit;
-        if ( isDefined( jsonObject, K::lowerLimit ) )
-        {
-            limitValue = getValue< double >( jsonObject, K::lowerLimit );
-            useLowerLimit = true;
+        case cpuTimeVariable: {
+            terminationSettings =
+                    std::make_shared< PropagationCPUTimeTerminationSettings >( getValue< double >( jsonObject, K::upperLimit ) );
+            return;
         }
-        else
-        {
-            limitValue = getValue< double >( jsonObject, K::upperLimit );
-            useLowerLimit = false;
+        case dependentVariable: {
+            // If both lower limit and upper limit, create hybrid satistying any of the two conditions
+            if( isDefined( jsonObject, K::lowerLimit ) && isDefined( jsonObject, K::upperLimit ) )
+            {
+                // Lower limit
+                nlohmann::json lowerLimitObject = jsonObject;
+                lowerLimitObject.erase( K::upperLimit );
+                std::shared_ptr< PropagationTerminationSettings > lowerLimitCondition =
+                        getAs< std::shared_ptr< PropagationTerminationSettings > >( lowerLimitObject );
+
+                // Upper limit
+                nlohmann::json upperLimitObject = jsonObject;
+                upperLimitObject.erase( K::lowerLimit );
+                std::shared_ptr< PropagationTerminationSettings > upperLimitCondition =
+                        getAs< std::shared_ptr< PropagationTerminationSettings > >( upperLimitObject );
+
+                // Combine
+                terminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
+                        std::vector< std::shared_ptr< PropagationTerminationSettings > >( { lowerLimitObject, upperLimitObject } ), true );
+                return;
+            }
+
+            const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVar =
+                    std::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
+            assertNonnullptrPointer( dependentVar );
+
+            // Limit value
+            double limitValue;
+            bool useLowerLimit;
+            if( isDefined( jsonObject, K::lowerLimit ) )
+            {
+                limitValue = getValue< double >( jsonObject, K::lowerLimit );
+                useLowerLimit = true;
+            }
+            else
+            {
+                limitValue = getValue< double >( jsonObject, K::upperLimit );
+                useLowerLimit = false;
+            }
+
+            terminationSettings =
+                    std::make_shared< PropagationDependentVariableTerminationSettings >( dependentVar, limitValue, useLowerLimit );
+            return;
         }
-
-        terminationSettings = std::make_shared< PropagationDependentVariableTerminationSettings >(
-                    dependentVar, limitValue, useLowerLimit );
-        return;
+        default:
+            throw std::runtime_error( "Termination settings cannot be defined as a function of variable: " + getVariableId( variable ) );
     }
-    default:
-        throw std::runtime_error( "Termination settings cannot be defined as a function of variable: " +
-                                  getVariableId( variable ) );
-    }
-
 }
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat

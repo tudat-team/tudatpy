@@ -38,59 +38,55 @@ void SphericalHarmonicsCache::resetMaximumDegreeAndOrder( const int maximumDegre
     referenceRadiusRatioPowers_.resize( maximumDegree_ + 2 );
 }
 
-
 //! Compute the gradient of a single term of a spherical harmonics potential field.
-Eigen::Vector3d computePotentialGradient(
-        const double distance,
-        const double radiusPowerTerm,
-        const double cosineOfOrderLongitude,
-        const double sineOfOrderLongitude,
-        const double cosineOfLatitude,
-        const double preMultiplier,
-        const int degree,
-        const int order,
-        const double cosineHarmonicCoefficient,
-        const double sineHarmonicCoefficient,
-        const double legendrePolynomial,
-        const double legendrePolynomialDerivative )
+Eigen::Vector3d computePotentialGradient( const double distance,
+                                          const double radiusPowerTerm,
+                                          const double cosineOfOrderLongitude,
+                                          const double sineOfOrderLongitude,
+                                          const double cosineOfLatitude,
+                                          const double preMultiplier,
+                                          const int degree,
+                                          const int order,
+                                          const double cosineHarmonicCoefficient,
+                                          const double sineHarmonicCoefficient,
+                                          const double legendrePolynomial,
+                                          const double legendrePolynomialDerivative )
 {
     // Return result.
-    return ( Eigen::Vector3d( ) <<
-             - preMultiplier / distance
-             * radiusPowerTerm
-             * ( static_cast< double >( degree ) + 1.0 ) * legendrePolynomial
-             * ( cosineHarmonicCoefficient * cosineOfOrderLongitude
-                 + sineHarmonicCoefficient * sineOfOrderLongitude ),
-             preMultiplier * radiusPowerTerm
-             * legendrePolynomialDerivative * cosineOfLatitude * (
-                 cosineHarmonicCoefficient * cosineOfOrderLongitude
-                 + sineHarmonicCoefficient * sineOfOrderLongitude ),
-             preMultiplier * radiusPowerTerm
-             * static_cast< double >( order ) * legendrePolynomial
-             * ( sineHarmonicCoefficient * cosineOfOrderLongitude
-                 - cosineHarmonicCoefficient * sineOfOrderLongitude ) ).finished( );
+    return ( Eigen::Vector3d( ) << -preMultiplier / distance * radiusPowerTerm * ( static_cast< double >( degree ) + 1.0 ) *
+                             legendrePolynomial *
+                             ( cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude ),
+             preMultiplier * radiusPowerTerm * legendrePolynomialDerivative * cosineOfLatitude *
+                     ( cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude ),
+             preMultiplier * radiusPowerTerm * static_cast< double >( order ) * legendrePolynomial *
+                     ( sineHarmonicCoefficient * cosineOfOrderLongitude - cosineHarmonicCoefficient * sineOfOrderLongitude ) )
+            .finished( );
 }
 
 //! Compute the gradient of a single term of a spherical harmonics potential field.
-Eigen::Vector3d computePotentialGradient(
-        const Eigen::Vector3d& sphericalPosition,
-        const double referenceRadius,
-        const double preMultiplier,
-        const int degree,
-        const int order,
-        const double cosineHarmonicCoefficient,
-        const double sineHarmonicCoefficient,
-        const double legendrePolynomial,
-        const double legendrePolynomialDerivative )
+Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPosition,
+                                          const double referenceRadius,
+                                          const double preMultiplier,
+                                          const int degree,
+                                          const int order,
+                                          const double cosineHarmonicCoefficient,
+                                          const double sineHarmonicCoefficient,
+                                          const double legendrePolynomial,
+                                          const double legendrePolynomialDerivative )
 {
-    return computePotentialGradient(
-                sphericalPosition( radiusIndex ),
-                basic_mathematics::raiseToIntegerPower
-                ( referenceRadius / sphericalPosition( radiusIndex ), static_cast< double >( degree ) + 1.0 ),
-                std::cos( static_cast< double >( order ) * sphericalPosition( longitudeIndex ) ),
-                std::sin( static_cast< double >( order ) * sphericalPosition( longitudeIndex ) ),
-                std::cos( sphericalPosition( latitudeIndex ) ), preMultiplier, degree, order,
-                cosineHarmonicCoefficient, sineHarmonicCoefficient, legendrePolynomial,legendrePolynomialDerivative );
+    return computePotentialGradient( sphericalPosition( radiusIndex ),
+                                     basic_mathematics::raiseToIntegerPower( referenceRadius / sphericalPosition( radiusIndex ),
+                                                                             static_cast< double >( degree ) + 1.0 ),
+                                     std::cos( static_cast< double >( order ) * sphericalPosition( longitudeIndex ) ),
+                                     std::sin( static_cast< double >( order ) * sphericalPosition( longitudeIndex ) ),
+                                     std::cos( sphericalPosition( latitudeIndex ) ),
+                                     preMultiplier,
+                                     degree,
+                                     order,
+                                     cosineHarmonicCoefficient,
+                                     sineHarmonicCoefficient,
+                                     legendrePolynomial,
+                                     legendrePolynomialDerivative );
 }
 
 //! Compute the gradient of a single term of a spherical harmonics potential field.
@@ -104,15 +100,19 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
                                           const double legendrePolynomialDerivative,
                                           const std::shared_ptr< SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
-    return computePotentialGradient(
-                sphericalPosition( radiusIndex ),
-                sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
-                sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
-                sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
-                sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
-                preMultiplier, degree, order,
-                cosineHarmonicCoefficient, sineHarmonicCoefficient, legendrePolynomial,legendrePolynomialDerivative );
+    return computePotentialGradient( sphericalPosition( radiusIndex ),
+                                     sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
+                                     sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
+                                     sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
+                                     sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
+                                     preMultiplier,
+                                     degree,
+                                     order,
+                                     cosineHarmonicCoefficient,
+                                     sineHarmonicCoefficient,
+                                     legendrePolynomial,
+                                     legendrePolynomialDerivative );
 }
 
-} // namespace basic_mathematics
-} // namespace tudat
+}  // namespace basic_mathematics
+}  // namespace tudat

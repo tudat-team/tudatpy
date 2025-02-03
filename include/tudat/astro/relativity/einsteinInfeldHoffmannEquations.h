@@ -52,13 +52,10 @@ public:
         return currentInverseSquareDistances_.at( bodyUndergoing ).at( bodyExerting );
     }
 
-
     Eigen::Vector3d& getRelativeVelocity( const int bodyUndergoing, const int bodyExerting )
     {
         return currentRelativeVelocities_.at( bodyUndergoing ).at( bodyExerting );
     }
-
-
 
     Eigen::Vector3d& getVelocity( const int bodyIndex )
     {
@@ -70,8 +67,6 @@ public:
         return currentGravitationalParameters_.at( bodyIndex );
     }
 
-
-
     double getTotalScalarTermCorrection( const int bodyUndergoing, const int bodyExerting )
     {
         return totalScalarTermCorrection.at( bodyUndergoing ).at( bodyExerting );
@@ -81,9 +76,6 @@ public:
     {
         return totalVectorTermCorrection_.at( bodyUndergoing ).at( bodyExerting );
     }
-
-
-
 
     double getSingleSourceLocalPotential( const int bodyUndergoing, const int bodyExerting )
     {
@@ -119,7 +111,6 @@ public:
     {
         return scalarEihCorrections_.at( k ).at( bodyUndergoing ).at( bodyExerting );
     }
-
 
     std::vector< std::vector< std::vector< Eigen::Vector3d > > > getVectorEihCorrections( )
     {
@@ -171,13 +162,9 @@ public:
         return acceleratingBodyMap_;
     }
 
-
     void recomputeExpansionMultipliers( );
 
-
 private:
-
-
     void calculateAccelerations( );
 
     std::vector< std::string > acceleratedBodies_;
@@ -194,13 +181,9 @@ private:
 
     bool omitMainTerm_;
 
-
-
-
     std::map< std::string, int > acceleratedBodyMap_;
 
     std::map< std::string, int > acceleratingBodyMap_;
-
 
     // mu_{i}
     std::vector< double > currentGravitationalParameters_;
@@ -214,15 +197,11 @@ private:
     // v_{i} * v_{i}
     std::vector< double > currentSquareSpeeds_;
 
-
-
     // sum_(j not i) ( mu_j / ||r_{ij}|| ) = sum( currentSingleSourceLocalPotential_ )
     std::vector< double > currentLocalPotentials_;
 
     // sum_(j not i) ( mu_{j} * r_{ij} / ||r_{ij}||^3 ) = sum( singlePointMassAccelerations_ )
     std::vector< Eigen::Vector3d > totalPointMassAccelerations_;
-
-
 
     // r_{ij} = r_{j} - r_{i}
     std::vector< std::vector< Eigen::Vector3d > > currentRelativePositions_;
@@ -248,8 +227,6 @@ private:
     // mu_{j} * r_{ij} / ||r_{ij}||^3
     std::vector< std::vector< Eigen::Vector3d > > singlePointMassAccelerations_;
 
-
-
     std::vector< std::vector< Eigen::Vector3d > > currentSingleAccelerations_;
 
     std::vector< std::vector< double > > totalScalarTermCorrection;
@@ -258,17 +235,13 @@ private:
 
     std::vector< Eigen::Vector3d > currentAccelerations_;
 
-
-
     std::vector< std::vector< std::vector< double > > > scalarEihCorrections_;
 
     std::vector< std::vector< std::vector< Eigen::Vector3d > > > vectorEihCorrections_;
 
-
     double currentPpnGamma_;
 
     double currentPpnBeta_;
-
 
     std::vector< double > scalarTermMultipliers_;
 
@@ -277,8 +250,8 @@ private:
     double currentTime_;
 };
 
-}
+}  // namespace relativity
 
-}
+}  // namespace tudat
 
-#endif // EINSTEININFELDHOFFMANNEQUATIONS_H
+#endif  // EINSTEININFELDHOFFMANNEQUATIONS_H

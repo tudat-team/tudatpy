@@ -33,41 +33,37 @@ namespace numerical_integrators
  *          multiplication with IndependentVariableType and doubles.
  * \sa NumericalIntegrator.
  */
-template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
-class ReinitializableNumericalIntegrator :
-        public numerical_integrators::NumericalIntegrator<
-        IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
+template< typename IndependentVariableType = double,
+          typename StateType = Eigen::VectorXd,
+          typename StateDerivativeType = Eigen::VectorXd,
+          typename TimeStepType = IndependentVariableType >
+class ReinitializableNumericalIntegrator
+    : public numerical_integrators::NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 protected:
-
     //! Typedef of the base class.
     /*!
      * Typedef of the base class with all template parameters filled in.
      */
-    typedef numerical_integrators::NumericalIntegrator<
-    IndependentVariableType, StateType, StateDerivativeType, TimeStepType > NumericalIntegratorBase;
+    typedef numerical_integrators::NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
+            NumericalIntegratorBase;
 
 public:
-
     //! Default constructor.
-    ReinitializableNumericalIntegrator(
-            const typename NumericalIntegratorBase::StateDerivativeFunction& aStateDerivativeFunction )
-        : NumericalIntegratorBase( aStateDerivativeFunction )
+    ReinitializableNumericalIntegrator( const typename NumericalIntegratorBase::StateDerivativeFunction& aStateDerivativeFunction ):
+        NumericalIntegratorBase( aStateDerivativeFunction )
     { }
 
     //! Default destructor.
     virtual ~ReinitializableNumericalIntegrator( ) { }
 
 protected:
-
 private:
-
 };
 
-//extern template class ReinitializableNumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-//extern template class ReinitializableNumericalIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
-//extern template class ReinitializableNumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+// extern template class ReinitializableNumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+// extern template class ReinitializableNumericalIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+// extern template class ReinitializableNumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 //! Typedef for shared-pointer to default, re-initializable numerical integrator.
 /*!
@@ -75,19 +71,17 @@ private:
  * (IndependentVariableType = double, StateType = Eigen::VectorXd,
  * StateDerivativeType = Eigen::VectorXd).
  */
-typedef std::shared_ptr< ReinitializableNumericalIntegrator< > >
-ReinitializableNumericalIntegratorXdPointer;
+typedef std::shared_ptr< ReinitializableNumericalIntegrator<> > ReinitializableNumericalIntegratorXdPointer;
 
 //! Typedef for a shared-pointer to a scalar, re-initializable numerical integrator.
 /*!
  * Typedef for shared-pointer to a scalar numerical, re-initializable integrator
  * (IndependentVariableType = double, StateType = double, StateDerivativeType = double).
  */
-typedef std::shared_ptr< ReinitializableNumericalIntegrator< double, double, double > >
-ReinitializableNumericalIntegratordPointer;
+typedef std::shared_ptr< ReinitializableNumericalIntegrator< double, double, double > > ReinitializableNumericalIntegratordPointer;
 
-} // namespace numerical_integrators
+}  // namespace numerical_integrators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_REINITIALIZABLE_NUMERICAL_INTEGRATOR_H
+#endif  // TUDAT_REINITIALIZABLE_NUMERICAL_INTEGRATOR_H

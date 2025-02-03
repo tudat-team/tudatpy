@@ -19,4 +19,4 @@
 #include "root_finders/secantRootFinder.h"
 #include "root_finders/terminationConditions.h"
 
-#endif // TUDAT_ROOT_FINDERS_H
+#endif  // TUDAT_ROOT_FINDERS_H

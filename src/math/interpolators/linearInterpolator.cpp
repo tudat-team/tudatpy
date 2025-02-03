@@ -34,28 +34,22 @@ double computeLinearInterpolation( const Eigen::VectorXd& sortedIndependentVaria
 
     // Compute nearest neighbor in sorted vector of independent variables.
     // Result is always to the left of the target independent variable value.
-    nearestNeighbor = basic_mathematics::computeNearestLeftNeighborUsingBinarySearch(
-            sortedIndependentVariables, targetIndependentVariableValue );
+    nearestNeighbor =
+            basic_mathematics::computeNearestLeftNeighborUsingBinarySearch( sortedIndependentVariables, targetIndependentVariableValue );
 
     // Compute location of target independent variable value in interval
     // between nearest neighbors.
-    locationTargetIndependentVariableValueInInterval
-            = ( targetIndependentVariableValue
-              - sortedIndependentVariables[ nearestNeighbor ] )
-             / ( sortedIndependentVariables[ nearestNeighbor + 1 ]
-                 - sortedIndependentVariables[ nearestNeighbor ] );
+    locationTargetIndependentVariableValueInInterval = ( targetIndependentVariableValue - sortedIndependentVariables[ nearestNeighbor ] ) /
+            ( sortedIndependentVariables[ nearestNeighbor + 1 ] - sortedIndependentVariables[ nearestNeighbor ] );
 
     // Return the computed value of the dependent variable.
-    return ( associatedDependentVariables[ nearestNeighbor ]
-             * ( 1 - locationTargetIndependentVariableValueInInterval )
-             + associatedDependentVariables[ nearestNeighbor + 1 ]
-             * locationTargetIndependentVariableValueInInterval );
+    return ( associatedDependentVariables[ nearestNeighbor ] * ( 1 - locationTargetIndependentVariableValueInInterval ) +
+             associatedDependentVariables[ nearestNeighbor + 1 ] * locationTargetIndependentVariableValueInInterval );
 }
 
 //! Compute linear interpolation.
-Eigen::VectorXd computeLinearInterpolation(
-        const std::map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
-        const double targetIndependentVariableValue )
+Eigen::VectorXd computeLinearInterpolation( const std::map< double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
+                                            const double targetIndependentVariableValue )
 {
     // Declare local variables.
     // Declare nearest neighbor.
@@ -70,8 +64,8 @@ Eigen::VectorXd computeLinearInterpolation(
 
     // Compute nearest neighbor in map of data.
     // Result is always to the left of the target independent variable value.
-    nearestLeftNeighbor = basic_mathematics::computeNearestLeftNeighborUsingBinarySearch(
-                sortedIndepedentAndDependentVariables, targetIndependentVariableValue );
+    nearestLeftNeighbor = basic_mathematics::computeNearestLeftNeighborUsingBinarySearch( sortedIndepedentAndDependentVariables,
+                                                                                          targetIndependentVariableValue );
 
     // Compute location of target independent variable value in interval
     // between nearest neighbors.
@@ -79,26 +73,21 @@ Eigen::VectorXd computeLinearInterpolation(
     advance( mapIteratorIntervalLeft, nearestLeftNeighbor );
     mapIteratorIntervalRight = sortedIndepedentAndDependentVariables.begin( );
     advance( mapIteratorIntervalRight, nearestLeftNeighbor + 1 );
-    locationTargetIndependentVariableValueInInterval
-            = ( targetIndependentVariableValue
-              - mapIteratorIntervalLeft->first )
-             / ( mapIteratorIntervalRight->first
-                 - mapIteratorIntervalLeft->first );
+    locationTargetIndependentVariableValueInInterval = ( targetIndependentVariableValue - mapIteratorIntervalLeft->first ) /
+            ( mapIteratorIntervalRight->first - mapIteratorIntervalLeft->first );
 
     // Return the computed value of the dependent variable.
-    return ( mapIteratorIntervalLeft->second
-             * ( 1 - locationTargetIndependentVariableValueInInterval )
-             + mapIteratorIntervalRight->second
-             * locationTargetIndependentVariableValueInInterval );
+    return ( mapIteratorIntervalLeft->second * ( 1 - locationTargetIndependentVariableValueInInterval ) +
+             mapIteratorIntervalRight->second * locationTargetIndependentVariableValueInInterval );
 }
 
-//template class LinearInterpolator< double, Eigen::VectorXd >;
-//template class LinearInterpolator< double, Eigen::Vector6d >;
-//template class LinearInterpolator< double, Eigen::MatrixXd >;
+// template class LinearInterpolator< double, Eigen::VectorXd >;
+// template class LinearInterpolator< double, Eigen::Vector6d >;
+// template class LinearInterpolator< double, Eigen::MatrixXd >;
 
-//template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-//template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
-//template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
+// template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+// template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
+// template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
 
-} // namespace interpolators
-} // mamespace tudat
+}  // namespace interpolators
+}  // namespace tudat

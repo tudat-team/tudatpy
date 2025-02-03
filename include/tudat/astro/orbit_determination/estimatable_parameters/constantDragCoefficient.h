@@ -22,11 +22,9 @@ namespace estimatable_parameters
 {
 
 //! Interface class for the estimation of a constant body drag coefficient
-class ConstantDragCoefficient: public EstimatableParameter< double >
+class ConstantDragCoefficient : public EstimatableParameter< double >
 {
-
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -34,11 +32,9 @@ public:
      * consistent with this class, e.g. if the existing aerodynamic coefficients are constant
      * \param associatedBody Body for which the drag coefficient is considered.
      */
-    ConstantDragCoefficient(
-            const std::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface,
-            const std::string& associatedBody ):
-        EstimatableParameter< double >( constant_drag_coefficient, associatedBody ),
-        coefficientInterface_( coefficientInterface )
+    ConstantDragCoefficient( const std::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface,
+                             const std::string& associatedBody ):
+        EstimatableParameter< double >( constant_drag_coefficient, associatedBody ), coefficientInterface_( coefficientInterface )
     {
         if( coefficientInterface->getNumberOfIndependentVariables( ) != 0 )
         {
@@ -66,8 +62,7 @@ public:
      */
     void setParameterValue( double parameterValue )
     {
-        Eigen::Vector6d currentCoefficientSet =
-                coefficientInterface_->getCurrentAerodynamicCoefficients( );
+        Eigen::Vector6d currentCoefficientSet = coefficientInterface_->getCurrentAerodynamicCoefficients( );
         currentCoefficientSet( 0 ) = parameterValue;
         coefficientInterface_->resetConstantCoefficients( currentCoefficientSet );
     }
@@ -83,18 +78,14 @@ public:
     }
 
 protected:
-
 private:
-
     //! Object that contains the aerodynamic coefficients
     std::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface_;
-
 };
 
 //! Interface class for the estimation of an arc-wise (piecewise constant) drag coefficient
-class ArcWiseConstantDragCoefficient: public EstimatableParameter< Eigen::VectorXd >
+class ArcWiseConstantDragCoefficient : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
     //! Constructor.
     /*!
@@ -103,10 +94,9 @@ public:
      * \param timeLimits Times at which the arcs are to start.
      * \param associatedBody Name of body containing the coefficientInterface object
      */
-    ArcWiseConstantDragCoefficient(
-            const std::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface,
-            const std::vector< double > timeLimits,
-            const std::string& associatedBody ):
+    ArcWiseConstantDragCoefficient( const std::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface,
+                                    const std::vector< double > timeLimits,
+                                    const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( arc_wise_constant_drag_coefficient, associatedBody ),
         coefficientInterface_( coefficientInterface ), timeLimits_( timeLimits )
     {
@@ -126,7 +116,7 @@ public:
         fullAerodynamicCoefficients_.push_back( aerodynamicCoefficients );
 
         coefficientInterpolator_ = std::make_shared< interpolators::PiecewiseConstantInterpolator< double, Eigen::Vector6d > >(
-                    timeLimits_, fullAerodynamicCoefficients_ );
+                timeLimits_, fullAerodynamicCoefficients_ );
 
         setCoefficientInterfaceClosure( );
     }
@@ -151,8 +141,7 @@ public:
      */
     void setParameterValue( Eigen::VectorXd parameterValue )
     {
-        if( static_cast< int >( dragCoefficients_.size( ) ) !=
-                static_cast< int >( parameterValue.rows( ) ) )
+        if( static_cast< int >( dragCoefficients_.size( ) ) != static_cast< int >( parameterValue.rows( ) ) )
         {
             throw std::runtime_error( "Error when resetting arc-wise drag coefficients, sizes are incompatible" );
         }
@@ -163,8 +152,7 @@ public:
         {
             fullAerodynamicCoefficients_[ i ]( 0 ) = dragCoefficients_[ i ];
         }
-        fullAerodynamicCoefficients_[ dragCoefficients_.size( ) ] =
-                fullAerodynamicCoefficients_[ dragCoefficients_.size( ) - 1 ];
+        fullAerodynamicCoefficients_[ dragCoefficients_.size( ) ] = fullAerodynamicCoefficients_[ dragCoefficients_.size( ) - 1 ];
         coefficientInterpolator_->resetDependentValues( fullAerodynamicCoefficients_ );
     }
 
@@ -173,7 +161,10 @@ public:
      *  Function to retrieve the size of the parameter
      *  \return Size of parameter value
      */
-    int getParameterSize( ){ return dragCoefficients_.size( ); }
+    int getParameterSize( )
+    {
+        return dragCoefficients_.size( );
+    }
 
     void updateCurrentCoefficients( const double time )
     {
@@ -196,14 +187,12 @@ public:
     }
 
 protected:
-
 private:
-
     void setCoefficientInterfaceClosure( )
     {
         coefficientInterface_->setTimeDependentCoefficientClosure(
-                    std::bind( &ArcWiseConstantDragCoefficient::getCurrentCoefficients, this ),
-                    std::bind( &ArcWiseConstantDragCoefficient::updateCurrentCoefficients, this, std::placeholders::_1 ) );
+                std::bind( &ArcWiseConstantDragCoefficient::getCurrentCoefficients, this ),
+                std::bind( &ArcWiseConstantDragCoefficient::updateCurrentCoefficients, this, std::placeholders::_1 ) );
     }
 
     //! Object containing the drag coefficient to be estimated.
@@ -224,9 +213,8 @@ private:
     Eigen::Vector6d currentCoefficients_;
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_CONSTANTDRAGCOEFFICIENT_H
+#endif  // TUDAT_CONSTANTDRAGCOEFFICIENT_H

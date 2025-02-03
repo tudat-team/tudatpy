@@ -7,8 +7,9 @@ namespace statistics
 {
 
 //! Function to calculate the allan variance of a set of time offsets for a single bin size.
-double calculateAllanVarianceOfTimeDataSetAtInterval(
-        const int binSize, const double singleTimeStepSize, const std::vector< double >& timeErrors )
+double calculateAllanVarianceOfTimeDataSetAtInterval( const int binSize,
+                                                      const double singleTimeStepSize,
+                                                      const std::vector< double >& timeErrors )
 {
     // Determine time duration of a single bin.
     double binTimeStep = singleTimeStepSize * static_cast< double >( binSize );
@@ -40,8 +41,7 @@ double calculateAllanVarianceOfTimeDataSetAtInterval(
 }
 
 //! Function to calculate the Allan variance at all time intervals from equi-spaced vector of (timing) errors in time domain.
-std::map< double, double > calculateAllanVarianceOfTimeDataSet(
-        const std::vector< double >& timingErrors, const double timeStepSize )
+std::map< double, double > calculateAllanVarianceOfTimeDataSet( const std::vector< double >& timingErrors, const double timeStepSize )
 {
     // Define initial bin size
     int currentBinSize = 1;
@@ -63,6 +63,6 @@ std::map< double, double > calculateAllanVarianceOfTimeDataSet(
     return allanVariances;
 }
 
-}
+}  // namespace statistics
 
-}
+}  // namespace tudat

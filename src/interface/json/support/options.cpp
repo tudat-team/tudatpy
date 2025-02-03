@@ -20,7 +20,7 @@ namespace json_interface
 //! Create a `json` object from a shared pointer to a `ApplicationOptions` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ApplicationOptions >& applicationOptions )
 {
-    if ( ! applicationOptions )
+    if( !applicationOptions )
     {
         return;
     }
@@ -43,20 +43,17 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ApplicationOp
 
     updateFromJSONIfDefined( applicationOptions->notifyOnPropagationStart_, jsonObject, K::notifyOnPropagationStart );
 
-    updateFromJSONIfDefined( applicationOptions->notifyOnPropagationTermination_,
-                             jsonObject, K::notifyOnPropagationTermination );
+    updateFromJSONIfDefined( applicationOptions->notifyOnPropagationTermination_, jsonObject, K::notifyOnPropagationTermination );
 
-    updateFromJSONIfDefined( applicationOptions->defaultValueUsedForMissingKey_,
-                             jsonObject, K::defaultValueUsedForMissingKey );
+    updateFromJSONIfDefined( applicationOptions->defaultValueUsedForMissingKey_, jsonObject, K::defaultValueUsedForMissingKey );
 
     updateFromJSONIfDefined( applicationOptions->unusedKey_, jsonObject, K::unusedKey );
 
     updateFromJSONIfDefined( applicationOptions->fullSettingsFile_, jsonObject, K::fullSettingsFile );
 
-    updateFromJSONIfDefined( applicationOptions->tagOutputFilesIfPropagationFails_,
-                             jsonObject, K::tagOutputFilesIfPropagationFails );
+    updateFromJSONIfDefined( applicationOptions->tagOutputFilesIfPropagationFails_, jsonObject, K::tagOutputFilesIfPropagationFails );
 }
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat

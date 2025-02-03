@@ -44,8 +44,7 @@ namespace basic_astrodynamics
  *
  */
 //! @get_docstring(AvailableAcceleration.__docstring__)
-enum AvailableAcceleration
-{
+enum AvailableAcceleration {
     undefined_acceleration,
     point_mass_gravity,
     aerodynamic,
@@ -81,16 +80,11 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
 
 // List of model types for body mass rates.
 /*
-*  List of model types for body mass rates available in simulations. Mass rate models not defined by this
-*  given enum cannot be used for automatic mass rate model setup.
-*/
+ *  List of model types for body mass rates available in simulations. Mass rate models not defined by this
+ *  given enum cannot be used for automatic mass rate model setup.
+ */
 //! @get_docstring(AvailableMassRateModels.__docstring__)
-enum AvailableMassRateModels
-{
-    undefined_mass_rate_model,
-    custom_mass_rate_model,
-    from_thrust_mass_rate_model
-};
+enum AvailableMassRateModels { undefined_mass_rate_model, custom_mass_rate_model, from_thrust_mass_rate_model };
 
 // Function to identify the derived class type of an acceleration model.
 /*
@@ -100,8 +94,7 @@ enum AvailableMassRateModels
  *  \return Type of the accelerationModel, as identified by AvailableAcceleration enum.
  */
 AvailableAcceleration getAccelerationModelType(
-        const std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
-        accelerationModel );
+        const std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel );
 
 // Function to identify the type of a mass rate model.
 /*
@@ -110,8 +103,7 @@ AvailableAcceleration getAccelerationModelType(
  *  \param massRateModel Mass rate model of which the type is to be identified.
  *  \return Type of the massRateModel, as identified by AvailableMassRateModels enum.
  */
-AvailableMassRateModels getMassRateModelType(
-        const std::shared_ptr< MassRateModel > massRateModel );
+AvailableMassRateModels getMassRateModelType( const std::shared_ptr< MassRateModel > massRateModel );
 
 // Function to get all acceleration models of a given type from a list of models
 /*
@@ -123,8 +115,6 @@ AvailableMassRateModels getMassRateModelType(
 std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfType(
         const std::vector< std::shared_ptr< AccelerationModel3d > >& fullList,
         const AvailableAcceleration modelType );
-
-
 
 // Function to check whether an acceleration type is a direct gravitational acceleration
 /*
@@ -152,8 +142,8 @@ bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
  */
 AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceleration accelerationType );
 
-} // namespace basic_astrodynamics
+}  // namespace basic_astrodynamics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_ACCELERATIONMODELTYPES_H
+#endif  // TUDAT_ACCELERATIONMODELTYPES_H

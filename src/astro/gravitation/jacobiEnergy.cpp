@@ -23,38 +23,29 @@ namespace gravitation
 {
 
 //! Compute Jacobi energy.
-double computeJacobiEnergy( const double massParameter,
-                            const Eigen::VectorXd& stateInNormalizedUnits )
+double computeJacobiEnergy( const double massParameter, const Eigen::VectorXd& stateInNormalizedUnits )
 {
     using namespace orbital_element_conversions;
 
     // Compute squared distances for efficient computation.
-    const double xCoordinateToPrimaryBodySquared =
-            ( massParameter + stateInNormalizedUnits( xCartesianPositionIndex ) )
-            * ( massParameter + stateInNormalizedUnits( xCartesianPositionIndex ) );
+    const double xCoordinateToPrimaryBodySquared = ( massParameter + stateInNormalizedUnits( xCartesianPositionIndex ) ) *
+            ( massParameter + stateInNormalizedUnits( xCartesianPositionIndex ) );
 
-    const double yCoordinateSquared = stateInNormalizedUnits( yCartesianPositionIndex )
-            * stateInNormalizedUnits( yCartesianPositionIndex );
+    const double yCoordinateSquared = stateInNormalizedUnits( yCartesianPositionIndex ) * stateInNormalizedUnits( yCartesianPositionIndex );
 
-    const double zCoordinateSquared = stateInNormalizedUnits( zCartesianPositionIndex )
-            * stateInNormalizedUnits( zCartesianPositionIndex );
+    const double zCoordinateSquared = stateInNormalizedUnits( zCartesianPositionIndex ) * stateInNormalizedUnits( zCartesianPositionIndex );
 
-    const double xCoordinateToSecondaryBodySquared =
-            ( 1.0 - massParameter - stateInNormalizedUnits( xCartesianPositionIndex ) )
-              * ( 1.0 - massParameter - stateInNormalizedUnits( xCartesianPositionIndex ) );
+    const double xCoordinateToSecondaryBodySquared = ( 1.0 - massParameter - stateInNormalizedUnits( xCartesianPositionIndex ) ) *
+            ( 1.0 - massParameter - stateInNormalizedUnits( xCartesianPositionIndex ) );
 
-    const double distanceToPrimaryBody = std::sqrt(
-                xCoordinateToPrimaryBodySquared + yCoordinateSquared + zCoordinateSquared );
+    const double distanceToPrimaryBody = std::sqrt( xCoordinateToPrimaryBodySquared + yCoordinateSquared + zCoordinateSquared );
 
-    const double distanceToSecondaryBody = std::sqrt(
-                xCoordinateToSecondaryBodySquared + yCoordinateSquared + zCoordinateSquared );
+    const double distanceToSecondaryBody = std::sqrt( xCoordinateToSecondaryBodySquared + yCoordinateSquared + zCoordinateSquared );
 
-    return stateInNormalizedUnits( xCartesianPositionIndex ) * stateInNormalizedUnits( xCartesianPositionIndex )
-            + yCoordinateSquared
-            + 2.0 * ( 1.0 - massParameter ) / distanceToPrimaryBody
-            + 2.0 * massParameter / distanceToSecondaryBody
-            - stateInNormalizedUnits.segment( xCartesianVelocityIndex, 3 ).squaredNorm( );
+    return stateInNormalizedUnits( xCartesianPositionIndex ) * stateInNormalizedUnits( xCartesianPositionIndex ) + yCoordinateSquared +
+            2.0 * ( 1.0 - massParameter ) / distanceToPrimaryBody + 2.0 * massParameter / distanceToSecondaryBody -
+            stateInNormalizedUnits.segment( xCartesianVelocityIndex, 3 ).squaredNorm( );
 }
 
-} // namespace gravitation
-} // namespace tudat
+}  // namespace gravitation
+}  // namespace tudat

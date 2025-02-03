@@ -20,7 +20,7 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `MassRateModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< MassRateModelSettings >& massRateModelSettings )
 {
-    if ( ! massRateModelSettings )
+    if( !massRateModelSettings )
     {
         return;
     }
@@ -31,19 +31,18 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< MassRateModelSe
     const AvailableMassRateModels massRateType = massRateModelSettings->massRateType_;
     jsonObject[ K::type ] = massRateType;
 
-    switch ( massRateType ) {
-    case from_thrust_mass_rate_model:
+    switch( massRateType )
     {
-        std::shared_ptr< FromThrustMassModelSettings > fromThrustMassModelSettings =
-                std::dynamic_pointer_cast< FromThrustMassModelSettings >( massRateModelSettings );
-        assertNonnullptrPointer( fromThrustMassModelSettings );
-        jsonObject[ K::useAllThrustModels ] = fromThrustMassModelSettings->useAllThrustModels_;
-        assignIfNotEmpty( jsonObject, K::associatedThrustSource,
-                          fromThrustMassModelSettings->associatedThrustSource_ );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( massRateType, massRateTypes, unsupportedMassRateType );
+        case from_thrust_mass_rate_model: {
+            std::shared_ptr< FromThrustMassModelSettings > fromThrustMassModelSettings =
+                    std::dynamic_pointer_cast< FromThrustMassModelSettings >( massRateModelSettings );
+            assertNonnullptrPointer( fromThrustMassModelSettings );
+            jsonObject[ K::useAllThrustModels ] = fromThrustMassModelSettings->useAllThrustModels_;
+            assignIfNotEmpty( jsonObject, K::associatedThrustSource, fromThrustMassModelSettings->associatedThrustSource_ );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( massRateType, massRateTypes, unsupportedMassRateType );
     }
 }
 
@@ -57,25 +56,23 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< MassRateModel
     // Get mass-rate type
     const AvailableMassRateModels massRateType = getValue< AvailableMassRateModels >( jsonObject, K::type );
 
-    switch ( massRateType ) {
-    case from_thrust_mass_rate_model:
+    switch( massRateType )
     {
-        std::shared_ptr< FromThrustMassModelSettings > fromThrustMassModelSettings =
-                std::make_shared< FromThrustMassModelSettings >( );
-        updateFromJSONIfDefined( fromThrustMassModelSettings->useAllThrustModels_, jsonObject, K::useAllThrustModels );
-        if ( ! fromThrustMassModelSettings->useAllThrustModels_ )
-        {
-            updateFromJSON( fromThrustMassModelSettings->associatedThrustSource_,
-                            jsonObject, K::associatedThrustSource );
+        case from_thrust_mass_rate_model: {
+            std::shared_ptr< FromThrustMassModelSettings > fromThrustMassModelSettings = std::make_shared< FromThrustMassModelSettings >( );
+            updateFromJSONIfDefined( fromThrustMassModelSettings->useAllThrustModels_, jsonObject, K::useAllThrustModels );
+            if( !fromThrustMassModelSettings->useAllThrustModels_ )
+            {
+                updateFromJSON( fromThrustMassModelSettings->associatedThrustSource_, jsonObject, K::associatedThrustSource );
+            }
+            massRateModelSettings = fromThrustMassModelSettings;
+            return;
         }
-        massRateModelSettings = fromThrustMassModelSettings;
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( massRateType, massRateTypes, unsupportedMassRateType );
+        default:
+            handleUnimplementedEnumValue( massRateType, massRateTypes, unsupportedMassRateType );
     }
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

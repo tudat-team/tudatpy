@@ -31,10 +31,9 @@ namespace ephemerides
  *  Class to define an ephemeris in an arc-wise manner, where each arc is time-delimited and a separate ephemeris object
  *  is provided for each of these arcs.
  */
-class MultiArcEphemeris: public Ephemeris
+class MultiArcEphemeris : public Ephemeris
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -43,10 +42,9 @@ public:
      *  \param referenceFrameOrigin Origin of reference frame (string identifier).
      *  \param referenceFrameOrientation Orientation of reference frame (string identifier).
      */
-    MultiArcEphemeris(
-            const std::map< double, std::shared_ptr< Ephemeris > >& singleArcEphemerides,
-            const std::string& referenceFrameOrigin = "",
-            const std::string& referenceFrameOrientation = "" ):
+    MultiArcEphemeris( const std::map< double, std::shared_ptr< Ephemeris > >& singleArcEphemerides,
+                       const std::string& referenceFrameOrigin = "",
+                       const std::string& referenceFrameOrientation = "" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ),
         singleArcEphemerides_( utilities::createVectorFromMapValues( singleArcEphemerides ) ),
         arcStartTimes_( utilities::createVectorFromMapKeys( singleArcEphemerides ) )
@@ -56,12 +54,11 @@ public:
         arcSplitTimes_.push_back( std::numeric_limits< double >::max( ) );
 
         // Create lookup scheme to determine which ephemeris to use.
-        lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
-                    arcSplitTimes_ );
+        lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( arcSplitTimes_ );
     }
 
     //! Destructor
-    ~MultiArcEphemeris( ){ }
+    ~MultiArcEphemeris( ) { }
 
     //! Get state from ephemeris.
     /*!
@@ -69,15 +66,15 @@ public:
      * \param secondsSinceEpoch Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
-    Eigen::Vector6d getCartesianState(
-            const double secondsSinceEpoch )
+    Eigen::Vector6d getCartesianState( const double secondsSinceEpoch )
     {
         if( singleArcEphemerides_.size( ) == 0 )
         {
-            throw std::runtime_error( "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
+            throw std::runtime_error(
+                    "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
         }
-        return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( secondsSinceEpoch ) )->
-                getCartesianState( double( secondsSinceEpoch ) );
+        return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( secondsSinceEpoch ) )
+                ->getCartesianState( double( secondsSinceEpoch ) );
     }
 
     //! Get state from ephemeris (long double state output).
@@ -86,15 +83,15 @@ public:
      * \param secondsSinceEpoch Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongState(
-            const double secondsSinceEpoch )
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double secondsSinceEpoch )
     {
         if( singleArcEphemerides_.size( ) == 0 )
         {
-            throw std::runtime_error( "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
+            throw std::runtime_error(
+                    "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
         }
-        return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( secondsSinceEpoch ) )->
-                getCartesianLongState( secondsSinceEpoch );
+        return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( secondsSinceEpoch ) )
+                ->getCartesianLongState( secondsSinceEpoch );
     }
 
     //! Get state from ephemeris (Time time input)
@@ -103,15 +100,15 @@ public:
      * \param currentTime Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
-    Eigen::Vector6d getCartesianStateFromExtendedTime(
-            const Time& currentTime )
+    Eigen::Vector6d getCartesianStateFromExtendedTime( const Time& currentTime )
     {
         if( singleArcEphemerides_.size( ) == 0 )
         {
-            throw std::runtime_error( "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
+            throw std::runtime_error(
+                    "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
         }
-        return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( currentTime ) )->
-                getCartesianStateFromExtendedTime( currentTime );
+        return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( currentTime ) )
+                ->getCartesianStateFromExtendedTime( currentTime );
     }
 
     //! Get state from ephemeris (long double state output and Time time input)
@@ -120,15 +117,15 @@ public:
      * \param currentTime Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State currentTime ephemeris.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
-            const Time& currentTime )
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime )
     {
         if( singleArcEphemerides_.size( ) == 0 )
         {
-            throw std::runtime_error( "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
+            throw std::runtime_error(
+                    "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
         }
-        return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( currentTime ) )->
-                getCartesianLongStateFromExtendedTime( currentTime );
+        return singleArcEphemerides_.at( lookUpscheme_->findNearestLowerNeighbour( currentTime ) )
+                ->getCartesianLongStateFromExtendedTime( currentTime );
     }
 
     //! Function to reset the constituent arc ephemerides
@@ -137,18 +134,16 @@ public:
      * \param singleArcEphemerides New list of arc ephemeris objects
      * \param arcStartTimes New list of ephemeris start times
      */
-    void resetSingleArcEphemerides(
-            const std::vector< std::shared_ptr< Ephemeris > >& singleArcEphemerides,
-            const std::vector< double >& arcStartTimes )
-    {        
+    void resetSingleArcEphemerides( const std::vector< std::shared_ptr< Ephemeris > >& singleArcEphemerides,
+                                    const std::vector< double >& arcStartTimes )
+    {
         singleArcEphemerides_ = singleArcEphemerides;
         arcStartTimes_ = arcStartTimes;
 
         // Create times at which the look up changes from one arc to the other.
         arcSplitTimes_ = arcStartTimes_;
-        arcSplitTimes_.push_back(  std::numeric_limits< double >::max( ) );
-        lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
-                    arcSplitTimes_ );
+        arcSplitTimes_.push_back( std::numeric_limits< double >::max( ) );
+        lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( arcSplitTimes_ );
     }
 
     //! Function to reset the constituent arc ephemerides
@@ -156,8 +151,7 @@ public:
      * Function to reset the constituent arc ephemerides
      * \param singleArcEphemerides Map of of ephemeris objects as a function of their start times
      */
-    void resetSingleArcEphemerides(
-            const std::map< double, std::shared_ptr< Ephemeris > >& singleArcEphemerides )
+    void resetSingleArcEphemerides( const std::map< double, std::shared_ptr< Ephemeris > >& singleArcEphemerides )
     {
         resetSingleArcEphemerides( utilities::createVectorFromMapValues( singleArcEphemerides ),
                                    utilities::createVectorFromMapKeys( singleArcEphemerides ) );
@@ -183,9 +177,7 @@ public:
         return singleArcEphemerides_;
     }
 
-
 private:
-
     //! List of arc ephemeris objects
     std::vector< std::shared_ptr< Ephemeris > > singleArcEphemerides_;
 
@@ -197,12 +189,10 @@ private:
 
     //! Lookup scheme to determine which ephemeris to use.
     std::shared_ptr< interpolators::HuntingAlgorithmLookupScheme< double > > lookUpscheme_;
-
-
 };
 
-}
+}  // namespace ephemerides
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_MULTIARCEPHEMERIS_H
+#endif  // TUDAT_MULTIARCEPHEMERIS_H

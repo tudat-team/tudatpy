@@ -15,7 +15,6 @@
 
 #include "tudat/astro/ephemerides/ephemeris.h"
 
-
 namespace tudat
 {
 
@@ -27,7 +26,6 @@ template< typename TimeType = double, typename StateScalarType = double >
 class CustomEphemeris : public Ephemeris
 {
 public:
-
     using Ephemeris::getCartesianState;
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
@@ -41,46 +39,39 @@ public:
     CustomEphemeris( const std::function< StateType( const TimeType ) > stateFunction,
                      const std::string& referenceFrameOrigin = "SSB",
                      const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
-        Ephemeris( referenceFrameOrigin, referenceFrameOrientation ),
-        stateFunction_( stateFunction ) { }
+        Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), stateFunction_( stateFunction )
+    { }
 
-
-    Eigen::Vector6d getCartesianState(
-        const double secondsSinceEpoch )
+    Eigen::Vector6d getCartesianState( const double secondsSinceEpoch )
     {
         return stateFunction_( static_cast< TimeType >( secondsSinceEpoch ) ).template cast< double >( );
     }
 
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongState(
-        const double secondsSinceEpoch )
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double secondsSinceEpoch )
     {
         return stateFunction_( static_cast< TimeType >( secondsSinceEpoch ) ).template cast< long double >( );
     }
 
-    Eigen::Vector6d getCartesianStateFromExtendedTime(
-        const Time& time )
+    Eigen::Vector6d getCartesianStateFromExtendedTime( const Time& time )
     {
         return stateFunction_( static_cast< TimeType >( time ) ).template cast< double >( );
     }
 
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
-        const Time& time )
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& time )
     {
         return stateFunction_( static_cast< TimeType >( time ) ).template cast< long double >( );
     }
 
 private:
-
     //! Time-independent state function.
     /*!
      *  Function that returns a constant cartesian state.
      */
     std::function< StateType( const TimeType ) > stateFunction_;
-
 };
 
-} // namespace ephemerides
+}  // namespace ephemerides
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CUSTOMEPHEMERIS_H
+#endif  // TUDAT_CUSTOMEPHEMERIS_H

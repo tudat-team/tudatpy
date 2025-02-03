@@ -20,17 +20,14 @@ namespace tudat
 namespace unit_tests
 {
 
-#define INPUT( filename ) \
-    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+#define INPUT( filename ) ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
 BOOST_AUTO_TEST_SUITE( test_json_torque )
 
 // Test 1: torque types
 BOOST_AUTO_TEST_CASE( test_json_torque_ )
 {
-    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
-                            basic_astrodynamics::torqueTypes,
-                            basic_astrodynamics::unsupportedTorqueTypes );
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ), basic_astrodynamics::torqueTypes, basic_astrodynamics::unsupportedTorqueTypes );
 }
 
 // Test 2: second order gravitational torque
@@ -45,8 +42,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_secondOrderGravitational )
             parseJSONFile< std::shared_ptr< TorqueSettings > >( INPUT( "secondOrderGravitational" ) );
 
     // Create TorqueSettings manually
-    const std::shared_ptr< TorqueSettings > manualSettings =
-            std::make_shared< TorqueSettings >( second_order_gravitational_torque );
+    const std::shared_ptr< TorqueSettings > manualSettings = std::make_shared< TorqueSettings >( second_order_gravitational_torque );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -60,12 +56,10 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_aerodynamic )
     using namespace json_interface;
 
     // Create TorqueSettings from JSON file
-    const std::shared_ptr< TorqueSettings > fromFileSettings =
-            parseJSONFile< std::shared_ptr< TorqueSettings > >( INPUT( "aerodynamic" ) );
+    const std::shared_ptr< TorqueSettings > fromFileSettings = parseJSONFile< std::shared_ptr< TorqueSettings > >( INPUT( "aerodynamic" ) );
 
     // Create TorqueSettings manually
-    const std::shared_ptr< TorqueSettings > manualSettings =
-            std::make_shared< TorqueSettings >( aerodynamic_torque );
+    const std::shared_ptr< TorqueSettings > manualSettings = std::make_shared< TorqueSettings >( aerodynamic_torque );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -73,6 +67,6 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_aerodynamic )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

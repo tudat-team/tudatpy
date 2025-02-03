@@ -28,7 +28,7 @@ const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferen
 {
     static std::map< CentralDifferenceOrders, std::map< int, double > > coefficients;
 
-    if ( coefficients.empty( ) )
+    if( coefficients.empty( ) )
     {
         // Initialize the coefficients map
         coefficients[ order2 ] = std::map< int, double >( );
@@ -63,18 +63,18 @@ const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferen
     return coefficients[ order ];
 }
 
-Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const std::function<
-                                          Eigen::VectorXd( const Eigen::VectorXd& ) >& function,
-                                          double minimumStep, double relativeStepSize,
+Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input,
+                                          const std::function< Eigen::VectorXd( const Eigen::VectorXd& ) >& function,
+                                          double minimumStep,
+                                          double relativeStepSize,
                                           CentralDifferenceOrders order )
 {
     Eigen::MatrixXd result;
 
-    for ( int derivative = 0; derivative < input.rows( ); derivative++ )
+    for( int derivative = 0; derivative < input.rows( ); derivative++ )
     {
-        Eigen::VectorXd partial = computeCentralDifference( input, derivative, function,
-                                                            minimumStep, relativeStepSize, order );
-        if ( result.size( ) == 0 )
+        Eigen::VectorXd partial = computeCentralDifference( input, derivative, function, minimumStep, relativeStepSize, order );
+        if( result.size( ) == 0 )
         {
             result = Eigen::MatrixXd( partial.rows( ), input.rows( ) );
         }
@@ -83,8 +83,6 @@ Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const st
     return result;
 }
 
-} // namespace numerical_derivatives
+}  // namespace numerical_derivatives
 
-} // namespace tudat
-
-
+}  // namespace tudat

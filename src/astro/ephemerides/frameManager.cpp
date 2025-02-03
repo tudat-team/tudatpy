@@ -9,7 +9,6 @@
  */
 #include "tudat/astro/ephemerides/frameManager.h"
 
-
 namespace tudat
 {
 
@@ -37,8 +36,7 @@ bool isFrameInertial( const std::string& frame )
 }
 
 //! Constructor from named list of ephemerides.
-ReferenceFrameManager::ReferenceFrameManager(
-        const std::map< std::string, std::shared_ptr< Ephemeris > >& ephemerisMap )
+ReferenceFrameManager::ReferenceFrameManager( const std::map< std::string, std::shared_ptr< Ephemeris > >& ephemerisMap )
 {
     // Set name of global base frame.
     frameIndexList_[ getBaseFrameName( ) ] = -1;
@@ -48,16 +46,15 @@ ReferenceFrameManager::ReferenceFrameManager(
 }
 
 //! Function to determine frame levels and base frames of all frames.
-void ReferenceFrameManager::setEphemerides(
-        const std::map< std::string, std::shared_ptr< Ephemeris > >& additionalEphemerides )
+void ReferenceFrameManager::setEphemerides( const std::map< std::string, std::shared_ptr< Ephemeris > >& additionalEphemerides )
 {
     // Set list of all frames for which frame level and base frame have not yet been determined.
     std::map< std::string, std::shared_ptr< Ephemeris > > unhandledFrames_ = additionalEphemerides;
 
     // Set list of available ephemerides and check whether it already exists (not possible incurrent
     // implementation)
-    for( std::map< std::string, std::shared_ptr< Ephemeris > >::const_iterator ephemerisIterator =
-         additionalEphemerides.begin( ); ephemerisIterator != additionalEphemerides.end( );
+    for( std::map< std::string, std::shared_ptr< Ephemeris > >::const_iterator ephemerisIterator = additionalEphemerides.begin( );
+         ephemerisIterator != additionalEphemerides.end( );
          ephemerisIterator++ )
     {
         if( availableEphemerides_.count( ephemerisIterator->first ) == 0 )
@@ -83,9 +80,9 @@ void ReferenceFrameManager::setEphemerides(
         // If frame level is 0, base frame equals baseFrameName.
         if( currentLevel == 0 )
         {
-            for( std::map< std::string, std::shared_ptr< Ephemeris > >::iterator
-                         frameIterator = unhandledFrames_.begin( );
-                 frameIterator != unhandledFrames_.end( ); frameIterator++ )
+            for( std::map< std::string, std::shared_ptr< Ephemeris > >::iterator frameIterator = unhandledFrames_.begin( );
+                 frameIterator != unhandledFrames_.end( );
+                 frameIterator++ )
             {
                 // If current frame is at level 0, add to list of levels.
                 if( frameIterator->second->getReferenceFrameOrigin( ) == getBaseFrameName( ) )
@@ -98,18 +95,16 @@ void ReferenceFrameManager::setEphemerides(
         else
         {
             std::map< std::string, std::string >::iterator previousLevelIterator;
-            for( std::map< std::string, std::shared_ptr< Ephemeris > >::iterator
-                         frameIterator = unhandledFrames_.begin( );
-                 frameIterator != unhandledFrames_.end( ); frameIterator++ )
+            for( std::map< std::string, std::shared_ptr< Ephemeris > >::iterator frameIterator = unhandledFrames_.begin( );
+                 frameIterator != unhandledFrames_.end( );
+                 frameIterator++ )
             {
                 // If base frame of current ephemeris is on previous level, add to list of current
                 // level.
-                previousLevelIterator = baseFrameList_[ currentLevel - 1 ].find(
-                            frameIterator->second->getReferenceFrameOrigin( ) );
+                previousLevelIterator = baseFrameList_[ currentLevel - 1 ].find( frameIterator->second->getReferenceFrameOrigin( ) );
                 if( previousLevelIterator != baseFrameList_[ currentLevel - 1 ].end( ) )
                 {
-                    singleLevelList[ frameIterator->first ]
-                            = frameIterator->second->getReferenceFrameOrigin( );
+                    singleLevelList[ frameIterator->first ] = frameIterator->second->getReferenceFrameOrigin( );
                 }
             }
         }
@@ -118,7 +113,8 @@ void ReferenceFrameManager::setEphemerides(
         // unhandled frame list if present.
         std::map< std::string, std::shared_ptr< Ephemeris > >::iterator frameIterator;
         for( std::map< std::string, std::string >::iterator singleListIterator = singleLevelList.begin( );
-             singleListIterator != singleLevelList.end( ); singleListIterator++ )
+             singleListIterator != singleLevelList.end( );
+             singleListIterator++ )
         {
             // Find current frame in unhandles frame list.
             frameIterator = unhandledFrames_.find( singleListIterator->first );
@@ -129,8 +125,8 @@ void ReferenceFrameManager::setEphemerides(
             }
             else
             {
-                throw std::runtime_error( "Error when making frame manager, could not find frame " +
-                                          singleListIterator->first + " when deleting" );
+                throw std::runtime_error( "Error when making frame manager, could not find frame " + singleListIterator->first +
+                                          " when deleting" );
             }
         }
 
@@ -147,22 +143,21 @@ void ReferenceFrameManager::setEphemerides(
 
     // Check if all frames have same orientation.
     std::string firstFrameOrientation = availableEphemerides_.begin( )->second->getReferenceFrameOrientation( );
-    for( std::map< std::string, std::shared_ptr< Ephemeris > >::iterator ephemerisIterator =
-         availableEphemerides_.begin( ); ephemerisIterator != availableEphemerides_.end( ); ephemerisIterator++ )
+    for( std::map< std::string, std::shared_ptr< Ephemeris > >::iterator ephemerisIterator = availableEphemerides_.begin( );
+         ephemerisIterator != availableEphemerides_.end( );
+         ephemerisIterator++ )
     {
         if( ephemerisIterator->second->getReferenceFrameOrientation( ) != firstFrameOrientation )
         {
-            throw std::runtime_error(
-                        "Error, multiple reference frame orientations of ephemerides currently not supported" +
-                        firstFrameOrientation + ", " + ephemerisIterator->second->getReferenceFrameOrientation( ) );
+            throw std::runtime_error( "Error, multiple reference frame orientations of ephemerides currently not supported" +
+                                      firstFrameOrientation + ", " + ephemerisIterator->second->getReferenceFrameOrientation( ) );
         }
     }
 }
 
-
 //! Returns an ephemeris along a single line of the hierarchy tree.
-std::vector< std::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEphemerisFromLowerToUpperFrame(
-        const std::string& lowerFrame, const std::string& upperFrame )
+std::vector< std::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEphemerisFromLowerToUpperFrame( const std::string& lowerFrame,
+                                                                                                            const std::string& upperFrame )
 {
     // Get indices of frames.
     int upperIndex = frameIndexList_.at( upperFrame );
@@ -173,8 +168,7 @@ std::vector< std::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEphe
     // Check validity of input (i.e. upper > lower)
     if( upperIndex < lowerIndex )
     {
-        throw std::runtime_error(
-            "Error when making direct ephemeris link in frame manager, upper index is smaller than lower index" );
+        throw std::runtime_error( "Error when making direct ephemeris link in frame manager, upper index is smaller than lower index" );
     }
     // If frames are not equal, make list of ephemeris
     else if( upperIndex != lowerIndex )
@@ -189,8 +183,7 @@ std::vector< std::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEphe
             // Check whether current frame is consistent with current frame index.
             if( frameIndexList_[ currentFrame ] != currentIndex )
             {
-                throw std::runtime_error(
-                            "Error when making direct constituent ephemeris, frame index inconsistent." );
+                throw std::runtime_error( "Error when making direct constituent ephemeris, frame index inconsistent." );
             }
 
             // Add base frame of current frame.
@@ -215,7 +208,7 @@ std::pair< int, bool > ReferenceFrameManager::getFrameLevel( const std::string& 
     frameIndexIterator = frameIndexList_.find( frame );
 
     // If not found, return false and NaN frame index.
-    if( frameIndexIterator  == frameIndexList_.end( ) )
+    if( frameIndexIterator == frameIndexList_.end( ) )
     {
         returnValue = std::make_pair( TUDAT_NAN, 0 );
     }
@@ -327,19 +320,17 @@ std::string ReferenceFrameManager::getBaseFrameNameOfBody( const std::string& bo
 
     if( availableEphemerides_.count( bodyName ) == 0 )
     {
-        throw std::runtime_error(
-                    "Error when getting base frame name of body, body " + bodyName + " not found to have an ephemeris" );
+        throw std::runtime_error( "Error when getting base frame name of body, body " + bodyName + " not found to have an ephemeris" );
     }
     else
     {
-        frameName = availableEphemerides_.at( bodyName )-> getReferenceFrameOrigin( );
+        frameName = availableEphemerides_.at( bodyName )->getReferenceFrameOrigin( );
     }
     return frameName;
 }
 
 //! Get ephemeris origins (base frame names) for a list of bodies.
-std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins(
-        const std::vector< std::string >& bodyList )
+std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins( const std::vector< std::string >& bodyList )
 {
     std::vector< std::string > ephemerisOrigins;
     for( unsigned int i = 0; i < bodyList.size( ); i++ )
@@ -349,7 +340,6 @@ std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins(
     return ephemerisOrigins;
 }
 
+}  // namespace ephemerides
 
-} // namespace ephemerides
-
-} // namespace tudat
+}  // namespace tudat

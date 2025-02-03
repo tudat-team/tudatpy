@@ -16,7 +16,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation.h"
 
@@ -30,7 +29,6 @@ using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
 using namespace tudat;
-
 
 BOOST_AUTO_TEST_SUITE( test_n_way_range_model )
 
@@ -73,23 +71,26 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
 
     // Create bodies settings needed in simulation
     BodyListSettings defaultBodySettings =
-            getDefaultBodySettings(
-                bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+            getDefaultBodySettings( bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
-
-    
 
     // Create ground stations
     std::pair< std::string, std::string > earthStationStation = std::pair< std::string, std::string >( "Earth", "EarthStation" );
     std::pair< std::string, std::string > earthStationStation2 = std::pair< std::string, std::string >( "Earth", "EarthStation2" );
     std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );
-    createGroundStation( bodies.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
+    createGroundStation( bodies.at( "Mars" ),
+                         "MarsStation",
+                         ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodies.at( "Earth" ), "EarthStation", ( Eigen::Vector3d( ) << 1.0, 0.1, -1.4 ).finished( ),
+    createGroundStation( bodies.at( "Earth" ),
+                         "EarthStation",
+                         ( Eigen::Vector3d( ) << 1.0, 0.1, -1.4 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodies.at( "Earth" ), "EarthStation2", ( Eigen::Vector3d( ) << -30.0, 1.2, 2.1 ).finished( ),
+    createGroundStation( bodies.at( "Earth" ),
+                         "EarthStation2",
+                         ( Eigen::Vector3d( ) << -30.0, 1.2, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
 
     std::vector< std::pair< std::string, std::string > > groundStations;
@@ -109,51 +110,46 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
     {
         // Define link ends for 2-way model and constituent one-way models
         LinkEnds twoWayLinkEnds;
-        twoWayLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation"  );
-        twoWayLinkEnds[ reflector1 ] = std::make_pair< std::string, std::string >( "Mars" , "MarsStation"  );
-        twoWayLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation2"  );
+        twoWayLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation" );
+        twoWayLinkEnds[ reflector1 ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation" );
+        twoWayLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
         int numberOfLinkEnds = twoWayLinkEnds.size( );
 
         LinkEnds uplinkLinkEnds;
-        uplinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation" );
-        uplinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , "MarsStation" );
+        uplinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation" );
+        uplinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation" );
 
         LinkEnds downlinkLinkEnds;
-        downlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars" , "MarsStation" );
-        downlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation2" );
+        downlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation" );
+        downlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
 
         // Create light-time correction settings.
         std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
-        lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                                   lightTimePerturbingBodies ) );
-
+        lightTimeCorrectionSettings.push_back(
+                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( lightTimePerturbingBodies ) );
 
         // Create observation settings for 2-way model and constituent one-way models
-        std::shared_ptr< ObservationModelSettings > uplinkObservableSettings = std::make_shared< ObservationModelSettings >
-                ( one_way_range, uplinkLinkEnds, lightTimeCorrectionSettings );
-        std::shared_ptr< ObservationModelSettings > downlinkObservableSettings = std::make_shared< ObservationModelSettings >
-                ( one_way_range, downlinkLinkEnds, lightTimeCorrectionSettings );
+        std::shared_ptr< ObservationModelSettings > uplinkObservableSettings =
+                std::make_shared< ObservationModelSettings >( one_way_range, uplinkLinkEnds, lightTimeCorrectionSettings );
+        std::shared_ptr< ObservationModelSettings > downlinkObservableSettings =
+                std::make_shared< ObservationModelSettings >( one_way_range, downlinkLinkEnds, lightTimeCorrectionSettings );
         std::vector< std::shared_ptr< ObservationModelSettings > > twoWayLinkSettings;
         twoWayLinkSettings.push_back( uplinkObservableSettings );
         twoWayLinkSettings.push_back( downlinkObservableSettings );
 
-        std::shared_ptr< NWayRangeObservationSettings > twoWayRangeObservableSettings = std::make_shared< NWayRangeObservationSettings >
-                ( twoWayLinkSettings );
+        std::shared_ptr< NWayRangeObservationSettings > twoWayRangeObservableSettings =
+                std::make_shared< NWayRangeObservationSettings >( twoWayLinkSettings );
 
         std::shared_ptr< NWayDifferencedRangeObservationSettings > twoWayRangeRateObservableSettings =
-                std::make_shared< NWayDifferencedRangeObservationSettings >(
-                    twoWayLinkEnds, lightTimeCorrectionSettings, nullptr );
+                std::make_shared< NWayDifferencedRangeObservationSettings >( twoWayLinkEnds, lightTimeCorrectionSettings, nullptr );
 
         // Create observation models
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayRangeObservationModel =
-                ObservationModelCreator< 1, double, double >::createObservationModel(
-                    twoWayRangeObservableSettings, bodies );
+                ObservationModelCreator< 1, double, double >::createObservationModel( twoWayRangeObservableSettings, bodies );
 
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayRangeRateObservationModel =
-                ObservationModelCreator< 1, double, double >::createObservationModel(
-                    twoWayRangeRateObservableSettings, bodies );
-
+                ObservationModelCreator< 1, double, double >::createObservationModel( twoWayRangeRateObservableSettings, bodies );
 
         // Define link ends time and state vectors for  2-way model and constituent one-way models
         std::vector< double > rangeStartTimes;
@@ -182,31 +178,36 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
             {
                 // Compute 2-way range
                 twoWayRangeStart = twoWayRangeObservationModel->computeObservationsWithLinkEndData(
-                            observationTime - 30.0, referenceLinkEnds.at( i ), rangeStartTimes, rangeStartStates );
+                        observationTime - 30.0, referenceLinkEnds.at( i ), rangeStartTimes, rangeStartStates );
                 twoWayRangeEnd = twoWayRangeObservationModel->computeObservationsWithLinkEndData(
-                            observationTime + 30.0, referenceLinkEnds.at( i ), rangeEndTimes, rangeEndStates );
-                twoWayRangeRate = twoWayRangeRateObservationModel->computeObservationsWithLinkEndData(
-                            observationTime, referenceLinkEnds.at( i ), rangeRateTimes, rangeRateStates,
-                            getAveragedDopplerAncilliarySettings( 60.0 ) );
+                        observationTime + 30.0, referenceLinkEnds.at( i ), rangeEndTimes, rangeEndStates );
+                twoWayRangeRate =
+                        twoWayRangeRateObservationModel->computeObservationsWithLinkEndData( observationTime,
+                                                                                             referenceLinkEnds.at( i ),
+                                                                                             rangeRateTimes,
+                                                                                             rangeRateStates,
+                                                                                             getAveragedDopplerAncilliarySettings( 60.0 ) );
 
-                double rangeRateError =  ( twoWayRangeRate - ( - twoWayRangeStart + twoWayRangeEnd ) / 60.0 )( 0 );
+                double rangeRateError = ( twoWayRangeRate - ( -twoWayRangeStart + twoWayRangeEnd ) / 60.0 )( 0 );
                 BOOST_CHECK_SMALL( rangeRateError, 1.0E-9 );
 
                 for( unsigned int j = 0; j < fullLinkEnds.size( ); j++ )
                 {
-                    std::vector< int > linkEndIndices =
-                            getLinkEndIndicesForLinkEndTypeAtObservable(
-                                n_way_differenced_range, fullLinkEnds.at( j ), twoWayLinkEnds.size( ) );
+                    std::vector< int > linkEndIndices = getLinkEndIndicesForLinkEndTypeAtObservable(
+                            n_way_differenced_range, fullLinkEnds.at( j ), twoWayLinkEnds.size( ) );
                     int numberOfRangeTimes = rangeStartTimes.size( );
 
                     for( unsigned int k = 0; k < linkEndIndices.size( ); k++ )
                     {
-                        std::cout<<i<<" "<<j<<" "<<k<<std::endl;
+                        std::cout << i << " " << j << " " << k << std::endl;
                         BOOST_CHECK_SMALL( rangeStartTimes.at( k ) - rangeRateTimes.at( k ), 1.0E-9 );
                         BOOST_CHECK_SMALL( rangeEndTimes.at( k ) - rangeRateTimes.at( k + numberOfRangeTimes ), 1.0E-9 );
 
-                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeStartStates.at( k ), rangeRateStates.at( k ), ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
-                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeEndStates.at( k ), rangeRateStates.at( k + numberOfRangeTimes ), ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
+                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                rangeStartStates.at( k ), rangeRateStates.at( k ), ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
+                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeEndStates.at( k ),
+                                                           rangeRateStates.at( k + numberOfRangeTimes ),
+                                                           ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
                     }
                 }
             }
@@ -217,45 +218,43 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
     {
         // Define link ends for 4-way model and constituent one-way models
         LinkEnds fourWayLinkEnds;
-        fourWayLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation"  );
-        fourWayLinkEnds[ reflector1 ] = std::make_pair< std::string, std::string >( "Mars" , "MarsStation"  );
-        fourWayLinkEnds[ reflector2 ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation2"  );
-        fourWayLinkEnds[ reflector3 ] = std::make_pair< std::string, std::string >( "Moon" , ""  );
-        fourWayLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , "MarsStation"  );
+        fourWayLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation" );
+        fourWayLinkEnds[ reflector1 ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation" );
+        fourWayLinkEnds[ reflector2 ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
+        fourWayLinkEnds[ reflector3 ] = std::make_pair< std::string, std::string >( "Moon", "" );
+        fourWayLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation" );
 
         LinkEnds firstlinkLinkEnds;
-        firstlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation" );
-        firstlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , "MarsStation" );
+        firstlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation" );
+        firstlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation" );
 
         LinkEnds secondlinkLinkEnds;
-        secondlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars" , "MarsStation" );
-        secondlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation2" );
+        secondlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation" );
+        secondlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
 
         LinkEnds thirdlinkLinkEnds;
-        thirdlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth" , "EarthStation2" );
-        thirdlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Moon" , "" );
+        thirdlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
+        thirdlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Moon", "" );
 
         LinkEnds fourthlinkLinkEnds;
-        fourthlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Moon" , "" );
-        fourthlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars" , "MarsStation" );
-
+        fourthlinkLinkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Moon", "" );
+        fourthlinkLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "MarsStation" );
 
         // Create light-time correction settings.
         std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
-        lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                                   lightTimePerturbingBodies ) );
-
+        lightTimeCorrectionSettings.push_back(
+                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( lightTimePerturbingBodies ) );
 
         // Create observation settings for 4-way model and constituent one-way models
-        std::shared_ptr< ObservationModelSettings > firstlinkObservableSettings = std::make_shared< ObservationModelSettings >
-                ( one_way_range, firstlinkLinkEnds, lightTimeCorrectionSettings );
-        std::shared_ptr< ObservationModelSettings > secondlinkObservableSettings = std::make_shared< ObservationModelSettings >
-                ( one_way_range, secondlinkLinkEnds, lightTimeCorrectionSettings );
-        std::shared_ptr< ObservationModelSettings > thirdlinkObservableSettings = std::make_shared< ObservationModelSettings >
-                ( one_way_range, thirdlinkLinkEnds, lightTimeCorrectionSettings );
-        std::shared_ptr< ObservationModelSettings > fourthlinkObservableSettings = std::make_shared< ObservationModelSettings >
-                ( one_way_range, fourthlinkLinkEnds, lightTimeCorrectionSettings );
+        std::shared_ptr< ObservationModelSettings > firstlinkObservableSettings =
+                std::make_shared< ObservationModelSettings >( one_way_range, firstlinkLinkEnds, lightTimeCorrectionSettings );
+        std::shared_ptr< ObservationModelSettings > secondlinkObservableSettings =
+                std::make_shared< ObservationModelSettings >( one_way_range, secondlinkLinkEnds, lightTimeCorrectionSettings );
+        std::shared_ptr< ObservationModelSettings > thirdlinkObservableSettings =
+                std::make_shared< ObservationModelSettings >( one_way_range, thirdlinkLinkEnds, lightTimeCorrectionSettings );
+        std::shared_ptr< ObservationModelSettings > fourthlinkObservableSettings =
+                std::make_shared< ObservationModelSettings >( one_way_range, fourthlinkLinkEnds, lightTimeCorrectionSettings );
 
         std::vector< std::shared_ptr< ObservationModelSettings > > fourWayLinkSettings;
         fourWayLinkSettings.push_back( firstlinkObservableSettings );
@@ -263,23 +262,17 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
         fourWayLinkSettings.push_back( thirdlinkObservableSettings );
         fourWayLinkSettings.push_back( fourthlinkObservableSettings );
         std::shared_ptr< NWayRangeObservationSettings > fourWayRangeObservableSettings =
-                std::make_shared< NWayRangeObservationSettings >
-                ( fourWayLinkSettings );
+                std::make_shared< NWayRangeObservationSettings >( fourWayLinkSettings );
 
         std::shared_ptr< NWayDifferencedRangeObservationSettings > fourWayRangeRateObservableSettings =
-                std::make_shared< NWayDifferencedRangeObservationSettings >(
-                    fourWayLinkEnds, lightTimeCorrectionSettings, nullptr );
-
+                std::make_shared< NWayDifferencedRangeObservationSettings >( fourWayLinkEnds, lightTimeCorrectionSettings, nullptr );
 
         // Create observation models
         std::shared_ptr< ObservationModel< 1, double, double > > fourWayRangeObservationModel =
-                ObservationModelCreator< 1, double, double >::createObservationModel(
-                    fourWayRangeObservableSettings, bodies );
+                ObservationModelCreator< 1, double, double >::createObservationModel( fourWayRangeObservableSettings, bodies );
 
         std::shared_ptr< ObservationModel< 1, double, double > > fourWayRangeRateObservationModel =
-                ObservationModelCreator< 1, double, double >::createObservationModel(
-                    fourWayRangeRateObservableSettings, bodies );
-
+                ObservationModelCreator< 1, double, double >::createObservationModel( fourWayRangeRateObservableSettings, bodies );
 
         // Define link ends time and state vectors for  4-way model and constituent one-way models
         std::vector< double > rangeStartTimes;
@@ -308,21 +301,23 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
             {
                 // Compute 4-way range
                 fourWayRangeStart = fourWayRangeObservationModel->computeObservationsWithLinkEndData(
-                            observationTime - 30.0, referenceLinkEnds.at( i ), rangeStartTimes, rangeStartStates );
+                        observationTime - 30.0, referenceLinkEnds.at( i ), rangeStartTimes, rangeStartStates );
                 fourWayRangeEnd = fourWayRangeObservationModel->computeObservationsWithLinkEndData(
-                            observationTime + 30.0, referenceLinkEnds.at( i ), rangeEndTimes, rangeEndStates );
+                        observationTime + 30.0, referenceLinkEnds.at( i ), rangeEndTimes, rangeEndStates );
                 fourWayRangeRate = fourWayRangeRateObservationModel->computeObservationsWithLinkEndData(
-                            observationTime, referenceLinkEnds.at( i ), rangeRateTimes, rangeRateStates,
-                            getAveragedDopplerAncilliarySettings( 60.0 ) );
+                        observationTime,
+                        referenceLinkEnds.at( i ),
+                        rangeRateTimes,
+                        rangeRateStates,
+                        getAveragedDopplerAncilliarySettings( 60.0 ) );
 
-                double rangeRateError =  ( fourWayRangeRate - ( - fourWayRangeStart + fourWayRangeEnd ) / 60.0 )( 0 );
+                double rangeRateError = ( fourWayRangeRate - ( -fourWayRangeStart + fourWayRangeEnd ) / 60.0 )( 0 );
                 BOOST_CHECK_SMALL( rangeRateError, 1.0E-9 );
 
                 for( unsigned int j = 0; j < fullLinkEnds.size( ); j++ )
                 {
-                    std::vector< int > linkEndIndices =
-                            getLinkEndIndicesForLinkEndTypeAtObservable(
-                                n_way_differenced_range, fullLinkEnds.at( j ), fourWayLinkEnds.size( ) );
+                    std::vector< int > linkEndIndices = getLinkEndIndicesForLinkEndTypeAtObservable(
+                            n_way_differenced_range, fullLinkEnds.at( j ), fourWayLinkEnds.size( ) );
                     int numberOfRangeTimes = rangeStartTimes.size( );
 
                     for( unsigned int k = 0; k < linkEndIndices.size( ); k++ )
@@ -330,8 +325,11 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
                         BOOST_CHECK_SMALL( rangeStartTimes.at( k ) - rangeRateTimes.at( k ), 1.0E-9 );
                         BOOST_CHECK_SMALL( rangeEndTimes.at( k ) - rangeRateTimes.at( k + numberOfRangeTimes ), 1.0E-9 );
 
-                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeStartStates.at( k ), rangeRateStates.at( k ), ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
-                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeEndStates.at( k ), rangeRateStates.at( k + numberOfRangeTimes ), ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
+                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                rangeStartStates.at( k ), rangeRateStates.at( k ), ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
+                        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( rangeEndStates.at( k ),
+                                                           rangeRateStates.at( k + numberOfRangeTimes ),
+                                                           ( 100.0 * std::numeric_limits< double >::epsilon( ) ) );
                     }
                 }
             }
@@ -368,7 +366,6 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
     //            std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     //            lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
     //                                                       lightTimePerturbingBodies ) );
-
 
     //            // Create observation settings for 4-way model and constituent one-way models
     //            std::shared_ptr< ObservationModelSettings > firstlinkObservableSettings = std::make_shared< ObservationModelSettings >
@@ -429,7 +426,6 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
     //            Eigen::VectorXd thirdlinkRange;
     //            Eigen::VectorXd fourthlinkRange;
 
-
     //            // Iterate over each 4-way link end as reference link end
     //            double observationTime = observationTimes.at( observationTimeNumber );
     //            double firstlinkObservationTime, secondlinkObservationTime, thirdlinkObservationTime, fourthlinkObservationTime;
@@ -481,7 +477,6 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
     //                BOOST_CHECK_CLOSE_FRACTION( secondlinkLinkEndTimes.at( 1 ), fourWayLinkEndTimes.at( 3 ),
     //                                            std::numeric_limits< double >::epsilon( ) );
 
-
     //                BOOST_CHECK_CLOSE_FRACTION( thirdlinkLinkEndTimes.at( 0 ), fourWayLinkEndTimes.at( 4 ),
     //                                            std::numeric_limits< double >::epsilon( ) );
     //                BOOST_CHECK_CLOSE_FRACTION( thirdlinkLinkEndTimes.at( 1 ), fourWayLinkEndTimes.at( 5 ),
@@ -521,12 +516,10 @@ BOOST_AUTO_TEST_CASE( testNWayRateRangeModel )
     //                            2.0 * std::numeric_limits< double >::epsilon( ) );
     //            }
     //        }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
+}  // namespace tudat

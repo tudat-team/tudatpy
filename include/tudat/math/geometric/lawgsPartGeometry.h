@@ -36,12 +36,11 @@ namespace geometric_shapes
 class LawgsPartGeometry : public QuadrilateralMeshedSurfaceGeometry
 {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    LawgsPartGeometry( ) : name_( "" ) { }
+    LawgsPartGeometry( ): name_( "" ) { }
 
     //! Default destructor.
     /*!
@@ -59,15 +58,14 @@ public:
      * \param numberOfPoints Number of points to be sampled from 2nd
      *          independent variable.
      */
-    void setMesh( std::shared_ptr< SingleSurfaceGeometry > originalSurface,
-                  int numberOfLines, int numberOfPoints );
+    void setMesh( std::shared_ptr< SingleSurfaceGeometry > originalSurface, int numberOfLines, int numberOfPoints );
 
     //! Copy constructor.
     /*!
      * Copy constructor to deep-copy contents of a LawgsPartGeomtry object to a new one.
      * \param partToCopy LawgsPartGeometry to copy
      */
-     LawgsPartGeometry( const LawgsPartGeometry& partToCopy );
+    LawgsPartGeometry( const LawgsPartGeometry& partToCopy );
 
     //! Function to retrieve surface point.
     /*!
@@ -82,8 +80,7 @@ public:
      * between) which points to retrieve a point.
      * \return point on mesh panel.
      */
-     virtual Eigen::VectorXd getSurfacePoint( const double independentVariable1,
-                                              const double independentVariable2 );
+    virtual Eigen::VectorXd getSurfacePoint( const double independentVariable1, const double independentVariable2 );
 
     //! Get surface derivative (currently not implemented).
     /*!
@@ -94,15 +91,17 @@ public:
      *  \param vDerivative NOTE: Function unavailable.
      *  \return  NOTE: Function unavailable.
      */
-    virtual Eigen::VectorXd getSurfaceDerivative( const double u, const double v,
-                                                  const int uDerivative, const int vDerivative );
+    virtual Eigen::VectorXd getSurfaceDerivative( const double u, const double v, const int uDerivative, const int vDerivative );
 
     //! Set name of a Lawgs part.
     /*!
      *  Sets the name of a Lawgs part.
      *  \param name New name of a Lawgs part.
      */
-    void setName( const std::string& name ) { name_ = name; }
+    void setName( const std::string& name )
+    {
+        name_ = name;
+    }
 
     //! Get parameter.
     /*!
@@ -127,7 +126,10 @@ public:
      *  Returns part name.
      *  \return Part name.
      */
-    std::string getName( ) { return name_; }
+    std::string getName( )
+    {
+        return name_;
+    }
 
     //! Overload ostream to print class information.
     /*!
@@ -137,10 +139,9 @@ public:
      * \param lawgsPartGeometry Lawgs part geometry.
      * \return Stream object.
      */
-    friend std::ostream& operator << ( std::ostream& stream, LawgsPartGeometry& lawgsPartGeometry );
+    friend std::ostream& operator<<( std::ostream& stream, LawgsPartGeometry& lawgsPartGeometry );
 
 protected:
-
     //! Part name.
     /*!
      * Part name.
@@ -153,7 +154,7 @@ private:
 //! Typedef for shared-pointer to LawgsPartGeometry object.
 typedef std::shared_ptr< LawgsPartGeometry > LawgsPartGeometryPointer;
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat
 
-#endif // TUDAT_LAWGS_PART_GEOMETRY_H
+#endif  // TUDAT_LAWGS_PART_GEOMETRY_H

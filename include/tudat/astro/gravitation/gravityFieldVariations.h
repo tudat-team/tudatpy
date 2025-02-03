@@ -23,8 +23,7 @@ namespace tudat
 namespace gravitation
 {
 
-enum BodyDeformationTypes
-{
+enum BodyDeformationTypes {
     basic_solid_body,
     mode_coupled_solid_body,
     tabulated_variation,
@@ -34,7 +33,6 @@ enum BodyDeformationTypes
     pole_tide,
     ocean_tide
 };
-
 
 //! Interface class between GravityFieldVariations objects that are interpolated and
 //! TimeDependentSphericalHarmonicsGravityField.
@@ -48,7 +46,6 @@ enum BodyDeformationTypes
 class PairInterpolationInterface
 {
 public:
-
     //! Class constructor
     /*!
      *  Constructor, receives an interpolator (typically created from a GravityFieldVariations
@@ -63,12 +60,12 @@ public:
      *  \param numberOfOrders Size of the rectangular correction block in the order direction.
      */
     PairInterpolationInterface(
-            const std::shared_ptr< interpolators::OneDimensionalInterpolator<
-            double, Eigen::MatrixXd > > cosineSineInterpolator,
-            const int startDegree, const int startOrder,
-            const int numberOfDegrees, const int numberOfOrders ):
-        cosineSineInterpolator_( cosineSineInterpolator ),
-        startDegree_( startDegree ), startOrder_( startOrder ),
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > cosineSineInterpolator,
+            const int startDegree,
+            const int startOrder,
+            const int numberOfDegrees,
+            const int numberOfOrders ):
+        cosineSineInterpolator_( cosineSineInterpolator ), startDegree_( startDegree ), startOrder_( startOrder ),
         numberOfDegrees_( numberOfDegrees ), numberOfOrders_( numberOfOrders )
     { }
 
@@ -83,20 +80,16 @@ public:
      *  \param cosineCoefficients Current spherical harmonic cosine coefficients, calculated
      *  corrections are added and returned by reference
      */
-    void getCosineSinePair( const double time,
-                            Eigen::MatrixXd& sineCoefficients,
-                            Eigen::MatrixXd& cosineCoefficients );
+    void getCosineSinePair( const double time, Eigen::MatrixXd& sineCoefficients, Eigen::MatrixXd& cosineCoefficients );
 
 private:
-
     //! Interpolator object for approximating coefficient corrections.
     /*!
      *  Interpolator object for approximating coefficient corrections, interpolates the cosine and
      *  sine corrections, concatenated next to each other (i.e. as [C S] row 'vector' of
      *  cosine and sine corrections C and S, respectively).
      */
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
-    cosineSineInterpolator_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > cosineSineInterpolator_;
 
     //! Degree where the rectangular correction block starts.
     /*!
@@ -138,7 +131,6 @@ private:
 class GravityFieldVariations
 {
 public:
-
     //! Base class constructor
     /*!
      *  Base class constructor, input defines the size and position of correction blocks in sine and
@@ -148,11 +140,10 @@ public:
      *  \param maximumDegree Degree where the rectangular correction blocks end.
      *  \param maximumOrder Order where the rectangular correction blocks end.
      */
-    GravityFieldVariations( const int minimumDegree, const int minimumOrder,
-                            const int maximumDegree, const int maximumOrder ):
+    GravityFieldVariations( const int minimumDegree, const int minimumOrder, const int maximumDegree, const int maximumOrder ):
         minimumDegree_( minimumDegree ), minimumOrder_( minimumOrder ),
 
-                maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
+        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
     {
         numberOfDegrees_ = maximumDegree_ - minimumDegree_ + 1;
         numberOfOrders_ = maximumOrder_ - minimumOrder_ + 1;
@@ -164,7 +155,7 @@ public:
     /*!
      *  Virtual destructor
      */
-    virtual ~GravityFieldVariations( ){ }
+    virtual ~GravityFieldVariations( ) { }
 
     //! Pure virtual function for calculating corrections.
     /*!
@@ -174,8 +165,7 @@ public:
      *  positions in total matrices defined by minimumDegree_, minimumOrder_, numberOfDegrees_,
      *  numberOfOrders_;
      */
-    virtual std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections(
-            const double time ) = 0;
+    virtual std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time ) = 0;
 
     //! Function to add sine and cosine corrections at given time to coefficient matrices.
     /*!
@@ -188,10 +178,7 @@ public:
      *  \param cosineCoefficients Current spherical harmonic cosine coefficients, calculated
      *  corrections are added and returned by reference
      */
-    void addSphericalHarmonicsCorrections(
-            const double time,
-            Eigen::MatrixXd& sineCoefficients,
-            Eigen::MatrixXd& cosineCoefficients );
+    void addSphericalHarmonicsCorrections( const double time, Eigen::MatrixXd& sineCoefficients, Eigen::MatrixXd& cosineCoefficients );
 
     //! Function to return the maximum degree of the corrections.
     /*!
@@ -268,7 +255,6 @@ public:
     }
 
 protected:
-
     //! Minimum degree of variations
     /*!
      *  Minimum degree of variations
@@ -303,7 +289,7 @@ protected:
     /*!
      *  Number of orders of variations
      */
-    int numberOfOrders_;    
+    int numberOfOrders_;
 
     //! Latest correction to cosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
     Eigen::MatrixXd lastCosineCorrection_;
@@ -328,15 +314,14 @@ protected:
  *  \return Function pointer to function mimicing the addSphericalHarmonicsCorrections
  *  function of GravityFieldVariations.
  */
-std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) >
-createInterpolatedSphericalHarmonicCorrectionFunctions(
+std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > createInterpolatedSphericalHarmonicCorrectionFunctions(
         std::shared_ptr< GravityFieldVariations > variationObject,
         const double initialTime,
         const double finalTime,
         const double timeStep,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        std::make_shared< interpolators::InterpolatorSettings >(
-            interpolators::linear_interpolator, interpolators::huntingAlgorithm ) );
+                std::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator,
+                                                                         interpolators::huntingAlgorithm ) );
 
 //! Container class containing all gravity field variations for a single Body
 //! (and TimeDependentSphericalHarmonicsGravityField).
@@ -351,7 +336,6 @@ createInterpolatedSphericalHarmonicCorrectionFunctions(
 class GravityFieldVariationsSet
 {
 public:
-
     //! Class constructor.
     /*!
      *  Class contructor, requires set of correction objects (and associated properties).
@@ -372,16 +356,14 @@ public:
      *  \param timeSteps Time steps for interpolation, must contain an entry for each variation
      *  (map key denotes index of variationObjects) for which createInterpolator is true.
      */
-    GravityFieldVariationsSet(
-            const std::vector< std::shared_ptr< GravityFieldVariations > > variationObjects,
-            const std::vector< BodyDeformationTypes > variationType,
-            const std::vector< std::string > variationIdentifier,
-            const std::map< int, std::shared_ptr< interpolators::InterpolatorSettings > >
-            createInterpolator =
-            std::map< int, std::shared_ptr< interpolators::InterpolatorSettings > >( ),
-            const std::map< int, double > initialTimes = std::map< int, double >( ),
-            const std::map< int, double > finalTimes = std::map< int, double >( ),
-            const std::map< int, double > timeSteps = std::map< int, double >( ) );
+    GravityFieldVariationsSet( const std::vector< std::shared_ptr< GravityFieldVariations > > variationObjects,
+                               const std::vector< BodyDeformationTypes > variationType,
+                               const std::vector< std::string > variationIdentifier,
+                               const std::map< int, std::shared_ptr< interpolators::InterpolatorSettings > > createInterpolator =
+                                       std::map< int, std::shared_ptr< interpolators::InterpolatorSettings > >( ),
+                               const std::map< int, double > initialTimes = std::map< int, double >( ),
+                               const std::map< int, double > finalTimes = std::map< int, double >( ),
+                               const std::map< int, double > timeSteps = std::map< int, double >( ) );
 
     //! Function to retrieve a variation object of given type (and name if necessary).
     /*!
@@ -394,8 +376,7 @@ public:
      *  \return Pair containing boolean (true if requested variation found, false otherwise) and
      *  pointer to variation object (only if requested variation found).
      */
-    std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > >
-     getGravityFieldVariation(
+    std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > > getGravityFieldVariation(
             const BodyDeformationTypes deformationType,
             const std::string identifier = "" );
 
@@ -407,8 +388,7 @@ public:
      *  \return List of gravity field coefficient variation functions, matching the interface of
      *  GravityFieldVariations::addSphericalHarmonicsCorrections
      */
-    std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
-    getVariationFunctions( );
+    std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > > getVariationFunctions( );
 
     //! Function to retrieve the complete set of variations to take nto account.
     /*!
@@ -428,9 +408,8 @@ public:
      * \param deformingBodies List of objects that cause tidal gravity field variation
      * \return The tidal gravity field variation with the specified bodies causing deformation
      */
-    std::shared_ptr< GravityFieldVariations > getDirectTidalGravityFieldVariation(
-            const std::vector< std::string >& deformingBodies,
-            const BodyDeformationTypes tideType = basic_solid_body );
+    std::shared_ptr< GravityFieldVariations > getDirectTidalGravityFieldVariation( const std::vector< std::string >& deformingBodies,
+                                                                                   const BodyDeformationTypes tideType = basic_solid_body );
 
     //! Function to retrieve the tidal gravity field variations
     /*!
@@ -440,7 +419,6 @@ public:
     std::vector< std::shared_ptr< GravityFieldVariations > > getDirectTidalGravityFieldVariations( );
 
 private:
-
     //! List of GravityFieldVariations objects denoting the complete set of variations to take nto account.
     /*!
      *  List of GravityFieldVariations objects denoting the complete set of variations to take into account.
@@ -495,8 +473,8 @@ private:
     std::map< int, double > timeSteps_;
 };
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_GRAVITYFIELDVARIATIONS_H
+#endif  // TUDAT_GRAVITYFIELDVARIATIONS_H

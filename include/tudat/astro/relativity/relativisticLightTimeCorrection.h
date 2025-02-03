@@ -11,7 +11,6 @@
 #ifndef TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H
 #define TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H
 
-
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include <cmath>
 #include <vector>
@@ -57,15 +56,14 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
  *  \param evaluateGradientAtReceiver Boolean denoting whether to compute gradient at receiver or transmitter
  *  \return Light time correction (in seconds) due to the gravitating point mass.
  */
-Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
-        const double bodyGravitationalParameter,
-        const Eigen::Vector3d& transmitterPosition,
-        const Eigen::Vector3d& receiverPosition,
-        const Eigen::Vector3d& centralBodyPosition,
-        const bool evaluateGradientAtReceiver,
-        const double ppnParameterGamma = 1.0 );
+Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionGradient( const double bodyGravitationalParameter,
+                                                                                         const Eigen::Vector3d& transmitterPosition,
+                                                                                         const Eigen::Vector3d& receiverPosition,
+                                                                                         const Eigen::Vector3d& centralBodyPosition,
+                                                                                         const bool evaluateGradientAtReceiver,
+                                                                                         const double ppnParameterGamma = 1.0 );
 
-} // namespace relativity
+}  // namespace relativity
 
-} // namespace tudat
-#endif // TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H
+}  // namespace tudat
+#endif  // TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H

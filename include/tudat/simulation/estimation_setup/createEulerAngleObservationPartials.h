@@ -11,7 +11,6 @@
 #ifndef TUDAT_CREATEEULERANGLEOBSERVATIONPARTIALS_H
 #define TUDAT_CREATEEULERANGLEOBSERVATIONPARTIALS_H
 
-
 #include <vector>
 #include <map>
 
@@ -25,7 +24,6 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
 #include "tudat/astro/orbit_determination/observation_partials/rotationMatrixPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/positionPartials.h"
-
 
 namespace tudat
 {
@@ -53,8 +51,7 @@ std::shared_ptr< ObservationPartial< 3 > > createEulerAngleObservablePartialWrtC
  *  representing all  necessary Euler angle partials of a single link end, and a nulptr position scaling pointer.
  */
 template< typename ParameterType >
-std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionPartialScaling > >
-createEulerAngleObservablePartials(
+std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionPartialScaling > > createEulerAngleObservablePartials(
         const observation_models::LinkEnds eulerAngleLinkEnds,
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
@@ -72,9 +69,8 @@ createEulerAngleObservablePartials(
     int currentIndex = 0;
     std::pair< int, int > currentPair = std::pair< int, int >( currentIndex, 1 );
 
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
-            Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            parametersToEstimate->getEstimatedInitialStateParameters( );
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > >
+            initialDynamicalParameters = parametersToEstimate->getEstimatedInitialStateParameters( );
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
@@ -84,8 +80,7 @@ createEulerAngleObservablePartials(
         {
             // Create partial (if needed)
             std::shared_ptr< ObservationPartial< 3 > > currentObservablePartial =
-                    createEulerAngleObservablePartialWrtCurrentRotationalState(
-                       initialDynamicalParameters.at( i )->getParameterName( ) );
+                    createEulerAngleObservablePartialWrtCurrentRotationalState( initialDynamicalParameters.at( i )->getParameterName( ) );
 
             // If partial exists, then dependency exists and parameter must be added.
             if( currentObservablePartial != nullptr )
@@ -100,43 +95,44 @@ createEulerAngleObservablePartials(
     // Iterate over all double parameters that are to be estimated.
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParametersToEstimate =
             parametersToEstimate->getDoubleParameters( );
-    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
-         parameterIterator = doubleParametersToEstimate.begin( );
-         parameterIterator != doubleParametersToEstimate.end( ); parameterIterator++ )
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator parameterIterator =
+                 doubleParametersToEstimate.begin( );
+         parameterIterator != doubleParametersToEstimate.end( );
+         parameterIterator++ )
     {
         if( estimatable_parameters::isParameterRotationMatrixProperty( parameterIterator->second->getParameterName( ).first ) )
         {
             throw std::runtime_error(
-                        "Error when making Euler angle partial, found kinematic rotation parameter: " +
-                        std::to_string( estimatable_parameters::isParameterRotationMatrixProperty(
-                                            parameterIterator->second->getParameterName( ).first ) ) +
-                        ". Computation requires derivatives of Euler angles w.r.t. rotation matrix entries, which is not yet implemented." );
+                    "Error when making Euler angle partial, found kinematic rotation parameter: " +
+                    std::to_string( estimatable_parameters::isParameterRotationMatrixProperty(
+                            parameterIterator->second->getParameterName( ).first ) ) +
+                    ". Computation requires derivatives of Euler angles w.r.t. rotation matrix entries, which is not yet implemented." );
         }
     }
 
     // Iterate over all vector parameters that are to be estimated.
-    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
-            vectorParametersToEstimate = parametersToEstimate->getVectorParameters( );
-    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
-         parameterIterator = vectorParametersToEstimate.begin( );
-         parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParametersToEstimate =
+            parametersToEstimate->getVectorParameters( );
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator parameterIterator =
+                 vectorParametersToEstimate.begin( );
+         parameterIterator != vectorParametersToEstimate.end( );
+         parameterIterator++ )
     {
         if( estimatable_parameters::isParameterRotationMatrixProperty( parameterIterator->second->getParameterName( ).first ) )
         {
             throw std::runtime_error(
-                        "Error when making Euler angle partial, found kinematic rotation parameter: " +
-                        std::to_string( estimatable_parameters::isParameterRotationMatrixProperty(
-                                            parameterIterator->second->getParameterName( ).first ) ) +
-                        ". Computation requires derivatives of Euler angles w.r.t. rotation matrix entries, which is not yet implemented." );
+                    "Error when making Euler angle partial, found kinematic rotation parameter: " +
+                    std::to_string( estimatable_parameters::isParameterRotationMatrixProperty(
+                            parameterIterator->second->getParameterName( ).first ) ) +
+                    ". Computation requires derivatives of Euler angles w.r.t. rotation matrix entries, which is not yet implemented." );
         }
     }
 
     return std::make_pair( eulerAnglePartials, eulerAngleScaling );
 }
 
-}
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_CREATEEULERANGLEOBSERVATIONPARTIALS_H
-
+#endif  // TUDAT_CREATEEULERANGLEOBSERVATIONPARTIALS_H

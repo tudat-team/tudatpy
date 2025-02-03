@@ -20,7 +20,7 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `GravityFieldSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GravityFieldSettings >& gravityFieldSettings )
 {
-    if ( ! gravityFieldSettings )
+    if( !gravityFieldSettings )
     {
         return;
     }
@@ -31,72 +31,68 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GravityFieldSet
     const GravityFieldType gravityFieldType = gravityFieldSettings->getGravityFieldType( );
     jsonObject[ K::type ] = gravityFieldType;
 
-    switch ( gravityFieldType )
+    switch( gravityFieldType )
     {
-    case central:
-    {
-        std::shared_ptr< CentralGravityFieldSettings > centralGravityFieldSettings =
-                std::dynamic_pointer_cast< CentralGravityFieldSettings >( gravityFieldSettings );
-        assertNonnullptrPointer( centralGravityFieldSettings );
-        jsonObject[ K::gravitationalParameter ] = centralGravityFieldSettings->getGravitationalParameter( );
-        return;
-    }
-    case central_spice:
-        return;
-    case spherical_harmonic:
-    {
-        std::shared_ptr< SphericalHarmonicsGravityFieldSettings > shGravityFieldSettings =
-                std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
-        assertNonnullptrPointer( shGravityFieldSettings );
+        case central: {
+            std::shared_ptr< CentralGravityFieldSettings > centralGravityFieldSettings =
+                    std::dynamic_pointer_cast< CentralGravityFieldSettings >( gravityFieldSettings );
+            assertNonnullptrPointer( centralGravityFieldSettings );
+            jsonObject[ K::gravitationalParameter ] = centralGravityFieldSettings->getGravitationalParameter( );
+            return;
+        }
+        case central_spice:
+            return;
+        case spherical_harmonic: {
+            std::shared_ptr< SphericalHarmonicsGravityFieldSettings > shGravityFieldSettings =
+                    std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
+            assertNonnullptrPointer( shGravityFieldSettings );
 
-        // FromFileSphericalHarmonicsGravityFieldSettings
-        std::shared_ptr< FromFileSphericalHarmonicsGravityFieldSettings > shModelGravityFieldSettings =
-                std::dynamic_pointer_cast< FromFileSphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
-        if ( shModelGravityFieldSettings )
-        {
-            const SphericalHarmonicsModel model = shModelGravityFieldSettings->getSphericalHarmonicsModel( );
-            if ( model == customModel )
+            // FromFileSphericalHarmonicsGravityFieldSettings
+            std::shared_ptr< FromFileSphericalHarmonicsGravityFieldSettings > shModelGravityFieldSettings =
+                    std::dynamic_pointer_cast< FromFileSphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
+            if( shModelGravityFieldSettings )
             {
-                jsonObject[ K::file ] = boost::filesystem::path( shModelGravityFieldSettings->getFilePath( ) );
-                jsonObject[ K::associatedReferenceFrame ] = shModelGravityFieldSettings->getAssociatedReferenceFrame( );
-                jsonObject[ K::maximumDegree ] = shModelGravityFieldSettings->getMaximumDegree( );
-                jsonObject[ K::maximumOrder ] = shModelGravityFieldSettings->getMaximumOrder( );
-
-                // Gravitational parameter (index)
-                const int gmIndex = shModelGravityFieldSettings->getGravitationalParameterIndex( );
-                jsonObject[ K::gravitationalParameterIndex ] = gmIndex;
-                if ( gmIndex < 0 )
+                const SphericalHarmonicsModel model = shModelGravityFieldSettings->getSphericalHarmonicsModel( );
+                if( model == customModel )
                 {
-                    jsonObject[ K::gravitationalParameter ] =
-                            shModelGravityFieldSettings->getGravitationalParameter( );
+                    jsonObject[ K::file ] = boost::filesystem::path( shModelGravityFieldSettings->getFilePath( ) );
+                    jsonObject[ K::associatedReferenceFrame ] = shModelGravityFieldSettings->getAssociatedReferenceFrame( );
+                    jsonObject[ K::maximumDegree ] = shModelGravityFieldSettings->getMaximumDegree( );
+                    jsonObject[ K::maximumOrder ] = shModelGravityFieldSettings->getMaximumOrder( );
+
+                    // Gravitational parameter (index)
+                    const int gmIndex = shModelGravityFieldSettings->getGravitationalParameterIndex( );
+                    jsonObject[ K::gravitationalParameterIndex ] = gmIndex;
+                    if( gmIndex < 0 )
+                    {
+                        jsonObject[ K::gravitationalParameter ] = shModelGravityFieldSettings->getGravitationalParameter( );
+                    }
+
+                    // Reference radius (index)
+                    const int rIndex = shModelGravityFieldSettings->getReferenceRadiusIndex( );
+                    jsonObject[ K::referenceRadiusIndex ] = rIndex;
+                    if( rIndex < 0 )
+                    {
+                        jsonObject[ K::referenceRadius ] = shModelGravityFieldSettings->getReferenceRadius( );
+                    }
                 }
-
-                // Reference radius (index)
-                const int rIndex = shModelGravityFieldSettings->getReferenceRadiusIndex( );
-                jsonObject[ K::referenceRadiusIndex ] = rIndex;
-                if ( rIndex < 0 )
+                else
                 {
-                    jsonObject[ K::referenceRadius ] =
-                            shModelGravityFieldSettings->getReferenceRadius( );
+                    jsonObject[ K::model ] = model;
                 }
             }
             else
             {
-                jsonObject[ K::model ] = model;
+                jsonObject[ K::gravitationalParameter ] = shGravityFieldSettings->getGravitationalParameter( );
+                jsonObject[ K::referenceRadius ] = shGravityFieldSettings->getReferenceRadius( );
+                jsonObject[ K::cosineCoefficients ] = shGravityFieldSettings->getCosineCoefficients( );
+                jsonObject[ K::sineCoefficients ] = shGravityFieldSettings->getSineCoefficients( );
+                jsonObject[ K::associatedReferenceFrame ] = shGravityFieldSettings->getAssociatedReferenceFrame( );
             }
+            return;
         }
-        else
-        {
-            jsonObject[ K::gravitationalParameter ] = shGravityFieldSettings->getGravitationalParameter( );
-            jsonObject[ K::referenceRadius ] = shGravityFieldSettings->getReferenceRadius( );
-            jsonObject[ K::cosineCoefficients ] = shGravityFieldSettings->getCosineCoefficients( );
-            jsonObject[ K::sineCoefficients ] = shGravityFieldSettings->getSineCoefficients( );
-            jsonObject[ K::associatedReferenceFrame ] = shGravityFieldSettings->getAssociatedReferenceFrame( );
-        }
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( gravityFieldType, gravityFieldTypes, unsupportedGravityFieldTypes );
+        default:
+            handleUnimplementedEnumValue( gravityFieldType, gravityFieldTypes, unsupportedGravityFieldTypes );
     }
 }
 
@@ -109,26 +105,24 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GravityFieldS
     // Get atmosphere model type
     const GravityFieldType gravityFieldType = getValue< GravityFieldType >( jsonObject, K::type );
 
-    switch ( gravityFieldType ) {
-    case central:
+    switch( gravityFieldType )
     {
-        gravityFieldSettings = std::make_shared< CentralGravityFieldSettings >(
-                    getValue< double >( jsonObject, K::gravitationalParameter ) );
-        return;
-    }
-    case central_spice:
-    {
-        gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
-        return;
-    }
-    case spherical_harmonic:
-    {
-        // load coefficients from custom file
-        if ( isDefined( jsonObject, K::file ) )
-        {
-            const int gmIndex = getValue( jsonObject, K::gravitationalParameterIndex, 0 );
-            const int radiusIndex = getValue( jsonObject, K::referenceRadiusIndex, 1 );
-            gravityFieldSettings = std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
+        case central: {
+            gravityFieldSettings =
+                    std::make_shared< CentralGravityFieldSettings >( getValue< double >( jsonObject, K::gravitationalParameter ) );
+            return;
+        }
+        case central_spice: {
+            gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+            return;
+        }
+        case spherical_harmonic: {
+            // load coefficients from custom file
+            if( isDefined( jsonObject, K::file ) )
+            {
+                const int gmIndex = getValue( jsonObject, K::gravitationalParameterIndex, 0 );
+                const int radiusIndex = getValue( jsonObject, K::referenceRadiusIndex, 1 );
+                gravityFieldSettings = std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
                         getValue< boost::filesystem::path >( jsonObject, K::file ).string( ),
                         getValue< std::string >( jsonObject, K::associatedReferenceFrame ),
                         getValue< int >( jsonObject, K::maximumDegree ),
@@ -137,31 +131,31 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GravityFieldS
                         radiusIndex,
                         getValue< double >( jsonObject, K::gravitationalParameter, TUDAT_NAN ),
                         getValue< double >( jsonObject, K::referenceRadius, TUDAT_NAN ) );
-            return;
-        }
+                return;
+            }
 
-        // load coefficients from model included in Tudat
-        if ( isDefined( jsonObject, K::model ) )
-        {
-            gravityFieldSettings = std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
+            // load coefficients from model included in Tudat
+            if( isDefined( jsonObject, K::model ) )
+            {
+                gravityFieldSettings = std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
                         getValue< SphericalHarmonicsModel >( jsonObject, K::model ) );
-            return;
-        }
+                return;
+            }
 
-        // user-provided coefficients in JSON object
-        gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            // user-provided coefficients in JSON object
+            gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                     getValue< double >( jsonObject, K::gravitationalParameter ),
                     getValue< double >( jsonObject, K::referenceRadius ),
                     getValue< Eigen::MatrixXd >( jsonObject, K::cosineCoefficients ),
                     getValue< Eigen::MatrixXd >( jsonObject, K::sineCoefficients ),
                     getValue< std::string >( jsonObject, K::associatedReferenceFrame ) );
-        return;
-    }
-    default:
-        handleUnimplementedEnumValue( gravityFieldType, gravityFieldTypes, unsupportedGravityFieldTypes );
+            return;
+        }
+        default:
+            handleUnimplementedEnumValue( gravityFieldType, gravityFieldTypes, unsupportedGravityFieldTypes );
     }
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat

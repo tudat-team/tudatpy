@@ -20,17 +20,14 @@
 
 #include <Eigen/Geometry>
 
-
 #include <functional>
 
-#if( TUDAT_BUILD_WITH_PAGMO )
+#if ( TUDAT_BUILD_WITH_PAGMO )
 //    #include "tudat/astro/low_thrust/hybridMethod.h"
-    #include "tudat/astro/low_thrust/simsFlanagan.h"
+#include "tudat/astro/low_thrust/simsFlanagan.h"
 #endif
 
 #include "tudat/astro/low_thrust/lowThrustLeg.h"
-
-
 
 namespace tudat
 {
@@ -39,14 +36,13 @@ namespace low_thrust_trajectories
 {
 
 //! List of available types of low thrust leg
-enum LowThrustLegTypes
-{
-#if( TUDAT_BUILD_WITH_PAGMO )
-    ,sims_flanagan_leg,
+enum LowThrustLegTypes {
+#if ( TUDAT_BUILD_WITH_PAGMO )
+    ,
+    sims_flanagan_leg,
     hybrid_method_leg
 #endif
 };
-
 
 //! Class defining settings for the low-thrust leg.
 /*!
@@ -57,60 +53,50 @@ enum LowThrustLegTypes
 class LowThrustLegSettings
 {
 public:
-
     //! Constructor
     /*!
-    * Constructor
-    * \param lowThrustLegType Type of low-thrust leg that is to be used.
-    */
-    LowThrustLegSettings(
-            const LowThrustLegTypes lowThrustLegType ):
-        lowThrustLegType_( lowThrustLegType ){ }
+     * Constructor
+     * \param lowThrustLegType Type of low-thrust leg that is to be used.
+     */
+    LowThrustLegSettings( const LowThrustLegTypes lowThrustLegType ): lowThrustLegType_( lowThrustLegType ) { }
 
     //! Destructor.
-    virtual ~LowThrustLegSettings( ){ }
+    virtual ~LowThrustLegSettings( ) { }
 
     //! Type of low-thrust leg that is to be used.
     LowThrustLegTypes lowThrustLegType_;
-
 };
 
-
-#if( TUDAT_BUILD_WITH_PAGMO )
+#if ( TUDAT_BUILD_WITH_PAGMO )
 //! Low-thrust leg settings for Sims-Flanagan method.
-class SimsFlanaganLegSettings: public LowThrustLegSettings
+class SimsFlanaganLegSettings : public LowThrustLegSettings
 {
 public:
-
     //! Constructor
     /*!
-    * Constructor
-    * \param maximumThrust Maximum allowed thrust.
-    * \param specificImpulseFunction Function returning specific impulse as a function of time.
-    * \param numberOfSegments Number of segments into which the trajectory is divided.
-    * \param centralBody Central body of the trajectory.
-    * \param optimisationAlgorithm Optimisation algorithm to be used.
-    */
-    SimsFlanaganLegSettings(
-            const double maximumThrust,
-            const double centralBodyGravitationalParameter,
-            const double vehicleInitialMass,
-            std::function< double( const double ) > specificImpulseFunction,
-            const int numberOfSegments,
-            const std::string centralBody,
-            std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings ):
-        LowThrustLegSettings( sims_flanagan_leg ),
-        maximumThrust_( maximumThrust ),
-        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-        vehicleInitialMass_( vehicleInitialMass ),
+     * Constructor
+     * \param maximumThrust Maximum allowed thrust.
+     * \param specificImpulseFunction Function returning specific impulse as a function of time.
+     * \param numberOfSegments Number of segments into which the trajectory is divided.
+     * \param centralBody Central body of the trajectory.
+     * \param optimisationAlgorithm Optimisation algorithm to be used.
+     */
+    SimsFlanaganLegSettings( const double maximumThrust,
+                             const double centralBodyGravitationalParameter,
+                             const double vehicleInitialMass,
+                             std::function< double( const double ) > specificImpulseFunction,
+                             const int numberOfSegments,
+                             const std::string centralBody,
+                             std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings ):
+        LowThrustLegSettings( sims_flanagan_leg ), maximumThrust_( maximumThrust ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ), vehicleInitialMass_( vehicleInitialMass ),
 
-        specificImpulseFunction_( specificImpulseFunction ),
-        numberSegments_( numberOfSegments ),
-        centralBody_( centralBody ),
-        optimisationSettings_( optimisationSettings ){ }
+        specificImpulseFunction_( specificImpulseFunction ), numberSegments_( numberOfSegments ), centralBody_( centralBody ),
+        optimisationSettings_( optimisationSettings )
+    { }
 
     //! Destructor
-    ~SimsFlanaganLegSettings( ){ }
+    ~SimsFlanaganLegSettings( ) { }
 
     //! Maximum allowed thrust.
     double maximumThrust_;
@@ -120,7 +106,7 @@ public:
     double vehicleInitialMass_;
 
     //! Specific impulse function.
-    std::function< double ( const double ) > specificImpulseFunction_;
+    std::function< double( const double ) > specificImpulseFunction_;
 
     //! Number of segments into which the leg is subdivided.
     int numberSegments_;
@@ -130,32 +116,25 @@ public:
 
     //! Optimisation settings.
     std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings_;
-
 };
 
-
 //! Low-thrust leg settings for hybrid method.
-class HybridMethodLegSettings: public LowThrustLegSettings
+class HybridMethodLegSettings : public LowThrustLegSettings
 {
 public:
-
     //! Constructor
-    HybridMethodLegSettings(
-            const double maximumThrust,
-            const double specificImpulse,
-            const std::string centralBody,
-            std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings,
-            const std::pair< double, double > initialAndFinalMEEcostatesBounds ):
-        LowThrustLegSettings( hybrid_method_leg ),
-        maximumThrust_( maximumThrust ),
-        specificImpulse_( specificImpulse ),
-        centralBody_( centralBody ),
-        integratorSettings_( integratorSettings ),
-        optimisationSettings_( optimisationSettings ){ }
+    HybridMethodLegSettings( const double maximumThrust,
+                             const double specificImpulse,
+                             const std::string centralBody,
+                             std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+                             std::shared_ptr< simulation_setup::OptimisationSettings > optimisationSettings,
+                             const std::pair< double, double > initialAndFinalMEEcostatesBounds ):
+        LowThrustLegSettings( hybrid_method_leg ), maximumThrust_( maximumThrust ), specificImpulse_( specificImpulse ),
+        centralBody_( centralBody ), integratorSettings_( integratorSettings ), optimisationSettings_( optimisationSettings )
+    { }
 
     //! Destructor
-    ~HybridMethodLegSettings( ){ }
+    ~HybridMethodLegSettings( ) { }
 
     //! Maximum allowed thrust.
     double maximumThrust_;
@@ -174,19 +153,17 @@ public:
 
     //! Lower and upper bounds for the initial and final MEE costates.
     std::pair< double, double > initialAndFinalMEEcostatesBounds_;
-
 };
 #endif
 
+// std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
+//         const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
+//         const Eigen::Vector6d& stateAtDeparture,
+//         const Eigen::Vector6d& stateAtArrival,
+//         const double& timeOfFlight );
 
-//std::shared_ptr< low_thrust_trajectories::LowThrustLeg  > createLowThrustLeg(
-//        const std::shared_ptr< LowThrustLegSettings >& lowThrustLegSettings,
-//        const Eigen::Vector6d& stateAtDeparture,
-//        const Eigen::Vector6d& stateAtArrival,
-//        const double& timeOfFlight );
+}  // namespace low_thrust_trajectories
 
-} // namespace low_thrust_trajectories
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_LOW_THRUST_LEG_SETTINGS_H
+#endif  // TUDAT_LOW_THRUST_LEG_SETTINGS_H

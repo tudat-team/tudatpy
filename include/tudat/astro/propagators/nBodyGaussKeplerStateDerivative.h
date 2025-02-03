@@ -35,13 +35,12 @@ namespace propagators
  * \param orbitalAngularMomentum Norm of orbital angular momentum vector of body, w.r.t. its central body
  * \return Time derivatives of osculating Kepler elements.
  */
-Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
-        const Eigen::Vector6d& currentOsculatingKeplerElements,
-        const Eigen::Vector3d& accelerationsInRswFrame,
-        const double semiLatusRectum,
-        const double distance,
-        const double meanMotion,
-        const double orbitalAngularMomentum );
+Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements( const Eigen::Vector6d& currentOsculatingKeplerElements,
+                                                                 const Eigen::Vector3d& accelerationsInRswFrame,
+                                                                 const double semiLatusRectum,
+                                                                 const double distance,
+                                                                 const double meanMotion,
+                                                                 const double orbitalAngularMomentum );
 
 //! Function to evaluate the Gauss planetary equations for Kepler elements
 /*!
@@ -53,10 +52,9 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
  * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
  * \return Time derivatives of osculating Kepler elements.
  */
-Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
-        const Eigen::Vector6d& currentOsculatingKeplerElements,
-        const Eigen::Vector3d& accelerationsInRswFrame,
-        const double centralBodyGravitationalParameter );
+Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements( const Eigen::Vector6d& currentOsculatingKeplerElements,
+                                                                 const Eigen::Vector3d& accelerationsInRswFrame,
+                                                                 const double centralBodyGravitationalParameter );
 
 //! Function to evaluate the Gauss planetary equations for Kepler elements
 /*!
@@ -70,11 +68,10 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
  * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
  * \return Time derivatives of osculating Kepler elements.
  */
-Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
-        const Eigen::Vector6d& currentOsculatingKeplerElements,
-        const Eigen::Vector6d& currentCartesianState,
-        const Eigen::Vector3d& accelerationsInInertialFrame,
-        const double centralBodyGravitationalParameter );
+Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements( const Eigen::Vector6d& currentOsculatingKeplerElements,
+                                                                 const Eigen::Vector6d& currentCartesianState,
+                                                                 const Eigen::Vector3d& accelerationsInInertialFrame,
+                                                                 const double centralBodyGravitationalParameter );
 
 //! Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elements.
 /*!
@@ -83,10 +80,9 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
  * elements of the bodies the states being numerically propagated.
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class NBodyGaussKeplerStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
+class NBodyGaussKeplerStateDerivative : public NBodyStateDerivative< StateScalarType, TimeType >
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -103,22 +99,24 @@ public:
     NBodyGaussKeplerStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
                                      const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                                      const std::vector< std::string >& bodiesToIntegrate ):
-        NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, gauss_keplerian, bodiesToIntegrate, true )
+        NBodyStateDerivative< StateScalarType, TimeType >( accelerationModelsPerBody,
+                                                           centralBodyData,
+                                                           gauss_keplerian,
+                                                           bodiesToIntegrate,
+                                                           true )
     {
         currentTrueAnomalies_.resize( bodiesToIntegrate.size( ) );
 
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
-        centralBodyGravitationalParameters_ =
-                removeCentralGravityAccelerations(
-                    centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
-                    this->accelerationModelsPerBody_, this->removedCentralAccelerations_ );
+        centralBodyGravitationalParameters_ = removeCentralGravityAccelerations( centralBodyData->getCentralBodies( ),
+                                                                                 this->bodiesToBeIntegratedNumerically_,
+                                                                                 this->accelerationModelsPerBody_,
+                                                                                 this->removedCentralAccelerations_ );
         this->createAccelerationModelList( );
-
     }
 
     //! Destructor
-    ~NBodyGaussKeplerStateDerivative( ){ }
+    ~NBodyGaussKeplerStateDerivative( ) { }
 
     //! Calculates the state derivative of the translational motion of the system, using the Gauss equations for Kepler elememts
     /*!
@@ -133,9 +131,9 @@ public:
      *  \param stateDerivative Current derivative of the Kepler elements of the
      *  system of bodies integrated numerically (returned by reference).
      */
-    void calculateSystemStateDerivative(
-            const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
+    void calculateSystemStateDerivative( const TimeType time,
+                                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+                                         Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         // Get total inertial accelerations acting on bodies
         stateDerivative.setZero( );
@@ -146,13 +144,17 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
-                        currentCartesianLocalSolution_.segment( i * 6, 6 ) ) *
+                                                    currentCartesianLocalSolution_.segment( i * 6, 6 ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
-            stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForKeplerElements(
-                        ( Eigen::Vector6d( ) << stateOfSystemToBeIntegrated.block( i * 6, 0, 5, 1 ).template cast< double >( ),
-                          currentTrueAnomalies_.at( i ) ).finished( ), currentAccelerationInRswFrame,
-                        centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
+            stateDerivative.block( i * 6, 0, 6, 1 ) =
+                    computeGaussPlanetaryEquationsForKeplerElements(
+                            ( Eigen::Vector6d( ) << stateOfSystemToBeIntegrated.block( i * 6, 0, 5, 1 ).template cast< double >( ),
+                              currentTrueAnomalies_.at( i ) )
+                                    .finished( ),
+                            currentAccelerationInRswFrame,
+                            centralBodyGravitationalParameters_.at( i )( ) )
+                            .template cast< StateScalarType >( );
         }
     }
 
@@ -178,19 +180,17 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentCartesianState = cartesianSolution.block( i * 6, 0, 6, 1 );
-            currentKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements (
-                        currentCartesianState, static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ) );
+            currentKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements(
+                    currentCartesianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
             StateScalarType eccentricAnomaly = orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly(
-                        currentKeplerianState( 5 ), currentKeplerianState( 1 ) );
-            StateScalarType meanAnomaly = orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
-                        eccentricAnomaly, currentKeplerianState( 1 ) );
+                    currentKeplerianState( 5 ), currentKeplerianState( 1 ) );
+            StateScalarType meanAnomaly =
+                    orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly( eccentricAnomaly, currentKeplerianState( 1 ) );
             currentKeplerianState( 5 ) = meanAnomaly;
             currentState.segment( i * 6, 6 ) = currentKeplerianState;
         }
 
         return currentState;
-
     }
 
     //! Function to convert the Kepler states of the bodies to the conventional form.
@@ -206,9 +206,9 @@ public:
      * \param currentCartesianLocalSolution State (internalSolution, which is Encke-formulation),
      *  converted to the 'conventional form' (returned by reference).
      */
-    void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
+    void convertToOutputSolution( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
+                                  const TimeType& time,
+                                  Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
     {
         // Add Keplerian state to perturbation from Encke algorithm to get Cartesian state in local frames.
         Eigen::Matrix< StateScalarType, 6, 1 > currentKeplerianState;
@@ -221,44 +221,40 @@ public:
                 if( currentKeplerianState( 1 ) < 1.0 )
                 {
                     StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly(
-                                currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
-                    currentTrueAnomaly = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
-                                currentEccentricAnomaly, currentKeplerianState( 1 ) );
+                            currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
+                    currentTrueAnomaly = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly( currentEccentricAnomaly,
+                                                                                                            currentKeplerianState( 1 ) );
                     currentKeplerianState( 5 ) = currentTrueAnomaly;
                 }
                 else
                 {
                     StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToHyperbolicEccentricAnomaly(
-                                currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
+                            currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
                     currentTrueAnomaly = orbital_element_conversions::convertHyperbolicEccentricAnomalyToTrueAnomaly(
-                                currentEccentricAnomaly, currentKeplerianState( 1 ) );
+                            currentEccentricAnomaly, currentKeplerianState( 1 ) );
                     currentKeplerianState( 5 ) = currentTrueAnomaly;
                 }
 
                 currentTrueAnomalies_[ i ] = currentTrueAnomaly;
                 currentCartesianLocalSolution.block( i * 6, 0, 6, 1 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
-                            currentKeplerianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
+                        currentKeplerianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
             }
             catch( std::runtime_error const& )
             {
                 currentTrueAnomalies_[ i ] = TUDAT_NAN;
-                currentCartesianLocalSolution.block( i * 6, 0, 6, 1 ) =
-                        Eigen::Matrix< StateScalarType, 6, 1 >::Constant( TUDAT_NAN );
+                currentCartesianLocalSolution.block( i * 6, 0, 6, 1 ) = Eigen::Matrix< StateScalarType, 6, 1 >::Constant( TUDAT_NAN );
             }
-
         }
 
         currentCartesianLocalSolution_ = currentCartesianLocalSolution.template cast< double >( );
     }
 
 private:
-
     //!  Gravitational parameters of central bodies used to convert Cartesian to Keplerian orbits, and vice versa
     std::vector< std::function< double( ) > > centralBodyGravitationalParameters_;
 
     //! Central body accelerations for each propagated body, which has been removed from accelerationModelsPerBody_
-    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
-    centralAccelerations_;
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > centralAccelerations_;
 
     //! Current full Cartesian state of the propagated bodies, w.r.t. trhe central bodies
     /*!
@@ -269,13 +265,12 @@ private:
 
     //! List of true anomalies of the bodies being propagated, computed by the last call to the convertToOutputSolution function
     std::vector< double > currentTrueAnomalies_;
-
 };
 
-//extern template class NBodyGaussKeplerStateDerivative< double, double >;
+// extern template class NBodyGaussKeplerStateDerivative< double, double >;
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_NGAUSSKEPLERSTATEDERIVATIVE_H
+#endif  // TUDAT_NGAUSSKEPLERSTATEDERIVATIVE_H
