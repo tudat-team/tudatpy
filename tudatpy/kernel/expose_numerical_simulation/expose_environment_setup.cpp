@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include "expose_environment_setup.h"
 
 #include <pybind11/complex.h>
@@ -44,30 +43,29 @@ namespace tg = tudat::gravitation;
 namespace tcc = tudat::coordinate_conversions;
 namespace tp = tudat::propagators;
 
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
+void expose_environment_setup( py::module &m )
+{
+    //        m.def("get_body_gravitational_parameter",
+    //              &tss::getBodyGravitationalParameter,
+    //              py::arg("body_collection"),
+    //              py::arg("body_name"));
 
-            void expose_environment_setup(py::module &m) {
-                //        m.def("get_body_gravitational_parameter",
-                //              &tss::getBodyGravitationalParameter,
-                //              py::arg("body_collection"),
-                //              py::arg("body_name"));
-
-
-                py::class_<tss::BodySettings,
-                           std::shared_ptr<tss::BodySettings>>(
-                    m, "BodySettings", R"doc(
+    py::class_< tss::BodySettings, std::shared_ptr< tss::BodySettings > >( m, "BodySettings", R"doc(
 
         Class for defining settings for the creation of a single body.
 
         Class for defining settings for the creation of a single body, this object is typically stored inside a
         :class:`BodyListSettings` object.
 
-     )doc")
-                    .def_readwrite("constant_mass",
-                                   &tss::BodySettings::constantMass, R"doc(
+     )doc" )
+            .def_readwrite( "constant_mass", &tss::BodySettings::constantMass, R"doc(
 
         Mass that gets assigned to the vehicle. This mass does *not* automatically define a gravity field
         model, but is instead used for the calculation of non-conservative forces only. When creating a body with a gravity field,
@@ -76,10 +74,10 @@ namespace tudatpy {
 
 
         :type: float
-     )doc")
-                    .def_readwrite("atmosphere_settings",
-                                   &tss::BodySettings::atmosphereSettings,
-                                   R"doc(
+     )doc" )
+            .def_readwrite( "atmosphere_settings",
+                            &tss::BodySettings::atmosphereSettings,
+                            R"doc(
 
         Object that defines the settings of the atmosphere model that is to be created. Note that wind model settings
         may be defined inside this object. A variable of this type is typically assigned by using a function from the
@@ -87,85 +85,79 @@ namespace tudatpy {
 
 
         :type: AtmosphereSettings
-     )doc")
-                    .def_readwrite("ephemeris_settings",
-                                   &tss::BodySettings::ephemerisSettings, R"doc(
+     )doc" )
+            .def_readwrite( "ephemeris_settings", &tss::BodySettings::ephemerisSettings, R"doc(
 
         Object that defines the settings of the ephemeris model that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`ephemeris\`\`` module.
 
 
         :type: EphemerisSettings
-     )doc")
-                    .def_readwrite("gravity_field_settings",
-                                   &tss::BodySettings::gravityFieldSettings,
-                                   R"doc(
+     )doc" )
+            .def_readwrite( "gravity_field_settings",
+                            &tss::BodySettings::gravityFieldSettings,
+                            R"doc(
 
         Object that defines the settings of the gravity field model that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`gravity_field\`\`` module.
 
 
         :type: GravityFieldSettings
-     )doc")
-                    .def_readwrite("rotation_model_settings",
-                                   &tss::BodySettings::rotationModelSettings,
-                                   R"doc(
+     )doc" )
+            .def_readwrite( "rotation_model_settings",
+                            &tss::BodySettings::rotationModelSettings,
+                            R"doc(
 
         Object that defines the settings of the rotation model that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`rotation_model\`\`` module.
 
 
         :type: RotationModelSettings
-     )doc")
-                    .def_readwrite("shape_settings",
-                                   &tss::BodySettings::shapeModelSettings,
-                                   R"doc(
+     )doc" )
+            .def_readwrite( "shape_settings",
+                            &tss::BodySettings::shapeModelSettings,
+                            R"doc(
 
         Object that defines the settings of the shape model that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`shape\`\`` module.
 
 
         :type: BodyShapeSettings
-     )doc")
-                    .def_readwrite(
-                        "aerodynamic_coefficient_settings",
-                        &tss::BodySettings::aerodynamicCoefficientSettings,
-                        R"doc(
+     )doc" )
+            .def_readwrite( "aerodynamic_coefficient_settings",
+                            &tss::BodySettings::aerodynamicCoefficientSettings,
+                            R"doc(
 
         Object that defines the settings of the aerodynamic coefficient model that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`aerodynamic_coefficients\`\`` module.
 
 
         :type: AerodynamicCoefficientSettings
-     )doc")
-                    .def_readwrite(
-                        "gravity_field_variation_settings",
-                        &tss::BodySettings::gravityFieldVariationSettings,
-                        R"doc(
+     )doc" )
+            .def_readwrite( "gravity_field_variation_settings",
+                            &tss::BodySettings::gravityFieldVariationSettings,
+                            R"doc(
 
         List of objects that define the settings of time variations of the gravity field variation models that are to be created. Variables in this list are typically
         assigned by using a function from the :ref:`\`\`gravity_field_variations\`\`` module.
 
 
         :type: list[GravityFieldVariationSettings]
-     )doc")
-                    .def_readwrite("shape_deformation_settings",
-                                   &tss::BodySettings::bodyDeformationSettings,
-                                   R"doc(
+     )doc" )
+            .def_readwrite( "shape_deformation_settings",
+                            &tss::BodySettings::bodyDeformationSettings,
+                            R"doc(
 
         List of objects that define the settings of time variations of the exterior shape of natural bodies are to be created. Variables in this list are typically
         assigned by using a function from the :ref:`\`\`shape_deformation\`\`` module.
 
 
         :type: list[BodyDeformationSettings]
-     )doc")
-                    .def_readwrite("ground_station_settings",
-                                   &tss::BodySettings::groundStationSettings,
-                                   R"doc(No documentation found.)doc")
-                    .def_readwrite(
-                        "rigid_body_settings",
-                        &tss::BodySettings::rigidBodyPropertiesSettings,
-                        R"doc(
+     )doc" )
+            .def_readwrite( "ground_station_settings", &tss::BodySettings::groundStationSettings, R"doc(No documentation found.)doc" )
+            .def_readwrite( "rigid_body_settings",
+                            &tss::BodySettings::rigidBodyPropertiesSettings,
+                            R"doc(
 
         Object that defines the settings of the body rigid body (mass, center of mass, inertia) properties that are to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`rigid_body\`\`` module. Note that this setting does *not* define
@@ -173,55 +165,47 @@ namespace tudatpy {
 
 
         :type: RigidBodyPropertiesSettings
-     )doc")
-                    .def_readwrite("radiation_pressure_target_settings",
-                                   &tss::BodySettings::
-                                       radiationPressureTargetModelSettings,
-                                   R"doc(
+     )doc" )
+            .def_readwrite( "radiation_pressure_target_settings",
+                            &tss::BodySettings::radiationPressureTargetModelSettings,
+                            R"doc(
 
         Object that defines the settings of the radiation pressure target model that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`radiation_pressure\`\`` module. 
 
 
         :type: RadiationPressureTargetModelSettings
-     )doc")
-                    .def_readwrite(
-                        "radiation_source_settings",
-                        &tss::BodySettings::radiationSourceModelSettings,
-                        R"doc(
+     )doc" )
+            .def_readwrite( "radiation_source_settings",
+                            &tss::BodySettings::radiationSourceModelSettings,
+                            R"doc(
 
         Object that defines the settings of the radiation source model that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`radiation_pressure\`\`` module. 
 
 
         :type: RadiationSourceModelSettings
-     )doc")
-                    .def_readwrite(
-                        "vehicle_shape_settings",
-                        &tss::BodySettings::bodyExteriorPanelSettings_, R"doc(
+     )doc" )
+            .def_readwrite( "vehicle_shape_settings", &tss::BodySettings::bodyExteriorPanelSettings_, R"doc(
 
         Object that defines the settings of an exterior panelled vehicle shape that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`vehicle_systems\`\`` module.
 
 
         :type: FullPanelledBodySettings
-     )doc")
-                    .def_readwrite(
-                        "radiation_pressure_settings",
-                        &tss::BodySettings::radiationPressureSettings,
-                        R"doc(
+     )doc" )
+            .def_readwrite( "radiation_pressure_settings",
+                            &tss::BodySettings::radiationPressureSettings,
+                            R"doc(
 
         .. warning::
 
             This interface is deprecated and will be removed in a future release. Use :attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.radiation_source_settings` and :attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.radiation_pressure_target_settings` instead.
 
 
-     )doc");
+     )doc" );
 
-
-                py::class_<tss::BodyListSettings,
-                           std::shared_ptr<tss::BodyListSettings>>(
-                    m, "BodyListSettings", R"doc(
+    py::class_< tss::BodyListSettings, std::shared_ptr< tss::BodyListSettings > >( m, "BodyListSettings", R"doc(
 
         Class for defining settings for the creation of a system of bodies.
 
@@ -232,9 +216,8 @@ namespace tudatpy {
 
 
 
-     )doc")
-                    .def(py::init<const std::string, const std::string>(),
-                         py::arg("frame_origin"), py::arg("frame_orientation"), R"doc(
+     )doc" )
+            .def( py::init< const std::string, const std::string >( ), py::arg( "frame_origin" ), py::arg( "frame_orientation" ), R"doc(
 
         Class initialization method.
 
@@ -254,8 +237,8 @@ namespace tudatpy {
             Definition of the global frame orientation for the bodies.
 
 
-     )doc")
-                    .def("get", &tss::BodyListSettings::get, py::arg("body_name"), R"doc(
+     )doc" )
+            .def( "get", &tss::BodyListSettings::get, py::arg( "body_name" ), R"doc(
 
         This function extracts a single BodySettings object.
 
@@ -272,12 +255,12 @@ namespace tudatpy {
             Settings for the requested body
 
 
-    )doc")
-                    .def("add_settings",
-                         py::overload_cast<std::shared_ptr<tss::BodySettings>,
-                                           const std::string>(
-                             &tss::BodyListSettings::addSettings),
-                         py::arg("settings_to_add"), py::arg("body_name"), R"doc(
+    )doc" )
+            .def( "add_settings",
+                  py::overload_cast< std::shared_ptr< tss::BodySettings >, const std::string >( &tss::BodyListSettings::addSettings ),
+                  py::arg( "settings_to_add" ),
+                  py::arg( "body_name" ),
+                  R"doc(
 
         Add a single :class:`BodySettings` object to the :class:`BodyListSettings` instance.
 
@@ -298,11 +281,11 @@ namespace tudatpy {
 
 
 
-    )doc")
-                    .def("add_empty_settings",
-                         py::overload_cast<const std::string>(
-                             &tss::BodyListSettings::addSettings),
-                         py::arg("body_name"), R"doc(
+    )doc" )
+            .def( "add_empty_settings",
+                  py::overload_cast< const std::string >( &tss::BodyListSettings::addSettings ),
+                  py::arg( "body_name" ),
+                  R"doc(
 
         This method adds empty settings to the :class:`BodyListSettings` instance.
 
@@ -317,35 +300,32 @@ namespace tudatpy {
 
 
 
-    )doc")
-                    .def_property_readonly(
-                        "frame_origin", &tss::BodyListSettings::getFrameOrigin,
-                        R"doc(
+    )doc" )
+            .def_property_readonly( "frame_origin",
+                                    &tss::BodyListSettings::getFrameOrigin,
+                                    R"doc(
 
         **read-only**
 
         Definition of the global frame origin for the bodies
 
         :type: str
-     )doc")
-                    .def_property_readonly(
-                        "frame_orientation",
-                        &tss::BodyListSettings::getFrameOrientation, R"doc(
+     )doc" )
+            .def_property_readonly( "frame_orientation", &tss::BodyListSettings::getFrameOrientation, R"doc(
 
         **read-only**
 
         Definition of the global frame orientation for the bodies
 
         :type: str
-     )doc");
+     )doc" );
 
-                m.def("get_default_body_settings",
-                      py::overload_cast<const std::vector<std::string> &,
-                                        const std::string, const std::string>(
-                          &tss::getDefaultBodySettings),
-                      py::arg("bodies"), py::arg("base_frame_origin") = "SSB",
-                      py::arg("base_frame_orientation") = "ECLIPJ2000",
-                      R"doc(
+    m.def( "get_default_body_settings",
+           py::overload_cast< const std::vector< std::string > &, const std::string, const std::string >( &tss::getDefaultBodySettings ),
+           py::arg( "bodies" ),
+           py::arg( "base_frame_origin" ) = "SSB",
+           py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
+           R"doc(
 
 Function that retrieves the default settings for the given set of input bodies.
 
@@ -373,20 +353,22 @@ BodyListSettings
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("get_default_body_settings_time_limited",
-                      py::overload_cast<const std::vector<std::string> &,
-                                        const double, const double,
-                                        const std::string, const std::string,
-                                        const double>(
-                          &tss::getDefaultBodySettings),
-                      py::arg("bodies"), py::arg("initial_time"),
-                      py::arg("final_time"),
-                      py::arg("base_frame_origin") = "SSB",
-                      py::arg("base_frame_orientation") = "ECLIPJ2000",
-                      py::arg("time_step") = 300.0,
-                      R"doc(
+    m.def( "get_default_body_settings_time_limited",
+           py::overload_cast< const std::vector< std::string > &,
+                              const double,
+                              const double,
+                              const std::string,
+                              const std::string,
+                              const double >( &tss::getDefaultBodySettings ),
+           py::arg( "bodies" ),
+           py::arg( "initial_time" ),
+           py::arg( "final_time" ),
+           py::arg( "base_frame_origin" ) = "SSB",
+           py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
+           py::arg( "time_step" ) = 300.0,
+           R"doc(
 
 Function that retrieves the default settings for the given set of input bodies, with a limited valid time interval.
 
@@ -419,15 +401,13 @@ BodyListSettings
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "get_default_single_body_settings",
-                    py::overload_cast<const std::string &, const std::string &>(
-                        &tss::getDefaultSingleBodySettings),
-                    py::arg("body_name"),
-                    py::arg("base_frame_orientation") = "ECLIPJ2000",
-                    R"doc(
+    m.def( "get_default_single_body_settings",
+           py::overload_cast< const std::string &, const std::string & >( &tss::getDefaultSingleBodySettings ),
+           py::arg( "body_name" ),
+           py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
+           R"doc(
 
 Function that retrieves the default settings for a single body.
 
@@ -450,18 +430,17 @@ BodySettings
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("get_default_single_body_settings_time_limited",
-                      py::overload_cast<const std::string &, const double,
-                                        const double, const std::string &,
-                                        const double>(
-                          &tss::getDefaultSingleBodySettings),
-                      py::arg("body_name"), py::arg("initial_time"),
-                      py::arg("final_time"),
-                      py::arg("base_frame_orientation") = "ECLIPJ2000",
-                      py::arg("time_step") = 300.0,
-                      R"doc(
+    m.def( "get_default_single_body_settings_time_limited",
+           py::overload_cast< const std::string &, const double, const double, const std::string &, const double >(
+                   &tss::getDefaultSingleBodySettings ),
+           py::arg( "body_name" ),
+           py::arg( "initial_time" ),
+           py::arg( "final_time" ),
+           py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
+           py::arg( "time_step" ) = 300.0,
+           R"doc(
 
 Function that retrieves the default settings for a single body, with a limited valid time interval.
 
@@ -490,16 +469,15 @@ BodySettings
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "get_default_single_alternate_body_settings",
-                    py::overload_cast<const std::string &, const std::string &,
-                                      const std::string &>(
-                        &tss::getDefaultSingleAlternateNameBodySettings),
-                    py::arg("body_name"), py::arg("source_body_name"),
-                    py::arg("base_frame_orientation") = "ECLIPJ2000",
-                    R"doc(
+    m.def( "get_default_single_alternate_body_settings",
+           py::overload_cast< const std::string &, const std::string &, const std::string & >(
+                   &tss::getDefaultSingleAlternateNameBodySettings ),
+           py::arg( "body_name" ),
+           py::arg( "source_body_name" ),
+           py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
+           R"doc(
 
 Function that retrieves the default settings for a single body, and assigns them to another body.
 
@@ -527,19 +505,18 @@ BodySettings
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "get_default_single_alternate_body_settings_time_limited",
-                    py::overload_cast<const std::string &, const std::string &,
-                                      const double, const double,
-                                      const std::string &, const double>(
-                        &tss::getDefaultSingleAlternateNameBodySettings),
-                    py::arg("body_name"), py::arg("source_body_name"),
-                    py::arg("initial_time"), py::arg("final_time"),
-                    py::arg("base_frame_orientation") = "ECLIPJ2000",
-                    py::arg("time_step") = 300.0,
-                    R"doc(
+    m.def( "get_default_single_alternate_body_settings_time_limited",
+           py::overload_cast< const std::string &, const std::string &, const double, const double, const std::string &, const double >(
+                   &tss::getDefaultSingleAlternateNameBodySettings ),
+           py::arg( "body_name" ),
+           py::arg( "source_body_name" ),
+           py::arg( "initial_time" ),
+           py::arg( "final_time" ),
+           py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
+           py::arg( "time_step" ) = 300.0,
+           R"doc(
 
 Function that retrieves the default settings for a single body, with a limited valid time interval.
 
@@ -573,12 +550,12 @@ BodySettings
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("create_simplified_system_of_bodies",
-                      &tss::createSimplifiedSystemOfBodies,
-                      py::arg("initial_time") = 0,
-                      R"doc(
+    m.def( "create_simplified_system_of_bodies",
+           &tss::createSimplifiedSystemOfBodies,
+           py::arg( "initial_time" ) = 0,
+           R"doc(
 
 Function that creates a simplified System of bodies.
 
@@ -601,12 +578,12 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("create_system_of_bodies",
-                      &tss::createSystemOfBodies<STATE_SCALAR_TYPE, TIME_TYPE>,
-                      py::arg("body_settings"),
-                      R"doc(
+    m.def( "create_system_of_bodies",
+           &tss::createSystemOfBodies< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "body_settings" ),
+           R"doc(
 
 Function that creates a System of bodies from associated settings.
 
@@ -629,30 +606,31 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("add_empty_tabulated_ephemeris",
-                      &tp::addEmptyTabulatedEphemeris<STATE_SCALAR_TYPE,
-                                                      TIME_TYPE>,
-                      py::arg("bodies"), py::arg("body_name"),
-                      py::arg("ephemeris_origin") = "",
-                      py::arg("is_part_of_multi_arc") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "add_empty_tabulated_ephemeris",
+           &tp::addEmptyTabulatedEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "bodies" ),
+           py::arg( "body_name" ),
+           py::arg( "ephemeris_origin" ) = "",
+           py::arg( "is_part_of_multi_arc" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def(
-                    "create_tabulated_ephemeris_from_spice",
-                    &tss::createTabulatedEphemerisFromSpice<STATE_SCALAR_TYPE,
-                                                            TIME_TYPE>,
-                    py::arg("body"), py::arg("initial_time"),
-                    py::arg("end_time"), py::arg("time_step"),
-                    py::arg("observer_name"), py::arg("reference_frame_name"),
-                    py::arg("interpolator_settings") = std::make_shared<
-                        tudat::interpolators::LagrangeInterpolatorSettings>(8));
+    m.def( "create_tabulated_ephemeris_from_spice",
+           &tss::createTabulatedEphemerisFromSpice< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "body" ),
+           py::arg( "initial_time" ),
+           py::arg( "end_time" ),
+           py::arg( "time_step" ),
+           py::arg( "observer_name" ),
+           py::arg( "reference_frame_name" ),
+           py::arg( "interpolator_settings" ) = std::make_shared< tudat::interpolators::LagrangeInterpolatorSettings >( 8 ) );
 
-                m.def("create_body_ephemeris",
-                      &tss::createBodyEphemeris<STATE_SCALAR_TYPE, TIME_TYPE>,
-                      py::arg("ephemeris_settings"), py::arg("body_name"),
-                      R"doc(
+    m.def( "create_body_ephemeris",
+           &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "ephemeris_settings" ),
+           py::arg( "body_name" ),
+           R"doc(
 
 Function that creates an Ephemeris object.
 
@@ -676,26 +654,22 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("create_ground_station_ephemeris",
-                      py::overload_cast<const std::shared_ptr<tss::Body>,
-                                        const std::string &,
-                                        const tss::SystemOfBodies &>(
-                          &tss::createReferencePointEphemerisFromId<
-                              TIME_TYPE, STATE_SCALAR_TYPE>),
-                      "body_with_ground_station", "station_name");
+    m.def( "create_ground_station_ephemeris",
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string &, const tss::SystemOfBodies & >(
+                   &tss::createReferencePointEphemerisFromId< TIME_TYPE, STATE_SCALAR_TYPE > ),
+           "body_with_ground_station",
+           "station_name" );
 
-                m.def("get_safe_interpolation_interval",
-                      &tss::getSafeInterpolationInterval,
-                      py::arg("ephemeris_model"));
+    m.def( "get_safe_interpolation_interval", &tss::getSafeInterpolationInterval, py::arg( "ephemeris_model" ) );
 
-
-                m.def("add_aerodynamic_coefficient_interface",
-                      &tss::addAerodynamicCoefficientInterface,
-                      py::arg("bodies"), py::arg("body_name"),
-                      py::arg("coefficient_settings"),
-                      R"doc(
+    m.def( "add_aerodynamic_coefficient_interface",
+           &tss::addAerodynamicCoefficientInterface,
+           py::arg( "bodies" ),
+           py::arg( "body_name" ),
+           py::arg( "coefficient_settings" ),
+           R"doc(
 
 Function that creates an aerodynamic coefficient interface from settings, and adds it to an existing body.
 
@@ -720,28 +694,32 @@ coefficient_settings : AerodynamicCoefficientSettings
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("create_aerodynamic_coefficient_interface",
-                      &tss::createAerodynamicCoefficientInterfaceDeprecated,
-                      py::arg("coefficient_settings"), py::arg("body"));
+    m.def( "create_aerodynamic_coefficient_interface",
+           &tss::createAerodynamicCoefficientInterfaceDeprecated,
+           py::arg( "coefficient_settings" ),
+           py::arg( "body" ) );
 
-                m.def("create_aerodynamic_coefficient_interface",
-                      &tss::createAerodynamicCoefficientInterface,
-                      py::arg("coefficient_settings"), py::arg("body"),
-                      py::arg("bodies"), R"doc(No documentation found.)doc");
+    m.def( "create_aerodynamic_coefficient_interface",
+           &tss::createAerodynamicCoefficientInterface,
+           py::arg( "coefficient_settings" ),
+           py::arg( "body" ),
+           py::arg( "bodies" ),
+           R"doc(No documentation found.)doc" );
 
-                m.def("add_radiation_pressure_interface",
-                      &tss::addRadiationPressureInterface, py::arg("bodies"),
-                      py::arg("body_name"),
-                      py::arg("radiation_pressure_settings"));
+    m.def( "add_radiation_pressure_interface",
+           &tss::addRadiationPressureInterface,
+           py::arg( "bodies" ),
+           py::arg( "body_name" ),
+           py::arg( "radiation_pressure_settings" ) );
 
-
-                m.def("add_radiation_pressure_target_model",
-                      &tss::addRadiationPressureTargetModel, py::arg("bodies"),
-                      py::arg("body_name"),
-                      py::arg("radiation_pressure_target_settings"),
-                      R"doc(
+    m.def( "add_radiation_pressure_target_model",
+           &tss::addRadiationPressureTargetModel,
+           py::arg( "bodies" ),
+           py::arg( "body_name" ),
+           py::arg( "radiation_pressure_target_settings" ),
+           R"doc(
 
 Function that creates an radiation pressure interface from settings, and adds it to an existing body.
 
@@ -766,12 +744,14 @@ radiation_pressure_settings : RadiationPressureInterfaceSettings
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("add_rotation_model", &tss::addRotationModel,
-                      py::arg("bodies"), py::arg("body_name"),
-                      py::arg("rotation_model_settings"),
-                      R"doc(
+    m.def( "add_rotation_model",
+           &tss::addRotationModel,
+           py::arg( "bodies" ),
+           py::arg( "body_name" ),
+           py::arg( "rotation_model_settings" ),
+           R"doc(
 
 Function that creates a rotation model, and adds it to an existing body.
 
@@ -798,24 +778,28 @@ rotation_model_settings
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "add_gravity_field_model", &tss::addGravityFieldModel,
-                    py::arg("bodies"), py::arg("body_name"),
-                    py::arg("gravity_field_settings"),
-                    py::arg("gravity_field_variation_settings") = std::vector<
-                        std::shared_ptr<tss::GravityFieldVariationSettings>>(),
-                    R"doc(No documentation found.)doc");
+    m.def( "add_gravity_field_model",
+           &tss::addGravityFieldModel,
+           py::arg( "bodies" ),
+           py::arg( "body_name" ),
+           py::arg( "gravity_field_settings" ),
+           py::arg( "gravity_field_variation_settings" ) = std::vector< std::shared_ptr< tss::GravityFieldVariationSettings > >( ),
+           R"doc(No documentation found.)doc" );
 
-                m.def("add_mass_properties_model", &tss::addRigidBodyProperties,
-                      py::arg("bodies"), py::arg("body_name"),
-                      py::arg("mass_property_settings"));
+    m.def( "add_mass_properties_model",
+           &tss::addRigidBodyProperties,
+           py::arg( "bodies" ),
+           py::arg( "body_name" ),
+           py::arg( "mass_property_settings" ) );
 
-                m.def("add_rigid_body_properties", &tss::addRigidBodyProperties,
-                      py::arg("bodies"), py::arg("body_name"),
-                      py::arg("rigid_body_property_settings"),
-                      R"doc(
+    m.def( "add_rigid_body_properties",
+           &tss::addRigidBodyProperties,
+           py::arg( "bodies" ),
+           py::arg( "body_name" ),
+           py::arg( "rigid_body_property_settings" ),
+           R"doc(
         
 Function that creates a rigid body property model, and adds it to an existing body.
 
@@ -840,15 +824,16 @@ rigid_body_property_settings : RigidBodyPropertiesSettings
 
 
 
-    )doc");
+    )doc" );
 
-
-                m.def("add_engine_model", &tss::addEngineModel,
-                      py::arg("body_name"), py::arg("engine_name"),
-                      py::arg("thrust_magnitude_settings"), py::arg("bodies"),
-                      py::arg("body_fixed_thrust_direction") =
-                          Eigen::Vector3d::UnitX(),
-                      R"doc(
+    m.def( "add_engine_model",
+           &tss::addEngineModel,
+           py::arg( "body_name" ),
+           py::arg( "engine_name" ),
+           py::arg( "thrust_magnitude_settings" ),
+           py::arg( "bodies" ),
+           py::arg( "body_fixed_thrust_direction" ) = Eigen::Vector3d::UnitX( ),
+           R"doc(
 
 Function that creates an engine model (to be used for thrust calculations), and adds it to an existing body.
 
@@ -877,14 +862,16 @@ body_fixed_thrust_direction : numpy.ndarray[numpy.float64[3, 1]], default = [1,0
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("add_variable_direction_engine_model",
-                      &tss::addVariableDirectionEngineModel,
-                      py::arg("body_name"), py::arg("engine_name"),
-                      py::arg("thrust_magnitude_settings"), py::arg("bodies"),
-                      py::arg("body_fixed_thrust_direction_function"),
-                      R"doc(
+    m.def( "add_variable_direction_engine_model",
+           &tss::addVariableDirectionEngineModel,
+           py::arg( "body_name" ),
+           py::arg( "engine_name" ),
+           py::arg( "thrust_magnitude_settings" ),
+           py::arg( "bodies" ),
+           py::arg( "body_fixed_thrust_direction_function" ),
+           R"doc(
 
 Function that creates an engine model (to be used for thrust calculations), and adds it to an existing body.
 
@@ -908,12 +895,14 @@ body_fixed_thrust_direction_function : Callable[[float], numpy.ndarray[numpy.flo
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("add_flight_conditions", &tss::addFlightConditions,
-                      py::arg("bodies"), py::arg("body_name"),
-                      py::arg("central_body_name"),
-                      R"doc(
+    m.def( "add_flight_conditions",
+           &tss::addFlightConditions,
+           py::arg( "bodies" ),
+           py::arg( "body_name" ),
+           py::arg( "central_body_name" ),
+           R"doc(
 
 Function that creates a flight conditions, and adds it to an existing body.
 
@@ -940,135 +929,117 @@ central_body_name : str
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("convert_ground_station_state_between_itrf_frames",
-                      &trf::convertGroundStationStateBetweenItrfFrames,
-                      py::arg("ground_station_state"), py::arg("epoch"),
-                      py::arg("base_frame"), py::arg("target_frame"),
-                      R"doc(No documentation found.)doc");
+    m.def( "convert_ground_station_state_between_itrf_frames",
+           &trf::convertGroundStationStateBetweenItrfFrames,
+           py::arg( "ground_station_state" ),
+           py::arg( "epoch" ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           R"doc(No documentation found.)doc" );
 
-                m.def(
-                    "add_ground_station",
-                    py::overload_cast<
-                        const std::shared_ptr<tss::Body>, const std::string,
-                        const Eigen::Vector3d, const tcc::PositionElementTypes,
-                        const std::vector<
-                            std::shared_ptr<tss::GroundStationMotionSettings>>>(
-                        &tss::createGroundStation),
-                    py::arg("body"), py::arg("ground_station_name"),
-                    py::arg("ground_station_position"),
-                    py::arg("position_type") = tcc::cartesian_position,
-                    py::arg("station_motion_settings") = std::vector<
-                        std::shared_ptr<tss::GroundStationMotionSettings>>());
+    m.def( "add_ground_station",
+           py::overload_cast< const std::shared_ptr< tss::Body >,
+                              const std::string,
+                              const Eigen::Vector3d,
+                              const tcc::PositionElementTypes,
+                              const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > > >( &tss::createGroundStation ),
+           py::arg( "body" ),
+           py::arg( "ground_station_name" ),
+           py::arg( "ground_station_position" ),
+           py::arg( "position_type" ) = tcc::cartesian_position,
+           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ) );
 
-                m.def("add_ground_station",
-                      py::overload_cast<
-                          const std::shared_ptr<tss::Body>,
-                          const std::shared_ptr<tss::GroundStationSettings>>(
-                          &tss::createGroundStation),
-                      py::arg("body"), py::arg("ground_station_settings"),
-                      R"doc(No documentation found.)doc");
+    m.def( "add_ground_station",
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::shared_ptr< tss::GroundStationSettings > >(
+                   &tss::createGroundStation ),
+           py::arg( "body" ),
+           py::arg( "ground_station_settings" ),
+           R"doc(No documentation found.)doc" );
 
-                m.def("create_radiation_pressure_interface",
-                      &tss::createRadiationPressureInterface,
-                      py::arg("radiationPressureInterfaceSettings"),
-                      py::arg("body_name"), py::arg("body_dict"));
+    m.def( "create_radiation_pressure_interface",
+           &tss::createRadiationPressureInterface,
+           py::arg( "radiationPressureInterfaceSettings" ),
+           py::arg( "body_name" ),
+           py::arg( "body_dict" ) );
 
-                m.def("get_ground_station_list",
-                      &tss::getGroundStationsLinkEndList, py::arg("body"));
+    m.def( "get_ground_station_list", &tss::getGroundStationsLinkEndList, py::arg( "body" ) );
 
-                //        m.def("get_target_elevation_angles",
-                //              &tss::getTargetElevationAngles,
-                //              py::arg( "observing_body" ),
-                //              py::arg( "target_body" ),
-                //              py::arg( "station_name" ),
-                //              py::arg( "times" ) );
+    //        m.def("get_target_elevation_angles",
+    //              &tss::getTargetElevationAngles,
+    //              py::arg( "observing_body" ),
+    //              py::arg( "target_body" ),
+    //              py::arg( "station_name" ),
+    //              py::arg( "times" ) );
 
+    auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
+    aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
 
-                auto aerodynamic_coefficient_setup =
-                    m.def_submodule("aerodynamic_coefficients");
-                aerodynamic_coefficients::expose_aerodynamic_coefficient_setup(
-                    aerodynamic_coefficient_setup);
+    auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
+    radiation_pressure::expose_radiation_pressure_setup( radiation_pressure_setup );
 
-                auto radiation_pressure_setup =
-                    m.def_submodule("radiation_pressure");
-                radiation_pressure::expose_radiation_pressure_setup(
-                    radiation_pressure_setup);
+    auto rotation_model_setup = m.def_submodule( "rotation_model" );
+    rotation_model::expose_rotation_model_setup( rotation_model_setup );
 
-                auto rotation_model_setup = m.def_submodule("rotation_model");
-                rotation_model::expose_rotation_model_setup(
-                    rotation_model_setup);
+    auto gravity_field_setup = m.def_submodule( "gravity_field" );
+    gravity_field::expose_gravity_field_setup( gravity_field_setup );
 
-                auto gravity_field_setup = m.def_submodule("gravity_field");
-                gravity_field::expose_gravity_field_setup(gravity_field_setup);
+    auto ephemeris_setup = m.def_submodule( "ephemeris" );
+    ephemeris::expose_ephemeris_setup( ephemeris_setup );
 
-                auto ephemeris_setup = m.def_submodule("ephemeris");
-                ephemeris::expose_ephemeris_setup(ephemeris_setup);
+    auto atmosphere_setup = m.def_submodule( "atmosphere" );
+    atmosphere::expose_atmosphere_setup( atmosphere_setup );
 
-                auto atmosphere_setup = m.def_submodule("atmosphere");
-                atmosphere::expose_atmosphere_setup(atmosphere_setup);
+    auto shape_setup = m.def_submodule( "shape" );
+    shape::expose_shape_setup( shape_setup );
 
-                auto shape_setup = m.def_submodule("shape");
-                shape::expose_shape_setup(shape_setup);
+    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
+    gravity_field_variation::expose_gravity_field_variation_setup( gravity_variation_setup );
 
-                auto gravity_variation_setup =
-                    m.def_submodule("gravity_field_variation");
-                gravity_field_variation::expose_gravity_field_variation_setup(
-                    gravity_variation_setup);
+    auto shape_deformation_setup = m.def_submodule( "shape_deformation" );
+    shape_deformation::expose_shape_deformation_setup( shape_deformation_setup );
 
-                auto shape_deformation_setup =
-                    m.def_submodule("shape_deformation");
-                shape_deformation::expose_shape_deformation_setup(
-                    shape_deformation_setup);
+    auto ground_station_setup = m.def_submodule( "ground_station" );
+    ground_station::expose_ground_station_setup( ground_station_setup );
 
-                auto ground_station_setup = m.def_submodule("ground_station");
-                ground_station::expose_ground_station_setup(
-                    ground_station_setup);
+    auto rigid_body_setup = m.def_submodule( "rigid_body" );
+    rigid_body::expose_rigid_body_setup( rigid_body_setup );
 
-                auto rigid_body_setup = m.def_submodule("rigid_body");
-                rigid_body::expose_rigid_body_setup(rigid_body_setup);
+    auto vehicle_systems_setup = m.def_submodule( "vehicle_systems" );
+    vehicle_systems::expose_vehicle_systems_setup( vehicle_systems_setup );
 
-                auto vehicle_systems_setup = m.def_submodule("vehicle_systems");
-                vehicle_systems::expose_vehicle_systems_setup(
-                    vehicle_systems_setup);
+    //        auto system_model_setup =
+    //        m.def_submodule("system_models");
+    //        gravity_field_variation::expose_system_model_setup(system_model_setup);
 
+    // Function removed; error is shown
+    m.def( "set_aerodynamic_guidance",
+           py::overload_cast< const std::shared_ptr< ta::AerodynamicGuidance >, const std::shared_ptr< tss::Body >, const bool >(
+                   &tss::setGuidanceAnglesFunctions ),
+           py::arg( "aerodynamic_guidance" ),
+           py::arg( "body" ),
+           py::arg( "silence_warnings" ) = false );
 
-                //        auto system_model_setup =
-                //        m.def_submodule("system_models");
-                //        gravity_field_variation::expose_system_model_setup(system_model_setup);
+    // Function removed; error is shown
+    m.def( "set_aerodynamic_orientation_functions",
+           &tss::setAerodynamicOrientationFunctions,
+           py::arg( "body" ),
+           py::arg( "angle_of_attack_function" ) = std::function< double( ) >( ),
+           py::arg( "sideslip_angle_function" ) = std::function< double( ) >( ),
+           py::arg( "bank_angle_function" ) = std::function< double( ) >( ),
+           py::arg( "update_function" ) = std::function< void( const double ) >( ) );
 
+    // Function removed; error is shown
+    m.def( "set_constant_aerodynamic_orientation",
+           &tss::setConstantAerodynamicOrientation,
+           py::arg( "body" ),
+           py::arg( "angle_of_attack" ),
+           py::arg( "sideslip_angle" ),
+           py::arg( "bank_angle" ),
+           py::arg( "silence_warnings" ) = false );
+}
 
-                // Function removed; error is shown
-                m.def("set_aerodynamic_guidance",
-                      py::overload_cast<
-                          const std::shared_ptr<ta::AerodynamicGuidance>,
-                          const std::shared_ptr<tss::Body>, const bool>(
-                          &tss::setGuidanceAnglesFunctions),
-                      py::arg("aerodynamic_guidance"), py::arg("body"),
-                      py::arg("silence_warnings") = false);
-
-                // Function removed; error is shown
-                m.def(
-                    "set_aerodynamic_orientation_functions",
-                    &tss::setAerodynamicOrientationFunctions, py::arg("body"),
-                    py::arg("angle_of_attack_function") =
-                        std::function<double()>(),
-                    py::arg("sideslip_angle_function") =
-                        std::function<double()>(),
-                    py::arg("bank_angle_function") = std::function<double()>(),
-                    py::arg("update_function") =
-                        std::function<void(const double)>());
-
-                // Function removed; error is shown
-                m.def("set_constant_aerodynamic_orientation",
-                      &tss::setConstantAerodynamicOrientation, py::arg("body"),
-                      py::arg("angle_of_attack"), py::arg("sideslip_angle"),
-                      py::arg("bank_angle"),
-                      py::arg("silence_warnings") = false);
-            }
-
-
-        }  // namespace environment_setup
-    }  // namespace numerical_simulation
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy

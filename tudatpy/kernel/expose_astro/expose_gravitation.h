@@ -15,15 +15,18 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
-    namespace astro {
-        namespace gravitation {
+namespace astro
+{
+namespace gravitation
+{
 
-            void expose_gravitation(py::module &m);
+void expose_gravitation( py::module &m );
 
-        }  // namespace gravitation
-    }      // namespace astro
+}  // namespace gravitation
+}  // namespace astro
 }  // namespace tudatpy
 
 #endif  // TUDATPY_EXPOSE_GRAVITATION_H

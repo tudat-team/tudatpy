@@ -10,14 +10,15 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
-    namespace data {
+namespace data
+{
 
-        void expose_data(py::module &m);
+void expose_data( py::module &m );
 
-    }
+}
 }  // namespace tudatpy
-
 
 #endif  // TUDATPY_EXPOSE_IO_H

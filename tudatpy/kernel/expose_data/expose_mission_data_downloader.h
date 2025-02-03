@@ -15,14 +15,17 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace data {
-        namespace mission_data_downloader {
+namespace tudatpy
+{
+namespace data
+{
+namespace mission_data_downloader
+{
 
-            void expose_mission_data_downloader(py::module &m);
+void expose_mission_data_downloader( py::module &m );
 
-        }
-    }  // namespace data
+}
+}  // namespace data
 }  // namespace tudatpy
 
 #endif  // TUDATPY_EXPOSE_MISSION_DATA_DOWNLOADER_H
