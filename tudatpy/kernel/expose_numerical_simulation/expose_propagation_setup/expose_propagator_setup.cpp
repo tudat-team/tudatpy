@@ -91,7 +91,7 @@ void expose_propagator_setup( py::module &m )
         Boolean defining whether the meaning and indices of the
         entries of the processed state vector are to be printed to
         the console (after the propagation). The distinction between the
-        propagated and processed (or conventuional) state representation is described in
+        propagated and processed (or conventional) state representation is described in
         detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`_.
         Summarizing: the processed state is the 'typical' formulation of the state (for translational dynamics: Cartesian states).
 
@@ -142,7 +142,7 @@ void expose_propagator_setup( py::module &m )
                            R"doc(
 
         Boolean defining whether the initial and final conditions (state and time)
-        are to be printed to the console (beforee and after propagation, respectively).
+        are to be printed to the console (before and after propagation, respectively).
 
 
         :type: bool
@@ -426,8 +426,8 @@ void expose_propagator_setup( py::module &m )
         derived from :class:`PropagatorProcessingSettings`.
         Instances of this class are typically not created by the user. A settings object is
         instantiated through the function :func:`~hybrid_arc` to define hybrid-arc propagator settings.
-        This object contains a :class:`SingleArcPropagatorProcessingSettings` object and a :class:`MultuArcPropagatorProcessingSettings` ,
-        containing the processing settings for the constituents of the hybrid-arc propagatioon.
+        This object contains a :class:`SingleArcPropagatorProcessingSettings` object and a :class:`MultiArcPropagatorProcessingSettings` ,
+        containing the processing settings for the constituents of the hybrid-arc propagation.
 
 
 
@@ -1058,7 +1058,7 @@ defined by accelerations (as is the case for translational state) or torques (as
 additional flexibility to define their own model by adding (for instance) the integration of co-states to the propagation without having to
 implement the governing dynamics into Tudat. This propagator requires a function of the form :math:`\frac{d\mathbf{x}}{dt}=\mathbf{f}(t,\mathbf{x})`,
 with :math:`t` the current time, :math:`\mathbf{x}` the current state, and :math:`\mathbf{f}` the state derivative function. This function can
-depend on any quantites of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`_.
+depend on any quantities of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`_.
 
 Parameters
 ----------

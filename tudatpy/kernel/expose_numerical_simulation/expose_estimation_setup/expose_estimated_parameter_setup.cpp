@@ -134,7 +134,7 @@ void expose_estimated_parameter_setup( py::module& m )
         Base class to defining settings of parameter to be estimated.
 
         Functional (base) class for settings of model parameter to be estimated.
-        Settings of simple parameters types are managed via this class, more complex parameter types are handled by specialised derivates of this class.
+        Settings of simple parameters types are managed via this class, more complex parameter types are handled by specialised derivatives of this class.
         Instances of either base or derived class can be created via dedicated functions.
 
 
@@ -635,7 +635,7 @@ Returns
 
 Function for defining parameter settings for the cosine coefficients of body's spherical harmonics gravitational model.
 
-Function for creating a (linear sensitivity) parameter settings object for the spherical harmonics cosine-coefficients (:math:`\bar{C}_{lm}`) of a hody with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/0, and maximum degree/order 4/4, all spherical harmonic cosine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 0, 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
+Function for creating a (linear sensitivity) parameter settings object for the spherical harmonics cosine-coefficients (:math:`\bar{C}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/0, and maximum degree/order 4/4, all spherical harmonic cosine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 0, 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
 Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
@@ -714,7 +714,7 @@ Returns
 
 Function for defining parameter settings for the sine coefficients of body's spherical harmonics gravitational model.
 
-Function for creating a (linear sensitivity) parameter settings object for the spherical harmonics sine-coefficients (:math:`\bar{S}_{lm}`) of a hody with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/1 (there is no order 0 sine coefficient), and maximum degree/order 4/4, all spherical harmonic sine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
+Function for creating a (linear sensitivity) parameter settings object for the spherical harmonics sine-coefficients (:math:`\bar{S}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/1 (there is no order 0 sine coefficient), and maximum degree/order 4/4, all spherical harmonic sine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
 Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
 * A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
