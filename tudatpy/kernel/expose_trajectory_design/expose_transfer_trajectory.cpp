@@ -391,15 +391,15 @@ arrival_orbit : tuple[float, float], default=(TUDAT_NAN, TUDAT_NAN)
     node as a swingby node (instead of a capture node).
 
 lower_bound_free_coefficient : float, default=TUDAT_NAN
-    Lower bound of the possible values for the free coeficient. Parameter is potentially used by the root finder:
+    Lower bound of the possible values for the free coefficient. Parameter is potentially used by the root finder:
     it must be specified if the selected root finder requires the definition of a lower bound.
 
 upper_bound_free_coefficient : float, default=TUDAT_NAN
-    Upper bound of the possible values for the free coeficient. Parameter is potentially used by the root finder:
+    Upper bound of the possible values for the free coefficient. Parameter is potentially used by the root finder:
     it must be specified if the selected root finder requires the definition of an upper bound.
 
 initial_value_free_coefficient : float, default=TUDAT_NAN
-    Initial guess for the free coeficient. Parameter is potentially used by the root finder:
+    Initial guess for the free coefficient. Parameter is potentially used by the root finder:
     it must be specified if the selected root finder requires the definition of an initial guess.
 
 minimum_pericenters : dict[str, float], default=DEFAULT_MINIMUM_PERICENTERS
@@ -916,15 +916,15 @@ root_finder_settings : RootFinderSettings
     that allows meeting the desired time of flight.
 
 lower_bound_free_coefficient : float, default=TUDAT_NAN
-    Lower bound of the possible values for the free coeficient. Parameter is potentially used by the root finder:
+    Lower bound of the possible values for the free coefficient. Parameter is potentially used by the root finder:
     it must be specified if the selected root finder requires the definition of a lower bound.
 
 upper_bound_free_coefficient : float, default=TUDAT_NAN
-    Upper bound of the possible values for the free coeficient. Parameter is potentially used by the root finder:
+    Upper bound of the possible values for the free coefficient. Parameter is potentially used by the root finder:
     it must be specified if the selected root finder requires the definition of an upper bound.
 
 initial_value_free_coefficient : float, default=TUDAT_NAN
-    Initial guess for the free coeficient. Parameter is potentially used by the root finder:
+    Initial guess for the free coefficient. Parameter is potentially used by the root finder:
     it must be specified if the selected root finder requires the definition of an initial guess.
 
 time_to_azimuth_interpolator_step_size : float, default=physical_constants::JULIAN_DAY

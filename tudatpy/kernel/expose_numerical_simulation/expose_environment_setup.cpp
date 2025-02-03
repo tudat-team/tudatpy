@@ -423,7 +423,7 @@ base_frame_orientation : str, default = 'ECLIPJ2000'
 Returns
 -------
 BodySettings
-    Object containing the settings for the bodt that is to be created
+    Object containing the settings for the body that is to be created
 
 
 
@@ -462,7 +462,7 @@ time_step : float, default = 300.0
 Returns
 -------
 BodySettings
-    Object containing the settings for the bodt that is to be created
+    Object containing the settings for the body that is to be created
 
 
 
@@ -498,7 +498,7 @@ base_frame_orientation : str, default = 'ECLIPJ2000'
 Returns
 -------
 BodySettings
-    Object containing the settings for the bodt that is to be created
+    Object containing the settings for the body that is to be created
 
 
 
@@ -543,7 +543,7 @@ time_step : float, default = 300.0
 Returns
 -------
 BodySettings
-    Object containing the settings for the bodt that is to be created
+    Object containing the settings for the body that is to be created
 
 
 
@@ -907,11 +907,11 @@ body_fixed_thrust_direction_function : Callable[[float], numpy.ndarray[numpy.flo
 Function that creates a flight conditions, and adds it to an existing body.
 
 This function can be used to add  a :class:`~tudatpy.numerical_simulation.environment.FlightConditions` object to an existing body.
-Typically, the ``FlightConditions`` are created automatically when they are required (for the calulcation of an
+Typically, the ``FlightConditions`` are created automatically when they are required (for the calculation of an
 aerodynamic acceleration, or the saving of certain dependent variables). However, in some cases it may be useful
 to manually trigger their creation, which is done through this function. If the ``central_body_name`` input
 denotes a body that is endowed with an :class:`~tudatpy.numerical_simulation.environment.AtmosphereModel`, this function
-automically creates an :class:`~tudatpy.numerical_simulation.environment.AtmosphericFlightConditions` object (capable of
+automatically creates an :class:`~tudatpy.numerical_simulation.environment.AtmosphericFlightConditions` object (capable of
 calculating density, speed of sound, etc.), instead of the more basic :class:`~tudatpy.numerical_simulation.environment.FlightConditions`
 (which is limited to properties such as altitude, latitude, etc.)
 
@@ -923,7 +923,7 @@ bodies : SystemOfBodies
 body_name : str
     Name of the body for which the flight conditions are to be created
 central_body_name : str
-    Name of the cenral body w.r.t. which the flight conditions are to be created (typically, but not necesarilly, the central body of propagation)/
+    Name of the central body w.r.t. which the flight conditions are to be created (typically, but not necessarily, the central body of propagation)/
 
 
 

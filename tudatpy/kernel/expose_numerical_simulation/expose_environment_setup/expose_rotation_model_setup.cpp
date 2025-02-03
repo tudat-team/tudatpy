@@ -173,7 +173,7 @@ Rotation about the body-fixed z-axis is defined by the ``rotation_rate`` (:math:
 .. math::
    \mathbf{R}^{(B/I)}(t)=\mathbf{R}_{z}(\omega(t-t_{0}))(t_{0})\mathbf{R}^{(B/I)}(t_{0})
 
-where :math:`\mathbf{R}^{(B/I)}` denotes the rotation matrix from inertial to body-fixed frame, and :math:`\mathbf{R}_{z}` denotes a rotaion matrix about the z-axis.
+where :math:`\mathbf{R}^{(B/I)}` denotes the rotation matrix from inertial to body-fixed frame, and :math:`\mathbf{R}_{z}` denotes a rotation matrix about the z-axis.
 
 The matrix :math:`\mathbf{R}^{(B/I)}(t_{0})` is sometimes parameterized by pole right ascension and declination (:math:`\alpha` and :math:`\delta`), as well as the meridian of date :math:`W_{0}` with
 
@@ -416,14 +416,14 @@ Depending on the selected ``precession_nutation_theory`` input, the SOFA functio
 :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.IAUConventions` ``iau_2000a``, ``iau_2000b`` or ``iau_2006``, respectively. Corrections to the nominal values of :math:`X,Y`
 are applied using linear interpolation of daily corrections for :math:`X,Y` from the eopc04_14_IAU2000.62-now.txt file. The quantity :math:`s'` is computed from Eq. (5.13) (implemented in SOFA's ``iauSp00`` function).
 
-The value of :math:`\theta_{E}` is computed directtly from UTC-UT1, which is computed using settings given in :func:`~tudatpy.astro.time_conversions.default_time_scale_converter`, the computation of
+The value of :math:`\theta_{E}` is computed directly from UTC-UT1, which is computed using settings given in :func:`~tudatpy.astro.time_conversions.default_time_scale_converter`, the computation of
 :math:`theta_{E}` from this quantity follows from Eq. (5.15), implemented by SOFA's ``iauEra00`` function.
 
 The polar motion components :math:`x_{p}`, :math:`y_{p}` are computed from:
 
 * Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1a (with :math:`n=2`) of IERS Conventions 2010
 * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.1a and 8.1b of the IERS Conventions 2010
-* Linear interpolation (correcting for discontunities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
+* Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
 
 Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
 The target frame (e.g. body-fixed frame) name is ITRS.
@@ -700,8 +700,8 @@ Function for creating rotation model settings based on custom definition of rota
 
 Function for creating rotation model settings based on custom definition of rotation matrix. The user provides a custom function that computes the rotation matrix
 from body-fixed to inertial frame as a function of time. This function can
-depend on any quantites of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`_.
-Since this function only computes the rotation matrix directly, the rotation matrix time derivative (and consequently, the angular velocity) are computed nunerically, using a second
+depend on any quantities of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`_.
+Since this function only computes the rotation matrix directly, the rotation matrix time derivative (and consequently, the angular velocity) are computed numerically, using a second
 order finite-difference method. Note that this computation of time derivative will only take into account the explicit time-dependence of thh custom rotation matrix.
 
 Parameters
