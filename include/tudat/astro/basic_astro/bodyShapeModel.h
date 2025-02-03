@@ -15,8 +15,8 @@
 #ifndef TUDAT_BODYSHAPEMODEL_H
 #define TUDAT_BODYSHAPEMODEL_H
 
-#include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <Eigen/Core>
 
 #include <functional>
 #include <memory>
