@@ -37,7 +37,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
         for( unsigned int i = 0; i < updateIterator->second.size( ); i++ )
         {
             // Ignore global required updates.
-            if( updateIterator->second.at( i ) != "" )
+                    if( updateIterator->second.at( i ) != "" )
             {
                 // Check if body exists.
                 if( bodies.count( updateIterator->second.at( i ) ) == 0 )
