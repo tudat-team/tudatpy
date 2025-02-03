@@ -32,12 +32,11 @@ namespace simulation_setup
  *  (not currently used by this function, but included for consistency).
  *  \return Default settings for a body's atmosphere model.
  */
-std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
-        const std::string& bodyName,
-        const double initialTime,
-        const double finalTime );
+std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings( const std::string& bodyName,
+                                                                         const double initialTime,
+                                                                         const double finalTime );
 
-std::shared_ptr<RadiationSourceModelSettings> getKnockeEarthRadiationPressureSettings( );
+std::shared_ptr< RadiationSourceModelSettings > getKnockeEarthRadiationPressureSettings( );
 
 //! Function to create default settings for a body's radiation source model.
 /*!
@@ -50,10 +49,9 @@ std::shared_ptr<RadiationSourceModelSettings> getKnockeEarthRadiationPressureSet
  *  (not currently used by this function, but included for consistency).
  *  \return Default settings for a body's radiation source model.
  */
-std::shared_ptr< RadiationSourceModelSettings > getDefaultRadiationSourceModelSettings(
-        const std::string& bodyName,
-        const double initialTime,
-        const double finalTime );
+std::shared_ptr< RadiationSourceModelSettings > getDefaultRadiationSourceModelSettings( const std::string& bodyName,
+                                                                                        const double initialTime,
+                                                                                        const double finalTime );
 
 //! Function to create default settings for a body's ephemeris.
 /*!
@@ -61,10 +59,9 @@ std::shared_ptr< RadiationSourceModelSettings > getDefaultRadiationSourceModelSe
  *  \param bodyName Name of body for which default ephemeris settings are to be retrieved.
  *  \return Default settings for a body's ephemeris.
  */
-std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
-        const std::string& bodyName,
-        const std::string& baseFrameOrientation = "ECLIPJ2000",
-        const std::string& originatingNameBodyName = "" );
+std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings( const std::string& bodyName,
+                                                                  const std::string& baseFrameOrientation = "ECLIPJ2000",
+                                                                  const std::string& originatingNameBodyName = "" );
 
 //! Function to create default settings for a body's ephemeris.
 /*!
@@ -76,13 +73,12 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
  *  \param timeStep Time step with which interpolated data from Spice should be created.
  *  \return Default settings for a body's ephemeris.
  */
-std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
-        const std::string& bodyName,
-        const double initialTime,
-        const double finalTime,
-        const std::string& baseFrameOrientation = "ECLIPJ2000",
-        const std::string& originatingNameBodyName = "",
-        const double timeStep = 300.0 );
+std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings( const std::string& bodyName,
+                                                                  const double initialTime,
+                                                                  const double finalTime,
+                                                                  const std::string& baseFrameOrientation = "ECLIPJ2000",
+                                                                  const std::string& originatingNameBodyName = "",
+                                                                  const double timeStep = 300.0 );
 
 //! Function to create default settings for a body's gravity field model.
 /*!
@@ -95,10 +91,9 @@ std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
  *  (not currently used by this function, but included for consistency).
  *  \return Default settings for a body's gravity field model.
  */
-std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
-        const std::string& bodyName,
-        const double initialTime,
-        const double finalTime );
+std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings( const std::string& bodyName,
+                                                                        const double initialTime,
+                                                                        const double finalTime );
 
 //! Function to create default settings for a body's rotation model.
 /*!
@@ -111,18 +106,16 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
  *  (not currently used by this function, but included for consistency).
  *  \return Default settings for a body's rotation model.
  */
-std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
-        const std::string& bodyName,
-        const double initialTime,
-        const double finalTime,
-        const std::string& baseFrameOrientation = "ECLIPJ2000",
-        const std::string& spiceBodyName = "" );
+std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings( const std::string& bodyName,
+                                                                          const double initialTime,
+                                                                          const double finalTime,
+                                                                          const std::string& baseFrameOrientation = "ECLIPJ2000",
+                                                                          const std::string& spiceBodyName = "" );
 
 double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ2000 );
 
-std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
-    const std::string& baseFrameOrientation = "ECLIPJ2000",
-    const std::string& targetFrameOrientation = "Mars_Fixed" );
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( const std::string& baseFrameOrientation = "ECLIPJ2000",
+                                                                           const std::string& targetFrameOrientation = "Mars_Fixed" );
 
 //! Function to create default settings for a body's shape model.
 /*!
@@ -134,10 +127,9 @@ std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
  *  \param finalTime End time up to which environment models in body are to be created
  *  (not currently used by this function, but included for consistency).
  */
-std::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
-        const std::string& bodyName,
-        const double initialTime,
-        const double finalTime );
+std::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings( const std::string& bodyName,
+                                                                  const double initialTime,
+                                                                  const double finalTime );
 
 //! Function to create default settings for a single for body.
 /*!
@@ -154,29 +146,25 @@ std::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
  *  a certain time period).
  *  \param timeStep Time step with which interpolated data from Spice should be created.
  */
-std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
-        const std::string& body,
-        const double initialTime,
-        const double finalTime,
-        const std::string& baseFrameOrientation = "ECLIPJ2000",
-        const double timeStep = 300.0 );
+std::shared_ptr< BodySettings > getDefaultSingleBodySettings( const std::string& body,
+                                                              const double initialTime,
+                                                              const double finalTime,
+                                                              const std::string& baseFrameOrientation = "ECLIPJ2000",
+                                                              const double timeStep = 300.0 );
 
-std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings(
-    const std::string& body,
-    const std::string& originatingName,
-    const double initialTime,
-    const double finalTime,
-    const std::string& baseFrameOrientation = "ECLIPJ2000",
-    const double timeStep = 300.0 );
+std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings( const std::string& body,
+                                                                           const std::string& originatingName,
+                                                                           const double initialTime,
+                                                                           const double finalTime,
+                                                                           const std::string& baseFrameOrientation = "ECLIPJ2000",
+                                                                           const double timeStep = 300.0 );
 
-std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
-        const std::string& bodyName,
-        const std::string& baseFrameOrientation = "ECLIPJ2000" );
+std::shared_ptr< BodySettings > getDefaultSingleBodySettings( const std::string& bodyName,
+                                                              const std::string& baseFrameOrientation = "ECLIPJ2000" );
 
-std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings(
-    const std::string& bodyName,
-    const std::string& originatingName,
-    const std::string& baseFrameOrientation = "ECLIPJ2000" );
+std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings( const std::string& bodyName,
+                                                                           const std::string& originatingName,
+                                                                           const std::string& baseFrameOrientation = "ECLIPJ2000" );
 
 //! Function to create default settings from which to create a set of body objects.
 /*!
@@ -194,13 +182,12 @@ std::shared_ptr< BodySettings > getDefaultSingleAlternateNameBodySettings(
  *  \param timeStep Time step with which interpolated data from Spice should be created.
  *  \return Default settings from which to create a set of body objects.
  */
-BodyListSettings getDefaultBodySettings(
-        const std::vector< std::string >& bodies,
-        const double initialTime,
-        const double finalTime,
-        const std::string baseFrameOrigin = "SSB",
-        const std::string baseFrameOrientation = "ECLIPJ2000",
-        const double timeStep = 300.0 );
+BodyListSettings getDefaultBodySettings( const std::vector< std::string >& bodies,
+                                         const double initialTime,
+                                         const double finalTime,
+                                         const std::string baseFrameOrigin = "SSB",
+                                         const std::string baseFrameOrientation = "ECLIPJ2000",
+                                         const double timeStep = 300.0 );
 
 //! Function to create default settings from which to create a set of body objects, without stringent limitations on
 //! time-interval of validity of environment.
@@ -212,10 +199,9 @@ BodyListSettings getDefaultBodySettings(
  *  \param bodies List of bodies for which default settings are to be retrieved.
  *  \return Default settings from which to create a set of body objects.
  */
-BodyListSettings getDefaultBodySettings(
-        const std::vector< std::string >& bodies,
-        const std::string baseFrameOrigin = "SSB",
-        const std::string baseFrameOrientation = "ECLIPJ2000" );
+BodyListSettings getDefaultBodySettings( const std::vector< std::string >& bodies,
+                                         const std::string baseFrameOrigin = "SSB",
+                                         const std::string baseFrameOrientation = "ECLIPJ2000" );
 
 /*!
  * Returns a map with the approximate positions of the DSN ground stations, having as key the ground station names. The
@@ -227,7 +213,7 @@ BodyListSettings getDefaultBodySettings(
  */
 std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions( );
 
-std::map<std::string, Eigen::Vector3d> getCombinedApproximateGroundStationPositions( );
+std::map< std::string, Eigen::Vector3d > getCombinedApproximateGroundStationPositions( );
 
 /*!
  * Returns the default DSN station names per DSN station complex id. Stations are named as "DSS-i", following the
@@ -242,8 +228,6 @@ inline std::map< int, std::vector< std::string > > getDefaultDsnStationNamesPerC
 
     return stationsPerComplex;
 }
-
-
 
 /*!
  * Returns the approximate position of the specified ground station. Currently only implemented for DSN stations.
@@ -270,9 +254,8 @@ std::vector< std::shared_ptr< GroundStationSettings > > getEvnStationSettings( )
 
 std::vector< std::shared_ptr< GroundStationSettings > > getRadioTelescopeStationSettings( );
 
+}  // namespace simulation_setup
 
-} // namespace simulation_setup
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_DEFAULTBODIES_H
+#endif  // TUDAT_DEFAULTBODIES_H

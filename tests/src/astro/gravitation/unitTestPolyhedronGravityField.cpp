@@ -37,9 +37,9 @@ BOOST_AUTO_TEST_CASE( testSettingAndGettingParameters )
     const double tolerance = 1.0E-14;
 
     // Define cuboid polyhedron dimensions
-    const double w = 10.0; // width
-    const double h = 10.0; // height
-    const double l = 20.0; // length
+    const double w = 10.0;  // width
+    const double h = 10.0;  // height
+    const double l = 20.0;  // length
 
     // Define parameters
     const double gravitationalConstant = 6.67259e-11;
@@ -48,48 +48,28 @@ BOOST_AUTO_TEST_CASE( testSettingAndGettingParameters )
     const double gravitationalParameter = gravitationalConstant * density * volume;
 
     // Define cuboid
-    Eigen::MatrixXd verticesCoordinates(8,3);
-    verticesCoordinates <<
-        0.0, 0.0, 0.0,
-        l, 0.0, 0.0,
-        0.0, w, 0.0,
-        l, w, 0.0,
-        0.0, 0.0, h,
-        l, 0.0, h,
-        0.0, w, h,
-        l, w, h;
-    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
-    verticesDefiningEachFacet <<
-        2, 1, 0,
-        1, 2, 3,
-        4, 2, 0,
-        2, 4, 6,
-        1, 4, 0,
-        4, 1, 5,
-        6, 5, 7,
-        5, 6, 4,
-        3, 6, 7,
-        6, 3, 2,
-        5, 3, 7,
-        3, 5, 1;
+    Eigen::MatrixXd verticesCoordinates( 8, 3 );
+    verticesCoordinates << 0.0, 0.0, 0.0, l, 0.0, 0.0, 0.0, w, 0.0, l, w, 0.0, 0.0, 0.0, h, l, 0.0, h, 0.0, w, h, l, w, h;
+    Eigen::MatrixXi verticesDefiningEachFacet( 12, 3 );
+    verticesDefiningEachFacet << 2, 1, 0, 1, 2, 3, 4, 2, 0, 2, 4, 6, 1, 4, 0, 4, 1, 5, 6, 5, 7, 5, 6, 4, 3, 6, 7, 6, 3, 2, 5, 3, 7, 3, 5, 1;
 
-    gravitation::PolyhedronGravityField gravityField = gravitation::PolyhedronGravityField(
-            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet);
+    gravitation::PolyhedronGravityField gravityField =
+            gravitation::PolyhedronGravityField( gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet );
 
     // Gravitational parameter
-    double retrievedGravitationalParameter = gravityField.getGravitationalParameter();
+    double retrievedGravitationalParameter = gravityField.getGravitationalParameter( );
     BOOST_CHECK_CLOSE_FRACTION( gravitationalParameter, retrievedGravitationalParameter, tolerance );
 
     // Volume
-    double retrievedVolume = gravityField.getVolume();
+    double retrievedVolume = gravityField.getVolume( );
     BOOST_CHECK_CLOSE_FRACTION( volume, retrievedVolume, tolerance );
 
     // Vertices coordinates
-    Eigen::MatrixXd retrievedVerticesCoordinates = gravityField.getVerticesCoordinates();
+    Eigen::MatrixXd retrievedVerticesCoordinates = gravityField.getVerticesCoordinates( );
     BOOST_CHECK_EQUAL( verticesCoordinates, retrievedVerticesCoordinates );
 
     // Vertices defining each facet
-    Eigen::MatrixXi retrievedVerticesDefiningEachFacet = gravityField.getVerticesDefiningEachFacet();
+    Eigen::MatrixXi retrievedVerticesDefiningEachFacet = gravityField.getVerticesDefiningEachFacet( );
     BOOST_CHECK_EQUAL( verticesDefiningEachFacet, retrievedVerticesDefiningEachFacet );
 }
 
@@ -99,9 +79,9 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
     const double tolerance = 1.0E-14;
 
     // Define cuboid polyhedron dimensions
-    const double w = 10.0; // width
-    const double h = 10.0; // height
-    const double l = 20.0; // length
+    const double w = 10.0;  // width
+    const double h = 10.0;  // height
+    const double l = 20.0;  // length
 
     // Define parameters
     const double gravitationalConstant = 6.67259e-11;
@@ -110,33 +90,13 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
     const double gravitationalParameter = gravitationalConstant * density * volume;
 
     // Define cuboid
-    Eigen::MatrixXd verticesCoordinates(8,3);
-    verticesCoordinates <<
-        0.0, 0.0, 0.0,
-        l, 0.0, 0.0,
-        0.0, w, 0.0,
-        l, w, 0.0,
-        0.0, 0.0, h,
-        l, 0.0, h,
-        0.0, w, h,
-        l, w, h;
-    Eigen::MatrixXi verticesDefiningEachFacet(12,3);
-    verticesDefiningEachFacet <<
-        2, 1, 0,
-        1, 2, 3,
-        4, 2, 0,
-        2, 4, 6,
-        1, 4, 0,
-        4, 1, 5,
-        6, 5, 7,
-        5, 6, 4,
-        3, 6, 7,
-        6, 3, 2,
-        5, 3, 7,
-        3, 5, 1;
+    Eigen::MatrixXd verticesCoordinates( 8, 3 );
+    verticesCoordinates << 0.0, 0.0, 0.0, l, 0.0, 0.0, 0.0, w, 0.0, l, w, 0.0, 0.0, 0.0, h, l, 0.0, h, 0.0, w, h, l, w, h;
+    Eigen::MatrixXi verticesDefiningEachFacet( 12, 3 );
+    verticesDefiningEachFacet << 2, 1, 0, 1, 2, 3, 4, 2, 0, 2, 4, 6, 1, 4, 0, 4, 1, 5, 6, 5, 7, 5, 6, 4, 3, 6, 7, 6, 3, 2, 5, 3, 7, 3, 5, 1;
 
-    gravitation::PolyhedronGravityField gravityField = gravitation::PolyhedronGravityField(
-            gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet);
+    gravitation::PolyhedronGravityField gravityField =
+            gravitation::PolyhedronGravityField( gravitationalParameter, verticesCoordinates, verticesDefiningEachFacet );
 
     // Compute potential, gradient, laplacian and hessian, and compare with results from D'Urso (2014)
 
@@ -146,7 +106,7 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
     double expectedLaplacian, computedLaplacian;
     Eigen::Matrix3d expectedHessian, computedHessian;
 
-    for (unsigned int positionId : {0,1,2,3,4,5})
+    for( unsigned int positionId: { 0, 1, 2, 3, 4, 5 } )
     {
         bool testPotential = true;
         bool testGradient = true;
@@ -155,53 +115,59 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
         bool outsideBody = false;
 
         // Select expected values
-        if ( positionId == 0 )
+        if( positionId == 0 )
         {
-            (bodyFixedPosition << 0.0, 0.0, 0.0).finished();
+            ( bodyFixedPosition << 0.0, 0.0, 0.0 ).finished( );
             expectedPotential = 3.19403761604211e-5;
-            (expectedGradient << 2.31329148957265e-6, 1.91973919943187e-6, 1.91973919943187e-6).finished();
-            expectedLaplacian = - 0.5 * mathematical_constants::PI * gravitationalConstant * density;
+            ( expectedGradient << 2.31329148957265e-6, 1.91973919943187e-6, 1.91973919943187e-6 ).finished( );
+            expectedLaplacian = -0.5 * mathematical_constants::PI * gravitationalConstant * density;
             testHessian = false;
         }
-        else if ( positionId == 1 )
+        else if( positionId == 1 )
         {
-            (bodyFixedPosition << 5.0, 0.0, 0.0).finished();
+            ( bodyFixedPosition << 5.0, 0.0, 0.0 ).finished( );
             expectedPotential = 3.99993558939122e-5;
-            (expectedGradient << 9.90115534890074e-7, 3.24128042248715e-6, 3.24128042248715e-6).finished();
-            expectedLaplacian = - 1.0 * mathematical_constants::PI * gravitationalConstant * density;
+            ( expectedGradient << 9.90115534890074e-7, 3.24128042248715e-6, 3.24128042248715e-6 ).finished( );
+            expectedLaplacian = -1.0 * mathematical_constants::PI * gravitationalConstant * density;
             testHessian = false;
         }
-        else if ( positionId == 2 )
+        else if( positionId == 2 )
         {
-            (bodyFixedPosition << 0.0, 3.0, 2.0).finished();
+            ( bodyFixedPosition << 0.0, 3.0, 2.0 ).finished( );
             expectedPotential = 4.03528375471853e-5;
-            (expectedGradient << 4.73368592565013e-6, 9.68164362892554e-7, 1.59674500375495e-6).finished();
-            expectedLaplacian = - 2.0 * mathematical_constants::PI * gravitationalConstant * density;
-            (expectedHessian <<
-                -4.02204713784183E-08, 1.87140408935899E-07, 3.51261972418670E-07,
-                1.87140408935899E-07, -5.01781942367494E-07, 8.58712984897779E-08,
-                3.51261972418670E-07, 8.58712984897779E-08, -5.77398275537941E-07).finished();
+            ( expectedGradient << 4.73368592565013e-6, 9.68164362892554e-7, 1.59674500375495e-6 ).finished( );
+            expectedLaplacian = -2.0 * mathematical_constants::PI * gravitationalConstant * density;
+            ( expectedHessian << -4.02204713784183E-08,
+              1.87140408935899E-07,
+              3.51261972418670E-07,
+              1.87140408935899E-07,
+              -5.01781942367494E-07,
+              8.58712984897779E-08,
+              3.51261972418670E-07,
+              8.58712984897779E-08,
+              -5.77398275537941E-07 )
+                    .finished( );
         }
-        else if ( positionId == 3 )
+        else if( positionId == 3 )
         {
-            (bodyFixedPosition << -5.0, 5.0, 5.0).finished();
+            ( bodyFixedPosition << -5.0, 5.0, 5.0 ).finished( );
             expectedLaplacian = 0.0;
             outsideBody = true;
             testPotential = false;
             testGradient = false;
             testHessian = false;
         }
-        else if ( positionId == 4 )
+        else if( positionId == 4 )
         {
-            (bodyFixedPosition << 10.0, 5.0, 5.0).finished();
-            expectedLaplacian = - 4.0 * mathematical_constants::PI * gravitationalConstant * density;
+            ( bodyFixedPosition << 10.0, 5.0, 5.0 ).finished( );
+            expectedLaplacian = -4.0 * mathematical_constants::PI * gravitationalConstant * density;
             testPotential = false;
             testGradient = false;
             testHessian = false;
         }
         else
         {
-            (bodyFixedPosition << 10.0, 5.0, 10.0 + 1e-10).finished();
+            ( bodyFixedPosition << 10.0, 5.0, 10.0 + 1e-10 ).finished( );
             outsideBody = true;
             expectedLaplacian = 0.0;
             testPotential = false;
@@ -210,25 +176,27 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
         }
 
         // Compute values and compare with expected ones
-        if ( testPotential )
+        if( testPotential )
         {
             computedPotential = gravityField.getGravitationalPotential( bodyFixedPosition );
-            //BOOST_CHECK_CLOSE_FRACTION( expectedPotential, computedPotential, tolerance );
-            BOOST_CHECK( std::fabs( expectedPotential - computedPotential ) < std::fabs( std::min( expectedPotential, computedPotential ) * tolerance ) );
+            // BOOST_CHECK_CLOSE_FRACTION( expectedPotential, computedPotential, tolerance );
+            BOOST_CHECK( std::fabs( expectedPotential - computedPotential ) <
+                         std::fabs( std::min( expectedPotential, computedPotential ) * tolerance ) );
         }
-        if ( testGradient )
+        if( testGradient )
         {
             computedGradient = gravityField.getGradientOfPotential( bodyFixedPosition );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedGradient, computedGradient, tolerance );
         }
-        if ( testLaplacian )
+        if( testLaplacian )
         {
             computedLaplacian = gravityField.getLaplacianOfPotential( bodyFixedPosition );
             // Expected value is 0 for point 3, so add a constant to the laplacian
 
-            std::cout<<positionId<<" "<<expectedLaplacian<<" "<<computedLaplacian<<" "<<expectedLaplacian - computedLaplacian<<" "<<std::fabs( computedLaplacian ) * 100.0 * tolerance <<std::endl;
+            std::cout << positionId << " " << expectedLaplacian << " " << computedLaplacian << " " << expectedLaplacian - computedLaplacian
+                      << " " << std::fabs( computedLaplacian ) * 100.0 * tolerance << std::endl;
 
-            //BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, computedLaplacian, tolerance );
+            // BOOST_CHECK_CLOSE_FRACTION( expectedLaplacian, computedLaplacian, tolerance );
             if( !outsideBody )
             {
                 BOOST_CHECK( std::fabs( expectedLaplacian - computedLaplacian ) < std::fabs( computedLaplacian ) * 100.0 * tolerance );
@@ -236,20 +204,17 @@ BOOST_AUTO_TEST_CASE( testGravityComputation )
             else
             {
                 BOOST_CHECK( std::fabs( computedLaplacian ) < 100.0 * tolerance );
-
             }
-
         }
-        if ( testHessian )
+        if( testHessian )
         {
             computedHessian = gravityField.getHessianOfPotential( bodyFixedPosition );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedHessian, computedHessian, tolerance );
         }
-
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace tudat
-} // namespace unit_tests
+}  // namespace unit_tests
+}  // namespace tudat

@@ -37,19 +37,16 @@ namespace solar_activity
 
 //! Default constructor.
 SolarActivityData::SolarActivityData( const int yearInput, const int monthInput, const int dayInput ):
-    year( yearInput ), month( monthInput ), day( dayInput ),
-    bartelsSolarRotationNumber( 0 ), dayOfBartelsCycle( 0 ), planetaryRangeIndexSum( 0 ),
-    planetaryEquivalentAmplitudeAverage( 0 ), planetaryDailyCharacterFigure( -0.0 ),
-    planetaryDailyCharacterFigureConverted( 0 ), internationalSunspotNumber( 0 ),
-    solarRadioFlux107Adjusted( -0.0 ), fluxQualifier( 0 ),
-    centered81DaySolarRadioFlux107Adjusted( -0.0 ), last81DaySolarRadioFlux107Adjusted ( -0.0 ),
-    solarRadioFlux107Observed( -0.0 ), centered81DaySolarRadioFlux107Observed( -0.0 ),
-    last81DaySolarRadioFlux107Observed ( -0.0 ), planetaryRangeIndexVector( Eigen::VectorXd::Zero( 8 ) ),
-    planetaryEquivalentAmplitudeVector( Eigen::VectorXd::Zero( 8 ) ), dataType( 0 ) { }
+    year( yearInput ), month( monthInput ), day( dayInput ), bartelsSolarRotationNumber( 0 ), dayOfBartelsCycle( 0 ),
+    planetaryRangeIndexSum( 0 ), planetaryEquivalentAmplitudeAverage( 0 ), planetaryDailyCharacterFigure( -0.0 ),
+    planetaryDailyCharacterFigureConverted( 0 ), internationalSunspotNumber( 0 ), solarRadioFlux107Adjusted( -0.0 ), fluxQualifier( 0 ),
+    centered81DaySolarRadioFlux107Adjusted( -0.0 ), last81DaySolarRadioFlux107Adjusted( -0.0 ), solarRadioFlux107Observed( -0.0 ),
+    centered81DaySolarRadioFlux107Observed( -0.0 ), last81DaySolarRadioFlux107Observed( -0.0 ),
+    planetaryRangeIndexVector( Eigen::VectorXd::Zero( 8 ) ), planetaryEquivalentAmplitudeVector( Eigen::VectorXd::Zero( 8 ) ), dataType( 0 )
+{ }
 
 //! Overload ostream to print class information.
-std::ostream& operator << ( std::ostream& stream,
-                          SolarActivityData& solarActivityData )
+std::ostream& operator<<( std::ostream& stream, SolarActivityData& solarActivityData )
 {
     stream << "This is a Solar Activity data object." << std::endl;
     stream << "The solar activity information is stored as: " << std::endl;
@@ -59,23 +56,23 @@ std::ostream& operator << ( std::ostream& stream,
     stream << "Day: " << solarActivityData.day << std::endl;
     stream << "BSRN: " << solarActivityData.bartelsSolarRotationNumber << std::endl;
     stream << "ND: " << solarActivityData.dayOfBartelsCycle << std::endl;
-    stream << "Kp (0000-0300 UT): " << solarActivityData.planetaryRangeIndexVector(0) << std::endl;
-    stream << "Kp (0300-0600 UT): " << solarActivityData.planetaryRangeIndexVector(1) << std::endl;
-    stream << "Kp (0600-0900 UT): " << solarActivityData.planetaryRangeIndexVector(2) << std::endl;
-    stream << "Kp (0900-1200 UT): " << solarActivityData.planetaryRangeIndexVector(3) << std::endl;
-    stream << "Kp (1200-1500 UT): " << solarActivityData.planetaryRangeIndexVector(4) << std::endl;
-    stream << "Kp (1500-1800 UT): " << solarActivityData.planetaryRangeIndexVector(5) << std::endl;
-    stream << "Kp (1800-2100 UT): " << solarActivityData.planetaryRangeIndexVector(6) << std::endl;
-    stream << "Kp (2100-0000 UT): " << solarActivityData.planetaryRangeIndexVector(7) << std::endl;
+    stream << "Kp (0000-0300 UT): " << solarActivityData.planetaryRangeIndexVector( 0 ) << std::endl;
+    stream << "Kp (0300-0600 UT): " << solarActivityData.planetaryRangeIndexVector( 1 ) << std::endl;
+    stream << "Kp (0600-0900 UT): " << solarActivityData.planetaryRangeIndexVector( 2 ) << std::endl;
+    stream << "Kp (0900-1200 UT): " << solarActivityData.planetaryRangeIndexVector( 3 ) << std::endl;
+    stream << "Kp (1200-1500 UT): " << solarActivityData.planetaryRangeIndexVector( 4 ) << std::endl;
+    stream << "Kp (1500-1800 UT): " << solarActivityData.planetaryRangeIndexVector( 5 ) << std::endl;
+    stream << "Kp (1800-2100 UT): " << solarActivityData.planetaryRangeIndexVector( 6 ) << std::endl;
+    stream << "Kp (2100-0000 UT): " << solarActivityData.planetaryRangeIndexVector( 7 ) << std::endl;
     stream << "Kp-sum: " << solarActivityData.planetaryRangeIndexSum << std::endl;
-    stream << "Ap (0000-0300 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector(0) << std::endl;
-    stream << "Ap (0300-0600 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector(1) << std::endl;
-    stream << "Ap (0600-0900 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector(2) << std::endl;
-    stream << "Ap (0900-1200 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector(3) << std::endl;
-    stream << "Ap (1200-1500 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector(4) << std::endl;
-    stream << "Ap (1500-1800 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector(5) << std::endl;
-    stream << "Ap (1800-2100 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector(6) << std::endl;
-    stream << "Ap (2100-0000 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector(7) << std::endl;
+    stream << "Ap (0000-0300 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector( 0 ) << std::endl;
+    stream << "Ap (0300-0600 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector( 1 ) << std::endl;
+    stream << "Ap (0600-0900 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector( 2 ) << std::endl;
+    stream << "Ap (0900-1200 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector( 3 ) << std::endl;
+    stream << "Ap (1200-1500 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector( 4 ) << std::endl;
+    stream << "Ap (1500-1800 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector( 5 ) << std::endl;
+    stream << "Ap (1800-2100 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector( 6 ) << std::endl;
+    stream << "Ap (2100-0000 UT): " << solarActivityData.planetaryEquivalentAmplitudeVector( 7 ) << std::endl;
     stream << "Ap-average: " << solarActivityData.planetaryEquivalentAmplitudeAverage << std::endl;
     stream << "Cp: " << solarActivityData.planetaryDailyCharacterFigure << std::endl;
     stream << "C9: " << solarActivityData.planetaryDailyCharacterFigureConverted << std::endl;
@@ -103,7 +100,6 @@ SolarActivityDataMap readSolarActivityData( std::string filePath )
     tudat::input_output::solar_activity::ParseSolarActivityData solarActivityParser;
     tudat::input_output::solar_activity::ExtractSolarActivityData solarActivityExtractor;
 
-
     // Open dataFile and Parse
     std::ifstream dataFile;
     dataFile.open( filePath.c_str( ), std::ifstream::in );
@@ -120,21 +116,22 @@ SolarActivityDataMap readSolarActivityData( std::string filePath )
     double julianDate = TUDAT_NAN;
 
     // Save each line to datamap
-    for(int i = 0 ; i < numberOfLines ; i++ )
+    for( int i = 0; i < numberOfLines; i++ )
     {
         julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(
-                    solarActivityExtractor.extract( parsedDataVector->at( i ) )->year,
-                    solarActivityExtractor.extract( parsedDataVector->at( i ) )->month,
-                    solarActivityExtractor.extract( parsedDataVector->at( i ) )->day,
-                    0, 0, 0.0 ) ;
+                solarActivityExtractor.extract( parsedDataVector->at( i ) )->year,
+                solarActivityExtractor.extract( parsedDataVector->at( i ) )->month,
+                solarActivityExtractor.extract( parsedDataVector->at( i ) )->day,
+                0,
+                0,
+                0.0 );
 
-        dataMap[ julianDate ] = solarActivityExtractor.extract( parsedDataVector->at( i ) ) ;
+        dataMap[ julianDate ] = solarActivityExtractor.extract( parsedDataVector->at( i ) );
     }
 
     return dataMap;
-
 }
 
-} // solar_activity
-} // input_output
-} // tudat
+}  // namespace solar_activity
+}  // namespace input_output
+}  // namespace tudat

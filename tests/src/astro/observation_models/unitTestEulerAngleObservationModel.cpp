@@ -16,7 +16,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/io/basicInputOutput.h"
@@ -36,9 +35,7 @@ using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
 
-
 BOOST_AUTO_TEST_SUITE( test_position_obsevable_model )
-
 
 BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
 {
@@ -57,105 +54,87 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
 
     // Create bodies settings needed in simulation
     BodyListSettings defaultBodySettings =
-            getDefaultBodySettings(
-                bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+            getDefaultBodySettings( bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     // Create bodies
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
-    
-
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
-
+    linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Earth", "" );
 
     // Create observation settings
-    std::shared_ptr< ObservationModelSettings > observableSettings = std::make_shared< ObservationModelSettings >
-            ( euler_angle_313_observable, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
-              std::make_shared< ConstantObservationBiasSettings >(
-                  ( Eigen::Vector3d( ) << 0.6, -0.3, 0.2 ).finished( ), true ) );
+    std::shared_ptr< ObservationModelSettings > observableSettings = std::make_shared< ObservationModelSettings >(
+            euler_angle_313_observable,
+            linkEnds,
+            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+            std::make_shared< ConstantObservationBiasSettings >( ( Eigen::Vector3d( ) << 0.6, -0.3, 0.2 ).finished( ), true ) );
 
     // Create observation model.
     std::shared_ptr< ObservationModel< 3, double, double > > observationModel =
-           ObservationModelCreator< 3, double, double >::createObservationModel(
-                observableSettings, bodies );
+            ObservationModelCreator< 3, double, double >::createObservationModel( observableSettings, bodies );
     std::shared_ptr< ObservationBias< 3 > > observationBias = observationModel->getObservationBiasCalculator( );
-
 
     // Compute observation separately with two functions.
     double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Vector6d > linkEndStates;
-    Eigen::Vector3d observation = observationModel->computeObservations(
-                observationTime, observed_body );
+    Eigen::Vector3d observation = observationModel->computeObservations( observationTime, observed_body );
 
-    Eigen::Vector3d observation2 = observationModel->computeObservationsWithLinkEndData(
-                observationTime, observed_body, linkEndTimes, linkEndStates );
+    Eigen::Vector3d observation2 =
+            observationModel->computeObservationsWithLinkEndData( observationTime, observed_body, linkEndTimes, linkEndStates );
 
     // Check size of link end state/time.
     BOOST_CHECK_EQUAL( linkEndTimes.size( ), 1 );
     BOOST_CHECK_EQUAL( linkEndStates.size( ), 1 );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                observation, observation2, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observation, observation2, std::numeric_limits< double >::epsilon( ) );
 
     // Check link end state/time.
     BOOST_CHECK_CLOSE_FRACTION( observationTime, linkEndTimes[ 0 ], std::numeric_limits< double >::epsilon( ) );
 
     // Check biased observable
-    Eigen::Quaterniond currentRotationToBodyFixedFrame = bodies.at( "Earth" )->getRotationalEphemeris( )->
-                getRotationToTargetFrame( observationTime );
+    Eigen::Quaterniond currentRotationToBodyFixedFrame =
+            bodies.at( "Earth" )->getRotationalEphemeris( )->getRotationToTargetFrame( observationTime );
 
-    Eigen::Vector3d currentBias =
-            observationBias->getObservationBias(
-                  std::vector< double >( ), std::vector< Eigen::Vector6d>( ) );
+    Eigen::Vector3d currentBias = observationBias->getObservationBias( std::vector< double >( ), std::vector< Eigen::Vector6d >( ) );
     Eigen::Quaterniond computedRotationToBodyFixedFrame =
-            Eigen::Quaterniond(
-                            Eigen::AngleAxisd( -( observation( 0 ) - currentBias( 0 ) ), Eigen::Vector3d::UnitZ( ) ) *
-                            Eigen::AngleAxisd( -( observation( 1 ) - currentBias( 1 ) ), Eigen::Vector3d::UnitX( ) ) *
-                            Eigen::AngleAxisd( -( observation( 2 ) - currentBias( 2 ) ), Eigen::Vector3d::UnitZ( ) ) );
+            Eigen::Quaterniond( Eigen::AngleAxisd( -( observation( 0 ) - currentBias( 0 ) ), Eigen::Vector3d::UnitZ( ) ) *
+                                Eigen::AngleAxisd( -( observation( 1 ) - currentBias( 1 ) ), Eigen::Vector3d::UnitX( ) ) *
+                                Eigen::AngleAxisd( -( observation( 2 ) - currentBias( 2 ) ), Eigen::Vector3d::UnitZ( ) ) );
 
     for( int i = 0; i < 3; i++ )
     {
         for( int j = 0; j < 3; j++ )
         {
             BOOST_CHECK_SMALL( std::fabs( currentRotationToBodyFixedFrame.toRotationMatrix( )( i, j ) -
-                    computedRotationToBodyFixedFrame.toRotationMatrix( )( i, j ) ),
-                    5.0 * std::numeric_limits< double >::epsilon( ) );
+                                          computedRotationToBodyFixedFrame.toRotationMatrix( )( i, j ) ),
+                               5.0 * std::numeric_limits< double >::epsilon( ) );
         }
     }
 
     // Check ideal observable
-    observation = observationModel->computeIdealObservations(
-                observationTime, observed_body );
-    observation2 = observationModel->computeIdealObservationsWithLinkEndData(
-                observationTime, observed_body, linkEndTimes, linkEndStates );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                observation, observation2, std::numeric_limits< double >::epsilon( ) );
+    observation = observationModel->computeIdealObservations( observationTime, observed_body );
+    observation2 = observationModel->computeIdealObservationsWithLinkEndData( observationTime, observed_body, linkEndTimes, linkEndStates );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( observation, observation2, std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( observationTime, linkEndTimes[ 0 ], std::numeric_limits< double >::epsilon( ) );
 
-
-    computedRotationToBodyFixedFrame =
-                Eigen::Quaterniond(
-                                Eigen::AngleAxisd( -observation( 0 ), Eigen::Vector3d::UnitZ( ) ) *
-                                Eigen::AngleAxisd( -observation( 1 ), Eigen::Vector3d::UnitX( ) ) *
-                                Eigen::AngleAxisd( -observation( 2 ), Eigen::Vector3d::UnitZ( ) ) );
+    computedRotationToBodyFixedFrame = Eigen::Quaterniond( Eigen::AngleAxisd( -observation( 0 ), Eigen::Vector3d::UnitZ( ) ) *
+                                                           Eigen::AngleAxisd( -observation( 1 ), Eigen::Vector3d::UnitX( ) ) *
+                                                           Eigen::AngleAxisd( -observation( 2 ), Eigen::Vector3d::UnitZ( ) ) );
     for( int i = 0; i < 3; i++ )
     {
         for( int j = 0; j < 3; j++ )
         {
             BOOST_CHECK_SMALL( std::fabs( currentRotationToBodyFixedFrame.toRotationMatrix( )( i, j ) -
-                    computedRotationToBodyFixedFrame.toRotationMatrix( )( i, j ) ),
-                    5.0 * std::numeric_limits< double >::epsilon( ) );
+                                          computedRotationToBodyFixedFrame.toRotationMatrix( )( i, j ) ),
+                               5.0 * std::numeric_limits< double >::epsilon( ) );
         }
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
+}  // namespace tudat

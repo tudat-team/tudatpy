@@ -8,12 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
 #include <limits>
-
 
 #include <memory>
 #include <boost/lambda/lambda.hpp>
@@ -44,11 +42,9 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_wind_models )
 
 //! Function to compute a (non-physical) wind vector
-Eigen::Vector3d getCustomWindVector(
-        const double altitude, const double longitude, const double latitude, const double time )
+Eigen::Vector3d getCustomWindVector( const double altitude, const double longitude, const double latitude, const double time )
 {
-    return ( Eigen::Vector3d( ) << 200.0, -120.0, 75.0 ).finished( ) *
-            ( longitude / ( 2.0 * mathematical_constants::PI ) ) *
+    return ( Eigen::Vector3d( ) << 200.0, -120.0, 75.0 ).finished( ) * ( longitude / ( 2.0 * mathematical_constants::PI ) ) *
             ( latitude / mathematical_constants::PI ) * ( altitude - 250.0E3 ) / 10E3 * ( time - 500.0 ) / 500.0;
 }
 
@@ -64,31 +60,33 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
     using namespace basic_mathematics;
     using namespace basic_astrodynamics;
 
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     for( int test = 0; test < 2; test++ )
     {
         // Create Earth object
-        BodyListSettings defaultBodySettings =
-                getDefaultBodySettings( { "Earth" }, -1.0E6, 1.0E6 );
-        defaultBodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
-                    Eigen::Vector6d::Zero( ) );
+        BodyListSettings defaultBodySettings = getDefaultBodySettings( { "Earth" }, -1.0E6, 1.0E6 );
+        defaultBodySettings.at( "Earth" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ) );
         if( test == 0 )
         {
             defaultBodySettings.at( "Earth" )->atmosphereSettings->setWindSettings(
-                        std::make_shared< CustomWindModelSettings >(
-                            std::bind( &getCustomWindVector,
-                                       std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4 ),
-                            reference_frames::corotating_frame ) );
+                    std::make_shared< CustomWindModelSettings >( std::bind( &getCustomWindVector,
+                                                                            std::placeholders::_1,
+                                                                            std::placeholders::_2,
+                                                                            std::placeholders::_3,
+                                                                            std::placeholders::_4 ),
+                                                                 reference_frames::corotating_frame ) );
         }
         else
         {
             defaultBodySettings.at( "Earth" )->atmosphereSettings->setWindSettings(
-                        std::make_shared< CustomWindModelSettings >(
-                            std::bind( &getCustomWindVector,
-                                       std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4 ),
-                            reference_frames::vertical_frame ) );
+                    std::make_shared< CustomWindModelSettings >( std::bind( &getCustomWindVector,
+                                                                            std::placeholders::_1,
+                                                                            std::placeholders::_2,
+                                                                            std::placeholders::_3,
+                                                                            std::placeholders::_4 ),
+                                                                 reference_frames::vertical_frame ) );
         }
         SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
@@ -99,11 +97,16 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
 
         // Set aerodynamic coefficients.
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-                std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    2.0, 4.0, Eigen::Vector3d::Zero( ), Eigen::Vector3d::UnitX( ), Eigen::Vector3d::Zero( ),
-                    negative_aerodynamic_frame_coefficients, negative_aerodynamic_frame_coefficients );
-        bodies.at( "Vehicle" )->setAerodynamicCoefficientInterface(
-                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
+                std::make_shared< ConstantAerodynamicCoefficientSettings >( 2.0,
+                                                                            4.0,
+                                                                            Eigen::Vector3d::Zero( ),
+                                                                            Eigen::Vector3d::UnitX( ),
+                                                                            Eigen::Vector3d::Zero( ),
+                                                                            negative_aerodynamic_frame_coefficients,
+                                                                            negative_aerodynamic_frame_coefficients );
+        bodies.at( "Vehicle" )
+                ->setAerodynamicCoefficientInterface(
+                        createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
 
         // Define acceleration model settings.
         SelectedAccelerationMap accelerationMap;
@@ -122,74 +125,64 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         systemInitialState( 4 ) = 7.5E3;
 
         // Create acceleration models and propagation settings.
-        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
+        basic_astrodynamics::AccelerationMap accelerationModelMap =
+                createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set variables to save
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        altitude_dependent_variable, "Vehicle", "Earth" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "Vehicle", "Earth" ) );
         dependentVariables.push_back(
-                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                        "Vehicle", reference_frames::longitude_angle ) );
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >( "Vehicle", reference_frames::longitude_angle ) );
         dependentVariables.push_back(
-                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                        "Vehicle", reference_frames::latitude_angle ) );
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >( "Vehicle", reference_frames::latitude_angle ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        local_density_dependent_variable, "Vehicle", "Earth" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( local_density_dependent_variable, "Vehicle", "Earth" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        airspeed_dependent_variable, "Vehicle", "Earth" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( airspeed_dependent_variable, "Vehicle", "Earth" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        body_fixed_airspeed_based_velocity_variable, "Vehicle" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_airspeed_based_velocity_variable, "Vehicle" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        body_fixed_groundspeed_based_velocity_variable, "Vehicle" ) );
+                std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_groundspeed_based_velocity_variable, "Vehicle" ) );
         dependentVariables.push_back(
-                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                        aerodynamic, "Vehicle", "Earth", 0 ) );
+                std::make_shared< SingleAccelerationDependentVariableSaveSettings >( aerodynamic, "Vehicle", "Earth", 0 ) );
 
         // Set propagation/integration settings
         std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< IntegratorSettings< > >
-                ( rungeKutta4, 0.0, 5.0 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings = std::make_shared< IntegratorSettings<> >( rungeKutta4, 0.0, 5.0 );
         std::shared_ptr< tudat::propagators::TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, 0.0,
-                  integratorSettings, terminationSettings,
-                  cowell, dependentVariables );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                    accelerationModelMap,
+                                                                                    bodiesToPropagate,
+                                                                                    systemInitialState,
+                                                                                    0.0,
+                                                                                    integratorSettings,
+                                                                                    terminationSettings,
+                                                                                    cowell,
+                                                                                    dependentVariables );
 
         translationalPropagatorSettings->getOutputSettings( )->getPrintSettings( )->enableAllPrinting( );
 
-
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, translationalPropagatorSettings );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, translationalPropagatorSettings );
 
         // Retrieve numerical solutions for state and dependent variables
-        std::map< double, Eigen::VectorXd > numericalSolution =
-                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-        std::map< double, Eigen::VectorXd > dependentVariableOutput =
-                dynamicsSimulator.getDependentVariableHistory( );
-
+        std::map< double, Eigen::VectorXd > numericalSolution = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        std::map< double, Eigen::VectorXd > dependentVariableOutput = dynamicsSimulator.getDependentVariableHistory( );
 
         // Get function to transform aerodynamic coefficients to inertial frame
         std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
-        toPropagationFrameTransformation =
-                reference_frames::getAerodynamicForceTransformationFunction(
-                    bodies.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
-                    reference_frames::aerodynamic_frame,
-                    std::bind( &Body::getCurrentRotationToGlobalFrame, bodies.at( "Earth" ) ),
-                    reference_frames::inertial_frame );
+        toPropagationFrameTransformation = reference_frames::getAerodynamicForceTransformationFunction(
+                bodies.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
+                reference_frames::aerodynamic_frame,
+                std::bind( &Body::getCurrentRotationToGlobalFrame, bodies.at( "Earth" ) ),
+                reference_frames::inertial_frame );
 
         // Iterate over all time steps and compute test quantities
         for( std::map< double, Eigen::VectorXd >::const_iterator dataIterator = dependentVariableOutput.begin( );
-             dataIterator != dependentVariableOutput.end( ); dataIterator++ )
+             dataIterator != dependentVariableOutput.end( );
+             dataIterator++ )
         {
             // Update environment
             bodies.at( "Vehicle" )->setState( numericalSolution.at( dataIterator->first ) );
@@ -207,12 +200,11 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
             Eigen::Vector3d groundspeedBasedVelocity = dataIterator->second.segment( 8, 3 );
             Eigen::Vector3d aerodynamicAcceleration = dataIterator->second.segment( 11, 3 );
             Eigen::Quaterniond rotationToVerticalFrame =
-                    reference_frames::getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-                        longitude, latitude ).inverse( );
+                    reference_frames::getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion( longitude, latitude )
+                            .inverse( );
 
             // Compute wind vector from dependent variables and directly from function.
-            Eigen::Vector3d expectedWindVelocity = getCustomWindVector(
-                        altitude, longitude, latitude, dataIterator->first );
+            Eigen::Vector3d expectedWindVelocity = getCustomWindVector( altitude, longitude, latitude, dataIterator->first );
             Eigen::Vector3d computedWindVector = groundspeedBasedVelocity - airspeedBasedVelocity;
             if( test == 1 )
             {
@@ -220,11 +212,10 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
             }
 
             // Manually compute aerodynamic acceleration vector
-            Eigen::Vector3d airSpeedVelocityUnitVectorInInertialFrame =
-                    reference_frames::transformVectorFunctionFromVectorFunctions(
-                        [ & ]( ){ return Eigen::Vector3d::UnitX( ); }, toPropagationFrameTransformation );
-            Eigen::Vector3d expectedAerodynamicAcceleration = -0.5 * localDensity * airspeed * airspeed *
-                    airSpeedVelocityUnitVectorInInertialFrame * 4.0 / vehicleMass;
+            Eigen::Vector3d airSpeedVelocityUnitVectorInInertialFrame = reference_frames::transformVectorFunctionFromVectorFunctions(
+                    [ & ]( ) { return Eigen::Vector3d::UnitX( ); }, toPropagationFrameTransformation );
+            Eigen::Vector3d expectedAerodynamicAcceleration =
+                    -0.5 * localDensity * airspeed * airspeed * airSpeedVelocityUnitVectorInInertialFrame * 4.0 / vehicleMass;
 
             for( unsigned int i = 0; i < 3; i++ )
             {
@@ -245,14 +236,12 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
             // Test airspeed
             BOOST_CHECK_SMALL( std::fabs( airspeedBasedVelocity.norm( ) - airspeed ),
                                systemInitialState( 4 ) * 5.0 * std::numeric_limits< double >::epsilon( ) );
-
-
         }
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
+}  // namespace tudat

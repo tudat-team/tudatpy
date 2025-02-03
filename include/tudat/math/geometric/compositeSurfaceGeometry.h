@@ -34,10 +34,9 @@ namespace geometric_shapes
  * recursively from a member of CompositeSurfaceGeometry objects ) to perform
  * geometric operations.
  */
-class CompositeSurfaceGeometry: public SurfaceGeometry
+class CompositeSurfaceGeometry : public SurfaceGeometry
 {
 public:
-
     //! Typedef for shared-pointer to CompositeSurfaceGeometry object.
     typedef std::shared_ptr< CompositeSurfaceGeometry > CompositeSurfaceGeometryPointer;
 
@@ -53,10 +52,8 @@ public:
      *  \param singleSurfaceGeometryList vector of pointers to SingleSurfaceGeometries
      *  \param compositeSurfaceGeometryList vector of pointers to CompositeSurfaceGeometries
      */
-    CompositeSurfaceGeometry( std::vector< std::shared_ptr< SingleSurfaceGeometry > >
-                              singleSurfaceGeometryList,
-                              std::vector< std::shared_ptr< CompositeSurfaceGeometry > >
-                              compositeSurfaceGeometryList );
+    CompositeSurfaceGeometry( std::vector< std::shared_ptr< SingleSurfaceGeometry > > singleSurfaceGeometryList,
+                              std::vector< std::shared_ptr< CompositeSurfaceGeometry > > compositeSurfaceGeometryList );
 
     //! Default destructor.
     /*!
@@ -87,8 +84,7 @@ public:
      * \return Pointer to CompositeSurfaceGeometry object at index location in
      *          compositeSurfaceGeometryList_.
      */
-    std::shared_ptr< CompositeSurfaceGeometry > getCompositeSurfaceGeometry(
-            const unsigned int index )
+    std::shared_ptr< CompositeSurfaceGeometry > getCompositeSurfaceGeometry( const unsigned int index )
     {
         return compositeSurfaceGeometryList_[ index ];
     }
@@ -124,11 +120,9 @@ public:
      * \param compositeSurfaceGeometry compositeSurfaceGeometry object.
      * \return Stream object.
      */
-    friend std::ostream &operator << ( std::ostream &stream,
-                                     CompositeSurfaceGeometry& compositeSurfaceGeometry );
+    friend std::ostream &operator<<( std::ostream &stream, CompositeSurfaceGeometry &compositeSurfaceGeometry );
 
 protected:
-
     //! Set pointer to SingleSurfaceGeometry object.
     /*!
      * Sets a pointer to a SingleSurfaceGeometry object in singleSurfaceGeometryList_.
@@ -136,8 +130,7 @@ protected:
      *           object which is to be stored in singleSurfaceGeometryList_.
      * \param index Index of singleSurfaceGeometryList_ at which the surface is to be set.
      */
-    void setSingleSurfaceGeometry( std::shared_ptr< SingleSurfaceGeometry >
-                                   singleSurfaceGeometry, const unsigned int index )
+    void setSingleSurfaceGeometry( std::shared_ptr< SingleSurfaceGeometry > singleSurfaceGeometry, const unsigned int index )
     {
         singleSurfaceGeometryList_[ index ] = singleSurfaceGeometry;
     }
@@ -151,8 +144,7 @@ protected:
      *          compositeSurfaceGeometryList_.
      * \param index Index of compositeSurfaceGeometryList_ at which the surface is to be set.
      */
-    void setCompositeSurfaceGeometry( std::shared_ptr< CompositeSurfaceGeometry>
-                                      compositeSurfaceGeometry, const unsigned int index )
+    void setCompositeSurfaceGeometry( std::shared_ptr< CompositeSurfaceGeometry > compositeSurfaceGeometry, const unsigned int index )
     {
         compositeSurfaceGeometryList_[ index ] = compositeSurfaceGeometry;
     }
@@ -174,8 +166,7 @@ protected:
      * \param numberOfCompositeSurfaceGeometries Number of
      *          CompositeSurfaceGeometry objects stored.
      */
-    void setNumberOfCompositeSurfaceGeometries( const unsigned int
-                                                numberOfCompositeSurfaceGeometries )
+    void setNumberOfCompositeSurfaceGeometries( const unsigned int numberOfCompositeSurfaceGeometries )
     {
         numberOfCompositeSurfaceGeometries_ = numberOfCompositeSurfaceGeometries;
         compositeSurfaceGeometryList_.resize( numberOfCompositeSurfaceGeometries_ );
@@ -211,7 +202,7 @@ private:
 //! Typedef for shared-pointer to CompositeSurfaceGeometry object.
 typedef CompositeSurfaceGeometry::CompositeSurfaceGeometryPointer CompositeSurfaceGeometryPointer;
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat
 
-#endif // TUDAT_COMPOSITE_SURFACE_GEOMETRY_H
+#endif  // TUDAT_COMPOSITE_SURFACE_GEOMETRY_H

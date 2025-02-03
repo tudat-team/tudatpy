@@ -50,11 +50,9 @@ Eigen::Vector3d computeAerodynamicForce( const double dynamicPressure,
  * \return Resultant aerodynamic force, given in reference frame in which the
  *          aerodynamic coefficients were given.
  */
-Eigen::Vector3d computeAerodynamicForce(
-        const double dynamicPressure,
-        AerodynamicCoefficientInterfacePointer coefficientInterface );
+Eigen::Vector3d computeAerodynamicForce( const double dynamicPressure, AerodynamicCoefficientInterfacePointer coefficientInterface );
 
-} // namespace aerodynamics
-} // namespace tudat
+}  // namespace aerodynamics
+}  // namespace tudat
 
-#endif // TUDAT_AERODYNAMIC_FORCE_H
+#endif  // TUDAT_AERODYNAMIC_FORCE_H

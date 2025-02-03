@@ -20,48 +20,38 @@ namespace reference_frames
 {
 
 //! Compute apparent acceleration due to non-inertiality of reference frame.
-Eigen::Vector3d computeApparentAcceleration(
-        const Eigen::Vector3d& accelerationOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& angularAccelerationOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame,
-        const Eigen::Vector3d& velocityOfBodyInNonInertialReferenceFrame )
+Eigen::Vector3d computeApparentAcceleration( const Eigen::Vector3d& accelerationOfNonInertialReferenceFrame,
+                                             const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
+                                             const Eigen::Vector3d& angularAccelerationOfNonInertialReferenceFrame,
+                                             const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame,
+                                             const Eigen::Vector3d& velocityOfBodyInNonInertialReferenceFrame )
 {
     return -accelerationOfNonInertialReferenceFrame +
-            computeCentripetalAcceleration( angularVelocityOfNonInertialReferenceFrame,
-                                            positionOfBodyInNonInertialReferenceFrame ) +
-            computeCoriolisAcceleration( angularVelocityOfNonInertialReferenceFrame,
-                                         velocityOfBodyInNonInertialReferenceFrame ) +
-            computeEulerAcceleration( angularAccelerationOfNonInertialReferenceFrame,
-                                      positionOfBodyInNonInertialReferenceFrame );
+            computeCentripetalAcceleration( angularVelocityOfNonInertialReferenceFrame, positionOfBodyInNonInertialReferenceFrame ) +
+            computeCoriolisAcceleration( angularVelocityOfNonInertialReferenceFrame, velocityOfBodyInNonInertialReferenceFrame ) +
+            computeEulerAcceleration( angularAccelerationOfNonInertialReferenceFrame, positionOfBodyInNonInertialReferenceFrame );
 }
 
 //! Compute centripetal acceleration due to non-inertiality of reference frame.
-Eigen::Vector3d computeCentripetalAcceleration(
-        const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame )
+Eigen::Vector3d computeCentripetalAcceleration( const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
+                                                const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame )
 {
     return -angularVelocityOfNonInertialReferenceFrame.cross(
-                ( angularVelocityOfNonInertialReferenceFrame.cross(
-                      positionOfBodyInNonInertialReferenceFrame ) ) );
+            ( angularVelocityOfNonInertialReferenceFrame.cross( positionOfBodyInNonInertialReferenceFrame ) ) );
 }
 
 //! Compute Coriolis acceleration due to non-inertiality of reference frame.
-Eigen::Vector3d computeCoriolisAcceleration(
-        const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& velocityOfBodyInNonInertialReferenceFrame )
+Eigen::Vector3d computeCoriolisAcceleration( const Eigen::Vector3d& angularVelocityOfNonInertialReferenceFrame,
+                                             const Eigen::Vector3d& velocityOfBodyInNonInertialReferenceFrame )
 {
-    return -2.0 * ( angularVelocityOfNonInertialReferenceFrame.cross(
-                       velocityOfBodyInNonInertialReferenceFrame ) );
+    return -2.0 * ( angularVelocityOfNonInertialReferenceFrame.cross( velocityOfBodyInNonInertialReferenceFrame ) );
 }
 
 //! Compute Euler acceleration due to non-inertiality of reference frame.
-Eigen::Vector3d computeEulerAcceleration(
-        const Eigen::Vector3d& angularAccelerationOfNonInertialReferenceFrame,
-        const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame )
+Eigen::Vector3d computeEulerAcceleration( const Eigen::Vector3d& angularAccelerationOfNonInertialReferenceFrame,
+                                          const Eigen::Vector3d& positionOfBodyInNonInertialReferenceFrame )
 {
-    return -angularAccelerationOfNonInertialReferenceFrame.cross(
-                positionOfBodyInNonInertialReferenceFrame );
+    return -angularAccelerationOfNonInertialReferenceFrame.cross( positionOfBodyInNonInertialReferenceFrame );
 }
 
 //! Update member variables used by apparent acceleration model.
@@ -69,18 +59,12 @@ void ApparentAccelerationModel::updateMembers( const double currentTime )
 {
     if( !( this->currentTime_ == currentTime ) )
     {
-        currentAccelerationOfNonInertialReferenceFrame_ =
-                accelerationOfNonInertialReferenceFrameFunction_( );
-        currentAngularVelocityOfNonInertialReferenceFrame_ =
-                angularVelocityOfNonInertialReferenceFrameFunction_( );
-        currentAngularAccelerationOfNonInertialReferenceFrame_ =
-                angularAccelerationOfNonInertialReferenceFrameFunction_( );
-        currentPositionOfBodyInNonInertialReferenceFrame_ =
-                positionOfBodyInNonInertialReferenceFrameFunction_( );
-        currentVelocityOfBodyInNonInertialReferenceFrame_ =
-                velocityOfBodyInNonInertialReferenceFrameFunction_( );
-        currentAcceleration_ =
-                computeApparentAcceleration( currentAccelerationOfNonInertialReferenceFrame_,
+        currentAccelerationOfNonInertialReferenceFrame_ = accelerationOfNonInertialReferenceFrameFunction_( );
+        currentAngularVelocityOfNonInertialReferenceFrame_ = angularVelocityOfNonInertialReferenceFrameFunction_( );
+        currentAngularAccelerationOfNonInertialReferenceFrame_ = angularAccelerationOfNonInertialReferenceFrameFunction_( );
+        currentPositionOfBodyInNonInertialReferenceFrame_ = positionOfBodyInNonInertialReferenceFrameFunction_( );
+        currentVelocityOfBodyInNonInertialReferenceFrame_ = velocityOfBodyInNonInertialReferenceFrameFunction_( );
+        currentAcceleration_ = computeApparentAcceleration( currentAccelerationOfNonInertialReferenceFrame_,
                                                             currentAngularVelocityOfNonInertialReferenceFrame_,
                                                             currentAngularAccelerationOfNonInertialReferenceFrame_,
                                                             currentPositionOfBodyInNonInertialReferenceFrame_,
@@ -88,5 +72,5 @@ void ApparentAccelerationModel::updateMembers( const double currentTime )
     }
 }
 
-} // namespace reference_frames
-} // namespace tudat
+}  // namespace reference_frames
+}  // namespace tudat

@@ -12,7 +12,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-
 std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEarthIers2010DeformationModel(
         const std::shared_ptr< ephemerides::Ephemeris > earthEphemeris,
         const std::shared_ptr< ephemerides::Ephemeris > lunarEphemeris,
@@ -51,7 +50,7 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
 
     std::vector< bool > areTermsCalculated;
     areTermsCalculated.resize( 6 );
-    for( int i = 0; i < 6 ; i++ )
+    for( int i = 0; i < 6; i++ )
     {
         areTermsCalculated[ i ] = 1;
     }
@@ -65,21 +64,25 @@ std::shared_ptr< basic_astrodynamics::Iers2010EarthDeformation > createDefaultEa
     correctionNumbers[ 0 ] = DEGREE_TWO_DIURNAL_TOROIDAL_LOVE_NUMBER;
     correctionNumbers[ 1 ] = DEGREE_TWO_SEMIDIURNAL_TOROIDAL_LOVE_NUMBER;
 
-    std::string longPeriodFile = paths::getEarthDeformationDataFilesPath( ) +
-            "/longPeriodDisplacementFrequencyDependence.txt";
-    std::string diurnalFile = paths::getEarthDeformationDataFilesPath( ) +
-            "/diurnalDisplacementFrequencyDependence2.txt";
+    std::string longPeriodFile = paths::getEarthDeformationDataFilesPath( ) + "/longPeriodDisplacementFrequencyDependence.txt";
+    std::string diurnalFile = paths::getEarthDeformationDataFilesPath( ) + "/diurnalDisplacementFrequencyDependence2.txt";
 
-    std::shared_ptr< Iers2010EarthDeformation > deformationModel = std::make_shared< Iers2010EarthDeformation >
-            ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
-              ephemerides,
-              std::bind( &RotationalEphemeris::getRotationToTargetFrame, earthRotation, std::placeholders::_1 ),
-              gravitionalParametersOfEarth, gravitationalParameters,
-              equatorialRadius, nominalDisplacementLoveNumbers, latitudeTerms, areTermsCalculated,
-              correctionNumbers, diurnalFile, longPeriodFile, doodsonArgumentFunction );
+    std::shared_ptr< Iers2010EarthDeformation > deformationModel = std::make_shared< Iers2010EarthDeformation >(
+            std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
+            ephemerides,
+            std::bind( &RotationalEphemeris::getRotationToTargetFrame, earthRotation, std::placeholders::_1 ),
+            gravitionalParametersOfEarth,
+            gravitationalParameters,
+            equatorialRadius,
+            nominalDisplacementLoveNumbers,
+            latitudeTerms,
+            areTermsCalculated,
+            correctionNumbers,
+            diurnalFile,
+            longPeriodFile,
+            doodsonArgumentFunction );
 
     return deformationModel;
-
 }
 
 std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformationModel(
@@ -94,103 +97,100 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
 
     switch( bodyDeformationSettings->getBodyDeformationType( ) )
     {
-    case basic_solid_body:
-    {
-        std::shared_ptr< BasicSolidBodyDeformationSettings > basicSolidBodyDeformationSettings =
-                std::dynamic_pointer_cast< BasicSolidBodyDeformationSettings >( bodyDeformationSettings );
+        case basic_solid_body: {
+            std::shared_ptr< BasicSolidBodyDeformationSettings > basicSolidBodyDeformationSettings =
+                    std::dynamic_pointer_cast< BasicSolidBodyDeformationSettings >( bodyDeformationSettings );
 
-        if( basicSolidBodyDeformationSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when creating body deformation model, expected basic solid body settings for " + body );
-        }
-        else
-        {
-            std::vector< std::string > deformingBodies = basicSolidBodyDeformationSettings->getDeformingBodies( );
-            std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyEphemerides;
-            std::vector< std::function< double( ) > > gravitionalParametersOfDeformingBodies;
-
-            for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
+            if( basicSolidBodyDeformationSettings == nullptr )
             {
-                if( bodyMap.count( deformingBodies.at( i ) ) == 0 )
-                {
-                    throw std::runtime_error( "Error when making basic solid body deformation model, deforming body not found: " +
-                                              deformingBodies.at( i ) );
-                }
+                throw std::runtime_error( "Error when creating body deformation model, expected basic solid body settings for " + body );
+            }
+            else
+            {
+                std::vector< std::string > deformingBodies = basicSolidBodyDeformationSettings->getDeformingBodies( );
+                std::vector< std::function< Eigen::Vector6d( const double ) > > deformingBodyEphemerides;
+                std::vector< std::function< double( ) > > gravitionalParametersOfDeformingBodies;
 
-                deformingBodyEphemerides.push_back(
-                            std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( deformingBodies.at( i ) ), std::placeholders::_1 ) );
-
-                std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel =
-                        bodyMap.at( deformingBodies.at( i ) )->getGravityFieldModel( );
-                if( gravityFieldModel == nullptr )
+                for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
                 {
-                    throw std::runtime_error( "Error, no gravity field model of " + deformingBodies.at( i ) +
-                                              " found when making basic body deformation of " + body );
-                }
-                gravitionalParametersOfDeformingBodies.push_back(
+                    if( bodyMap.count( deformingBodies.at( i ) ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when making basic solid body deformation model, deforming body not found: " +
+                                                  deformingBodies.at( i ) );
+                    }
+
+                    deformingBodyEphemerides.push_back( std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >,
+                                                                   bodyMap.at( deformingBodies.at( i ) ),
+                                                                   std::placeholders::_1 ) );
+
+                    std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel =
+                            bodyMap.at( deformingBodies.at( i ) )->getGravityFieldModel( );
+                    if( gravityFieldModel == nullptr )
+                    {
+                        throw std::runtime_error( "Error, no gravity field model of " + deformingBodies.at( i ) +
+                                                  " found when making basic body deformation of " + body );
+                    }
+                    gravitionalParametersOfDeformingBodies.push_back(
                             std::bind( &GravityFieldModel::getGravitationalParameter, gravityFieldModel ) );
-            }
-
-            std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel = bodyMap.at( body )->getGravityFieldModel( );
-            if( gravityFieldModel == NULL )
-            {
-                throw std::runtime_error("Error, no gravity field model of " + body +
-                                         " found when making basic body deformation of " + body );
-            }
-
-            std::function< double( ) > gravitionalParameterOfDeformedBody =
-                    std::bind( &GravityFieldModel::getGravitationalParameter, gravityFieldModel );
-
-
-            double deformationReferenceRadius = basicSolidBodyDeformationSettings->getBodyReferenceRadius( );
-            if( deformationReferenceRadius != deformationReferenceRadius )
-            {
-                std::shared_ptr< BodyShapeModel > bodyShapeModel =
-                        bodyMap.at( body )->getShapeModel( );
-                if( bodyShapeModel == nullptr )
-                {
-                    throw std::runtime_error("Error, when making basic body deformation of " + body + ", no reference radius, and no shape model specified" );
                 }
-                else
-                {
-                    deformationReferenceRadius = bodyShapeModel->getAverageRadius( );
-                }
-            }
 
-            bodyDeformationModel = std::make_shared< basic_astrodynamics::BasicTidalBodyDeformation >(
-                        std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( body ),
-                                   std::placeholders::_1 ),
+                std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel = bodyMap.at( body )->getGravityFieldModel( );
+                if( gravityFieldModel == NULL )
+                {
+                    throw std::runtime_error( "Error, no gravity field model of " + body + " found when making basic body deformation of " +
+                                              body );
+                }
+
+                std::function< double( ) > gravitionalParameterOfDeformedBody =
+                        std::bind( &GravityFieldModel::getGravitationalParameter, gravityFieldModel );
+
+                double deformationReferenceRadius = basicSolidBodyDeformationSettings->getBodyReferenceRadius( );
+                if( deformationReferenceRadius != deformationReferenceRadius )
+                {
+                    std::shared_ptr< BodyShapeModel > bodyShapeModel = bodyMap.at( body )->getShapeModel( );
+                    if( bodyShapeModel == nullptr )
+                    {
+                        throw std::runtime_error( "Error, when making basic body deformation of " + body +
+                                                  ", no reference radius, and no shape model specified" );
+                    }
+                    else
+                    {
+                        deformationReferenceRadius = bodyShapeModel->getAverageRadius( );
+                    }
+                }
+
+                bodyDeformationModel = std::make_shared< basic_astrodynamics::BasicTidalBodyDeformation >(
+                        std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( body ), std::placeholders::_1 ),
                         deformingBodyEphemerides,
-                        std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame, bodyMap.at( body )->getRotationalEphemeris( ),
+                        std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
+                                   bodyMap.at( body )->getRotationalEphemeris( ),
                                    std::placeholders::_1 ),
                         gravitionalParameterOfDeformedBody,
                         gravitionalParametersOfDeformingBodies,
                         deformationReferenceRadius,
                         basicSolidBodyDeformationSettings->getDisplacementLoveNumbers( ) );
+            }
+            break;
+        }
+        case iers_2010: {
+            if( body != "Earth" )
+            {
+                std::cerr << "Warning, you should use IERS 2010 deformation model only for Earth, now adding to body" << std::endl;
+            }
+            if( bodyMap.count( "Earth" ) == 0 )
+            {
+                throw std::runtime_error( "Error when making IERS 2010 deformation model, Earth not found" );
+            }
+            if( bodyMap.count( "Moon" ) == 0 )
+            {
+                throw std::runtime_error( "Error when making IERS 2010 deformation model, Moon not found" );
+            }
+            if( bodyMap.count( "Sun" ) == 0 )
+            {
+                throw std::runtime_error( "Error when making IERS 2010 deformation model, Sun not found" );
+            }
 
-        }
-        break;
-    }
-    case iers_2010:
-    {
-        if( body != "Earth" )
-        {
-            std::cerr<<"Warning, you should use IERS 2010 deformation model only for Earth, now adding to body"<<std::endl;
-        }
-        if( bodyMap.count( "Earth" ) == 0 )
-        {
-            throw std::runtime_error( "Error when making IERS 2010 deformation model, Earth not found" );
-        }
-        if( bodyMap.count( "Moon" ) == 0 )
-        {
-            throw std::runtime_error( "Error when making IERS 2010 deformation model, Moon not found" );
-        }
-        if( bodyMap.count( "Sun" ) == 0 )
-        {
-            throw std::runtime_error( "Error when making IERS 2010 deformation model, Sun not found" );
-        }
-
-        bodyDeformationModel = createDefaultEarthIers2010DeformationModel(
+            bodyDeformationModel = createDefaultEarthIers2010DeformationModel(
                     bodyMap.at( "Earth" )->getEphemeris( ),
                     bodyMap.at( "Moon" )->getEphemeris( ),
                     bodyMap.at( "Sun" )->getEphemeris( ),
@@ -198,65 +198,65 @@ std::shared_ptr< basic_astrodynamics::BodyDeformationModel > createBodyDeformati
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Earth" )->getGravityFieldModel( ) ),
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Moon" )->getGravityFieldModel( ) ),
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter, bodyMap.at( "Sun" )->getGravityFieldModel( ) ) );
-        break;
-    }
-    case pole_tide:
-    {
-        if( body != "Earth" )
-        {
-            std::cerr<<"Warning, you should use pole tide deformation model only for Earth, now adding to body"<<std::endl;
+            break;
         }
-        if( bodyMap.count( body ) == 0 )
-        {
-            throw std::runtime_error( "Error when making pole tide deformation model, " + body  + " not found" );
+        case pole_tide: {
+            if( body != "Earth" )
+            {
+                std::cerr << "Warning, you should use pole tide deformation model only for Earth, now adding to body" << std::endl;
+            }
+            if( bodyMap.count( body ) == 0 )
+            {
+                throw std::runtime_error( "Error when making pole tide deformation model, " + body + " not found" );
+            }
+            else if( std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ) ) ==
+                     nullptr )
+            {
+                throw std::runtime_error( "Error when making pole tide deformation model, " + body +
+                                          ", model requires GCRS<->ITRS rotation model" );
+            }
+            else
+            {
+                bodyDeformationModel = std::make_shared< basic_astrodynamics::PoleTideDeformation >(
+                        std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ) )
+                                ->getAnglesCalculator( )
+                                ->getPolarMotionCalculator( ) );
+            }
+            break;
         }
-        else if( std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ))  == nullptr )
-        {
-             throw std::runtime_error( "Error when making pole tide deformation model, " + body  + ", model requires GCRS<->ITRS rotation model" );
-        }
-        else
-        {
-            bodyDeformationModel = std::make_shared< basic_astrodynamics::PoleTideDeformation >(
-                std::dynamic_pointer_cast< ephemerides::GcrsToItrsRotationModel >( bodyMap.at( body )->getRotationalEphemeris( ) )
-                    ->getAnglesCalculator( )->getPolarMotionCalculator( ) );
-        }
-        break;
-    }
-    case ocean_tide:
-    {
-        std::shared_ptr< OceanTideBodyDeformationSettings > oceanTideBodyDeformationSettings =
-            std::dynamic_pointer_cast< OceanTideBodyDeformationSettings >( bodyDeformationSettings );
+        case ocean_tide: {
+            std::shared_ptr< OceanTideBodyDeformationSettings > oceanTideBodyDeformationSettings =
+                    std::dynamic_pointer_cast< OceanTideBodyDeformationSettings >( bodyDeformationSettings );
 
-        if( oceanTideBodyDeformationSettings == nullptr )
-        {
-            throw std::runtime_error( "Error when creating body deformation model, expected ocean tide body settings for " + body );
-        }
+            if( oceanTideBodyDeformationSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating body deformation model, expected ocean tide body settings for " + body );
+            }
 
-        if( body != "Earth" )
-        {
-            std::cerr<<"Warning, you should use ocean tide deformation model only for Earth, now adding to body"<<std::endl;
-        }
+            if( body != "Earth" )
+            {
+                std::cerr << "Warning, you should use ocean tide deformation model only for Earth, now adding to body" << std::endl;
+            }
 
-        if( bodyMap.count( body ) == 0 )
-        {
-            throw std::runtime_error( "Error when making pole tide deformation model, " + body  + " not found" );
+            if( bodyMap.count( body ) == 0 )
+            {
+                throw std::runtime_error( "Error when making pole tide deformation model, " + body + " not found" );
+            }
+            else
+            {
+                bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
+                        oceanTideBodyDeformationSettings->getBlqFiles( ) );
+            }
+            break;
         }
-        else
-        {
-            bodyDeformationModel = std::make_shared< basic_astrodynamics::OceanTideEarthDeformation >(
-                oceanTideBodyDeformationSettings->getBlqFiles( ) );
-        }
-        break;
-    }
-    default:
-        throw std::runtime_error( "Error, did not recognize body deformation settings type " +
-                                  std::to_string( bodyDeformationSettings->getBodyDeformationType( ) ) +
-                                  " of body " + body );
+        default:
+            throw std::runtime_error( "Error, did not recognize body deformation settings type " +
+                                      std::to_string( bodyDeformationSettings->getBodyDeformationType( ) ) + " of body " + body );
     }
 
     return bodyDeformationModel;
 }
 
-}
+}  // namespace simulation_setup
 
-}
+}  // namespace tudat

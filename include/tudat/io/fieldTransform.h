@@ -31,12 +31,11 @@ namespace input_output
 class FieldTransform
 {
 public:
-
     //! Default destructor.
     virtual ~FieldTransform( ) { }
 
     //! Transform input string.
-    /*! 
+    /*!
      * Returns a transformed string.
      * \param input Input string.
      * \return Shared-pointer to transformed string.
@@ -44,14 +43,13 @@ public:
     virtual std::shared_ptr< std::string > transform( const std::string& input ) = 0;
 
 protected:
-
 private:
 };
 
 //! Typedef for shared-pointer to FieldTransform object.
 typedef std::shared_ptr< FieldTransform > FieldTransformPointer;
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_FIELD_TRANSFORM_H
+#endif  // TUDAT_FIELD_TRANSFORM_H

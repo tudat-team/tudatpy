@@ -45,4 +45,4 @@
 #include "io/twoLineElementsTextFileReader.h"
 #include "io/util.h"
 
-#endif // TUDAT_IO_H
+#endif  // TUDAT_IO_H

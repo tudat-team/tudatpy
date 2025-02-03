@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_SUITE( test_ring_partials )
 
 BOOST_AUTO_TEST_CASE( testRingAccelerationPartial )
 {
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Create empty bodies, earth and vehicle.
@@ -40,44 +40,48 @@ BOOST_AUTO_TEST_CASE( testRingAccelerationPartial )
 
     simulation_setup::SystemOfBodies bodies;
     bodies.addBody( earth, "Earth" );
-    bodies.addBody( vehicle, "Vehicle" );;
+    bodies.addBody( vehicle, "Vehicle" );
+    ;
     bodies.addBody( createSystemOfBodies( simulation_setup::getDefaultBodySettings( { "Moon" } ) ).at( "Moon" ), "Moon" );
 
     std::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
             std::make_shared< ephemerides::SimpleRotationalEphemeris >(
-                spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000" , "IAU_Earth", 0.0 ),
-                2.0 * mathematical_constants::PI / 86400.0,
-                1.0E7,
-                "ECLIPJ2000" , "IAU_Earth" );
+                    spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", 0.0 ),
+                    2.0 * mathematical_constants::PI / 86400.0,
+                    1.0E7,
+                    "ECLIPJ2000",
+                    "IAU_Earth" );
     earth->setRotationalEphemeris( simpleRotationalEphemeris );
 
     std::shared_ptr< simulation_setup::GravityFieldSettings > earthGravityFieldSettings =
             std::make_shared< simulation_setup::RingGravityFieldSettings >( gravitationalParameter, ringRadius, "IAU_Earth" );
 
-    std::shared_ptr< tudat::gravitation::RingGravityField > earthGravityField =
-            std::dynamic_pointer_cast< gravitation::RingGravityField  >(
-                simulation_setup::createGravityFieldModel( earthGravityFieldSettings, "Earth", bodies ) );
+    std::shared_ptr< tudat::gravitation::RingGravityField > earthGravityField = std::dynamic_pointer_cast< gravitation::RingGravityField >(
+            simulation_setup::createGravityFieldModel( earthGravityFieldSettings, "Earth", bodies ) );
     earth->setGravityFieldModel( earthGravityField );
 
     // Set current state of vehicle and earth.
     double testTime = 1.0E6;
     earth->setState( Eigen::Vector6d::Zero( ) );
     earth->setCurrentRotationToLocalFrameFromEphemeris( testTime );
-    bodies.at( "Moon" ) ->setState( tudat::spice_interface::getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000" ,"None", testTime ) );
+    bodies.at( "Moon" )->setState(
+            tudat::spice_interface::getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000", "None", testTime ) );
 
     // Set Keplerian elements for Asterix.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
     asterixInitialStateInKeplerianElements( orbital_element_conversions::semiMajorAxisIndex ) = 7500.0E3;
     asterixInitialStateInKeplerianElements( orbital_element_conversions::eccentricityIndex ) = 0.1;
-    asterixInitialStateInKeplerianElements( orbital_element_conversions::inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
-    asterixInitialStateInKeplerianElements( orbital_element_conversions::argumentOfPeriapsisIndex )
-            = unit_conversions::convertDegreesToRadians( 235.7 );
-    asterixInitialStateInKeplerianElements( orbital_element_conversions::longitudeOfAscendingNodeIndex )
-            = unit_conversions::convertDegreesToRadians( 23.4 );
-    asterixInitialStateInKeplerianElements( orbital_element_conversions::trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+    asterixInitialStateInKeplerianElements( orbital_element_conversions::inclinationIndex ) =
+            unit_conversions::convertDegreesToRadians( 85.3 );
+    asterixInitialStateInKeplerianElements( orbital_element_conversions::argumentOfPeriapsisIndex ) =
+            unit_conversions::convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( orbital_element_conversions::longitudeOfAscendingNodeIndex ) =
+            unit_conversions::convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( orbital_element_conversions::trueAnomalyIndex ) =
+            unit_conversions::convertDegreesToRadians( 139.87 );
 
     Eigen::Vector6d asterixInitialState = orbital_element_conversions::convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements, gravitationalParameter );
+            asterixInitialStateInKeplerianElements, gravitationalParameter );
 
     vehicle->setState( asterixInitialState );
 
@@ -86,7 +90,7 @@ BOOST_AUTO_TEST_CASE( testRingAccelerationPartial )
             std::make_shared< simulation_setup::AccelerationSettings >( basic_astrodynamics::ring_gravity );
     std::shared_ptr< gravitation::RingGravitationalAccelerationModel > gravitationalAcceleration =
             std::dynamic_pointer_cast< gravitation::RingGravitationalAccelerationModel >(
-                createAccelerationModel( vehicle, earth, accelerationSettings, "Vehicle", "Earth" ) );
+                    createAccelerationModel( vehicle, earth, accelerationSettings, "Vehicle", "Earth" ) );
     gravitationalAcceleration->updateMembers( 0.0 );
 
     // Declare numerical partials.
@@ -97,29 +101,27 @@ BOOST_AUTO_TEST_CASE( testRingAccelerationPartial )
 
     // Create state access/modification functions for bodies.
     std::function< void( Eigen::Vector6d ) > earthStateSetFunction =
-            std::bind( &simulation_setup::Body::setState, earth, std::placeholders::_1  );
+            std::bind( &simulation_setup::Body::setState, earth, std::placeholders::_1 );
     std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
-            std::bind( &simulation_setup::Body::setState, vehicle, std::placeholders::_1  );
-    std::function< Eigen::Vector6d ( ) > earthStateGetFunction =
-            std::bind( &simulation_setup::Body::getState, earth );
-    std::function< Eigen::Vector6d ( ) > vehicleStateGetFunction =
-            std::bind( &simulation_setup::Body::getState, vehicle );
+            std::bind( &simulation_setup::Body::setState, vehicle, std::placeholders::_1 );
+    std::function< Eigen::Vector6d( ) > earthStateGetFunction = std::bind( &simulation_setup::Body::getState, earth );
+    std::function< Eigen::Vector6d( ) > vehicleStateGetFunction = std::bind( &simulation_setup::Body::getState, vehicle );
 
     // Create list of estimatable parameters settings
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings< double > >(
-                                  "Earth", 0.0, "ECLIPJ2000" ) );
+            "Earth", 0.0, "ECLIPJ2000" ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
             createParametersToEstimate( parameterNames, bodies );
 
     // Create acceleration partial object.
     std::shared_ptr< acceleration_partials::RingGravityPartial > accelerationPartial =
-            std::dynamic_pointer_cast< acceleration_partials::RingGravityPartial > (
-                createAnalyticalAccelerationPartial(
-                    gravitationalAcceleration,
-                    std::make_pair( "Vehicle", vehicle ),
-                    std::make_pair( "Earth", earth ),
-                    bodies, parameterSet ) );
+            std::dynamic_pointer_cast< acceleration_partials::RingGravityPartial >(
+                    createAnalyticalAccelerationPartial( gravitationalAcceleration,
+                                                         std::make_pair( "Vehicle", vehicle ),
+                                                         std::make_pair( "Earth", earth ),
+                                                         bodies,
+                                                         parameterSet ) );
 
     accelerationPartial->update( testTime );
 
@@ -140,14 +142,14 @@ BOOST_AUTO_TEST_CASE( testRingAccelerationPartial )
 
     // Calculate numerical partials.
     testPartialWrtVehiclePosition = acceleration_partials::calculateAccelerationWrtStatePartials(
-                vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), positionPerturbation, 0 );
+            vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), positionPerturbation, 0 );
     testPartialWrtVehicleVelocity = acceleration_partials::calculateAccelerationWrtStatePartials(
-                vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), velocityPerturbation, 3 );
+            vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), velocityPerturbation, 3 );
 
     testPartialWrtEarthPosition = acceleration_partials::calculateAccelerationWrtStatePartials(
-                earthStateSetFunction, gravitationalAcceleration, earth->getState( ), positionPerturbation, 0 );
+            earthStateSetFunction, gravitationalAcceleration, earth->getState( ), positionPerturbation, 0 );
     testPartialWrtEarthVelocity = acceleration_partials::calculateAccelerationWrtStatePartials(
-                earthStateSetFunction, gravitationalAcceleration, earth->getState( ), velocityPerturbation, 3 );
+            earthStateSetFunction, gravitationalAcceleration, earth->getState( ), velocityPerturbation, 3 );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-8 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-8 );
@@ -157,6 +159,6 @@ BOOST_AUTO_TEST_CASE( testRingAccelerationPartial )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

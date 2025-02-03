@@ -26,7 +26,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/integrators/rungeKuttaVariableStepSizeIntegrator.h"
@@ -54,41 +53,44 @@ BOOST_AUTO_TEST_SUITE( test_runge_kutta_fehlberg_78_integrator )
 
 using linear_algebra::flipMatrixRows;
 
+using numerical_integrators::CoefficientSets;
 using numerical_integrators::NumericalIntegratorXdPointer;
 using numerical_integrators::ReinitializableNumericalIntegratorXdPointer;
-using numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
 using numerical_integrators::RungeKuttaCoefficients;
-using numerical_integrators::CoefficientSets;
+using numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
 
-using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivative;
-using numerical_integrator_test_functions::computeFehlbergLogirithmicTestODEStateDerivative ;
 using numerical_integrator_test_functions::computeAnalyticalStateFehlbergODE;
+using numerical_integrator_test_functions::computeFehlbergLogirithmicTestODEStateDerivative;
+using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivative;
 
 //! Test Runge-Kutta-Fehlberg 78 integrator using benchmark ODE of Fehlberg (1968)
 BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg78_Integrator_Fehlberg_Benchmark )
 {
     using namespace numerical_integrators;
-    RungeKuttaCoefficients coeff78 =
-            RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 );
+    RungeKuttaCoefficients coeff78 = RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 );
 
     // Integrator settings
-    double minimumStepSize   = std::numeric_limits<double>::epsilon( );
-    double maximumStepSize   = std::numeric_limits<double>::infinity( );
-    double initialStepSize   = 1E-6; // Error: 0.0521 for initialStepSize = 1 ?
+    double minimumStepSize = std::numeric_limits< double >::epsilon( );
+    double maximumStepSize = std::numeric_limits< double >::infinity( );
+    double initialStepSize = 1E-6;  // Error: 0.0521 for initialStepSize = 1 ?
     double relativeTolerance = 1E-16;
     double absoluteTolerance = 1E-16;
 
     // Initial conditions
     double initialTime = 0.0;
-    double finalTime   = 5.0;
-    Eigen::Vector2d initialState( exp( 1.0 ), 1.0);
+    double finalTime = 5.0;
+    Eigen::Vector2d initialState( exp( 1.0 ), 1.0 );
 
     // Setup integrator
-    numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator78(
-                coeff78, computeFehlbergLogirithmicTestODEStateDerivative,
-                initialTime, initialState, minimumStepSize,
-                maximumStepSize, initialStepSize, relativeTolerance, absoluteTolerance );
-
+    numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator78( coeff78,
+                                                                                computeFehlbergLogirithmicTestODEStateDerivative,
+                                                                                initialTime,
+                                                                                initialState,
+                                                                                minimumStepSize,
+                                                                                maximumStepSize,
+                                                                                initialStepSize,
+                                                                                relativeTolerance,
+                                                                                absoluteTolerance );
 
     // Obtain numerical solution
     Eigen::Vector2d numericalSolution = integrator78.integrateTo( finalTime, initialStepSize );
@@ -97,8 +99,8 @@ BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg78_Integrator_Fehlberg_Benchmark )
     Eigen::Vector2d analyticalSolution = computeAnalyticalStateFehlbergODE( finalTime, initialState );
 
     Eigen::Vector2d computedError = numericalSolution - analyticalSolution;
-    BOOST_CHECK_SMALL( std::fabs(computedError( 0 )), 1E-13 );
-    BOOST_CHECK_SMALL( std::fabs(computedError( 1 )), 1E-13 );
+    BOOST_CHECK_SMALL( std::fabs( computedError( 0 ) ), 1E-13 );
+    BOOST_CHECK_SMALL( std::fabs( computedError( 1 ) ), 1E-13 );
 }
 
 //! Test Runge-Kutta-Fehlberg 78 integrator using benchmark data from (The MathWorks, 2012).
@@ -108,14 +110,12 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
 
     // Read in benchmark data (generated using Symbolic Math Toolbox in Matlab
     // (The MathWorks, 2012)). This data is generated using the RKF87 numerical integrator.
-    const std::string pathToForwardIntegrationOutputFile = paths::getTudatTestDataPath( )
-            + "/matlabOutputRungeKuttaFehlberg78Forward.txt";
-    const std::string pathToDiscreteEventIntegrationOutputFile = paths::getTudatTestDataPath( )
-            + "/matlabOutputRungeKuttaFehlberg78DiscreteEvent.txt";
+    const std::string pathToForwardIntegrationOutputFile = paths::getTudatTestDataPath( ) + "/matlabOutputRungeKuttaFehlberg78Forward.txt";
+    const std::string pathToDiscreteEventIntegrationOutputFile =
+            paths::getTudatTestDataPath( ) + "/matlabOutputRungeKuttaFehlberg78DiscreteEvent.txt";
 
     // Store benchmark data in matrix.
-    const Eigen::MatrixXd matlabForwardIntegrationData =
-            input_output::readMatrixFromFile( pathToForwardIntegrationOutputFile, "," );
+    const Eigen::MatrixXd matlabForwardIntegrationData = input_output::readMatrixFromFile( pathToForwardIntegrationOutputFile, "," );
     Eigen::MatrixXd matlabBackwardIntegrationData = matlabForwardIntegrationData;
     flipMatrixRows( matlabBackwardIntegrationData );
     const Eigen::MatrixXd matlabDiscreteEventIntegrationData =
@@ -137,19 +137,16 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
     // Case 1: Execute integrateTo() to integrate one step forward in time.
     {
         // Declare integrator with all necessary settings.
-        NumericalIntegratorXdPointer integrator
-                = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
-                    RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 ),
-                    &computeNonAutonomousModelStateDerivative,
-                    matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
-                    ( Eigen::VectorXd( 1 )
-                      << matlabForwardIntegrationData( FIRST_ROW,
-                                                       STATE_COLUMN_INDEX ) ).finished( ),
-                    zeroMinimumStepSize,
-                    infiniteMaximumStepSize,
-                    TUDAT_NAN,
-                    infiniteRelativeErrorTolerance,
-                    infiniteAbsoluteErrorTolerance );
+        NumericalIntegratorXdPointer integrator = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
+                RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 ),
+                &computeNonAutonomousModelStateDerivative,
+                matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
+                ( Eigen::VectorXd( 1 ) << matlabForwardIntegrationData( FIRST_ROW, STATE_COLUMN_INDEX ) ).finished( ),
+                zeroMinimumStepSize,
+                infiniteMaximumStepSize,
+                TUDAT_NAN,
+                infiniteRelativeErrorTolerance,
+                infiniteAbsoluteErrorTolerance );
 
         executeOneIntegrateToStep( matlabForwardIntegrationData, 1.0e-15, integrator );
     }
@@ -158,44 +155,36 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
     //         time.
     {
         // Declare integrator with all necessary settings.
-        NumericalIntegratorXdPointer integrator
-                = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
-                    RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 ),
-                    &computeNonAutonomousModelStateDerivative,
-                    matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
-                    ( Eigen::VectorXd( 1 )
-                      << matlabForwardIntegrationData( FIRST_ROW,
-                                                       STATE_COLUMN_INDEX ) ).finished( ),
-                    zeroMinimumStepSize,
-                    infiniteMaximumStepSize,
-                    TUDAT_NAN,
-                    infiniteRelativeErrorTolerance,
-                    infiniteAbsoluteErrorTolerance );
+        NumericalIntegratorXdPointer integrator = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
+                RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 ),
+                &computeNonAutonomousModelStateDerivative,
+                matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
+                ( Eigen::VectorXd( 1 ) << matlabForwardIntegrationData( FIRST_ROW, STATE_COLUMN_INDEX ) ).finished( ),
+                zeroMinimumStepSize,
+                infiniteMaximumStepSize,
+                TUDAT_NAN,
+                infiniteRelativeErrorTolerance,
+                infiniteAbsoluteErrorTolerance );
 
-        performIntegrationStepToSpecifiedTime( matlabForwardIntegrationData,
-                                               1.0e-15, 1.0e-15, integrator );
+        performIntegrationStepToSpecifiedTime( matlabForwardIntegrationData, 1.0e-15, 1.0e-15, integrator );
     }
 
     // Case 3: Execute performIntegrationStep() to perform multiple integration steps until initial
     //         time (backwards).
     {
         // Declare integrator with all necessary settings.
-        NumericalIntegratorXdPointer integrator
-                = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
-                    RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 ),
-                    &computeNonAutonomousModelStateDerivative,
-                    matlabBackwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
-                    ( Eigen::VectorXd( 1 )
-                      << matlabBackwardIntegrationData( FIRST_ROW,
-                                                        STATE_COLUMN_INDEX ) ).finished( ),
-                    zeroMinimumStepSize,
-                    infiniteMaximumStepSize,
-                    TUDAT_NAN,
-                    infiniteRelativeErrorTolerance,
-                    infiniteAbsoluteErrorTolerance );
+        NumericalIntegratorXdPointer integrator = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
+                RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 ),
+                &computeNonAutonomousModelStateDerivative,
+                matlabBackwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
+                ( Eigen::VectorXd( 1 ) << matlabBackwardIntegrationData( FIRST_ROW, STATE_COLUMN_INDEX ) ).finished( ),
+                zeroMinimumStepSize,
+                infiniteMaximumStepSize,
+                TUDAT_NAN,
+                infiniteRelativeErrorTolerance,
+                infiniteAbsoluteErrorTolerance );
 
-        performIntegrationStepToSpecifiedTime( matlabBackwardIntegrationData,
-                                               1.0e-15, 1.0e-14, integrator );
+        performIntegrationStepToSpecifiedTime( matlabBackwardIntegrationData, 1.0e-15, 1.0e-14, integrator );
     }
 
     // Case 4: Execute integrateTo() to integrate to specified time in one step.
@@ -208,50 +197,43 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
         // be investigated in future.
 
         // Declare integrator with all necessary settings.
-        NumericalIntegratorXdPointer integrator
-                = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
-                    RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 ),
-                    &computeNonAutonomousModelStateDerivative,
-                    matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
-                    ( Eigen::VectorXd( 1 )
-                      << matlabForwardIntegrationData( FIRST_ROW,
-                                                       STATE_COLUMN_INDEX ) ).finished( ),
-                    zeroMinimumStepSize,
-                    infiniteMaximumStepSize,
-                    TUDAT_NAN,
-                    relativeErrorTolerance,
-                    absoluteErrorTolerance * 10.0 );
+        NumericalIntegratorXdPointer integrator = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
+                RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 ),
+                &computeNonAutonomousModelStateDerivative,
+                matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
+                ( Eigen::VectorXd( 1 ) << matlabForwardIntegrationData( FIRST_ROW, STATE_COLUMN_INDEX ) ).finished( ),
+                zeroMinimumStepSize,
+                infiniteMaximumStepSize,
+                TUDAT_NAN,
+                relativeErrorTolerance,
+                absoluteErrorTolerance * 10.0 );
 
-        executeIntegrateToToSpecifiedTime( matlabForwardIntegrationData, 1.0e-13, integrator,
-                                           matlabForwardIntegrationData(
-                                               matlabForwardIntegrationData.rows( ) - 1,
-                                               TIME_COLUMN_INDEX ) );
+        executeIntegrateToToSpecifiedTime( matlabForwardIntegrationData,
+                                           1.0e-13,
+                                           integrator,
+                                           matlabForwardIntegrationData( matlabForwardIntegrationData.rows( ) - 1, TIME_COLUMN_INDEX ) );
     }
 
     // Case 5: Execute performIntegrationstep() to integrate to specified time in multiple steps,
     //         including discrete events.
     {
         // Declare integrator with all necessary settings.
-        ReinitializableNumericalIntegratorXdPointer integrator
-                = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
-                    RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 ),
-                    &computeNonAutonomousModelStateDerivative,
-                    matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
-                    ( Eigen::VectorXd( 1 )
-                      << matlabForwardIntegrationData( FIRST_ROW,
-                                                       STATE_COLUMN_INDEX ) ).finished( ),
-                    zeroMinimumStepSize,
-                    infiniteMaximumStepSize,
-                    TUDAT_NAN,
-                    infiniteRelativeErrorTolerance,
-                    infiniteAbsoluteErrorTolerance );
+        ReinitializableNumericalIntegratorXdPointer integrator = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
+                RungeKuttaCoefficients::get( CoefficientSets::rungeKuttaFehlberg78 ),
+                &computeNonAutonomousModelStateDerivative,
+                matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
+                ( Eigen::VectorXd( 1 ) << matlabForwardIntegrationData( FIRST_ROW, STATE_COLUMN_INDEX ) ).finished( ),
+                zeroMinimumStepSize,
+                infiniteMaximumStepSize,
+                TUDAT_NAN,
+                infiniteRelativeErrorTolerance,
+                infiniteAbsoluteErrorTolerance );
 
-        performIntegrationStepToSpecifiedTimeWithEvents( matlabDiscreteEventIntegrationData,
-                                                         1.0e-15, 1.0e-13, integrator );
+        performIntegrationStepToSpecifiedTimeWithEvents( matlabDiscreteEventIntegrationData, 1.0e-15, 1.0e-13, integrator );
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

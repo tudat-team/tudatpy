@@ -24,7 +24,6 @@ namespace tudat
 namespace unit_tests
 {
 
-
 // Functions to be tested
 
 double sinFunction( const double x )
@@ -42,7 +41,6 @@ double polyFunction( const double x )
     return std::pow( x, 9 ) + 2 * std::pow( x, 7 ) - std::pow( x, 4 ) + 8 * std::pow( x, 2 ) - 11;
 }
 
-
 //! Even-order derivatives for error assessment
 double minSinFunction( const double x )
 {
@@ -51,9 +49,9 @@ double minSinFunction( const double x )
 
 std::function< double( const double ) > dSinFunction( unsigned int n )
 {
-    if ( n % 2 == 0 )
+    if( n % 2 == 0 )
     {
-        if ( n % 4 == 0 )
+        if( n % 4 == 0 )
         {
             return sinFunction;
         }
@@ -92,18 +90,21 @@ std::function< double( const double ) > dPolyFunction( unsigned int n )
 {
     switch( n )
     {
-    case 4: return d4PolyFunction;
-    case 6: return d6PolyFunction;
-    case 8: return d8PolyFunction;
-    default: throw std::runtime_error( "Unknown derivative" );
+        case 4:
+            return d4PolyFunction;
+        case 6:
+            return d6PolyFunction;
+        case 8:
+            return d8PolyFunction;
+        default:
+            throw std::runtime_error( "Unknown derivative" );
     }
 }
-
 
 // Factorial
 unsigned int factorial( const unsigned int x )
 {
-    if ( x > 0 )
+    if( x > 0 )
     {
         return x * factorial( x - 1 );
     }
@@ -114,11 +115,14 @@ unsigned int factorial( const unsigned int x )
 }
 
 // Error function for Gaussian quadrature [ from https://en.wikipedia.org/wiki/Gaussian_quadrature#Error_estimates ]
-double gaussianQuadratureError( const unsigned int n, std::function< double( const double ) > derivative2nth,
-                                const double abscissa, const double lowerLimit, const double upperLimit )
+double gaussianQuadratureError( const unsigned int n,
+                                std::function< double( const double ) > derivative2nth,
+                                const double abscissa,
+                                const double lowerLimit,
+                                const double upperLimit )
 {
-    return std::pow( upperLimit - lowerLimit, 2 * n + 1 ) * std::pow( factorial( n ), 4 )
-            / double( ( 2 * n + 1 ) * std::pow( factorial( 2 * n ), 3 ) ) * derivative2nth( abscissa );
+    return std::pow( upperLimit - lowerLimit, 2 * n + 1 ) * std::pow( factorial( n ), 4 ) /
+            double( ( 2 * n + 1 ) * std::pow( factorial( 2 * n ), 3 ) ) * derivative2nth( abscissa );
 }
 
 // Check error is within bounds and decreasing for increasing number of nodes.
@@ -126,28 +130,30 @@ double gaussianQuadratureError( const unsigned int n, std::function< double( con
 // It must hold that lowerLimit ≤ abscissa ≤ upperLimit.
 // The derivative is a function taking as input an `int n` (the nth derivative) that returns a function taking as input
 // a `double x` (the absicssa at which it will be evaluated).
-void checkErrorWithinBounds( const unsigned int minOrder, const unsigned int maxOrder,
+void checkErrorWithinBounds( const unsigned int minOrder,
+                             const unsigned int maxOrder,
                              std::function< double( const double ) > function,
-                             const double lowerLimit, const double upperLimit,
+                             const double lowerLimit,
+                             const double upperLimit,
                              std::function< std::function< double( const double ) >( const unsigned int ) > derivative,
-                             const double abscissa, const double expectedSolution )
+                             const double abscissa,
+                             const double expectedSolution )
 {
     double obtainedError = TUDAT_NAN;
     double errorBound = TUDAT_NAN;
-    for ( unsigned int n = minOrder; n <= maxOrder; n++ )
+    for( unsigned int n = minOrder; n <= maxOrder; n++ )
     {
         const double previousObtainedError = obtainedError;
         numerical_quadrature::GaussianQuadrature< double, double > integrator( function, lowerLimit, upperLimit, n );
-        obtainedError = std::fabs( expectedSolution - integrator.getQuadrature() );
+        obtainedError = std::fabs( expectedSolution - integrator.getQuadrature( ) );
         errorBound = std::fabs( gaussianQuadratureError( n, derivative( 2 * n ), abscissa, lowerLimit, upperLimit ) );
         BOOST_CHECK( obtainedError < errorBound );
-        if ( n > minOrder )
+        if( n > minOrder )
         {
             BOOST_CHECK( obtainedError < previousObtainedError );
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE( test_gaussian_quadrature )
 
@@ -161,14 +167,13 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
     const double lowerLimit = 0.0;
     const double upperLimit = PI;
     GaussianQuadrature< double, double > integrator( sinFunction, lowerLimit, upperLimit, order );
-    double computedSolution = integrator.getQuadrature();
+    double computedSolution = integrator.getQuadrature( );
 
     // Expected solution from Wolfram Alpha
     double expectedSolution = 2.0;
 
     // Check if computed solution matches expected value for a high order (8).
     BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-10 );
-
 
     /// Check that it is a Gaussian quadrature and not just any quadrature
 
@@ -177,7 +182,7 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
 
     // Set to order 2
     integrator.reset( sinFunction, lowerLimit, upperLimit, 2 );
-    computedSolution = integrator.getQuadrature();
+    computedSolution = integrator.getQuadrature( );
 
     // Expected solution from http://keisan.casio.com/exec/system/1330940731
     expectedSolution = 1.9358195746511370184019497173109914411780661179299;
@@ -185,7 +190,6 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
     // Check if computed solution matches expected value.
     BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-12 );
 }
-
 
 //! Test if quadrature is computed correctly (exponential function).
 BOOST_AUTO_TEST_CASE( testIntegralExpFunction )
@@ -197,14 +201,13 @@ BOOST_AUTO_TEST_CASE( testIntegralExpFunction )
     const double lowerLimit = -2.0;
     const double upperLimit = 2.0;
     GaussianQuadrature< double, double > integrator( expFunction, lowerLimit, upperLimit, order );
-    double computedSolution = integrator.getQuadrature();
+    double computedSolution = integrator.getQuadrature( );
 
     // Expected solution from Wolfram Alpha
     double expectedSolution = 7.25372081569404;
 
     // Check if computed solution matches expected value.
     BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-10 );
-
 
     /// Check that it is a Gaussian quadrature and not just any quadrature
 
@@ -213,7 +216,7 @@ BOOST_AUTO_TEST_CASE( testIntegralExpFunction )
 
     // Set to order 2
     integrator.reset( expFunction, lowerLimit, upperLimit, 2 );
-    computedSolution = integrator.getQuadrature();
+    computedSolution = integrator.getQuadrature( );
 
     // Expected solution from http://keisan.casio.com/exec/system/1330940731
     expectedSolution = 6.9764499206151121988504219845072175547665355367817;
@@ -221,7 +224,6 @@ BOOST_AUTO_TEST_CASE( testIntegralExpFunction )
     // Check if computed solution matches expected value.
     BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-12 );
 }
-
 
 //! Test if quadrature is computed correctly (polynomial function).
 BOOST_AUTO_TEST_CASE( testIntegralPolyFunction )
@@ -234,7 +236,7 @@ BOOST_AUTO_TEST_CASE( testIntegralPolyFunction )
     const double lowerLimit = -2.0;
     const double upperLimit = 4.0;
     GaussianQuadrature< double, double > integrator( polyFunction, lowerLimit, upperLimit, order );
-    double computedSolution = integrator.getQuadrature();
+    double computedSolution = integrator.getQuadrature( );
 
     // Expected solution from Wolfram Alpha
     double expectedSolution = 120990;
@@ -244,9 +246,8 @@ BOOST_AUTO_TEST_CASE( testIntegralPolyFunction )
 
     // Check that this isn't the case for 4 nodes
     integrator.reset( polyFunction, lowerLimit, upperLimit, 4 );
-    computedSolution = integrator.getQuadrature();
-    BOOST_CHECK( std::fabs( computedSolution - expectedSolution) > 1 );
-
+    computedSolution = integrator.getQuadrature( );
+    BOOST_CHECK( std::fabs( computedSolution - expectedSolution ) > 1 );
 
     /// Check that it is a Gaussian quadrature and not just any quadrature
 
@@ -255,7 +256,7 @@ BOOST_AUTO_TEST_CASE( testIntegralPolyFunction )
 
     // Set to order 2
     integrator.reset( polyFunction, lowerLimit, upperLimit, 2 );
-    computedSolution = integrator.getQuadrature();
+    computedSolution = integrator.getQuadrature( );
 
     // Expected solution from http://keisan.casio.com/exec/system/1330940731
     expectedSolution = 32214;
@@ -264,8 +265,7 @@ BOOST_AUTO_TEST_CASE( testIntegralPolyFunction )
     BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-12 );
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

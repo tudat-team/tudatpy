@@ -16,7 +16,7 @@
 /*!
  * This macro suppresses the warning that a parameter passed to a function/method is not used, but
  * still passed in. This commonly occurs when overriding virtual methods.
- * 
+ *
  * Example:
  * int foo( int bar) {
  *     TUDAT_UNUSED_PARAMETER(bar);
@@ -25,12 +25,15 @@
  *
  * \param unusedParameter Parameter that is not being used in a function.
  */
-#define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
+#define TUDAT_UNUSED_PARAMETER( unusedParameter ) \
+    {                                             \
+        (void)unusedParameter;                    \
+    }
 
 //! Mark a declaration as deprecated.
 /*!
- * When a declaration is marked as deprecated, it should be avoided, as most likely it performs 
- * something unwanted, superseded by another functionality or marked for removal in a future a 
+ * When a declaration is marked as deprecated, it should be avoided, as most likely it performs
+ * something unwanted, superseded by another functionality or marked for removal in a future a
  * release. The user should check where the deprecation warning comes from in order to get
  * information from the developer on how to resolve the warning. Commonly one should use another,
  * recommended function or alternative code block.
@@ -41,7 +44,7 @@
  * TUDAT_DEPRECATED("Deprecated variable!", int bar);
  *
  * Example:
- * //! Do something. 
+ * //! Do something.
  * // Deprecated; use Foo::NewFunc(int, float) instead.
  * // \see Foo::NewFunc(int, float)
  * TUDAT_DEPRECATED("Deprecated, you should use Foo::NewFunc(int, float) instead.",
@@ -55,7 +58,7 @@
  * \param expression The expression which has to be deprecated.
  */
 #ifdef __GNUC__
-#define TUDAT_DEPRECATED( message, expression ) expression __attribute__ ( ( deprecated( message ) ) )
+#define TUDAT_DEPRECATED( message, expression ) expression __attribute__( ( deprecated( message ) ) )
 #elif defined( _MSC_VER )
 #define TUDAT_DEPRECATED( message, expression ) __declspec( deprecated( message ) ) expression
 #else
@@ -63,4 +66,4 @@
 #define TUDAT_DEPRECATED( message, expression ) expression
 #endif
 
-#endif // TUDAT_UTILITY_MACROS_H
+#endif  // TUDAT_UTILITY_MACROS_H

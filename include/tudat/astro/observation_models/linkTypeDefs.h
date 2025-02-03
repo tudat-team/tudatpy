@@ -26,8 +26,7 @@ namespace observation_models
 /*!
  *  Enum defining different roles that a given link end can play in an observation model.
  */
-enum LinkEndType
-{
+enum LinkEndType {
     unidentified_link_end = -1,
     default_link_end = unidentified_link_end,
     transmitter = 0,
@@ -48,25 +47,16 @@ enum LinkEndType
 };
 
 ////! Typedef for the identifier of a given link-end (body and reference points)
-//typedef std::pair< std::string, std::string > LinkEndId;
+// typedef std::pair< std::string, std::string > LinkEndId;
 
+struct LinkEndId {
+    LinkEndId( ) { }
 
-struct LinkEndId
-{
-    LinkEndId( ){ }
+    LinkEndId( const std::pair< std::string, std::string >& linkEnd ): bodyName_( linkEnd.first ), stationName_( linkEnd.second ) { }
 
-    LinkEndId( const std::pair< std::string, std::string >& linkEnd ):
-        bodyName_( linkEnd.first ),
-        stationName_( linkEnd.second ){ }
+    LinkEndId( const std::string& bodyName, const std::string& stationName ): bodyName_( bodyName ), stationName_( stationName ) { }
 
-    LinkEndId( const std::string& bodyName,
-               const std::string& stationName ):
-        bodyName_( bodyName ),
-        stationName_( stationName ){ }
-
-    LinkEndId( const std::string& bodyName ):
-        bodyName_( bodyName ),
-        stationName_( "" ){ }
+    LinkEndId( const std::string& bodyName ): bodyName_( bodyName ), stationName_( "" ) { }
 
     std::pair< std::string, std::string > getDualStringLinkEnd( ) const
     {
@@ -83,7 +73,7 @@ struct LinkEndId
         return !operator==( linkEnd1, linkEnd2 );
     }
 
-    friend bool operator< ( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
+    friend bool operator<( const LinkEndId& linkEnd1, const LinkEndId& linkEnd2 )
     {
         if( linkEnd1.bodyName_ < linkEnd2.bodyName_ )
         {
@@ -116,20 +106,17 @@ struct LinkEndId
     {
         return stationName_;
     }
-
 };
 
-inline LinkEndId linkEndId( const std::string& bodyName,
-                            const std::string& stationName )
+inline LinkEndId linkEndId( const std::string& bodyName, const std::string& stationName )
 {
-    return  LinkEndId( bodyName, stationName );
+    return LinkEndId( bodyName, stationName );
 }
 
 inline LinkEndId linkEndId( const std::string& bodyName )
 {
     return LinkEndId( bodyName );
 }
-
 
 //! Function to get a string identifier for a link end type
 /*!
@@ -142,16 +129,14 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType );
 //! Typedef for list of link ends, with associated role, used for a single observation (model).
 typedef std::map< LinkEndType, LinkEndId > LinkEnds;
 
-struct LinkDefinition
-{
-    LinkDefinition( ){ }
+struct LinkDefinition {
+    LinkDefinition( ) { }
 
-    LinkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds ):
-        linkEnds_( linkEnds ){ }
+    LinkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds ): linkEnds_( linkEnds ) { }
 
     LinkDefinition( const std::map< LinkEndType, std::pair< std::string, std::string > >& linkEnds )
     {
-        for( auto it : linkEnds )
+        for( auto it: linkEnds )
         {
             linkEnds_[ it.first ] = LinkEndId( it.second );
         }
@@ -161,25 +146,28 @@ struct LinkDefinition
     {
         if( linkEnds_.count( linkEndType ) == 0 )
         {
-            throw std::runtime_error( "Error when extracing link end, requested link end type " +
-                                      getLinkEndTypeString( linkEndType ) +
+            throw std::runtime_error( "Error when extracing link end, requested link end type " + getLinkEndTypeString( linkEndType ) +
                                       " not found" );
         }
         return linkEnds_.at( linkEndType );
     }
 
-    LinkEndId &operator[](LinkEndType linkEndType)
+    LinkEndId& operator[]( LinkEndType linkEndType )
     {
         return linkEnds_[ linkEndType ];
     }
 
-    std::map< LinkEndType, LinkEndId > getLinkEnds() const {
+    std::map< LinkEndType, LinkEndId > getLinkEnds( ) const
+    {
         return linkEnds_;
     }
 
     std::map< LinkEndType, LinkEndId > linkEnds_;
 
-    unsigned int size( ) const { return static_cast< unsigned int >( linkEnds_.size( ) ); }
+    unsigned int size( ) const
+    {
+        return static_cast< unsigned int >( linkEnds_.size( ) );
+    }
 
     friend bool operator==( const LinkDefinition& linkEnds1, const LinkDefinition& linkEnds2 )
     {
@@ -195,7 +183,7 @@ struct LinkDefinition
             for( unsigned int i = 0; i < firstLinkEnds.size( ); i++ )
             {
                 if( ( firstLinkEndIterator->first != secondLinkEndIterator->first ) ||
-                        ( firstLinkEndIterator->second != secondLinkEndIterator->second ) )
+                    ( firstLinkEndIterator->second != secondLinkEndIterator->second ) )
                 {
                     isEqual = false;
                     break;
@@ -213,16 +201,15 @@ struct LinkDefinition
         return isEqual;
     }
 
-//    friend bool operator< ( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
-//    {
-//        return linkEnds1.linkEnds_ < linkEnds2.linkEnds_;
-//    }
+    //    friend bool operator< ( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
+    //    {
+    //        return linkEnds1.linkEnds_ < linkEnds2.linkEnds_;
+    //    }
 
     friend bool operator!=( const LinkEnds& linkEnds1, const LinkEnds& linkEnds2 )
     {
         return !operator==( linkEnds1, linkEnds2 );
     }
-
 };
 
 inline LinkDefinition linkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds )
@@ -292,49 +279,30 @@ LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds );
 
 LinkDefinition mergeOneWayLinkEnds( const std::vector< LinkDefinition >& linkEnds );
 
-LinkEnds getUplinkFromTwoWayLinkEnds(
-        const LinkEnds& twoWayLinkEnds );
+LinkEnds getUplinkFromTwoWayLinkEnds( const LinkEnds& twoWayLinkEnds );
 
-LinkDefinition getUplinkFromTwoWayLinkEnds(
-        const LinkDefinition& twoWayLinkEnds );
+LinkDefinition getUplinkFromTwoWayLinkEnds( const LinkDefinition& twoWayLinkEnds );
 
-LinkEnds getDownlinkFromTwoWayLinkEnds(
-        const LinkEnds& twoWayLinkEnds );
+LinkEnds getDownlinkFromTwoWayLinkEnds( const LinkEnds& twoWayLinkEnds );
 
-LinkDefinition getDownlinkFromTwoWayLinkEnds(
-        const LinkDefinition& twoWayLinkEnds );
+LinkDefinition getDownlinkFromTwoWayLinkEnds( const LinkDefinition& twoWayLinkEnds );
 
-LinkEnds getSingleLegLinkEnds(
-        const LinkEnds& nWayLinkEnds, const unsigned int legIndex );
+LinkEnds getSingleLegLinkEnds( const LinkEnds& nWayLinkEnds, const unsigned int legIndex );
 
-LinkEnds mergeOneWayLinkEnds(
-        const std::vector< LinkEnds >& linkEnds );
+LinkEnds mergeOneWayLinkEnds( const std::vector< LinkEnds >& linkEnds );
 
-std::vector< LinkEnds > getOneWayDownlinkLinkEndsList(
-        const LinkEndId singleTransmitter,
-        const std::vector< LinkEndId >& listOfReceivers );
+std::vector< LinkEnds > getOneWayDownlinkLinkEndsList( const LinkEndId singleTransmitter, const std::vector< LinkEndId >& listOfReceivers );
 
-std::vector< LinkEnds > getOneWayUplinkLinkEndsList(
-        const std::vector< LinkEndId > listOfTransmitters,
-        const LinkEndId singleReceivers );
+std::vector< LinkEnds > getOneWayUplinkLinkEndsList( const std::vector< LinkEndId > listOfTransmitters, const LinkEndId singleReceivers );
 
-std::vector< LinkEnds > getSameStationTwoWayLinkEndsList(
-        const std::vector< LinkEndId > listOfStations,
-        const LinkEndId spacecraft );
+std::vector< LinkEnds > getSameStationTwoWayLinkEndsList( const std::vector< LinkEndId > listOfStations, const LinkEndId spacecraft );
 
-std::vector< LinkEnds > getTwoWayLinkEndsList(
-        const std::vector< LinkEndId > listOfStations,
-        const LinkEndId spacecraft );
+std::vector< LinkEnds > getTwoWayLinkEndsList( const std::vector< LinkEndId > listOfStations, const LinkEndId spacecraft );
 
+bool isLinkEndPresent( const LinkEnds linkEnds, const LinkEndId linkEndToSearch );
 
-bool isLinkEndPresent(
-        const LinkEnds linkEnds,
-        const LinkEndId linkEndToSearch );
+}  // namespace observation_models
 
+}  // namespace tudat
 
-
-} // namespace observation_models
-
-} // namespace tudat
-
-#endif // TUDAT_LINKTYPEDEFS_H
+#endif  // TUDAT_LINKTYPEDEFS_H

@@ -40,16 +40,12 @@ namespace unit_tests
  * derivatives (see testFunction2) if you ever need higher derivatives.
  *
  */
-struct TestFunction3 : public TestFunction, 
-        public basic_mathematics::BasicFunction< double, double >
-{
+struct TestFunction3 : public TestFunction, public basic_mathematics::BasicFunction< double, double > {
     //! Maximum order of the derivative before throwing an exception.
     unsigned int maximumDerivativeOrder;
 
     //! Create a function, where aMaximumDerivativeOrder is the maximum order of the derivative.
-    TestFunction3( unsigned int aMaximumDerivativeOrder )
-        : maximumDerivativeOrder( aMaximumDerivativeOrder )
-    { }
+    TestFunction3( unsigned int aMaximumDerivativeOrder ): maximumDerivativeOrder( aMaximumDerivativeOrder ) { }
 
     //! Mathematical test function.
     double evaluate( const double inputValue )
@@ -59,56 +55,53 @@ struct TestFunction3 : public TestFunction,
 
     //! Derivatives of mathematical test function.
     double computeDerivative( const unsigned int order, const double inputValue )
-    { 
+    {
         // Sanity check.
-        if ( order > maximumDerivativeOrder )
+        if( order > maximumDerivativeOrder )
         {
             throw std::runtime_error( "The rootfinder should not evaluate higher derivatives!" );
         }
 
         // Return the analytical expression for the derivatives.
-        if ( order == 0 )
+        if( order == 0 )
         {
             return evaluate( inputValue );
         }
 
-        else if ( order == 1 )
+        else if( order == 1 )
         {
-            return - 1.0 - std::sin( inputValue );
+            return -1.0 - std::sin( inputValue );
         }
 
-        else if ( order == 2 )
+        else if( order == 2 )
         {
-            return - std::cos( inputValue );
+            return -std::cos( inputValue );
         }
 
-        else if ( order == 3 )
+        else if( order == 3 )
         {
             return std::sin( inputValue );
         }
 
-        else if ( order == 4 )
+        else if( order == 4 )
         {
             return std::cos( inputValue );
         }
 
-        else if ( order == 5 )
+        else if( order == 5 )
         {
             return -std::sin( inputValue );
         }
 
         else
         {
-            throw std::runtime_error( boost::str( boost::format(
-                "Derivatives of order higher than 5 are not supported, requested order = %d" )
-                    % order ) );
+            throw std::runtime_error(
+                    boost::str( boost::format( "Derivatives of order higher than 5 are not supported, requested order = %d" ) % order ) );
         }
-        
     }
 
     //! Crash on integration as root_finders should not execute these.
-    double computeDefiniteIntegral( const unsigned int order, const double lowerBound,
-                                    const double upperbound )
+    double computeDefiniteIntegral( const unsigned int order, const double lowerBound, const double upperbound )
     {
         throw std::runtime_error( "The rootfinder should not evaluate integrals!" );
     }
@@ -120,7 +113,7 @@ struct TestFunction3 : public TestFunction,
         // double: FindRoot[Cos[x]-x, {x, 3}, WorkingPrecision -> 48];
         return 0.739085133215160641655312087673873404013411758901;
     }
-    
+
     //! Get the accuracy of the true location of the root.
     double getTrueRootAccuracy( )
     {
@@ -128,20 +121,28 @@ struct TestFunction3 : public TestFunction,
     }
 
     //! Get a reasonable initial guess of the root location = -2.
-    double getInitialGuess( ) { return -2.0; }
+    double getInitialGuess( )
+    {
+        return -2.0;
+    }
 
     //! Get a reasonable lower boundary for the root location = -1.
-    double getLowerBound( ) { return -1.0; }
+    double getLowerBound( )
+    {
+        return -1.0;
+    }
 
     //! Get a reasonable upper boundary for the root location = 2.
-    double getUpperBound( ) { return 2.0; }
+    double getUpperBound( )
+    {
+        return 2.0;
+    }
 
 protected:
-
 private:
 };
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat
 
-#endif // TUDAT_TEST_FUNCTION3_H
+#endif  // TUDAT_TEST_FUNCTION3_H

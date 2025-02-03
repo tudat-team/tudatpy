@@ -32,7 +32,7 @@ namespace observation_models
 template< typename ObservationScalarType = double, typename TimeType = Time >
 class DsnNWayRangeObservationModel : public ObservationModel< 1, ObservationScalarType, TimeType >
 {
-   public:
+public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
 
     /*! Constructor.
@@ -47,23 +47,14 @@ class DsnNWayRangeObservationModel : public ObservationModel< 1, ObservationScal
      */
     DsnNWayRangeObservationModel(
             const LinkEnds& linkEnds,
-            const std::shared_ptr<
-                    observation_models::MultiLegLightTimeCalculator< ObservationScalarType,
-                                                                     TimeType > >
-                    lightTimeCalculator,
-            const std::shared_ptr< ground_stations::StationFrequencyInterpolator >
-                    transmittingFrequencyCalculator,
+            const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
+            const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
-            const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >
-                    groundStationStates = std::map<
-                            LinkEndType,
-                            std::shared_ptr< ground_stations::GroundStationState > >( ) ) :
-        ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_range,
-                                                                linkEnds,
-                                                                observationBiasCalculator ),
+            const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
+                    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
+        ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_range, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ), numberOfLinkEnds_( linkEnds.size( ) ),
-        transmittingFrequencyCalculator_( transmittingFrequencyCalculator ),
-        stationStates_( groundStationStates )
+        transmittingFrequencyCalculator_( transmittingFrequencyCalculator ), stationStates_( groundStationStates )
     {
         if( !std::is_same< Time, TimeType >::value )
         {
@@ -105,8 +96,7 @@ class DsnNWayRangeObservationModel : public ObservationModel< 1, ObservationScal
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-                    nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )
@@ -128,18 +118,15 @@ class DsnNWayRangeObservationModel : public ObservationModel< 1, ObservationScal
         std::vector< FrequencyBands > frequencyBands;
         try
         {
-            lowestRangingComponent = ancillarySettings->getAncilliaryDoubleData(
-                    sequential_range_lowest_ranging_component );
+            lowestRangingComponent = ancillarySettings->getAncilliaryDoubleData( sequential_range_lowest_ranging_component );
             //            referenceFrequency = ancillarySettings->getAncilliaryDoubleData(
             //            sequential_range_reference_frequency );
-            frequencyBands = convertDoubleVectorToFrequencyBands(
-                    ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
         }
         catch( std::runtime_error& caughtException )
         {
-            throw std::runtime_error(
-                    "Error when retrieving ancillary settings for DSN N-way range observable: " +
-                    std::string( caughtException.what( ) ) );
+            throw std::runtime_error( "Error when retrieving ancillary settings for DSN N-way range observable: " +
+                                      std::string( caughtException.what( ) ) );
         }
 
         if( frequencyBands.size( ) != numberOfLinkEnds_ - 1 )
@@ -148,8 +135,7 @@ class DsnNWayRangeObservationModel : public ObservationModel< 1, ObservationScal
                     "Error when retrieving frequency bands ancillary settings for DSN N-way range "
                     "observable: "
                     "size (" +
-                    std::to_string( frequencyBands.size( ) ) +
-                    ") is inconsistent with number of links (" +
+                    std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
                     std::to_string( numberOfLinkEnds_ - 1 ) + ")." );
         }
         FrequencyBands uplinkBand = frequencyBands.at( 0 );
@@ -181,57 +167,42 @@ class DsnNWayRangeObservationModel : public ObservationModel< 1, ObservationScal
                 ? Eigen::Vector3d::Zero( )
                 : stationStates_.at( receiver )->getNominalCartesianPosition( );
         TimeType utcReceptionTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                basic_astrodynamics::tdb_scale,
-                basic_astrodynamics::utc_scale,
-                time,
-                nominalReceivingStationState );
+                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, nominalReceivingStationState );
         TimeType utcTransmissionTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
-                basic_astrodynamics::tdb_scale,
-                basic_astrodynamics::utc_scale,
-                time - lightTime,
-                nominalReceivingStationState );
+                basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time - lightTime, nominalReceivingStationState );
 
         ObservationScalarType transmitterFrequencyIntegral =
-                transmittingFrequencyCalculator_
-                        ->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
-                                utcTransmissionTime, utcReceptionTime );
+                transmittingFrequencyCalculator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
+                        utcTransmissionTime, utcReceptionTime );
         ObservationScalarType rangeUnitIntegral = conversionFactor * transmitterFrequencyIntegral;
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
-                ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )
-                  << static_cast< ObservationScalarType >( basic_mathematics::computeModulo(
-                             rangeUnitIntegral, std::pow( 2.0, lowestRangingComponent + 6.0 ) ) ) )
+                ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << static_cast< ObservationScalarType >(
+                          basic_mathematics::computeModulo( rangeUnitIntegral, std::pow( 2.0, lowestRangingComponent + 6.0 ) ) ) )
                         .finished( );
 
         return observation;
     }
 
-    std::shared_ptr<
-            observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
-    getLightTimeCalculator( )
+    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
     {
         return lightTimeCalculator_;
     }
 
-   private:
-    std::shared_ptr<
-            observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
-            lightTimeCalculator_;
+private:
+    std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
 
     // Number of link ends
     unsigned int numberOfLinkEnds_;
 
     // Object returning the transmitted frequency as the transmitting link end
-    std::shared_ptr< ground_stations::StationFrequencyInterpolator >
-            transmittingFrequencyCalculator_;
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator_;
 
     // Function returning the turnaround ratio for given uplink and downlink bands
-    std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) >
-            turnaroundRatio_;
+    std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_;
 
-    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter >
-            terrestrialTimeScaleConverter_;
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter_;
 
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 };

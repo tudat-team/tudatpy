@@ -38,7 +38,6 @@ namespace input_output
 class Parser
 {
 public:
-
     //! Default constructor, interface therefore empty.
     Parser( ) { }
 
@@ -60,14 +59,13 @@ public:
     virtual parsed_data_vector_utilities::ParsedDataVectorPtr parse( std::istream& stream ) = 0;
 
 protected:
-
 private:
 };
 
 //! Typedef for shared-pointer to Parser object.
 typedef std::shared_ptr< Parser > ParserPointer;
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_PARSER_H
+#endif  // TUDAT_PARSER_H

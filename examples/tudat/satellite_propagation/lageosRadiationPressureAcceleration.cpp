@@ -17,7 +17,7 @@
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
 #include "tudat/io/applicationOutput.h"
 
-int main()
+int main( )
 {
     using namespace tudat;
     using namespace tudat::simulation_setup;
@@ -31,8 +31,8 @@ int main()
     double coefficient = 1.13;
     double lageosMass = 406.9;
 
-    const std::vector<std::string> bodiesToPropagate{"LAGEOS"};
-    const std::vector<std::string> centralBodies{"Earth"};
+    const std::vector< std::string > bodiesToPropagate{ "LAGEOS" };
+    const std::vector< std::string > centralBodies{ "Earth" };
     const auto globalFrameOrigin = "Earth";
     const auto globalFrameOrientation = "ECLIPJ2000";
 
@@ -40,86 +40,84 @@ int main()
     spice_interface::loadStandardSpiceKernels( );
 
     // Get initial state from two-line elements
-    const auto tle = std::make_shared<Tle>(
+    const auto tle = std::make_shared< Tle >(
             "1 08820U 76039  A 77047.52561960  .00000002 +00000-0 +00000-0 0  9994\n"
-            "2 08820 109.8332 127.3884 0044194 201.3006 158.6132 06.38663945018402");
-    const auto tleEphemeris = std::make_shared<TleEphemeris>(globalFrameOrigin, globalFrameOrientation, tle);
+            "2 08820 109.8332 127.3884 0044194 201.3006 158.6132 06.38663945018402" );
+    const auto tleEphemeris = std::make_shared< TleEphemeris >( globalFrameOrigin, globalFrameOrientation, tle );
 
-    Eigen::VectorXd initialState = tleEphemeris->getCartesianState(tle->getEpoch());
+    Eigen::VectorXd initialState = tleEphemeris->getCartesianState( tle->getEpoch( ) );
 
     // Set propagation period to 10 revolutions
     double orbitalPeriod = basic_astrodynamics::computeKeplerOrbitalPeriod(
             orbital_element_conversions::convertCartesianToKeplerianElements(
-                    Eigen::Vector6d(initialState), EARTH_GRAVITATIONAL_PARAMETER )
-            [ orbital_element_conversions::semiMajorAxisIndex ],
-            EARTH_GRAVITATIONAL_PARAMETER, lageosMass );
+                    Eigen::Vector6d( initialState ), EARTH_GRAVITATIONAL_PARAMETER )[ orbital_element_conversions::semiMajorAxisIndex ],
+            EARTH_GRAVITATIONAL_PARAMETER,
+            lageosMass );
 
-    const auto startTime = tle->getEpoch();
+    const auto startTime = tle->getEpoch( );
     const auto endTime = startTime + 10 * orbitalPeriod;
     const auto printInterval = 2 * orbitalPeriod;
 
     // Get settings for celestial bodies
     // Earth's default radiation source model is from Knocke (1988) and includes albedo + thermal
-    auto bodySettings = getDefaultBodySettings({"Sun", "Earth"}, globalFrameOrigin, globalFrameOrientation);
+    auto bodySettings = getDefaultBodySettings( { "Sun", "Earth" }, globalFrameOrigin, globalFrameOrientation );
 
     // Get settings for LAGEOS
     bodySettings.addSettings( "LAGEOS" );
-    bodySettings.at("LAGEOS")->constantMass = lageosMass;
-    bodySettings.at("LAGEOS")->radiationPressureTargetModelSettings =
-            std::make_shared<CannonballRadiationPressureTargetModelSettings>(area, coefficient);
+    bodySettings.at( "LAGEOS" )->constantMass = lageosMass;
+    bodySettings.at( "LAGEOS" )->radiationPressureTargetModelSettings =
+            std::make_shared< CannonballRadiationPressureTargetModelSettings >( area, coefficient );
 
     // Create bodies
     auto bodies = createSystemOfBodies( bodySettings );
-    setGlobalFrameBodyEphemerides(bodies.getMap(), globalFrameOrigin, globalFrameOrientation);
+    setGlobalFrameBodyEphemerides( bodies.getMap( ), globalFrameOrigin, globalFrameOrientation );
 
     // Create accelerations
-    SelectedAccelerationMap accelerationMap{
-            {"LAGEOS", {
-                    {"Earth", {
-                            pointMassGravityAcceleration(),
-                            radiationPressureAcceleration()
-                    }}
-            }}
-    };
-    auto accelerations = createAccelerationModelsMap(bodies, accelerationMap, bodiesToPropagate, centralBodies);
+    SelectedAccelerationMap accelerationMap{ { "LAGEOS",
+                                               { { "Earth", { pointMassGravityAcceleration( ), radiationPressureAcceleration( ) } } } } };
+    auto accelerations = createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Set up simulation
-    std::vector<std::shared_ptr<SingleDependentVariableSaveSettings>> dependentVariablesList
-            {
-                    relativePositionDependentVariable("LAGEOS", "Earth"),
-                    relativeVelocityDependentVariable("LAGEOS", "Earth"),
-                    singleAccelerationDependentVariable(radiation_pressure, "LAGEOS", "Earth"),
-            };
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList{
+        relativePositionDependentVariable( "LAGEOS", "Earth" ),
+        relativeVelocityDependentVariable( "LAGEOS", "Earth" ),
+        singleAccelerationDependentVariable( radiation_pressure, "LAGEOS", "Earth" ),
+    };
 
-    auto integratorSettings = rungeKuttaFixedStepSettings(
-            orbitalPeriod / 100, rungeKuttaFehlberg78);
+    auto integratorSettings = rungeKuttaFixedStepSettings( orbitalPeriod / 100, rungeKuttaFehlberg78 );
 
-    auto outputProcessingSettings = std::make_shared<SingleArcPropagatorProcessingSettings>(
-            false, false, 1, TUDAT_NAN,
-            std::make_shared<PropagationPrintSettings>(
-                    true, false, printInterval, 0, false, false, false, true));
+    auto outputProcessingSettings = std::make_shared< SingleArcPropagatorProcessingSettings >(
+            false,
+            false,
+            1,
+            TUDAT_NAN,
+            std::make_shared< PropagationPrintSettings >( true, false, printInterval, 0, false, false, false, true ) );
 
-    auto propagatorSettings = translationalStatePropagatorSettings(
-            centralBodies, accelerations, bodiesToPropagate, initialState, startTime, integratorSettings,
-            propagationTimeTerminationSettings(endTime), cowell, dependentVariablesList, outputProcessingSettings);
+    auto propagatorSettings = translationalStatePropagatorSettings( centralBodies,
+                                                                    accelerations,
+                                                                    bodiesToPropagate,
+                                                                    initialState,
+                                                                    startTime,
+                                                                    integratorSettings,
+                                                                    propagationTimeTerminationSettings( endTime ),
+                                                                    cowell,
+                                                                    dependentVariablesList,
+                                                                    outputProcessingSettings );
 
-    auto dynamicsSimulator = createDynamicsSimulator<double, double>(
-            bodies, propagatorSettings);
+    auto dynamicsSimulator = createDynamicsSimulator< double, double >( bodies, propagatorSettings );
     auto propagationResults =
-            std::dynamic_pointer_cast<SingleArcSimulationResults<double, double>>(dynamicsSimulator->getPropagationResults());
+            std::dynamic_pointer_cast< SingleArcSimulationResults< double, double > >( dynamicsSimulator->getPropagationResults( ) );
 
     // Store results
     std::string outputSubFolder = "output_LageosRadiationPressureAcceleration/";
-    input_output::writeDataMapToTextFile(propagationResults->getDependentVariableHistory(),
-                                         "dependent_variable_history.csv",
-                                         outputSubFolder,
-                                         "",
-                                         std::numeric_limits< double >::digits10,
-                                         std::numeric_limits< double >::digits10,
-                                         ",");
-    input_output::writeIdMapToTextFile(propagationResults->getDependentVariableId(),
-                                       "dependent_variable_names.csv",
-                                       outputSubFolder,
-                                       ",");
+    input_output::writeDataMapToTextFile( propagationResults->getDependentVariableHistory( ),
+                                          "dependent_variable_history.csv",
+                                          outputSubFolder,
+                                          "",
+                                          std::numeric_limits< double >::digits10,
+                                          std::numeric_limits< double >::digits10,
+                                          "," );
+    input_output::writeIdMapToTextFile(
+            propagationResults->getDependentVariableId( ), "dependent_variable_names.csv", outputSubFolder, "," );
     std::cout << "Results stored to " << "output_LageosRadiationPressureAcceleration/" << std::endl;
 }

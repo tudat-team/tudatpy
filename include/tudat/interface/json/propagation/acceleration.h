@@ -34,8 +34,7 @@ namespace basic_astrodynamics
  * However, a warning will be printed indicating that the body causing the acceleration may not be treated as a
  * third body, requesting the user to remove the part "thridBody" in order to silence the warning.
  */
-static std::map< AvailableAcceleration, std::string > accelerationTypes =
-{
+static std::map< AvailableAcceleration, std::string > accelerationTypes = {
     { undefined_acceleration, "undefined" },
     { point_mass_gravity, "pointMassGravity" },
     { aerodynamic, "aerodynamic" },
@@ -52,29 +51,23 @@ static std::map< AvailableAcceleration, std::string > accelerationTypes =
 };
 
 //! `AvailableAcceleration`s not supported by `json_interface`.
-static std::vector< AvailableAcceleration > unsupportedAccelerationTypes =
-{
-    third_body_point_mass_gravity,
-    third_body_spherical_harmonic_gravity,
-    third_body_mutual_spherical_harmonic_gravity
-};
+static std::vector< AvailableAcceleration > unsupportedAccelerationTypes = { third_body_point_mass_gravity,
+                                                                             third_body_spherical_harmonic_gravity,
+                                                                             third_body_mutual_spherical_harmonic_gravity };
 
-static std::map< EmpiricalAccelerationComponents, std::string > empiricalAccelerationComponentTypes =
-{
+static std::map< EmpiricalAccelerationComponents, std::string > empiricalAccelerationComponentTypes = {
     { radial_empirical_acceleration_component, "radial" },
     { along_track_empirical_acceleration_component, "alongTrack" },
     { across_track_empirical_acceleration_component, "acrossTrack" }
 };
 
-static std::map< std::string, EmpiricalAccelerationComponents > empiricalAccelerationComponentTypesInverse =
-{
+static std::map< std::string, EmpiricalAccelerationComponents > empiricalAccelerationComponentTypesInverse = {
     { "radial", radial_empirical_acceleration_component },
     { "alongTrack", along_track_empirical_acceleration_component },
     { "acrossTrack", across_track_empirical_acceleration_component }
 };
 
-static std::map< EmpiricalAccelerationFunctionalShapes, std::string > empiricalAccelerationFunctionalShapes =
-{
+static std::map< EmpiricalAccelerationFunctionalShapes, std::string > empiricalAccelerationFunctionalShapes = {
     { constant_empirical, "constant" },
     { sine_empirical, "sine" },
     { cosine_empirical, "cosine" }
@@ -104,7 +97,6 @@ inline void from_json( const nlohmann::json& jsonObject, EmpiricalAccelerationCo
     empiricalAccelerationComponent = json_interface::enumFromString( jsonObject, empiricalAccelerationComponentTypes );
 }
 
-
 //! Convert `EmpiricalAccelerationFunctionalShapes` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const EmpiricalAccelerationFunctionalShapes& empiricalAccelerationFunctionalShape )
 {
@@ -117,8 +109,7 @@ inline void from_json( const nlohmann::json& jsonObject, EmpiricalAccelerationFu
     empiricalAccelerationFunctionalShape = json_interface::enumFromString( jsonObject, empiricalAccelerationFunctionalShapes );
 }
 
-} // namespace basic_astrodynamics
-
+}  // namespace basic_astrodynamics
 
 namespace simulation_setup
 {
@@ -129,20 +120,19 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AccelerationSet
 //! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AccelerationSettings >& accelerationSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
-
+}  // namespace tudat
 
 namespace boost
 {
 
 template<>
-tudat::basic_astrodynamics::EmpiricalAccelerationComponents lexical_cast(const std::string & s);
+tudat::basic_astrodynamics::EmpiricalAccelerationComponents lexical_cast( const std::string& s );
 
 template<>
-std::string lexical_cast(const tudat::basic_astrodynamics::EmpiricalAccelerationComponents & component );
+std::string lexical_cast( const tudat::basic_astrodynamics::EmpiricalAccelerationComponents& component );
 
-}
+}  // namespace boost
 
-#endif // TUDAT_JSONINTERFACE_ACCELERATION_H
+#endif  // TUDAT_JSONINTERFACE_ACCELERATION_H

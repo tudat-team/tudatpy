@@ -18,16 +18,14 @@ namespace input_output
 {
 
 //! Function to merge three double multi-arrays of 1 dimension into a single Vector3d multi-array
-boost::multi_array< Eigen::Vector3d, 1 > mergeOneDimensionalCoefficients(
-        const boost::multi_array< double, 1 > xComponents,
-        const boost::multi_array< double, 1 > yComponents,
-        const boost::multi_array< double, 1 > zComponents )
+boost::multi_array< Eigen::Vector3d, 1 > mergeOneDimensionalCoefficients( const boost::multi_array< double, 1 > xComponents,
+                                                                          const boost::multi_array< double, 1 > yComponents,
+                                                                          const boost::multi_array< double, 1 > zComponents )
 {
     boost::multi_array< Eigen::Vector3d, 1 > vectorArray;
 
     // Check input consistency
-    if( !( xComponents.shape( )[ 0 ] == yComponents.shape( )[ 0 ] ) ||
-            !( xComponents.shape( )[ 0 ] == zComponents.shape( )[ 0 ] ) )
+    if( !( xComponents.shape( )[ 0 ] == yComponents.shape( )[ 0 ] ) || !( xComponents.shape( )[ 0 ] == zComponents.shape( )[ 0 ] ) )
     {
         throw std::runtime_error( "Error when creating 1-D merged multi-array, input sizes are inconsistent" );
     }
@@ -43,18 +41,16 @@ boost::multi_array< Eigen::Vector3d, 1 > mergeOneDimensionalCoefficients(
 }
 
 //! Function to merge three double multi-arrays of 2 dimensions into a single Vector3d multi-array
-boost::multi_array< Eigen::Vector3d, 2 > mergeTwoDimensionalCoefficients(
-        const boost::multi_array< double, 2 > xComponents,
-        const boost::multi_array< double, 2 > yComponents,
-        const boost::multi_array< double, 2 > zComponents )
+boost::multi_array< Eigen::Vector3d, 2 > mergeTwoDimensionalCoefficients( const boost::multi_array< double, 2 > xComponents,
+                                                                          const boost::multi_array< double, 2 > yComponents,
+                                                                          const boost::multi_array< double, 2 > zComponents )
 {
     boost::multi_array< Eigen::Vector3d, 2 > vectorArray;
 
     // Check input consistency
     for( unsigned int i = 0; i < 2; i++ )
     {
-        if( !( xComponents.shape( )[ i ] == yComponents.shape( )[ i ] ) ||
-                !( xComponents.shape( )[ i ] == zComponents.shape( )[ i ] ) )
+        if( !( xComponents.shape( )[ i ] == yComponents.shape( )[ i ] ) || !( xComponents.shape( )[ i ] == zComponents.shape( )[ i ] ) )
         {
             throw std::runtime_error( "Error when creating 1-D merged multi-array, input sizes are inconsistent" );
         }
@@ -66,7 +62,8 @@ boost::multi_array< Eigen::Vector3d, 2 > mergeTwoDimensionalCoefficients(
     {
         for( unsigned int j = 0; j < xComponents.shape( )[ 1 ]; j++ )
         {
-            vectorArray[ i ][ j ] = ( Eigen::Vector3d( ) << xComponents[ i ][ j ], yComponents[ i ][ j ], zComponents[ i ][ j ] ).finished( );
+            vectorArray[ i ][ j ] =
+                    ( Eigen::Vector3d( ) << xComponents[ i ][ j ], yComponents[ i ][ j ], zComponents[ i ][ j ] ).finished( );
         }
     }
 
@@ -74,18 +71,16 @@ boost::multi_array< Eigen::Vector3d, 2 > mergeTwoDimensionalCoefficients(
 }
 
 //! Function to merge three double multi-arrays of 3 dimensions into a single Vector3d multi-array
-boost::multi_array< Eigen::Vector3d, 3 > mergeThreeDimensionalCoefficients(
-        const boost::multi_array< double, 3 > xComponents,
-        const boost::multi_array< double, 3 > yComponents,
-        const boost::multi_array< double, 3 > zComponents )
+boost::multi_array< Eigen::Vector3d, 3 > mergeThreeDimensionalCoefficients( const boost::multi_array< double, 3 > xComponents,
+                                                                            const boost::multi_array< double, 3 > yComponents,
+                                                                            const boost::multi_array< double, 3 > zComponents )
 {
     boost::multi_array< Eigen::Vector3d, 3 > vectorArray;
 
     // Check input consistency
     for( unsigned int i = 0; i < 3; i++ )
     {
-        if( !( xComponents.shape( )[ i ] == yComponents.shape( )[ i ] ) ||
-                !( xComponents.shape( )[ i ] == zComponents.shape( )[ i ] ) )
+        if( !( xComponents.shape( )[ i ] == yComponents.shape( )[ i ] ) || !( xComponents.shape( )[ i ] == zComponents.shape( )[ i ] ) )
         {
             throw std::runtime_error( "Error when creating 1-D merged multi-array, input sizes are inconsistent" );
         }
@@ -99,13 +94,15 @@ boost::multi_array< Eigen::Vector3d, 3 > mergeThreeDimensionalCoefficients(
         {
             for( unsigned int k = 0; k < xComponents.shape( )[ 2 ]; k++ )
             {
-                vectorArray[ i ][ j ][ k ] = ( Eigen::Vector3d( ) << xComponents[ i ][ j ][ k ], yComponents[ i ][ j ][ k ], zComponents[ i ][ j ][ k ] ).finished( );
+                vectorArray[ i ][ j ][ k ] =
+                        ( Eigen::Vector3d( ) << xComponents[ i ][ j ][ k ], yComponents[ i ][ j ][ k ], zComponents[ i ][ j ][ k ] )
+                                .finished( );
             }
         }
     }
     return vectorArray;
 }
 
-}
+}  // namespace input_output
 
-}
+}  // namespace tudat

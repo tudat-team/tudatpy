@@ -15,4 +15,4 @@
 #include "sofa/fundamentalArguments.h"
 #include "sofa/sofaTimeConversions.h"
 
-#endif // TUDAT_SOFA_H
+#endif  // TUDAT_SOFA_H

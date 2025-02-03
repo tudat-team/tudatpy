@@ -30,13 +30,11 @@ namespace tudat
 namespace low_thrust_trajectories
 {
 
-struct HybridMethodProblem
-{
-
+struct HybridMethodProblem {
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    HybridMethodProblem( ){ }
+    HybridMethodProblem( ) { }
 
     //! Constructor.
     HybridMethodProblem( const Eigen::Vector6d& stateAtDeparture,
@@ -49,39 +47,36 @@ struct HybridMethodProblem
                          const std::string centralBody,
                          std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
                          const std::pair< std::vector< double >, double > initialGuessThrustModel,
-                         const std::pair< double, double > initialAndFinalMEEcostatesBounds = std::make_pair( - 10.0, 10.0 ),
+                         const std::pair< double, double > initialAndFinalMEEcostatesBounds = std::make_pair( -10.0, 10.0 ),
                          const double relativeToleranceConstraints = 1.0e-6 );
 
     //! Calculate the fitness as a function of the parameter vector x
-    std::vector< double > fitness( const std::vector< double > &designVariables ) const;
+    std::vector< double > fitness( const std::vector< double >& designVariables ) const;
 
     //! Retrieve the allowable limits of the parameter vector x: pair containing minima and maxima of parameter values
-    std::pair< std::vector< double >, std::vector< double > > get_bounds() const;
+    std::pair< std::vector< double >, std::vector< double > > get_bounds( ) const;
 
     //! Retrieve the name of the problem
     std::string get_name( ) const;
 
     //! Retrieve the number of objectives in problem, e.g. the size of the vector returned by the fitness function
-    vector_double::size_type get_nobj() const
+    vector_double::size_type get_nobj( ) const
     {
         return 1u;
     }
 
-    vector_double::size_type get_nic() const
+    vector_double::size_type get_nic( ) const
     {
         return 0u;
     }
 
-    vector_double::size_type get_nec() const
+    vector_double::size_type get_nec( ) const
     {
         return 0u;
     }
-
 
 protected:
-
 private:
-
     //! State vector of the vehicle at the leg departure.
     Eigen::Vector6d stateAtDeparture_;
 
@@ -128,14 +123,9 @@ private:
 
     //! Relative tolerance for optimisation constraints.
     double relativeToleranceConstraints_;
-
-
-
-
-
 };
 
-} // namespace low_thrust_trajectories
-} // namespace tudat
+}  // namespace low_thrust_trajectories
+}  // namespace tudat
 
-#endif // TUDAT_HYBRID_METHOD_OPTIMISATION_SETUP_H
+#endif  // TUDAT_HYBRID_METHOD_OPTIMISATION_SETUP_H

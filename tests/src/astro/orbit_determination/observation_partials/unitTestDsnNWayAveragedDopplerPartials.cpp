@@ -51,25 +51,23 @@ using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
 using namespace tudat::input_output;
 
-BOOST_AUTO_TEST_SUITE( test_dsn_n_way_averaged_doppler_observation_partials)
+BOOST_AUTO_TEST_SUITE( test_dsn_n_way_averaged_doppler_observation_partials )
 
 std::vector< double > getRetransmissionDelays( const double evaluationTime, const int numberOfRetransmitters )
 {
     std::vector< double > retransmissionDelays;
 
-        for( int i = 0; i < numberOfRetransmitters; i++ )
-        {
-            retransmissionDelays.push_back( evaluationTime * 5.0E-17 * static_cast< double >( i + 1 ) );
-        }
+    for( int i = 0; i < numberOfRetransmitters; i++ )
+    {
+        retransmissionDelays.push_back( evaluationTime * 5.0E-17 * static_cast< double >( i + 1 ) );
+    }
     return retransmissionDelays;
 }
 
 //! Test partial derivatives of DSN N-way Doppler observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
 {
-
-    Eigen::VectorXd parameterPerturbationMultipliers =
-            ( Eigen::VectorXd( 4 ) << 100.0, 100.0, 1.0, 100.0 ).finished( );
+    Eigen::VectorXd parameterPerturbationMultipliers = ( Eigen::VectorXd( 4 ) << 100.0, 100.0, 1.0, 100.0 ).finished( );
 
     // Define and create ground stations.
     std::vector< std::pair< std::string, std::string > > groundStations;
@@ -88,12 +86,11 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
-        SystemOfBodies bodies = setupEnvironment( groundStations, initialEphemerisTime,
-                                                  finalEphemerisTime, stateEvaluationTime, true );
+        SystemOfBodies bodies = setupEnvironment( groundStations, initialEphemerisTime, finalEphemerisTime, stateEvaluationTime, true );
 
         // Process ODF file
         std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfFileContents, "MSL", true );
+                std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfFileContents, "MSL", true );
         // Create ground stations
         setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
         // Set turnaround ratios in spacecraft (ground station)
@@ -111,38 +108,44 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
-        lightTimeCorrectionsList.push_back(
-                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
+        lightTimeCorrectionsList.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
 
         std::shared_ptr< ObservationModel< 1, double, Time > > dsnNWayAveragedDopplerModel =
                 observation_models::ObservationModelCreator< 1, double, Time >::createObservationModel(
-                    std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
-                        linkEnds,
-                        lightTimeCorrectionsList ) , bodies );
+                        std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >( linkEnds,
+                                                                                                           lightTimeCorrectionsList ),
+                        bodies );
 
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodies, stateEvaluationTime );
 
-        testObservationPartials< 1 >(
-                dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
-                dsn_n_way_averaged_doppler, 1.0E-4, true, true, 1000.0, parameterPerturbationMultipliers,
-                getDsnNWayAveragedDopplerAncillarySettings(
-                    std::vector< FrequencyBands >{ x_band, x_band }, x_band, 7.0e9, 60.0, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
-                    stateEvaluationTime );
-
-
+        testObservationPartials< 1 >( dsnNWayAveragedDopplerModel,
+                                      bodies,
+                                      fullEstimatableParameterSet,
+                                      linkEnds,
+                                      dsn_n_way_averaged_doppler,
+                                      1.0E-4,
+                                      true,
+                                      true,
+                                      1000.0,
+                                      parameterPerturbationMultipliers,
+                                      getDsnNWayAveragedDopplerAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band },
+                                                                                  x_band,
+                                                                                  7.0e9,
+                                                                                  60.0,
+                                                                                  getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                                      stateEvaluationTime );
     }
 
     // Test partials with real ephemerides (without test of position partials)
     {
         // Create environment
-        SystemOfBodies bodies = setupEnvironment( groundStations, initialEphemerisTime,
-                                                  finalEphemerisTime, stateEvaluationTime, true );
+        SystemOfBodies bodies = setupEnvironment( groundStations, initialEphemerisTime, finalEphemerisTime, stateEvaluationTime, true );
 
         // Process ODF file
         std::shared_ptr< ProcessedOdfFileContents< Time > > processedOdfFileContents =
-            std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfFileContents, "MSL", true );
+                std::make_shared< ProcessedOdfFileContents< Time > >( rawOdfFileContents, "MSL", true );
         // Create ground stations
         setTransmittingFrequenciesInGroundStations( processedOdfFileContents, bodies.getBody( "Earth" ) );
         // Set turnaround ratios in spacecraft (ground station)
@@ -160,31 +163,39 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
-        lightTimeCorrectionsList.push_back(
-                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
+        lightTimeCorrectionsList.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) );
 
-       std::shared_ptr< ObservationModel< 1, double, Time > > dsnNWayAveragedDopplerModel =
+        std::shared_ptr< ObservationModel< 1, double, Time > > dsnNWayAveragedDopplerModel =
                 observation_models::ObservationModelCreator< 1, double, Time >::createObservationModel(
-                    std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
-                        linkEnds,
-                        lightTimeCorrectionsList ) , bodies );
+                        std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >( linkEnds,
+                                                                                                           lightTimeCorrectionsList ),
+                        bodies );
 
-       // Create parameter objects.
-       std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-               createEstimatableParameters( bodies, stateEvaluationTime );
+        // Create parameter objects.
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+                createEstimatableParameters( bodies, stateEvaluationTime );
 
-       testObservationPartials< 1 >(
-               dsnNWayAveragedDopplerModel, bodies, fullEstimatableParameterSet, linkEnds,
-               dsn_n_way_averaged_doppler, 1.0E-4, false, true, 1000.0, parameterPerturbationMultipliers,
-               getDsnNWayAveragedDopplerAncillarySettings(
-                   std::vector< FrequencyBands >{ x_band, x_band }, x_band, 7.0e9, 60.0, getRetransmissionDelays( initialEphemerisTime, 1 ) ),
-                   stateEvaluationTime );
+        testObservationPartials< 1 >( dsnNWayAveragedDopplerModel,
+                                      bodies,
+                                      fullEstimatableParameterSet,
+                                      linkEnds,
+                                      dsn_n_way_averaged_doppler,
+                                      1.0E-4,
+                                      false,
+                                      true,
+                                      1000.0,
+                                      parameterPerturbationMultipliers,
+                                      getDsnNWayAveragedDopplerAncillarySettings( std::vector< FrequencyBands >{ x_band, x_band },
+                                                                                  x_band,
+                                                                                  7.0e9,
+                                                                                  60.0,
+                                                                                  getRetransmissionDelays( initialEphemerisTime, 1 ) ),
+                                      stateEvaluationTime );
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

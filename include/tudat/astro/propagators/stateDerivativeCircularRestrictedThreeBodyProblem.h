@@ -32,15 +32,12 @@ namespace propagators
 class StateDerivativeCircularRestrictedThreeBodyProblem
 {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor that defines the state derivative for a given CRTBP system.
      * \param aMassParameter A value for mass parameter of CRTBP.
      */
-    StateDerivativeCircularRestrictedThreeBodyProblem( const double aMassParameter )
-        : massParameter ( aMassParameter )
-    { }
+    StateDerivativeCircularRestrictedThreeBodyProblem( const double aMassParameter ): massParameter( aMassParameter ) { }
 
     //! Compute state derivative.
     /*!
@@ -49,13 +46,10 @@ public:
      * \param cartesianState Cartesian state.
      * \return State derivative.
      */
-    Eigen::Vector6d computeStateDerivative(
-            const double time, const Eigen::Vector6d& cartesianState );
+    Eigen::Vector6d computeStateDerivative( const double time, const Eigen::Vector6d& cartesianState );
 
 protected:
-
 private:
-
     //! Mass parameter.
     /*!
      * Value of mass parameter for the CRTBP.
@@ -64,11 +58,10 @@ private:
 };
 
 //! Typedef for shared-pointer to StateDerivativeCircularRestrictedThreeBodyProblem object.
-typedef std::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem >
-StateDerivativeCircularRestrictedThreeBodyProblemPointer;
+typedef std::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem > StateDerivativeCircularRestrictedThreeBodyProblemPointer;
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_STATE_DERIVATIVE_CIRCULAR_RESTRICTED_THREE_BODY_PROBLEM_H
+#endif  // TUDAT_STATE_DERIVATIVE_CIRCULAR_RESTRICTED_THREE_BODY_PROBLEM_H

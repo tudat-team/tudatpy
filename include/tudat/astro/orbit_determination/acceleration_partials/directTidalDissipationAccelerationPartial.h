@@ -33,9 +33,11 @@ namespace acceleration_partials
  * \param includeDirectRadialComponent True if term independent of time lag is to be included, false otherwise
  * \return Partial derivative of direct tidal acceleration due to tide on planet w.r.t. position of satellite
  */
-Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtPosition(
-        const Eigen::Vector6d relativeStateOfBodyExertingTide, const Eigen::Vector3d planetAngularVelocityVector,
-        const double currentTidalAccelerationMultiplier, const double timeLag, const bool includeDirectRadialComponent );
+Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtPosition( const Eigen::Vector6d relativeStateOfBodyExertingTide,
+                                                                            const Eigen::Vector3d planetAngularVelocityVector,
+                                                                            const double currentTidalAccelerationMultiplier,
+                                                                            const double timeLag,
+                                                                            const bool includeDirectRadialComponent );
 
 //! Function to compute partial derivative of direct tidal acceleration due to tide on planet w.r.t. velocity of satellite
 /*!
@@ -47,9 +49,9 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtPosition(
  * \param timeLag Time lag of tidal bulge
  * \return Partial derivative of direct tidal acceleration due to tide on planet w.r.t. velocity of satellite
  */
-Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtVelocity(
-        const Eigen::Vector6d relativeStateOfBodyExertingTide, const double currentTidalAccelerationMultiplier,
-        const double timeLag );
+Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtVelocity( const Eigen::Vector6d relativeStateOfBodyExertingTide,
+                                                                            const double currentTidalAccelerationMultiplier,
+                                                                            const double timeLag );
 
 //! Function to compute partial derivative of direct tidal acceleration due to tide on satellite w.r.t. position of satellite
 /*!
@@ -62,9 +64,10 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtVelocity(
  * \param includeDirectRadialComponent True if term independent of time lag is to be included, false otherwise
  * \return Partial derivative of direct tidal acceleration due to tide on satellite w.r.t. position of satellite
  */
-Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition(
-        const Eigen::Vector6d relativeStateOfBodyExertingTide,
-        const double currentTidalAccelerationMultiplier, const double timeLag, const bool includeDirectRadialComponent );
+Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition( const Eigen::Vector6d relativeStateOfBodyExertingTide,
+                                                                               const double currentTidalAccelerationMultiplier,
+                                                                               const double timeLag,
+                                                                               const bool includeDirectRadialComponent );
 
 //! Function to compute partial derivative of direct tidal acceleration due to tide on satellite w.r.t. velocity of satellite
 /*!
@@ -76,15 +79,14 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition(
  * \param timeLag Time lag of tidal bulge
  * \return Partial derivative of direct tidal acceleration due to tide on satellite w.r.t. velocity of satellite
  */
-Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtVelocity(
-        const Eigen::Vector6d relativeStateOfBodyExertingTide, const double currentTidalAccelerationMultiplier,
-        const double timeLag );
+Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtVelocity( const Eigen::Vector6d relativeStateOfBodyExertingTide,
+                                                                               const double currentTidalAccelerationMultiplier,
+                                                                               const double timeLag );
 
 //! Class to calculate the partials of the direct tidal acceleration model (e.g. Lainey et al. 2007 ) w.r.t. parameters and states
-class DirectTidalDissipationAccelerationPartial: public AccelerationPartial
+class DirectTidalDissipationAccelerationPartial : public AccelerationPartial
 {
 public:
-
     //! Constructor.
     /*!
      *  Constructor.
@@ -92,16 +94,15 @@ public:
      *  \param acceleratedBody Body undergoing acceleration.
      *  \param acceleratingBody Body exerting acceleration.
      */
-    DirectTidalDissipationAccelerationPartial(
-            const std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration,
-            const std::string acceleratedBody,
-            const std::string acceleratingBody ):
+    DirectTidalDissipationAccelerationPartial( const std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration,
+                                               const std::string acceleratedBody,
+                                               const std::string acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::getAccelerationModelType( tidalAcceleration ) ),
         tidalAcceleration_( tidalAcceleration )
     { }
 
     //! Destructor
-    ~DirectTidalDissipationAccelerationPartial( ){ }
+    ~DirectTidalDissipationAccelerationPartial( ) { }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -114,9 +115,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtPositionOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -139,9 +141,10 @@ public:
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
-    void wrtVelocityOfAcceleratedBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1,
+                                       const int startRow = 0,
+                                       const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -165,7 +168,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -176,7 +181,6 @@ public:
             partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
         }
     }
-
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
     /*!
@@ -190,7 +194,9 @@ public:
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+                                        const bool addContribution = 1,
+                                        const int startRow = 0,
+                                        const int startColumn = 0 )
     {
         if( addContribution )
         {
@@ -211,14 +217,13 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-                const std::pair< std::string, std::string >& stateReferencePoint,
-                const propagators::IntegratedStateType integratedStateType )
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                     const propagators::IntegratedStateType integratedStateType )
     {
-        if( ( stateReferencePoint.first == acceleratingBody_ ) ||
-              ( stateReferencePoint.first == acceleratedBody_ ) )
+        if( ( stateReferencePoint.first == acceleratingBody_ ) || ( stateReferencePoint.first == acceleratedBody_ ) )
         {
-            throw std::runtime_error( "Warning, dependency of direct dissipation acceleration on non-translational states not yet implemented" );
+            throw std::runtime_error(
+                    "Warning, dependency of direct dissipation acceleration on non-translational states not yet implemented" );
         }
         return 0;
     }
@@ -230,8 +235,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -255,7 +260,6 @@ public:
     void update( const double currentTime = TUDAT_NAN );
 
 protected:
-
     //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
     /*!
      * Function to create a function returning the current partial w.r.t. a gravitational parameter.
@@ -291,7 +295,6 @@ protected:
      */
     Eigen::Matrix3d currentPartialWrtPosition_;
 
-
     //! Current partial of central gravity acceleration w.r.t. velocity of body undergoing acceleration
     /*!
      *  Current partial of central gravity acceleration w.r.t. velocity of body undergoing acceleration
@@ -299,11 +302,10 @@ protected:
      *  calculated and set by update( ) function.
      */
     Eigen::Matrix3d currentPartialWrtVelocity_;
-
 };
 
-} // namespace acceleration_partials
+}  // namespace acceleration_partials
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_DIRECTTIDALDISSIPATIONACCELERATIONPARTIAL_H
+#endif  // TUDAT_DIRECTTIDALDISSIPATIONACCELERATIONPARTIAL_H

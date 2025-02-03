@@ -15,7 +15,6 @@
 
 #include <memory>
 
-
 #include "tudat/io/aerodynamicCoefficientReader.h"
 #include "tudat/astro/aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
@@ -26,14 +25,12 @@ namespace tudat
 namespace simulation_setup
 {
 
-
 //! List of aerodynamic coefficient models available in simulations
 /*!
  *  List of aerodynamic coefficient models available in simulations. Aerodynamic coefficient models
  *  not defined by this given enum cannot be used for automatic model setup.
  */
-enum AerodynamicCoefficientTypes
-{
+enum AerodynamicCoefficientTypes {
     constant_aerodynamic_coefficients,
     custom_aerodynamic_coefficients,
     hypersonic_local_inclincation_coefficients,
@@ -53,7 +50,6 @@ enum AerodynamicCoefficientTypes
 class ControlSurfaceIncrementAerodynamicCoefficientSettings
 {
 public:
-
     //! Constructor, sets type of aerodynamic coefficient model.
     /*!
      *  Constructor, sets type of aerodynamic coefficient model. Settings for aerodynamic
@@ -67,8 +63,7 @@ public:
     ControlSurfaceIncrementAerodynamicCoefficientSettings(
             const AerodynamicCoefficientTypes aerodynamicCoefficientType,
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
-        aerodynamicCoefficientType_( aerodynamicCoefficientType ),
-        independentVariableNames_( independentVariableNames )
+        aerodynamicCoefficientType_( aerodynamicCoefficientType ), independentVariableNames_( independentVariableNames )
     {
         // Check input type consistency
         if( aerodynamicCoefficientType_ == hypersonic_local_inclincation_coefficients )
@@ -78,20 +73,25 @@ public:
 
         if( aerodynamicCoefficientType_ == constant_aerodynamic_coefficients )
         {
-            throw std::runtime_error( "Error, constant control surface increments not available, should depend at least on deflection angle" );
+            throw std::runtime_error(
+                    "Error, constant control surface increments not available, should depend at least on deflection angle" );
         }
 
-        if( std::count( independentVariableNames.begin( ), independentVariableNames.end( ),
+        if( std::count( independentVariableNames.begin( ),
+                        independentVariableNames.end( ),
                         aerodynamics::control_surface_deflection_dependent ) != 1 )
         {
-            std::cerr << "Warning when creating ControlSurfaceIncrementAerodynamicCoefficientSettings, expected single dependency on control surface deflections, found " <<
-                std::count( independentVariableNames.begin( ), independentVariableNames.end( ),
-                            aerodynamics::control_surface_deflection_dependent ) << ", dependencies" << std::endl;
+            std::cerr << "Warning when creating ControlSurfaceIncrementAerodynamicCoefficientSettings, expected single dependency on "
+                         "control surface deflections, found "
+                      << std::count( independentVariableNames.begin( ),
+                                     independentVariableNames.end( ),
+                                     aerodynamics::control_surface_deflection_dependent )
+                      << ", dependencies" << std::endl;
         }
     }
 
     //! Destructor
-    virtual ~ControlSurfaceIncrementAerodynamicCoefficientSettings( ){ }
+    virtual ~ControlSurfaceIncrementAerodynamicCoefficientSettings( ) { }
 
     //! Function to return type of aerodynamic coefficient model that is to be created.
     /*!
@@ -103,7 +103,7 @@ public:
         return aerodynamicCoefficientType_;
     }
 
-       //! Function to return identifiers of physical meaning of independent variables.
+    //! Function to return identifiers of physical meaning of independent variables.
     /*!
      *  Function to return identifiers of physical meaning of independent variables.
      *  \return Identifiers of physical meaning of independent variables.
@@ -113,9 +113,7 @@ public:
         return independentVariableNames_;
     }
 
-
 protected:
-
     //! Type of aerodynamic coefficient model that is to be created.
     AerodynamicCoefficientTypes aerodynamicCoefficientType_;
 
@@ -130,8 +128,7 @@ protected:
  *  define the physical meaning of each of the independent variables.
  */
 template< unsigned int NumberOfDimensions >
-class TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings:
-        public ControlSurfaceIncrementAerodynamicCoefficientSettings
+class TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings : public ControlSurfaceIncrementAerodynamicCoefficientSettings
 {
 public:
     //! Constructor, sets properties of aerodynamic coefficients.
@@ -151,14 +148,10 @@ public:
             const std::vector< std::vector< double > > independentVariables,
             const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > forceCoefficients,
             const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > momentCoefficients,
-            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >  independentVariableNames ):
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
         ControlSurfaceIncrementAerodynamicCoefficientSettings( tabulated_coefficients, independentVariableNames ),
-        independentVariables_( independentVariables ),
-        forceCoefficients_( forceCoefficients ),
-        momentCoefficients_( momentCoefficients )
-    {
-
-    }
+        independentVariables_( independentVariables ), forceCoefficients_( forceCoefficients ), momentCoefficients_( momentCoefficients )
+    { }
 
     //! Constructor, sets properties of force coefficients (and zero moment coefficients).
     /*!
@@ -174,22 +167,21 @@ public:
     TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings(
             const std::vector< std::vector< double > > independentVariables,
             const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > forceCoefficients,
-            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >  independentVariableNames ):
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
         ControlSurfaceIncrementAerodynamicCoefficientSettings( tabulated_coefficients, independentVariableNames ),
-        independentVariables_( independentVariables ),
-        forceCoefficients_( forceCoefficients )
+        independentVariables_( independentVariables ), forceCoefficients_( forceCoefficients )
     {
         // Create zero moment coefficients at same data points as force coefficients
         std::vector< size_t > sizeVector;
         const size_t* arrayShape = forceCoefficients_.shape( );
         sizeVector.assign( arrayShape, arrayShape + forceCoefficients_.num_dimensions( ) );
         momentCoefficients_.resize( sizeVector );
-        std::fill( momentCoefficients_.data( ), momentCoefficients_.data( ) + momentCoefficients_.num_elements( ),
-                   Eigen::Vector3d::Zero( ) );
+        std::fill(
+                momentCoefficients_.data( ), momentCoefficients_.data( ) + momentCoefficients_.num_elements( ), Eigen::Vector3d::Zero( ) );
     }
 
     //! Destructor
-    ~TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings( ){ }
+    ~TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings( ) { }
 
     //! Function to return the values of the indepependent variables of tables of coefficients.
     /*!
@@ -222,7 +214,6 @@ public:
     }
 
 protected:
-
     //! Values of the indepependent variables of tables of coefficients.
     const std::vector< std::vector< double > > independentVariables_;
 
@@ -233,16 +224,14 @@ protected:
     boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > momentCoefficients_;
 };
 
-class CustomControlSurfaceIncrementAerodynamicCoefficientSettings:
-        public ControlSurfaceIncrementAerodynamicCoefficientSettings
+class CustomControlSurfaceIncrementAerodynamicCoefficientSettings : public ControlSurfaceIncrementAerodynamicCoefficientSettings
 {
 public:
-
     CustomControlSurfaceIncrementAerodynamicCoefficientSettings(
             const std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction,
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames ):
-            ControlSurfaceIncrementAerodynamicCoefficientSettings( custom_aerodynamic_coefficients, independentVariableNames ),
-            coefficientFunction_( coefficientFunction )
+        ControlSurfaceIncrementAerodynamicCoefficientSettings( custom_aerodynamic_coefficients, independentVariableNames ),
+        coefficientFunction_( coefficientFunction )
     { }
 
     std::function< Eigen::Vector6d( const std::vector< double >& ) > getCoefficientFunction( )
@@ -252,10 +241,10 @@ public:
 
 protected:
     std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction_;
-
 };
 
-inline std::shared_ptr< CustomControlSurfaceIncrementAerodynamicCoefficientSettings > customControlSurfaceIncrementAerodynamicCoefficientSettings(
+inline std::shared_ptr< CustomControlSurfaceIncrementAerodynamicCoefficientSettings >
+customControlSurfaceIncrementAerodynamicCoefficientSettings(
         const std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames )
 {
@@ -282,16 +271,16 @@ readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
 {
     std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicForceCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >(
-                forceCoefficientFiles );
+            aerodynamicForceCoefficients =
+                    input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( forceCoefficientFiles );
     std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicMomentCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >(
-                momentCoefficientFiles );
+            aerodynamicMomentCoefficients =
+                    input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( momentCoefficientFiles );
 
-    if( !input_output::compareIndependentVariables(
-                aerodynamicForceCoefficients.second, aerodynamicMomentCoefficients.second ) )
+    if( !input_output::compareIndependentVariables( aerodynamicForceCoefficients.second, aerodynamicMomentCoefficients.second ) )
     {
-        throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, force and moment independent variables are inconsistent" );
+        throw std::runtime_error(
+                "Error when creating aerodynamic coefficient settings from file, force and moment independent variables are inconsistent" );
     }
 
     if( independentVariableNames.size( ) != NumberOfIndependentVariables )
@@ -299,10 +288,11 @@ readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, input sizes are inconsistent" );
     }
 
-    return std::make_shared< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings<
-            NumberOfIndependentVariables > >(
-                aerodynamicForceCoefficients.second, aerodynamicForceCoefficients.first, aerodynamicMomentCoefficients.first,
-                independentVariableNames );
+    return std::make_shared< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
+            aerodynamicForceCoefficients.second,
+            aerodynamicForceCoefficients.first,
+            aerodynamicMomentCoefficients.first,
+            independentVariableNames );
 }
 
 //! Function to create control surface aerodynamic coefficient settings fom coefficients stored in data files
@@ -324,8 +314,7 @@ readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
 {
     std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >(
-                forceCoefficientFiles );
+            aerodynamicCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( forceCoefficientFiles );
 
     // Check input consistency
     if( independentVariableNames.size( ) != NumberOfIndependentVariables )
@@ -334,9 +323,8 @@ readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
     }
 
     // Create coefficient settings.
-    return std::make_shared< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings<
-            NumberOfIndependentVariables > >(
-                aerodynamicCoefficients.second, aerodynamicCoefficients.first, independentVariableNames );
+    return std::make_shared< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
+            aerodynamicCoefficients.second, aerodynamicCoefficients.first, independentVariableNames );
 }
 
 //! Function to create control surface aerodynamic coefficient settings fom coefficients stored in data files
@@ -352,8 +340,7 @@ readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
  *  \return Settings for creation of control surface aerodynamic coefficient interface, based on contents read from files
  *  defined in forceCoefficientFiles and momentCoefficientFiles.
  */
-std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
-readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
+std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
         const std::map< int, std::string > momentCoefficientFiles,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames );
@@ -369,8 +356,7 @@ readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
  * \return Settings for creation of control surface aerodynamic coefficient interface, based on contents read from
  * files defined in forceCoefficientFiles
  */
-std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
-readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
+std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames );
 
@@ -395,42 +381,40 @@ createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
         const std::vector< std::vector< double > > independentVariables,
         const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > forceCoefficients,
         const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > momentCoefficients,
-        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
-        independentVariableNames )
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
 {
     // Check input consistency.
     if( independentVariables.size( ) != NumberOfDimensions )
     {
-        throw std::runtime_error( "Error when creating tabulated control surface increment aerodynamic coefficient interface, inconsistent variable vector dimensioning" );
+        throw std::runtime_error(
+                "Error when creating tabulated control surface increment aerodynamic coefficient interface, inconsistent variable vector "
+                "dimensioning" );
     }
 
     if( independentVariableNames.size( ) != NumberOfDimensions )
     {
-       throw std::runtime_error( "Error when creating tabulated control surface increment aerodynamic coefficient interface, inconsistent variable name vector dimensioning" );
-
+        throw std::runtime_error(
+                "Error when creating tabulated control surface increment aerodynamic coefficient interface, inconsistent variable name "
+                "vector dimensioning" );
     }
 
     // Create interpolators for coefficients.
-    std::shared_ptr< interpolators::MultiLinearInterpolator
-            < double, Eigen::Vector3d, NumberOfDimensions > > forceInterpolator =
-            std::make_shared< interpolators::MultiLinearInterpolator
-            < double, Eigen::Vector3d, NumberOfDimensions > >(
-                independentVariables, forceCoefficients );
-    std::shared_ptr< interpolators::MultiLinearInterpolator
-            < double, Eigen::Vector3d, NumberOfDimensions > > momentInterpolator =
-            std::make_shared< interpolators::MultiLinearInterpolator
-            < double, Eigen::Vector3d, NumberOfDimensions > >(
-                independentVariables, momentCoefficients );
+    std::shared_ptr< interpolators::MultiLinearInterpolator< double, Eigen::Vector3d, NumberOfDimensions > > forceInterpolator =
+            std::make_shared< interpolators::MultiLinearInterpolator< double, Eigen::Vector3d, NumberOfDimensions > >( independentVariables,
+                                                                                                                       forceCoefficients );
+    std::shared_ptr< interpolators::MultiLinearInterpolator< double, Eigen::Vector3d, NumberOfDimensions > > momentInterpolator =
+            std::make_shared< interpolators::MultiLinearInterpolator< double, Eigen::Vector3d, NumberOfDimensions > >( independentVariables,
+                                                                                                                       momentCoefficients );
 
     // Create aerodynamic coefficient interface.
-    return  std::make_shared< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >(
-                std::bind( &interpolators::MultiLinearInterpolator
-                             < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             forceInterpolator, std::placeholders::_1 ),
-                std::bind( &interpolators::MultiLinearInterpolator
-                             < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             momentInterpolator, std::placeholders::_1 ),
-                independentVariableNames );
+    return std::make_shared< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >(
+            std::bind( &interpolators::MultiLinearInterpolator< double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
+                       forceInterpolator,
+                       std::placeholders::_1 ),
+            std::bind( &interpolators::MultiLinearInterpolator< double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
+                       momentInterpolator,
+                       std::placeholders::_1 ),
+            independentVariableNames );
 }
 
 //! Function to create tabulated control surface aerodynamic coefficients from associated settings object
@@ -447,22 +431,21 @@ createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
         const std::string& body )
 {
     // Check consistency of type.
-    std::shared_ptr< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfDimensions > >
-            tabulatedCoefficientSettings = std::dynamic_pointer_cast<
-            TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfDimensions > >( coefficientSettings );
+    std::shared_ptr< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfDimensions > > tabulatedCoefficientSettings =
+            std::dynamic_pointer_cast< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfDimensions > >(
+                    coefficientSettings );
     if( tabulatedCoefficientSettings == nullptr )
     {
-        throw std::runtime_error(
-                    "Error, expected tabulated control surface increment aerodynamic coefficients of size " +
-                    std::to_string( NumberOfDimensions ) + "for body " + body );
+        throw std::runtime_error( "Error, expected tabulated control surface increment aerodynamic coefficients of size " +
+                                  std::to_string( NumberOfDimensions ) + "for body " + body );
     }
     else
     {
         return createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< NumberOfDimensions >(
-                    tabulatedCoefficientSettings->getIndependentVariables( ),
-                    tabulatedCoefficientSettings->getForceCoefficients( ),
-                    tabulatedCoefficientSettings->getMomentCoefficients( ),
-                    tabulatedCoefficientSettings->getIndependentVariableNames( ) );
+                tabulatedCoefficientSettings->getIndependentVariables( ),
+                tabulatedCoefficientSettings->getForceCoefficients( ),
+                tabulatedCoefficientSettings->getMomentCoefficients( ),
+                tabulatedCoefficientSettings->getIndependentVariableNames( ) );
     }
 }
 
@@ -473,13 +456,12 @@ createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
  *  \param body Name of body for which coefficients are to be created.
  *  \return Object used to compute/update control surface aerodynamics during propagation.
  */
-std::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface >
-createControlSurfaceIncrementAerodynamicCoefficientInterface(
+std::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface > createControlSurfaceIncrementAerodynamicCoefficientInterface(
         const std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body );
 
-}
+}  // namespace simulation_setup
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_CREATEAERODYNAMICCONTROLSURFACES_H
+#endif  // TUDAT_CREATEAERODYNAMICCONTROLSURFACES_H

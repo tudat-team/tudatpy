@@ -21,8 +21,7 @@ namespace tudat
 namespace shape_based_methods
 {
 
-enum baseFunctionHodographicShapingType
-{
+enum baseFunctionHodographicShapingType {
     constant,
     sine,
     cosine,
@@ -44,12 +43,11 @@ enum baseFunctionHodographicShapingType
 class BaseFunctionHodographicShaping
 {
 public:
-
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    BaseFunctionHodographicShaping(  ){ }
+    BaseFunctionHodographicShaping( ) { }
 
     //! Default destructor.
     /*!
@@ -64,22 +62,17 @@ public:
     virtual double evaluateIntegral( const double independentVariable ) = 0;
 
 protected:
-
 private:
-
 };
 
-
 typedef std::vector< std::shared_ptr< shape_based_methods::BaseFunctionHodographicShaping > > HodographicBasisFunctionList;
-
 
 //! Constant function.
 class ConstantFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Default constructor.
-    ConstantFunctionHodographicShaping( ){}
+    ConstantFunctionHodographicShaping( ) { }
 
     //! Default destructor.
     ~ConstantFunctionHodographicShaping( ) { }
@@ -100,17 +93,13 @@ public:
     }
 
 protected:
-
 private:
-
 };
-
 
 //! Sine function.
 class SineFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking the frequency of the sine function as input.
     SineFunctionHodographicShaping( double frequency )
     {
@@ -120,26 +109,21 @@ public:
     //! Default destructor.
     ~SineFunctionHodographicShaping( ) { }
 
-
     double evaluateFunction( const double independentVariable );
 
     double evaluateDerivative( const double independentVariable );
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double frequency_;
 };
-
 
 //! Cosine function.
 class CosineFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking the frequency of the cosine function as input.
     CosineFunctionHodographicShaping( double frequency )
     {
@@ -149,26 +133,21 @@ public:
     //! Default destructor.
     ~CosineFunctionHodographicShaping( ) { }
 
-
     double evaluateFunction( const double independentVariable );
 
     double evaluateDerivative( const double independentVariable );
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double frequency_;
 };
-
 
 //! Exponential function.
 class ExponentialFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking the order of the exponential function as input.
     ExponentialFunctionHodographicShaping( double exponent )
     {
@@ -184,19 +163,15 @@ public:
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponent_;
-
 };
 
 //! Scaled exponential function.
 class ScaledExponentialFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking the exponent and scaling factor as inputs.
     ScaledExponentialFunctionHodographicShaping( double exponent, double scaleFactor )
     {
@@ -213,9 +188,7 @@ public:
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponent_;
     double scaleFactor_;
@@ -225,7 +198,6 @@ private:
 class ExponentialSineFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking exponent of the exponential function and frequency of the sine function as inputs.
     ExponentialSineFunctionHodographicShaping( double exponentExponentialFunction, double frequencySineFunction )
     {
@@ -236,16 +208,13 @@ public:
     //! Default destructor.
     ~ExponentialSineFunctionHodographicShaping( ) { }
 
-
     double evaluateFunction( const double independentVariable );
 
     double evaluateDerivative( const double independentVariable );
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponentExponentialFunction_;
     double frequencySineFunction_;
@@ -255,7 +224,6 @@ private:
 class ScaledExponentialSineFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking exponent of the exponential function, frequency of the sine function, and scaling factor as inputs.
     ScaledExponentialSineFunctionHodographicShaping( double exponentExponentialFunction, double frequencySineFunction, double scaleFactor )
     {
@@ -273,9 +241,7 @@ public:
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponentExponentialFunction_;
     double frequencySineFunction_;
@@ -286,7 +252,6 @@ private:
 class ExponentialCosineFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking exponent of the exponential function and frequency of the cosine function as inputs.
     ExponentialCosineFunctionHodographicShaping( double exponentExponentialFunction, double frequencyCosineFunction )
     {
@@ -297,29 +262,26 @@ public:
     //! Default destructor.
     ~ExponentialCosineFunctionHodographicShaping( ) { }
 
-
     double evaluateFunction( const double independentVariable );
 
     double evaluateDerivative( const double independentVariable );
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponentExponentialFunction_;
     double frequencyCosineFunction_;
 };
 
-
 //! Scaled exponential times cosine function.
 class ScaledExponentialCosineFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking order of the exponential function, frequency of the cosine function, and scaling factor as inputs.
-    ScaledExponentialCosineFunctionHodographicShaping( double exponentExponentialFunction, double frequencyCosineFunction, double scaleFactor )
+    ScaledExponentialCosineFunctionHodographicShaping( double exponentExponentialFunction,
+                                                       double frequencyCosineFunction,
+                                                       double scaleFactor )
     {
         exponentExponentialFunction_ = exponentExponentialFunction;
         frequencyCosineFunction_ = frequencyCosineFunction;
@@ -335,21 +297,17 @@ public:
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponentExponentialFunction_;
     double frequencyCosineFunction_;
     double scaleFactor_;
 };
 
-
 //! Power function.
 class PowerFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor with the order of the power function as input.
     PowerFunctionHodographicShaping( double exponent )
     {
@@ -359,27 +317,21 @@ public:
     //! Default destructor.
     ~PowerFunctionHodographicShaping( ) { }
 
-
     double evaluateFunction( const double independentVariable );
 
     double evaluateDerivative( const double independentVariable );
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponent_;
-
 };
-
 
 //! Scaled power function.
 class ScaledPowerFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking the exponent and scaling factor as inputs.
     ScaledPowerFunctionHodographicShaping( double exponent, double scaleFactor )
     {
@@ -396,20 +348,16 @@ public:
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponent_;
     double scaleFactor_;
 };
 
-
 //! Power times sine function.
 class PowerSineFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking exponent of the power function and frequency of the sine function as inputs.
     PowerSineFunctionHodographicShaping( double exponentPowerFunction, double frequencySineFunction )
     {
@@ -420,26 +368,21 @@ public:
     //! Default destructor.
     ~PowerSineFunctionHodographicShaping( ) { }
 
-
     double evaluateFunction( const double independentVariable );
 
     double evaluateDerivative( const double independentVariable );
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponentPowerFunction_;
     double frequencySineFunction_;
 };
 
-
 class ScaledPowerSineFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     ScaledPowerSineFunctionHodographicShaping( double exponentPowerFunction, double frequencySineFunction, double scaleFactor )
     {
         exponentPowerFunction_ = exponentPowerFunction;
@@ -456,21 +399,17 @@ public:
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponentPowerFunction_;
     double frequencySineFunction_;
     double scaleFactor_;
 };
 
-
 //! Power times cosine function.
 class PowerCosineFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     //! Constructor taking exponent of the power function and frequency of the cosine function as inputs.
     PowerCosineFunctionHodographicShaping( double exponentPowerFunction, double frequencyCosineFunction )
     {
@@ -481,26 +420,21 @@ public:
     //! Default destructor.
     ~PowerCosineFunctionHodographicShaping( ) { }
 
-
     double evaluateFunction( const double independentVariable );
 
     double evaluateDerivative( const double independentVariable );
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponentPowerFunction_;
     double frequencyCosineFunction_;
 };
 
-
 class ScaledPowerCosineFunctionHodographicShaping : public BaseFunctionHodographicShaping
 {
 public:
-
     ScaledPowerCosineFunctionHodographicShaping( double exponentPowerFunction, double frequencyCosineFunction, double scaleFactor )
     {
         exponentPowerFunction_ = exponentPowerFunction;
@@ -517,58 +451,64 @@ public:
 
     double evaluateIntegral( const double independentVariable );
 
-
 protected:
-
 private:
     double exponentPowerFunction_;
     double frequencyCosineFunction_;
     double scaleFactor_;
 };
 
-inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographConstant( )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographConstant( )
 {
     return std::make_shared< ConstantFunctionHodographicShaping >( );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographSine(  double frequency )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographSine( double frequency )
 {
     return std::make_shared< SineFunctionHodographicShaping >( frequency );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographCosine(  double frequency )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographCosine( double frequency )
 {
     return std::make_shared< CosineFunctionHodographicShaping >( frequency );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographExponential(  double exponent )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographExponential( double exponent )
 {
     return std::make_shared< ExponentialFunctionHodographicShaping >( exponent );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographScaledExponential(  double exponent, double scaleFactor )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledExponential( double exponent, double scaleFactor )
 {
     return std::make_shared< ScaledExponentialFunctionHodographicShaping >( exponent, scaleFactor );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographExponentialSine(  double exponentExponentialFunction, double frequencySineFunction )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographExponentialSine( double exponentExponentialFunction,
+                                                                                   double frequencySineFunction )
 {
     return std::make_shared< ExponentialSineFunctionHodographicShaping >( exponentExponentialFunction, frequencySineFunction );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographScaledExponentialSine(  double exponentExponentialFunction, double frequencySineFunction, double scaleFactor )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledExponentialSine( double exponentExponentialFunction,
+                                                                                         double frequencySineFunction,
+                                                                                         double scaleFactor )
 {
-    return std::make_shared< ScaledExponentialSineFunctionHodographicShaping >( exponentExponentialFunction, frequencySineFunction, scaleFactor );
+    return std::make_shared< ScaledExponentialSineFunctionHodographicShaping >(
+            exponentExponentialFunction, frequencySineFunction, scaleFactor );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographExponentialCosine(  double exponentExponentialFunction, double frequencySineFunction )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographExponentialCosine( double exponentExponentialFunction,
+                                                                                     double frequencySineFunction )
 {
     return std::make_shared< ExponentialCosineFunctionHodographicShaping >( exponentExponentialFunction, frequencySineFunction );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping >  hodographScaledExponentialCosine(  double exponentExponentialFunction, double frequencyCosineFunction, double scaleFactor )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledExponentialCosine( double exponentExponentialFunction,
+                                                                                           double frequencyCosineFunction,
+                                                                                           double scaleFactor )
 {
-    return std::make_shared< ScaledExponentialCosineFunctionHodographicShaping >( exponentExponentialFunction, frequencyCosineFunction, scaleFactor );
+    return std::make_shared< ScaledExponentialCosineFunctionHodographicShaping >(
+            exponentExponentialFunction, frequencyCosineFunction, scaleFactor );
 }
 
 inline std::shared_ptr< BaseFunctionHodographicShaping > hodographPower( double exponent )
@@ -581,31 +521,32 @@ inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledPower( d
     return std::make_shared< ScaledPowerFunctionHodographicShaping >( exponent, scaleFactor );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping > hodographPowerSine(
-        double exponentPowerFunction, double frequencySineFunction )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographPowerSine( double exponentPowerFunction, double frequencySineFunction )
 {
     return std::make_shared< PowerSineFunctionHodographicShaping >( exponentPowerFunction, frequencySineFunction );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledPowerSine(
-        double exponentPowerFunction, double frequencySineFunction, double scaleFactor )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledPowerSine( double exponentPowerFunction,
+                                                                                   double frequencySineFunction,
+                                                                                   double scaleFactor )
 {
     return std::make_shared< ScaledPowerSineFunctionHodographicShaping >( exponentPowerFunction, frequencySineFunction, scaleFactor );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping > hodographPowerCosine(
-        double exponentPowerFunction, double frequencyCosineFunction )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographPowerCosine( double exponentPowerFunction,
+                                                                               double frequencyCosineFunction )
 {
     return std::make_shared< PowerCosineFunctionHodographicShaping >( exponentPowerFunction, frequencyCosineFunction );
 }
 
-inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledPowerCosine(
-        double exponentPowerFunction, double frequencyCosineFunction, double scaleFactor )
+inline std::shared_ptr< BaseFunctionHodographicShaping > hodographScaledPowerCosine( double exponentPowerFunction,
+                                                                                     double frequencyCosineFunction,
+                                                                                     double scaleFactor )
 {
     return std::make_shared< ScaledPowerCosineFunctionHodographicShaping >( exponentPowerFunction, frequencyCosineFunction, scaleFactor );
 }
 
-} // namespace shape_based_methods
-} // namespace tudat
+}  // namespace shape_based_methods
+}  // namespace tudat
 
-#endif // TUDAT_BASE_FUNCTIONS_HODOGRAPHIC_SHAPING_H
+#endif  // TUDAT_BASE_FUNCTIONS_HODOGRAPHIC_SHAPING_H

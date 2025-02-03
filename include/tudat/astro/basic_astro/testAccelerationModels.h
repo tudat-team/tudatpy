@@ -35,14 +35,11 @@ namespace unit_tests
  *          (default=Eigen::Vector3d).
  * \tparam PositionDataType Data type used to represent positions (default=Eigen::Vector3d).
  * \tparam TimeDataType Data type used to represent time (default=double).
-*/
-template< typename AccelerationDataType = Eigen::Vector3d,
-          typename PositionDataType = Eigen::Vector3d, typename TimeDataType = double >
-class DerivedAccelerationModel
-        : public basic_astrodynamics::AccelerationModel< AccelerationDataType >
+ */
+template< typename AccelerationDataType = Eigen::Vector3d, typename PositionDataType = Eigen::Vector3d, typename TimeDataType = double >
+class DerivedAccelerationModel : public basic_astrodynamics::AccelerationModel< AccelerationDataType >
 {
 private:
-
     //! Typedef for a pointer to a function that returns a position.
     typedef std::function< PositionDataType( ) > PositionReturningFunction;
 
@@ -50,7 +47,6 @@ private:
     typedef std::function< TimeDataType( ) > TimeReturningFunction;
 
 public:
-
     //! Default constructor.
     /*!
      * Default constructor that takes function-pointers as input. These function-pointers point to
@@ -59,10 +55,8 @@ public:
      * \param aPositionFunction A function-pointer that points to a function returning a position.
      * \param aTimeFunction A function-pointer that points to a function returning a time.
      */
-    DerivedAccelerationModel( const PositionReturningFunction aPositionFunction,
-                              const TimeReturningFunction aTimeFunction )
-        : getPosition( aPositionFunction ),
-          getTime( aTimeFunction )
+    DerivedAccelerationModel( const PositionReturningFunction aPositionFunction, const TimeReturningFunction aTimeFunction ):
+        getPosition( aPositionFunction ), getTime( aTimeFunction )
     {
         updateMembers( );
     }
@@ -74,7 +68,10 @@ public:
      * example, rather than representing real dynamics.
      * \return Computed acceleration.
      */
-    AccelerationDataType getAcceleration( ) { return position / ( time * time ); }
+    AccelerationDataType getAcceleration( )
+    {
+        return position / ( time * time );
+    }
 
     //! Update member variables used by the acceleration model.
     /*!
@@ -82,12 +79,14 @@ public:
      * position and time are updated by calling the function-pointers passed to the constructor.
      * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( const double currentTime = TUDAT_NAN ) { position = getPosition( ); time = getTime( ); }
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        position = getPosition( );
+        time = getTime( );
+    }
 
 protected:
-
 private:
-
     //! Pointer to position-returning function.
     /*!
      * Function-pointer that points to a function passed to the constructor that returns a
@@ -130,15 +129,14 @@ private:
  * \tparam PositionDataType Data type used to represent positions (default=Eigen::Vector3d).
  * \tparam VelocityDataType Data type used to represent velocities (default=Eigen::Vector3d).
  * \tparam TimeDataType Data type used to represent time (default=double).
-*/
+ */
 template< typename AccelerationDataType = Eigen::Vector3d,
-          typename PositionDataType = Eigen::Vector3d, typename VelocityDataType = Eigen::Vector3d,
+          typename PositionDataType = Eigen::Vector3d,
+          typename VelocityDataType = Eigen::Vector3d,
           typename TimeDataType = double >
-class AnotherDerivedAccelerationModel
-        : public basic_astrodynamics::AccelerationModel< AccelerationDataType >
+class AnotherDerivedAccelerationModel : public basic_astrodynamics::AccelerationModel< AccelerationDataType >
 {
 public:
-
     //! Typedef for a pointer to a function that returns a position.
     typedef std::function< PositionDataType( ) > PositionReturningFunction;
 
@@ -159,10 +157,8 @@ public:
      */
     AnotherDerivedAccelerationModel( const PositionReturningFunction aPositionFunction,
                                      const VelocityReturningFunction aVelocityFunction,
-                                     const TimeReturningFunction aTimeFunction )
-        : getPosition( aPositionFunction ),
-          getVelocity( aVelocityFunction ),
-          getTime( aTimeFunction )
+                                     const TimeReturningFunction aTimeFunction ):
+        getPosition( aPositionFunction ), getVelocity( aVelocityFunction ), getTime( aTimeFunction )
     {
         updateMembers( );
     }
@@ -194,9 +190,7 @@ public:
     }
 
 protected:
-
 private:
-
     //! Pointer to position-returning function.
     /*!
      * Function-pointer that points to a function passed to the constructor that returns a
@@ -240,7 +234,7 @@ private:
     TimeDataType time;
 };
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat
 
-#endif // TUDAT_TEST_ACCELERATION_MODELS_H
+#endif  // TUDAT_TEST_ACCELERATION_MODELS_H

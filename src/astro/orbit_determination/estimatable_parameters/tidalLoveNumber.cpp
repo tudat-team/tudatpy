@@ -24,7 +24,7 @@ Eigen::VectorXd FullDegreeTidalLoveNumber::getParameterValue( )
 
     // Compute mean value across orders
     Eigen::VectorXd meanLoveNumber = Eigen::VectorXd::Zero( parameterSize_ );
-    for( int i = 0; i <= degree_; i ++ )
+    for( int i = 0; i <= degree_; i++ )
     {
         meanLoveNumber[ 0 ] += fullLoveNumbers[ i ].real( );
         if( useComplexComponents_ )
@@ -53,10 +53,9 @@ void FullDegreeTidalLoveNumber::setParameterValue( Eigen::VectorXd parameterValu
     }
     else
     {
-        std::vector< std::complex< double > > currentLoveNumbers = gravityFieldVariationModel_->getLoveNumbersOfDegree(
-                    degree_ );
+        std::vector< std::complex< double > > currentLoveNumbers = gravityFieldVariationModel_->getLoveNumbersOfDegree( degree_ );
         double meanComplexNumber = 0.0;
-        for( int i = 0; i <= degree_; i ++ )
+        for( int i = 0; i <= degree_; i++ )
         {
             meanComplexNumber += currentLoveNumbers[ i ].imag( );
         }
@@ -66,7 +65,7 @@ void FullDegreeTidalLoveNumber::setParameterValue( Eigen::VectorXd parameterValu
 
     // Modify required values of Love numbers
     std::complex< double > complexLoveNumber = std::complex< double >( parameterValue[ 0 ], complexPart );
-    for( int i = 0; i <= degree_; i ++ )
+    for( int i = 0; i <= degree_; i++ )
     {
         fullLoveNumbers[ i ] = complexLoveNumber;
     }
@@ -103,8 +102,7 @@ Eigen::VectorXd SingleDegreeVariableTidalLoveNumber::getParameterValue( )
 void SingleDegreeVariableTidalLoveNumber::setParameterValue( Eigen::VectorXd parameterValue )
 {
     // Retrieve current complex Love numbers at required degree
-    std::vector< std::complex< double > > fullLoveNumbers =
-            gravityFieldVariationModel_->getLoveNumbersOfDegree( degree_ );
+    std::vector< std::complex< double > > fullLoveNumbers = gravityFieldVariationModel_->getLoveNumbersOfDegree( degree_ );
 
     // Modify required values
     for( unsigned int i = 0; i < orders_.size( ); i++ )
@@ -115,8 +113,7 @@ void SingleDegreeVariableTidalLoveNumber::setParameterValue( Eigen::VectorXd par
         }
         else
         {
-            fullLoveNumbers[ orders_[ i ] ] = std::complex< double >(
-                        parameterValue[ i ], fullLoveNumbers[ orders_[ i ] ].imag( ) );
+            fullLoveNumbers[ orders_[ i ] ] = std::complex< double >( parameterValue[ i ], fullLoveNumbers[ orders_[ i ] ].imag( ) );
         }
     }
 
@@ -125,19 +122,19 @@ void SingleDegreeVariableTidalLoveNumber::setParameterValue( Eigen::VectorXd par
 }
 
 ModeCoupledTidalLoveNumber::ModeCoupledTidalLoveNumber(
-    const std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
-    const std::string& associatedBody,
-    const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
-    const bool useComplexComponents ):
+        const std::shared_ptr< gravitation::ModeCoupledSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+        const std::string& associatedBody,
+        const std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices,
+        const bool useComplexComponents ):
     EstimatableParameter< Eigen::VectorXd >( mode_coupled_tidal_love_numbers, associatedBody ),
-    gravityFieldVariationModel_( gravityFieldVariationModel ),
-    loveNumberIndices_( loveNumberIndices )
+    gravityFieldVariationModel_( gravityFieldVariationModel ), loveNumberIndices_( loveNumberIndices )
 {
     if( useComplexComponents )
     {
         throw std::runtime_error( "Error, complex mode-coupled Love numbers not yet supported" );
     }
-    std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers = gravityFieldVariationModel->getLoveNumbers( );
+    std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > loveNumbers =
+            gravityFieldVariationModel->getLoveNumbers( );
 
     parameterSize_ = 0.0;
     maximumForcingDegree_ = 0;
@@ -154,7 +151,7 @@ ModeCoupledTidalLoveNumber::ModeCoupledTidalLoveNumber(
         if( loveNumbers.count( it.first ) == 0 )
         {
             throw std::runtime_error( "Error when estimating mode-coupled Love number, no number at forcing D/O " +
-                                      std::to_string( it.first.first ) + "/" + std::to_string( it.first.second ) + " found ");
+                                      std::to_string( it.first.first ) + "/" + std::to_string( it.first.second ) + " found " );
         }
         for( unsigned int i = 0; i < it.second.size( ); i++ )
         {
@@ -162,19 +159,20 @@ ModeCoupledTidalLoveNumber::ModeCoupledTidalLoveNumber(
             {
                 throw std::runtime_error( "Error when estimating mode-coupled Love number, no number at forcing D/O " +
                                           std::to_string( it.first.first ) + "/" + std::to_string( it.first.second ) +
-                                          " and response D/O " +  std::to_string( it.second.at( i ).first ) + "/" + std::to_string( it.second.at( i ).second ) +" found ");
+                                          " and response D/O " + std::to_string( it.second.at( i ).first ) + "/" +
+                                          std::to_string( it.second.at( i ).second ) + " found " );
             }
-            std::pair< int, int > currentForcingDegreeOrder = std::make_pair(
-                it.second.at( i ).first, it.second.at( i ).second );
-            if( std::find(responseDegreeOrders_.begin(), responseDegreeOrders_.end(), currentForcingDegreeOrder) == responseDegreeOrders_.end( ) )
+            std::pair< int, int > currentForcingDegreeOrder = std::make_pair( it.second.at( i ).first, it.second.at( i ).second );
+            if( std::find( responseDegreeOrders_.begin( ), responseDegreeOrders_.end( ), currentForcingDegreeOrder ) ==
+                responseDegreeOrders_.end( ) )
             {
                 responseDegreeOrders_.push_back( currentForcingDegreeOrder );
                 currentResponseIndex = responseDegreeOrders_.size( ) - 1;
             }
             else
             {
-                auto findIterator = std::find(responseDegreeOrders_.begin(), responseDegreeOrders_.end(), currentForcingDegreeOrder );
-                currentResponseIndex = std::distance(responseDegreeOrders_.begin(), findIterator);
+                auto findIterator = std::find( responseDegreeOrders_.begin( ), responseDegreeOrders_.end( ), currentForcingDegreeOrder );
+                currentResponseIndex = std::distance( responseDegreeOrders_.begin( ), findIterator );
             }
             responseIndices_.push_back( currentResponseIndex );
         }
@@ -187,20 +185,20 @@ ModeCoupledTidalLoveNumber::ModeCoupledTidalLoveNumber(
         }
         else
         {
-            std::vector<int> ordersInCurrentDegree = forcingOrdersPerDegree_.at( forcingDegree );
-            if(std::find(ordersInCurrentDegree.begin(), ordersInCurrentDegree.end(), forcingOrder) == ordersInCurrentDegree.end( ) )
+            std::vector< int > ordersInCurrentDegree = forcingOrdersPerDegree_.at( forcingDegree );
+            if( std::find( ordersInCurrentDegree.begin( ), ordersInCurrentDegree.end( ), forcingOrder ) == ordersInCurrentDegree.end( ) )
             {
                 ordersInCurrentDegree.push_back( forcingOrder );
                 forcingOrdersPerDegree_[ forcingDegree ] = ordersInCurrentDegree;
             }
         }
-        std::vector<int> ordersInCurrentDegree = forcingOrdersPerDegree_.at( forcingDegree );
+        std::vector< int > ordersInCurrentDegree = forcingOrdersPerDegree_.at( forcingDegree );
 
-        auto findIterator = std::find(ordersInCurrentDegree.begin(), ordersInCurrentDegree.end(), forcingOrder );
-        int index = std::distance(ordersInCurrentDegree.begin(), findIterator);
+        auto findIterator = std::find( ordersInCurrentDegree.begin( ), ordersInCurrentDegree.end( ), forcingOrder );
+        int index = std::distance( ordersInCurrentDegree.begin( ), findIterator );
         for( unsigned int i = 0; i < it.second.size( ); i++ )
         {
-            parameterForcingDegreeAndOrderIndices_.push_back( std::make_pair( forcingDegree, index ));
+            parameterForcingDegreeAndOrderIndices_.push_back( std::make_pair( forcingDegree, index ) );
         }
         parameterSize_ += it.second.size( );
     }
@@ -211,10 +209,6 @@ ModeCoupledTidalLoveNumber::ModeCoupledTidalLoveNumber(
     }
 }
 
+}  // namespace estimatable_parameters
 
-
-}
-
-}
-
-
+}  // namespace tudat

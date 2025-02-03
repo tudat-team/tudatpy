@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
-
 #include "tudat/astro/relativity/metric.h"
 
 namespace tudat
@@ -23,6 +21,6 @@ std::shared_ptr< PPNParameterSet > ppnParameterSet = std::make_shared< PPNParame
 
 double equivalencePrincipleLpiViolationParameter = 0.0;
 
-}
+}  // namespace relativity
 
-}
+}  // namespace tudat

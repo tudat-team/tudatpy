@@ -30,15 +30,13 @@ namespace tudat
 namespace gravitation
 {
 
-class RingGravitationalAccelerationModel: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
+class RingGravitationalAccelerationModel : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
-
 protected:
     //! Typedef for a position-returning function.
     typedef std::function< void( Eigen::Vector3d& ) > StateFunction;
 
 public:
-
     //! Constructor taking position-functions for bodies, and constant parameters of ring parameters.
     /*!
      * Constructor taking a pointer to a function returning the position of the body subject to
@@ -66,27 +64,25 @@ public:
      * \param updatePotential Flag indicating whether to update the gravitational potential when calling
      * the updateMembers function.
      */
-    RingGravitationalAccelerationModel (
+    RingGravitationalAccelerationModel(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
             const double aRingRadius,
             const bool ellipticIntegralSFromDAndB,
             const StateFunction positionOfBodyExertingAccelerationFunction =
-                    [ ]( Eigen::Vector3d& input) { input = Eigen::Vector3d::Zero( ); },
-            const std::function< Eigen::Quaterniond ( ) > rotationFromBodyFixedToIntegrationFrameFunction =
-                    [ ] ( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+                    []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
+            const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
+                    []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
-            const bool updateGravitationalPotential = false )
-        : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
-          gravitationalParameterFunction_( [ = ]( ){ return aGravitationalParameter; } ),
-          ringRadiusFunction_( [ = ]( ){ return aRingRadius; } ),
-          ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ),
-          sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
-          rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
-          isMutualAttractionUsed_( isMutualAttractionUsed ),
-          ringCache_( std::make_shared< RingGravityCache >( aRingRadius, ellipticIntegralSFromDAndB_ ) ),
-          currentPotential_( TUDAT_NAN ),
-          updatePotential_( updateGravitationalPotential )
+            const bool updateGravitationalPotential = false ):
+        subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
+        gravitationalParameterFunction_( [ = ]( ) { return aGravitationalParameter; } ),
+        ringRadiusFunction_( [ = ]( ) { return aRingRadius; } ), ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ),
+        sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
+        rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
+        isMutualAttractionUsed_( isMutualAttractionUsed ),
+        ringCache_( std::make_shared< RingGravityCache >( aRingRadius, ellipticIntegralSFromDAndB_ ) ), currentPotential_( TUDAT_NAN ),
+        updatePotential_( updateGravitationalPotential )
     { }
 
     //! Constructor taking position-functions for bodies, and constant parameters of ring parameters.
@@ -116,30 +112,27 @@ public:
      * \param updatePotential Flag indicating whether to update the gravitational potential when calling
      * the updateMembers function.
      */
-    RingGravitationalAccelerationModel (
+    RingGravitationalAccelerationModel(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
-            const std::function< double() > gravitationalParameterFunction,
-            const std::function< double() > ringRadiusFunction,
+            const std::function< double( ) > gravitationalParameterFunction,
+            const std::function< double( ) > ringRadiusFunction,
             const bool ellipticIntegralSFromDAndB,
             const StateFunction positionOfBodyExertingAccelerationFunction =
-                    [ ]( Eigen::Vector3d& input) { input = Eigen::Vector3d::Zero( ); },
-            const std::function< Eigen::Quaterniond ( ) > rotationFromBodyFixedToIntegrationFrameFunction =
-                    [ ] ( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+                    []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
+            const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
+                    []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
-            const bool updateGravitationalPotential = false )
-        : subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
-          gravitationalParameterFunction_( gravitationalParameterFunction ),
-          ringRadiusFunction_( ringRadiusFunction ),
-          ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ),
-          sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
-          rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
-          isMutualAttractionUsed_( isMutualAttractionUsed ),
-          ringCache_( std::make_shared< RingGravityCache >( ringRadiusFunction(), ellipticIntegralSFromDAndB_ ) ),
-          currentPotential_( TUDAT_NAN ),
-          updatePotential_( updateGravitationalPotential )
+            const bool updateGravitationalPotential = false ):
+        subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
+        gravitationalParameterFunction_( gravitationalParameterFunction ), ringRadiusFunction_( ringRadiusFunction ),
+        ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ), sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
+        rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
+        isMutualAttractionUsed_( isMutualAttractionUsed ),
+        ringCache_( std::make_shared< RingGravityCache >( ringRadiusFunction( ), ellipticIntegralSFromDAndB_ ) ),
+        currentPotential_( TUDAT_NAN ), updatePotential_( updateGravitationalPotential )
     { }
 
-    ~RingGravitationalAccelerationModel( ){ }
+    ~RingGravitationalAccelerationModel( ) { }
 
     //! Update class members.
     /*!
@@ -151,13 +144,11 @@ public:
     {
         if( !( this->currentTime_ == currentTime ) )
         {
-
             rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
 
             subjectPositionFunction_( positionOfBodySubjectToAcceleration_ );
             sourcePositionFunction_( positionOfBodyExertingAcceleration_ );
-            currentInertialRelativePosition_ =
-                positionOfBodySubjectToAcceleration_ - positionOfBodyExertingAcceleration_ ;
+            currentInertialRelativePosition_ = positionOfBodySubjectToAcceleration_ - positionOfBodyExertingAcceleration_;
 
             currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * currentInertialRelativePosition_;
 
@@ -165,26 +156,23 @@ public:
             ringCache_->update( currentRelativePosition_ );
 
             // Compute the current acceleration
-            currentAccelerationInBodyFixedFrame_ = computeRingGravitationalAcceleration(
-                currentRelativePosition_,
-                ringRadiusFunction_( ),
-                gravitationalParameterFunction_(),
-                ringCache_->getEllipticIntegralB( ),
-                ringCache_->getEllipticIntegralE( ),
-                ringCache_->getEllipticIntegralS( ) );
+            currentAccelerationInBodyFixedFrame_ = computeRingGravitationalAcceleration( currentRelativePosition_,
+                                                                                         ringRadiusFunction_( ),
+                                                                                         gravitationalParameterFunction_( ),
+                                                                                         ringCache_->getEllipticIntegralB( ),
+                                                                                         ringCache_->getEllipticIntegralE( ),
+                                                                                         ringCache_->getEllipticIntegralS( ) );
 
             currentAcceleration_ = rotationToIntegrationFrame_ * currentAccelerationInBodyFixedFrame_;
 
             // Compute the current gravitational potential
-            if ( updatePotential_ )
+            if( updatePotential_ )
             {
-                currentPotential_ = computeRingGravitationalPotential(
-                    currentRelativePosition_,
-                    ringRadiusFunction_( ),
-                    gravitationalParameterFunction_(),
-                    ringCache_->getEllipticIntegralK( ) );
+                currentPotential_ = computeRingGravitationalPotential( currentRelativePosition_,
+                                                                       ringRadiusFunction_( ),
+                                                                       gravitationalParameterFunction_( ),
+                                                                       ringCache_->getEllipticIntegralK( ) );
             }
-
         }
     }
 
@@ -244,7 +232,9 @@ public:
      * \return Function returning position of body exerting acceleration.
      */
     StateFunction getStateFunctionOfBodyExertingAcceleration( )
-    { return sourcePositionFunction_; }
+    {
+        return sourcePositionFunction_;
+    }
 
     //! Function to return the function returning position of body subject to acceleration.
     /*!
@@ -252,7 +242,9 @@ public:
      * \return Function returning position of body subject to acceleration.
      */
     StateFunction getStateFunctionOfBodyUndergoingAcceleration( )
-    { return subjectPositionFunction_; }
+    {
+        return subjectPositionFunction_;
+    }
 
     //! Function to retrieve the ring cache for this acceleration.
     std::shared_ptr< RingGravityCache > getRingCache( )
@@ -261,19 +253,24 @@ public:
     }
 
     //! Function to return the value of the current gravitational potential.
-    double getCurrentPotential ( )
-    { return currentPotential_; }
+    double getCurrentPotential( )
+    {
+        return currentPotential_;
+    }
 
     //! Function to return the update potential flag.
-    bool getUpdatePotential ( )
-    { return updatePotential_; }
+    bool getUpdatePotential( )
+    {
+        return updatePotential_;
+    }
 
     //! Function to reset the update potential flag.
-    void resetUpdatePotential ( bool updatePotential )
-    { updatePotential_ = updatePotential; }
+    void resetUpdatePotential( bool updatePotential )
+    {
+        updatePotential_ = updatePotential;
+    }
 
 private:
-
     //! Pointer to function returning position of body subject to acceleration.
     const StateFunction subjectPositionFunction_;
 
@@ -281,7 +278,7 @@ private:
     const std::function< double( ) > gravitationalParameterFunction_;
 
     //! Function returning the ring radius [m].
-    const std::function< double() > ringRadiusFunction_;
+    const std::function< double( ) > ringRadiusFunction_;
 
     //! Flag indicating whether to compute S(m) from D(m) and B(m) (if true), or from K(m) and E(m) (if false)
     const bool ellipticIntegralSFromDAndB_;
@@ -325,9 +322,8 @@ private:
     bool updatePotential_;
 };
 
+}  // namespace gravitation
 
-} // namespace gravitation
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif //TUDAT_RINGGRAVITYMODEL_H
+#endif  // TUDAT_RINGGRAVITYMODEL_H

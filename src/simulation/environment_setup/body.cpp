@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include "tudat/astro/ephemerides/synchronousRotationalEphemeris.h"
 #include "tudat/simulation/environment_setup/body.h"
 
@@ -18,71 +17,66 @@ namespace tudat
 namespace simulation_setup
 {
 
-void Body::getPositionByReference( Eigen::Vector3d& position ) { position = currentState_.segment( 0, 3 ); }
+void Body::getPositionByReference( Eigen::Vector3d& position )
+{
+    position = currentState_.segment( 0, 3 );
+}
 
-
-//template void Body::setStateFromEphemeris< double, double >( const double& time );
-
+// template void Body::setStateFromEphemeris< double, double >( const double& time );
 
 //! Function through which the state of baseFrameId_ in the inertial frame can be determined
-template< >
+template<>
 Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const double time )
 {
     return getBaseFrameDoubleState( time );
 }
 
 //! Function through which the state of baseFrameId_ in the inertial frame can be determined
-template< >
+template<>
 Eigen::Matrix< long double, 6, 1 > BaseStateInterface::getBaseFrameState( const double time )
 {
     return getBaseFrameLongDoubleState( time );
 }
 
 //! Function through which the state of baseFrameId_ in the inertial frame can be determined
-template< >
+template<>
 Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const Time time )
 {
     return getBaseFrameDoubleState( time );
 }
 
 //! Function through which the state of baseFrameId_ in the inertial frame can be determined
-template< >
+template<>
 Eigen::Matrix< long double, 6, 1 > BaseStateInterface::getBaseFrameState( const Time time )
 {
     return getBaseFrameLongDoubleState( time );
 }
 
-
-
-
-
-
-template< >
+template<>
 Eigen::Matrix< double, 6, 1 > Body::getTemplatedState( )
 {
     return getState( );
 }
 
-template< >
+template<>
 Eigen::Matrix< long double, 6, 1 > Body::getTemplatedState( )
 {
     return getLongState( );
 }
 
 //! Templated function to set the state manually.
-template< >
+template<>
 void Body::setTemplatedState( const Eigen::Matrix< double, 6, 1 >& state )
 {
     setState( state );
 }
 
 //! Templated function to set the state manually.
-template< >
+template<>
 void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
 {
     setLongState( state );
 }
-
 
 //! Function to define whether the body is currently being propagated, or not
 void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
@@ -116,16 +110,15 @@ double getBodyGravitationalParameter( const SystemOfBodies& bodies, const std::s
     {
         throw std::runtime_error( "Error when getting gravitational parameter of body " + bodyName + ", body has not gravity field" );
     }
-    return  bodies.at( bodyName )->getGravityFieldModel( )->getGravitationalParameter( );
+    return bodies.at( bodyName )->getGravityFieldModel( )->getGravitationalParameter( );
 }
-
 
 //! Function ot retrieve the common global translational state origin of the environment
 std::string getGlobalFrameOrigin( const SystemOfBodies& bodies )
 {
     std::string globalFrameOrigin = "SSB";
 
-    for( auto bodyIterator : bodies.getMap( ) )
+    for( auto bodyIterator: bodies.getMap( ) )
     {
         if( bodyIterator.second->getIsBodyGlobalFrameOrigin( ) == -1 )
         {
@@ -140,7 +133,7 @@ std::string getGlobalFrameOrigin( const SystemOfBodies& bodies )
             }
             else
             {
-               globalFrameOrigin = bodyIterator.first;
+                globalFrameOrigin = bodyIterator.first;
             }
         }
     }
@@ -152,29 +145,26 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
 {
     // Get ephemerides from bodies
     std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > ephemerides;
-    for( auto bodyIterator : bodies  )
+    for( auto bodyIterator: bodies )
     {
         if( bodyIterator.second->getEphemeris( ) != nullptr )
         {
             ephemerides[ bodyIterator.first ] = bodyIterator.second->getEphemeris( );
         }
     }
-    return std::make_shared< ephemerides::ReferenceFrameManager >(
-                ephemerides );
+    return std::make_shared< ephemerides::ReferenceFrameManager >( ephemerides );
 }
 
 //! Function to set whether the bodies are currently being propagated, or not
-void setAreBodiesInPropagation( const SystemOfBodies& bodies,
-                                const bool areBodiesInPropagation )
+void setAreBodiesInPropagation( const SystemOfBodies& bodies, const bool areBodiesInPropagation )
 {
-    for( auto bodyIterator : bodies.getMap( )  )
+    for( auto bodyIterator: bodies.getMap( ) )
     {
         bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
     }
 }
 
-bool isReferencePointGroundStation( const std::shared_ptr< Body > body,
-                                    const std::string& referencePointName )
+bool isReferencePointGroundStation( const std::shared_ptr< Body > body, const std::string& referencePointName )
 {
     bool isReferencePointGroundStation = false;
     if( body->getGroundStationMap( ).count( referencePointName ) > 0 )
@@ -185,11 +175,13 @@ bool isReferencePointGroundStation( const std::shared_ptr< Body > body,
     {
         if( body->getVehicleSystems( ) == nullptr )
         {
-            throw std::runtime_error( "Error when finding reference point " + referencePointName + " on " + body->getBodyName( ) + " , point is not a ground station, and no system models found" );
+            throw std::runtime_error( "Error when finding reference point " + referencePointName + " on " + body->getBodyName( ) +
+                                      " , point is not a ground station, and no system models found" );
         }
         else if( !body->getVehicleSystems( )->doesReferencePointExist( referencePointName ) )
         {
-            throw std::runtime_error( "Error when finding reference point " + referencePointName + " on " + body->getBodyName( ) + ", point is not a ground station, and not a system reference point" );
+            throw std::runtime_error( "Error when finding reference point " + referencePointName + " on " + body->getBodyName( ) +
+                                      ", point is not a ground station, and not a system reference point" );
         }
         else
         {
@@ -199,13 +191,10 @@ bool isReferencePointGroundStation( const std::shared_ptr< Body > body,
     return isReferencePointGroundStation;
 }
 
-bool isReferencePointGroundStation( const SystemOfBodies &bodies,
-                                    const std::string& bodyName,
-                                    const std::string& referencePointName )
+bool isReferencePointGroundStation( const SystemOfBodies& bodies, const std::string& bodyName, const std::string& referencePointName )
 {
     return isReferencePointGroundStation( bodies.at( bodyName ), referencePointName );
 }
-
 
 std::shared_ptr< system_models::TimingSystem > getTimingSystem( const std::pair< std::string, std::string > linkEndName,
                                                                 const SystemOfBodies& bodyMap )
@@ -224,7 +213,8 @@ std::shared_ptr< system_models::TimingSystem > getTimingSystem( const std::pair<
         {
             if( currentBody->getGroundStationMap( ).count( linkEndName.second ) > 0 )
             {
-                std::shared_ptr< ground_stations::GroundStation > currentGroundStation = currentBody->getGroundStation( linkEndName.second );
+                std::shared_ptr< ground_stations::GroundStation > currentGroundStation =
+                        currentBody->getGroundStation( linkEndName.second );
                 if( currentGroundStation->getTimingSystem( ) != NULL )
                 {
                     timingSystem = currentGroundStation->getTimingSystem( );
@@ -235,12 +225,11 @@ std::shared_ptr< system_models::TimingSystem > getTimingSystem( const std::pair<
 
     if( timingSystem == nullptr )
     {
-        throw std::runtime_error( "Error, did not find timing system for +(" + linkEndName.first + "," + linkEndName.second + ")");
+        throw std::runtime_error( "Error, did not find timing system for +(" + linkEndName.first + "," + linkEndName.second + ")" );
     }
 
     return timingSystem;
 }
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
-
+}  // namespace tudat

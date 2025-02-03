@@ -21,10 +21,9 @@ static inline std::string getOutputPath( )
     std::string filePath_( __FILE__ );
 
     // Strip filename from temporary string and return root-path string.
-    return filePath_.substr( 0, filePath_.length( ) -
-                                std::string( "applicationOutput.h" ).length( ) );
+    return filePath_.substr( 0, filePath_.length( ) - std::string( "applicationOutput.h" ).length( ) );
 }
 
-}
+}  // namespace tudat_applications
 
-#endif // TUDAT_APPLICATIONOUTPUT_H
+#endif  // TUDAT_APPLICATIONOUTPUT_H

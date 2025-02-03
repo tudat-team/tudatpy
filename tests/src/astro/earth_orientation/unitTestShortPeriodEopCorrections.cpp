@@ -41,13 +41,14 @@ using namespace unit_conversions;
 BOOST_AUTO_TEST_SUITE( test_short_period_eop_corrections )
 
 //! Test short-periodic ut1-utc variations by comparing to test output of UTLIBR.f file
-BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalPolarMotion)
+BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalPolarMotion )
 {
     // Create polar motion correction libration corrections
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarMotionCalculator(
-               convertArcSecondsToRadians< double >( 1.0E-6 ), 0.0,
-    { getEarthOrientationDataFilesPath( ) + "/polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" },
-    { getEarthOrientationDataFilesPath( ) + "/polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" } );
+            convertArcSecondsToRadians< double >( 1.0E-6 ),
+            0.0,
+            { getEarthOrientationDataFilesPath( ) + "/polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" },
+            { getEarthOrientationDataFilesPath( ) + "/polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" } );
 
     //  Define test time
     double testMjd = 54335.0;
@@ -56,24 +57,26 @@ BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalPolarMotion)
     double testEphemerisTime = convertUTCtoTT( testUtc );
 
     // Compute polar motion correction
-    double microAsToRadians =  mathematical_constants::PI / ( 180.0 * 1.0E6 * 3600.0 );
+    double microAsToRadians = mathematical_constants::PI / ( 180.0 * 1.0E6 * 3600.0 );
     Eigen::Vector2d polarMotionCorrections = polarMotionCalculator.getCorrections( testEphemerisTime ) / microAsToRadians;
 
     // Compare against IERS reference code. Difference between IERS code and this code occurs since the reference uses a slightly
     // different implementation for computation. Difference (1 micro arc seconds) is well below observable threshold
     BOOST_CHECK_SMALL( polarMotionCorrections( 0 ) - 24.65518398386097942, 1.0 );
     BOOST_CHECK_SMALL( polarMotionCorrections( 1 ) + 14.11070254891893327, 1.0 );
-
 }
 
 //! Test short-periodic polar motion libration variations by comparing to test output of ORTHO_EOP.f file
-BOOST_AUTO_TEST_CASE( testShortPeriodOceanTidePolarMotion)
+BOOST_AUTO_TEST_CASE( testShortPeriodOceanTidePolarMotion )
 {
     // Create polar motion correction ocean tide corrections
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarMotionCalculator(
-               convertArcSecondsToRadians< double >( 1.0E-6 ), 0.0,
-    { getEarthOrientationDataFilesPath( ) + "/polarMotionOceanTidesAmplitudes.txt", },
-    { getEarthOrientationDataFilesPath( ) + "/polarMotionOceanTidesFundamentalArgumentMultipliers.txt" } );
+            convertArcSecondsToRadians< double >( 1.0E-6 ),
+            0.0,
+            {
+                    getEarthOrientationDataFilesPath( ) + "/polarMotionOceanTidesAmplitudes.txt",
+            },
+            { getEarthOrientationDataFilesPath( ) + "/polarMotionOceanTidesFundamentalArgumentMultipliers.txt" } );
 
     //  Define test time
     double testMjd = 47100.0;
@@ -82,7 +85,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodOceanTidePolarMotion)
     double testEphemerisTime = convertUTCtoTT( testUtc );
 
     // Compute polar motion correction
-    double microAsToRadians =  mathematical_constants::PI / ( 180.0 * 1.0E6 * 3600.0 );
+    double microAsToRadians = mathematical_constants::PI / ( 180.0 * 1.0E6 * 3600.0 );
     Eigen::Vector2d polarMotionCorrections = polarMotionCalculator.getCorrections( testEphemerisTime ) / microAsToRadians;
 
     // Compare against IERS reference code. Difference between IERS code and this code occurs since the reference uses a
@@ -90,7 +93,6 @@ BOOST_AUTO_TEST_CASE( testShortPeriodOceanTidePolarMotion)
     // observable threshold
     BOOST_CHECK_SMALL( polarMotionCorrections.x( ) + 162.8386373279636530, 1.0 );
     BOOST_CHECK_SMALL( polarMotionCorrections.y( ) - 117.7907525842668974, 1.0 );
-
 }
 
 //! Test short-periodic polar motion variations by checking if multiple contributions are properly combined
@@ -98,23 +100,26 @@ BOOST_AUTO_TEST_CASE( testShortPeriodPolarMotionCombinedCorrections )
 {
     // Create polar motion correction ocean tide corrections
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarMotionOceanTideCorrectionCalculator(
-               convertArcSecondsToRadians< double >( 1.0E-6 ), 0.0,
-    { getEarthOrientationDataFilesPath(  ) + "/polarMotionOceanTidesAmplitudes.txt" },
-    { getEarthOrientationDataFilesPath(  ) + "/polarMotionOceanTidesFundamentalArgumentMultipliers.txt" } );
+            convertArcSecondsToRadians< double >( 1.0E-6 ),
+            0.0,
+            { getEarthOrientationDataFilesPath( ) + "/polarMotionOceanTidesAmplitudes.txt" },
+            { getEarthOrientationDataFilesPath( ) + "/polarMotionOceanTidesFundamentalArgumentMultipliers.txt" } );
 
     // Create polar motion correction libration corrections
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarMotionLibrationCorrectionCalculator(
-               convertArcSecondsToRadians< double >( 1.0E-6 ), 0.0,
-    { getEarthOrientationDataFilesPath(  ) + "/polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" },
-    { getEarthOrientationDataFilesPath(  ) + "/polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" } );
+            convertArcSecondsToRadians< double >( 1.0E-6 ),
+            0.0,
+            { getEarthOrientationDataFilesPath( ) + "/polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" },
+            { getEarthOrientationDataFilesPath( ) + "/polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" } );
 
     // Create polar motion correction combined corrections
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarMotionTotalCorrectionCalculator(
-               convertArcSecondsToRadians< double >( 1.0E-6 ), 0.0,
-    { getEarthOrientationDataFilesPath( ) + "/polarMotionOceanTidesAmplitudes.txt",
-      getEarthOrientationDataFilesPath( ) + "/polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" },
-    { getEarthOrientationDataFilesPath( ) + "/polarMotionOceanTidesFundamentalArgumentMultipliers.txt",
-      getEarthOrientationDataFilesPath( ) + "/polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" } );
+            convertArcSecondsToRadians< double >( 1.0E-6 ),
+            0.0,
+            { getEarthOrientationDataFilesPath( ) + "/polarMotionOceanTidesAmplitudes.txt",
+              getEarthOrientationDataFilesPath( ) + "/polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" },
+            { getEarthOrientationDataFilesPath( ) + "/polarMotionOceanTidesFundamentalArgumentMultipliers.txt",
+              getEarthOrientationDataFilesPath( ) + "/polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" } );
 
     //  Define test time
     double testMjd = 47100.0;
@@ -123,30 +128,30 @@ BOOST_AUTO_TEST_CASE( testShortPeriodPolarMotionCombinedCorrections )
     double testEphemerisTime = convertUTCtoTT( testUtc );
 
     // Compute corrections and check validity of combination
-    Eigen::Vector2d polarMotionCorrectionOceanTides = polarMotionOceanTideCorrectionCalculator.getCorrections(
-                testEphemerisTime );
-    Eigen::Vector2d polarMotionCorrectionLibration = polarMotionLibrationCorrectionCalculator.getCorrections(
-                testEphemerisTime );
+    Eigen::Vector2d polarMotionCorrectionOceanTides = polarMotionOceanTideCorrectionCalculator.getCorrections( testEphemerisTime );
+    Eigen::Vector2d polarMotionCorrectionLibration = polarMotionLibrationCorrectionCalculator.getCorrections( testEphemerisTime );
     Eigen::Vector2d polarMotionCorrectionTotal = polarMotionTotalCorrectionCalculator.getCorrections( testEphemerisTime );
 
-
-    BOOST_CHECK_SMALL( std::fabs( polarMotionCorrectionTotal( 0 ) -
-                                  ( polarMotionCorrectionLibration( 0 ) + polarMotionCorrectionOceanTides( 0 ) ) ), 1.0E-24 );
-    BOOST_CHECK_SMALL( std::fabs( polarMotionCorrectionTotal( 1 ) -
-                                  ( polarMotionCorrectionLibration( 1 ) + polarMotionCorrectionOceanTides( 1 ) ) ), 1.0E-24 );
+    BOOST_CHECK_SMALL(
+            std::fabs( polarMotionCorrectionTotal( 0 ) - ( polarMotionCorrectionLibration( 0 ) + polarMotionCorrectionOceanTides( 0 ) ) ),
+            1.0E-24 );
+    BOOST_CHECK_SMALL(
+            std::fabs( polarMotionCorrectionTotal( 1 ) - ( polarMotionCorrectionLibration( 1 ) + polarMotionCorrectionOceanTides( 1 ) ) ),
+            1.0E-24 );
 }
 
 //! Test short-periodic ut1-utc variations by comparing to test output of UTLIBR.f file
-BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalUt1)
+BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalUt1 )
 {
     // Create UT1 correction libration corrections
-    ShortPeriodEarthOrientationCorrectionCalculator < double > ut1CorrectionCalculator(
-                1.0E-6, 0.0,
-    { getEarthOrientationDataFilesPath(  ) + "/utcLibrationAmplitudes.txt" },
-    { getEarthOrientationDataFilesPath(  ) + "/utcLibrationFundamentalArgumentMultipliers.txt" } );
+    ShortPeriodEarthOrientationCorrectionCalculator< double > ut1CorrectionCalculator(
+            1.0E-6,
+            0.0,
+            { getEarthOrientationDataFilesPath( ) + "/utcLibrationAmplitudes.txt" },
+            { getEarthOrientationDataFilesPath( ) + "/utcLibrationFundamentalArgumentMultipliers.txt" } );
 
     //  Define test time
-    double testMjd = 44239.1 ;
+    double testMjd = 44239.1;
     double testJulianDay = testMjd + JULIAN_DAY_AT_0_MJD;
     double testUtc = convertJulianDayToSecondsSinceEpoch( testJulianDay, JULIAN_DAY_ON_J2000 );
     double testEphemerisTime = convertUTCtoTT( testUtc );
@@ -159,7 +164,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalUt1)
     BOOST_CHECK_SMALL( ut1Correction - 2.441143834386761746E-6, 1.0E-8 );
 
     //  Define second test time
-    testMjd = 55227.4 ;
+    testMjd = 55227.4;
     testJulianDay = testMjd + JULIAN_DAY_AT_0_MJD;
     testUtc = convertJulianDayToSecondsSinceEpoch( testJulianDay, JULIAN_DAY_ON_J2000 );
     testEphemerisTime = convertUTCtoTT( testUtc );
@@ -170,18 +175,20 @@ BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalUt1)
     // Compare against IERS reference code. Difference between IERS code and this code occurs since the reference uses a slightly
     // different implementation for computation. Difference (10 ns) is well below observable threshold for Earth rotation
     BOOST_CHECK_SMALL( ut1Correction + 2.655705844335680244E-6, 5.0E-8 );
-
 }
 
 //! Test short-periodic ut1-utc libration variations by comparing to test output of ORTHO_EOP.f file
 BOOST_AUTO_TEST_CASE( testShortPeriodOceanTideUt1 )
 {
     // Create UT1 correction ocean tide corrections
-    ShortPeriodEarthOrientationCorrectionCalculator < double > ut1CorrectionCalculator =
-            ShortPeriodEarthOrientationCorrectionCalculator < double >(
-                1.0E-6, 0.0,
-    { getEarthOrientationDataFilesPath(  ) + "/utcOceanTidesAmplitudes.txt", },
-    { getEarthOrientationDataFilesPath(  ) + "/utcOceanTidesFundamentalArgumentMultipliers.txt" } );
+    ShortPeriodEarthOrientationCorrectionCalculator< double > ut1CorrectionCalculator =
+            ShortPeriodEarthOrientationCorrectionCalculator< double >(
+                    1.0E-6,
+                    0.0,
+                    {
+                            getEarthOrientationDataFilesPath( ) + "/utcOceanTidesAmplitudes.txt",
+                    },
+                    { getEarthOrientationDataFilesPath( ) + "/utcOceanTidesFundamentalArgumentMultipliers.txt" } );
 
     //  Define test time
     double testMjd = 47100.0;
@@ -194,32 +201,34 @@ BOOST_AUTO_TEST_CASE( testShortPeriodOceanTideUt1 )
     // different algorothm for calculation (ortho-weights vs. Delaunay arguments). Difference (50 ns) is well below observable
     // threshold for Earth rotation
     BOOST_CHECK_SMALL( ut1Correction + 23.39092370609808214E-6, 5.0E-8 );
-
 }
 
 //! Test short-periodic ut1-utc variations by checking if multiple contributions are properly combined
 BOOST_AUTO_TEST_CASE( testShortPeriodUt1CombinedCorrections )
 {
     // Create UT1 correction ocean tide corrections
-    ShortPeriodEarthOrientationCorrectionCalculator < double > ut1OceanTideCorrectionCalculator =
-            ShortPeriodEarthOrientationCorrectionCalculator < double >(
-                1.0E-6, 0.0,
-    { getEarthOrientationDataFilesPath(  ) + "/utcOceanTidesAmplitudes.txt" },
-    { getEarthOrientationDataFilesPath(  ) + "/utcOceanTidesFundamentalArgumentMultipliers.txt" } );
+    ShortPeriodEarthOrientationCorrectionCalculator< double > ut1OceanTideCorrectionCalculator =
+            ShortPeriodEarthOrientationCorrectionCalculator< double >(
+                    1.0E-6,
+                    0.0,
+                    { getEarthOrientationDataFilesPath( ) + "/utcOceanTidesAmplitudes.txt" },
+                    { getEarthOrientationDataFilesPath( ) + "/utcOceanTidesFundamentalArgumentMultipliers.txt" } );
 
     // Create UT1 correction libration corrections
-    ShortPeriodEarthOrientationCorrectionCalculator < double > ut1LibrationCorrectionCalculator(
-                1.0E-6, 0.0,
-    { getEarthOrientationDataFilesPath( ) + "/utcLibrationAmplitudes.txt" },
-    { getEarthOrientationDataFilesPath( ) + "/utcLibrationFundamentalArgumentMultipliers.txt" } );
+    ShortPeriodEarthOrientationCorrectionCalculator< double > ut1LibrationCorrectionCalculator(
+            1.0E-6,
+            0.0,
+            { getEarthOrientationDataFilesPath( ) + "/utcLibrationAmplitudes.txt" },
+            { getEarthOrientationDataFilesPath( ) + "/utcLibrationFundamentalArgumentMultipliers.txt" } );
 
     // Create UT1 correction combined corrections
-    ShortPeriodEarthOrientationCorrectionCalculator < double > ut1TotalCorrectionCalculator(
-                1.0E-6, 0.0,
-    { getEarthOrientationDataFilesPath(  ) + "/utcLibrationAmplitudes.txt",
-                getEarthOrientationDataFilesPath(  ) + "/utcOceanTidesAmplitudes.txt" },
-    { getEarthOrientationDataFilesPath(  ) + "/utcLibrationFundamentalArgumentMultipliers.txt",
-                getEarthOrientationDataFilesPath(  ) + "/utcOceanTidesFundamentalArgumentMultipliers.txt" } );
+    ShortPeriodEarthOrientationCorrectionCalculator< double > ut1TotalCorrectionCalculator(
+            1.0E-6,
+            0.0,
+            { getEarthOrientationDataFilesPath( ) + "/utcLibrationAmplitudes.txt",
+              getEarthOrientationDataFilesPath( ) + "/utcOceanTidesAmplitudes.txt" },
+            { getEarthOrientationDataFilesPath( ) + "/utcLibrationFundamentalArgumentMultipliers.txt",
+              getEarthOrientationDataFilesPath( ) + "/utcOceanTidesFundamentalArgumentMultipliers.txt" } );
 
     //  Define test time
     double testMjd = 47100.0;
@@ -237,9 +246,6 @@ BOOST_AUTO_TEST_CASE( testShortPeriodUt1CombinedCorrections )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
-
-
+}  // namespace tudat

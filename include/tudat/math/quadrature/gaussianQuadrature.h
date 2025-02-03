@@ -17,7 +17,6 @@
 #include <functional>
 #include <memory>
 
-
 #include <Eigen/Core>
 
 #include "tudat/basics/utilities.h"
@@ -40,34 +39,31 @@ namespace numerical_quadrature
  */
 template< typename IndependentVariableType >
 void readGaussianQuadratureNodes(
-        std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1> >& gaussQuadratureNodes )
+        std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1 > >& gaussQuadratureNodes )
 {
-    gaussQuadratureNodes =
-            utilities::convertStlVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
-                input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >(
-                    paths::getQuadratureDataPath( ) + "/gaussianNodes.txt" ) );
+    gaussQuadratureNodes = utilities::convertStlVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
+            input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >( paths::getQuadratureDataPath( ) +
+                                                                                             "/gaussianNodes.txt" ) );
 }
-
 
 //! Read Gaussian weight factors from text file
 /*!
-*  Read Gaussian weight factors from text file, file name is hard-coded into this function, read nodes are returned by reference
-*  \param gaussQuadratureWeights Gauss quadrature weights that are read from the file.  Map key denotes the order, map value the
+ *  Read Gaussian weight factors from text file, file name is hard-coded into this function, read nodes are returned by reference
+ *  \param gaussQuadratureWeights Gauss quadrature weights that are read from the file.  Map key denotes the order, map value the
  *  list of weights for that order.
-*/
+ */
 template< typename IndependentVariableType >
 void readGaussianQuadratureWeights(
-        std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1> >& gaussQuadratureWeights )
+        std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1 > >& gaussQuadratureWeights )
 {
     gaussQuadratureWeights = utilities::convertStlVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
-                input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >(
-                    paths::getQuadratureDataPath( ) + "/gaussianWeights.txt" ) );
+            input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >( paths::getQuadratureDataPath( ) +
+                                                                                             "/gaussianWeights.txt" ) );
 }
 
 //! Container object for Gauss quadrature nodes and weights (templated by data variable type, e.g. float, double, long double)
 template< typename IndependentVariableType >
-struct GaussQuadratureNodesAndWeights
-{
+struct GaussQuadratureNodesAndWeights {
     //! Typedef for vector of IndependentVariableType scalar type
     typedef Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1 > IndependentVariableArray;
 
@@ -85,10 +81,9 @@ struct GaussQuadratureNodesAndWeights
      */
     IndependentVariableArray getUniqueNodes( const unsigned int numberOfNodes )
     {
-        if ( uniqueNodes_.count( numberOfNodes ) == 0 )
+        if( uniqueNodes_.count( numberOfNodes ) == 0 )
         {
-            std::string errorMessage = "Error in Gaussian quadrature, nodes not available for n=" +
-                    std::to_string( numberOfNodes );
+            std::string errorMessage = "Error in Gaussian quadrature, nodes not available for n=" + std::to_string( numberOfNodes );
             throw std::runtime_error( errorMessage );
         }
         return uniqueNodes_.at( numberOfNodes );
@@ -102,10 +97,9 @@ struct GaussQuadratureNodesAndWeights
      */
     IndependentVariableArray getUniqueWeights( const unsigned int order )
     {
-        if ( uniqueWeights_.count( order ) == 0 )
+        if( uniqueWeights_.count( order ) == 0 )
         {
-            std::string errorMessage = "Error in Gaussian quadrature, weights not available for n=" +
-                    std::to_string( order );
+            std::string errorMessage = "Error in Gaussian quadrature, weights not available for n=" + std::to_string( order );
             throw std::runtime_error( errorMessage );
         }
         return uniqueWeights_.at( order );
@@ -113,29 +107,29 @@ struct GaussQuadratureNodesAndWeights
 
     //! Get all the nodes at given order from uniqueNodes_
     /*!
-    * Get all the nodes at given order from uniqueNodes_
-    * \param order The number of nodes or weight factors.
-    * \return `uniqueWeights_ at entry order`, after reading the text file with the tabulated nodes if necessary.
-    */
+     * Get all the nodes at given order from uniqueNodes_
+     * \param order The number of nodes or weight factors.
+     * \return `uniqueWeights_ at entry order`, after reading the text file with the tabulated nodes if necessary.
+     */
     IndependentVariableArray getNodes( const unsigned int order )
     {
-        if ( nodes_.count( order ) == 0 )
+        if( nodes_.count( order ) == 0 )
         {
             IndependentVariableArray newNodes( order );
 
             // Include node 0.0 if order is odd
             unsigned int i = 0;
-            if ( order % 2 == 1 )
+            if( order % 2 == 1 )
             {
                 newNodes.row( i++ ) = 0.0;
             }
 
             // Include ± nodes
             IndependentVariableArray uniqueNodes_ = getUniqueNodes( order );
-            for ( int j = 0; j < uniqueNodes_.size( ); j++ )
+            for( int j = 0; j < uniqueNodes_.size( ); j++ )
             {
                 newNodes.row( i++ ) = -uniqueNodes_[ j ];
-                newNodes.row( i++ ) =  uniqueNodes_[ j ];
+                newNodes.row( i++ ) = uniqueNodes_[ j ];
             }
 
             nodes_[ order ] = newNodes;
@@ -147,7 +141,7 @@ struct GaussQuadratureNodesAndWeights
     //! Get all the weight factors (i.e. n weight factors for nth order) from uniqueWeights_
     IndependentVariableArray getWeights( const unsigned int n )
     {
-        if ( weights_.count( n ) == 0 )
+        if( weights_.count( n ) == 0 )
         {
             IndependentVariableArray newWeights( n );
             IndependentVariableArray orderNWeights = getUniqueWeights( n );
@@ -155,13 +149,13 @@ struct GaussQuadratureNodesAndWeights
             // Include non-repeated weight factor if n is odd
             unsigned int i = 0;
             int j = 0;
-            if ( n % 2 == 1 )
+            if( n % 2 == 1 )
             {
                 newWeights.row( i++ ) = orderNWeights[ j++ ];
             }
 
             // Include repeated weight factors
-            for ( ; j < orderNWeights.size( ); j++ )
+            for( ; j < orderNWeights.size( ); j++ )
             {
                 newWeights.row( i++ ) = orderNWeights[ j ];
                 newWeights.row( i++ ) = orderNWeights[ j ];
@@ -186,7 +180,6 @@ struct GaussQuadratureNodesAndWeights
     //! The actual weight factors are generated from `uniqueWeights_` by `getWeights()`
     std::map< unsigned int, IndependentVariableArray > uniqueWeights_;
     std::map< unsigned int, IndependentVariableArray > weights_;
-
 };
 
 //! Object containing nodes/weights for long double Gauss quadrature
@@ -207,35 +200,31 @@ static const std::shared_ptr< GaussQuadratureNodesAndWeights< float > > floatGau
  *  \return Gauss quadrature node/weight container
  */
 template< typename IndependentVariableType >
-std::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > >
-getGaussQuadratureNodesAndWeights( );
+std::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > > getGaussQuadratureNodesAndWeights( );
 
 //! Function to create Gauss quadrature node/weight container with long double precision.
 /*!
  *  Function to create Gauss quadrature node/weight container with long double precision.
  *  \return Gauss quadrature node/weight container
  */
-template< >
-std::shared_ptr< GaussQuadratureNodesAndWeights< long double > >
-getGaussQuadratureNodesAndWeights( );
+template<>
+std::shared_ptr< GaussQuadratureNodesAndWeights< long double > > getGaussQuadratureNodesAndWeights( );
 
 //! Function to create Gauss quadrature node/weight container with double precision.
 /*!
  *  Function to create Gauss quadrature node/weight container with double precision.
  *  \return Gauss quadrature node/weight container
  */
-template< >
-std::shared_ptr< GaussQuadratureNodesAndWeights< double > >
-getGaussQuadratureNodesAndWeights( );
+template<>
+std::shared_ptr< GaussQuadratureNodesAndWeights< double > > getGaussQuadratureNodesAndWeights( );
 
 //! Function to create Gauss quadrature node/weight container with float precision.
 /*!
  *  Function to create Gauss quadrature node/weight container with float precision.
  *  \return Gauss quadrature node/weight container
  */
-template< >
-std::shared_ptr< GaussQuadratureNodesAndWeights< float > >
-getGaussQuadratureNodesAndWeights( );
+template<>
+std::shared_ptr< GaussQuadratureNodesAndWeights< float > > getGaussQuadratureNodesAndWeights( );
 
 //! Gaussian numerical quadrature wrapper class.
 /*!
@@ -244,10 +233,9 @@ getGaussQuadratureNodesAndWeights( );
  * weight factors) has to be at least n = 2. The current text files contain tabulated values up to n = 64.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
-class GaussianQuadrature : public NumericalQuadrature< IndependentVariableType , DependentVariableType >
+class GaussianQuadrature : public NumericalQuadrature< IndependentVariableType, DependentVariableType >
 {
 public:
-
     typedef Eigen::Array< DependentVariableType, Eigen::Dynamic, 1 > DependentVariableArray;
     typedef Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1 > IndependentVariableArray;
 
@@ -261,10 +249,11 @@ public:
      * Must be an integer value between 2 and 64.
      */
     GaussianQuadrature( const std::function< DependentVariableType( IndependentVariableType ) > integrand,
-                        const IndependentVariableType lowerLimit, const IndependentVariableType upperLimit,
+                        const IndependentVariableType lowerLimit,
+                        const IndependentVariableType upperLimit,
                         const unsigned int numberOfNodes ):
-        integrand_ ( integrand ), lowerLimit_( lowerLimit ), upperLimit_ ( upperLimit ),
-        numberOfNodes_( numberOfNodes ), quadratureHasBeenPerformed_( false )
+        integrand_( integrand ), lowerLimit_( lowerLimit ), upperLimit_( upperLimit ), numberOfNodes_( numberOfNodes ),
+        quadratureHasBeenPerformed_( false )
     {
         gaussQuadratureNodesAndWeights_ = getGaussQuadratureNodesAndWeights< IndependentVariableType >( );
     }
@@ -279,7 +268,8 @@ public:
      * Must be an integer value between 2 and 64.
      */
     void reset( const std::function< DependentVariableType( IndependentVariableType ) > integrand,
-                const IndependentVariableType lowerLimit, const IndependentVariableType upperLimit,
+                const IndependentVariableType lowerLimit,
+                const IndependentVariableType upperLimit,
                 const unsigned int numberOfNodes )
     {
         integrand_ = integrand;
@@ -296,24 +286,21 @@ public:
      */
     DependentVariableType getQuadrature( )
     {
-        if ( ! quadratureHasBeenPerformed_ )
+        if( !quadratureHasBeenPerformed_ )
         {
-            if ( integrand_ == nullptr )
+            if( integrand_ == nullptr )
             {
-                throw std::runtime_error(
-                            "The integrand for the Gaussian quadrature has not been set." );
+                throw std::runtime_error( "The integrand for the Gaussian quadrature has not been set." );
             }
 
-            if ( lowerLimit_ > upperLimit_ )
+            if( lowerLimit_ > upperLimit_ )
             {
-                throw std::runtime_error(
-                            "The lower limit for the Gaussian quadrature is larger than the upper limit." );
+                throw std::runtime_error( "The lower limit for the Gaussian quadrature is larger than the upper limit." );
             }
 
-            if ( numberOfNodes_ < 2 || numberOfNodes_ > 64 )
+            if( numberOfNodes_ < 2 || numberOfNodes_ > 64 )
             {
-                throw std::runtime_error(
-                            "The number of nodes for the Gaussian quadrature must be between 2 and 64." );
+                throw std::runtime_error( "The number of nodes for the Gaussian quadrature must be between 2 and 64." );
             }
 
             performQuadrature( );
@@ -323,9 +310,7 @@ public:
         return quadratureResult_;
     }
 
-
 protected:
-
     //! Function that is called to perform the numerical quadrature
     /*!
      * Function that is called to perform the numerical quadrature. Sets the result in the quadratureResult local
@@ -340,12 +325,11 @@ protected:
         const IndependentVariableArray weights = gaussQuadratureNodesAndWeights_->getWeights( numberOfNodes_ );
 
         // Change of variable -> from range [-1, 1] to range [lowerLimit, upperLimit]
-        const IndependentVariableArray independentVariables =
-                0.5 * ( ( upperLimit_ - lowerLimit_ ) * nodes + upperLimit_ + lowerLimit_ );
+        const IndependentVariableArray independentVariables = 0.5 * ( ( upperLimit_ - lowerLimit_ ) * nodes + upperLimit_ + lowerLimit_ );
 
         // Determine the value of the dependent variable
         DependentVariableArray weighedIntegrands( numberOfNodes_ );
-        for ( unsigned int i = 0; i < numberOfNodes_; i++ )
+        for( unsigned int i = 0; i < numberOfNodes_; i++ )
         {
             weighedIntegrands( i ) = weights( i ) * integrand_( independentVariables( i ) );
         }
@@ -353,9 +337,7 @@ protected:
         quadratureResult_ = 0.5 * ( upperLimit_ - lowerLimit_ ) * weighedIntegrands.sum( );
     }
 
-
 private:
-
     //! Function returning the integrand.
     std::function< DependentVariableType( IndependentVariableType ) > integrand_;
 
@@ -375,11 +357,10 @@ private:
     DependentVariableType quadratureResult_;
 
     std::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > > gaussQuadratureNodesAndWeights_;
-
 };
 
-} // namespace numerical_quadrature
+}  // namespace numerical_quadrature
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_GAUSSIAN_QUADRATURE_H
+#endif  // TUDAT_GAUSSIAN_QUADRATURE_H

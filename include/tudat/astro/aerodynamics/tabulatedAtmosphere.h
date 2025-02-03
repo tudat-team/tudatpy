@@ -57,7 +57,6 @@ void checkVariableUniqueness( std::vector< VariableType > variables );
 class TabulatedAtmosphere : public AtmosphereModel
 {
 public:
-
     //! Default constructor.
     /*!
      *  Default constructor.
@@ -73,23 +72,23 @@ public:
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
      */
-    TabulatedAtmosphere(
-            const std::map< int, std::string >& atmosphereTableFile,
-            const std::vector< AtmosphereIndependentVariables >& independentVariablesNames = { altitude_dependent_atmosphere },
-            const std::vector< AtmosphereDependentVariables >& dependentVariablesNames = { density_dependent_atmosphere,
-            pressure_dependent_atmosphere, temperature_dependent_atmosphere },
-            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-            const double ratioOfSpecificHeats = 1.4,
-            const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = { },
-            const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = { } ) :
+    TabulatedAtmosphere( const std::map< int, std::string >& atmosphereTableFile,
+                         const std::vector< AtmosphereIndependentVariables >& independentVariablesNames = { altitude_dependent_atmosphere },
+                         const std::vector< AtmosphereDependentVariables >& dependentVariablesNames = { density_dependent_atmosphere,
+                                                                                                        pressure_dependent_atmosphere,
+                                                                                                        temperature_dependent_atmosphere },
+                         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+                         const double ratioOfSpecificHeats = 1.4,
+                         const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = { },
+                         const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = { } ):
         atmosphereTableFile_( atmosphereTableFile ), independentVariables_( independentVariablesNames ),
         dependentVariables_( dependentVariablesNames ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling ),
         defaultExtrapolationValue_( defaultExtrapolationValue )
     {
         // Set default dependent variables
-        dependentVariablesDependency_ = std::vector< bool >( 6, false ); // only 6 dependent variables supported
-        dependentVariableIndices_ = std::vector< unsigned int >( 6, 0 ); // only 6 dependent variables supported
+        dependentVariablesDependency_ = std::vector< bool >( 6, false );  // only 6 dependent variables supported
+        dependentVariableIndices_ = std::vector< unsigned int >( 6, 0 );  // only 6 dependent variables supported
 
         // Initialize atmosphere
         createAtmosphereInterpolators( );
@@ -113,9 +112,14 @@ public:
                          const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
                          const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
                          const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling,
-                         const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue ) :
-        TabulatedAtmosphere( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
-                             physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4, boundaryHandling, defaultExtrapolationValue )
+                         const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue ):
+        TabulatedAtmosphere( atmosphereTableFile,
+                             independentVariablesNames,
+                             dependentVariablesNames,
+                             physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+                             1.4,
+                             boundaryHandling,
+                             defaultExtrapolationValue )
     { }
 
     //! Constructor compatible with old version.
@@ -132,18 +136,23 @@ public:
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
      */
-    TabulatedAtmosphere(
-            const std::string& atmosphereTableFile,
-            const std::vector< AtmosphereDependentVariables >& dependentVariablesNames = { density_dependent_atmosphere,
-            pressure_dependent_atmosphere, temperature_dependent_atmosphere },
-            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-            const double ratioOfSpecificHeats = 1.4,
-            const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
-            const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ) :
-        TabulatedAtmosphere( { { 0, atmosphereTableFile } }, { altitude_dependent_atmosphere },
-                             dependentVariablesNames, specificGasConstant, ratioOfSpecificHeats, { boundaryHandling },
-                             std::vector< std::vector< std::pair< double, double > > >(
-                                 dependentVariablesNames.size( ), { { defaultExtrapolationValue, defaultExtrapolationValue } } ) )
+    TabulatedAtmosphere( const std::string& atmosphereTableFile,
+                         const std::vector< AtmosphereDependentVariables >& dependentVariablesNames = { density_dependent_atmosphere,
+                                                                                                        pressure_dependent_atmosphere,
+                                                                                                        temperature_dependent_atmosphere },
+                         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+                         const double ratioOfSpecificHeats = 1.4,
+                         const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
+                         const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ):
+        TabulatedAtmosphere(
+                { { 0, atmosphereTableFile } },
+                { altitude_dependent_atmosphere },
+                dependentVariablesNames,
+                specificGasConstant,
+                ratioOfSpecificHeats,
+                { boundaryHandling },
+                std::vector< std::vector< std::pair< double, double > > >( dependentVariablesNames.size( ),
+                                                                           { { defaultExtrapolationValue, defaultExtrapolationValue } } ) )
     { }
 
     //! Constructor.
@@ -163,22 +172,22 @@ public:
                          const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
                          const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
                          const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling,
-                         const std::vector< double >& defaultExtrapolationValue ) :
+                         const std::vector< double >& defaultExtrapolationValue ):
         atmosphereTableFile_( atmosphereTableFile ), independentVariables_( independentVariablesNames ),
         dependentVariables_( dependentVariablesNames ), specificGasConstant_( physical_constants::SPECIFIC_GAS_CONSTANT_AIR ),
         ratioOfSpecificHeats_( 1.4 ), boundaryHandling_( boundaryHandling )
     {
         // Assign default values
         defaultExtrapolationValue_.resize( dependentVariablesNames.size( ) );
-        for ( unsigned int i = 0; i < dependentVariablesNames.size( ); i++ )
+        for( unsigned int i = 0; i < dependentVariablesNames.size( ); i++ )
         {
-            for ( unsigned int j = 0; j < independentVariablesNames.size( ); j++ )
+            for( unsigned int j = 0; j < independentVariablesNames.size( ); j++ )
             {
-                if ( boundaryHandling_.at( j ) == interpolators::use_default_value ||
-                     boundaryHandling_.at( j ) == interpolators::use_default_value_with_warning )
+                if( boundaryHandling_.at( j ) == interpolators::use_default_value ||
+                    boundaryHandling_.at( j ) == interpolators::use_default_value_with_warning )
                 {
-                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( defaultExtrapolationValue.at( i ),
-                                                                                  defaultExtrapolationValue.at( i ) ) );
+                    defaultExtrapolationValue_.at( i ).push_back(
+                            std::make_pair( defaultExtrapolationValue.at( i ), defaultExtrapolationValue.at( i ) ) );
                 }
                 else
                 {
@@ -189,8 +198,8 @@ public:
         }
 
         // Set default dependent variables
-        dependentVariablesDependency_ = std::vector< bool >( 6, false ); // only 6 dependent variables supported
-        dependentVariableIndices_ = std::vector< unsigned int >( 6, 0 ); // only 6 dependent variables supported
+        dependentVariablesDependency_ = std::vector< bool >( 6, false );  // only 6 dependent variables supported
+        dependentVariableIndices_ = std::vector< unsigned int >( 6, 0 );  // only 6 dependent variables supported
 
         // Initialize atmosphere
         createAtmosphereInterpolators( );
@@ -198,14 +207,17 @@ public:
     }
 
     //! Destructor
-    ~TabulatedAtmosphere( ){ }
+    ~TabulatedAtmosphere( ) { }
 
     //! Get atmosphere table file name.
     /*!
      *  Returns atmosphere table file name.
      *  \return The atmosphere table file.
      */
-    std::map< int, std::string > getAtmosphereTableFile( ) { return atmosphereTableFile_; }
+    std::map< int, std::string > getAtmosphereTableFile( )
+    {
+        return atmosphereTableFile_;
+    }
 
     //! Get local density.
     /*!
@@ -216,26 +228,25 @@ public:
      *  \param time Time at which density is to be computed.
      *  \return Atmospheric density at specified conditions.
      */
-    double getDensity( const double altitude, const double longitude = 0.0,
-                       const double latitude = 0.0, const double time = 0.0 )
+    double getDensity( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
     {
         // Get list of independent variables
-        for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+        for( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
         {
-            switch ( independentVariables_.at( i ) )
+            switch( independentVariables_.at( i ) )
             {
-            case altitude_dependent_atmosphere:
-                independentVariableData_[ i ] = altitude;
-                break;
-            case longitude_dependent_atmosphere:
-                independentVariableData_[ i ] = longitude;
-                break;
-            case latitude_dependent_atmosphere:
-                independentVariableData_[ i ] = latitude;
-                break;
-            case time_dependent_atmosphere:
-                independentVariableData_[ i ] = time;
-                break;
+                case altitude_dependent_atmosphere:
+                    independentVariableData_[ i ] = altitude;
+                    break;
+                case longitude_dependent_atmosphere:
+                    independentVariableData_[ i ] = longitude;
+                    break;
+                case latitude_dependent_atmosphere:
+                    independentVariableData_[ i ] = latitude;
+                    break;
+                case time_dependent_atmosphere:
+                    independentVariableData_[ i ] = time;
+                    break;
             }
         }
 
@@ -252,27 +263,26 @@ public:
      *  \param time Time at which pressure is to be computed.
      *  \return Atmospheric pressure at specified conditions.
      */
-    double getPressure( const double altitude, const double longitude = 0.0,
-                        const double latitude = 0.0, const double time = 0.0 )
+    double getPressure( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
     {
         // Get list of independent variables
         std::vector< double > independentVariableData;
-        for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+        for( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
         {
-            switch ( independentVariables_.at( i ) )
+            switch( independentVariables_.at( i ) )
             {
-            case altitude_dependent_atmosphere:
-                independentVariableData.push_back( altitude );
-                break;
-            case longitude_dependent_atmosphere:
-                independentVariableData.push_back( longitude );
-                break;
-            case latitude_dependent_atmosphere:
-                independentVariableData.push_back( latitude );
-                break;
-            case time_dependent_atmosphere:
-                independentVariableData.push_back( time );
-                break;
+                case altitude_dependent_atmosphere:
+                    independentVariableData.push_back( altitude );
+                    break;
+                case longitude_dependent_atmosphere:
+                    independentVariableData.push_back( longitude );
+                    break;
+                case latitude_dependent_atmosphere:
+                    independentVariableData.push_back( latitude );
+                    break;
+                case time_dependent_atmosphere:
+                    independentVariableData.push_back( time );
+                    break;
             }
         }
 
@@ -289,27 +299,26 @@ public:
      *  \param time Time at which temperature is to be computed.
      *  \return constantTemperature Atmospheric temperature at specified conditions.
      */
-    double getTemperature( const double altitude, const double longitude = 0.0,
-                           const double latitude = 0.0, const double time = 0.0 )
+    double getTemperature( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
     {
         // Get list of independent variables
         std::vector< double > independentVariableData;
-        for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+        for( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
         {
-            switch ( independentVariables_.at( i ) )
+            switch( independentVariables_.at( i ) )
             {
-            case altitude_dependent_atmosphere:
-                independentVariableData.push_back( altitude );
-                break;
-            case longitude_dependent_atmosphere:
-                independentVariableData.push_back( longitude );
-                break;
-            case latitude_dependent_atmosphere:
-                independentVariableData.push_back( latitude );
-                break;
-            case time_dependent_atmosphere:
-                independentVariableData.push_back( time );
-                break;
+                case altitude_dependent_atmosphere:
+                    independentVariableData.push_back( altitude );
+                    break;
+                case longitude_dependent_atmosphere:
+                    independentVariableData.push_back( longitude );
+                    break;
+                case latitude_dependent_atmosphere:
+                    independentVariableData.push_back( latitude );
+                    break;
+                case time_dependent_atmosphere:
+                    independentVariableData.push_back( time );
+                    break;
             }
         }
 
@@ -326,29 +335,31 @@ public:
      *  \param time Time at which specific gas constant is to be computed.
      *  \return specificGasConstant Specific gas constant at specified conditions.
      */
-    double getSpecificGasConstant( const double altitude, const double longitude = 0.0,
-                                   const double latitude = 0.0, const double time = 0.0 )
+    double getSpecificGasConstant( const double altitude,
+                                   const double longitude = 0.0,
+                                   const double latitude = 0.0,
+                                   const double time = 0.0 )
     {
-        if ( dependentVariablesDependency_.at( gas_constant_dependent_atmosphere ) )
+        if( dependentVariablesDependency_.at( gas_constant_dependent_atmosphere ) )
         {
             // Get list of independent variables
             std::vector< double > independentVariableData;
-            for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+            for( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
             {
-                switch ( independentVariables_.at( i ) )
+                switch( independentVariables_.at( i ) )
                 {
-                case altitude_dependent_atmosphere:
-                    independentVariableData.push_back( altitude );
-                    break;
-                case longitude_dependent_atmosphere:
-                    independentVariableData.push_back( longitude );
-                    break;
-                case latitude_dependent_atmosphere:
-                    independentVariableData.push_back( latitude );
-                    break;
-                case time_dependent_atmosphere:
-                    independentVariableData.push_back( time );
-                    break;
+                    case altitude_dependent_atmosphere:
+                        independentVariableData.push_back( altitude );
+                        break;
+                    case longitude_dependent_atmosphere:
+                        independentVariableData.push_back( longitude );
+                        break;
+                    case latitude_dependent_atmosphere:
+                        independentVariableData.push_back( latitude );
+                        break;
+                    case time_dependent_atmosphere:
+                        independentVariableData.push_back( time );
+                        break;
                 }
             }
 
@@ -370,29 +381,31 @@ public:
      *  \param time Time at which ratio of specific heats is to be computed.
      *  \return Ratio of specific heats at specified conditions.
      */
-    double getRatioOfSpecificHeats( const double altitude, const double longitude = 0.0,
-                                    const double latitude = 0.0, const double time = 0.0 )
+    double getRatioOfSpecificHeats( const double altitude,
+                                    const double longitude = 0.0,
+                                    const double latitude = 0.0,
+                                    const double time = 0.0 )
     {
-        if ( dependentVariablesDependency_.at( specific_heat_ratio_dependent_atmosphere ) )
+        if( dependentVariablesDependency_.at( specific_heat_ratio_dependent_atmosphere ) )
         {
             // Get list of independent variables
             std::vector< double > independentVariableData;
-            for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+            for( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
             {
-                switch ( independentVariables_.at( i ) )
+                switch( independentVariables_.at( i ) )
                 {
-                case altitude_dependent_atmosphere:
-                    independentVariableData.push_back( altitude );
-                    break;
-                case longitude_dependent_atmosphere:
-                    independentVariableData.push_back( longitude );
-                    break;
-                case latitude_dependent_atmosphere:
-                    independentVariableData.push_back( latitude );
-                    break;
-                case time_dependent_atmosphere:
-                    independentVariableData.push_back( time );
-                    break;
+                    case altitude_dependent_atmosphere:
+                        independentVariableData.push_back( altitude );
+                        break;
+                    case longitude_dependent_atmosphere:
+                        independentVariableData.push_back( longitude );
+                        break;
+                    case latitude_dependent_atmosphere:
+                        independentVariableData.push_back( latitude );
+                        break;
+                    case time_dependent_atmosphere:
+                        independentVariableData.push_back( time );
+                        break;
                 }
             }
 
@@ -414,29 +427,28 @@ public:
      *  \param time Time at which molar mass is to be computed.
      *  \return Molar mass at specified conditions.
      */
-    double getMolarMass( const double altitude, const double longitude = 0.0,
-                         const double latitude = 0.0, const double time = 0.0 )
+    double getMolarMass( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
     {
-        if ( dependentVariablesDependency_.at( molar_mass_dependent_atmosphere ) )
+        if( dependentVariablesDependency_.at( molar_mass_dependent_atmosphere ) )
         {
             // Get list of independent variables
             std::vector< double > independentVariableData;
-            for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+            for( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
             {
-                switch ( independentVariables_.at( i ) )
+                switch( independentVariables_.at( i ) )
                 {
-                case altitude_dependent_atmosphere:
-                    independentVariableData.push_back( altitude );
-                    break;
-                case longitude_dependent_atmosphere:
-                    independentVariableData.push_back( longitude );
-                    break;
-                case latitude_dependent_atmosphere:
-                    independentVariableData.push_back( latitude );
-                    break;
-                case time_dependent_atmosphere:
-                    independentVariableData.push_back( time );
-                    break;
+                    case altitude_dependent_atmosphere:
+                        independentVariableData.push_back( altitude );
+                        break;
+                    case longitude_dependent_atmosphere:
+                        independentVariableData.push_back( longitude );
+                        break;
+                    case latitude_dependent_atmosphere:
+                        independentVariableData.push_back( latitude );
+                        break;
+                    case time_dependent_atmosphere:
+                        independentVariableData.push_back( time );
+                        break;
                 }
             }
 
@@ -445,8 +457,9 @@ public:
         }
         else
         {
-            throw std::runtime_error( "Error in tabulated atmosphere. The molar mass needs to be specified in the atmosphere "
-                                      "table files." );
+            throw std::runtime_error(
+                    "Error in tabulated atmosphere. The molar mass needs to be specified in the atmosphere "
+                    "table files." );
         }
     }
 
@@ -459,8 +472,7 @@ public:
      *  \param time Time at which speed of sound is to be computed.
      *  \return Atmospheric speed of sound at specified conditions.
      */
-    double getSpeedOfSound( const double altitude, const double longitude = 0.0,
-                            const double latitude = 0.0, const double time = 0.0 )
+    double getSpeedOfSound( const double altitude, const double longitude = 0.0, const double latitude = 0.0, const double time = 0.0 )
     {
         return computeSpeedOfSound( getTemperature( altitude, longitude, latitude, time ),
                                     getSpecificGasConstant( altitude, longitude, latitude, time ),
@@ -468,9 +480,7 @@ public:
     }
 
 protected:
-
 private:
-
     //! Function to create the interpolators based on the tabulated atmosphere files.
     /*!
      *  Function to create the interpolators based on the tabulated atmosphere files, and the provided interpolation settings. This
@@ -558,14 +568,13 @@ private:
     std::vector< std::vector< std::pair< double, double > > > defaultExtrapolationValue_;
 
     std::vector< double > independentVariableData_;
-
 };
 
 //! Typedef for shared-pointer to TabulatedAtmosphere object.
 typedef std::shared_ptr< TabulatedAtmosphere > TabulatedAtmospherePointer;
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_TABULATED_ATMOSPHERE_H
+#endif  // TUDAT_TABULATED_ATMOSPHERE_H

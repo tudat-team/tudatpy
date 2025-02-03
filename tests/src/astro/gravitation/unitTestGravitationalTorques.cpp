@@ -55,11 +55,8 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
     //! Test torque for various inertia tensors
     for( unsigned int testCase = 0; testCase < 7; testCase++ )
     {
-
-
         // Create body objects.
-        BodyListSettings bodySettings =
-                getDefaultBodySettings( bodiesToCreate );
+        BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate );
 
         // Define degree two coefficients
         Eigen::Matrix3d cosineCoefficients = Eigen::Matrix3d::Zero( );
@@ -90,36 +87,39 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
                 sineCoefficients( 2, 1 ) = 0.01;
             }
 
-            bodySettings.at( "Moon" )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
-                        spice_interface::getBodyGravitationalParameter( "Moon" ), spice_interface::getAverageRadius( "Moon" ),
-                        cosineCoefficients, sineCoefficients, "IAU_Moon" );
+            bodySettings.at( "Moon" )->gravityFieldSettings =
+                    std::make_shared< SphericalHarmonicsGravityFieldSettings >( spice_interface::getBodyGravitationalParameter( "Moon" ),
+                                                                                spice_interface::getAverageRadius( "Moon" ),
+                                                                                cosineCoefficients,
+                                                                                sineCoefficients,
+                                                                                "IAU_Moon" );
         }
 
         if( testCase > 0 )
         {
-            double c20InertiaContribution  = cosineCoefficients( 2, 0 ) *
-                    tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 ) / 3.0;
+            double c20InertiaContribution =
+                    cosineCoefficients( 2, 0 ) * tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 ) / 3.0;
             inertiaTensorDeviation( 0, 0 ) += c20InertiaContribution;
             inertiaTensorDeviation( 1, 1 ) += c20InertiaContribution;
             inertiaTensorDeviation( 2, 2 ) -= 2.0 * c20InertiaContribution;
 
-            double c21InertiaContribution  = cosineCoefficients( 2, 1 ) *
-                    tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
+            double c21InertiaContribution =
+                    cosineCoefficients( 2, 1 ) * tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
             inertiaTensorDeviation( 0, 2 ) -= c21InertiaContribution;
             inertiaTensorDeviation( 2, 0 ) -= c21InertiaContribution;
 
-            double c22InertiaContribution  = 2.0 * cosineCoefficients( 2, 2 ) *
-                    tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+            double c22InertiaContribution =
+                    2.0 * cosineCoefficients( 2, 2 ) * tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
             inertiaTensorDeviation( 0, 0 ) -= c22InertiaContribution;
             inertiaTensorDeviation( 1, 1 ) += c22InertiaContribution;
 
-            double s21InertiaContribution  = sineCoefficients( 2, 1 ) *
-                    tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
+            double s21InertiaContribution =
+                    sineCoefficients( 2, 1 ) * tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 );
             inertiaTensorDeviation( 1, 2 ) -= s21InertiaContribution;
             inertiaTensorDeviation( 2, 1 ) -= s21InertiaContribution;
 
-            double s22InertiaContribution  = 2.0 * sineCoefficients( 2, 2 ) *
-                    tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+            double s22InertiaContribution =
+                    2.0 * sineCoefficients( 2, 2 ) * tudat::basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
             inertiaTensorDeviation( 0, 1 ) -= s22InertiaContribution;
             inertiaTensorDeviation( 1, 0 ) -= s22InertiaContribution;
 
@@ -127,21 +127,19 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
                     spice_interface::getBodyGravitationalParameter( "Moon" ) / physical_constants::GRAVITATIONAL_CONSTANT;
         }
 
-        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Moon" )->gravityFieldSettings )->setScaledMeanMomentOfInertia( 0.4 );
-        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Earth" )->gravityFieldSettings )->setScaledMeanMomentOfInertia( 0.4 );
+        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Moon" )->gravityFieldSettings )
+                ->setScaledMeanMomentOfInertia( 0.4 );
+        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Earth" )->gravityFieldSettings )
+                ->setScaledMeanMomentOfInertia( 0.4 );
 
         // Create bodies
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-        
 
         // Crate torque model
         SelectedTorqueMap selectedTorqueModelMap;
-        selectedTorqueModelMap[ "Moon" ][ "Earth" ].push_back(
-                    std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
-        basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                    bodies, selectedTorqueModelMap, { "Moon" } );
-        std::shared_ptr< TorqueModel > secondDegreeGravitationalTorque =
-                torqueModelMap.at( "Moon" ).at( "Earth" ).at( 0 );
+        selectedTorqueModelMap[ "Moon" ][ "Earth" ].push_back( std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
+        basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, selectedTorqueModelMap, { "Moon" } );
+        std::shared_ptr< TorqueModel > secondDegreeGravitationalTorque = torqueModelMap.at( "Moon" ).at( "Earth" ).at( 0 );
 
         // Update environment to current time
         double evaluationTime = tudat::physical_constants::JULIAN_DAY / 2.0;
@@ -159,39 +157,36 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
             // Test id gravity field coefficients are correctly reconstructed
             inertiaTensorDeviation = bodies.at( "Moon" )->getBodyInertiaTensor( );
             std::shared_ptr< SphericalHarmonicsGravityField > moonGravityField =
-                    std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
-                        bodies.at( "Moon" )->getGravityFieldModel( ) );
-
+                    std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( bodies.at( "Moon" )->getGravityFieldModel( ) );
 
             double recomputedC20 = std::sqrt( 0.2 ) /
                     ( moonGravityField->getGravitationalParameter( ) * moonGravityField->getReferenceRadius( ) *
-                      moonGravityField->getReferenceRadius( ) / tudat::physical_constants::GRAVITATIONAL_CONSTANT ) * (
-                        0.5 * ( inertiaTensorDeviation( 0, 0 ) + inertiaTensorDeviation( 1, 1 ) ) -
-                        inertiaTensorDeviation( 2, 2 ) );
+                      moonGravityField->getReferenceRadius( ) / tudat::physical_constants::GRAVITATIONAL_CONSTANT ) *
+                    ( 0.5 * ( inertiaTensorDeviation( 0, 0 ) + inertiaTensorDeviation( 1, 1 ) ) - inertiaTensorDeviation( 2, 2 ) );
             BOOST_CHECK_CLOSE_FRACTION( recomputedC20, moonGravityField->getCosineCoefficients( )( 2, 0 ), 1.0E-12 );
 
             double recomputedC21 = -std::sqrt( 3.0 / 5.0 ) /
                     ( moonGravityField->getGravitationalParameter( ) * moonGravityField->getReferenceRadius( ) *
-                      moonGravityField->getReferenceRadius( ) / tudat::physical_constants::GRAVITATIONAL_CONSTANT ) * (
-                        inertiaTensorDeviation( 0, 2 ) );
+                      moonGravityField->getReferenceRadius( ) / tudat::physical_constants::GRAVITATIONAL_CONSTANT ) *
+                    ( inertiaTensorDeviation( 0, 2 ) );
             BOOST_CHECK_CLOSE_FRACTION( recomputedC21, moonGravityField->getCosineCoefficients( )( 2, 1 ), 1.0E-12 );
 
             double recomputedC22 = std::sqrt( 3.0 / 20.0 ) /
                     ( moonGravityField->getGravitationalParameter( ) * moonGravityField->getReferenceRadius( ) *
-                      moonGravityField->getReferenceRadius( ) / tudat::physical_constants::GRAVITATIONAL_CONSTANT ) * (
-                        inertiaTensorDeviation( 1, 1 ) - inertiaTensorDeviation( 0, 0 ) );
+                      moonGravityField->getReferenceRadius( ) / tudat::physical_constants::GRAVITATIONAL_CONSTANT ) *
+                    ( inertiaTensorDeviation( 1, 1 ) - inertiaTensorDeviation( 0, 0 ) );
             BOOST_CHECK_CLOSE_FRACTION( recomputedC22, moonGravityField->getCosineCoefficients( )( 2, 2 ), 1.0E-12 );
 
             double recomputedS21 = -std::sqrt( 3.0 / 5.0 ) /
                     ( moonGravityField->getGravitationalParameter( ) * moonGravityField->getReferenceRadius( ) *
-                      moonGravityField->getReferenceRadius( ) / tudat::physical_constants::GRAVITATIONAL_CONSTANT ) * (
-                        inertiaTensorDeviation( 1, 2 ) );
+                      moonGravityField->getReferenceRadius( ) / tudat::physical_constants::GRAVITATIONAL_CONSTANT ) *
+                    ( inertiaTensorDeviation( 1, 2 ) );
             BOOST_CHECK_CLOSE_FRACTION( recomputedS21, moonGravityField->getSineCoefficients( )( 2, 1 ), 1.0E-12 );
 
             double recomputedS22 = -std::sqrt( 12.0 / 5.0 ) /
                     ( 2.0 * moonGravityField->getGravitationalParameter( ) * moonGravityField->getReferenceRadius( ) *
-                      moonGravityField->getReferenceRadius( ) / tudat::physical_constants::GRAVITATIONAL_CONSTANT ) * (
-                        inertiaTensorDeviation( 0, 1 ) );
+                      moonGravityField->getReferenceRadius( ) / tudat::physical_constants::GRAVITATIONAL_CONSTANT ) *
+                    ( inertiaTensorDeviation( 0, 1 ) );
             BOOST_CHECK_CLOSE_FRACTION( recomputedS22, moonGravityField->getSineCoefficients( )( 2, 2 ), 1.0E-12 );
         }
 
@@ -199,8 +194,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
         secondDegreeGravitationalTorque->updateMembers( evaluationTime );
 
         // Compute torque manually, and test against computed result
-        Eigen::Vector3d earthRelativePosition =
-                bodies.at( "Moon" )->getCurrentRotationToLocalFrame( ) *
+        Eigen::Vector3d earthRelativePosition = bodies.at( "Moon" )->getCurrentRotationToLocalFrame( ) *
                 ( bodies.at( "Earth" )->getPosition( ) - bodies.at( "Moon" )->getPosition( ) );
         Eigen::Vector3d manualTorque = 3.0 * earthRelativePosition.cross( inertiaTensorDeviation * earthRelativePosition ) *
                 bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) /
@@ -209,8 +203,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
         Eigen::Vector3d currentTorque = secondDegreeGravitationalTorque->getTorque( );
         Eigen::Vector3d torqueError = ( currentTorque - manualTorque );
 
-        std::cout<<"Current torques "<<currentTorque.transpose( )<<std::endl<<
-                   torqueError<<std::endl;
+        std::cout << "Current torques " << currentTorque.transpose( ) << std::endl << torqueError << std::endl;
 
         for( unsigned int i = 0; i < 3; i++ )
         {
@@ -242,8 +235,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
         bodiesToCreate.push_back( "Moon" );
 
         // Create body objects.
-        BodyListSettings bodySettings =
-                getDefaultBodySettings( bodiesToCreate );
+        BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate );
 
         // Set effective point-mass gravity
         if( testCase == 0 )
@@ -252,29 +244,28 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
             Eigen::Matrix3d sineCoefficients = Eigen::Matrix3d::Zero( );
             cosineCoefficients( 0, 0 ) = 1.0;
 
-            bodySettings.at( "Moon" )->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
-                        spice_interface::getBodyGravitationalParameter( "Moon" ), spice_interface::getAverageRadius( "Moon" ),
-                        cosineCoefficients, sineCoefficients, "IAU_Moon" );
+            bodySettings.at( "Moon" )->gravityFieldSettings =
+                    std::make_shared< SphericalHarmonicsGravityFieldSettings >( spice_interface::getBodyGravitationalParameter( "Moon" ),
+                                                                                spice_interface::getAverageRadius( "Moon" ),
+                                                                                cosineCoefficients,
+                                                                                sineCoefficients,
+                                                                                "IAU_Moon" );
         }
 
-        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Moon" )->gravityFieldSettings )->setScaledMeanMomentOfInertia( 0.0 );
-        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Earth" )->gravityFieldSettings )->setScaledMeanMomentOfInertia( 0.0 );
+        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Moon" )->gravityFieldSettings )
+                ->setScaledMeanMomentOfInertia( 0.0 );
+        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Earth" )->gravityFieldSettings )
+                ->setScaledMeanMomentOfInertia( 0.0 );
 
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-        
 
         // Create two torque models
         SelectedTorqueMap selectedTorqueModelMap;
-        selectedTorqueModelMap[ "Moon" ][ "Earth" ].push_back(
-                    std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
-        selectedTorqueModelMap[ "Moon" ][ "Earth" ].push_back(
-                    std::make_shared< SphericalHarmonicTorqueSettings >( 2, 2 ) );
-        basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                    bodies, selectedTorqueModelMap, { "Moon" } );
-        std::shared_ptr< TorqueModel > secondDegreeGravitationalTorque =
-                torqueModelMap.at( "Moon" ).at( "Earth" ).at( 0 );
-        std::shared_ptr< TorqueModel > sphercialHarmonicGravitationalTorque =
-                torqueModelMap.at( "Moon" ).at( "Earth" ).at( 1 );
+        selectedTorqueModelMap[ "Moon" ][ "Earth" ].push_back( std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
+        selectedTorqueModelMap[ "Moon" ][ "Earth" ].push_back( std::make_shared< SphericalHarmonicTorqueSettings >( 2, 2 ) );
+        basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap( bodies, selectedTorqueModelMap, { "Moon" } );
+        std::shared_ptr< TorqueModel > secondDegreeGravitationalTorque = torqueModelMap.at( "Moon" ).at( "Earth" ).at( 0 );
+        std::shared_ptr< TorqueModel > sphercialHarmonicGravitationalTorque = torqueModelMap.at( "Moon" ).at( "Earth" ).at( 1 );
 
         // Update Moon to current time.
         double evaluationTime = tudat::physical_constants::JULIAN_DAY / 2.0;
@@ -284,33 +275,35 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
 
         {
             // Test reconstructed spherical harmonic coefficients
-            Eigen::Matrix3d moonCosineCoefficients =
-                    std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
-                        bodies.at( "Moon" )->getGravityFieldModel( ) )->getCosineCoefficients( ).block( 0, 0, 3, 3 );
-            Eigen::Matrix3d moonSineCoefficients =
-                    std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
-                        bodies.at( "Moon" )->getGravityFieldModel( ) )->getSineCoefficients( ).block( 0, 0, 3, 3 );
+            Eigen::Matrix3d moonCosineCoefficients = std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
+                                                             bodies.at( "Moon" )->getGravityFieldModel( ) )
+                                                             ->getCosineCoefficients( )
+                                                             .block( 0, 0, 3, 3 );
+            Eigen::Matrix3d moonSineCoefficients = std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
+                                                           bodies.at( "Moon" )->getGravityFieldModel( ) )
+                                                           ->getSineCoefficients( )
+                                                           .block( 0, 0, 3, 3 );
             Eigen::MatrixXd moonReconstructedCosineCoefficients = Eigen::Matrix3d::Zero( ),
-                    moonReconstructedSineCoefficients = Eigen::Matrix3d::Zero( );
+                            moonReconstructedSineCoefficients = Eigen::Matrix3d::Zero( );
 
             double reconstructedScaledMeanMomentOfInertia;
             gravitation::getDegreeTwoSphericalHarmonicCoefficients(
-                        bodies.at( "Moon" )->getBodyInertiaTensor( ),
-                        bodies.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( ),
-                        std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
-                            bodies.at( "Moon" )->getGravityFieldModel( ) )->getReferenceRadius( ), true,
-                        moonReconstructedCosineCoefficients, moonReconstructedSineCoefficients,
-                        reconstructedScaledMeanMomentOfInertia );
+                    bodies.at( "Moon" )->getBodyInertiaTensor( ),
+                    bodies.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( ),
+                    std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( bodies.at( "Moon" )->getGravityFieldModel( ) )
+                            ->getReferenceRadius( ),
+                    true,
+                    moonReconstructedCosineCoefficients,
+                    moonReconstructedSineCoefficients,
+                    reconstructedScaledMeanMomentOfInertia );
 
             for( unsigned int j = 0; j < 3; j++ )
             {
                 for( unsigned int k = 0; k <= j; k++ )
                 {
-                    BOOST_CHECK_SMALL( std::fabs( moonReconstructedCosineCoefficients( j, k ) -
-                                                  moonCosineCoefficients( j, k ) ), 1.0E-19 );
+                    BOOST_CHECK_SMALL( std::fabs( moonReconstructedCosineCoefficients( j, k ) - moonCosineCoefficients( j, k ) ), 1.0E-19 );
 
-                    BOOST_CHECK_SMALL( std::fabs( moonReconstructedSineCoefficients( j, k ) -
-                                                  moonSineCoefficients( j, k ) ), 1.0E-19 );
+                    BOOST_CHECK_SMALL( std::fabs( moonReconstructedSineCoefficients( j, k ) - moonSineCoefficients( j, k ) ), 1.0E-19 );
                 }
             }
         }
@@ -337,6 +330,6 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
+}  // namespace tudat

@@ -44,9 +44,7 @@ double computeKeplerOrbitalPeriod( const double semiMajorAxis,
  * \param trueAnomaly True anomaly of Kepler orbit (circle or ellipse).
  * \return Two-body radial distance at specified true anomaly.
  */
-double computeKeplerRadialDistance( const double semiMajorAxis,
-                                    const double eccentricity,
-                                    const double trueAnomaly );
+double computeKeplerRadialDistance( const double semiMajorAxis, const double eccentricity, const double trueAnomaly );
 
 //! Compute two-body radial distance.
 /*!
@@ -95,7 +93,8 @@ double computeKeplerOrbitalVelocity( const Eigen::Vector6d& keplerianElements,
  * \param massOfOrbitingBody Mass of orbiting body.
  * \return Two-body angular momentum.
  */
-double computeKeplerAngularMomentum( const double semiMajorAxis, const double eccentricity,
+double computeKeplerAngularMomentum( const double semiMajorAxis,
+                                     const double eccentricity,
                                      const double gravitationalParameterOfCentralBody,
                                      const double massOfOrbitingBody = 0.0 );
 
@@ -137,7 +136,6 @@ double computeKeplerEnergy( const double semiMajorAxis,
  */
 double computeSynodicPeriod( const double orbitalPeriodBody1, const double orbitalPeriodBody2 );
 
-
 //! Compute periapsis altitude from Keplerian state for spherical central body.
 /*!
  * Compute periapsis altitude from Keplerian state for spherical central body.
@@ -145,8 +143,7 @@ double computeSynodicPeriod( const double orbitalPeriodBody1, const double orbit
  * \param centralBodyRadius Radius of the central body (assumed spherical).
  * \return The distance from the propagated body to the central body's spherical surface at periapsis.
  */
-double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state,
-                                                   const double centralBodyRadius );
+double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state, const double centralBodyRadius );
 
 //! Compute periapsis altitude from Cartesian state for spherical central body.
 /*!
@@ -166,8 +163,7 @@ double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d& state,
  * \param centralBodyRadius Radius of the central body (assumed spherical).
  * \return The distance from the propagated body to the central body's spherical surface at apoapsis.
  */
-double computeApoapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state,
-                                                   const double centralBodyRadius );
+double computeApoapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state, const double centralBodyRadius );
 
 //! Compute apoapsis altitude from Cartesian state for spherical central body.
 /*!
@@ -178,12 +174,10 @@ double computeApoapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state,
  * \return The distance from the propagated body to the central body's spherical surface at apoapsis.
  */
 double computeApoapsisAltitudeFromCartesianState( const Eigen::Vector6d& state,
-                                                   const double centralBodyGravitationalParameter,
-                                                   const double centralBodyRadius );
+                                                  const double centralBodyGravitationalParameter,
+                                                  const double centralBodyRadius );
 
+}  // namespace basic_astrodynamics
+}  // namespace tudat
 
-} // namespace basic_astrodynamics
-} // namespace tudat
-
-
-#endif // TUDAT_ASTRODYNAMICS_FUNCTIONS_H
+#endif  // TUDAT_ASTRODYNAMICS_FUNCTIONS_H

@@ -33,7 +33,6 @@ namespace mission_segments
 class LambertTargeterGooding : public LambertTargeter
 {
 public:
-
     //! Constructor with immediate definition of parameters and execution of the algorithm.
     /*!
      * Constructor with immediate definition of parameters and execution of the algorithm.
@@ -48,8 +47,7 @@ public:
                             const Eigen::Vector3d& aCartesianPositionAtArrival,
                             const double aTimeOfFlight,
                             const double aGravitationalParameter,
-                            root_finders::RootFinderPointer aRootFinder = 
-                                root_finders::RootFinderPointer( ) );
+                            root_finders::RootFinderPointer aRootFinder = root_finders::RootFinderPointer( ) );
 
     //! Get radial velocity at departure.
     /*!
@@ -87,7 +85,6 @@ public:
     double getSemiMajorAxis( );
 
 protected:
-
     //! Execute Lambert targeting algorithm.
     /*!
      * Executes the Lambert targeting algorithm.
@@ -95,7 +92,6 @@ protected:
     void execute( );
 
 private:
-
     //! Shared pointer to the rootfinder.
     /*!
      * Shared pointer to the rootfinder. The rootfinder contains termination conditions inside.
@@ -106,7 +102,7 @@ private:
 //! Typedef for shared-pointer to LambertTargeterGooding object.
 typedef std::shared_ptr< LambertTargeterGooding > LambertTargeterGoodingPointer;
 
-} // namespace mission_segments
-} // namespace tudat
+}  // namespace mission_segments
+}  // namespace tudat
 
-#endif // TUDAT_LAMBERT_TARGETER_GOODING_H
+#endif  // TUDAT_LAMBERT_TARGETER_GOODING_H

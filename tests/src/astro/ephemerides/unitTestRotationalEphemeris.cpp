@@ -48,7 +48,6 @@ BOOST_AUTO_TEST_CASE( testRotationalEphemeris )
 
     // Test rotation to target frame at specified time.
     {
-
         // The following code block can be used to retrieve the benchmark data from Spice.
         //        spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) +
         // "pck00010.tpc" );
@@ -66,56 +65,49 @@ BOOST_AUTO_TEST_CASE( testRotationalEphemeris )
         // Set rotational characteristics at given time, as calculated with Spice
         // (see above commented lines).
         Eigen::Matrix3d spiceRotationMatrixDerivativeToFrame;
-        spiceRotationMatrixDerivativeToFrame <<
-                                                1.690407961416589e-07, 2.288121921543265e-07, 9.283170431475241e-08,
-                -2.468632444964533e-07, 1.540516111965609e-07, 6.981529179974795e-08,
-                0.0,           0.0,          0.0;
+        spiceRotationMatrixDerivativeToFrame << 1.690407961416589e-07, 2.288121921543265e-07, 9.283170431475241e-08, -2.468632444964533e-07,
+                1.540516111965609e-07, 6.981529179974795e-08, 0.0, 0.0, 0.0;
 
         Eigen::Matrix3d spiceRotationMatrixToFrame;
-        spiceRotationMatrixToFrame << -0.8249537745726603, 0.5148010526833556, 0.2333048348715243,
-                -0.5648910720519699, -0.7646317780963481, -0.3102197940834743,
-                0.01869081416890206, -0.3877088083617987, 0.9215923900425707;
+        spiceRotationMatrixToFrame << -0.8249537745726603, 0.5148010526833556, 0.2333048348715243, -0.5648910720519699, -0.7646317780963481,
+                -0.3102197940834743, 0.01869081416890206, -0.3877088083617987, 0.9215923900425707;
 
         Eigen::Vector3d spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame;
-        spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame << -5.593131603532092e-09,
-                1.160198999048488e-07,
+        spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame << -5.593131603532092e-09, 1.160198999048488e-07,
                 -2.75781861386115e-07;
 
         // Calculate rotational velocity from SPICE rotation matrix derivative.
         Eigen::Vector3d manualRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame =
-                getRotationalVelocityVectorInBaseFrameFromMatrices(
-                    spiceRotationMatrixToFrame, spiceRotationMatrixDerivativeToFrame.transpose( ) );
+                getRotationalVelocityVectorInBaseFrameFromMatrices( spiceRotationMatrixToFrame,
+                                                                    spiceRotationMatrixDerivativeToFrame.transpose( ) );
 
         // Calculate rotation matrix derivative from SPICE rotational velocity vector.
         Eigen::Matrix3d rotationMatrixDerivative = getDerivativeOfRotationMatrixToFrame(
-                    spiceRotationMatrixToFrame, spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame );
+                spiceRotationMatrixToFrame, spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame );
 
         // Calculate rotational velocity from previously calculated rotation matrix derivative.
-        Eigen::Matrix3d backCalculatedRotationMatrixDerivative =
-                getDerivativeOfRotationMatrixToFrame(
-                    spiceRotationMatrixToFrame,
-                    manualRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame );
+        Eigen::Matrix3d backCalculatedRotationMatrixDerivative = getDerivativeOfRotationMatrixToFrame(
+                spiceRotationMatrixToFrame, manualRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame );
 
         // Calculate rotation matrix derivative from previously calculated rotational velocity
         // vector.
         Eigen::Vector3d backCalculatedRotationalVelocityVector =
-                getRotationalVelocityVectorInBaseFrameFromMatrices(
-                    spiceRotationMatrixToFrame, rotationMatrixDerivative.transpose( ) );
+                getRotationalVelocityVectorInBaseFrameFromMatrices( spiceRotationMatrixToFrame, rotationMatrixDerivative.transpose( ) );
 
         // Check equivalence of results.
         for( int i = 0; i < 3; i++ )
         {
+            BOOST_CHECK_SMALL(
+                    manualRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame( i ) - backCalculatedRotationalVelocityVector( i ),
+                    2.0E-22 );
             BOOST_CHECK_SMALL( manualRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame( i ) -
-                               backCalculatedRotationalVelocityVector( i ), 2.0E-22 );
-            BOOST_CHECK_SMALL( manualRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame( i ) -
-                               spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame( i ), 2.0E-22 );
+                                       spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame( i ),
+                               2.0E-22 );
 
             for( int j = 0; j < 3; j++ )
             {
-                BOOST_CHECK_SMALL( rotationMatrixDerivative( i, j ) -
-                                   backCalculatedRotationMatrixDerivative( i, j ), 2.0E-22 );
-                BOOST_CHECK_SMALL( rotationMatrixDerivative( i, j ) -
-                                   spiceRotationMatrixDerivativeToFrame( i, j ), 2.0E-22 );
+                BOOST_CHECK_SMALL( rotationMatrixDerivative( i, j ) - backCalculatedRotationMatrixDerivative( i, j ), 2.0E-22 );
+                BOOST_CHECK_SMALL( rotationMatrixDerivative( i, j ) - spiceRotationMatrixDerivativeToFrame( i, j ), 2.0E-22 );
             }
         }
     }
@@ -123,5 +115,5 @@ BOOST_AUTO_TEST_CASE( testRotationalEphemeris )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

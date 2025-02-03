@@ -15,7 +15,6 @@
 #include <limits>
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/basics/testMacros.h"
 
 #include "tudat/astro/earth_orientation/polarMotionCalculator.h"
@@ -34,14 +33,12 @@ BOOST_AUTO_TEST_SUITE( test_polar_motion_calculator )
 BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
 {
     // Retrieve polar motion calculator
-    std::shared_ptr< EarthOrientationAnglesCalculator > standardEarthRotationModel =
-            createStandardEarthOrientationCalculator( );
-    std::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator =
-            standardEarthRotationModel->getPolarMotionCalculator( );
+    std::shared_ptr< EarthOrientationAnglesCalculator > standardEarthRotationModel = createStandardEarthOrientationCalculator( );
+    std::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator = standardEarthRotationModel->getPolarMotionCalculator( );
 
     // Get constituent polar motion calculation objects.
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
-        dailyPolarMotionValueInterpolator = standardPolarMotionCalculator->getDailyIersValueInterpolator( );
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > > dailyPolarMotionValueInterpolator =
+            standardPolarMotionCalculator->getDailyIersValueInterpolator( );
     std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator =
             getDefaultPolarMotionCorrectionCalculator( );
 
@@ -53,36 +50,40 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
     Eigen::Vector6d fundamentalArguments = sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst( testEphemerisTime );
 
     // Compute polar motion from both interfaces (time and arguments)
-    Eigen::Vector2d totalPolarMotionFromTime =
-            standardPolarMotionCalculator->getPositionOfCipInItrs( testEphemerisTime, testUtc );
-    Eigen::Vector2d totalPolarMotionFromArguments =
-            standardPolarMotionCalculator->getPositionOfCipInItrs( fundamentalArguments, testUtc );
+    Eigen::Vector2d totalPolarMotionFromTime = standardPolarMotionCalculator->getPositionOfCipInItrs( testEphemerisTime, testUtc );
+    Eigen::Vector2d totalPolarMotionFromArguments = standardPolarMotionCalculator->getPositionOfCipInItrs( fundamentalArguments, testUtc );
 
     // Check combinations fo calculations
-    BOOST_CHECK_EQUAL( totalPolarMotionFromTime.x( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                       shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) ).x( ) );
-    BOOST_CHECK_EQUAL( totalPolarMotionFromTime.y( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                       shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) ).y( ) );
+    BOOST_CHECK_EQUAL( totalPolarMotionFromTime.x( ),
+                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
+                         shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
+                               .x( ) );
+    BOOST_CHECK_EQUAL( totalPolarMotionFromTime.y( ),
+                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
+                         shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
+                               .y( ) );
 
-    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.x( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                       shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) ).x( ) );
-    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.y( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                       shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) ).y( ) );
+    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.x( ),
+                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
+                         shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
+                               .x( ) );
+    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.y( ),
+                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
+                         shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) )
+                               .y( ) );
 
-    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.x( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                       shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) ).x( ) );
-    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.y( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                       shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) ).y( ) );
+    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.x( ),
+                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
+                         shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) )
+                               .x( ) );
+    BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.y( ),
+                       ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
+                         shortPeriodPolarMotionCalculator->getCorrectionsFromFundamentalArgument( fundamentalArguments ) )
+                               .y( ) );
 }
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
-
-
-
-
-
+}  // namespace tudat

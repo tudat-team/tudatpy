@@ -36,27 +36,27 @@ namespace numerical_integrators
  * \tparam IndependentVariableType The type of the independent variable.
  * \sa NumericalIntegrator.
  */
-template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
-class EulerIntegrator
-        : public numerical_integrators::RungeKuttaFixedStepSizeIntegrator<
-        IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
+template< typename IndependentVariableType = double,
+          typename StateType = Eigen::VectorXd,
+          typename StateDerivativeType = Eigen::VectorXd,
+          typename TimeStepType = IndependentVariableType >
+class EulerIntegrator : public numerical_integrators::
+                                RungeKuttaFixedStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 public:
-
     //! Typedef for the base class.
     /*!
      * Typedef of the base class with all template parameters filled in.
      */
-    typedef numerical_integrators::RungeKuttaFixedStepSizeIntegrator<
-    IndependentVariableType, StateType, StateDerivativeType, TimeStepType > RungeKuttaFixedStepSizeIntegratorBase;
+    typedef numerical_integrators::
+            RungeKuttaFixedStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
+                    RungeKuttaFixedStepSizeIntegratorBase;
 
     //! Typedef for the state derivative function.
     /*!
      * Typedef to the state derivative function inherited from the base class.
      */
-    typedef typename RungeKuttaFixedStepSizeIntegratorBase::
-    StateDerivativeFunction StateDerivativeFunction;
+    typedef typename RungeKuttaFixedStepSizeIntegratorBase::StateDerivativeFunction StateDerivativeFunction;
 
     //! Default constructor.
     /*!
@@ -69,13 +69,11 @@ public:
     EulerIntegrator( const StateDerivativeFunction& stateDerivativeFunction,
                      const IndependentVariableType intervalStart,
                      const StateType& initialState,
-                     const TimeStepType& stepSize )
-        : RungeKuttaFixedStepSizeIntegratorBase( stateDerivativeFunction, intervalStart, initialState, stepSize, forwardEuler )
-    {
-    }
+                     const TimeStepType& stepSize ):
+        RungeKuttaFixedStepSizeIntegratorBase( stateDerivativeFunction, intervalStart, initialState, stepSize, forwardEuler )
+    { }
 
 protected:
-
 };
 
 //! Typedef of Euler integrator (state/state derivative = VectorXd, independent variable = double).
@@ -83,7 +81,7 @@ protected:
  * Typedef of an Euler integrator with VectorXds as state and state derivative and double as
  * independent variable.
  */
-typedef EulerIntegrator< > EulerIntegratorXd;
+typedef EulerIntegrator<> EulerIntegratorXd;
 
 //! Typedef of a scalar Euler integrator.
 /*!
@@ -105,7 +103,7 @@ typedef std::shared_ptr< EulerIntegratorXd > EulerIntegratorXdPointer;
  */
 typedef std::shared_ptr< EulerIntegratord > EulerIntegratordPointer;
 
-} // namespace numerical_integrators
-} // namespace tudat
+}  // namespace numerical_integrators
+}  // namespace tudat
 
-#endif // TUDAT_EULER_INTEGRATOR_H
+#endif  // TUDAT_EULER_INTEGRATOR_H

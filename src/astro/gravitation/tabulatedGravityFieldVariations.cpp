@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
-
 #include "tudat/astro/gravitation/tabulatedGravityFieldVariations.h"
 
 namespace tudat
@@ -22,9 +20,11 @@ namespace gravitation
 TabulatedGravityFieldVariations::TabulatedGravityFieldVariations(
         const std::map< double, Eigen::MatrixXd >& cosineCoefficientCorrections,
         const std::map< double, Eigen::MatrixXd >& sineCoefficientCorrections,
-        const int minimumDegree, const int minimumOrder,
-        const std::shared_ptr< interpolators::InterpolatorSettings >interpolatorType ):
-    GravityFieldVariations( minimumDegree, minimumOrder,
+        const int minimumDegree,
+        const int minimumOrder,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorType ):
+    GravityFieldVariations( minimumDegree,
+                            minimumOrder,
                             minimumDegree + cosineCoefficientCorrections.begin( )->second.rows( ) - 1,
                             minimumOrder + cosineCoefficientCorrections.begin( )->second.cols( ) - 1 ),
     interpolatorType_( interpolatorType )
@@ -34,9 +34,8 @@ TabulatedGravityFieldVariations::TabulatedGravityFieldVariations(
 }
 
 //! Function to (re)set the tabulated spherical harmonic coefficients.
-void TabulatedGravityFieldVariations::resetCoefficientInterpolator(
-        const std::map< double, Eigen::MatrixXd >& cosineCoefficientCorrections,
-        const std::map< double, Eigen::MatrixXd >& sineCoefficientCorrections )
+void TabulatedGravityFieldVariations::resetCoefficientInterpolator( const std::map< double, Eigen::MatrixXd >& cosineCoefficientCorrections,
+                                                                    const std::map< double, Eigen::MatrixXd >& sineCoefficientCorrections )
 {
     // Set current coefficient tables.
     cosineCoefficientCorrections_ = cosineCoefficientCorrections;
@@ -49,10 +48,8 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator(
     }
 
     // Create iterators over maps.
-    std::map< double, Eigen::MatrixXd >::iterator cosineIterator =
-            cosineCoefficientCorrections_.begin( );
-    std::map< double, Eigen::MatrixXd >::iterator sineIterator =
-            sineCoefficientCorrections_.begin( );
+    std::map< double, Eigen::MatrixXd >::iterator cosineIterator = cosineCoefficientCorrections_.begin( );
+    std::map< double, Eigen::MatrixXd >::iterator sineIterator = sineCoefficientCorrections_.begin( );
 
     // Declare map to store concatenated (horizontally) [cosine|sine] coefficients for
     // given discrete times.
@@ -69,24 +66,21 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator(
         if( cosineIterator->first != sineIterator->first )
         {
             std::string errorMessage = "Error when resetting tabulated gravity field corrections, sine and cosine data time differ by" +
-                    std::to_string(  cosineIterator->first - sineIterator->first );
+                    std::to_string( cosineIterator->first - sineIterator->first );
             throw std::runtime_error( errorMessage );
         }
         // Check whether matrix sizes are consistent.
-        if( ( cosineIterator->second.rows( ) != numberOfDegrees_ ) ||
-                ( sineIterator->second.rows( ) != numberOfDegrees_ ) ||
-                ( cosineIterator->second.cols( ) != numberOfOrders_ ) ||
-                ( sineIterator->second.cols( ) != numberOfOrders_ ) )
+        if( ( cosineIterator->second.rows( ) != numberOfDegrees_ ) || ( sineIterator->second.rows( ) != numberOfDegrees_ ) ||
+            ( cosineIterator->second.cols( ) != numberOfOrders_ ) || ( sineIterator->second.cols( ) != numberOfOrders_ ) )
         {
-            std::string errorMessage = "Error when resetting tabulated gravity field corrections, sine and cosine blocks of inconsistent size";
+            std::string errorMessage =
+                    "Error when resetting tabulated gravity field corrections, sine and cosine blocks of inconsistent size";
             throw std::runtime_error( errorMessage );
         }
 
         // Concatenate cosine and sine matrices
-        currentCoefficients.block( 0, 0, numberOfDegrees_, numberOfOrders_ ) =
-                cosineIterator->second;
-        currentCoefficients.block( 0, numberOfOrders_, numberOfDegrees_, numberOfOrders_ ) =
-                sineIterator->second;
+        currentCoefficients.block( 0, 0, numberOfDegrees_, numberOfOrders_ ) = cosineIterator->second;
+        currentCoefficients.block( 0, numberOfOrders_, numberOfDegrees_, numberOfOrders_ ) = sineIterator->second;
 
         // Set as entry in map of concatenated matrices
         sineCosinePairMap[ cosineIterator->first ] = currentCoefficients;
@@ -98,14 +92,11 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator(
 
     // Create interpolator
     variationInterpolator_ =
-            interpolators::createOneDimensionalInterpolator< double, Eigen::MatrixXd >(
-                sineCosinePairMap, interpolatorType_ );
+            interpolators::createOneDimensionalInterpolator< double, Eigen::MatrixXd >( sineCosinePairMap, interpolatorType_ );
 }
 
 //! Function for calculating corrections by interpolating tabulated corrections.
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd > TabulatedGravityFieldVariations::
-calculateSphericalHarmonicsCorrections(
-        const double time )
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > TabulatedGravityFieldVariations::calculateSphericalHarmonicsCorrections( const double time )
 {
     // Interpolate corrections
     Eigen::MatrixXd cosineSinePair = variationInterpolator_->interpolate( time );
@@ -115,6 +106,6 @@ calculateSphericalHarmonicsCorrections(
                            cosineSinePair.block( 0, numberOfOrders_, numberOfDegrees_, numberOfOrders_ ) );
 }
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat

@@ -22,19 +22,16 @@ Eigen::Vector3d computeAerodynamicAcceleration( const double dynamicPressure,
                                                 const Eigen::Vector3d& aerodynamicCoefficients,
                                                 const double vehicleMass )
 {
-    return computeAerodynamicForce( dynamicPressure, referenceArea, aerodynamicCoefficients )
-            / vehicleMass;
+    return computeAerodynamicForce( dynamicPressure, referenceArea, aerodynamicCoefficients ) / vehicleMass;
 }
 
 //! Compute the aerodynamic acceleration in same reference frame as input coefficients.
-Eigen::Vector3d computeAerodynamicAcceleration(
-        const double dynamicPressure,
-        AerodynamicCoefficientInterfacePointer coefficientInterface,
-        const double vehicleMass )
+Eigen::Vector3d computeAerodynamicAcceleration( const double dynamicPressure,
+                                                AerodynamicCoefficientInterfacePointer coefficientInterface,
+                                                const double vehicleMass )
 {
     return computeAerodynamicForce( dynamicPressure, coefficientInterface ) / vehicleMass;
 }
 
-
-} // namespace aerodynamics
-} // namespace tudat
+}  // namespace aerodynamics
+}  // namespace tudat

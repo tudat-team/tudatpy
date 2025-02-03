@@ -13,9 +13,7 @@
 
 #include <vector>
 
-
 #include <memory>
-
 
 #include <Eigen/Core>
 
@@ -24,14 +22,11 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/ephemerides/constantEphemeris.h"
 
-
-
 namespace tudat
 {
 
 namespace ephemerides
 {
-
 
 //! Class that combines a series of translational and rotational ephemeris functions
 /*!
@@ -44,7 +39,6 @@ template< typename TimeType = double, typename StateScalarType = double >
 class CompositeEphemeris : public Ephemeris
 {
 public:
-
     using Ephemeris::getCartesianLongState;
     using Ephemeris::getCartesianState;
 
@@ -62,20 +56,17 @@ public:
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
      */
-    CompositeEphemeris(
-            const std::map< int, std::function< StateType( const TimeType& ) > >
-            translationalEphemerides,
-            const std::map< int, std::function< StateType( const TimeType, const StateType& ) > >
-            rotationalEphemerides,
-            const std::string referenceFrameOrigin = "SSB",
-            const std::string referenceFrameOrientation = "ECLIPJ2000" ):
+    CompositeEphemeris( const std::map< int, std::function< StateType( const TimeType& ) > > translationalEphemerides,
+                        const std::map< int, std::function< StateType( const TimeType, const StateType& ) > > rotationalEphemerides,
+                        const std::string referenceFrameOrigin = "SSB",
+                        const std::string referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
     {
         // Create iterators over ephemeris functions.
-        typename std::map< int, std::function< StateType( const TimeType& ) > >::const_iterator
-                translationIterator = translationalEphemerides.begin( );
-        typename std::map< int, std::function< StateType( const TimeType, const StateType& ) > >::const_iterator
-                rotationIterator = rotationalEphemerides.begin( );
+        typename std::map< int, std::function< StateType( const TimeType& ) > >::const_iterator translationIterator =
+                translationalEphemerides.begin( );
+        typename std::map< int, std::function< StateType( const TimeType, const StateType& ) > >::const_iterator rotationIterator =
+                rotationalEphemerides.begin( );
 
         // Check whether chain starts with translation.
         if( translationIterator->first != 0 )
@@ -86,13 +77,11 @@ public:
 
         // Run over all indices and set order.
         int currentIndex = 0;
-        while( currentIndex < static_cast< int >( translationalEphemerides.size( )
-                                                  + rotationalEphemerides.size( ) ) )
+        while( currentIndex < static_cast< int >( translationalEphemerides.size( ) + rotationalEphemerides.size( ) ) )
         {
             // If current ephemeris is translational, add to translations list (set as addition) and
             // set translation flag at current index to true.
-            if( translationIterator != translationalEphemerides.end( )
-                    && translationIterator->first == currentIndex )
+            if( translationIterator != translationalEphemerides.end( ) && translationIterator->first == currentIndex )
             {
                 translationalEphemerides_.push_back( std::make_pair( translationIterator->second, 1 ) );
                 isCurrentEphemerisTranslational_.push_back( 1 );
@@ -100,8 +89,7 @@ public:
             }
             // If current ephemeris is rotational, add to rotations list and set translation flag at
             // current index to false.
-            else if( rotationIterator != rotationalEphemerides.end( )
-                     && rotationIterator->first == currentIndex )
+            else if( rotationIterator != rotationalEphemerides.end( ) && rotationIterator->first == currentIndex )
             {
                 rotationalEphemerides_.push_back( rotationIterator->second );
                 isCurrentEphemerisTranslational_.push_back( 0 );
@@ -115,7 +103,6 @@ public:
             }
             currentIndex++;
         }
-
     }
 
     //! Constructor from series of translational and rotational ephemeris functions
@@ -132,20 +119,17 @@ public:
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
      */
-    CompositeEphemeris(
-            const std::map< int, std::pair< std::function< StateType( const TimeType& ) >, bool > >
-            translationalEphemerides,
-            const std::map< int, std::function< StateType( const TimeType, const StateType& ) > >
-            rotationalEphemerides,
-            const std::string referenceFrameOrigin = "SSB",
-            const std::string referenceFrameOrientation = "ECLIPJ2000" ):
+    CompositeEphemeris( const std::map< int, std::pair< std::function< StateType( const TimeType& ) >, bool > > translationalEphemerides,
+                        const std::map< int, std::function< StateType( const TimeType, const StateType& ) > > rotationalEphemerides,
+                        const std::string referenceFrameOrigin = "SSB",
+                        const std::string referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
     {
         // Create iterators over ephemeris functions.
-        typename std::map< int, std::pair< std::function< StateType( const TimeType& ) >, bool > >
-                ::const_iterator translationIterator = translationalEphemerides.begin( );
-        typename std::map< int, std::function< StateType( const TimeType, const StateType& ) > >
-                ::const_iterator rotationIterator = rotationalEphemerides.begin( );
+        typename std::map< int, std::pair< std::function< StateType( const TimeType& ) >, bool > >::const_iterator translationIterator =
+                translationalEphemerides.begin( );
+        typename std::map< int, std::function< StateType( const TimeType, const StateType& ) > >::const_iterator rotationIterator =
+                rotationalEphemerides.begin( );
 
         // Check whether chain starts with translation.
         if( translationIterator->first != 0 )
@@ -156,25 +140,21 @@ public:
 
         // Run over all indices and set order.
         int currentIndex = 0;
-        while( currentIndex < static_cast< int >( translationalEphemerides.size( )
-                                                  + rotationalEphemerides.size( ) ) )
+        while( currentIndex < static_cast< int >( translationalEphemerides.size( ) + rotationalEphemerides.size( ) ) )
         {
             // If current ephemeris is translational, add to translations list and set translation
             // flag at current index to true.
-            if( translationIterator != translationalEphemerides.end( )
-                    && translationIterator->first == currentIndex )
+            if( translationIterator != translationalEphemerides.end( ) && translationIterator->first == currentIndex )
             {
                 int addCurrentEphemeris = ( translationIterator->second.second == true ) ? 1 : -1;
 
-                translationalEphemerides_.push_back( std::make_pair( translationIterator->second.first,
-                                                                     addCurrentEphemeris ) );
+                translationalEphemerides_.push_back( std::make_pair( translationIterator->second.first, addCurrentEphemeris ) );
                 isCurrentEphemerisTranslational_.push_back( 1 );
                 translationIterator++;
             }
             // If current ephemeris is rotational, add to rotations list and set translation flag at
             // current index to false.
-            else if( rotationIterator != rotationalEphemerides.end( )
-                     && rotationIterator->first == currentIndex )
+            else if( rotationIterator != rotationalEphemerides.end( ) && rotationIterator->first == currentIndex )
             {
                 rotationalEphemerides_.push_back( rotationIterator->second );
                 isCurrentEphemerisTranslational_.push_back( 0 );
@@ -191,7 +171,7 @@ public:
     }
 
     //! Destructor
-    ~CompositeEphemeris( ){ }
+    ~CompositeEphemeris( ) { }
 
     //! Get state from ephemeris.
     /*!
@@ -199,8 +179,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Constant state given by combined rotations and translations.
      */
-    Eigen::Vector6d getCartesianState(
-            const double secondsSinceEpoch )
+    Eigen::Vector6d getCartesianState( const double secondsSinceEpoch )
     {
         return getTemplatedCartesianStateFromCompositeEphemeris< double, double >( secondsSinceEpoch );
     }
@@ -211,8 +190,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Constant state with long double as state scalar given by combined rotations and translations.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongState(
-            const double secondsSinceEpoch )
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double secondsSinceEpoch )
     {
         return getTemplatedCartesianStateFromCompositeEphemeris< double, long double >( secondsSinceEpoch );
     }
@@ -223,8 +201,7 @@ public:
      * \param currentTime Time at which state is to be evaluated
      * \return State from ephemeris with long double as state scalar
      */
-    Eigen::Matrix< double, 6, 1 > getCartesianStateFromExtendedTime(
-            const Time& currentTime )
+    Eigen::Matrix< double, 6, 1 > getCartesianStateFromExtendedTime( const Time& currentTime )
     {
         return getTemplatedCartesianStateFromCompositeEphemeris< Time, double >( currentTime );
     }
@@ -235,8 +212,7 @@ public:
      * \param currentTime Time at which state is to be evaluated
      * \return State from ephemeris with long double as state scalar
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
-            const Time& currentTime )
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime )
     {
         return getTemplatedCartesianStateFromCompositeEphemeris< Time, long double >( currentTime );
     }
@@ -251,10 +227,8 @@ public:
      *  \return State given by combined rotations and translations, at requested precision.
      */
     template< typename OutputTimeType, typename OutputStateScalarType >
-    Eigen::Matrix< OutputStateScalarType, 6, 1 > getTemplatedCartesianStateFromCompositeEphemeris(
-            const OutputTimeType& currentTime )
+    Eigen::Matrix< OutputStateScalarType, 6, 1 > getTemplatedCartesianStateFromCompositeEphemeris( const OutputTimeType& currentTime )
     {
-
         // Initialize state to zero;
         Eigen::Matrix< StateScalarType, 6, 1 > state = Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
 
@@ -268,7 +242,7 @@ public:
             // If current ephemeris is translational, add it and increment currentTranslationIndex
             if( isCurrentEphemerisTranslational_[ i ] == true )
             {
-                state += translationalEphemerides_[ currentTranslationIndex ].first( static_cast< TimeType >( currentTime ) )*
+                state += translationalEphemerides_[ currentTranslationIndex ].first( static_cast< TimeType >( currentTime ) ) *
                         static_cast< double >( translationalEphemerides_[ currentTranslationIndex ].second );
                 currentTranslationIndex++;
             }
@@ -289,10 +263,9 @@ public:
      *  \param stateFunction Translational ephemeris function to add.
      *  \param add Identifier setting whether to add (1) or subtract (-1) translation.
      */
-    void addTranslationalEphemeris( const std::function< StateType( const TimeType& ) > stateFunction,
-                                    const int add = 1 )
+    void addTranslationalEphemeris( const std::function< StateType( const TimeType& ) > stateFunction, const int add = 1 )
     {
-        //Check validity of input.
+        // Check validity of input.
         if( add != 1 && add != -1 )
         {
             std::string errorMessage = "Error when adding to composite ephemeris";
@@ -305,7 +278,6 @@ public:
     }
 
 private:
-
     //! Vector of translational ephemeris functions.
     /*!
      *  Vector of translational ephemeris functions and addition (1) or subtraction (-1) indicator.
@@ -334,8 +306,7 @@ private:
  */
 template< typename OldStateScalarType, typename NewStateScalarType, typename TimeType, int StateSize >
 Eigen::Matrix< NewStateScalarType, StateSize, 1 > convertStateFunctionStateScalarOutput(
-        const std::function< Eigen::Matrix< OldStateScalarType, StateSize, 1 >( const double& ) >
-        originalStateFunction,
+        const std::function< Eigen::Matrix< OldStateScalarType, StateSize, 1 >( const double& ) > originalStateFunction,
         const TimeType currentTime )
 {
     return originalStateFunction( currentTime ).template cast< NewStateScalarType >( );
@@ -372,32 +343,33 @@ std::shared_ptr< Ephemeris > createReferencePointCompositeEphemeris(
 
     // Cast state fucntion of body (global) and reference point (local) into correct form.
     std::map< int, std::function< StateType( const TimeType& ) > > referencePointEphemerisVector;
-    referencePointEphemerisVector[ 2 ] = std::bind(
-                &Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >, bodyEphemeris, std::placeholders::_1 );
-    referencePointEphemerisVector[ 0 ] = std::bind(
-                &convertStateFunctionStateScalarOutput< double, StateScalarType, TimeType, 6 >,
-                referencePointRelativeStateFunction, std::placeholders::_1 );
-
+    referencePointEphemerisVector[ 2 ] =
+            std::bind( &Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >, bodyEphemeris, std::placeholders::_1 );
+    referencePointEphemerisVector[ 0 ] = std::bind( &convertStateFunctionStateScalarOutput< double, StateScalarType, TimeType, 6 >,
+                                                    referencePointRelativeStateFunction,
+                                                    std::placeholders::_1 );
 
     // Crate rotation functions from local to global frame.
     std::function< Eigen::Quaterniond( const TimeType ) > rotationToFrameFunction =
             std::bind( &RotationalEphemeris::getRotationToBaseFrameTemplated< TimeType >, bodyRotationModel, std::placeholders::_1 );
-    std::function< Eigen::Matrix3d( const TimeType ) > rotationMatrixToFrameDerivativeFunction =
-            std::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< TimeType >, bodyRotationModel, std::placeholders::_1 );
+    std::function< Eigen::Matrix3d( const TimeType ) > rotationMatrixToFrameDerivativeFunction = std::bind(
+            &RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< TimeType >, bodyRotationModel, std::placeholders::_1 );
 
     // Create ephemeris
     std::map< int, std::function< StateType( const TimeType, const StateType& ) > > referencePointRotationVector;
-    referencePointRotationVector[ 1 ] = std::bind(
-                transformStateToFrameFromRotationTimeFunctions< StateScalarType, TimeType >,
-                std::placeholders::_2, std::placeholders::_1, rotationToFrameFunction, rotationMatrixToFrameDerivativeFunction );
+    referencePointRotationVector[ 1 ] = std::bind( transformStateToFrameFromRotationTimeFunctions< StateScalarType, TimeType >,
+                                                   std::placeholders::_2,
+                                                   std::placeholders::_1,
+                                                   rotationToFrameFunction,
+                                                   rotationMatrixToFrameDerivativeFunction );
 
     return std::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(
-                referencePointEphemerisVector, referencePointRotationVector, "SSB", "ECLIPJ2000" );
+            referencePointEphemerisVector, referencePointRotationVector, "SSB", "ECLIPJ2000" );
 }
 
-//extern template class CompositeEphemeris< double, double >;
+// extern template class CompositeEphemeris< double, double >;
 
-} // namespace ephemerides
+}  // namespace ephemerides
 
-} // namespace tudat
-#endif // TUDAT_COMPOSITEEPHEMERIS_H
+}  // namespace tudat
+#endif  // TUDAT_COMPOSITEEPHEMERIS_H

@@ -47,11 +47,10 @@ namespace gravitation
  * @param ellipticIntegralK Complete elliptic integral K.
  * @return Gravitational potential.
  */
-double computeRingGravitationalPotential(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double ringRadius,
-        const double gravitationalParameter,
-        const double ellipticIntegralK );
+double computeRingGravitationalPotential( const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                          const double ringRadius,
+                                          const double gravitationalParameter,
+                                          const double ellipticIntegralK );
 
 //! Computes the gravitational acceleration of a one-dimensional ring
 /*!
@@ -73,13 +72,12 @@ double computeRingGravitationalPotential(
  * @param ellipticIntegralS Complete elliptic integral S.
  * @return Gravitational acceleration.
  */
-Eigen::Vector3d computeRingGravitationalAcceleration(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double ringRadius,
-        const double gravitationalParameter,
-        const double ellipticIntegralB,
-        const double ellipticIntegralE,
-        const double ellipticIntegralS );
+Eigen::Vector3d computeRingGravitationalAcceleration( const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                                      const double ringRadius,
+                                                      const double gravitationalParameter,
+                                                      const double ellipticIntegralB,
+                                                      const double ellipticIntegralE,
+                                                      const double ellipticIntegralS );
 
 /*!
  * Computes the hessian matrix of the gravitational potential of a 1-dimensional ring. The ring is assumed to be
@@ -94,20 +92,18 @@ Eigen::Vector3d computeRingGravitationalAcceleration(
  * @param ellipticIntegralK Complete elliptic integral K.
  * @return Hessian matrix.
  */
-Eigen::Matrix3d computeRingHessianOfGravitationalPotential(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double ringRadius,
-        const double gravitationalParameter,
-        const double ellipticIntegralB,
-        const double ellipticIntegralE,
-        const double ellipticIntegralS,
-        const double ellipticIntegralK );
+Eigen::Matrix3d computeRingHessianOfGravitationalPotential( const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+                                                            const double ringRadius,
+                                                            const double gravitationalParameter,
+                                                            const double ellipticIntegralB,
+                                                            const double ellipticIntegralE,
+                                                            const double ellipticIntegralS,
+                                                            const double ellipticIntegralK );
 
 //! Cache object in which variables that are required for the computation of ring gravity field are stored.
 class RingGravityCache
 {
 public:
-
     /*! Constructor.
      *
      * Constructor.
@@ -115,11 +111,8 @@ public:
      * @param ellipticIntegralSFromDAndB Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
      *      or from K(m) and E(m) (if false)
      */
-    RingGravityCache(
-            const double ringRadius,
-            const bool ellipticIntegralSFromDAndB ):
-        ringRadius_( ringRadius ),
-        ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB )
+    RingGravityCache( const double ringRadius, const bool ellipticIntegralSFromDAndB ):
+        ringRadius_( ringRadius ), ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB )
     {
         currentBodyFixedPosition_ = ( Eigen::Vector3d( ) << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).finished( );
     }
@@ -165,7 +158,7 @@ public:
     void setRingRadius( double ringRadius )
     {
         // Update ring radius and reset cache if needed
-        if ( ringRadius != ringRadius_ )
+        if( ringRadius != ringRadius_ )
         {
             ringRadius_ = ringRadius;
             // Reset body fixed position so that cache get updated next time
@@ -174,7 +167,6 @@ public:
     }
 
 private:
-
     // Current body fixed position.
     Eigen::Vector3d currentBodyFixedPosition_;
 
@@ -198,10 +190,9 @@ private:
 };
 
 //! Class to represent the gravity field of a constant density ring
-class RingGravityField: public GravityFieldModel
+class RingGravityField : public GravityFieldModel
 {
 public:
-
     /*! Constructor.
      *
      * Constructor.
@@ -213,17 +204,13 @@ public:
      * @param updateInertiaTensor Function that is to be called to update the inertia tensor (typically in Body class;
      *      default empty)
      */
-    RingGravityField(
-            const double gravitationalParameter,
-            const double ringRadius,
-            const bool ellipticIntegralSFromDAndB,
-            const std::string& fixedReferenceFrame = "",
-            const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) ):
-        GravityFieldModel(gravitationalParameter, updateInertiaTensor),
-        gravitationalParameter_( gravitationalParameter ),
-        ringRadius_( ringRadius ),
-        ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ),
-        fixedReferenceFrame_( fixedReferenceFrame )
+    RingGravityField( const double gravitationalParameter,
+                      const double ringRadius,
+                      const bool ellipticIntegralSFromDAndB,
+                      const std::string& fixedReferenceFrame = "",
+                      const std::function< void( ) > updateInertiaTensor = std::function< void( ) >( ) ):
+        GravityFieldModel( gravitationalParameter, updateInertiaTensor ), gravitationalParameter_( gravitationalParameter ),
+        ringRadius_( ringRadius ), ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ), fixedReferenceFrame_( fixedReferenceFrame )
     {
         ringGravityCache_ = std::make_shared< RingGravityCache >( ringRadius_, ellipticIntegralSFromDAndB_ );
     }
@@ -239,10 +226,7 @@ public:
         ringGravityCache_->update( bodyFixedPosition );
 
         return computeRingGravitationalPotential(
-                bodyFixedPosition,
-                ringRadius_,
-                gravitationalParameter_,
-                ringGravityCache_->getEllipticIntegralK( ) );
+                bodyFixedPosition, ringRadius_, gravitationalParameter_, ringGravityCache_->getEllipticIntegralK( ) );
     }
 
     /*! Function to calculate the gradient of the gravitational potential (i.e. the acceleration).
@@ -255,29 +239,33 @@ public:
     {
         ringGravityCache_->update( bodyFixedPosition );
 
-        return computeRingGravitationalAcceleration(
-                bodyFixedPosition,
-                ringRadius_,
-                gravitationalParameter_,
-                ringGravityCache_->getEllipticIntegralB( ),
-                ringGravityCache_->getEllipticIntegralE( ),
-                ringGravityCache_->getEllipticIntegralS( ) );
+        return computeRingGravitationalAcceleration( bodyFixedPosition,
+                                                     ringRadius_,
+                                                     gravitationalParameter_,
+                                                     ringGravityCache_->getEllipticIntegralB( ),
+                                                     ringGravityCache_->getEllipticIntegralE( ),
+                                                     ringGravityCache_->getEllipticIntegralS( ) );
     }
 
     //! Function to retrieve the identifier for the body-fixed reference frame.
     std::string getFixedReferenceFrame( )
-    { return fixedReferenceFrame_; }
+    {
+        return fixedReferenceFrame_;
+    }
 
     //! Function to ring radius.
     double getRingRadius( )
-    { return ringRadius_; }
+    {
+        return ringRadius_;
+    }
 
     //! Function to the ellipticIntegralSFromDAndB flag
     bool getEllipticIntegralSFromDAndB( )
-    { return ellipticIntegralSFromDAndB_; }
+    {
+        return ellipticIntegralSFromDAndB_;
+    }
 
 private:
-
     // Gravitational parameter
     const double gravitationalParameter_;
 
@@ -294,8 +282,8 @@ private:
     std::string fixedReferenceFrame_;
 };
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif //TUDAT_RINGGRAVITYFIELD_H
+#endif  // TUDAT_RINGGRAVITYFIELD_H

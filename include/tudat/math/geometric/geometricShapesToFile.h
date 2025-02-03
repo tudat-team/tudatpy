@@ -39,11 +39,12 @@ namespace geometric_shapes
  *          inverts which independent variable is treated as 1st and which
  *          as 2nd.
  */
-void writeSingleSurfaceGeometryPointsToFile(
-        geometric_shapes::SingleSurfaceGeometryPointer singleSurfaceGeometry,
-        const int numberOfLines, const int numberOfPoints,
-        const std::string& filename, const int writeType,
-        const bool isIndependentVariableInverted );
+void writeSingleSurfaceGeometryPointsToFile( geometric_shapes::SingleSurfaceGeometryPointer singleSurfaceGeometry,
+                                             const int numberOfLines,
+                                             const int numberOfPoints,
+                                             const std::string& filename,
+                                             const int writeType,
+                                             const bool isIndependentVariableInverted );
 
 //! Write composite surface geometry to a file.
 /*!
@@ -63,14 +64,14 @@ void writeSingleSurfaceGeometryPointsToFile(
  *          set to true invert which independent variable is treated as 1st
  *          and which as 2nd for each single surface geometry.
  */
-void writeCompositeSurfaceGeometryPointsToFile(
-        geometric_shapes::CompositeSurfaceGeometryPointer compositeSurfaceGeometry,
-        const std::vector< int >& arrayOfNumberOfLines,
-        const std::vector< int >& arrayOfNumberOfPoints,
-        const std::string& filename, const int writeType,
-        const std::vector< bool >& isIndependentVariableInvertedArray );
+void writeCompositeSurfaceGeometryPointsToFile( geometric_shapes::CompositeSurfaceGeometryPointer compositeSurfaceGeometry,
+                                                const std::vector< int >& arrayOfNumberOfLines,
+                                                const std::vector< int >& arrayOfNumberOfPoints,
+                                                const std::string& filename,
+                                                const int writeType,
+                                                const std::vector< bool >& isIndependentVariableInvertedArray );
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat
 
-#endif // TUDAT_GEOMETRIC_SHAPES_TO_FILE_H
+#endif  // TUDAT_GEOMETRIC_SHAPES_TO_FILE_H

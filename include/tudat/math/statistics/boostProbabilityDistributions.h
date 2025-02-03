@@ -19,7 +19,6 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/statistics/continuousProbabilityDistributions.h"
 
-
 namespace tudat
 {
 
@@ -36,20 +35,18 @@ namespace statistics
  *  boost::math::pdf/cdf/quantile< double > functions.
  */
 template< typename BoostDistributionType >
-class BoostContinuousProbabilityDistribution: public InvertibleContinuousProbabilityDistribution< double >
+class BoostContinuousProbabilityDistribution : public InvertibleContinuousProbabilityDistribution< double >
 {
 public:
-
     //! Constructor, sets distribution type
     /*!
      *  Constructor, sets distribution type
      *  \param distribution Distribution type implemented in boost
      */
-    BoostContinuousProbabilityDistribution( const BoostDistributionType distribution ):
-        distribution_( distribution ){ }
+    BoostContinuousProbabilityDistribution( const BoostDistributionType distribution ): distribution_( distribution ) { }
 
     //! Destructor
-    ~BoostContinuousProbabilityDistribution( ){ }
+    ~BoostContinuousProbabilityDistribution( ) { }
 
     //! Function to evaluate pdf of distribution
     /*!
@@ -62,7 +59,6 @@ public:
     {
         return boost::math::pdf< double >( distribution_, independentVariable );
     }
-
 
     //! Function to evaluate pcdfdf of distribution
     /*!
@@ -87,11 +83,10 @@ public:
     {
         return boost::math::quantile< double >( distribution_, independentVariable );
     }
-private:
 
+private:
     //! Boost dustribution type, must be possible first input argument for boost::math::pdf/cdf/quantile< double > functions
     BoostDistributionType distribution_;
-
 };
 
 //! Function to create a random variable class of BoostContinuousProbabilityDistribution type
@@ -104,11 +99,11 @@ private:
  *  \return Random variable class of BoostContinuousProbabilityDistribution type
  */
 std::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > createBoostRandomVariable(
-        const ContinuousBoostStatisticalDistributions boostDistribution, const std::vector< double >& parameters );
+        const ContinuousBoostStatisticalDistributions boostDistribution,
+        const std::vector< double >& parameters );
 
-} // namespace statistics
+}  // namespace statistics
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_BOOSTPROBABILITYDISTRIBUTIONS_H
+#endif  // TUDAT_BOOSTPROBABILITYDISTRIBUTIONS_H

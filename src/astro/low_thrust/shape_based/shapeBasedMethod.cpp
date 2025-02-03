@@ -16,22 +16,18 @@ namespace tudat
 namespace shape_based_methods
 {
 
-
-
-
 //! Returns state history.
-void ShapeBasedMethod::getTrajectory(
-        std::vector< double >& epochsVector,
-        std::map< double, Eigen::Vector6d >& propagatedTrajectory )
+void ShapeBasedMethod::getTrajectory( std::vector< double >& epochsVector, std::map< double, Eigen::Vector6d >& propagatedTrajectory )
 {
     propagatedTrajectory.clear( );
 
-    for ( unsigned int i = 0 ; i < epochsVector.size() ; i++ )
+    for( unsigned int i = 0; i < epochsVector.size( ); i++ )
     {
-        if ( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
+        if( ( i > 0 ) && ( epochsVector[ i ] < epochsVector[ i - 1 ] ) )
         {
-            throw std::runtime_error( "Error when retrieving the mass profile of a shape-based trajectory, "
-                                      "epochs are not provided in increasing order." );
+            throw std::runtime_error(
+                    "Error when retrieving the mass profile of a shape-based trajectory, "
+                    "epochs are not provided in increasing order." );
         }
 
         double currentIndependentVariable = convertTimeToIndependentVariable( epochsVector[ i ] );
@@ -39,13 +35,12 @@ void ShapeBasedMethod::getTrajectory(
     }
 }
 
-
 ////! Return thrust profile.
-//void ShapeBasedMethod::getThrustForceProfile(
-//        std::vector< double >& epochsVector,
-//        std::map< double, Eigen::VectorXd >& thrustProfile,
-//        std::function< double ( const double ) > specificImpulseFunction,
-//        std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
+// void ShapeBasedMethod::getThrustForceProfile(
+//         std::vector< double >& epochsVector,
+//         std::map< double, Eigen::VectorXd >& thrustProfile,
+//         std::function< double ( const double ) > specificImpulseFunction,
+//         std::shared_ptr<numerical_integrators::IntegratorSettings< double > > integratorSettings )
 
 //{
 //    thrustProfile.clear( );
@@ -70,9 +65,6 @@ void ShapeBasedMethod::getTrajectory(
 //    }
 //}
 
+}  // namespace shape_based_methods
 
-
-
-} // namespace transfer_trajectories
-
-} // namespace tudat
+}  // namespace tudat

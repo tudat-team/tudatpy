@@ -13,11 +13,11 @@
 #define BOOST_TEST_MAIN
 
 // Deal with deprecation past boost version 1.67.
-//#if ((Boost_VERSION_MAJOR == 1) && (Boost_VERSION_MINOR >= 67))
-//#include <boost/test/tools/floating_point_comparison.hpp>
-//#else
-//#include <boost/test/tools/floating_point_comparison.hpp>
-//#endif
+// #if ((Boost_VERSION_MAJOR == 1) && (Boost_VERSION_MINOR >= 67))
+// #include <boost/test/tools/floating_point_comparison.hpp>
+// #else
+// #include <boost/test/tools/floating_point_comparison.hpp>
+// #endif
 #include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <boost/test/unit_test.hpp>
@@ -45,8 +45,7 @@ BOOST_AUTO_TEST_SUITE( test_SphericalHarmonics )
 BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
 {
     // Define cosine harmonic coeficients.
-    const Vector10d cosineHarmonicCoefficient = ( Eigen::VectorXd( 10 ) <<
-                                                  0.0,
+    const Vector10d cosineHarmonicCoefficient = ( Eigen::VectorXd( 10 ) << 0.0,
                                                   0.0,
                                                   0.0,
                                                   -4.841651437908150e-4,
@@ -55,12 +54,11 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                                                   9.571612070934730e-7,
                                                   2.030462010478640e-6,
                                                   9.047878948095281e-7,
-                                                  7.213217571215680e-7
-                                                  ).finished( );
+                                                  7.213217571215680e-7 )
+                                                        .finished( );
 
     // Define sine harmonic coeficients.
-    const Vector10d sineHarmonicCoefficient = ( Eigen::VectorXd( 10 ) <<
-                                                0.0,
+    const Vector10d sineHarmonicCoefficient = ( Eigen::VectorXd( 10 ) << 0.0,
                                                 0.0,
                                                 0.0,
                                                 0.0,
@@ -69,8 +67,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                                                 0.0,
                                                 2.482004158568720e-7,
                                                 -6.190054751776180e-7,
-                                                1.414349261929410e-6
-                                                ).finished( );
+                                                1.414349261929410e-6 )
+                                                      .finished( );
 
     // Define degree and order vectors.
     const Vector10i degree = ( Eigen::VectorXi( 10 ) << 0, 1, 1, 2, 2, 2, 3, 3, 3, 3 ).finished( );
@@ -86,8 +84,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
     const Eigen::Vector3d sphericalPosition = Eigen::Vector3d( 6478137.0, 0.5, 1.7 );
 
     // Define Legendre polynomials.
-    const Vector10d legendrePolynomial = ( Eigen::VectorXd( 10 ) <<
-                                           1.000000000000000,
+    const Vector10d legendrePolynomial = ( Eigen::VectorXd( 10 ) << 1.000000000000000,
                                            8.660254037844386e-1,
                                            1.500000000000000,
                                            -2.795084971874738e-1,
@@ -96,12 +93,11 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                                            -1.157516198590759,
                                            3.507803800100574e-1,
                                            1.921303268617425,
-                                           1.358566569955260
-                                           ).finished( );
+                                           1.358566569955260 )
+                                                 .finished( );
 
     // Define Legendre polynomial derivatives.
-    const Vector10d legendrePolynomialDerivative = ( Eigen::VectorXd( 10 ) <<
-                                                     0.0,
+    const Vector10d legendrePolynomialDerivative = ( Eigen::VectorXd( 10 ) << 0.0,
                                                      1.732050807568877,
                                                      -1.000000000000000,
                                                      3.354101966249685,
@@ -110,13 +106,12 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                                                      9.921567416492215e-1,
                                                      6.781754013527770,
                                                      1.280868845744950,
-                                                     -2.717133139910520
-                                                     ).finished( );
+                                                     -2.717133139910520 )
+                                                           .finished( );
 
     std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
             std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 4, 4 );
-    sphericalHarmonicsCache->update(
-                sphericalPosition( 0 ), std::sin( sphericalPosition( 1 ) ), sphericalPosition( 2 ), referenceRadius );
+    sphericalHarmonicsCache->update( sphericalPosition( 0 ), std::sin( sphericalPosition( 1 ) ), sphericalPosition( 2 ), referenceRadius );
 
     // Compute to be tested potential gradient.
     Eigen::MatrixXd testPotentialGradient( 10, 3 );
@@ -124,50 +119,49 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
     Eigen::MatrixXd testPotentialGradient3( 10, 3 );
 
     // Compute potential gradients (using each of the three functions).
-    for ( int index = 0; index < degree.size( ); index++ )
+    for( int index = 0; index < degree.size( ); index++ )
     {
-        testPotentialGradient.block( index, 0, 1, 3 ) = basic_mathematics::computePotentialGradient(
-                    sphericalPosition( 0 ),
-                    std::pow( referenceRadius / sphericalPosition( 0 ), degree( index ) + 1 ),
-                    std::cos( static_cast< double >( order( index ) ) * sphericalPosition( 2 ) ),
-                    std::sin( static_cast< double >( order( index ) ) * sphericalPosition( 2 ) ),
-                    std::cos( sphericalPosition( 1 ) ),
-                    preMultiplier,
-                    degree( index ),
-                    order( index ),
-                    cosineHarmonicCoefficient( index ),
-                    sineHarmonicCoefficient( index ),
-                    legendrePolynomial( index ),
-                    legendrePolynomialDerivative( index ) ).transpose( );
+        testPotentialGradient.block( index, 0, 1, 3 ) =
+                basic_mathematics::computePotentialGradient( sphericalPosition( 0 ),
+                                                             std::pow( referenceRadius / sphericalPosition( 0 ), degree( index ) + 1 ),
+                                                             std::cos( static_cast< double >( order( index ) ) * sphericalPosition( 2 ) ),
+                                                             std::sin( static_cast< double >( order( index ) ) * sphericalPosition( 2 ) ),
+                                                             std::cos( sphericalPosition( 1 ) ),
+                                                             preMultiplier,
+                                                             degree( index ),
+                                                             order( index ),
+                                                             cosineHarmonicCoefficient( index ),
+                                                             sineHarmonicCoefficient( index ),
+                                                             legendrePolynomial( index ),
+                                                             legendrePolynomialDerivative( index ) )
+                        .transpose( );
 
-        testPotentialGradient2.block( index, 0, 1, 3 ) = basic_mathematics::computePotentialGradient(
-                    sphericalPosition,
-                    referenceRadius,
-                    preMultiplier,
-                    degree( index ),
-                    order( index ),
-                    cosineHarmonicCoefficient( index ),
-                    sineHarmonicCoefficient( index ),
-                    legendrePolynomial( index ),
-                    legendrePolynomialDerivative( index ) ).transpose( );
+        testPotentialGradient2.block( index, 0, 1, 3 ) =
+                basic_mathematics::computePotentialGradient( sphericalPosition,
+                                                             referenceRadius,
+                                                             preMultiplier,
+                                                             degree( index ),
+                                                             order( index ),
+                                                             cosineHarmonicCoefficient( index ),
+                                                             sineHarmonicCoefficient( index ),
+                                                             legendrePolynomial( index ),
+                                                             legendrePolynomialDerivative( index ) )
+                        .transpose( );
 
-        testPotentialGradient3.block( index, 0, 1, 3 ) = basic_mathematics::computePotentialGradient(
-                    sphericalPosition,
-                    preMultiplier,
-                    degree( index ),
-                    order( index ),
-                    cosineHarmonicCoefficient( index ),
-                    sineHarmonicCoefficient( index ),
-                    legendrePolynomial( index ),
-                    legendrePolynomialDerivative( index ), sphericalHarmonicsCache ).transpose( );
-
-
-
+        testPotentialGradient3.block( index, 0, 1, 3 ) = basic_mathematics::computePotentialGradient( sphericalPosition,
+                                                                                                      preMultiplier,
+                                                                                                      degree( index ),
+                                                                                                      order( index ),
+                                                                                                      cosineHarmonicCoefficient( index ),
+                                                                                                      sineHarmonicCoefficient( index ),
+                                                                                                      legendrePolynomial( index ),
+                                                                                                      legendrePolynomialDerivative( index ),
+                                                                                                      sphericalHarmonicsCache )
+                                                                 .transpose( );
     }
 
     // Define expected radius gradient values.
-    const Eigen::MatrixXd expectedRadiusGradients = ( Eigen::VectorXd( 10 ) <<
-                                                      0.0,
+    const Eigen::MatrixXd expectedRadiusGradients = ( Eigen::VectorXd( 10 ) << 0.0,
                                                       0.0,
                                                       0.0,
                                                       -3.737960776710316e-3,
@@ -176,12 +170,11 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                                                       4.017360659202147e-5,
                                                       1.969234962725430e-7,
                                                       4.992070975259301e-5,
-                                                      5.107365294374567e-5
-                                                      ).finished( );
+                                                      5.107365294374567e-5 )
+                                                            .finished( );
 
     // Define expected latitude gradient values.
-    const Vector10d expectedLatitudeGradients = ( Eigen::VectorXd( 10 ) <<
-                                                  0.0,
+    const Vector10d expectedLatitudeGradients = ( Eigen::VectorXd( 10 ) << 0.0,
                                                   0.0,
                                                   0.0,
                                                   -8.500272421463796e4,
@@ -190,12 +183,11 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                                                   4.894092287935980e1,
                                                   -5.411060610134959,
                                                   -4.730070504102903e1,
-                                                  1.451794138284170e2
-                                                  ).finished( );
+                                                  1.451794138284170e2 )
+                                                        .finished( );
 
     // Define expected longitude gradient values.
-    const Vector10d expectedLongitudeGradients = ( Eigen::VectorXd( 10 ) <<
-                                                   0.0,
+    const Vector10d expectedLongitudeGradients = ( Eigen::VectorXd( 10 ) << 0.0,
                                                    0.0,
                                                    0.0,
                                                    0.0,
@@ -204,8 +196,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                                                    0.0,
                                                    -4.213637561313778e1,
                                                    1.872176926758908e2,
-                                                   2.877868568505883e2
-                                                   ).finished( );
+                                                   2.877868568505883e2 )
+                                                         .finished( );
 
     // Define total matrix of expected gradients.
     Eigen::MatrixXd expectedValues( 10, 3 );
@@ -217,10 +209,9 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient, expectedValues, 2.0e-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient2, expectedValues, 2.0e-15 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient3, expectedValues, 2.0e-15 );
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

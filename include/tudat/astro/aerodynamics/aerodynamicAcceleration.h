@@ -56,10 +56,9 @@ Eigen::Vector3d computeAerodynamicAcceleration( const double dynamicPressure,
  * \return Resultant aerodynamic acceleration, given in reference frame in which the
  *          aerodynamic coefficients were given (assuming coefficients in positive direction).
  */
-Eigen::Vector3d computeAerodynamicAcceleration(
-        const double dynamicPressure,
-        AerodynamicCoefficientInterfacePointer coefficientInterface,
-        const double vehicleMass );
+Eigen::Vector3d computeAerodynamicAcceleration( const double dynamicPressure,
+                                                AerodynamicCoefficientInterfacePointer coefficientInterface,
+                                                const double vehicleMass );
 
 //! Class for calculation of aerodynamic accelerations.
 /*!
@@ -69,15 +68,13 @@ Eigen::Vector3d computeAerodynamicAcceleration(
 class AerodynamicAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 private:
-
     //! Typedef for double-returning function.
-    typedef std::function< double ( ) > DoubleReturningFunction;
+    typedef std::function< double( ) > DoubleReturningFunction;
 
     //! Typedef for coefficient-returning function.
     typedef std::function< void( Eigen::Vector3d& ) > CoefficientReturningFunction;
 
 public:
-
     //! Acceleration model constructor, taking constant values of mass and reference area.
     /*!
      * Acceleration model constructor, taking constant values of mass and reference area.
@@ -99,11 +96,8 @@ public:
                              const double constantMass,
                              const double constantReferenceArea,
                              const bool areCoefficientsInNegativeDirection = true ):
-        coefficientFunction_( coefficientFunction ),
-        densityFunction_( densityFunction ),
-        airSpeedFunction_( airSpeedFunction ),
-        massFunction_( [ = ]( ){ return constantMass; } ),
-        referenceAreaFunction_( [ = ]( ){ return constantReferenceArea; } )
+        coefficientFunction_( coefficientFunction ), densityFunction_( densityFunction ), airSpeedFunction_( airSpeedFunction ),
+        massFunction_( [ = ]( ) { return constantMass; } ), referenceAreaFunction_( [ = ]( ) { return constantReferenceArea; } )
     {
         coefficientMultiplier_ = areCoefficientsInNegativeDirection == true ? -1.0 : 1.0;
     }
@@ -129,17 +123,14 @@ public:
                              const DoubleReturningFunction massFunction,
                              const DoubleReturningFunction referenceAreaFunction,
                              const bool areCoefficientsInNegativeDirection = true ):
-        coefficientFunction_( coefficientFunction ),
-        densityFunction_( densityFunction ),
-        airSpeedFunction_( airSpeedFunction ),
-        massFunction_( massFunction ),
-        referenceAreaFunction_( referenceAreaFunction )
+        coefficientFunction_( coefficientFunction ), densityFunction_( densityFunction ), airSpeedFunction_( airSpeedFunction ),
+        massFunction_( massFunction ), referenceAreaFunction_( referenceAreaFunction )
     {
         coefficientMultiplier_ = areCoefficientsInNegativeDirection ? -1.0 : 1.0;
     }
 
     //! Destructor
-    ~AerodynamicAcceleration( ){ }
+    ~AerodynamicAcceleration( ) { }
 
     //! Update member variables used by the aerodynamic acceleration model.
     /*!
@@ -161,9 +152,10 @@ public:
             currentReferenceArea_ = this->referenceAreaFunction_( );
 
             currentTime_ = currentTime;
-            currentAcceleration_ = computeAerodynamicAcceleration(
-                                0.5 * currentDensity_ * currentAirspeed_ * currentAirspeed_,
-                                currentReferenceArea_, currentForceCoefficients_, currentMass_ );
+            currentAcceleration_ = computeAerodynamicAcceleration( 0.5 * currentDensity_ * currentAirspeed_ * currentAirspeed_,
+                                                                   currentReferenceArea_,
+                                                                   currentForceCoefficients_,
+                                                                   currentMass_ );
         }
     }
 
@@ -177,9 +169,7 @@ public:
         return currentMass_;
     }
 
-
 private:
-
     //! Function to retrieve the current aerodynamic force coefficients.
     const CoefficientReturningFunction coefficientFunction_;
 
@@ -217,7 +207,7 @@ private:
 //! Typedef for shared-pointer to AerodynamicAcceleration object.
 typedef std::shared_ptr< AerodynamicAcceleration > AerodynamicAccelerationPointer;
 
-} // namespace aerodynamics
-} // namespace tudat
+}  // namespace aerodynamics
+}  // namespace tudat
 
-#endif // TUDAT_AERODYNAMIC_ACCELERATION_H
+#endif  // TUDAT_AERODYNAMIC_ACCELERATION_H

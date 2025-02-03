@@ -31,10 +31,9 @@ namespace observation_models
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-class AngularPositionObservationModel: public ObservationModel< 2, ObservationScalarType, TimeType >
+class AngularPositionObservationModel : public ObservationModel< 2, ObservationScalarType, TimeType >
 {
 public:
-
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > PositionType;
 
@@ -51,10 +50,11 @@ public:
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr ):
         ObservationModel< 2, ObservationScalarType, TimeType >( angular_position, linkEnds, observationBiasCalculator ),
-        lightTimeCalculator_( lightTimeCalculator ) { }
+        lightTimeCalculator_( lightTimeCalculator )
+    { }
 
     //! Destructor
-    ~AngularPositionObservationModel( ){ }
+    ~AngularPositionObservationModel( ) { }
 
     //! Function to compute ideal angular position observation at given time.
     /*!
@@ -105,13 +105,13 @@ public:
 
         // Compute light-time and receiver/transmitter states.
         ObservationScalarType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverState, transmitterState, time, isTimeAtReception, ancilliarySetings );
+                receiverState, transmitterState, time, isTimeAtReception, ancilliarySetings );
 
-//        // Compute spherical relative position
-//        Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinates =
-//                coordinate_conversions::convertCartesianToSpherical< ObservationScalarType >(
-//                    transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 ) ).
-//                template cast< ObservationScalarType >( );
+        //        // Compute spherical relative position
+        //        Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinates =
+        //                coordinate_conversions::convertCartesianToSpherical< ObservationScalarType >(
+        //                    transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 ) ).
+        //                template cast< ObservationScalarType >( );
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition = transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 
@@ -133,11 +133,13 @@ public:
         }
 
         // Return observable
-        double rightAscension = 2.0 * std::atan( relativePosition[ 1 ] /
-                ( std::sqrt( relativePosition[ 0 ] * relativePosition[ 0 ] + relativePosition[ 1 ] * relativePosition[ 1 ] ) + relativePosition[ 0 ] ) );
+        double rightAscension = 2.0 *
+                std::atan( relativePosition[ 1 ] /
+                           ( std::sqrt( relativePosition[ 0 ] * relativePosition[ 0 ] + relativePosition[ 1 ] * relativePosition[ 1 ] ) +
+                             relativePosition[ 0 ] ) );
         double declination = mathematical_constants::PI / 2.0 - std::acos( relativePosition[ 2 ] / relativePosition.norm( ) );
-//        return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << sphericalRelativeCoordinates.z( ),
-//                 mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) ).finished( );
+        //        return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << sphericalRelativeCoordinates.z( ),
+        //                 mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) ).finished( );
         return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << rightAscension, declination ).finished( );
     }
 
@@ -145,13 +147,13 @@ public:
     /*!
      * Function to get the object to calculate light time.
      * \return Object to calculate light time.
-     */    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
+     */
+    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
     {
         return lightTimeCalculator_;
     }
 
 private:
-
     //! Object to calculate light time.
     /*!
      *  Object to calculate light time, including possible corrections from troposphere, relativistic corrections, etc.
@@ -159,8 +161,8 @@ private:
     std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
 };
 
-} // namespace observation_models
+}  // namespace observation_models
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_ANGULARPOSITIONOBSERVATIONMODEL_H
+#endif  // TUDAT_ANGULARPOSITIONOBSERVATIONMODEL_H

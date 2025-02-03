@@ -26,7 +26,6 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > readAmplitudesAndFundamentalArgume
         const std::string fundamentalArgumentMultipliersFile,
         const double minimumAmplitude )
 {
-
     // Read amplitudes and fundamental argument multipliers into matrices.
     Eigen::MatrixXd amplitudesRaw = input_output::readMatrixFromFile( amplitudesFile );
     Eigen::MatrixXd fundamentalArgumentMultipliersRaw = input_output::readMatrixFromFile( fundamentalArgumentMultipliersFile );
@@ -42,7 +41,6 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > readAmplitudesAndFundamentalArgume
     {
         throw std::runtime_error( "Number of columns in fundamental argument multipler matrix not equal to 6" );
     }
-
 
     // If acceptance amplitude is larger than 0.0 check RSS of amplitudes for each entry.
     Eigen::MatrixXd fundamentalArgumentMultipliers, amplitudes;
@@ -66,10 +64,9 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > readAmplitudesAndFundamentalArgume
 }
 
 //! Function to filter tidal corrections based on RSS amplitude criteria.
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd > filterRawDataForAmplitudes(
-        const Eigen::MatrixXd rawAmplitudes,
-        const Eigen::MatrixXd rawFundamentalArgumentMultipliers,
-        const double minimumAmplitude )
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > filterRawDataForAmplitudes( const Eigen::MatrixXd rawAmplitudes,
+                                                                          const Eigen::MatrixXd rawFundamentalArgumentMultipliers,
+                                                                          const double minimumAmplitude )
 {
     // Get number of amplitudes per entry.
     int numberOfAmplitudes = rawAmplitudes.cols( );
@@ -87,7 +84,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > filterRawDataForAmplitudes(
     {
         // Calculate RSS of amplitude.
         rssAmplitude = 0.0;
-        for( int j =0; j < numberOfAmplitudes; j++ )
+        for( int j = 0; j < numberOfAmplitudes; j++ )
         {
             rssAmplitude += rawAmplitudes( i, j ) * rawAmplitudes( i, j );
         }
@@ -113,7 +110,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > filterRawDataForAmplitudes(
                         rawAmplitudes.block( i, 0, 1, numberOfAmplitudes );
 
                 filteredFundamentalArgumentMultipliers.conservativeResize( numberOfAcceptedAmplitudes, 6 );
-                filteredFundamentalArgumentMultipliers.block( numberOfAcceptedAmplitudes - 1, 0, 1, 6 )  =
+                filteredFundamentalArgumentMultipliers.block( numberOfAcceptedAmplitudes - 1, 0, 1, 6 ) =
                         rawFundamentalArgumentMultipliers.block( i, 0, 1, 6 );
             }
         }
@@ -122,7 +119,6 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > filterRawDataForAmplitudes(
     return std::pair< Eigen::MatrixXd, Eigen::MatrixXd >( filteredAmplitudes, filteredFundamentalArgumentMultipliers );
 }
 
-}
+}  // namespace earth_orientation
 
-}
-
+}  // namespace tudat

@@ -53,8 +53,6 @@ BOOST_AUTO_TEST_CASE( testTypeTraits )
     isTimeType = is_time_type< Time >::value;
     BOOST_CHECK_EQUAL( isTimeType, true );
 
-
-
     bool isStateType;
     isStateType = is_state_scalar< int >::value;
     BOOST_CHECK_EQUAL( isStateType, false );
@@ -70,8 +68,6 @@ BOOST_AUTO_TEST_CASE( testTypeTraits )
 
     isStateType = is_state_scalar< Time >::value;
     BOOST_CHECK_EQUAL( isStateType, false );
-
-
 
     bool isStateAndTimeType;
     isStateAndTimeType = is_state_scalar_and_time_type< int, int >::value;
@@ -95,7 +91,6 @@ BOOST_AUTO_TEST_CASE( testTypeTraits )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
+}  // namespace tudat

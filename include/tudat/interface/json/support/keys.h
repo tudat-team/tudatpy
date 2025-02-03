@@ -512,12 +512,12 @@ int indexFromKey( const std::string& key );
  */
 class KeyPath : public std::vector< std::string >
 {
-   public:
+public:
     //! Empty constructor.
-    KeyPath( ) : std::vector< std::string >( ) { }
+    KeyPath( ): std::vector< std::string >( ) { }
 
     //! Constructor from vector.
-    KeyPath( const std::vector< std::string >& vector ) : std::vector< std::string >( )
+    KeyPath( const std::vector< std::string >& vector ): std::vector< std::string >( )
     {
         for( const std::string key: vector )
         {
@@ -538,14 +538,14 @@ class KeyPath : public std::vector< std::string >
      * Constructor with a single char key.
      * \param key The key to be accessed.
      */
-    KeyPath( const char* key ) : KeyPath( std::string( key ) ) { }
+    KeyPath( const char* key ): KeyPath( std::string( key ) ) { }
 
     //! Constructor with an element index.
     /*!
      * Constructor with an element index.
      * \param vectorIndex The index of the element to be accessed.
      */
-    KeyPath( unsigned int vectorIndex ) : KeyPath( "@" + std::to_string( vectorIndex ) ) { }
+    KeyPath( unsigned int vectorIndex ): KeyPath( "@" + std::to_string( vectorIndex ) ) { }
 
     //! Get whether the key path is absolute.
     /*!

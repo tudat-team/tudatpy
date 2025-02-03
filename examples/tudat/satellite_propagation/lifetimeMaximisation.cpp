@@ -12,17 +12,16 @@
 
 #include <tudat/io/applicationOutput.h>
 
-
 //! Execute propagation of orbits of Apollo during entry using the JSON Interface.
 int main( )
 {
     const std::string cppFilePath( __FILE__ );
-    const std::string cppFolder = cppFilePath.substr( 0, cppFilePath.find_last_of("/\\") + 1 );
-    tudat::json_interface::JsonSimulationManager< > jsonSimulationManager( cppFolder + "lifetimeMaximisation.json" );
+    const std::string cppFolder = cppFilePath.substr( 0, cppFilePath.find_last_of( "/\\" ) + 1 );
+    tudat::json_interface::JsonSimulationManager<> jsonSimulationManager( cppFolder + "lifetimeMaximisation.json" );
 
     const std::string outputDirectory = tudat_applications::getOutputPath( ) + "LifetimeMaximisation/";
     const unsigned int numberOfCases = 365;
-    for ( unsigned int i = 0; i < numberOfCases; ++i )
+    for( unsigned int i = 0; i < numberOfCases; ++i )
     {
         // Notify on propagation start
         std::cout << "Running propagation " << i + 1 << " of " << numberOfCases << "..." << std::endl;
@@ -48,7 +47,7 @@ int main( )
         // In this example, when determining the initial conditions, the property "bodies.satellite.initialState" is
         // converted from Keplerian to Cartesian and assigned to "propagators[0].initialStates". Thus, after the first
         // propagation, both keys are defined, but only one is actually used, resulting in warnings about unused keys.
-        if ( i == 0 )
+        if( i == 0 )
         {
             jsonSimulationManager[ "options" ][ "unusedKey" ] = tudat::json_interface::continueSilently;
         }
@@ -56,4 +55,3 @@ int main( )
 
     return EXIT_SUCCESS;
 }
-

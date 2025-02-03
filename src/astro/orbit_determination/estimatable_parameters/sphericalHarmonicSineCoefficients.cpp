@@ -29,7 +29,6 @@ Eigen::VectorXd SphericalHarmonicsSineCoefficients::getParameterValue( )
         parameterVector( i ) = coefficientBlock( blockIndices_.at( i ).first, blockIndices_.at( i ).second );
     }
     return parameterVector;
-
 }
 
 //! Function to reset the sine coefficients that are to be estimated.
@@ -45,13 +44,12 @@ void SphericalHarmonicsSineCoefficients::setParameterValue( const Eigen::VectorX
 }
 
 //! Function to get a list of Kaula constraint values for gravity field coefficients for given parameter
-Eigen::VectorXd getKaulaConstraintVector(
-        const std::shared_ptr< SphericalHarmonicsSineCoefficients > parameter,
-        const double constraintMultiplier )
+Eigen::VectorXd getKaulaConstraintVector( const std::shared_ptr< SphericalHarmonicsSineCoefficients > parameter,
+                                          const double constraintMultiplier )
 {
     return getKaulaConstraintVector( parameter->getBlockIndices( ), constraintMultiplier );
 }
 
-}
+}  // namespace estimatable_parameters
 
-}
+}  // namespace tudat

@@ -41,7 +41,8 @@ namespace observation_partials
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotationRate(
         const Eigen::Quaterniond inertialBodyFixedToIntegrationFrame,
-        const double rotationRate, const double timeSinceEpoch );
+        const double rotationRate,
+        const double timeSinceEpoch );
 
 //! Function to calculate partial of a rotation matrix derivative (body-fixed to inertial) w.r.t. a constant rotation rate.
 /*!
@@ -54,7 +55,8 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotatio
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConstantRotationRate(
         const Eigen::Matrix3d currentRotationFromLocalToGlobalFrame,
-        const double rotationRate, const double timeSinceEpoch );
+        const double rotationRate,
+        const double timeSinceEpoch );
 
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t. a constant pole right
 //! ascension and declination.
@@ -69,7 +71,8 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConst
  */
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPoleOrientation(
         const Eigen::Vector3d initialOrientationAngles,
-        const double rotationRate, const double timeSinceEpoch );
+        const double rotationRate,
+        const double timeSinceEpoch );
 
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t. a constant
 //! pole right  ascension and declination.
@@ -84,7 +87,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
  */
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPoleOrientation(
         const Eigen::Vector3d initialOrientationAngles,
-        const double rotationRate, const double timeSinceEpoch );
+        const double rotationRate,
+        const double timeSinceEpoch );
 
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
 //! the periodic spin variations.
@@ -99,7 +103,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
  */
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPeriodicSpinVariations(
         const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& rotationFromMeanOrbitToIcrf,
         const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
@@ -116,7 +120,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
  */
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPeriodicSpinVariations(
         const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& rotationFromMeanOrbitToIcrf,
         const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
@@ -151,9 +155,9 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
  * \return Partial derivatives of rotation matrix w.r.t. Phi_cj (entry 0), Phi_sj (entry 1) with j=1,...,4 .
  */
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPolarMotionAmplitude(
-        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator ,
-        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
-        const double ephemerisTime);
+        const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
+        const Eigen::Quaterniond& rotationFromMeanOrbitToIcrf,
+        const double ephemerisTime );
 
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
 //! core factor.
@@ -168,7 +172,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDer
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
         const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& rotationFromMeanOrbitToIcrf,
         const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
@@ -185,7 +189,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreFactor(
         const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& rotationFromMeanOrbitToIcrf,
         const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
@@ -202,7 +206,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreF
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutationRate(
         const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& rotationFromMeanOrbitToIcrf,
         const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
@@ -219,7 +223,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutatio
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeCoreNutationRate(
         const std::shared_ptr< ephemerides::PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator,
-        const Eigen::Quaterniond &rotationFromMeanOrbitToIcrf,
+        const Eigen::Quaterniond& rotationFromMeanOrbitToIcrf,
         const Eigen::Quaterniond& polarMotionRotation,
         const double ephemerisTime );
 
@@ -235,12 +239,10 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeC
 class RotationMatrixPartial
 {
 public:
-
-    RotationMatrixPartial( const std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel ):
-        rotationModel_( rotationModel ){ }
+    RotationMatrixPartial( const std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel ): rotationModel_( rotationModel ) { }
 
     //! Virtual destructor
-    virtual ~RotationMatrixPartial( ){ }
+    virtual ~RotationMatrixPartial( ) { }
 
     //! Function to calculate partials of rotation matrix wrt a parameter (for either double or VectorXd parameters).
     /*!
@@ -251,8 +253,7 @@ public:
      *  \param time Time at which the partial(s) is(are) to be evaluated.
      *  \return Vector of partials of rotation matrix from body-fixed to inertial frame wrt parameter(s)
      */
-    virtual std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time ) = 0;
+    virtual std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time ) = 0;
 
     //! Function to calculate partials of rotation matrix derivative wrt a parameter (for double or VectorXd parameters).
     /*!
@@ -263,8 +264,7 @@ public:
      *  \param time Time at which the partial(s) is(are) to be evaluated.
      *  \return Vector of partials of rotation matrix from body-fixed to inertial frame wrt parameter(s)
      */
-    virtual std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time ) = 0;
+    virtual std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time ) = 0;
 
     //! Function to calculate the partial of the position of a vector, which is given in a body-fixed frame, in the inertial
     //! frame wrt a parameter.
@@ -280,9 +280,8 @@ public:
      *  parameter is to be determined.
      *  \return Partial of the value of the vector in an inertial frame wrt the parameter(s).
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfInertialPositionWrtParameter(
-            const double time,
-            const Eigen::Vector3d vectorInLocalFrame );
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfInertialPositionWrtParameter( const double time,
+                                                                                               const Eigen::Vector3d vectorInLocalFrame );
 
     //! Function to calculate the partial of the velocity of a vector, which is given in a body-fixed frame, in the inertial
     //! frame wrt a parameter.
@@ -300,9 +299,8 @@ public:
      *  parameter is to be determined.
      *  \return Partial of the value of the vector in an inertial frame wrt the parameter(s).
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfInertialVelocityWrtParameter(
-            const double time,
-            const Eigen::Vector3d vectorInLocalFrame );
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfInertialVelocityWrtParameter( const double time,
+                                                                                               const Eigen::Vector3d vectorInLocalFrame );
 
     //! Function to return the secondary identifier of the estimated parameter
     /*!
@@ -314,9 +312,9 @@ public:
     {
         return "";
     }
+
 protected:
     std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel_;
-
 };
 
 //! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. a constant rotation rate.
@@ -324,22 +322,20 @@ protected:
  * Class to calculate a rotation matrix from a body-fixed to inertial frame, as computed by the SimpleRotationalEphemeris
  * class,  w.r.t. the constant rotation rate.
  */
-class RotationMatrixPartialWrtConstantRotationRate: public RotationMatrixPartial
+class RotationMatrixPartialWrtConstantRotationRate : public RotationMatrixPartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param bodyRotationModel Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
      */
-    RotationMatrixPartialWrtConstantRotationRate(
-            const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel ):
-        RotationMatrixPartial( bodyRotationModel ),
-        bodyRotationModel_( bodyRotationModel ){ }
+    RotationMatrixPartialWrtConstantRotationRate( const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel )
+    { }
 
     //! Destructor.
-    ~RotationMatrixPartialWrtConstantRotationRate( ){ }
+    ~RotationMatrixPartialWrtConstantRotationRate( ) { }
 
     //! Function to calculate partial of rotation matrix from the body-fixed to the inertial frame wrt a rotation rate.
     /*!
@@ -349,13 +345,12 @@ public:
      *  \return Vector of size 1 containing partials of rotation matrix from body-fixed to inertial frame wrt
      *  rotation rate.
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
         return { calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotationRate(
-                        bodyRotationModel_->getInitialRotationToTargetFrame( ).inverse( ),
-                        bodyRotationModel_->getRotationRate( ),
-                        time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) ) };
+                bodyRotationModel_->getInitialRotationToTargetFrame( ).inverse( ),
+                bodyRotationModel_->getRotationRate( ),
+                time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) ) };
     }
 
     //! Function to calculate partial of rotation matrix derivative from the body-fixed to inertial frame wrt a rotation rate.
@@ -366,17 +361,15 @@ public:
      *  \return Vector of size 1 containing partials of rotation derivative matrix from body-fixed to inertial frame wrt
      *  rotation rate.
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
         return { calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConstantRotationRate(
-                        bodyRotationModel_->getRotationToBaseFrame( time ).toRotationMatrix( ),
-                        bodyRotationModel_->getRotationRate( ),
-                        time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) ) };
+                bodyRotationModel_->getRotationToBaseFrame( time ).toRotationMatrix( ),
+                bodyRotationModel_->getRotationRate( ),
+                time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) ) };
     }
 
 private:
-
     //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
     std::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel_;
 };
@@ -387,22 +380,20 @@ private:
  * Class to calculate a rotation matrix from a body-fixed to inertial frame, as computed by the SimpleRotationalEphemeris
  * class,  w.r.t. the constant pole right ascension and declination
  */
-class RotationMatrixPartialWrtPoleOrientation: public RotationMatrixPartial
+class RotationMatrixPartialWrtPoleOrientation : public RotationMatrixPartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param bodyRotationModel Rotation model for which the partial derivative w.r.t. the pole position is to be taken.
      */
-    RotationMatrixPartialWrtPoleOrientation(
-            const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel ):
-        RotationMatrixPartial( bodyRotationModel ),
-        bodyRotationModel_( bodyRotationModel ){ }
+    RotationMatrixPartialWrtPoleOrientation( const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel )
+    { }
 
     //! Destructor.
-    ~RotationMatrixPartialWrtPoleOrientation( ){ }
+    ~RotationMatrixPartialWrtPoleOrientation( ) { }
 
     //! Function to calculate partial of rotation matrix from the body-fixed to the inertial frame wrt pole
     //! right ascension and declination.
@@ -413,12 +404,12 @@ public:
      *  \return Vector of size 2 containing partials of rotation matrix from body-fixed to inertial frame right ascension
      *  (entry 0) and declination (entry 1) of pole.
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
         return calculatePartialOfRotationMatrixFromLocalFrameWrtPoleOrientation(
-                    bodyRotationModel_->getInitialEulerAngles( ),
-                    bodyRotationModel_->getRotationRate( ), time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) );
+                bodyRotationModel_->getInitialEulerAngles( ),
+                bodyRotationModel_->getRotationRate( ),
+                time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) );
     }
 
     //! Function to calculate partial of rotation matrix derivative from the body-fixed to the inertial frame wrt pole
@@ -430,17 +421,15 @@ public:
      *  \return Vector of size 2 containing partials of rotation matrix derivative from body-fixed to inertial frame right ascension
      *  ascension (entry 0) and declination (entry 1) of pole.
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
         return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPoleOrientation(
-                    bodyRotationModel_->getInitialEulerAngles( ),
-                    bodyRotationModel_->getRotationRate( ), time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) );
-
+                bodyRotationModel_->getInitialEulerAngles( ),
+                bodyRotationModel_->getRotationRate( ),
+                time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) );
     }
 
 private:
-
     //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
     std::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel_;
 };
@@ -450,18 +439,16 @@ private:
  * Class to calculate a rotation matrix from a body-fixed to inertial frame, as computed by the PlanetaryRotationModel
  * class,  w.r.t. the periodic spin variations.
  */
-class RotationMatrixPartialWrtPeriodicSpinVariations: public RotationMatrixPartial
+class RotationMatrixPartialWrtPeriodicSpinVariations : public RotationMatrixPartial
 {
 public:
-
     //! Constructor
-    RotationMatrixPartialWrtPeriodicSpinVariations(
-            const std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel ):
-        RotationMatrixPartial( bodyRotationModel ),
-        bodyRotationModel_( bodyRotationModel ){ }
+    RotationMatrixPartialWrtPeriodicSpinVariations( const std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel )
+    { }
 
     //! Destructor.
-    ~RotationMatrixPartialWrtPeriodicSpinVariations( ){ }
+    ~RotationMatrixPartialWrtPeriodicSpinVariations( ) { }
 
     //! Function to calculate partial of rotation matrix from the body-fixed to the inertial frame wrt
     //! the periodic spin variations.
@@ -472,13 +459,12 @@ public:
      *  \return Vector of size 8 containing partials of rotation matrix from body-fixed to inertial frame wrt
      *  Phi_c1 (entry 0), Phi_sj (entry 1) with j=1,...,4 .
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
-        return  calculatePartialOfRotationMatrixFromLocalFrameWrtPeriodicSpinVariations(
-                bodyRotationModel_ ->getPlanetaryOrientationAngleCalculator(),
-                bodyRotationModel_ ->getRotationFromMeanOrbitToIcrf(),
-                bodyRotationModel_ ->getPolarMotionRotation( time ),
+        return calculatePartialOfRotationMatrixFromLocalFrameWrtPeriodicSpinVariations(
+                bodyRotationModel_->getPlanetaryOrientationAngleCalculator( ),
+                bodyRotationModel_->getRotationFromMeanOrbitToIcrf( ),
+                bodyRotationModel_->getPolarMotionRotation( time ),
                 time );
     }
 
@@ -491,21 +477,18 @@ public:
      *  \return Vector of size 8 containing partials of rotation matrix derivative from body-fixed to inertial frame wrt
      *  Phi_c1 (entry 0), Phi_sj (entry 1) with j=1,...,4 .
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
         return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPeriodicSpinVariations(
-                    bodyRotationModel_ ->getPlanetaryOrientationAngleCalculator(),
-                    bodyRotationModel_ ->getRotationFromMeanOrbitToIcrf(),
-                    bodyRotationModel_ ->getPolarMotionRotation( time ),
-                    time );
+                bodyRotationModel_->getPlanetaryOrientationAngleCalculator( ),
+                bodyRotationModel_->getRotationFromMeanOrbitToIcrf( ),
+                bodyRotationModel_->getPolarMotionRotation( time ),
+                time );
     }
 
 private:
-
     //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
     std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel_;
-
 };
 
 //! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. polar motion amplitudes.
@@ -513,18 +496,16 @@ private:
  * Class to calculate a rotation matrix from a body-fixed to inertial frame, as computed by the PlanetaryRotationModel
  * class,  w.r.t. polar motion amplitudes.
  */
-class RotationMatrixPartialWrtPolarMotionAmplitude: public RotationMatrixPartial
+class RotationMatrixPartialWrtPolarMotionAmplitude : public RotationMatrixPartial
 {
 public:
-
     //! Constructor
-    RotationMatrixPartialWrtPolarMotionAmplitude(
-            const std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel ):
-        RotationMatrixPartial( bodyRotationModel ),
-        bodyRotationModel_( bodyRotationModel ){ }
+    RotationMatrixPartialWrtPolarMotionAmplitude( const std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel )
+    { }
 
     //! Destructor.
-    ~RotationMatrixPartialWrtPolarMotionAmplitude( ){ }
+    ~RotationMatrixPartialWrtPolarMotionAmplitude( ) { }
 
     //! Function to calculate partial of rotation matrix from the body-fixed to the inertial frame wrt
     //! polar motion amplitudes.
@@ -535,13 +516,12 @@ public:
      *  \return Vector of size 20 containing partials of rotation matrix from body-fixed to inertial frame wrt
      *  X_cj (entry 0), X_sj (entry 1), Y_cj (entry 2), Y_sj (entry 3) with j=1,...,5 .
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
-        return  calculatePartialOfRotationMatrixFromLocalFrameWrtPolarMotionAmplitude(
-                bodyRotationModel_ ->getPlanetaryOrientationAngleCalculator(),
-                bodyRotationModel_ ->getRotationFromMeanOrbitToIcrf(),
-                bodyRotationModel_ ->getRotationFromBodyFixedToIntermediateInertialFrame( time ),
+        return calculatePartialOfRotationMatrixFromLocalFrameWrtPolarMotionAmplitude(
+                bodyRotationModel_->getPlanetaryOrientationAngleCalculator( ),
+                bodyRotationModel_->getRotationFromMeanOrbitToIcrf( ),
+                bodyRotationModel_->getRotationFromBodyFixedToIntermediateInertialFrame( time ),
                 time );
     }
 
@@ -554,20 +534,17 @@ public:
      *  \return Vector of size 20 containing partials of rotation matrix derivative from body-fixed to inertial frame wrt
      *  X_cj (entry 0), X_sj (entry 1), Y_cj (entry 2), Y_sj (entry 3) with j=1,...,5 .
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
         return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPolarMotionAmplitude(
-                    bodyRotationModel_ ->getPlanetaryOrientationAngleCalculator( ),
-                    bodyRotationModel_ ->getRotationFromMeanOrbitToIcrf(),
-                    time );
+                bodyRotationModel_->getPlanetaryOrientationAngleCalculator( ),
+                bodyRotationModel_->getRotationFromMeanOrbitToIcrf( ),
+                time );
     }
 
 private:
-
     //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
     std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel_;
-
 };
 
 //! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. the core factor.
@@ -575,18 +552,16 @@ private:
  * Class to calculate a rotation matrix from a body-fixed to inertial frame, as computed by the PlanetaryRotationModel
  * class,  w.r.t. the core factor.
  */
-class RotationMatrixPartialWrtCoreFactor: public RotationMatrixPartial
+class RotationMatrixPartialWrtCoreFactor : public RotationMatrixPartial
 {
 public:
-
     //! Constructor
-    RotationMatrixPartialWrtCoreFactor(
-        const std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel ):
-        RotationMatrixPartial( bodyRotationModel ),
-        bodyRotationModel_( bodyRotationModel ){ }
+    RotationMatrixPartialWrtCoreFactor( const std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel )
+    { }
 
     //! Destructor.
-    ~RotationMatrixPartialWrtCoreFactor( ){ }
+    ~RotationMatrixPartialWrtCoreFactor( ) { }
 
     //! Function to calculate partial of rotation matrix from the body-fixed to the inertial frame wrt
     //! the core factor.
@@ -597,14 +572,12 @@ public:
      *  \return Vector of size 1 containing partials of rotation matrix from body-fixed to inertial frame wrt
      *  core factor.
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
-        return  { calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor(
-                bodyRotationModel_ ->getPlanetaryOrientationAngleCalculator(),
-                bodyRotationModel_ ->getRotationFromMeanOrbitToIcrf(),
-                bodyRotationModel_ ->getPolarMotionRotation( time ),
-                time ) };
+        return { calculatePartialOfRotationMatrixFromLocalFrameWrtCoreFactor( bodyRotationModel_->getPlanetaryOrientationAngleCalculator( ),
+                                                                              bodyRotationModel_->getRotationFromMeanOrbitToIcrf( ),
+                                                                              bodyRotationModel_->getPolarMotionRotation( time ),
+                                                                              time ) };
     }
 
     //! Function to calculate partial of rotation matrix derivative from the body-fixed to the inertial frame wrt
@@ -616,21 +589,18 @@ public:
      *  \return Vector of size 1 containing partials of rotation matrix derivative from body-fixed to inertial frame wrt
      *  core factor.
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
         return { calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtCoreFactor(
-                    bodyRotationModel_ ->getPlanetaryOrientationAngleCalculator(),
-                    bodyRotationModel_ ->getRotationFromMeanOrbitToIcrf(),
-                    bodyRotationModel_ ->getPolarMotionRotation( time ),
-                    time ) };
+                bodyRotationModel_->getPlanetaryOrientationAngleCalculator( ),
+                bodyRotationModel_->getRotationFromMeanOrbitToIcrf( ),
+                bodyRotationModel_->getPolarMotionRotation( time ),
+                time ) };
     }
 
 private:
-
     //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
     std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel_;
-
 };
 
 //! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. the free core nutation rate.
@@ -638,18 +608,16 @@ private:
  * Class to calculate a rotation matrix from a body-fixed to inertial frame, as computed by the PlanetaryRotationModel
  * class,  w.r.t. free core nutation rate.
  */
-class RotationMatrixPartialWrtFreeCoreNutationRate: public RotationMatrixPartial
+class RotationMatrixPartialWrtFreeCoreNutationRate : public RotationMatrixPartial
 {
 public:
-
     //! Constructor
-    RotationMatrixPartialWrtFreeCoreNutationRate(
-        const std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel ):
-        RotationMatrixPartial( bodyRotationModel ),
-        bodyRotationModel_( bodyRotationModel ){ }
+    RotationMatrixPartialWrtFreeCoreNutationRate( const std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel )
+    { }
 
     //! Destructor.
-    ~RotationMatrixPartialWrtFreeCoreNutationRate( ){ }
+    ~RotationMatrixPartialWrtFreeCoreNutationRate( ) { }
 
     //! Function to calculate partial of rotation matrix from the body-fixed to the inertial frame wrt
     //! the free core nutation rate.
@@ -660,117 +628,98 @@ public:
      *  \return Vector of size 1 containing partials of rotation matrix from body-fixed to inertial frame wrt
      *  free core nutation rate.
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
-        return  { calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutationRate(
-                bodyRotationModel_ ->getPlanetaryOrientationAngleCalculator(),
-                bodyRotationModel_ ->getRotationFromMeanOrbitToIcrf(),
-                bodyRotationModel_ ->getPolarMotionRotation( time ),
+        return { calculatePartialOfRotationMatrixFromLocalFrameWrtFreeCoreNutationRate(
+                bodyRotationModel_->getPlanetaryOrientationAngleCalculator( ),
+                bodyRotationModel_->getRotationFromMeanOrbitToIcrf( ),
+                bodyRotationModel_->getPolarMotionRotation( time ),
                 time ) };
     }
 
     //! Function to calculate partial of rotation matrix derivative from the body-fixed to the inertial frame wrt
-        //! free core nutation rate.
-        /*!
-         *  Function to calculate partial of rotation matrix derivative from the body-fixed to the inertial frame  wrt
-         *  the free core nutation rate, using the properties of the bodyRotationModel_ member.
-         *  \param time Time at which the partial is to be evaluated.
-         *  \return Vector of size 0 containing partials of rotation matrix derivative from body-fixed to inertial frame wrt
-         *  free core nutation rate.
-         */
-        std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-                const double time )
-        {
-            return { calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeCoreNutationRate(
-                        bodyRotationModel_ ->getPlanetaryOrientationAngleCalculator(),
-                        bodyRotationModel_ ->getRotationFromMeanOrbitToIcrf(),
-                        bodyRotationModel_ ->getPolarMotionRotation( time ),
-                        time ) };
-        }
+    //! free core nutation rate.
+    /*!
+     *  Function to calculate partial of rotation matrix derivative from the body-fixed to the inertial frame  wrt
+     *  the free core nutation rate, using the properties of the bodyRotationModel_ member.
+     *  \param time Time at which the partial is to be evaluated.
+     *  \return Vector of size 0 containing partials of rotation matrix derivative from body-fixed to inertial frame wrt
+     *  free core nutation rate.
+     */
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
+    {
+        return { calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtFreeCoreNutationRate(
+                bodyRotationModel_->getPlanetaryOrientationAngleCalculator( ),
+                bodyRotationModel_->getRotationFromMeanOrbitToIcrf( ),
+                bodyRotationModel_->getPolarMotionRotation( time ),
+                time ) };
+    }
 
 private:
-
-        //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
-        std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel_;
-
+    //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
+    std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel_;
 };
 
-class RotationMatrixPartialWrtScaledLongitudeLibrationAmplitude: public RotationMatrixPartial
+class RotationMatrixPartialWrtScaledLongitudeLibrationAmplitude : public RotationMatrixPartial
 {
 public:
-
     //! Constructor
     RotationMatrixPartialWrtScaledLongitudeLibrationAmplitude(
             const std::shared_ptr< ephemerides::SynchronousRotationalEphemeris > bodyRotationModel ):
-        RotationMatrixPartial( bodyRotationModel ),
-        bodyRotationModel_( bodyRotationModel )
+        RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel )
     {
         librationModel_ = std::dynamic_pointer_cast< ephemerides::DirectLongitudeLibrationCalculator >(
-                    bodyRotationModel->getLongitudeLibrationCalculator( ) );
+                bodyRotationModel->getLongitudeLibrationCalculator( ) );
         if( librationModel_ == nullptr )
         {
-            throw std::runtime_error(
-                        "Error when mkaing rotation matrix partial w.r.t. scaled libration, no compatible libration found" );
+            throw std::runtime_error( "Error when mkaing rotation matrix partial w.r.t. scaled libration, no compatible libration found" );
         }
     }
 
     //! Destructor.
-    ~RotationMatrixPartialWrtScaledLongitudeLibrationAmplitude( ){ }
+    ~RotationMatrixPartialWrtScaledLongitudeLibrationAmplitude( ) { }
 
-
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
         Eigen::Vector6d relativeState = bodyRotationModel_->getRelativeCartesianState( time );
 
-        Eigen::Matrix3d fullyLockedRotation = bodyRotationModel_->getFullyLockedRotationToBaseFrame(
-                    relativeState, time );
-        Eigen::Matrix3d librationCorrectionRotation = bodyRotationModel_->getLibrationRotation(
-                    relativeState, time );
-        double librationAngleDerivativeWrtAmplitude = librationModel_->getLibrationAngleWrtFullySynchronousRotationFromScaledLibration(
-                    relativeState, time, 1.0 );
+        Eigen::Matrix3d fullyLockedRotation = bodyRotationModel_->getFullyLockedRotationToBaseFrame( relativeState, time );
+        Eigen::Matrix3d librationCorrectionRotation = bodyRotationModel_->getLibrationRotation( relativeState, time );
+        double librationAngleDerivativeWrtAmplitude =
+                librationModel_->getLibrationAngleWrtFullySynchronousRotationFromScaledLibration( relativeState, time, 1.0 );
 
-        return { fullyLockedRotation * reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER *
-              librationCorrectionRotation *   librationAngleDerivativeWrtAmplitude };
+        return { fullyLockedRotation * reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * librationCorrectionRotation *
+                 librationAngleDerivativeWrtAmplitude };
     }
 
-
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
         throw std::runtime_error( "Error, rotation matrix derivative partial not yet implemented for synchronous rotation" );
     }
 
 private:
-
     std::shared_ptr< ephemerides::SynchronousRotationalEphemeris > bodyRotationModel_;
 
     std::shared_ptr< ephemerides::DirectLongitudeLibrationCalculator > librationModel_;
-
-
 };
 
 //! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. the associated quaternion elements
-class RotationMatrixPartialWrtQuaternion: public RotationMatrixPartial
+class RotationMatrixPartialWrtQuaternion : public RotationMatrixPartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param currentRotationToInertialFrameFunction Function returning the current quaternion for body-fixed to inertial rotation
      */
-    RotationMatrixPartialWrtQuaternion(
-            const std::function< Eigen::Quaterniond( ) > currentRotationToInertialFrameFunction ):
-        RotationMatrixPartial( nullptr ),
-        currentRotationToInertialFrameFunction_( currentRotationToInertialFrameFunction )
+    RotationMatrixPartialWrtQuaternion( const std::function< Eigen::Quaterniond( ) > currentRotationToInertialFrameFunction ):
+        RotationMatrixPartial( nullptr ), currentRotationToInertialFrameFunction_( currentRotationToInertialFrameFunction )
     {
         currentQuaternionPartials_.resize( 4 );
     }
 
     //! Destructor
-    ~RotationMatrixPartialWrtQuaternion( ){ }
+    ~RotationMatrixPartialWrtQuaternion( ) { }
 
     //! Function to compute the required partial derivative of rotation matrix.
     /*!
@@ -780,12 +729,10 @@ public:
      * \return Vector of size 4 containing partials of rotation matrix from body-fixed to inertial frame w.r.t. the four
      * associated quaternion elements
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
         linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
-        linear_algebra::convertQuaternionToVectorFormat( currentRotationToInertialFrameFunction_( ) ),
-                   currentQuaternionPartials_ );
+                linear_algebra::convertQuaternionToVectorFormat( currentRotationToInertialFrameFunction_( ) ), currentQuaternionPartials_ );
 
         return currentQuaternionPartials_;
     }
@@ -798,15 +745,14 @@ public:
      * \return Vector of size 4 containing partials of rotation matrix derivative from body-fixed to inertial frame w.r.t. the
      * four associated quaternion elements
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
-        throw std::runtime_error( "Error when calling RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter, function not yet implemented." );
-
+        throw std::runtime_error(
+                "Error when calling RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter, "
+                "function not yet implemented." );
     }
 
 private:
-
     //! Function returning the current quaternion for body-fixed to inertial rotation
     std::function< Eigen::Quaterniond( ) > currentRotationToInertialFrameFunction_;
 
@@ -817,25 +763,21 @@ private:
 class NumericalRotationMatrixPartialWrtTranslationalState
 {
 public:
-
     NumericalRotationMatrixPartialWrtTranslationalState(
             const std::function< void( const Eigen::Vector6d& ) > setStateFunction,
             const std::function< Eigen::Vector6d( ) > getStateFunction,
             const Eigen::Vector6d statePerturbations,
             const std::function< Eigen::Matrix3d( const double ) > rotationMatrixToBaseFrameFunction ):
-        setStateFunction_( setStateFunction ), getStateFunction_( getStateFunction ),
-        statePerturbations_( statePerturbations ), rotationMatrixToBaseFrameFunction_( rotationMatrixToBaseFrameFunction )
-    {
-
-    }
+        setStateFunction_( setStateFunction ), getStateFunction_( getStateFunction ), statePerturbations_( statePerturbations ),
+        rotationMatrixToBaseFrameFunction_( rotationMatrixToBaseFrameFunction )
+    { }
 
     //! Destructor
-    ~NumericalRotationMatrixPartialWrtTranslationalState( ){ }
+    ~NumericalRotationMatrixPartialWrtTranslationalState( ) { }
 
     std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time );
 
 private:
-
     std::function< void( const Eigen::Vector6d& ) > setStateFunction_;
 
     std::function< Eigen::Vector6d( ) > getStateFunction_;
@@ -845,19 +787,17 @@ private:
     std::function< Eigen::Matrix3d( const double ) > rotationMatrixToBaseFrameFunction_;
 };
 
-Eigen::Matrix< double, 1, 6 > calculatePartialOfDirectLibrationAngleWrtCartesianStates(
-        const Eigen::Vector6d& currentState,
-        const double scaledLibrationAmplitude );
+Eigen::Matrix< double, 1, 6 > calculatePartialOfDirectLibrationAngleWrtCartesianStates( const Eigen::Vector6d& currentState,
+                                                                                        const double scaledLibrationAmplitude );
 
 //! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. the rotational state
 /*!
  *  Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. the rotational state, consisting of the
  *  associated quaternion elements and body-fixed angular velocity vector.
  */
-class RotationMatrixPartialWrtRotationalState: public RotationMatrixPartial
+class RotationMatrixPartialWrtRotationalState : public RotationMatrixPartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -865,14 +805,13 @@ public:
      */
     RotationMatrixPartialWrtRotationalState(
             const std::function< Eigen::Quaterniond( const double ) > currentRotationToInertialFrameFunction ):
-        RotationMatrixPartial( nullptr ),
-        currentRotationToInertialFrameFunction_( currentRotationToInertialFrameFunction )
+        RotationMatrixPartial( nullptr ), currentRotationToInertialFrameFunction_( currentRotationToInertialFrameFunction )
     {
         currentQuaternionPartials_.resize( 7 );
     }
 
     //! Destructor
-    ~RotationMatrixPartialWrtRotationalState( ){ }
+    ~RotationMatrixPartialWrtRotationalState( ) { }
 
     //! Function to compute the required partial derivative of rotation matrix.
     /*!
@@ -882,16 +821,15 @@ public:
      * \return Vector of size 7 containing partials of rotation matrix from body-fixed to inertial frame w.r.t. the four
      * associated rotational state
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
         linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
-        linear_algebra::convertQuaternionToVectorFormat( currentRotationToInertialFrameFunction_( time ) ),
-                   currentQuaternionPartials_ );
+                linear_algebra::convertQuaternionToVectorFormat( currentRotationToInertialFrameFunction_( time ) ),
+                currentQuaternionPartials_ );
 
         for( int i = 0; i < 3; i++ )
         {
-            currentQuaternionPartials_[ i + 4 ] =  Eigen::Matrix3d::Zero( );
+            currentQuaternionPartials_[ i + 4 ] = Eigen::Matrix3d::Zero( );
         }
         return currentQuaternionPartials_;
     }
@@ -904,15 +842,14 @@ public:
      * \return Vector of size 7 containing partials of rotation matrix derivative from body-fixed to inertial frame w.r.t. the
      * rotational state vector
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
-        throw std::runtime_error( "Error when calling RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter, function not yet implemented." );
-
+        throw std::runtime_error(
+                "Error when calling RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter, "
+                "function not yet implemented." );
     }
 
 private:
-
     //! Function returning the current quaternion for body-fixed to inertial rotation
     std::function< Eigen::Quaterniond( const double ) > currentRotationToInertialFrameFunction_;
 
@@ -926,10 +863,9 @@ private:
  *  Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. the translational state for a synchronous
  *  rotation model
  */
-class SynchronousRotationMatrixPartialWrtTranslationalState: public RotationMatrixPartial
+class SynchronousRotationMatrixPartialWrtTranslationalState : public RotationMatrixPartial
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -937,16 +873,14 @@ public:
      */
     SynchronousRotationMatrixPartialWrtTranslationalState(
             const std::shared_ptr< ephemerides::SynchronousRotationalEphemeris > synchronousRotationaModel ):
-        RotationMatrixPartial( synchronousRotationaModel ),
-        synchronousRotationaModel_( synchronousRotationaModel )
+        RotationMatrixPartial( synchronousRotationaModel ), synchronousRotationaModel_( synchronousRotationaModel )
     {
-        directLongitudeLibrationCalculator_ = std::dynamic_pointer_cast<
-                ephemerides::DirectLongitudeLibrationCalculator >(
-                    synchronousRotationaModel->getLongitudeLibrationCalculator( ) );
+        directLongitudeLibrationCalculator_ = std::dynamic_pointer_cast< ephemerides::DirectLongitudeLibrationCalculator >(
+                synchronousRotationaModel->getLongitudeLibrationCalculator( ) );
     }
 
     //! Destructor
-    ~SynchronousRotationMatrixPartialWrtTranslationalState( ){ }
+    ~SynchronousRotationMatrixPartialWrtTranslationalState( ) { }
 
     //! Function to compute the required partial derivative of rotation matrix.
     /*!
@@ -966,29 +900,27 @@ public:
      * \return Vector of size 7 containing partials of rotation matrix derivative from body-fixed to inertial frame w.r.t. the
      * rotational state vector
      */
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
-        throw std::runtime_error( "Error when calling RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter, function not yet implemented." );
-
+        throw std::runtime_error(
+                "Error when calling RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter, "
+                "function not yet implemented." );
     }
 
-
 private:
-
     //! Rotation model that defines the synchronous rotation
     std::shared_ptr< ephemerides::SynchronousRotationalEphemeris > synchronousRotationaModel_;
 
     std::shared_ptr< ephemerides::DirectLongitudeLibrationCalculator > directLongitudeLibrationCalculator_;
-
 };
 
 //! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
 typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-std::shared_ptr< observation_partials::RotationMatrixPartial > > RotationMatrixPartialNamedList;
+                  std::shared_ptr< observation_partials::RotationMatrixPartial > >
+        RotationMatrixPartialNamedList;
 
-}
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_ROTATIONMATRIXPARTIAL_H
+#endif  // TUDAT_ROTATIONMATRIXPARTIAL_H

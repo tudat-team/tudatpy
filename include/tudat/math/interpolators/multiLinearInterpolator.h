@@ -57,18 +57,13 @@ namespace interpolators
  * \tparam NumberOfDimensions Number of independent variables.
  */
 template< typename IndependentVariableType, typename DependentVariableType, unsigned int NumberOfDimensions >
-class MultiLinearInterpolator: public MultiDimensionalInterpolator< IndependentVariableType,
-        DependentVariableType, NumberOfDimensions >
+class MultiLinearInterpolator : public MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >
 {
 public:
-
     // Using statements to prevent having to put 'this' everywhere in the code.
-    using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::
-    dependentData_;
-    using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::
-    independentValues_;
-    using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::
-    lookUpSchemes_;
+    using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::dependentData_;
+    using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::independentValues_;
+    using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::lookUpSchemes_;
 
     //! Default constructor taking independent and dependent variable data.
     /*!
@@ -85,41 +80,43 @@ public:
      *  \param defaultExtrapolationValue Vector of pairs of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
-    MultiLinearInterpolator(
-            const std::vector< std::vector< IndependentVariableType > >& independentValues,
-            const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >& dependentData,
-            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const std::vector< BoundaryInterpolationType >& boundaryHandling =
-            std::vector< BoundaryInterpolationType >( NumberOfDimensions, extrapolate_at_boundary ),
-            const std::vector< std::pair< DependentVariableType, DependentVariableType > >& defaultExtrapolationValue =
-            std::vector< std::pair< DependentVariableType, DependentVariableType > >(
-                NumberOfDimensions, std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                                                    IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) ) :
-        MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >(
-            boundaryHandling, defaultExtrapolationValue )
+    MultiLinearInterpolator( const std::vector< std::vector< IndependentVariableType > >& independentValues,
+                             const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >& dependentData,
+                             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                             const std::vector< BoundaryInterpolationType >& boundaryHandling =
+                                     std::vector< BoundaryInterpolationType >( NumberOfDimensions, extrapolate_at_boundary ),
+                             const std::vector< std::pair< DependentVariableType, DependentVariableType > >& defaultExtrapolationValue =
+                                     std::vector< std::pair< DependentVariableType, DependentVariableType > >(
+                                             NumberOfDimensions,
+                                             std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                             IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) ):
+        MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >( boundaryHandling,
+                                                                                                            defaultExtrapolationValue )
     {
         // Save (in)dependent variables
         independentValues_ = independentValues;
-        dependentData_.resize( reinterpret_cast< boost::array< size_t,
-                               boost::multi_array< DependentVariableType,
-                               static_cast< size_t >( NumberOfDimensions ) >::dimensionality > const& >(
-                                   *dependentData.shape( ) ) ); // resize dependent data container
+        dependentData_.resize( reinterpret_cast<
+                               boost::array< size_t,
+                                             boost::multi_array< DependentVariableType,
+                                                                 static_cast< size_t >( NumberOfDimensions ) >::dimensionality > const& >(
+                *dependentData.shape( ) ) );  // resize dependent data container
         dependentData_ = dependentData;
 
         // Check consistency of template arguments and input variables.
-        if ( independentValues.size( ) != NumberOfDimensions )
+        if( independentValues.size( ) != NumberOfDimensions )
         {
-            throw std::runtime_error( "Error: dimension of independent value vector provided to constructor "
-                                      "incompatible with template parameter." );
+            throw std::runtime_error(
+                    "Error: dimension of independent value vector provided to constructor "
+                    "incompatible with template parameter." );
         }
 
         // Check consistency of input data of dependent and independent data.
-        for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
+        for( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
-            if ( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
+            if( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
             {
-                std::string errorMessage = "Error: number of data points in dimension " +
-                        std::to_string( i ) + " of independent and dependent data incompatible.";
+                std::string errorMessage = "Error: number of data points in dimension " + std::to_string( i ) +
+                        " of independent and dependent data incompatible.";
                 throw std::runtime_error( errorMessage );
             }
         }
@@ -149,18 +146,21 @@ public:
             const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >& dependentData,
             const AvailableLookupScheme selectedLookupScheme,
             const BoundaryInterpolationType boundaryHandling,
-            const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) :
-        MultiLinearInterpolator( independentValues, dependentData, selectedLookupScheme,
+            const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ):
+        MultiLinearInterpolator( independentValues,
+                                 dependentData,
+                                 selectedLookupScheme,
                                  std::vector< BoundaryInterpolationType >( NumberOfDimensions, boundaryHandling ),
                                  std::vector< std::pair< DependentVariableType, DependentVariableType > >(
-                                     NumberOfDimensions, std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) )
+                                         NumberOfDimensions,
+                                         std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) )
     { }
 
     //! Default destructor.
     /*!
      *  Default destructor.
      */
-    ~MultiLinearInterpolator( ){ }
+    ~MultiLinearInterpolator( ) { }
 
     //! Function to perform interpolation.
     /*!
@@ -172,12 +172,12 @@ public:
     DependentVariableType interpolate( const std::vector< IndependentVariableType >& independentValuesToInterpolate )
     {
         // Check whether size of independent variable vector is correct
-        if ( independentValuesToInterpolate.size( ) != NumberOfDimensions )
+        if( independentValuesToInterpolate.size( ) != NumberOfDimensions )
         {
-            throw std::runtime_error( "Error in multi-dimensional interpolator. The number of independent variables "
-                                      "provided is incompatible with the previous definition. Provided: " +
-                                      std::to_string( independentValuesToInterpolate.size( ) ) + ". Needed: " +
-                                      std::to_string( NumberOfDimensions ) );
+            throw std::runtime_error(
+                    "Error in multi-dimensional interpolator. The number of independent variables "
+                    "provided is incompatible with the previous definition. Provided: " +
+                    std::to_string( independentValuesToInterpolate.size( ) ) + ". Needed: " + std::to_string( NumberOfDimensions ) );
         }
 
         // Create local copy of current independent variables
@@ -186,10 +186,10 @@ public:
         // Check that independent variables are in range
         bool useValue = false;
         DependentVariableType currentDependentVariable;
-        for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
+        for( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
             this->checkBoundaryCase( i, useValue, localIndependentValuesToInterpolate.at( i ), currentDependentVariable );
-            if ( useValue )
+            if( useValue )
             {
                 return currentDependentVariable;
             }
@@ -198,23 +198,21 @@ public:
         // Determine the nearest lower neighbours.
         std::vector< unsigned int > nearestLowerIndices;
         nearestLowerIndices.resize( NumberOfDimensions );
-        for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
+        for( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
-            nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour(
-                        localIndependentValuesToInterpolate[ i ] );
+            nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour( localIndependentValuesToInterpolate[ i ] );
 
             // If newNearestLowerIndex is the last element of independentValues_, execute extrapolation with
             // the last and second to last elements of independentValues_.
-            if ( nearestLowerIndices[ i ] == independentValues_[ i ].size( ) - 1 )
+            if( nearestLowerIndices[ i ] == independentValues_[ i ].size( ) - 1 )
             {
                 nearestLowerIndices[ i ] -= 1;
             }
-
         }
 
         // Initialize function evaluation indices to -1 for debugging purposes.
         boost::array< unsigned int, NumberOfDimensions > interpolationIndices;
-        for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
+        for( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
             interpolationIndices[ i ] = -1;
         }
@@ -222,12 +220,10 @@ public:
         // Call first step of interpolation, this function calls itself at subsequent independent
         // variable dimensions to evaluate and properly scale dependent variable table values at
         // all 2^n grid edges.
-        return performRecursiveInterpolationStep( 0, localIndependentValuesToInterpolate,
-                                                  interpolationIndices, nearestLowerIndices );
+        return performRecursiveInterpolationStep( 0, localIndependentValuesToInterpolate, interpolationIndices, nearestLowerIndices );
     }
 
 private:
-
     //! Make the lookup scheme that is to be used.
     /*!
      * This function creates the look up scheme that is to be used in determining the interval of
@@ -242,33 +238,31 @@ private:
         // Find which type of scheme is used.
         switch( selectedScheme )
         {
-        case binarySearch:
+            case binarySearch:
 
-            for( unsigned int i = 0; i < NumberOfDimensions; i++ )
-            {
-                // Create binary search look up scheme.
-                lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >
-                        ( new BinarySearchLookupScheme< IndependentVariableType >(
-                              independentValues_[ i ] ) );
-            }
+                for( unsigned int i = 0; i < NumberOfDimensions; i++ )
+                {
+                    // Create binary search look up scheme.
+                    lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >(
+                            new BinarySearchLookupScheme< IndependentVariableType >( independentValues_[ i ] ) );
+                }
 
-            break;
+                break;
 
-        case huntingAlgorithm:
+            case huntingAlgorithm:
 
-            for( unsigned int i = 0; i < NumberOfDimensions; i++ )
-            {
-                // Create hunting scheme, which uses an intial guess from previous look-ups.
-                lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >
-                        ( new HuntingAlgorithmLookupScheme< IndependentVariableType >(
-                              independentValues_[ i ] ) );
-            }
+                for( unsigned int i = 0; i < NumberOfDimensions; i++ )
+                {
+                    // Create hunting scheme, which uses an intial guess from previous look-ups.
+                    lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >(
+                            new HuntingAlgorithmLookupScheme< IndependentVariableType >( independentValues_[ i ] ) );
+                }
 
-            break;
+                break;
 
-        default:
+            default:
 
-            throw std::runtime_error( "Warning: lookup scheme not found when making scheme for 1-D interpolator" );
+                throw std::runtime_error( "Warning: lookup scheme not found when making scheme for 1-D interpolator" );
         }
     }
 
@@ -291,11 +285,10 @@ private:
      *  interpolation dimension of the independent variable vectors.
      * \return Interpolated value in a single dimension
      */
-    DependentVariableType performRecursiveInterpolationStep(
-            const unsigned int currentDimension,
-            const std::vector< IndependentVariableType >& independentValuesToInterpolate,
-            boost::array< unsigned int, NumberOfDimensions > currentArrayIndices,
-            const std::vector< unsigned int >& nearestLowerIndices )
+    DependentVariableType performRecursiveInterpolationStep( const unsigned int currentDimension,
+                                                             const std::vector< IndependentVariableType >& independentValuesToInterpolate,
+                                                             boost::array< unsigned int, NumberOfDimensions > currentArrayIndices,
+                                                             const std::vector< unsigned int >& nearestLowerIndices )
     {
         IndependentVariableType upperFraction, lowerFraction;
         DependentVariableType upperContribution, lowerContribution;
@@ -303,27 +296,20 @@ private:
         // Calculate fractions of data points above and below independent
         // variable value to be added to interpolated value.
         upperFraction = ( independentValuesToInterpolate[ currentDimension ] -
-                          independentValues_[ currentDimension ]
-                          [ nearestLowerIndices[ currentDimension ] ] ) /
-                ( independentValues_[ currentDimension ]
-                  [ nearestLowerIndices[ currentDimension ] + 1 ] -
-                independentValues_[ currentDimension ]
-                [ nearestLowerIndices[ currentDimension ] ] );
+                          independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] ] ) /
+                ( independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] + 1 ] -
+                  independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] ] );
         lowerFraction = -( independentValuesToInterpolate[ currentDimension ] -
-                           independentValues_[ currentDimension ]
-                           [ nearestLowerIndices[ currentDimension ] + 1 ] ) /
-                ( independentValues_[ currentDimension ]
-                  [ nearestLowerIndices[ currentDimension ] + 1 ] -
-                independentValues_[ currentDimension ]
-                [ nearestLowerIndices[ currentDimension ] ] );
+                           independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] + 1 ] ) /
+                ( independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] + 1 ] -
+                  independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] ] );
 
         // If at top dimension, call dependent variable data.
-        if ( currentDimension == NumberOfDimensions - 1 )
+        if( currentDimension == NumberOfDimensions - 1 )
         {
             currentArrayIndices[ NumberOfDimensions - 1 ] = nearestLowerIndices[ currentDimension ];
             lowerContribution = dependentData_( currentArrayIndices );
-            currentArrayIndices[ NumberOfDimensions - 1 ] = nearestLowerIndices[ currentDimension ]
-                    + 1;
+            currentArrayIndices[ NumberOfDimensions - 1 ] = nearestLowerIndices[ currentDimension ] + 1;
             upperContribution = dependentData_( currentArrayIndices );
         }
 
@@ -333,29 +319,26 @@ private:
         {
             currentArrayIndices[ currentDimension ] = nearestLowerIndices[ currentDimension ];
             lowerContribution = performRecursiveInterpolationStep(
-                        currentDimension + 1, independentValuesToInterpolate,
-                        currentArrayIndices, nearestLowerIndices );
+                    currentDimension + 1, independentValuesToInterpolate, currentArrayIndices, nearestLowerIndices );
             currentArrayIndices[ currentDimension ] = nearestLowerIndices[ currentDimension ] + 1;
             upperContribution = performRecursiveInterpolationStep(
-                        currentDimension + 1, independentValuesToInterpolate,
-                        currentArrayIndices, nearestLowerIndices );
+                    currentDimension + 1, independentValuesToInterpolate, currentArrayIndices, nearestLowerIndices );
         }
 
         // Return interpolated value.
-        DependentVariableType returnValue = upperFraction * upperContribution +
-                lowerFraction * lowerContribution;
+        DependentVariableType returnValue = upperFraction * upperContribution + lowerFraction * lowerContribution;
         return returnValue;
     }
 };
 
-//extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 1 >;
-//extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 2 >;
-//extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 3 >;
-//extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 4 >;
-//extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 5 >;
+// extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 1 >;
+// extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 2 >;
+// extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 3 >;
+// extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 4 >;
+// extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 5 >;
 
-} // namespace interpolators
+}  // namespace interpolators
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_MULTI_LINEAR_INTERPOLATOR_H
+#endif  // TUDAT_MULTI_LINEAR_INTERPOLATOR_H

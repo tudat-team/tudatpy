@@ -124,14 +124,14 @@ Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelQuaternionsElem
  *         convertedCartesianElements( 3 ) = x-velocity coordinate,                          [m/s]
  *         convertedCartesianElements( 4 ) = y-velocity coordinate,                          [m/s]
  *         convertedCartesianElements( 5 ) = z-velocity coordinate.                          [m/s]
-*/
+ */
 Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelQuaternionsToCartesianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter,
         const bool forceQuaternionNormalization = false );
 
-} // namespace orbital_element_conversions
+}  // namespace orbital_element_conversions
 
-} // close tudat
+}  // namespace tudat
 
-#endif // TUDAT_UNIFIED_STATE_MODEL_QUATERNION_ELEMENT_CONVERSIONS_H
+#endif  // TUDAT_UNIFIED_STATE_MODEL_QUATERNION_ELEMENT_CONVERSIONS_H

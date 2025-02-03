@@ -26,19 +26,12 @@ namespace root_finders
 {
 
 //! Enum defininf types of root finder
-enum RootFinderType
-{
-    bisection_root_finder,
-    halley_root_finder,
-    newton_raphson_root_finder,
-    secant_root_finder
-};
+enum RootFinderType { bisection_root_finder, halley_root_finder, newton_raphson_root_finder, secant_root_finder };
 
 //! Class to define settings for a root finder
 class RootFinderSettings
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -52,16 +45,13 @@ public:
                         const double rootFunctionTolerance,
                         const unsigned int maximumNumberOfIterations,
                         const MaximumIterationHandling maximumIterationHandling = throw_exception ):
-        rootFinderType_( rootFinderType ),
-        relativeIndependentVariableTolerance_( relativeIndependentVariableTolerance ),
-        absoluteIndependentVariableTolerance_( absoluteIndependentVariableTolerance ),
-        rootFunctionTolerance_( rootFunctionTolerance ),
-        maximumNumberOfIterations_( maximumNumberOfIterations ),
-        maximumIterationHandling_( maximumIterationHandling )
+        rootFinderType_( rootFinderType ), relativeIndependentVariableTolerance_( relativeIndependentVariableTolerance ),
+        absoluteIndependentVariableTolerance_( absoluteIndependentVariableTolerance ), rootFunctionTolerance_( rootFunctionTolerance ),
+        maximumNumberOfIterations_( maximumNumberOfIterations ), maximumIterationHandling_( maximumIterationHandling )
     { }
 
     //! Destructor
-    ~RootFinderSettings( ){ }
+    ~RootFinderSettings( ) { }
 
     //! Type of root finder to be used
     RootFinderType rootFinderType_;
@@ -75,7 +65,6 @@ public:
     unsigned int maximumNumberOfIterations_;
 
     MaximumIterationHandling maximumIterationHandling_;
-
 };
 
 inline std::shared_ptr< RootFinderSettings > bisectionRootFinderSettings(
@@ -85,9 +74,12 @@ inline std::shared_ptr< RootFinderSettings > bisectionRootFinderSettings(
         const unsigned int maximumNumberOfIterations = 1000,
         const MaximumIterationHandling maximumIterationHandling = throw_exception )
 {
-    return std::make_shared< RootFinderSettings >(
-                bisection_root_finder, relativeIndependentVariableTolerance, absoluteIndependentVariableTolerance,
-                rootFunctionTolerance, maximumNumberOfIterations, maximumIterationHandling );
+    return std::make_shared< RootFinderSettings >( bisection_root_finder,
+                                                   relativeIndependentVariableTolerance,
+                                                   absoluteIndependentVariableTolerance,
+                                                   rootFunctionTolerance,
+                                                   maximumNumberOfIterations,
+                                                   maximumIterationHandling );
 }
 
 inline std::shared_ptr< RootFinderSettings > newtonRaphsonRootFinderSettings(
@@ -97,9 +89,12 @@ inline std::shared_ptr< RootFinderSettings > newtonRaphsonRootFinderSettings(
         const unsigned int maximumNumberOfIterations = 1000,
         const MaximumIterationHandling maximumIterationHandling = throw_exception )
 {
-    return std::make_shared< RootFinderSettings >(
-                newton_raphson_root_finder, relativeIndependentVariableTolerance, absoluteIndependentVariableTolerance,
-                rootFunctionTolerance, maximumNumberOfIterations, maximumIterationHandling );
+    return std::make_shared< RootFinderSettings >( newton_raphson_root_finder,
+                                                   relativeIndependentVariableTolerance,
+                                                   absoluteIndependentVariableTolerance,
+                                                   rootFunctionTolerance,
+                                                   maximumNumberOfIterations,
+                                                   maximumIterationHandling );
 }
 
 inline std::shared_ptr< RootFinderSettings > halleyRootFinderSettings(
@@ -109,9 +104,12 @@ inline std::shared_ptr< RootFinderSettings > halleyRootFinderSettings(
         const unsigned int maximumNumberOfIterations = 1000,
         const MaximumIterationHandling maximumIterationHandling = throw_exception )
 {
-    return std::make_shared< RootFinderSettings >(
-                halley_root_finder, relativeIndependentVariableTolerance, absoluteIndependentVariableTolerance,
-                rootFunctionTolerance, maximumNumberOfIterations, maximumIterationHandling );
+    return std::make_shared< RootFinderSettings >( halley_root_finder,
+                                                   relativeIndependentVariableTolerance,
+                                                   absoluteIndependentVariableTolerance,
+                                                   rootFunctionTolerance,
+                                                   maximumNumberOfIterations,
+                                                   maximumIterationHandling );
 }
 
 inline std::shared_ptr< RootFinderSettings > secantRootFinderSettings(
@@ -121,11 +119,13 @@ inline std::shared_ptr< RootFinderSettings > secantRootFinderSettings(
         const unsigned int maximumNumberOfIterations = 1000,
         const MaximumIterationHandling maximumIterationHandling = throw_exception )
 {
-    return std::make_shared< RootFinderSettings >(
-                secant_root_finder, relativeIndependentVariableTolerance, absoluteIndependentVariableTolerance,
-                rootFunctionTolerance, maximumNumberOfIterations, maximumIterationHandling );
+    return std::make_shared< RootFinderSettings >( secant_root_finder,
+                                                   relativeIndependentVariableTolerance,
+                                                   absoluteIndependentVariableTolerance,
+                                                   rootFunctionTolerance,
+                                                   maximumNumberOfIterations,
+                                                   maximumIterationHandling );
 }
-
 
 //! Function to determine whether a root finder requires any analytical derivatives
 /*!
@@ -144,59 +144,57 @@ bool doesRootFinderRequireDerivatives( const std::shared_ptr< RootFinderSettings
  * \param previousGuess Initial guess for root position (default NaN; not needed by all root finders).
  */
 template< typename DataType = double >
-std::shared_ptr< RootFinder< DataType > > createRootFinder(
-        const std::shared_ptr< RootFinderSettings > rootFinderSettings,
-        const DataType lowerBound = TUDAT_NAN, const DataType upperBound = TUDAT_NAN,
-        const DataType previousGuess = TUDAT_NAN )
+std::shared_ptr< RootFinder< DataType > > createRootFinder( const std::shared_ptr< RootFinderSettings > rootFinderSettings,
+                                                            const DataType lowerBound = TUDAT_NAN,
+                                                            const DataType upperBound = TUDAT_NAN,
+                                                            const DataType previousGuess = TUDAT_NAN )
 {
     std::shared_ptr< TerminationCondition< DataType > > terminationCondition =
-            createTerminationCondition< DataType >(
-                rootFinderSettings->relativeIndependentVariableTolerance_,
-                rootFinderSettings->absoluteIndependentVariableTolerance_,
-                rootFinderSettings->rootFunctionTolerance_,
-                rootFinderSettings->maximumNumberOfIterations_,
-                rootFinderSettings->maximumIterationHandling_ );
+            createTerminationCondition< DataType >( rootFinderSettings->relativeIndependentVariableTolerance_,
+                                                    rootFinderSettings->absoluteIndependentVariableTolerance_,
+                                                    rootFinderSettings->rootFunctionTolerance_,
+                                                    rootFinderSettings->maximumNumberOfIterations_,
+                                                    rootFinderSettings->maximumIterationHandling_ );
 
-    auto terminationFunction =
-            std::bind( &TerminationCondition< DataType >::checkTerminationCondition, terminationCondition,
-                       std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
-                       std::placeholders::_4, std::placeholders::_5 );
-
+    auto terminationFunction = std::bind( &TerminationCondition< DataType >::checkTerminationCondition,
+                                          terminationCondition,
+                                          std::placeholders::_1,
+                                          std::placeholders::_2,
+                                          std::placeholders::_3,
+                                          std::placeholders::_4,
+                                          std::placeholders::_5 );
 
     std::shared_ptr< RootFinder< DataType > > rootFinder;
     switch( rootFinderSettings->rootFinderType_ )
     {
-    case bisection_root_finder:
-        if( !( lowerBound == lowerBound ) || !( upperBound == upperBound ) )
-        {
-            throw std::runtime_error( "Error when making bisection root finder, lower/upped bound not provided" );
-        }
-        rootFinder = std::make_shared< Bisection< DataType > >(
-                    terminationFunction, lowerBound, upperBound );
-        break;
-    case halley_root_finder:
-        rootFinder = std::make_shared< HalleyRootFinder< DataType > >( terminationFunction );
-        break;
-    case newton_raphson_root_finder:
-        rootFinder = std::make_shared< NewtonRaphson< DataType > >( terminationFunction );
-        break;
-    case secant_root_finder:
-        if( !( previousGuess == previousGuess ) )
-        {
-            throw std::runtime_error( "Error when making secant root finder, initial guess not provided" );
-        }
-        rootFinder = std::make_shared< SecantRootFinder< DataType > >(
-                    terminationFunction,
-                    previousGuess );
-        break;
-    default:
-        throw std::runtime_error( "Error when creating root finder, did not recognize root finder type" );
+        case bisection_root_finder:
+            if( !( lowerBound == lowerBound ) || !( upperBound == upperBound ) )
+            {
+                throw std::runtime_error( "Error when making bisection root finder, lower/upped bound not provided" );
+            }
+            rootFinder = std::make_shared< Bisection< DataType > >( terminationFunction, lowerBound, upperBound );
+            break;
+        case halley_root_finder:
+            rootFinder = std::make_shared< HalleyRootFinder< DataType > >( terminationFunction );
+            break;
+        case newton_raphson_root_finder:
+            rootFinder = std::make_shared< NewtonRaphson< DataType > >( terminationFunction );
+            break;
+        case secant_root_finder:
+            if( !( previousGuess == previousGuess ) )
+            {
+                throw std::runtime_error( "Error when making secant root finder, initial guess not provided" );
+            }
+            rootFinder = std::make_shared< SecantRootFinder< DataType > >( terminationFunction, previousGuess );
+            break;
+        default:
+            throw std::runtime_error( "Error when creating root finder, did not recognize root finder type" );
     }
     return rootFinder;
 }
 
-} // namespace root_finders
+}  // namespace root_finders
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_CREATE_ROOT_FINDERS_H
+#endif  // TUDAT_CREATE_ROOT_FINDERS_H

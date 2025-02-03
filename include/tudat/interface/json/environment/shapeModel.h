@@ -22,12 +22,9 @@ namespace simulation_setup
 {
 
 //! Map of `BodyShapeTypes` string representations.
-static std::map< BodyShapeTypes, std::string > bodyShapeTypes =
-{
-    { spherical, "spherical" },
-    { spherical_spice, "sphericalSpice" },
-    { oblate_spheroid, "oblateSpheroid" }
-};
+static std::map< BodyShapeTypes, std::string > bodyShapeTypes = { { spherical, "spherical" },
+                                                                  { spherical_spice, "sphericalSpice" },
+                                                                  { oblate_spheroid, "oblateSpheroid" } };
 
 //! `BodyShapeTypes` not supported by `json_interface`.
 static std::vector< BodyShapeTypes > unsupportedBodyShapeTypes = { };
@@ -50,8 +47,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodyShapeSettin
 //! Create a shared pointer to a `BodyShapeSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject, std::shared_ptr< BodyShapeSettings >& bodyShapeSettings );
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_SHAPEMODEL_H
+#endif  // TUDAT_JSONINTERFACE_SHAPEMODEL_H

@@ -7,7 +7,7 @@
 
 #include <Eigen/Core>
 
-//#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+// #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
@@ -18,7 +18,6 @@ namespace tudat
 
 namespace basic_astrodynamics
 {
-
 
 //! Function to read BLQ file.
 /*!
@@ -40,7 +39,7 @@ Eigen::Vector3d convertLocalOceanTideDisplacementToPlentocentricDisplacement(
  *  i.e. Eqs. 5-85 to 5-87 of Moyer(2000), not the full interpolation as adviced by the IERS 2010 Conventions, section 7.1.2.
  *  Object requires data typically obtained from BLQ files generated at http://froste.oso.chalmers.se/loading/.
  */
-class OceanTideEarthDeformation: public BodyDeformationModel
+class OceanTideEarthDeformation : public BodyDeformationModel
 {
 public:
     //! Constructor, reads and initializes tide displacement amplitudes and phases.
@@ -49,24 +48,24 @@ public:
      *  by BLQ file.
      *  \param blqFile BLQ file containing ocean tide displacement amplitudes and phases.
      */
-    OceanTideEarthDeformation( const std::vector< std::string >& blqFiles,
-                               const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction =
-                                   [](const double time ){ return sofa_interface::calculateDoodsonFundamentalArguments( time ); } );
+    OceanTideEarthDeformation(
+            const std::vector< std::string >& blqFiles,
+            const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
+                return sofa_interface::calculateDoodsonFundamentalArguments( time );
+            } );
 
-    OceanTideEarthDeformation( const std::string& blqFile,
-                               const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction =
-                                   [](const double time ){ return sofa_interface::calculateDoodsonFundamentalArguments( time ); } ):
-                                   OceanTideEarthDeformation( std::vector< std::string >( { blqFile } ), doodsonArgumentFunction ){ }
+    OceanTideEarthDeformation(
+            const std::string& blqFile,
+            const std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction = []( const double time ) {
+                return sofa_interface::calculateDoodsonFundamentalArguments( time );
+            } ): OceanTideEarthDeformation( std::vector< std::string >( { blqFile } ), doodsonArgumentFunction )
+    { }
 
     void addBlqFile( const std::string& blqFile );
 
-    Eigen::Vector3d calculateDisplacementInEnuFrame(
-        const double time,
-        const std::string& siteIdentifier );
+    Eigen::Vector3d calculateDisplacementInEnuFrame( const double time, const std::string& siteIdentifier );
 
-    Eigen::Vector3d calculateDisplacement(
-        const double time,
-        const Eigen::Vector3d& bodyFixedPosition )
+    Eigen::Vector3d calculateDisplacement( const double time, const Eigen::Vector3d& bodyFixedPosition )
     {
         throw std::runtime_error( "Error, cannot compute ocean tide displacements from position alone." );
     }
@@ -80,37 +79,43 @@ public:
      * scale in which this is provided is unlikely to be consequential, to measurement precision, on the resulting displacement.
      * \return Displacement of requested site, at requested time.
      */
-    Eigen::Vector3d calculateDisplacement(
-        const double time,
-        const std::shared_ptr< ground_stations::GroundStationState > stationState );
+    Eigen::Vector3d calculateDisplacement( const double time, const std::shared_ptr< ground_stations::GroundStationState > stationState );
 
     //! Function to retrieve the map containing site displacement amplitudes per tide.
     /*!
      *  Function to retrieve the map containing site displacement amplitudes per tide.
      */
     std::map< std::string, Eigen::Matrix< double, 3, 11 > > getAmplitudesMap( )
-    { return siteOceanTideAmplitudes_; }
+    {
+        return siteOceanTideAmplitudes_;
+    }
 
     //! Function to retrieve the map containing site displacement phase per tide.
     /*!
      *  Function to retrieve the map containing site displacement phase per tide.
      */
     std::map< std::string, Eigen::Matrix< double, 3, 11 > > getPhasesMap( )
-    { return siteOceanTidePhases_; }
+    {
+        return siteOceanTidePhases_;
+    }
 
     //! Function to retrieve matrix containing the tide schwiderski factors.
     /*!
      *  Function to retrieve matrix containing the tide schwiderski factors.
      */
     Eigen::Matrix< double, 11, 1 > getSchwiderskiFactors( )
-    { return schwiderskiFactors_; }
+    {
+        return schwiderskiFactors_;
+    }
 
     //! Function to retrieve the matrix containing the tide doodson multipliers.
     /*!
      *  Function to retrieve the matrix containing the tide doodson multipliers.
      */
     Eigen::Matrix< double, 11, 4 > getDoodsonMultipliers( )
-    { return doodsonMultipliers_; }
+    {
+        return doodsonMultipliers_;
+    }
 
 private:
     //! Map containing site displacement amplitudes per tide.
@@ -138,11 +143,10 @@ private:
     Eigen::Matrix< double, 11, 4 > doodsonMultipliers_;
 
     std::function< Eigen::Vector6d( const double ) > doodsonArgumentFunction_;
-
 };
 
-}
+}  // namespace basic_astrodynamics
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_TUDAT_OCEANTIDEEARTHDEFORMATION_H
+#endif  // TUDAT_TUDAT_OCEANTIDEEARTHDEFORMATION_H

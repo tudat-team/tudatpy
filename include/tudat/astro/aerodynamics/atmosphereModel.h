@@ -27,8 +27,7 @@ namespace aerodynamics
 /*!
  * Enum of all the possible independent variables on which the atmosphere can depend.
  */
-enum AtmosphereIndependentVariables
-{
+enum AtmosphereIndependentVariables {
     altitude_dependent_atmosphere = 0,
     longitude_dependent_atmosphere = 1,
     latitude_dependent_atmosphere = 2,
@@ -39,8 +38,7 @@ enum AtmosphereIndependentVariables
 /*!
  * Enum of all the possible dependent variables that an atmosphere can describe.
  */
-enum AtmosphereDependentVariables
-{
+enum AtmosphereDependentVariables {
     density_dependent_atmosphere = 0,
     pressure_dependent_atmosphere = 1,
     temperature_dependent_atmosphere = 2,
@@ -53,17 +51,7 @@ enum AtmosphereDependentVariables
 /*!
  * Enum of all the possible species that an atmosphere can describe.
  */
-enum AtmosphericCompositionSpecies
-{
-    he_species,
-    o_species,
-    n2_species,
-    o2_species,
-    ar_species,
-    h_species,
-    n_species,
-    anomalous_o_species
-};
+enum AtmosphericCompositionSpecies { he_species, o_species, n2_species, o2_species, ar_species, h_species, n_species, anomalous_o_species };
 
 //! Atmosphere model class.
 /*!
@@ -74,80 +62,78 @@ enum AtmosphericCompositionSpecies
 class AtmosphereModel
 {
 public:
-
     //! Default destructor.
     /*!
-    * Default destructor.
-    */
+     * Default destructor.
+     */
     virtual ~AtmosphereModel( ) { }
 
     //! Get local density.
     /*!
-    * Returns the local density parameter of the atmosphere in kg per meter^3.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return Atmospheric density.
-    */
-    virtual double getDensity( const double altitude, const double longitude,
-                               const double latitude, const double time ) = 0;
+     * Returns the local density parameter of the atmosphere in kg per meter^3.
+     * \param altitude Altitude.
+     * \param longitude Longitude.
+     * \param latitude Latitude.
+     * \param time Time.
+     * \return Atmospheric density.
+     */
+    virtual double getDensity( const double altitude, const double longitude, const double latitude, const double time ) = 0;
 
     //! Get local pressure.
     /*!
-    * Returns the local pressure of the atmosphere parameter in Newton per meter^2.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return Atmospheric pressure.
-    */
-    virtual double getPressure( const double altitude, const double longitude,
-                                const double latitude, const double time ) = 0;
+     * Returns the local pressure of the atmosphere parameter in Newton per meter^2.
+     * \param altitude Altitude.
+     * \param longitude Longitude.
+     * \param latitude Latitude.
+     * \param time Time.
+     * \return Atmospheric pressure.
+     */
+    virtual double getPressure( const double altitude, const double longitude, const double latitude, const double time ) = 0;
 
     //! Get local temperature.
     /*!
-    * Returns the local temperature of the atmosphere parameter in Kelvin.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return Atmospheric temperature.
-    */
-    virtual double getTemperature( const double altitude, const double longitude,
-                                   const double latitude, const double time ) = 0;
+     * Returns the local temperature of the atmosphere parameter in Kelvin.
+     * \param altitude Altitude.
+     * \param longitude Longitude.
+     * \param latitude Latitude.
+     * \param time Time.
+     * \return Atmospheric temperature.
+     */
+    virtual double getTemperature( const double altitude, const double longitude, const double latitude, const double time ) = 0;
 
     //! Get local speed of sound.
     /*!
-    * Returns the local speed of sound of the atmosphere in m/s.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return Atmospheric speed of sound.
-    */
-    virtual double getSpeedOfSound( const double altitude, const double longitude,
-                                    const double latitude, const double time ) = 0;
+     * Returns the local speed of sound of the atmosphere in m/s.
+     * \param altitude Altitude.
+     * \param longitude Longitude.
+     * \param latitude Latitude.
+     * \param time Time.
+     * \return Atmospheric speed of sound.
+     */
+    virtual double getSpeedOfSound( const double altitude, const double longitude, const double latitude, const double time ) = 0;
 
     //! Get number density.
     /*!
-    * Returns the number density of a requested species in cm^-1. (if chosen atmospher model has this implemented)
-    * \param species species (has to be described in the AtmosphericCompositionSpecies enum).
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return Number density of requested species.
-    */
+     * Returns the number density of a requested species in cm^-1. (if chosen atmospher model has this implemented)
+     * \param species species (has to be described in the AtmosphericCompositionSpecies enum).
+     * \param altitude Altitude.
+     * \param longitude Longitude.
+     * \param latitude Latitude.
+     * \param time Time.
+     * \return Number density of requested species.
+     */
     virtual double getNumberDensity( const AtmosphericCompositionSpecies species,
-                                     const double altitude, const double longitude,
-                                     const double latitude, const double time )
+                                     const double altitude,
+                                     const double longitude,
+                                     const double latitude,
+                                     const double time )
     {
         if( doesModelDefineSpeciesNumberDensity( species ) )
         {
-            throw std::runtime_error( "Error, atmospehere model has number density for " + std::to_string( species ) + " defined, but no function to extract it" );
+            throw std::runtime_error( "Error, atmospehere model has number density for " + std::to_string( species ) +
+                                      " defined, but no function to extract it" );
         }
-        throw std::runtime_error( "Error, atmospehere model has no dependency on species " + std::to_string(species ) );
+        throw std::runtime_error( "Error, atmospehere model has no dependency on species " + std::to_string( species ) );
     }
 
     virtual bool doesModelDefineSpeciesNumberDensity( const AtmosphericCompositionSpecies species )
@@ -176,64 +162,50 @@ public:
     }
 
 protected:
-
     //! Model describing the wind velocity vector of the atmosphere
     std::shared_ptr< WindModel > windModel_;
 
 private:
-
 };
 
-
-class ScaledAtmosphereModel: public AtmosphereModel
+class ScaledAtmosphereModel : public AtmosphereModel
 {
 public:
-    ScaledAtmosphereModel(
-            const std::shared_ptr< AtmosphereModel > baseAtmosphere,
-            const std::function< double( const double ) > densityScalingFunction,
-            const bool isScalingAbsolute = true ):
-        AtmosphereModel( ),
-        baseAtmosphere_( baseAtmosphere ),
-        densityScalingFunction_( densityScalingFunction ),
-        isScalingAbsolute_( isScalingAbsolute ){ }
+    ScaledAtmosphereModel( const std::shared_ptr< AtmosphereModel > baseAtmosphere,
+                           const std::function< double( const double ) > densityScalingFunction,
+                           const bool isScalingAbsolute = true ):
+        AtmosphereModel( ), baseAtmosphere_( baseAtmosphere ), densityScalingFunction_( densityScalingFunction ),
+        isScalingAbsolute_( isScalingAbsolute )
+    { }
 
-    double getDensity( const double altitude, const double longitude,
-                       const double latitude, const double time )
+    double getDensity( const double altitude, const double longitude, const double latitude, const double time )
     {
         if( isScalingAbsolute_ )
         {
-            return baseAtmosphere_->getDensity( altitude, longitude, latitude, time ) +
-                    densityScalingFunction_( time );
+            return baseAtmosphere_->getDensity( altitude, longitude, latitude, time ) + densityScalingFunction_( time );
         }
         else
         {
-            return baseAtmosphere_->getDensity( altitude, longitude, latitude, time ) *
-                    densityScalingFunction_( time );
+            return baseAtmosphere_->getDensity( altitude, longitude, latitude, time ) * densityScalingFunction_( time );
         }
     }
 
-
-    double getPressure( const double altitude, const double longitude,
-                        const double latitude, const double time )
+    double getPressure( const double altitude, const double longitude, const double latitude, const double time )
     {
         return baseAtmosphere_->getPressure( altitude, longitude, latitude, time );
     }
 
-
-    double getTemperature( const double altitude, const double longitude,
-                           const double latitude, const double time )
+    double getTemperature( const double altitude, const double longitude, const double latitude, const double time )
     {
         return baseAtmosphere_->getTemperature( altitude, longitude, latitude, time );
     }
 
-
-    double getSpeedOfSound( const double altitude, const double longitude,
-                            const double latitude, const double time )
+    double getSpeedOfSound( const double altitude, const double longitude, const double latitude, const double time )
     {
         return baseAtmosphere_->getSpeedOfSound( altitude, longitude, latitude, time );
     }
-private:
 
+private:
     std::shared_ptr< AtmosphereModel > baseAtmosphere_;
 
     std::function< double( const double ) > densityScalingFunction_;
@@ -244,8 +216,8 @@ private:
 //! Typedef for shared-pointer to AtmosphereModel object.
 typedef std::shared_ptr< AtmosphereModel > AtmosphereModelPointer;
 
-} // namespace aerodynamics
+}  // namespace aerodynamics
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_ATMOSPHERE_MODEL_H
+#endif  // TUDAT_ATMOSPHERE_MODEL_H

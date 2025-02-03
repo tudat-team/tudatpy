@@ -36,20 +36,20 @@ void reduceTestCoefficients( Eigen::Vector3d& testCoefficients, const int testCa
 {
     switch( testCase )
     {
-    case 0:
-        break;
-    case 1:
-        testCoefficients( 0 ) = 0.0;
-        break;
-    case 2:
-        testCoefficients( 1 ) = 0.0;
-        break;
-    case 3:
-        testCoefficients( 0 ) = 0.0;
-        testCoefficients( 2 ) = 0.0;
-        break;
-    default:
-        break;
+        case 0:
+            break;
+        case 1:
+            testCoefficients( 0 ) = 0.0;
+            break;
+        case 2:
+            testCoefficients( 1 ) = 0.0;
+            break;
+        case 3:
+            testCoefficients( 0 ) = 0.0;
+            testCoefficients( 2 ) = 0.0;
+            break;
+        default:
+            break;
     }
 }
 
@@ -61,8 +61,7 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
     // Test functionality of 3-dimensional multi-array reader
     for( unsigned testCase = 0; testCase < 4; testCase++ )
     {
-        std::string fileName = tudat::paths::getTudatTestDataPath( )
-                + "/dCDwTest.txt";
+        std::string fileName = tudat::paths::getTudatTestDataPath( ) + "/dCDwTest.txt";
 
         std::map< int, std::string > files;
         if( ( testCase == 0 ) || ( testCase == 2 ) )
@@ -92,40 +91,31 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
         Eigen::Vector3d testCoefficients;
         testCoefficients << 0.0545832, -0.0318930, -0.3213905;
         reduceTestCoefficients( testCoefficients, testCase );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testCoefficients, outputArray.first[ 0 ][ 0 ],
-                std::numeric_limits< double >::epsilon( ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testCoefficients, outputArray.first[ 0 ][ 0 ], std::numeric_limits< double >::epsilon( ) );
 
-        testCoefficients << 0.0778386, -0.0348528,  -0.3352446;
+        testCoefficients << 0.0778386, -0.0348528, -0.3352446;
         reduceTestCoefficients( testCoefficients, testCase );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testCoefficients, outputArray.first[ 3 ][ 0 ],
-                std::numeric_limits< double >::epsilon( ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testCoefficients, outputArray.first[ 3 ][ 0 ], std::numeric_limits< double >::epsilon( ) );
 
-        testCoefficients << 0.0263660, -0.0093861,  -0.0625756;
+        testCoefficients << 0.0263660, -0.0093861, -0.0625756;
         reduceTestCoefficients( testCoefficients, testCase );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testCoefficients, outputArray.first[ 3 ][ 4 ],
-                std::numeric_limits< double >::epsilon( ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testCoefficients, outputArray.first[ 3 ][ 4 ], std::numeric_limits< double >::epsilon( ) );
 
         // Check values of first independent variable
         for( unsigned int i = 0; i < 26; i++ )
         {
-            BOOST_CHECK_CLOSE_FRACTION( outputArray.second.at( 0 ).at( i ), static_cast< double >( i ),
-                                        std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_CLOSE_FRACTION(
+                    outputArray.second.at( 0 ).at( i ), static_cast< double >( i ), std::numeric_limits< double >::epsilon( ) );
         }
 
         // Check selected of second independent variable
-        BOOST_CHECK_CLOSE_FRACTION( outputArray.second.at( 1 ).at( 0 ), -0.174532925199433,
-                                    std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_CLOSE_FRACTION( outputArray.second.at( 1 ).at( 5 ), 0.0,
-                                    std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_CLOSE_FRACTION( outputArray.second.at( 1 ).at( 8 ), 0.104719755119660,
-                                    std::numeric_limits< double >::epsilon( ) );
-
+        BOOST_CHECK_CLOSE_FRACTION( outputArray.second.at( 1 ).at( 0 ), -0.174532925199433, std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( outputArray.second.at( 1 ).at( 5 ), 0.0, std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( outputArray.second.at( 1 ).at( 8 ), 0.104719755119660, std::numeric_limits< double >::epsilon( ) );
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
-
-
+}  // namespace unit_tests
+}  // namespace tudat

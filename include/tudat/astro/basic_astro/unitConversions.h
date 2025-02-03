@@ -40,7 +40,9 @@ namespace unit_conversions
  */
 template< typename T >
 T convertRadiansToDegrees( T angleInRadians )
-{ return angleInRadians / mathematical_constants::PI * 180.0; }
+{
+    return angleInRadians / mathematical_constants::PI * 180.0;
+}
 
 //! Convert angle in degrees to radians.
 /*!
@@ -50,7 +52,9 @@ T convertRadiansToDegrees( T angleInRadians )
  */
 template< typename T >
 T convertDegreesToRadians( T angleInDegrees )
-{ return angleInDegrees / 180.0 * mathematical_constants::PI; }
+{
+    return angleInDegrees / 180.0 * mathematical_constants::PI;
+}
 
 //! Convert angle in degrees to arcminutes.
 /*!
@@ -60,7 +64,9 @@ T convertDegreesToRadians( T angleInDegrees )
  */
 template< typename T >
 T convertDegreesToArcminutes( T angleInDegrees )
-{ return angleInDegrees * 60.0; }
+{
+    return angleInDegrees * 60.0;
+}
 
 //! Convert arc seconds to degrees
 /*!
@@ -70,13 +76,15 @@ T convertDegreesToArcminutes( T angleInDegrees )
  */
 template< typename T >
 T convertArcSecondsToRadians( T angleInArcSeconds )
-{ return angleInArcSeconds / 3600.0 * mathematical_constants::PI / 180.0; }
+{
+    return angleInArcSeconds / 3600.0 * mathematical_constants::PI / 180.0;
+}
 
 template< typename T >
 T convertRadiansToArcSeconds( T angleInRadians )
-{ return angleInRadians * 3600.0 / mathematical_constants::PI * 180.0; }
-
-
+{
+    return angleInRadians * 3600.0 / mathematical_constants::PI * 180.0;
+}
 
 //! Convert angle in arcminutes to arcseconds.
 /*!
@@ -86,7 +94,9 @@ T convertRadiansToArcSeconds( T angleInRadians )
  */
 template< typename T >
 T convertArcminutesToArcseconds( T angleInArcminutes )
-{ return angleInArcminutes * 60.0; }
+{
+    return angleInArcminutes * 60.0;
+}
 
 //! Convert distance in meters to kilometers.
 /*!
@@ -96,7 +106,9 @@ T convertArcminutesToArcseconds( T angleInArcminutes )
  */
 template< typename T >
 T convertMetersToKilometers( T distanceInMeters )
-{ return distanceInMeters / 1000.0; }
+{
+    return distanceInMeters / 1000.0;
+}
 
 //! Convert distance in kilometers to meters.
 /*!
@@ -106,7 +118,9 @@ T convertMetersToKilometers( T distanceInMeters )
  */
 template< typename T >
 T convertKilometersToMeters( T distanceInKilometers )
-{ return distanceInKilometers * 1000.0; }
+{
+    return distanceInKilometers * 1000.0;
+}
 
 //! Convert distance in meters to astronomical units.
 /*!
@@ -116,7 +130,9 @@ T convertKilometersToMeters( T distanceInKilometers )
  */
 template< typename T >
 T convertMetersToAstronomicalUnits( T distanceInMeters )
-{ return distanceInMeters / physical_constants::ASTRONOMICAL_UNIT; }
+{
+    return distanceInMeters / physical_constants::ASTRONOMICAL_UNIT;
+}
 
 //! Convert distance in astronomical units to meters.
 /*!
@@ -126,7 +142,9 @@ T convertMetersToAstronomicalUnits( T distanceInMeters )
  */
 template< typename T >
 T convertAstronomicalUnitsToMeters( T distanceInAstronomicalUnits )
-{ return distanceInAstronomicalUnits * physical_constants::ASTRONOMICAL_UNIT; }
+{
+    return distanceInAstronomicalUnits * physical_constants::ASTRONOMICAL_UNIT;
+}
 
 //! Convert time in seconds to minutes.
 /*!
@@ -136,7 +154,9 @@ T convertAstronomicalUnitsToMeters( T distanceInAstronomicalUnits )
  */
 template< typename T >
 T convertSecondsToMinutes( T timeInSeconds )
-{ return timeInSeconds / 60.0; }
+{
+    return timeInSeconds / 60.0;
+}
 
 //! Convert time in minutes to seconds.
 /*!
@@ -146,7 +166,9 @@ T convertSecondsToMinutes( T timeInSeconds )
  */
 template< typename T >
 T convertMinutesToSeconds( T timeInMinutes )
-{ return timeInMinutes * 60.0; }
+{
+    return timeInMinutes * 60.0;
+}
 
 //! Convert time in seconds to hours.
 /*!
@@ -156,7 +178,9 @@ T convertMinutesToSeconds( T timeInMinutes )
  */
 template< typename T >
 T convertSecondsToHours( T timeInSeconds )
-{ return timeInSeconds / 3600.0; }
+{
+    return timeInSeconds / 3600.0;
+}
 
 //! Convert time in hours to seconds.
 /*!
@@ -166,7 +190,9 @@ T convertSecondsToHours( T timeInSeconds )
  */
 template< typename T >
 T convertHoursToSeconds( T timeInHours )
-{ return timeInHours * 3600.0; }
+{
+    return timeInHours * 3600.0;
+}
 
 //! Convert time in seconds to Julian days.
 /*!
@@ -176,7 +202,9 @@ T convertHoursToSeconds( T timeInHours )
  */
 template< typename T >
 T convertSecondsToJulianDays( T timeInSeconds )
-{ return timeInSeconds / physical_constants::JULIAN_DAY; }
+{
+    return timeInSeconds / physical_constants::JULIAN_DAY;
+}
 
 //! Convert time in Julian days to seconds.
 /*!
@@ -186,7 +214,9 @@ T convertSecondsToJulianDays( T timeInSeconds )
  */
 template< typename T >
 T convertJulianDaysToSeconds( T timeInJulianDays )
-{ return timeInJulianDays * physical_constants::JULIAN_DAY; }
+{
+    return timeInJulianDays * physical_constants::JULIAN_DAY;
+}
 
 //! Convert time in seconds to sidereal days.
 /*!
@@ -196,7 +226,9 @@ T convertJulianDaysToSeconds( T timeInJulianDays )
  */
 template< typename T >
 T convertSecondsToSiderealDays( T timeInSeconds )
-{ return timeInSeconds / physical_constants::SIDEREAL_DAY; }
+{
+    return timeInSeconds / physical_constants::SIDEREAL_DAY;
+}
 
 //! Convert time in sidereal days to seconds.
 /*!
@@ -206,7 +238,9 @@ T convertSecondsToSiderealDays( T timeInSeconds )
  */
 template< typename T >
 T convertSiderealDaysToSeconds( T timeInSiderealDays )
-{ return timeInSiderealDays * physical_constants::SIDEREAL_DAY; }
+{
+    return timeInSiderealDays * physical_constants::SIDEREAL_DAY;
+}
 
 //! Convert time in Julian days to Julian years.
 /*!
@@ -216,7 +250,9 @@ T convertSiderealDaysToSeconds( T timeInSiderealDays )
  */
 template< typename T >
 T convertJulianDaysToJulianYears( T timeInJulianDays )
-{ return timeInJulianDays / physical_constants::JULIAN_YEAR_IN_DAYS; }
+{
+    return timeInJulianDays / physical_constants::JULIAN_YEAR_IN_DAYS;
+}
 
 //! Convert time in Julian years to Julian days.
 /*!
@@ -226,7 +262,9 @@ T convertJulianDaysToJulianYears( T timeInJulianDays )
  */
 template< typename T >
 T convertJulianYearsToJulianDays( T timeInJulianYears )
-{ return timeInJulianYears * physical_constants::JULIAN_YEAR_IN_DAYS; }
+{
+    return timeInJulianYears * physical_constants::JULIAN_YEAR_IN_DAYS;
+}
 
 //! Convert temperature in Rankine to Kelvin.
 /*!
@@ -236,7 +274,9 @@ T convertJulianYearsToJulianDays( T timeInJulianYears )
  */
 template< typename T >
 T convertRankineToKelvin( T temperatureInRankine )
-{ return temperatureInRankine * 5.0 / 9.0; }
+{
+    return temperatureInRankine * 5.0 / 9.0;
+}
 
 //! Convert distance in feet to meters.
 /*!
@@ -246,7 +286,9 @@ T convertRankineToKelvin( T temperatureInRankine )
  */
 template< typename T >
 T convertFeetToMeter( T distanceInFeet )
-{ return distanceInFeet * 0.3048; }
+{
+    return distanceInFeet * 0.3048;
+}
 
 //! Convert pressure in pound per square feet to Newton per square meter.
 /*!
@@ -257,10 +299,12 @@ T convertFeetToMeter( T distanceInFeet )
  */
 template< typename T >
 T convertPoundPerSquareFeetToPascal( T pressureInPoundPerSquareFeet )
-{ return pressureInPoundPerSquareFeet * 47.880259; }
+{
+    return pressureInPoundPerSquareFeet * 47.880259;
+}
 
-} // namespace unit_conversions
+}  // namespace unit_conversions
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_UNIT_CONVERSIONS_H
+#endif  // TUDAT_UNIT_CONVERSIONS_H

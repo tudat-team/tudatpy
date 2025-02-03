@@ -32,7 +32,7 @@ inline boost::filesystem::path currentDirectory( )
 inline boost::filesystem::path inputDirectory( )
 {
     boost::filesystem::path matlabInputDirectory = currentDirectory( ) / "matlab_inputs";
-    if ( boost::filesystem::exists( matlabInputDirectory ) )
+    if( boost::filesystem::exists( matlabInputDirectory ) )
     {
         return matlabInputDirectory;
     }
@@ -45,14 +45,13 @@ inline boost::filesystem::path inputDirectory( )
 template< typename T = nlohmann::json >
 T parseJSONFile( std::string file )
 {
-    if ( boost::filesystem::path( file ).extension( ).empty( ) )
+    if( boost::filesystem::path( file ).extension( ).empty( ) )
     {
         file += ".json";
     }
     boost::filesystem::current_path( boost::filesystem::path( file ).parent_path( ) );
     return readJSON( file );
 }
-
 
 template< typename T >
 void checkJsonEquivalent( const T& left, const T& right )
@@ -64,7 +63,6 @@ void checkJsonEquivalent( const T& left, const T& right )
 
 #define BOOST_CHECK_EQUAL_JSON( left, right ) tudat::json_interface::checkJsonEquivalent( left, right )
 
-
 template< typename Enum >
 void checkConsistentEnum( const std::string& filename,
                           const std::map< Enum, std::string >& stringValues,
@@ -74,10 +72,10 @@ void checkConsistentEnum( const std::string& filename,
 
     // Create vector of supported values
     std::vector< Enum > supportedValues;
-    for ( auto entry : stringValues )
+    for( auto entry: stringValues )
     {
         Enum value = entry.first;
-        if ( ! contains( usupportedValues, value ) )
+        if( !contains( usupportedValues, value ) )
         {
             supportedValues.push_back( value );
         }
@@ -106,42 +104,39 @@ void checkCloseIntegrationResultsMatrix( const std::map< double, ContainerType >
 
     for( unsigned int i = 0; i < results1.size( ); i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( it1->first - it2->first ),
-                           2.0 * it1->first * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( std::fabs( it1->first - it2->first ), 2.0 * it1->first * std::numeric_limits< double >::epsilon( ) );
         const Eigen::MatrixXd state1 = it1->second;
         const Eigen::MatrixXd state2 = it2->second;
 
-        for ( unsigned int i = 0; i < indices.size( ); ++i )
+        for( unsigned int i = 0; i < indices.size( ); ++i )
         {
             for( unsigned int row = 0; row < sizes.at( i ).first; row++ )
             {
                 for( unsigned int col = 0; col < sizes.at( i ).second; col++ )
                 {
-                    BOOST_CHECK_SMALL(
-                                std::fabs(
-                                    state1( indices.at( i ).first + row, indices.at( i ).second + col ) -
-                                    state2( indices.at( i ).first + row, indices.at( i ).second + col ) ), absoluteTolerances.at( i ) );
+                    BOOST_CHECK_SMALL( std::fabs( state1( indices.at( i ).first + row, indices.at( i ).second + col ) -
+                                                  state2( indices.at( i ).first + row, indices.at( i ).second + col ) ),
+                                       absoluteTolerances.at( i ) );
                 }
             }
         }
-
     }
 }
 
 inline void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& results1,
-                                   const std::map< double, Eigen::VectorXd >& results2,
-                                   const std::vector< unsigned int > indices,
-                                   const std::vector< unsigned int > sizes,
-                                   const double tolerance )
+                                          const std::map< double, Eigen::VectorXd >& results2,
+                                          const std::vector< unsigned int > indices,
+                                          const std::vector< unsigned int > sizes,
+                                          const double tolerance )
 {
     std::vector< std::pair< unsigned int, unsigned int > > indicesFull;
     std::vector< std::pair< unsigned int, unsigned int > > sizesFull;
     std::vector< double > absoluteTolerancesFull;
 
-    for( unsigned int i = 0 ; i < indices.size( ); i++ )
+    for( unsigned int i = 0; i < indices.size( ); i++ )
     {
-        indicesFull.push_back( std::make_pair( indices.at( i ), 0 ) ) ;
-        sizesFull.push_back( std::make_pair( sizes.at( i ), 1 ) ) ;
+        indicesFull.push_back( std::make_pair( indices.at( i ), 0 ) );
+        sizesFull.push_back( std::make_pair( sizes.at( i ), 1 ) );
         absoluteTolerancesFull.push_back( tolerance );
     }
     checkCloseIntegrationResultsMatrix< Eigen::VectorXd >( results1, results2, indicesFull, sizesFull, absoluteTolerancesFull );
@@ -153,8 +148,8 @@ inline void checkCloseIntegrationResults( const std::map< double, Eigen::VectorX
 #define BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS( results1, results2, indices, sizes, tolerance ) \
     tudat::json_interface::checkCloseIntegrationResultsMatrix< Eigen::MatrixXd >( results1, results2, indices, sizes, tolerance );
 
-} // namespace json_interface
+}  // namespace json_interface
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_UNITTESTSUPPORT
+#endif  // TUDAT_JSONINTERFACE_UNITTESTSUPPORT

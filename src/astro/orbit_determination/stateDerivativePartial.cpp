@@ -17,19 +17,17 @@ namespace orbit_determination
 {
 
 //! Function to evaluate the negative value of a parameter partial.
-void evaluateNegativeParameterPartialFunction(
-        const std::function< void( Eigen::MatrixXd& ) > parameterPartialFunction,
-        Eigen::MatrixXd& partial )
+void evaluateNegativeParameterPartialFunction( const std::function< void( Eigen::MatrixXd& ) > parameterPartialFunction,
+                                               Eigen::MatrixXd& partial )
 {
     parameterPartialFunction( partial );
     partial *= -1.0;
 }
 
 //! Function to evaluate the subtraction of two parameter partials.
-void evaluateSubtractedParameterPartialFunction(
-        const std::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
-        const std::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToSubtract,
-        Eigen::MatrixXd& partial )
+void evaluateSubtractedParameterPartialFunction( const std::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
+                                                 const std::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToSubtract,
+                                                 Eigen::MatrixXd& partial )
 {
     firstParameterPartialFunction( partial );
 
@@ -40,10 +38,9 @@ void evaluateSubtractedParameterPartialFunction(
 }
 
 //! Function to evaluate the addition of two parameter partials.
-void evaluateAddedParameterPartialFunction(
-        const std::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
-        const std::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToAdd,
-        Eigen::MatrixXd& partial )
+void evaluateAddedParameterPartialFunction( const std::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
+                                            const std::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToAdd,
+                                            Eigen::MatrixXd& partial )
 {
     firstParameterPartialFunction( partial );
 
@@ -58,11 +55,10 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > createMergedParamete
         const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& partialFunctionOfAccelerationToAdd,
         const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& partialFunctionOfAccelerationToSubtract )
 {
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >  parameterPartialFunction;
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > parameterPartialFunction;
 
     // Check partial size and act accordingly.
-    if( ( partialFunctionOfAccelerationToAdd.second == 0 ) &&
-            ( partialFunctionOfAccelerationToSubtract.second == 0 ) )
+    if( ( partialFunctionOfAccelerationToAdd.second == 0 ) && ( partialFunctionOfAccelerationToSubtract.second == 0 ) )
     {
         parameterPartialFunction = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
     }
@@ -72,23 +68,23 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > createMergedParamete
     }
     else if( partialFunctionOfAccelerationToAdd.second == 0 )
     {
-        parameterPartialFunction = std::make_pair( std::bind(
-                                                       &evaluateNegativeParameterPartialFunction,
-                                                       partialFunctionOfAccelerationToSubtract.first, std::placeholders::_1 ),
-                                                   partialFunctionOfAccelerationToSubtract.second );
+        parameterPartialFunction = std::make_pair(
+                std::bind(
+                        &evaluateNegativeParameterPartialFunction, partialFunctionOfAccelerationToSubtract.first, std::placeholders::_1 ),
+                partialFunctionOfAccelerationToSubtract.second );
     }
     // Partial size must be equal if both non-zero
-    else if( partialFunctionOfAccelerationToSubtract.second !=
-             partialFunctionOfAccelerationToAdd.second )
+    else if( partialFunctionOfAccelerationToSubtract.second != partialFunctionOfAccelerationToAdd.second )
     {
         throw std::runtime_error( "Error when making merged parameter partial function, separate functions are incompatible" );
     }
     else
     {
         parameterPartialFunction = std::make_pair( std::bind( &evaluateSubtractedParameterPartialFunction,
-                                                               partialFunctionOfAccelerationToAdd.first,
-                                                               partialFunctionOfAccelerationToSubtract.first, std::placeholders::_1 ),
-                                                  partialFunctionOfAccelerationToSubtract.second );
+                                                              partialFunctionOfAccelerationToAdd.first,
+                                                              partialFunctionOfAccelerationToSubtract.first,
+                                                              std::placeholders::_1 ),
+                                                   partialFunctionOfAccelerationToSubtract.second );
     }
     return parameterPartialFunction;
 }
@@ -99,7 +95,8 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFunct
         const std::shared_ptr< StateDerivativePartial > firstPartial,
         const std::shared_ptr< StateDerivativePartial > secondPartial,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterObject,
-        const int firstPartialSize, const int secondPartialSize,
+        const int firstPartialSize,
+        const int secondPartialSize,
         const bool subtractPartials )
 {
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
@@ -124,8 +121,7 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFunct
     {
         if( subtractPartials )
         {
-            partialFunction = std::bind( &evaluateNegativeParameterPartialFunction,
-                                           secondPartialFunction, std::placeholders::_1 );
+            partialFunction = std::bind( &evaluateNegativeParameterPartialFunction, secondPartialFunction, std::placeholders::_1 );
         }
         else
         {
@@ -136,22 +132,19 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFunct
     {
         if( subtractPartials )
         {
-            partialFunction = std::bind( &evaluateSubtractedParameterPartialFunction,
-                                           firstPartialFunction,
-                                           secondPartialFunction, std::placeholders::_1 );
+            partialFunction = std::bind(
+                    &evaluateSubtractedParameterPartialFunction, firstPartialFunction, secondPartialFunction, std::placeholders::_1 );
         }
         else
         {
-            partialFunction = std::bind( &evaluateAddedParameterPartialFunction,
-                                           firstPartialFunction,
-                                           secondPartialFunction, std::placeholders::_1 );
+            partialFunction =
+                    std::bind( &evaluateAddedParameterPartialFunction, firstPartialFunction, secondPartialFunction, std::placeholders::_1 );
         }
     }
     // Partial size must be equal if both non-zero
     else
     {
-        throw std::runtime_error(
-                    "Error when getting combined current partial size, both partials have different non-zero size." );
+        throw std::runtime_error( "Error when getting combined current partial size, both partials have different non-zero size." );
     }
     return partialFunction;
 }
@@ -162,7 +155,8 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFunct
         const std::shared_ptr< StateDerivativePartial > firstPartial,
         const std::shared_ptr< StateDerivativePartial > secondPartial,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterObject,
-        const int firstPartialSize, const int secondPartialSize,
+        const int firstPartialSize,
+        const int secondPartialSize,
         const bool subtractPartials )
 {
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
@@ -187,30 +181,25 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFunct
     {
         if( subtractPartials )
         {
-            partialFunction = std::bind( &evaluateNegativeParameterPartialFunction,
-                                           secondPartialFunction, std::placeholders::_1 );
+            partialFunction = std::bind( &evaluateNegativeParameterPartialFunction, secondPartialFunction, std::placeholders::_1 );
         }
         else
         {
             partialFunction = secondPartialFunction;
-
         }
     }
     else if( firstPartialSize == secondPartialSize )
     {
         if( subtractPartials )
         {
-            partialFunction = std::bind( &evaluateSubtractedParameterPartialFunction,
-                                           firstPartialFunction,
-                                           secondPartialFunction, std::placeholders::_1 );
+            partialFunction = std::bind(
+                    &evaluateSubtractedParameterPartialFunction, firstPartialFunction, secondPartialFunction, std::placeholders::_1 );
         }
         else
         {
-            partialFunction = std::bind( &evaluateAddedParameterPartialFunction,
-                                           firstPartialFunction,
-                                           secondPartialFunction, std::placeholders::_1 );
+            partialFunction =
+                    std::bind( &evaluateAddedParameterPartialFunction, firstPartialFunction, secondPartialFunction, std::placeholders::_1 );
         }
-
     }
     // Partial size must be equal if both non-zero
     else
@@ -220,7 +209,6 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFunct
     return partialFunction;
 }
 
-}
+}  // namespace orbit_determination
 
-}
-
+}  // namespace tudat

@@ -12,10 +12,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
-
-
-
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -36,7 +32,6 @@ BOOST_AUTO_TEST_SUITE( testsuite_rootfinders )
 using namespace tudat;
 using namespace root_finders;
 
-
 //! Check if Secant method converges on test function #1 (TestFunction1).
 BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunction1 )
 {
@@ -44,14 +39,17 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunction1 )
     std::shared_ptr< TestFunction1 > testFunction = std::make_shared< TestFunction1 >( 0 );
 
     // The termination condition.
-    SecantRootFinder< >::TerminationFunction terminationConditionFunction =
-            std::bind(
-                &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                    testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    SecantRootFinder<>::TerminationFunction terminationConditionFunction =
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                       std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >( testFunction->getTrueRootAccuracy( ) ),
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::placeholders::_3,
+                       std::placeholders::_4,
+                       std::placeholders::_5 );
 
     // Test Secant object. Use the default value of the first initial guess.
-    SecantRootFinder< > secantRootFinder( terminationConditionFunction );
+    SecantRootFinder<> secantRootFinder( terminationConditionFunction );
 
     // Let the Secant method search for the root.
     const double root = secantRootFinder.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -68,14 +66,17 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunction2 )
     std::shared_ptr< TestFunction2 > testFunction = std::make_shared< TestFunction2 >( 0 );
 
     // The termination condition.
-    SecantRootFinder< >::TerminationFunction terminationConditionFunction =
-            std::bind(
-                &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                    testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    SecantRootFinder<>::TerminationFunction terminationConditionFunction =
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                       std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >( testFunction->getTrueRootAccuracy( ) ),
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::placeholders::_3,
+                       std::placeholders::_4,
+                       std::placeholders::_5 );
 
     // Test Secant object. Use the default value of the first initial guess.
-    SecantRootFinder< > secantRootFinder( terminationConditionFunction );
+    SecantRootFinder<> secantRootFinder( terminationConditionFunction );
 
     // Let the Secant method search for the root.
     const double root = secantRootFinder.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -92,14 +93,17 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunction3 )
     std::shared_ptr< TestFunction3 > testFunction = std::make_shared< TestFunction3 >( 0 );
 
     // The termination condition.
-    SecantRootFinder< >::TerminationFunction terminationConditionFunction =
-            std::bind(
-                &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                    testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    SecantRootFinder<>::TerminationFunction terminationConditionFunction =
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                       std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >( testFunction->getTrueRootAccuracy( ) ),
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::placeholders::_3,
+                       std::placeholders::_4,
+                       std::placeholders::_5 );
 
     // Test Secant object. Use the default value of the first initial guess.
-    SecantRootFinder< > secantRootFinder( terminationConditionFunction );
+    SecantRootFinder<> secantRootFinder( terminationConditionFunction );
 
     // Let the Secant method search for the root.
     const double root = secantRootFinder.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -124,21 +128,23 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunctionWithLargeRootDifference 
     // Create objects containing the test functions. Values were obtained during a limit case
     // gravity assist calculation (while evaluating Cassini-1 trajectory).
     std::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionLowCase =
-            std::make_shared< TestFunctionWithLargeRootDifference >
-            ( 0, -3.24859999867635e18, -3248600.0, 1.5707963267949 );
+            std::make_shared< TestFunctionWithLargeRootDifference >( 0, -3.24859999867635e18, -3248600.0, 1.5707963267949 );
     std::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionHighCase =
-            std::make_shared< TestFunctionWithLargeRootDifference >
-            ( 0, -3248600.0, -3.24859999867635e18, 1.5707963267949 );
+            std::make_shared< TestFunctionWithLargeRootDifference >( 0, -3248600.0, -3.24859999867635e18, 1.5707963267949 );
 
     // The termination condition.
-    SecantRootFinder< >::TerminationFunction terminationConditionFunction
-            = std::bind( &RootRelativeToleranceTerminationCondition< >::checkTerminationCondition,
-                           std::make_shared< RootRelativeToleranceTerminationCondition< > >(
-                               1.0e-10 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    SecantRootFinder<>::TerminationFunction terminationConditionFunction =
+            std::bind( &RootRelativeToleranceTerminationCondition<>::checkTerminationCondition,
+                       std::make_shared< RootRelativeToleranceTerminationCondition<> >( 1.0e-10 ),
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::placeholders::_3,
+                       std::placeholders::_4,
+                       std::placeholders::_5 );
 
     // Test Secant object, per case.
-    SecantRootFinder< > secantLowCase( terminationConditionFunction, 1.0 );
-    SecantRootFinder< > secantHighCase( terminationConditionFunction, 1.0 );
+    SecantRootFinder<> secantLowCase( terminationConditionFunction, 1.0 );
+    SecantRootFinder<> secantHighCase( terminationConditionFunction, 1.0 );
 
     // Let the Secant method search for the root.
     const double rootLowCase = secantLowCase.execute( testFunctionLowCase, 1.0 + 8.0e-9 );
@@ -156,18 +162,20 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunctionWithLargeRootDifference 
 BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunctionWithZeroRoot )
 {
     // Create object containing the test functions.
-    std::shared_ptr< TestFunctionWithZeroRoot > testFunction =
-            std::make_shared< TestFunctionWithZeroRoot >( 0 );
+    std::shared_ptr< TestFunctionWithZeroRoot > testFunction = std::make_shared< TestFunctionWithZeroRoot >( 0 );
 
     // The termination condition.
-    SecantRootFinder< >::TerminationFunction terminationConditionFunction =
-            std::bind(
-                &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                    1.0e-150 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
+    SecantRootFinder<>::TerminationFunction terminationConditionFunction =
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                       std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >( 1.0e-150 ),
+                       std::placeholders::_1,
+                       std::placeholders::_2,
+                       std::placeholders::_3,
+                       std::placeholders::_4,
+                       std::placeholders::_5 );
 
     // Test Secant object. Use the default value of the first initial guess.
-    SecantRootFinder< > secantRootFinder( terminationConditionFunction );
+    SecantRootFinder<> secantRootFinder( terminationConditionFunction );
 
     // Let the Secant method search for the root.
     const double root = secantRootFinder.execute( testFunction, testFunction->getInitialGuess( ) );
@@ -177,7 +185,7 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunctionWithZeroRoot )
     BOOST_CHECK_SMALL( testFunction->evaluate( root ), 1.0e-200 );
 }
 
-BOOST_AUTO_TEST_SUITE_END( ) // testsuite_rootfinders
+BOOST_AUTO_TEST_SUITE_END( )  // testsuite_rootfinders
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

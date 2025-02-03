@@ -36,7 +36,6 @@ template< int SpatialDimensions = 3, typename DataType = double >
 class TestBody
 {
 private:
-
     //! Typedef for time.
     typedef DataType TimeDataType;
 
@@ -50,7 +49,6 @@ private:
     typedef Eigen::Matrix< DataType, 2 * SpatialDimensions, 1 > StateVectorType;
 
 public:
-
     //! Constructor taking a state and a time.
     /*!
      * Constructor taking an input state and time. The input state is used internally to
@@ -60,10 +58,9 @@ public:
      * \param aState An input state vector.
      * \param aTime An input time.
      */
-    TestBody( const StateVectorType& aState, const TimeDataType aTime )
-        : currentPosition( aState.segment( 0, SpatialDimensions ) ),
-          currentVelocity( aState.segment( SpatialDimensions, SpatialDimensions ) ),
-          currentTime( aTime )
+    TestBody( const StateVectorType& aState, const TimeDataType aTime ):
+        currentPosition( aState.segment( 0, SpatialDimensions ) ),
+        currentVelocity( aState.segment( SpatialDimensions, SpatialDimensions ) ), currentTime( aTime )
     { }
 
     //! Set current time and state.
@@ -87,26 +84,33 @@ public:
      * Returns the internally stored current position vector.
      * \return Current position.
      */
-    PositionVectorType getCurrentPosition( ) { return currentPosition; }
+    PositionVectorType getCurrentPosition( )
+    {
+        return currentPosition;
+    }
 
     //! Get current velocity.
     /*!
      * Returns the internally stored current velocity vector.
      * \return Current velocity.
      */
-    VelocityVectorType getCurrentVelocity( ) { return currentVelocity; }
+    VelocityVectorType getCurrentVelocity( )
+    {
+        return currentVelocity;
+    }
 
     //! Get current time.
     /*!
      * Returns the internally stored current tome.
      * \return Current time.
      */
-    TimeDataType getCurrentTime( ) { return currentTime; }
+    TimeDataType getCurrentTime( )
+    {
+        return currentTime;
+    }
 
 protected:
-
 private:
-
     //! Current position.
     PositionVectorType currentPosition;
 
@@ -127,7 +131,6 @@ template< typename DataType >
 class TestBody< 1, DataType >
 {
 private:
-
     //! Typedef for time.
     typedef DataType TimeDataType;
 
@@ -141,7 +144,6 @@ private:
     typedef Eigen::Matrix< DataType, 2, 1 > StateVectorType;
 
 public:
-
     //! Constructor taking a state and a time.
     /*!
      * Constructor taking an input state and time. The input state is used internally to set the
@@ -150,10 +152,8 @@ public:
      * \param aState An input state vector.
      * \param aTime An input time.
      */
-    TestBody( const StateVectorType& aState, const TimeDataType aTime )
-        : currentPosition( aState( 0 ) ),
-          currentVelocity( aState( 1 ) ),
-          currentTime( aTime )
+    TestBody( const StateVectorType& aState, const TimeDataType aTime ):
+        currentPosition( aState( 0 ) ), currentVelocity( aState( 1 ) ), currentTime( aTime )
     { }
 
     //! Set current time and state.
@@ -172,18 +172,25 @@ public:
     }
 
     //! Get current position.
-    PositionVectorType getCurrentPosition( ) { return currentPosition; }
+    PositionVectorType getCurrentPosition( )
+    {
+        return currentPosition;
+    }
 
     //! Get current velocity.
-    VelocityVectorType getCurrentVelocity( ) { return currentVelocity; }
+    VelocityVectorType getCurrentVelocity( )
+    {
+        return currentVelocity;
+    }
 
     //! Get current time.
-    TimeDataType getCurrentTime( ) { return currentTime; }
+    TimeDataType getCurrentTime( )
+    {
+        return currentTime;
+    }
 
 protected:
-
 private:
-
     //! Current position.
     PositionVectorType currentPosition;
 
@@ -194,7 +201,7 @@ private:
     TimeDataType currentTime;
 };
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat
 
-#endif // TUDAT_TEST_BODY_H
+#endif  // TUDAT_TEST_BODY_H

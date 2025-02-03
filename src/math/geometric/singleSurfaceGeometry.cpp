@@ -22,65 +22,62 @@ namespace geometric_shapes
 {
 
 //! Set minimum value of independent variable.
-void SingleSurfaceGeometry::setMinimumIndependentVariable( const int parameterIndex,
-                                                           const double minimumValue )
+void SingleSurfaceGeometry::setMinimumIndependentVariable( const int parameterIndex, const double minimumValue )
 {
-    independentVariable_ = IndependentVariables( parameterIndex );
-
-    // Check which variable is to be set.
-    switch ( independentVariable_ )
-    {
-    case firstIndependentVariable:
-
-        // Set value.
-        minimumIndependentVariable1_ = minimumValue;
-
-        break;
-
-    case secondIndependentVariable:
-
-        // Set value.
-        minimumIndependentVariable2_ = minimumValue;
-
-        break;
-
-    default:
-
-        std::string errorMessage =  "Only 2 independent variables, variable " +
-                std::to_string( parameterIndex ) + " does not exist when setting minimum value";
-        throw std::runtime_error( errorMessage );
-    }
-}
-
-//! Set maximum value of independent variable.
-void SingleSurfaceGeometry::setMaximumIndependentVariable(
-        const int parameterIndex, const double maximumValue )
-{
-
     independentVariable_ = IndependentVariables( parameterIndex );
 
     // Check which variable is to be set.
     switch( independentVariable_ )
     {
-    case firstIndependentVariable:
+        case firstIndependentVariable:
 
-        // Set value.
-        maximumIndependentVariable1_ = maximumValue;
+            // Set value.
+            minimumIndependentVariable1_ = minimumValue;
 
-        break;
+            break;
 
-    case secondIndependentVariable:
+        case secondIndependentVariable:
 
-        // Set value.
-        maximumIndependentVariable2_ = maximumValue;
+            // Set value.
+            minimumIndependentVariable2_ = minimumValue;
 
-        break;
+            break;
 
-    default:
+        default:
 
-        std::string errorMessage =  "Only 2 independent variables, variable " +
-                std::to_string( parameterIndex ) + " does not exist when setting maximum value";
-        throw std::runtime_error( errorMessage );
+            std::string errorMessage = "Only 2 independent variables, variable " + std::to_string( parameterIndex ) +
+                    " does not exist when setting minimum value";
+            throw std::runtime_error( errorMessage );
+    }
+}
+
+//! Set maximum value of independent variable.
+void SingleSurfaceGeometry::setMaximumIndependentVariable( const int parameterIndex, const double maximumValue )
+{
+    independentVariable_ = IndependentVariables( parameterIndex );
+
+    // Check which variable is to be set.
+    switch( independentVariable_ )
+    {
+        case firstIndependentVariable:
+
+            // Set value.
+            maximumIndependentVariable1_ = maximumValue;
+
+            break;
+
+        case secondIndependentVariable:
+
+            // Set value.
+            maximumIndependentVariable2_ = maximumValue;
+
+            break;
+
+        default:
+
+            std::string errorMessage = "Only 2 independent variables, variable " + std::to_string( parameterIndex ) +
+                    " does not exist when setting maximum value";
+            throw std::runtime_error( errorMessage );
     }
 }
 
@@ -93,23 +90,23 @@ double SingleSurfaceGeometry::getMinimumIndependentVariable( const int parameter
     // Check which variable is to be returned.
     switch( parameterIndex )
     {
-    case 1:
+        case 1:
 
-        minimumValue_ = minimumIndependentVariable1_;
+            minimumValue_ = minimumIndependentVariable1_;
 
-        break;
+            break;
 
-    case 2:
+        case 2:
 
-        minimumValue_ = minimumIndependentVariable2_;
+            minimumValue_ = minimumIndependentVariable2_;
 
-        break;
+            break;
 
-    default:
+        default:
 
-        std::string errorMessage =  "Only 2 independent variables, variable " +
-                std::to_string( parameterIndex ) + " does not exist when getting minimum value";
-        throw std::runtime_error( errorMessage );
+            std::string errorMessage = "Only 2 independent variables, variable " + std::to_string( parameterIndex ) +
+                    " does not exist when getting minimum value";
+            throw std::runtime_error( errorMessage );
     }
 
     // Return minimum value.
@@ -125,22 +122,22 @@ double SingleSurfaceGeometry::getMaximumIndependentVariable( const int parameter
     // Check which variable is to be returned.
     switch( parameterIndex )
     {
-    case 1:
+        case 1:
 
-        maximumValue_ = maximumIndependentVariable1_;
+            maximumValue_ = maximumIndependentVariable1_;
 
-        break;
+            break;
 
-    case 2:
+        case 2:
 
-        maximumValue_ = maximumIndependentVariable2_;
+            maximumValue_ = maximumIndependentVariable2_;
 
-        break;
+            break;
 
-    default:
-        std::string errorMessage =  "Only 2 independent variables, variable " +
-                std::to_string( parameterIndex ) + " does not exist when getting maximum value";
-        throw std::runtime_error( errorMessage );
+        default:
+            std::string errorMessage = "Only 2 independent variables, variable " + std::to_string( parameterIndex ) +
+                    " does not exist when getting maximum value";
+            throw std::runtime_error( errorMessage );
     }
 
     // Return maximum value.
@@ -156,5 +153,5 @@ void SingleSurfaceGeometry::transformPoint( Eigen::VectorXd& point )
     point = point + offset_;
 }
 
-} // namespace geometric_shapes
-} // namespace tudat
+}  // namespace geometric_shapes
+}  // namespace tudat

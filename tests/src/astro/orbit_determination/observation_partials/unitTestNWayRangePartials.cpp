@@ -48,17 +48,16 @@ using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
 
-BOOST_AUTO_TEST_SUITE( test_N_way_observation_partials)
-
+BOOST_AUTO_TEST_SUITE( test_N_way_observation_partials )
 
 std::vector< double > getRetransmissionDelays( const double evaluationTime, const int numberOfRetransmitters )
 {
     std::vector< double > retransmissionDelays;
 
-        for( int i = 0; i < numberOfRetransmitters; i++ )
-        {
-            retransmissionDelays.push_back( evaluationTime * 5.0E-17 * static_cast< double >( i + 1 ) );
-        }
+    for( int i = 0; i < numberOfRetransmitters; i++ )
+    {
+        retransmissionDelays.push_back( evaluationTime * 5.0E-17 * static_cast< double >( i + 1 ) );
+    }
     return retransmissionDelays;
 }
 
@@ -70,7 +69,6 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
     groundStations.resize( 2 );
     groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
-
 
     // Perform test for 2, 3 and 4-way
     for( unsigned int linkNumber = 0; linkNumber < 3; linkNumber++ )
@@ -106,30 +104,33 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             std::vector< std::string > perturbingBodies;
             perturbingBodies.push_back( "Earth" );
             std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > legObservationModels;
-            for( unsigned int i = 0; i < linkNumber + 2; i ++ )
+            for( unsigned int i = 0; i < linkNumber + 2; i++ )
             {
-                legObservationModels.push_back(
-                            std::make_shared< observation_models::ObservationModelSettings >(
-                                one_way_range,
-                                getSingleLegLinkEnds( linkEnds.linkEnds_, i ),
-                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                    perturbingBodies ) ) );
+                legObservationModels.push_back( std::make_shared< observation_models::ObservationModelSettings >(
+                        one_way_range,
+                        getSingleLegLinkEnds( linkEnds.linkEnds_, i ),
+                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ) );
             }
 
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        std::make_shared< observation_models::NWayRangeObservationSettings >(
-                            legObservationModels ), bodies );
+                            std::make_shared< observation_models::NWayRangeObservationSettings >( legObservationModels ), bodies );
 
             // Create parameter objects.
-            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                    createEstimatableParameters( bodies, 1.1E7 );
+            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
             // Test observation partials
-            testObservationPartials< 1 >(
-                        nWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, n_way_range, 2.0E-6, true, true, 1.0,
-                        ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 10.0 ).finished( ),
-                        getNWayRangeAncilliarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
+            testObservationPartials< 1 >( nWayRangeModel,
+                                          bodies,
+                                          fullEstimatableParameterSet,
+                                          linkEnds,
+                                          n_way_range,
+                                          2.0E-6,
+                                          true,
+                                          true,
+                                          1.0,
+                                          ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 10.0 ).finished( ),
+                                          getNWayRangeAncilliarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
         }
 
         // Test partials with real ephemerides (without test of position partials)
@@ -141,40 +142,38 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             std::vector< std::string > perturbingBodies;
             perturbingBodies.push_back( "Earth" );
             std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > legObservationModels;
-            for( unsigned int i = 0; i < linkNumber + 2; i ++ )
+            for( unsigned int i = 0; i < linkNumber + 2; i++ )
             {
-                legObservationModels.push_back(
-                            std::make_shared< observation_models::ObservationModelSettings >(
-                                one_way_range,
-                                getSingleLegLinkEnds( linkEnds.linkEnds_, i ),
-                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                    perturbingBodies ) ) );
+                legObservationModels.push_back( std::make_shared< observation_models::ObservationModelSettings >(
+                        one_way_range,
+                        getSingleLegLinkEnds( linkEnds.linkEnds_, i ),
+                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ) );
             }
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        std::make_shared< observation_models::NWayRangeObservationSettings >(
-                            legObservationModels ), bodies  );
+                            std::make_shared< observation_models::NWayRangeObservationSettings >( legObservationModels ), bodies );
 
             // Create parameter objects.
-            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                    createEstimatableParameters( bodies, 1.1E7 );
+            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
             // Test observation partials
-            testObservationPartials< 1 >(
-                        nWayRangeModel, bodies, fullEstimatableParameterSet, linkEnds, n_way_range, 2.0E-6, false, true, 1.0,
-                        ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 20.0 ).finished( ),
-                        getNWayRangeAncilliarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) )  );
+            testObservationPartials< 1 >( nWayRangeModel,
+                                          bodies,
+                                          fullEstimatableParameterSet,
+                                          linkEnds,
+                                          n_way_range,
+                                          2.0E-6,
+                                          false,
+                                          true,
+                                          1.0,
+                                          ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 20.0 ).finished( ),
+                                          getNWayRangeAncilliarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
         }
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
-
-
-
-
+}  // namespace tudat

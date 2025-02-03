@@ -11,13 +11,11 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
-
 
 namespace tudat
 {
@@ -25,15 +23,12 @@ namespace unit_tests
 {
 BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
 
-
-
 //! This test checks, for double states/observables and double time, if the orbit determination correctly converges
 //! when simulating data, perturbing the dynamical parameters, and then retrieving the original parameters
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
     for( int simulationType = 0; simulationType < 6; simulationType++ )
     {
-
         std::cout << "=============================================== Running Case: " << simulationType << std::endl;
 
         // Simulate estimated parameter error.
@@ -56,13 +51,13 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         }
 
         BOOST_CHECK_SMALL( totalError( 6 ), toleranceMultiplier * 1.0E3 );
-        std::cout <<"Total error: "<< totalError.transpose( ) << std::endl;
+        std::cout << "Total error: " << totalError.transpose( ) << std::endl;
     }
 
     std::pair< std::shared_ptr< simulation_setup::EstimationOutput< double > >,
-    std::shared_ptr< simulation_setup::EstimationInput< double, double > > > podDataOutput;
-    Eigen::VectorXd estimationError = tudat::unit_tests::executeEarthOrbiterParameterEstimation< double, double >(
-                 podDataOutput );
+               std::shared_ptr< simulation_setup::EstimationInput< double, double > > >
+            podDataOutput;
+    Eigen::VectorXd estimationError = tudat::unit_tests::executeEarthOrbiterParameterEstimation< double, double >( podDataOutput );
 
     for( unsigned int i = 0; i < 3; i++ )
     {
@@ -83,13 +78,10 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
     {
         BOOST_CHECK_SMALL( std::fabs( estimationError( i + 12 ) ), 5.0E-13 );
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
-
+}  // namespace tudat

@@ -21,24 +21,21 @@ namespace tudat
 namespace gravitation
 {
 
-class PeriodicGravityFieldVariations: public GravityFieldVariations
+class PeriodicGravityFieldVariations : public GravityFieldVariations
 {
 public:
-    PeriodicGravityFieldVariations(
-            const std::vector< Eigen::MatrixXd >& cosineShAmplitudesCosineTime,
-            const std::vector< Eigen::MatrixXd >& cosineShAmplitudesSineTime,
-            const std::vector< Eigen::MatrixXd >& sineShAmplitudesCosineTime,
-            const std::vector< Eigen::MatrixXd >& sineShAmplitudesSineTime,
-            const std::vector< double >& frequencies,
-            const double referenceEpoch,
-            const int minimumDegree = 2,
-            const int minimumOrder = 0 );
+    PeriodicGravityFieldVariations( const std::vector< Eigen::MatrixXd >& cosineShAmplitudesCosineTime,
+                                    const std::vector< Eigen::MatrixXd >& cosineShAmplitudesSineTime,
+                                    const std::vector< Eigen::MatrixXd >& sineShAmplitudesCosineTime,
+                                    const std::vector< Eigen::MatrixXd >& sineShAmplitudesSineTime,
+                                    const std::vector< double >& frequencies,
+                                    const double referenceEpoch,
+                                    const int minimumDegree = 2,
+                                    const int minimumOrder = 0 );
 
-    virtual ~PeriodicGravityFieldVariations( ){ }
+    virtual ~PeriodicGravityFieldVariations( ) { }
 
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections(
-            const double time );
-
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSphericalHarmonicsCorrections( const double time );
 
     std::vector< Eigen::MatrixXd > getCosineShAmplitudesCosineTime( )
     {
@@ -91,7 +88,6 @@ public:
     }
 
 protected:
-
     std::vector< Eigen::MatrixXd > cosineShAmplitudesCosineTime_;
 
     std::vector< Eigen::MatrixXd > cosineShAmplitudesSineTime_;
@@ -103,11 +99,10 @@ protected:
     const std::vector< double > frequencies_;
 
     const double referenceEpoch_;
-
 };
 
-} // namespace gravitation
+}  // namespace gravitation
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_PERIODICGRAVITYFIELDVARIATIONS_H
+#endif  // TUDAT_PERIODICGRAVITYFIELDVARIATIONS_H

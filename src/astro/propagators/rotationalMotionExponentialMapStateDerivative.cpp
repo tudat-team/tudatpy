@@ -32,35 +32,31 @@ Eigen::Vector4d calculateExponentialMapDerivative( const Eigen::Vector4d& curren
     double exponentialMapMagnitude = exponentialMapVector.norm( );
 
     // Compute kinematic equation, i.e., derivative of exponential map (also valid for SEM)
-    if ( exponentialMapMagnitude < singularityTolerance )
+    if( exponentialMapMagnitude < singularityTolerance )
     {
         double exponentialMapMagnitudeSquared = std::pow( exponentialMapMagnitude, 2 );
-        exponentialMapDerivative.segment( 0, 3 ) = 0.5 * (
-                    ( ( 12.0 - exponentialMapMagnitudeSquared ) / 6.0 ) *
-                    angularVelocityVectorInBodyFixedFrame - angularVelocityVectorInBodyFixedFrame.cross(
-                        exponentialMapVector ) - angularVelocityVectorInBodyFixedFrame.dot(
-                        exponentialMapVector ) *
-                    ( ( 60.0 + exponentialMapMagnitudeSquared ) / 360.0 ) * exponentialMapVector );
+        exponentialMapDerivative.segment( 0, 3 ) = 0.5 *
+                ( ( ( 12.0 - exponentialMapMagnitudeSquared ) / 6.0 ) * angularVelocityVectorInBodyFixedFrame -
+                  angularVelocityVectorInBodyFixedFrame.cross( exponentialMapVector ) -
+                  angularVelocityVectorInBodyFixedFrame.dot( exponentialMapVector ) *
+                          ( ( 60.0 + exponentialMapMagnitudeSquared ) / 360.0 ) * exponentialMapVector );
     }
     else
     {
-        double cotangentHalfExponentialMapMagnitude = std::cos( 0.5 * exponentialMapMagnitude ) /
-                std::sin( 0.5 * exponentialMapMagnitude );
-        Eigen::Vector3d exponentialMapCrossRotationalVelocityVector = exponentialMapVector.cross(
-                    angularVelocityVectorInBodyFixedFrame );
-        exponentialMapDerivative.segment( 0, 3 ) =
-                angularVelocityVectorInBodyFixedFrame + 0.5 * exponentialMapCrossRotationalVelocityVector +
-                ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
-                std::pow( exponentialMapMagnitude, 2 ) *
-                exponentialMapVector.cross( exponentialMapCrossRotationalVelocityVector );
+        double cotangentHalfExponentialMapMagnitude = std::cos( 0.5 * exponentialMapMagnitude ) / std::sin( 0.5 * exponentialMapMagnitude );
+        Eigen::Vector3d exponentialMapCrossRotationalVelocityVector = exponentialMapVector.cross( angularVelocityVectorInBodyFixedFrame );
+        exponentialMapDerivative.segment( 0, 3 ) = angularVelocityVectorInBodyFixedFrame +
+                0.5 * exponentialMapCrossRotationalVelocityVector +
+                ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) / std::pow( exponentialMapMagnitude, 2 ) *
+                        exponentialMapVector.cross( exponentialMapCrossRotationalVelocityVector );
     }
 
     // Give output
     return exponentialMapDerivative;
 }
 
-//template class RotationalMotionExponentialMapStateDerivative< double, double >;
+// template class RotationalMotionExponentialMapStateDerivative< double, double >;
 
-} // namespace propagators
+}  // namespace propagators
 
-} // namespace tudat
+}  // namespace tudat

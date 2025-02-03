@@ -11,57 +11,58 @@
 
 namespace tudat
 {
-    namespace unit_tests
+namespace unit_tests
+{
+
+BOOST_AUTO_TEST_SUITE( test_fft_interface )
+
+using namespace tudat::fftw_interface;
+BOOST_AUTO_TEST_CASE( testFft )
+{
+    std::vector< double > timeDomainData;
+    int numberOfDataPoints = 1E7;
+    timeDomainData.resize( numberOfDataPoints );
+    for( unsigned int i = 0; i < timeDomainData.size( ); i++ )
     {
-
-        BOOST_AUTO_TEST_SUITE( test_fft_interface )
-
-            using namespace tudat::fftw_interface;
-            BOOST_AUTO_TEST_CASE( testFft )
-            {
-                std::vector< double > timeDomainData;
-                int numberOfDataPoints = 1E7;
-                timeDomainData.resize( numberOfDataPoints );
-                for( unsigned int i = 0; i < timeDomainData.size(); i++ )
-                {
-                    timeDomainData[ i ] =  std::sin( 5.0 * 2.0 * mathematical_constants::PI * static_cast< double >( i ) / static_cast< double >( numberOfDataPoints ) ) +
-                                           std::cos( 17.0 * 2.0 * mathematical_constants::PI * static_cast< double >( i ) / static_cast< double >( numberOfDataPoints ) ) + 19.0+ static_cast< double >( i );
-                }
-
-                std::vector< std::complex< double > > frequencyDomainData = performFftOfRealData( timeDomainData );
-
-                std::vector< double > backTransformedTimeDomainData = performInverseFftToRealData( frequencyDomainData );
-
-                for( unsigned int i = 0; i < frequencyDomainData.size( ); i++ )
-                {
-                    BOOST_CHECK_SMALL( ( backTransformedTimeDomainData[ i ] - timeDomainData[ i ] ) / timeDomainData[ i ], 2.0E-10 );
-                }
-            }
-        BOOST_AUTO_TEST_SUITE_END( )
-
+        timeDomainData[ i ] = std::sin( 5.0 * 2.0 * mathematical_constants::PI * static_cast< double >( i ) /
+                                        static_cast< double >( numberOfDataPoints ) ) +
+                std::cos( 17.0 * 2.0 * mathematical_constants::PI * static_cast< double >( i ) /
+                          static_cast< double >( numberOfDataPoints ) ) +
+                19.0 + static_cast< double >( i );
     }
 
-}
+    std::vector< std::complex< double > > frequencyDomainData = performFftOfRealData( timeDomainData );
 
+    std::vector< double > backTransformedTimeDomainData = performInverseFftToRealData( frequencyDomainData );
+
+    for( unsigned int i = 0; i < frequencyDomainData.size( ); i++ )
+    {
+        BOOST_CHECK_SMALL( ( backTransformedTimeDomainData[ i ] - timeDomainData[ i ] ) / timeDomainData[ i ], 2.0E-10 );
+    }
+}
+BOOST_AUTO_TEST_SUITE_END( )
+
+}  // namespace unit_tests
+
+}  // namespace tudat
 
 ///* Start reading here */
 
-//#define NUM_POINTS 256
-
+// #define NUM_POINTS 256
 
 ///* Never mind this bit */
 
-//#include <stdio.h>
-//#include <math.h"
-//#include "Mathematics/Statistics/fastFourierTransform.h"
+// #include <stdio.h>
+// #include <math.h"
+// #include "Mathematics/Statistics/fastFourierTransform.h"
 
-//#define REAL 0
-//#define IMAG 1
+// #define REAL 0
+// #define IMAG 1
 
-//void acquire_from_somewhere(fftw_complex* signal) {
-//    /* Generate two sine waves of different frequencies and
-//     * amplitudes.
-//     */
+// void acquire_from_somewhere(fftw_complex* signal) {
+//     /* Generate two sine waves of different frequencies and
+//      * amplitudes.
+//      */
 
 //    int i;
 //    for (i = 0; i < NUM_POINTS; ++i) {
@@ -75,22 +76,21 @@ namespace tudat
 //    }
 //}
 
-//void do_something_with(fftw_complex* result) {
-//    int i;
-//    for (i = 0; i < NUM_POINTS; ++i) {
-//        double mag = sqrt(result[i][REAL] * result[i][REAL] +
-//                          result[i][IMAG] * result[i][IMAG]);
+// void do_something_with(fftw_complex* result) {
+//     int i;
+//     for (i = 0; i < NUM_POINTS; ++i) {
+//         double mag = sqrt(result[i][REAL] * result[i][REAL] +
+//                           result[i][IMAG] * result[i][IMAG]);
 
 //        printf("%g\n", mag);
 //    }
 //}
 
-
 ///* Resume reading here */
 
-//int main() {
-//    fftw_complex signal[NUM_POINTS];
-//    fftw_complex result[NUM_POINTS];
+// int main() {
+//     fftw_complex signal[NUM_POINTS];
+//     fftw_complex result[NUM_POINTS];
 
 //    fftw_plan plan = fftw_plan_dft_1d(NUM_POINTS,
 //                                      signal,

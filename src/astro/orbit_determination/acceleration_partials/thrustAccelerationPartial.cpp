@@ -10,7 +10,6 @@
 
 #include "tudat/astro/orbit_determination/acceleration_partials/thrustAccelerationPartial.h"
 
-
 namespace tudat
 {
 
@@ -21,18 +20,16 @@ ThrustAccelerationPartial::ThrustAccelerationPartial(
         const std::shared_ptr< propulsion::ThrustAcceleration > thrustAcceleration,
         const std::string acceleratedBody,
         const std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-                std::shared_ptr< observation_partials::RotationMatrixPartial > >& rotationMatrixPartials  ):
+                        std::shared_ptr< observation_partials::RotationMatrixPartial > >& rotationMatrixPartials ):
     AccelerationPartial( acceleratedBody, acceleratedBody, basic_astrodynamics::thrust_acceleration ),
-    thrustAcceleration_( thrustAcceleration ),
-    rotationMatrixPartials_( rotationMatrixPartials ),
+    thrustAcceleration_( thrustAcceleration ), rotationMatrixPartials_( rotationMatrixPartials ),
     isAccelerationDependentOnTranslationalState_( false )
 {
     thrustAcceleration_->setSaveThrustContributions( true );
-    thrustSources_ = thrustAcceleration_-> getThrustSources( );
+    thrustSources_ = thrustAcceleration_->getThrustSources( );
 
     isAccelerationDependentOnMass_ = false;
-    std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources =
-            thrustAcceleration_->getThrustSources( );
+    std::vector< std::shared_ptr< system_models::EngineModel > > thrustSources = thrustAcceleration_->getThrustSources( );
 
     for( unsigned int i = 0; i < thrustSources.size( ); i++ )
     {
@@ -45,15 +42,14 @@ ThrustAccelerationPartial::ThrustAccelerationPartial(
         if( std::dynamic_pointer_cast< propulsion::ParameterizedThrustMagnitudeWrapper >(
                     thrustSources.at( i )->getThrustMagnitudeWrapper( ) ) )
         {
-            std::cerr<<"Warning, engine "<<thrustSources.at( i )->getEngineName( )<<
-                       " has a ParameterizedThrustMagnitudeWrapper, thrust acceleration partials will no be calculated properly"<<std::endl;
+            std::cerr << "Warning, engine " << thrustSources.at( i )->getEngineName( )
+                      << " has a ParameterizedThrustMagnitudeWrapper, thrust acceleration partials will no be calculated properly"
+                      << std::endl;
         }
-
     }
 
-
-    if( std::dynamic_pointer_cast< propulsion::DirectThrustDirectionCalculator >(
-                thrustAcceleration->getThrustDirectionCalculator( ) ) != nullptr )
+    if( std::dynamic_pointer_cast< propulsion::DirectThrustDirectionCalculator >( thrustAcceleration->getThrustDirectionCalculator( ) ) !=
+        nullptr )
     {
         isRotationDirectionBased_ = true;
     }
@@ -61,9 +57,7 @@ ThrustAccelerationPartial::ThrustAccelerationPartial(
     {
         isRotationDirectionBased_ = false;
     }
-
 }
-
 
 bool ThrustAccelerationPartial::isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
         const std::pair< std::string, std::string >& stateReferencePoint,
@@ -83,22 +77,21 @@ bool ThrustAccelerationPartial::isStateDerivativeDependentOnIntegratedAdditional
 }
 
 //! Function to calculate an acceleration partial wrt a rotational parameter.
-void ThrustAccelerationPartial::wrtRotationModelParameter(
-        Eigen::MatrixXd& accelerationPartial,
-        const estimatable_parameters::EstimatebleParametersEnum parameterType,
-        const std::string& secondaryIdentifier )
+void ThrustAccelerationPartial::wrtRotationModelParameter( Eigen::MatrixXd& accelerationPartial,
+                                                           const estimatable_parameters::EstimatebleParametersEnum parameterType,
+                                                           const std::string& secondaryIdentifier )
 {
-
     if( rotationMatrixPartials_.count( std::make_pair( parameterType, secondaryIdentifier ) ) == 0 )
     {
-        throw std::runtime_error( "Error when calculating thrust parial w.r.t. rotation matrix paramater, calculator object not found for " +
-                                  std::to_string( parameterType ) + ", " + secondaryIdentifier );
+        throw std::runtime_error(
+                "Error when calculating thrust parial w.r.t. rotation matrix paramater, calculator object not found for " +
+                std::to_string( parameterType ) + ", " + secondaryIdentifier );
     }
 
     // Get rotation matrix partial(s) wrt requested parameter
     std::vector< Eigen::Matrix3d > rotationMatrixPartials =
-            rotationMatrixPartials_.at( std::make_pair( parameterType, secondaryIdentifier ) )->
-            calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime_ );
+            rotationMatrixPartials_.at( std::make_pair( parameterType, secondaryIdentifier ) )
+                    ->calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime_ );
 
     // Compute total body-fixed thrust
     Eigen::Vector3d currentBodyFixedThrust = Eigen::Vector3d::Zero( );
@@ -106,45 +99,37 @@ void ThrustAccelerationPartial::wrtRotationModelParameter(
     {
         currentBodyFixedThrust += thrustSources_.at( j )->getBodyFixedThrustDirection( ) *
                 thrustSources_.at( j )->getCurrentThrustAcceleration( thrustAcceleration_->getCurrentBodyMass( ) );
-
     }
 
     // Compute derivate w.r.t. each parameter entry
     for( unsigned int i = 0; i < rotationMatrixPartials.size( ); i++ )
     {
         accelerationPartial.block( 0, i, 3, 1 ) += rotationMatrixPartials[ i ] * currentBodyFixedThrust;
-
     }
 }
 
-void ThrustAccelerationPartial::wrtBodyMass( Eigen::Block< Eigen::MatrixXd > partialMatrix,
-                                             const bool addContribution )
+void ThrustAccelerationPartial::wrtBodyMass( Eigen::Block< Eigen::MatrixXd > partialMatrix, const bool addContribution )
 {
     partialMatrix.setZero( );
     for( unsigned int i = 0; i < massDependentThrustSources_.size( ); i++ )
     {
-        partialMatrix.block( 0, 0, 3, 1 ) +=
-                ( addContribution ? 1.0 : -1.0 ) * thrustAcceleration_->getCurrentThrustAccelerationContribution(
-                    massDependentThrustSources_.at( i ) );
-
+        partialMatrix.block( 0, 0, 3, 1 ) += ( addContribution ? 1.0 : -1.0 ) *
+                thrustAcceleration_->getCurrentThrustAccelerationContribution( massDependentThrustSources_.at( i ) );
     }
     partialMatrix.block( 0, 0, 3, 1 ) /= -thrustAcceleration_->getCurrentBodyMass( );
 }
 
-void ThrustAccelerationPartial::wrtThrustMagnitude(
-        Eigen::MatrixXd& partialMatrix,
-        const int engineIndex )
+void ThrustAccelerationPartial::wrtThrustMagnitude( Eigen::MatrixXd& partialMatrix, const int engineIndex )
 {
     partialMatrix.setZero( );
-    partialMatrix.block( 0, 0, 3, 1 ) += thrustAcceleration_->getCurrentThrustAccelerationContribution(
-                engineIndex ) / thrustSources_.at( engineIndex )->getCurrentThrust( thrustAcceleration_->getCurrentBodyMass( ) );
+    partialMatrix.block( 0, 0, 3, 1 ) += thrustAcceleration_->getCurrentThrustAccelerationContribution( engineIndex ) /
+            thrustSources_.at( engineIndex )->getCurrentThrust( thrustAcceleration_->getCurrentBodyMass( ) );
 }
 
-void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody(
-        Eigen::Block< Eigen::MatrixXd > partialMatrix,
-        const std::pair< std::string, std::string >& stateReferencePoint,
-        const propagators::IntegratedStateType integratedStateType,
-        const bool addContribution )
+void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                                                          const std::pair< std::string, std::string >& stateReferencePoint,
+                                                                          const propagators::IntegratedStateType integratedStateType,
+                                                                          const bool addContribution )
 {
     // If partial is w.r.t. body mass, iterate over all mass-dependent sources, and compute contributions
     if( integratedStateType == propagators::body_mass_state && stateReferencePoint.first == acceleratedBody_ )
@@ -166,11 +151,11 @@ MomentumWheelDesaturationPartial::MomentumWheelDesaturationPartial(
         const std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > thrustAcceleration,
         const std::string acceleratedBody ):
     AccelerationPartial( acceleratedBody, acceleratedBody, basic_astrodynamics::momentum_wheel_desaturation_acceleration ),
-    thrustAcceleration_( thrustAcceleration ){ }
+    thrustAcceleration_( thrustAcceleration )
+{ }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
-MomentumWheelDesaturationPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MomentumWheelDesaturationPartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 
 {
@@ -180,9 +165,9 @@ MomentumWheelDesaturationPartial::getParameterPartialFunction(
     if( parameter->getParameterName( ).first == estimatable_parameters::desaturation_delta_v_values )
     {
         // If parameter is desaturation deltaV values, check and create dependency function .
-        partialFunctionPair = std::make_pair(
-                    std::bind( &MomentumWheelDesaturationPartial::wrtDesaturationDeltaVValues, this, std::placeholders::_1 ),
-                    parameter->getParameterSize( ) );
+        partialFunctionPair =
+                std::make_pair( std::bind( &MomentumWheelDesaturationPartial::wrtDesaturationDeltaVValues, this, std::placeholders::_1 ),
+                                parameter->getParameterSize( ) );
     }
     else
     {
@@ -192,17 +177,16 @@ MomentumWheelDesaturationPartial::getParameterPartialFunction(
     return partialFunctionPair;
 }
 
-
 //! Function to compute the partial derivative w.r.t. the deltaV values of the momentum desaturation maneuvers
 void MomentumWheelDesaturationPartial::wrtDesaturationDeltaVValues( Eigen::MatrixXd& accelerationPartial )
 {
     // Compute partials.
     accelerationPartial.setZero( );
-    accelerationPartial.block( 0, 3 * thrustAcceleration_->getCurrentNearestTimeIndex( ), 3, 3 ) =
-          Eigen::Matrix3d::Identity( ) * thrustAcceleration_->getCurrentThrustMultiplier( ) /
-              ( thrustAcceleration_->getTotalManeuverTime( ) - thrustAcceleration_->getManeuverRiseTime( ) );
+    accelerationPartial.block( 0, 3 * thrustAcceleration_->getCurrentNearestTimeIndex( ), 3, 3 ) = Eigen::Matrix3d::Identity( ) *
+            thrustAcceleration_->getCurrentThrustMultiplier( ) /
+            ( thrustAcceleration_->getTotalManeuverTime( ) - thrustAcceleration_->getManeuverRiseTime( ) );
 }
 
-}
+}  // namespace acceleration_partials
 
-}
+}  // namespace tudat

@@ -11,21 +11,17 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
 
-
 namespace tudat
 {
 namespace unit_tests
 {
 BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
-
-
 
 //! This test checks, for long double states/observables and Time time, if the orbit determination correctly converges
 //! when simulating data, perturbing the dynamical parameters, and then retrieving the original parameters
@@ -38,7 +34,6 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         // Simulate estimated parameter error.
         Eigen::VectorXd totalError;
         totalError = executePlanetaryParameterEstimation< Time, long double >( simulationType ).second;
-
 
         // Adjust tolerance based on simulation settings
         double toleranceMultiplier = 1.0E-3;
@@ -66,8 +61,6 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
-
+}  // namespace tudat

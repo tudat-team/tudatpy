@@ -15,4 +15,4 @@
 #include "astro/basic_astro/physicalConstants.h"
 #include "math/basic/mathematicalConstants.h"
 
-#endif // TUDAT_CONSTANTS_H
+#endif  // TUDAT_CONSTANTS_H

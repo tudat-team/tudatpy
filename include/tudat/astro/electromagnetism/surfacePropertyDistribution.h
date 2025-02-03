@@ -20,7 +20,6 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
 
-
 namespace tudat
 {
 namespace electromagnetism
@@ -35,25 +34,25 @@ using mathematical_constants::PI;
 class SurfacePropertyDistribution
 {
 public:
-    explicit SurfacePropertyDistribution() = default;
+    explicit SurfacePropertyDistribution( ) = default;
 
-    virtual ~SurfacePropertyDistribution() = default;
+    virtual ~SurfacePropertyDistribution( ) = default;
 
     /*!
      * Update class members.
      *
      * @param currentTime Current simulation time
      */
-    void updateMembers(double currentTime);
+    void updateMembers( double currentTime );
 
-    virtual double getValue(double latitude, double longitude) = 0;
+    virtual double getValue( double latitude, double longitude ) = 0;
 
-    virtual bool isTimeInvariant() = 0;
+    virtual bool isTimeInvariant( ) = 0;
 
 protected:
-    virtual void updateMembers_(const double currentTime) {};
+    virtual void updateMembers_( const double currentTime ) { };
 
-    double currentTime_{TUDAT_NAN};
+    double currentTime_{ TUDAT_NAN };
 };
 
 /*!
@@ -63,15 +62,14 @@ protected:
 class ConstantSurfacePropertyDistribution : public SurfacePropertyDistribution
 {
 public:
-    explicit ConstantSurfacePropertyDistribution(const double constantValue) :
-            constantValue_(constantValue) {}
+    explicit ConstantSurfacePropertyDistribution( const double constantValue ): constantValue_( constantValue ) { }
 
-    double getValue(double latitude, double longitude) override
+    double getValue( double latitude, double longitude ) override
     {
         return constantValue_;
     }
 
-    bool isTimeInvariant() override
+    bool isTimeInvariant( ) override
     {
         return true;
     }
@@ -93,49 +91,44 @@ public:
      * @param cosineCoefficients Cosine spherical harmonic coefficients (not normalized)
      * @param sineCoefficients Sine spherical harmonic coefficients (not normalized)
      */
-    explicit SphericalHarmonicsSurfacePropertyDistribution(
-            const Eigen::MatrixXd& cosineCoefficients,
-            const Eigen::MatrixXd& sineCoefficients) :
-            cosineCoefficients_(cosineCoefficients),
-            sineCoefficients_(sineCoefficients),
-            maximumDegree_(cosineCoefficients.rows() - 1),
-            maximumOrder_( cosineCoefficients.cols() - 1),
-            sphericalHarmonicsCache_(maximumDegree_, maximumOrder_, false),
-            legendreCache_(sphericalHarmonicsCache_.getLegendreCache())
-            {
-                if((cosineCoefficients.rows() != sineCoefficients.rows()) ||
-                    (cosineCoefficients.cols() != sineCoefficients.cols()))
-                {
-                    throw std::runtime_error(
-                            "Error when creating spherical harmonics surface property distribution; sine and cosine sizes are incompatible" );
-                }
+    explicit SphericalHarmonicsSurfacePropertyDistribution( const Eigen::MatrixXd& cosineCoefficients,
+                                                            const Eigen::MatrixXd& sineCoefficients ):
+        cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ), maximumDegree_( cosineCoefficients.rows( ) - 1 ),
+        maximumOrder_( cosineCoefficients.cols( ) - 1 ), sphericalHarmonicsCache_( maximumDegree_, maximumOrder_, false ),
+        legendreCache_( sphericalHarmonicsCache_.getLegendreCache( ) )
+    {
+        if( ( cosineCoefficients.rows( ) != sineCoefficients.rows( ) ) || ( cosineCoefficients.cols( ) != sineCoefficients.cols( ) ) )
+        {
+            throw std::runtime_error(
+                    "Error when creating spherical harmonics surface property distribution; sine and cosine sizes are incompatible" );
+        }
 
-                legendreCache_->setComputeFirstDerivatives(false);
-            }
+        legendreCache_->setComputeFirstDerivatives( false );
+    }
 
-    double getValue(double latitude, double longitude) override;
+    double getValue( double latitude, double longitude ) override;
 
-    bool isTimeInvariant() override
+    bool isTimeInvariant( ) override
     {
         return true;
     }
 
-    const Eigen::MatrixXd& getCosineCoefficients() const
+    const Eigen::MatrixXd& getCosineCoefficients( ) const
     {
         return cosineCoefficients_;
     }
 
-    const Eigen::MatrixXd& getSineCoefficients() const
+    const Eigen::MatrixXd& getSineCoefficients( ) const
     {
         return sineCoefficients_;
     }
 
-    int getMaximumDegree() const
+    int getMaximumDegree( ) const
     {
         return maximumDegree_;
     }
 
-    int getMaximumOrder() const
+    int getMaximumOrder( ) const
     {
         return maximumOrder_;
     }
@@ -153,7 +146,7 @@ private:
 
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
 
-    std::shared_ptr<basic_mathematics::LegendreCache> legendreCache_;
+    std::shared_ptr< basic_mathematics::LegendreCache > legendreCache_;
 };
 
 /*!
@@ -178,39 +171,33 @@ public:
      * @param referenceEpoch Reference epoch for periodicity [seconds]
      * @param period Period of periodicity [days]
      */
-    explicit SecondDegreeZonalPeriodicSurfacePropertyDistribution(
-            const double a0,
-            const double c0,
-            const double c1,
-            const double c2,
-            const double a2,
-            const double referenceEpoch,
-            const double period) :
-            a0(a0),
-            c0(c0),
-            c1(c1),
-            c2(c2),
-            a2(a2),
-            referenceEpoch(referenceEpoch),
-            angularFrequency(2 * PI / period) {}
+    explicit SecondDegreeZonalPeriodicSurfacePropertyDistribution( const double a0,
+                                                                   const double c0,
+                                                                   const double c1,
+                                                                   const double c2,
+                                                                   const double a2,
+                                                                   const double referenceEpoch,
+                                                                   const double period ):
+        a0( a0 ), c0( c0 ), c1( c1 ), c2( c2 ), a2( a2 ), referenceEpoch( referenceEpoch ), angularFrequency( 2 * PI / period )
+    { }
 
-    double getValue(double latitude, double longitude) override
+    double getValue( double latitude, double longitude ) override
     {
-        return getValue(latitude);
+        return getValue( latitude );
     };
 
-    double getValue(double latitude) const;
+    double getValue( double latitude ) const;
 
-    bool isTimeInvariant() override
+    bool isTimeInvariant( ) override
     {
         return false;
     };
 
 private:
-    void updateMembers_(double currentTime) override;
+    void updateMembers_( double currentTime ) override;
 
     const double a0;
-    double a1{TUDAT_NAN};
+    double a1{ TUDAT_NAN };
     const double c0;
     const double c1;
     const double c2;
@@ -222,23 +209,26 @@ private:
 class CustomSurfacePropertyDistribution : public SurfacePropertyDistribution
 {
 public:
-    CustomSurfacePropertyDistribution(
-        const std::function< double( const double, const double, const double ) > customFunction ):
-        customFunction_( customFunction ){ }
+    CustomSurfacePropertyDistribution( const std::function< double( const double, const double, const double ) > customFunction ):
+        customFunction_( customFunction )
+    { }
 
-    double getValue(double latitude, double longitude)
+    double getValue( double latitude, double longitude )
     {
         return customFunction_( latitude, longitude, currentTime_ );
     }
 
-    bool isTimeInvariant( ){ return false; }
+    bool isTimeInvariant( )
+    {
+        return false;
+    }
 
 private:
     std::function< double( const double, const double, const double ) > customFunction_;
 };
 
-} // electromagnetism
+}  // namespace electromagnetism
 
-} // tudat
+}  // namespace tudat
 
-#endif //TUDAT_SURFACEPROPERTYDISTRIBUTION_H
+#endif  // TUDAT_SURFACEPROPERTYDISTRIBUTION_H

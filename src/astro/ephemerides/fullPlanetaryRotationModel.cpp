@@ -30,24 +30,25 @@ void PlanetaryOrientationAngleCalculator::updateCorrections( const double epheme
     currentAnglePsiCorrection_ = 0.0;
 
     for( std::map< double, std::pair< double, double > >::iterator correctionIterator = meanMotionDirectNutationCorrections_.begin( );
-         correctionIterator != meanMotionDirectNutationCorrections_.end( ); correctionIterator++ )
+         correctionIterator != meanMotionDirectNutationCorrections_.end( );
+         correctionIterator++ )
     {
         double a_m = correctionIterator->first * currentMeanMotion;
 
-        double I_m = correctionIterator->second.first + coreFactor_ * a_m /
-                ( a_m * a_m - freeCoreNutationRate_ * freeCoreNutationRate_ ) *
-                ( a_m * correctionIterator->second.first + freeCoreNutationRate_ *
-                  correctionIterator->second.second * std::sin( angleIAtEpoch_ ) );
+        double I_m = correctionIterator->second.first +
+                coreFactor_ * a_m / ( a_m * a_m - freeCoreNutationRate_ * freeCoreNutationRate_ ) *
+                        ( a_m * correctionIterator->second.first +
+                          freeCoreNutationRate_ * correctionIterator->second.second * std::sin( angleIAtEpoch_ ) );
 
-        double Psi_m = correctionIterator->second.second + coreFactor_ * a_m /
-                ( a_m * a_m - freeCoreNutationRate_ * freeCoreNutationRate_ ) *
-                ( a_m * correctionIterator->second.second + freeCoreNutationRate_ *
-                  correctionIterator->second.first / std::sin( angleIAtEpoch_ ) );
+        double Psi_m = correctionIterator->second.second +
+                coreFactor_ * a_m / ( a_m * a_m - freeCoreNutationRate_ * freeCoreNutationRate_ ) *
+                        ( a_m * correctionIterator->second.second +
+                          freeCoreNutationRate_ * correctionIterator->second.first / std::sin( angleIAtEpoch_ ) );
 
-        currentAngleICorrection_ += I_m * std::cos(
-                    correctionIterator->first * ( currentMeanMotion * currentEphemerisTime_ + bodyMeanAnomalyAtEpoch_ )  );
-        currentAnglePsiCorrection_ += Psi_m * std::sin(
-                    correctionIterator->first * ( currentMeanMotion * currentEphemerisTime_ + bodyMeanAnomalyAtEpoch_ )  );
+        currentAngleICorrection_ +=
+                I_m * std::cos( correctionIterator->first * ( currentMeanMotion * currentEphemerisTime_ + bodyMeanAnomalyAtEpoch_ ) );
+        currentAnglePsiCorrection_ +=
+                Psi_m * std::sin( correctionIterator->first * ( currentMeanMotion * currentEphemerisTime_ + bodyMeanAnomalyAtEpoch_ ) );
     }
 
     double currentPhaseAngleCorrection;
@@ -56,28 +57,28 @@ void PlanetaryOrientationAngleCalculator::updateCorrections( const double epheme
     {
         currentPhaseAngleCorrection = phaseAngleCorrectionFunctions_[ i ]( currentEphemerisTime_ );
         for( std::map< double, std::pair< double, double > >::iterator correctionIterator =
-             meanMotionTimeDependentPhaseNutationCorrections_[ i ].begin( );
-             correctionIterator != meanMotionTimeDependentPhaseNutationCorrections_[ i ].end( ); correctionIterator++ )
+                     meanMotionTimeDependentPhaseNutationCorrections_[ i ].begin( );
+             correctionIterator != meanMotionTimeDependentPhaseNutationCorrections_[ i ].end( );
+             correctionIterator++ )
         {
             double a_m = correctionIterator->first * currentMeanMotion;
 
-            double I_m = correctionIterator->second.first + coreFactor_ * a_m /
-                    ( a_m * a_m - freeCoreNutationRate_ * freeCoreNutationRate_ ) *
-                    ( a_m * correctionIterator->second.first + freeCoreNutationRate_ *
-                      correctionIterator->second.second * std::sin( angleIAtEpoch_ ) );
+            double I_m = correctionIterator->second.first +
+                    coreFactor_ * a_m / ( a_m * a_m - freeCoreNutationRate_ * freeCoreNutationRate_ ) *
+                            ( a_m * correctionIterator->second.first +
+                              freeCoreNutationRate_ * correctionIterator->second.second * std::sin( angleIAtEpoch_ ) );
 
-            double Psi_m = correctionIterator->second.second + coreFactor_ * a_m /
-                    ( a_m * a_m - freeCoreNutationRate_ * freeCoreNutationRate_ ) *
-                    ( a_m * correctionIterator->second.second + freeCoreNutationRate_ *
-                      correctionIterator->second.first / std::sin( angleIAtEpoch_ ) );
+            double Psi_m = correctionIterator->second.second +
+                    coreFactor_ * a_m / ( a_m * a_m - freeCoreNutationRate_ * freeCoreNutationRate_ ) *
+                            ( a_m * correctionIterator->second.second +
+                              freeCoreNutationRate_ * correctionIterator->second.first / std::sin( angleIAtEpoch_ ) );
 
-
-            currentAngleICorrection_ += I_m * std::cos(
-                        correctionIterator->first * ( currentMeanMotion * currentEphemerisTime_ + bodyMeanAnomalyAtEpoch_ ) +
-                        currentPhaseAngleCorrection );
-            currentAnglePsiCorrection_ += Psi_m * std::sin(
-                        correctionIterator->first * ( currentMeanMotion * currentEphemerisTime_ + bodyMeanAnomalyAtEpoch_ ) +
-                        currentPhaseAngleCorrection );
+            currentAngleICorrection_ += I_m *
+                    std::cos( correctionIterator->first * ( currentMeanMotion * currentEphemerisTime_ + bodyMeanAnomalyAtEpoch_ ) +
+                              currentPhaseAngleCorrection );
+            currentAnglePsiCorrection_ += Psi_m *
+                    std::sin( correctionIterator->first * ( currentMeanMotion * currentEphemerisTime_ + bodyMeanAnomalyAtEpoch_ ) +
+                              currentPhaseAngleCorrection );
         }
     }
 
@@ -88,17 +89,15 @@ void PlanetaryOrientationAngleCalculator::updateCorrections( const double epheme
     currentAnglePhiCorrection_ = -currentAnglePsiCorrection_ * std::cos( currentAngleI_ );
 
     for( std::map< double, std::pair< double, double > >::iterator correctionIterator = rotationRateCorrections_.begin( );
-         correctionIterator != rotationRateCorrections_.end( ); correctionIterator++ )
+         correctionIterator != rotationRateCorrections_.end( );
+         correctionIterator++ )
     {
-        currentAnglePhiCorrection_ += correctionIterator->second.first * std::cos(
-                    correctionIterator->first * currentMeanAnomaly );
-        currentAnglePhiCorrection_ += correctionIterator->second.second * std::sin(
-                    correctionIterator->first * currentMeanAnomaly );
+        currentAnglePhiCorrection_ += correctionIterator->second.first * std::cos( correctionIterator->first * currentMeanAnomaly );
+        currentAnglePhiCorrection_ += correctionIterator->second.second * std::sin( correctionIterator->first * currentMeanAnomaly );
     }
 
     currentAnglePhi_ = anglePhiAtEpoch_ + anglePhiRateAtEpoch_ * currentEphemerisTime_ + currentAnglePhiCorrection_;
 }
-
 
 void PlanetaryOrientationAngleCalculator::calculatePolarMotion( const double ephemerisTime )
 {
@@ -107,24 +106,21 @@ void PlanetaryOrientationAngleCalculator::calculatePolarMotion( const double eph
 
     currentXPolarMotion_ = 0;
     for( std::map< double, std::pair< double, double > >::iterator polarMotionIterator = xPolarMotionCoefficients_.begin( );
-         polarMotionIterator != xPolarMotionCoefficients_.end( ); polarMotionIterator++ )
+         polarMotionIterator != xPolarMotionCoefficients_.end( );
+         polarMotionIterator++ )
     {
-        currentXPolarMotion_ += polarMotionIterator->second.first *
-                std::cos( polarMotionIterator->first * currentMeanAnomaly );
-        currentXPolarMotion_ += polarMotionIterator->second.second *
-                std::sin( polarMotionIterator->first * currentMeanAnomaly );
+        currentXPolarMotion_ += polarMotionIterator->second.first * std::cos( polarMotionIterator->first * currentMeanAnomaly );
+        currentXPolarMotion_ += polarMotionIterator->second.second * std::sin( polarMotionIterator->first * currentMeanAnomaly );
     }
 
     currentYPolarMotion_ = 0;
     for( std::map< double, std::pair< double, double > >::iterator polarMotionIterator = yPolarMotionCoefficients_.begin( );
-         polarMotionIterator != yPolarMotionCoefficients_.end( ); polarMotionIterator++ )
+         polarMotionIterator != yPolarMotionCoefficients_.end( );
+         polarMotionIterator++ )
     {
-        currentYPolarMotion_ += polarMotionIterator->second.first *
-                std::cos( polarMotionIterator->first * currentMeanAnomaly );
-        currentYPolarMotion_ += polarMotionIterator->second.second *
-                std::sin( polarMotionIterator->first * currentMeanAnomaly );
+        currentYPolarMotion_ += polarMotionIterator->second.first * std::cos( polarMotionIterator->first * currentMeanAnomaly );
+        currentYPolarMotion_ += polarMotionIterator->second.second * std::sin( polarMotionIterator->first * currentMeanAnomaly );
     }
-
 }
 
 void PlanetaryOrientationAngleCalculator::calculateCurrentMeanPhiAngleDerivative( const double ephemerisTime )
@@ -133,23 +129,24 @@ void PlanetaryOrientationAngleCalculator::calculateCurrentMeanPhiAngleDerivative
     double currentMeanMotion = bodyMeanMotion_;
     double currentMeanAnomaly = bodyMeanAnomalyAtEpoch_ + bodyMeanMotion_ * currentEphemerisTime_;
 
-    currentMeanPhiAngleDerivative_ = anglePhiRateAtEpoch_ ;
+    currentMeanPhiAngleDerivative_ = anglePhiRateAtEpoch_;
 
     for( std::map< double, std::pair< double, double > >::iterator correctionIterator = rotationRateCorrections_.begin( );
-         correctionIterator != rotationRateCorrections_.end( ); correctionIterator++ )
+         correctionIterator != rotationRateCorrections_.end( );
+         correctionIterator++ )
     {
-        currentMeanPhiAngleDerivative_ += - correctionIterator->first * currentMeanMotion * correctionIterator->second.first * std::sin(
-                    correctionIterator->first * currentMeanAnomaly );
-        currentMeanPhiAngleDerivative_ += correctionIterator->first * currentMeanMotion * correctionIterator->second.second * std::cos(
-                    correctionIterator->first * currentMeanAnomaly );
+        currentMeanPhiAngleDerivative_ += -correctionIterator->first * currentMeanMotion * correctionIterator->second.first *
+                std::sin( correctionIterator->first * currentMeanAnomaly );
+        currentMeanPhiAngleDerivative_ += correctionIterator->first * currentMeanMotion * correctionIterator->second.second *
+                std::cos( correctionIterator->first * currentMeanAnomaly );
     }
 }
 
-std::shared_ptr< interpolators::CubicSplineInterpolator< double, Eigen::Vector3d > >
-createInterpolatorForPlanetaryRotationAngles( double intervalStart,
-                                              double intervalEnd,
-                                              double timeStep,
-                                              std::shared_ptr< PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator )
+std::shared_ptr< interpolators::CubicSplineInterpolator< double, Eigen::Vector3d > > createInterpolatorForPlanetaryRotationAngles(
+        double intervalStart,
+        double intervalEnd,
+        double timeStep,
+        std::shared_ptr< PlanetaryOrientationAngleCalculator > planetaryOrientationCalculator )
 {
     using namespace interpolators;
 
@@ -158,7 +155,7 @@ createInterpolatorForPlanetaryRotationAngles( double intervalStart,
     double currentTime = intervalStart;
     while( currentTime < intervalEnd )
     {
-        orientationMap[ currentTime ] = planetaryOrientationCalculator->updateAndGetRotationAngles( currentTime  );
+        orientationMap[ currentTime ] = planetaryOrientationCalculator->updateAndGetRotationAngles( currentTime );
 
         currentTime += timeStep;
     }
@@ -183,7 +180,6 @@ Eigen::Quaterniond PlanetaryRotationModel::getRotationFromBodyFixedToIntermediat
     return Eigen::Quaterniond( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
                                Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) *
                                Eigen::AngleAxisd( currentAngleCorrections.z( ), Eigen::Vector3d::UnitZ( ) ) );
-
 }
 
 Eigen::Quaterniond PlanetaryRotationModel::getRotationToBaseFrame( const double ephemerisTime )
@@ -202,14 +198,21 @@ Eigen::Matrix3d PlanetaryRotationModel::getDerivativeOfRotationToBaseFrame( cons
 
     return meanPhiAngleDerivative * ( rotationFromMeanOrbitToIcrf_ ).toRotationMatrix( ) *
             ( Eigen::AngleAxisd( currentAngleCorrections.x( ), Eigen::Vector3d::UnitZ( ) ) *
-              Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) ).toRotationMatrix( ) *
-            ( Eigen::Matrix3d( ) << -std::sin( currentPhiAngle ), -std::cos( currentPhiAngle ), 0.0,
-              std::cos( currentPhiAngle ), -std::sin( currentPhiAngle ), 0.0,
-              0.0, 0.0, 0.0 ).finished( ) *
-            getPolarMotionRotation( ephemerisTime ).toRotationMatrix();
-
+              Eigen::AngleAxisd( currentAngleCorrections.y( ), Eigen::Vector3d::UnitX( ) ) )
+                    .toRotationMatrix( ) *
+            ( Eigen::Matrix3d( ) << -std::sin( currentPhiAngle ),
+              -std::cos( currentPhiAngle ),
+              0.0,
+              std::cos( currentPhiAngle ),
+              -std::sin( currentPhiAngle ),
+              0.0,
+              0.0,
+              0.0,
+              0.0 )
+                    .finished( ) *
+            getPolarMotionRotation( ephemerisTime ).toRotationMatrix( );
 }
 
-}
+}  // namespace ephemerides
 
-}
+}  // namespace tudat

@@ -53,7 +53,6 @@ namespace input_output
 class TwoLineElementsTextFileReader
 {
 public:
-
     //! Type definition of map of line-based string data.
     /*!
      * Type definition of map of line-based string data.
@@ -64,26 +63,18 @@ public:
     /*!
      * Default constructor.
      */
-    TwoLineElementsTextFileReader( )
-        : lineCounter_( 1 ),
-          numberOfHeaderLines_( 0 ),
-          dataFile_( ),
-          fileName_( "" ),
-          stringOfData_( "" ),
-          absoluteFilePath_( "" ),
-          absoluteDirectoryPath_( "" ),
-          relativeDirectoryPath_( "" ),
-          startingCharacter_( "" ),
-          skipKeyword_( "" ),
-          containerOfDataFromFile_( ),
-          currentYear_( -0 ),
-          numberOfObjects_( -0 ),
-          numberOfLinesPerTwoLineElementDatum_( 3 ),
-          twoLineElementData_( )
+    TwoLineElementsTextFileReader( ):
+        lineCounter_( 1 ), numberOfHeaderLines_( 0 ), dataFile_( ), fileName_( "" ), stringOfData_( "" ), absoluteFilePath_( "" ),
+        absoluteDirectoryPath_( "" ), relativeDirectoryPath_( "" ), startingCharacter_( "" ), skipKeyword_( "" ),
+        containerOfDataFromFile_( ), currentYear_( -0 ), numberOfObjects_( -0 ), numberOfLinesPerTwoLineElementDatum_( 3 ),
+        twoLineElementData_( )
     { }
 
     //! Default destructor.
-    virtual ~TwoLineElementsTextFileReader( ) { if ( dataFile_.is_open( ) ) closeFile( ); }
+    virtual ~TwoLineElementsTextFileReader( )
+    {
+        if( dataFile_.is_open( ) ) closeFile( );
+    }
 
     //! Set absolute directory path.
     /*!
@@ -114,7 +105,10 @@ public:
      * Sets file name of data file.
      * \param fileName File name.
      */
-    void setFileName( std::string fileName ) { fileName_ = fileName; }
+    void setFileName( std::string fileName )
+    {
+        fileName_ = fileName;
+    }
 
     //! Open data file.
     /*!
@@ -147,7 +141,10 @@ public:
      * used in combination with the skipLines( ) function.
      * \param skipKeyword Keyword to skip line.
      */
-    void skipLinesWithKeyword( const std::string& skipKeyword ) { skipKeyword_ = skipKeyword; }
+    void skipLinesWithKeyword( const std::string& skipKeyword )
+    {
+        skipKeyword_ = skipKeyword;
+    }
 
     //! Set number of lines for file header.
     /*!
@@ -163,21 +160,30 @@ public:
     }
 
     //! Close data file.
-    void closeFile( ) { dataFile_.close( ); }
+    void closeFile( )
+    {
+        dataFile_.close( );
+    }
 
     //! Get vector container of data from file.
     /*!
      * Returns map container of string data from data file.
      * \return Map container of data from file.
      */
-    LineBasedStringDataMap getContainerOfData( ) { return containerOfDataFromFile_; }
+    LineBasedStringDataMap getContainerOfData( )
+    {
+        return containerOfDataFromFile_;
+    }
 
     //! Get container of header data from file.
     /*!
      * Returns container of header data from file.
      * \return Container of header data from file.
      */
-    LineBasedStringDataMap getContainerOfHeaderData( ) { return containerOfHeaderDataFromFile_; }
+    LineBasedStringDataMap getContainerOfHeaderData( )
+    {
+        return containerOfHeaderDataFromFile_;
+    }
 
     //! Read and store data from data file.
     void readAndStoreData( );
@@ -200,16 +206,17 @@ public:
      */
     void stripEndOfLineCharacters( LineBasedStringDataMap& containerOfLinesOfData );
 
-
     //! Line-number types for TLE input data.
     enum LineNumberTypesForTwoLineElementInputData { twoLineType, threeLineType };
-
 
     //! Set current year.
     /*!
      * \param currentYear Current year.
      */
-    void setCurrentYear( const unsigned int& currentYear ) { currentYear_ = currentYear; }
+    void setCurrentYear( const unsigned int& currentYear )
+    {
+        currentYear_ = currentYear;
+    }
 
     //! Get TLE data.
     /*!
@@ -217,13 +224,19 @@ public:
      * data retrieved from the catalog file and stored in objects.
      * \return TLE data stored in TwoLineElementData objects.
      */
-    std::vector< TwoLineElementData > getTwoLineElementData( ) { return twoLineElementData_; }
+    std::vector< TwoLineElementData > getTwoLineElementData( )
+    {
+        return twoLineElementData_;
+    }
 
     //! Get number of objects.
     /*!
      * \return Number of objects in TLE data catalog file.
      */
-    unsigned int& getNumberOfObjects( ) { return numberOfObjects_; }
+    unsigned int& getNumberOfObjects( )
+    {
+        return numberOfObjects_;
+    }
 
     //! Convert and store TLE data.
     /*!
@@ -249,15 +262,19 @@ public:
      * Sets the line number type for TLE input data. This can be either 2-line or 3-line.
      * \param lineNumberType Line number type: 2-line or 3-line.
      */
-    void setLineNumberTypeForTwoLineElementInputData(
-        LineNumberTypesForTwoLineElementInputData lineNumberType )
+    void setLineNumberTypeForTwoLineElementInputData( LineNumberTypesForTwoLineElementInputData lineNumberType )
     {
-        if ( lineNumberType == twoLineType ) { numberOfLinesPerTwoLineElementDatum_ = 2; }
-        else if ( lineNumberType == threeLineType ) { numberOfLinesPerTwoLineElementDatum_ = 3; }
+        if( lineNumberType == twoLineType )
+        {
+            numberOfLinesPerTwoLineElementDatum_ = 2;
+        }
+        else if( lineNumberType == threeLineType )
+        {
+            numberOfLinesPerTwoLineElementDatum_ = 3;
+        }
     }
 
 protected:
-
     //! Line counter.
     unsigned int lineCounter_;
 
@@ -305,7 +322,6 @@ protected:
     LineBasedStringDataMap containerOfHeaderDataFromFile_;
 
 private:
-
     //! Current year.
     unsigned int currentYear_;
 
@@ -326,7 +342,7 @@ private:
 //! Typedef for shared-pointer to TwoLineElementsTextFileReader object.
 typedef std::shared_ptr< TwoLineElementsTextFileReader > TwoLineElementsTextFileReaderPointer;
 
-} // namespace input_output
-} // namespace tudat
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_TWO_LINE_ELEMENTS_TEXT_FILE_READER_H
+#endif  // TUDAT_TWO_LINE_ELEMENTS_TEXT_FILE_READER_H

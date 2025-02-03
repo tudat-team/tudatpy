@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include "tudat/astro/orbit_determination/observation_partials/differencedObservationPartial.h"
 namespace tudat
 {
@@ -16,37 +15,35 @@ namespace tudat
 namespace observation_partials
 {
 
-
-    void DifferencedObservablePartialScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                 const std::vector< double >& times,
-                 const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation )
+void DifferencedObservablePartialScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                  const std::vector< double >& times,
+                                                  const observation_models::LinkEndType fixedLinkEnd,
+                                                  const Eigen::VectorXd currentObservation )
+{
+    try
     {
-        try
+        if( customCheckFunction_ != nullptr )
         {
-            if( customCheckFunction_ != nullptr )
-            {
-                customCheckFunction_( fixedLinkEnd );
-            }
-
-            firstPartialScaling_->update(
-                        utilities::getVectorEntries( linkEndStates, firstIndices_ ), utilities::getVectorEntries( times, firstIndices_ ),
-                        fixedLinkEnd, Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
-
-            secondPartialScaling_->update(
-                        utilities::getVectorEntries( linkEndStates, secondIndices_ ), utilities::getVectorEntries( times, secondIndices_ ),
-                        fixedLinkEnd, Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
-
+            customCheckFunction_( fixedLinkEnd );
         }
-        catch( const std::exception& caughtException )
-        {
-            std::string exceptionText = std::string( caughtException.what( ) );
-            throw std::runtime_error( "Error when computing differenced observation partial scaling, error: " + exceptionText );
-        }
+
+        firstPartialScaling_->update( utilities::getVectorEntries( linkEndStates, firstIndices_ ),
+                                      utilities::getVectorEntries( times, firstIndices_ ),
+                                      fixedLinkEnd,
+                                      Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
+
+        secondPartialScaling_->update( utilities::getVectorEntries( linkEndStates, secondIndices_ ),
+                                       utilities::getVectorEntries( times, secondIndices_ ),
+                                       fixedLinkEnd,
+                                       Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
     }
-
+    catch( const std::exception& caughtException )
+    {
+        std::string exceptionText = std::string( caughtException.what( ) );
+        throw std::runtime_error( "Error when computing differenced observation partial scaling, error: " + exceptionText );
+    }
 }
 
-}
+}  // namespace observation_partials
 
-
+}  // namespace tudat

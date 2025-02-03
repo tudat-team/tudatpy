@@ -33,6 +33,6 @@ double calculateGaussianCdf( const double independentVariable, const double mean
     return 0.5 * ( 1.0 + boost::math::erf( ( independentVariable - mean ) / ( std::sqrt( 2.0 ) * ( standardDeviation ) ) ) );
 }
 
-}
+}  // namespace statistics
 
-}
+}  // namespace tudat

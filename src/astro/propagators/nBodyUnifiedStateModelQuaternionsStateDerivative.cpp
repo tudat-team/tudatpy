@@ -19,21 +19,20 @@ namespace propagators
 {
 
 //! Function to evaluate the state derivative for the unified state model with quaternions
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
-        const Eigen::Vector7d& currentUnifiedStateModelElements,
-        const Eigen::Vector3d& accelerationsInRswFrame,
-        const double sineLambda,
-        const double cosineLambda,
-        const double gammaParameter,
-        const Eigen::Vector3d& rotationalVelocityVector,
-        const Eigen::Vector3d& pAuxiliaryVector )
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions( const Eigen::Vector7d& currentUnifiedStateModelElements,
+                                                                       const Eigen::Vector3d& accelerationsInRswFrame,
+                                                                       const double sineLambda,
+                                                                       const double cosineLambda,
+                                                                       const double gammaParameter,
+                                                                       const Eigen::Vector3d& rotationalVelocityVector,
+                                                                       const Eigen::Vector3d& pAuxiliaryVector )
 {
     // Compute supporting parameters
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
-    hodographMatrix( 0, 1 ) = - pAuxiliaryVector( 0 );
+    hodographMatrix( 0, 1 ) = -pAuxiliaryVector( 0 );
     hodographMatrix( 1, 0 ) = cosineLambda;
-    hodographMatrix( 1, 1 ) = - ( 1.0 + pAuxiliaryVector( 0 ) ) * sineLambda;
-    hodographMatrix( 1, 2 ) = - gammaParameter * pAuxiliaryVector( 1 );
+    hodographMatrix( 1, 1 ) = -( 1.0 + pAuxiliaryVector( 0 ) ) * sineLambda;
+    hodographMatrix( 1, 2 ) = -gammaParameter * pAuxiliaryVector( 1 );
     hodographMatrix( 2, 0 ) = sineLambda;
     hodographMatrix( 2, 1 ) = ( 1.0 + pAuxiliaryVector( 0 ) ) * cosineLambda;
     hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
@@ -41,18 +40,17 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     // Evaluate USM7 equations.
     Eigen::Vector7d stateDerivative;
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 4 ) = calculateQuaternionDerivative( currentUnifiedStateModelElements.segment( 3, 4 ),
-                                                                      rotationalVelocityVector );
+    stateDerivative.segment( 3, 4 ) =
+            calculateQuaternionDerivative( currentUnifiedStateModelElements.segment( 3, 4 ), rotationalVelocityVector );
 
     // Give output
     return stateDerivative;
 }
 
 //! Function to evaluate the state derivative for the unified state model with quaternions
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
-        const Eigen::Vector7d& currentUnifiedStateModelElements,
-        const Eigen::Vector3d& accelerationsInRswFrame,
-        const double centralBodyGravitationalParameter )
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions( const Eigen::Vector7d& currentUnifiedStateModelElements,
+                                                                       const Eigen::Vector3d& accelerationsInRswFrame,
+                                                                       const double centralBodyGravitationalParameter )
 {
     using namespace orbital_element_conversions;
 
@@ -65,17 +63,18 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     // Compute supporting parameters
     double denominator = std::pow( epsilon3QuaternionParameter, 2 ) + std::pow( etaQuaternionParameter, 2 );
     double sineLambda = ( 2 * epsilon3QuaternionParameter * etaQuaternionParameter ) / denominator;
-    double cosineLambda =  ( std::pow( etaQuaternionParameter, 2 ) - std::pow( epsilon3QuaternionParameter, 2 ) ) / denominator;
-    double gammaParameter = ( epsilon1QuaternionParameter * epsilon3QuaternionParameter -
-                              epsilon2QuaternionParameter * etaQuaternionParameter ) / denominator;
+    double cosineLambda = ( std::pow( etaQuaternionParameter, 2 ) - std::pow( epsilon3QuaternionParameter, 2 ) ) / denominator;
+    double gammaParameter =
+            ( epsilon1QuaternionParameter * epsilon3QuaternionParameter - epsilon2QuaternionParameter * etaQuaternionParameter ) /
+            denominator;
 
     double velocityHodographParameter = currentUnifiedStateModelElements( CHodographUSM7Index ) -
             currentUnifiedStateModelElements( Rf1HodographUSM7Index ) * sineLambda +
             currentUnifiedStateModelElements( Rf2HodographUSM7Index ) * cosineLambda;
     Eigen::Vector3d rotationalVelocityVector = Eigen::Vector3d::Zero( );
     rotationalVelocityVector( 0 ) = accelerationsInRswFrame( 2 ) / velocityHodographParameter;
-    rotationalVelocityVector( 2 ) = std::pow( velocityHodographParameter, 2 ) *
-            currentUnifiedStateModelElements( CHodographUSM7Index ) / centralBodyGravitationalParameter;
+    rotationalVelocityVector( 2 ) = std::pow( velocityHodographParameter, 2 ) * currentUnifiedStateModelElements( CHodographUSM7Index ) /
+            centralBodyGravitationalParameter;
 
     Eigen::Vector3d pAuxiliaryVector = Eigen::Vector3d::Zero( );
     pAuxiliaryVector( 0 ) = currentUnifiedStateModelElements( CHodographUSM7Index );
@@ -84,27 +83,29 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     pAuxiliaryVector /= velocityHodographParameter;
 
     // Evaluate USM7 equations
-    return computeStateDerivativeForUnifiedStateModelQuaternions(
-                currentUnifiedStateModelElements, accelerationsInRswFrame, sineLambda,
-                cosineLambda, gammaParameter, rotationalVelocityVector, pAuxiliaryVector );
+    return computeStateDerivativeForUnifiedStateModelQuaternions( currentUnifiedStateModelElements,
+                                                                  accelerationsInRswFrame,
+                                                                  sineLambda,
+                                                                  cosineLambda,
+                                                                  gammaParameter,
+                                                                  rotationalVelocityVector,
+                                                                  pAuxiliaryVector );
 }
 
 //! Function to evaluate the state derivative for the unified state model with quaternions
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
-        const Eigen::Vector7d& currentUnifiedStateModelElements,
-        const Eigen::Vector6d& currentCartesianState,
-        const Eigen::Vector3d& accelerationsInInertialFrame,
-        const double centralBodyGravitationalParameter )
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions( const Eigen::Vector7d& currentUnifiedStateModelElements,
+                                                                       const Eigen::Vector6d& currentCartesianState,
+                                                                       const Eigen::Vector3d& accelerationsInInertialFrame,
+                                                                       const double centralBodyGravitationalParameter )
 {
     return computeStateDerivativeForUnifiedStateModelQuaternions(
-                currentUnifiedStateModelElements,
-                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
-                    currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
+            currentUnifiedStateModelElements,
+            reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix( currentCartesianState ) * accelerationsInInertialFrame,
+            centralBodyGravitationalParameter );
 }
 
-//template class NBodyUnifiedStateModelQuaternionsStateDerivative< double, double >;
+// template class NBodyUnifiedStateModelQuaternionsStateDerivative< double, double >;
 
+}  // namespace propagators
 
-} // namespace propagators
-
-} // namespace tudat
+}  // namespace tudat

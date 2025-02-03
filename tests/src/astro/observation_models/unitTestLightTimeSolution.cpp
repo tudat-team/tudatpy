@@ -11,10 +11,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
-
-
-
-
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/astro/observation_models/lightTimeSolution.h"
@@ -55,14 +51,12 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     const std::string frame = "ECLIPJ2000";
 
     // Create ephemerides of Earth and Moon, with data from Spice.
-    std::shared_ptr< SpiceEphemeris > earthEphemeris = std::make_shared< SpiceEphemeris >(
-                earth, "SSB", false, false, false, frame );
-    std::shared_ptr< SpiceEphemeris > moonEphemeris = std::make_shared< SpiceEphemeris >(
-                moon, "SSB", false, false, false, frame );
+    std::shared_ptr< SpiceEphemeris > earthEphemeris = std::make_shared< SpiceEphemeris >( earth, "SSB", false, false, false, frame );
+    std::shared_ptr< SpiceEphemeris > moonEphemeris = std::make_shared< SpiceEphemeris >( moon, "SSB", false, false, false, frame );
 
     // Create light-time calculator, Earth center transmitter, Moon center receiver.
-    std::shared_ptr< LightTimeCalculator< > > lightTimeEarthToMoon =
-            std::make_shared< LightTimeCalculator< > >( earthEphemeris, moonEphemeris );
+    std::shared_ptr< LightTimeCalculator<> > lightTimeEarthToMoon =
+            std::make_shared< LightTimeCalculator<> >( earthEphemeris, moonEphemeris );
 
     // Define input time for tests.
     const double testTime = 1.0E6;
@@ -73,8 +67,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Calculate observed (i.e. relative) position of Earth, and 'light time' at 'testTime' on
     // Moon, using spice. (Reception case with converged Newtonian light-time correction.)
-    spkezr_c( earth.c_str( ), testTime, frame.c_str( ), std::string( "CN" ).c_str( ),
-              moon.c_str( ), spiceOutputState, &spiceMoonLightTime );
+    spkezr_c(
+            earth.c_str( ), testTime, frame.c_str( ), std::string( "CN" ).c_str( ), moon.c_str( ), spiceOutputState, &spiceMoonLightTime );
     Eigen::Vector3d spiceMoonToEarthVector = Eigen::Vector3d::Zero( );
     for( int i = 0; i < 3; i++ )
     {
@@ -88,15 +82,14 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Calculate relativeRange vector, with as input time the reception time, using light-time
     // calculator.
-    const Eigen::Vector3d testMoonToEarthVector =
-            lightTimeEarthToMoon->calculateRelativeRangeVector( testTime, true );
+    const Eigen::Vector3d testMoonToEarthVector = lightTimeEarthToMoon->calculateRelativeRangeVector( testTime, true );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testMoonToEarthVector, spiceMoonToEarthVector, 1.0E-12 );
 
     // Calculate observed (i.e. relative) position of Earth, and 'light time' at
     // 'testTime+light time' on Moon, using spice. (Transmission case with converged Newtonian
     // light-time correction.)
-    spkezr_c( moon.c_str( ), testTime, frame.c_str( ), std::string( "XCN" ).c_str( ),
-              earth.c_str( ), spiceOutputState, &spiceMoonLightTime );
+    spkezr_c(
+            moon.c_str( ), testTime, frame.c_str( ), std::string( "XCN" ).c_str( ), earth.c_str( ), spiceOutputState, &spiceMoonLightTime );
     Eigen::Vector3d spiceEarthToMoonVector = Eigen::Vector3d::Zero( );
     for( int i = 0; i < 3; i++ )
     {
@@ -110,8 +103,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Calculate relativeRange vector, with as input time the transmission time, using light-time
     // calculator.
-    const Eigen::Vector3d testEarthToMoonVector =
-            lightTimeEarthToMoon->calculateRelativeRangeVector( testTime, false );
+    const Eigen::Vector3d testEarthToMoonVector = lightTimeEarthToMoon->calculateRelativeRangeVector( testTime, false );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testEarthToMoonVector, spiceEarthToMoonVector, 1.0E-10 );
 
     // Test light time and link end state functions.
@@ -123,26 +115,18 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Get link end states, assuming input time is transmission time.
     // SSB = Solar system barycenter.
-    testOutputTime = lightTimeEarthToMoon->calculateLightTimeWithLinkEndsStates(
-                testMoonState, testEarthState, testTime, false );
+    testOutputTime = lightTimeEarthToMoon->calculateLightTimeWithLinkEndsStates( testMoonState, testEarthState, testTime, false );
     spiceEarthState = getBodyCartesianStateAtEpoch( earth, "SSB", "ECLIPJ2000", "NONE", testTime );
-    spiceMoonState = getBodyCartesianStateAtEpoch(
-                moon, "SSB", "ECLIPJ2000", "NONE", testTime + testOutputTime );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                spiceEarthState, testEarthState, std::numeric_limits< double >::epsilon( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                spiceMoonState, testMoonState, std::numeric_limits< double >::epsilon( ) );
+    spiceMoonState = getBodyCartesianStateAtEpoch( moon, "SSB", "ECLIPJ2000", "NONE", testTime + testOutputTime );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceEarthState, testEarthState, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceMoonState, testMoonState, std::numeric_limits< double >::epsilon( ) );
 
     // Get link end states, assuming input time is reception time.
-    testOutputTime = lightTimeEarthToMoon->calculateLightTimeWithLinkEndsStates(
-                testMoonState, testEarthState, testTime, true );
-    spiceEarthState = getBodyCartesianStateAtEpoch( earth, "SSB", "ECLIPJ2000", "NONE",
-                                                    testTime - testOutputTime );
+    testOutputTime = lightTimeEarthToMoon->calculateLightTimeWithLinkEndsStates( testMoonState, testEarthState, testTime, true );
+    spiceEarthState = getBodyCartesianStateAtEpoch( earth, "SSB", "ECLIPJ2000", "NONE", testTime - testOutputTime );
     spiceMoonState = getBodyCartesianStateAtEpoch( moon, "SSB", "ECLIPJ2000", "NONE", testTime );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                spiceEarthState, testEarthState, std::numeric_limits< double >::epsilon( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                spiceMoonState, testMoonState, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceEarthState, testEarthState, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceMoonState, testMoonState, std::numeric_limits< double >::epsilon( ) );
 
     // Test light time with corrections.
 
@@ -151,85 +135,67 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     lightTimeCorrections.push_back( &getTimeDifferenceLightTimeCorrection );
 
     // Create light-time object with correction.
-    std::shared_ptr< LightTimeCalculator< > > lightTimeEarthToMoonWithCorrection =
-            std::make_shared< LightTimeCalculator< > >
-            ( earthEphemeris,
-              moonEphemeris,
-              lightTimeCorrections, std::make_shared< LightTimeConvergenceCriteria >( true, 50, 1e-13  ) );
+    std::shared_ptr< LightTimeCalculator<> > lightTimeEarthToMoonWithCorrection = std::make_shared< LightTimeCalculator<> >(
+            earthEphemeris, moonEphemeris, lightTimeCorrections, std::make_shared< LightTimeConvergenceCriteria >( true, 50, 1e-13 ) );
 
     // Calculate newtonian light time.
-    double newtonianLightTime = lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector(
-                testTime, true ).norm( ) / physical_constants::SPEED_OF_LIGHT;
+    double newtonianLightTime =
+            lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector( testTime, true ).norm( ) / physical_constants::SPEED_OF_LIGHT;
 
     // Calculate light time (including correction), at reception.
     testMoonLightTime = lightTimeEarthToMoonWithCorrection->calculateLightTime( testTime, true );
 
     // Calculate expected correction.
     double expectedCorrection = getTimeDifferenceLightTimeCorrection(
-                Eigen::Vector6d::Zero( ), Eigen::Vector6d::Zero( ),
-                testTime - testMoonLightTime, testTime );
+            Eigen::Vector6d::Zero( ), Eigen::Vector6d::Zero( ), testTime - testMoonLightTime, testTime );
 
     // Test whether results are approximately equal.
-    BOOST_CHECK_CLOSE_FRACTION( newtonianLightTime + expectedCorrection,
-                                testMoonLightTime,
-                                1E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( newtonianLightTime + expectedCorrection, testMoonLightTime, 1E-14 );
 
     // Create light-time object with correction, without iterating light-time corrections.
-    lightTimeEarthToMoonWithCorrection =
-            std::make_shared< LightTimeCalculator< > >( earthEphemeris, moonEphemeris,
-              lightTimeCorrections, std::make_shared< LightTimeConvergenceCriteria >( false ) );
+    lightTimeEarthToMoonWithCorrection = std::make_shared< LightTimeCalculator<> >(
+            earthEphemeris, moonEphemeris, lightTimeCorrections, std::make_shared< LightTimeConvergenceCriteria >( false ) );
 
     // Calculate newtonian light time.
-    newtonianLightTime = lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector(
-                testTime, true ).norm( ) / physical_constants::SPEED_OF_LIGHT;
+    newtonianLightTime =
+            lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector( testTime, true ).norm( ) / physical_constants::SPEED_OF_LIGHT;
 
     // Calculate light time (including correction), at reception.
     testMoonLightTime = lightTimeEarthToMoonWithCorrection->calculateLightTime( testTime, true );
 
     // Calculate expected correction.
     expectedCorrection = getTimeDifferenceLightTimeCorrection(
-                Eigen::Vector6d::Zero( ), Eigen::Vector6d::Zero( ),
-                testTime - testMoonLightTime, testTime );
+            Eigen::Vector6d::Zero( ), Eigen::Vector6d::Zero( ), testTime - testMoonLightTime, testTime );
 
     // Test whether results are approximately equal.
-    BOOST_CHECK_CLOSE_FRACTION( newtonianLightTime + expectedCorrection,
-                                testMoonLightTime,
-                                1E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( newtonianLightTime + expectedCorrection, testMoonLightTime, 1E-14 );
 
     // Add two more light-time corrections.
     lightTimeCorrections.push_back( &getVelocityDifferenceLightTimeCorrection );
     lightTimeCorrections.push_back( &getPositionDifferenceLightTimeCorrection );
 
     // Create light-time object with multiple corrections.
-    lightTimeEarthToMoonWithCorrection =
-            std::make_shared< LightTimeCalculator< > >
-            ( earthEphemeris,
-              moonEphemeris,
-              lightTimeCorrections, std::make_shared< LightTimeConvergenceCriteria >( true, 50, 1e-13 ) );
+    lightTimeEarthToMoonWithCorrection = std::make_shared< LightTimeCalculator<> >(
+            earthEphemeris, moonEphemeris, lightTimeCorrections, std::make_shared< LightTimeConvergenceCriteria >( true, 50, 1e-13 ) );
 
     // Calculate newtonian light time.
-    newtonianLightTime = lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector(
-                testTime, true ).norm( ) / physical_constants::SPEED_OF_LIGHT;
+    newtonianLightTime =
+            lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector( testTime, true ).norm( ) / physical_constants::SPEED_OF_LIGHT;
 
     // Calculate light time (including corrections), at reception.
-    testMoonLightTime = lightTimeEarthToMoonWithCorrection->calculateLightTimeWithLinkEndsStates(
-                testMoonState, testEarthState, testTime, true );
+    testMoonLightTime =
+            lightTimeEarthToMoonWithCorrection->calculateLightTimeWithLinkEndsStates( testMoonState, testEarthState, testTime, true );
 
     // Calculate and sum expected correction.
-    expectedCorrection = getTimeDifferenceLightTimeCorrection(
-                testEarthState, testMoonState, testTime - testMoonLightTime, testTime );
-    expectedCorrection += getPositionDifferenceLightTimeCorrection(
-                testEarthState, testMoonState, testTime - testMoonLightTime, testTime );
-    expectedCorrection += getVelocityDifferenceLightTimeCorrection(
-                testEarthState, testMoonState, testTime - testMoonLightTime, testTime );
+    expectedCorrection = getTimeDifferenceLightTimeCorrection( testEarthState, testMoonState, testTime - testMoonLightTime, testTime );
+    expectedCorrection += getPositionDifferenceLightTimeCorrection( testEarthState, testMoonState, testTime - testMoonLightTime, testTime );
+    expectedCorrection += getVelocityDifferenceLightTimeCorrection( testEarthState, testMoonState, testTime - testMoonLightTime, testTime );
 
     // Test whether results are approximately equal.
-    BOOST_CHECK_CLOSE_FRACTION( newtonianLightTime + expectedCorrection,
-                                testMoonLightTime,
-                                1E-14 );
+    BOOST_CHECK_CLOSE_FRACTION( newtonianLightTime + expectedCorrection, testMoonLightTime, 1E-14 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

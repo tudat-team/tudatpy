@@ -11,7 +11,6 @@
 #ifndef TUDAT_PERIODICSPINVARIATION_H
 #define TUDAT_PERIODICSPINVARIATION_H
 
-
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/fullPlanetaryRotationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
@@ -29,27 +28,22 @@ namespace estimatable_parameters
  *  Interfaces the estimation with the periodic spin variation (rotational rate corrections) of a PlanetaryRotationModel
  *  object
  */
-class PeriodicSpinVariation: public EstimatableParameter< Eigen::VectorXd >
+class PeriodicSpinVariation : public EstimatableParameter< Eigen::VectorXd >
 {
-
 public:
-
     //! Constructor
     /*!
      *  Constructor
      *  \param rotationModel PlanetaryRotationModel object of which the periodic spin variation is a property.
      *  \param associatedBody Name of body of which parameter is a property.
      */
-    PeriodicSpinVariation(
-            const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel,
-            const std::string& associatedBody):
-        EstimatableParameter< Eigen::VectorXd >( periodic_spin_variation, associatedBody ),
-        rotationModel_( rotationModel ), maxOrder_( rotationModel->getPlanetaryOrientationAngleCalculator()
-                                                    ->getRotationRateCorrections().size() ) { }
+    PeriodicSpinVariation( const std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel, const std::string& associatedBody ):
+        EstimatableParameter< Eigen::VectorXd >( periodic_spin_variation, associatedBody ), rotationModel_( rotationModel ),
+        maxOrder_( rotationModel->getPlanetaryOrientationAngleCalculator( )->getRotationRateCorrections( ).size( ) )
+    { }
 
     //! Destructor
     ~PeriodicSpinVariation( ) { }
-
 
     //! Get value of the periodic spin variation coefficients (starting from the lowest order to the highest one, first cosinus
     //! coefficient directly followed by sinus coefficient for each order) .
@@ -64,17 +58,17 @@ public:
     {
         std::vector< double > parameterValues;
         std::map< double, std::pair< double, double > > rotationRateCorrections =
-                rotationModel_->getPlanetaryOrientationAngleCalculator()->getRotationRateCorrections();
+                rotationModel_->getPlanetaryOrientationAngleCalculator( )->getRotationRateCorrections( );
 
         for( std::map< double, std::pair< double, double > >::iterator correctionsIterator = rotationRateCorrections.begin( );
-             correctionsIterator != rotationRateCorrections.end( ); correctionsIterator++ )
+             correctionsIterator != rotationRateCorrections.end( );
+             correctionsIterator++ )
         {
             parameterValues.push_back( correctionsIterator->second.first );
             parameterValues.push_back( correctionsIterator->second.second );
         }
         return ( utilities::convertStlVectorToEigenVector( parameterValues ) );
     }
-
 
     //! Reset value of the periodic spin variation coefficients (starting from the lowest order to the highest one, first cosinus
     //! coefficient directly followed by sinus coefficient for each order).
@@ -85,26 +79,23 @@ public:
      */
     void setParameterValue( const Eigen::VectorXd parameterValue )
     {
-
-        std::map< double, std::pair< double, double > > oldRotationRateCorrections
-                = rotationModel_->getPlanetaryOrientationAngleCalculator()->getRotationRateCorrections();
+        std::map< double, std::pair< double, double > > oldRotationRateCorrections =
+                rotationModel_->getPlanetaryOrientationAngleCalculator( )->getRotationRateCorrections( );
 
         std::map< double, std::pair< double, double > > rotationRateCorrections;
 
         int currentCorrectionIndex = 0;
-        for ( std::map< double, std::pair< double, double > >::iterator oldCorrectionsIterator = oldRotationRateCorrections.begin() ;
-              oldCorrectionsIterator != oldRotationRateCorrections.end() ; oldCorrectionsIterator++ ){
-
-            rotationRateCorrections[ oldCorrectionsIterator->first ]
-                    = std::make_pair( parameterValue[ currentCorrectionIndex ], parameterValue[ currentCorrectionIndex + 1 ] );
+        for( std::map< double, std::pair< double, double > >::iterator oldCorrectionsIterator = oldRotationRateCorrections.begin( );
+             oldCorrectionsIterator != oldRotationRateCorrections.end( );
+             oldCorrectionsIterator++ )
+        {
+            rotationRateCorrections[ oldCorrectionsIterator->first ] =
+                    std::make_pair( parameterValue[ currentCorrectionIndex ], parameterValue[ currentCorrectionIndex + 1 ] );
 
             currentCorrectionIndex += 2;
-
         }
 
-        rotationModel_->getPlanetaryOrientationAngleCalculator()->resetRotationRateCorrections(
-                    rotationRateCorrections);
-
+        rotationModel_->getPlanetaryOrientationAngleCalculator( )->resetRotationRateCorrections( rotationRateCorrections );
     }
 
     //! Function to retrieve the size of the parameter
@@ -119,16 +110,14 @@ public:
     }
 
 protected:
-
 private:
-
     //! PlanetaryRotationModel object of which periodic spin variation is a property
     std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel_;
     int maxOrder_;
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_PERIODICSPINVARIATION_H
+#endif  // TUDAT_PERIODICSPINVARIATION_H

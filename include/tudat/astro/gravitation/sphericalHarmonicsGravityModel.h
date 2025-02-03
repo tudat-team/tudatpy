@@ -20,7 +20,6 @@
 #include <boost/lambda/lambda.hpp>
 #include <memory>
 
-
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -42,12 +41,10 @@ namespace gravitation
  * computeGeodesyNormalizedGravitationalAccelerationSum() function. The acceleration computed is a
  * sum, based on the matrix of coefficients of the model provided.
  */
-class SphericalHarmonicsGravitationalAccelerationModel
-        : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >,
-        public SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d >
+class SphericalHarmonicsGravitationalAccelerationModel : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >,
+                                                         public SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d >
 {
 private:
-
     //! Typedef for base class.
     typedef SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d > Base;
 
@@ -55,7 +52,6 @@ private:
     typedef std::function< Eigen::MatrixXd( ) > CoefficientMatrixReturningFunction;
 
 public:
-
     //! Constructor taking position-functions for bodies, and constant parameters of spherical
     //! harmonics expansion.
     /*!
@@ -92,32 +88,26 @@ public:
             const Eigen::MatrixXd aCosineHarmonicCoefficientMatrix,
             const Eigen::MatrixXd aSineHarmonicCoefficientMatrix,
             const StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
-            const std::function< Eigen::Quaterniond( ) >
-            rotationFromBodyFixedToIntegrationFrameFunction =
-            [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+                    []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
+            const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
+                    []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
             std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
-            std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
-        : Base( positionOfBodySubjectToAccelerationFunction,
-                aGravitationalParameter,
-                positionOfBodyExertingAccelerationFunction,
-                isMutualAttractionUsed ),
-          equatorialRadius( anEquatorialRadius ),
-          getCosineHarmonicsCoefficients( [ = ]( ){ return aCosineHarmonicCoefficientMatrix; } ),
-          getSineHarmonicsCoefficients( [ = ]( ){ return aSineHarmonicCoefficientMatrix; } ),
-          rotationFromBodyFixedToIntegrationFrameFunction_(
-              rotationFromBodyFixedToIntegrationFrameFunction ),
-          sphericalHarmonicsCache_( sphericalHarmonicsCache ),
-          saveSphericalHarmonicTermsSeparately_( false )
+                    std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) ):
+        Base( positionOfBodySubjectToAccelerationFunction,
+              aGravitationalParameter,
+              positionOfBodyExertingAccelerationFunction,
+              isMutualAttractionUsed ),
+        equatorialRadius( anEquatorialRadius ), getCosineHarmonicsCoefficients( [ = ]( ) { return aCosineHarmonicCoefficientMatrix; } ),
+        getSineHarmonicsCoefficients( [ = ]( ) { return aSineHarmonicCoefficientMatrix; } ),
+        rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
+        sphericalHarmonicsCache_( sphericalHarmonicsCache ), saveSphericalHarmonicTermsSeparately_( false )
     {
-        maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ) - 1 ;
-        maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) )- 1 ;
+        maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ) - 1;
+        maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ) - 1;
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
-                    std::max< int >( maximumDegree_,
-                                     sphericalHarmonicsCache_->getMaximumDegree( ) ) + 1,
-                    std::max< int >( maximumOrder_,
-                                     sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
+                std::max< int >( maximumDegree_, sphericalHarmonicsCache_->getMaximumDegree( ) ) + 1,
+                std::max< int >( maximumOrder_, sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
     }
 
     //! Constructor taking functions for position of bodies, and parameters of spherical harmonics
@@ -154,33 +144,26 @@ public:
             const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
             const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
             const StateFunction positionOfBodyExertingAccelerationFunction =
-            [ ]( Eigen::Vector3d& input ){ input = Eigen::Vector3d::Zero( ); },
-            const std::function< Eigen::Quaterniond( ) >
-            rotationFromBodyFixedToIntegrationFrameFunction =
-            [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+                    []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
+            const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
+                    []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
-            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache
-            = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
-        : Base( positionOfBodySubjectToAccelerationFunction,
-                aGravitationalParameterFunction,
-                positionOfBodyExertingAccelerationFunction,
-                isMutualAttractionUsed ),
-          equatorialRadius( anEquatorialRadius ),
-          getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
-          getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),
-          rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
-          sphericalHarmonicsCache_( sphericalHarmonicsCache ),
-          saveSphericalHarmonicTermsSeparately_( false )
+            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+                    std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) ):
+        Base( positionOfBodySubjectToAccelerationFunction,
+              aGravitationalParameterFunction,
+              positionOfBodyExertingAccelerationFunction,
+              isMutualAttractionUsed ),
+        equatorialRadius( anEquatorialRadius ), getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
+        getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),
+        rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
+        sphericalHarmonicsCache_( sphericalHarmonicsCache ), saveSphericalHarmonicTermsSeparately_( false )
     {
         maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) - 1 );
         maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) - 1 );
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
-                    std::max< int >( maximumDegree_ + 1,
-                                     sphericalHarmonicsCache_->getMaximumDegree( ) ),
-                    std::max< int >( maximumOrder_ + 1,
-                                     sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
-
-
+                std::max< int >( maximumDegree_ + 1, sphericalHarmonicsCache_->getMaximumDegree( ) ),
+                std::max< int >( maximumOrder_ + 1, sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
     }
 
     //! Get gravitational acceleration in body-fixed frame of body undergoing acceleration.
@@ -204,40 +187,35 @@ public:
     {
         if( !( this->currentTime_ == currentTime ) )
         {
-
             cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
             sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
 
             rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
             this->updateBaseMembers( );
 
-            currentInertialRelativePosition_ =
-                    this->positionOfBodySubjectToAcceleration - this->positionOfBodyExertingAcceleration ;
+            currentInertialRelativePosition_ = this->positionOfBodySubjectToAcceleration - this->positionOfBodyExertingAcceleration;
 
-            currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * (
-                        currentInertialRelativePosition_ );
+            currentRelativePosition_ = rotationToIntegrationFrame_.inverse( ) * ( currentInertialRelativePosition_ );
 
-            currentAcceleration_ =
-                    computeGeodesyNormalizedGravitationalAccelerationSum(
-                        currentRelativePosition_,
-                        gravitationalParameter,
-                        equatorialRadius,
-                        cosineHarmonicCoefficients,
-                        sineHarmonicCoefficients, sphericalHarmonicsCache_,
-                        accelerationPerTerm_,
-                        saveSphericalHarmonicTermsSeparately_,
-                        rotationToIntegrationFrame_.toRotationMatrix( ) );
+            currentAcceleration_ = computeGeodesyNormalizedGravitationalAccelerationSum( currentRelativePosition_,
+                                                                                         gravitationalParameter,
+                                                                                         equatorialRadius,
+                                                                                         cosineHarmonicCoefficients,
+                                                                                         sineHarmonicCoefficients,
+                                                                                         sphericalHarmonicsCache_,
+                                                                                         accelerationPerTerm_,
+                                                                                         saveSphericalHarmonicTermsSeparately_,
+                                                                                         rotationToIntegrationFrame_.toRotationMatrix( ) );
             currentAccelerationInBodyFixedFrame_ = rotationToIntegrationFrame_.inverse( ) * currentAcceleration_;
 
-            if ( this->updatePotential_ )
+            if( this->updatePotential_ )
             {
-                this->currentPotential_ = gravitation::calculateSphericalHarmonicGravitationalPotential(
-                        currentRelativePosition_,
-                        gravitationalParameter,
-                        equatorialRadius,
-                        cosineHarmonicCoefficients,
-                        sineHarmonicCoefficients,
-                        sphericalHarmonicsCache_ );
+                this->currentPotential_ = gravitation::calculateSphericalHarmonicGravitationalPotential( currentRelativePosition_,
+                                                                                                         gravitationalParameter,
+                                                                                                         equatorialRadius,
+                                                                                                         cosineHarmonicCoefficients,
+                                                                                                         sineHarmonicCoefficients,
+                                                                                                         sphericalHarmonicsCache_ );
             }
         }
     }
@@ -250,19 +228,19 @@ public:
      * \param sineCoefficients Sine coefficients to use
      * \return Total spherical harmonic acceleration in inertial frame, with alternative coefficients
      */
-    Eigen::VectorXd getAccelerationWithAlternativeCoefficients(
-            const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients)
+    Eigen::VectorXd getAccelerationWithAlternativeCoefficients( const Eigen::MatrixXd& cosineCoefficients,
+                                                                const Eigen::MatrixXd& sineCoefficients )
     {
         std::map< std::pair< int, int >, Eigen::Vector3d > dummy;
-        return computeGeodesyNormalizedGravitationalAccelerationSum(
-                    currentRelativePosition_,
-                    gravitationalParameter,
-                    equatorialRadius,
-                    cosineCoefficients,
-                    sineCoefficients, sphericalHarmonicsCache_,
-                    dummy,
-                    false,
-                    rotationToIntegrationFrame_.toRotationMatrix( ) );
+        return computeGeodesyNormalizedGravitationalAccelerationSum( currentRelativePosition_,
+                                                                     gravitationalParameter,
+                                                                     equatorialRadius,
+                                                                     cosineCoefficients,
+                                                                     sineCoefficients,
+                                                                     sphericalHarmonicsCache_,
+                                                                     dummy,
+                                                                     false,
+                                                                     rotationToIntegrationFrame_.toRotationMatrix( ) );
     }
 
     //! Function to retrieve spherical harmonic acceleration in inertial frame, with alternative coefficients, per term
@@ -274,22 +252,21 @@ public:
      * \param coefficientIndices Degrees and orders for which acceleration contributions are to be determined.
      * \return Total spherical harmonic acceleration in inertial frame, with alternative coefficients
      */
-    Eigen::VectorXd getAccelerationComponentsWithAlternativeCoefficients(
-            const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients,
-            const std::vector< std::pair< int, int > >& coefficientIndices )
+    Eigen::VectorXd getAccelerationComponentsWithAlternativeCoefficients( const Eigen::MatrixXd& cosineCoefficients,
+                                                                          const Eigen::MatrixXd& sineCoefficients,
+                                                                          const std::vector< std::pair< int, int > >& coefficientIndices )
     {
         std::map< std::pair< int, int >, Eigen::Vector3d > accelerationPerTerm;
 
-        computeGeodesyNormalizedGravitationalAccelerationSum(
-                    currentRelativePosition_,
-                    gravitationalParameter,
-                    equatorialRadius,
-                    cosineCoefficients,
-                    sineCoefficients, sphericalHarmonicsCache_,
-                    accelerationPerTerm,
-                    true,
-                    rotationToIntegrationFrame_.toRotationMatrix( ) );
-
+        computeGeodesyNormalizedGravitationalAccelerationSum( currentRelativePosition_,
+                                                              gravitationalParameter,
+                                                              equatorialRadius,
+                                                              cosineCoefficients,
+                                                              sineCoefficients,
+                                                              sphericalHarmonicsCache_,
+                                                              accelerationPerTerm,
+                                                              true,
+                                                              rotationToIntegrationFrame_.toRotationMatrix( ) );
 
         Eigen::VectorXd returnVector = Eigen::VectorXd( 3 * coefficientIndices.size( ) );
         for( unsigned int i = 0; i < coefficientIndices.size( ); i++ )
@@ -297,7 +274,7 @@ public:
             returnVector.segment( i * 3, 3 ) = accelerationPerTerm.at( coefficientIndices.at( i ) );
         }
         return returnVector;
-   }
+    }
 
     //! Function to retrieve the spherical harmonics cache for this acceleration.
     /*!
@@ -405,7 +382,8 @@ public:
     {
         if( !saveSphericalHarmonicTermsSeparately_ )
         {
-            throw std::runtime_error( "Error when retrieving component accelerations from spherial harmonic acceleration, components not saved" );
+            throw std::runtime_error(
+                    "Error when retrieving component accelerations from spherial harmonic acceleration, components not saved" );
         }
 
         Eigen::VectorXd returnVector = Eigen::VectorXd( 3 * coefficientIndices.size( ) );
@@ -417,12 +395,11 @@ public:
             }
             else
             {
-                throw std::runtime_error( "Error when retrieving spherical harmonic acceleration at degree/order: " +
-                                          std::to_string( coefficientIndices.at( i ).first ) + "/" +
-                                          std::to_string( coefficientIndices.at( i ).second ) +
-                                          ". This degree/order combination is not within the selected range of the current acceleration model." );
+                throw std::runtime_error(
+                        "Error when retrieving spherical harmonic acceleration at degree/order: " +
+                        std::to_string( coefficientIndices.at( i ).first ) + "/" + std::to_string( coefficientIndices.at( i ).second ) +
+                        ". This degree/order combination is not within the selected range of the current acceleration model." );
             }
-
         }
         return returnVector;
     }
@@ -431,7 +408,8 @@ public:
     {
         if( !saveSphericalHarmonicTermsSeparately_ )
         {
-            throw std::runtime_error( "Error when retrieving component accelerations from spherial harmonic acceleration, components not saved" );
+            throw std::runtime_error(
+                    "Error when retrieving component accelerations from spherial harmonic acceleration, components not saved" );
         }
 
         Eigen::VectorXd returnVector = Eigen::VectorXd( coefficientIndices.size( ) );
@@ -443,10 +421,10 @@ public:
             }
             else
             {
-                throw std::runtime_error( "Error when retrieving spherical harmonic acceleration at degree/order: " +
-                                          std::to_string( coefficientIndices.at( i ).first ) + "/" +
-                                          std::to_string( coefficientIndices.at( i ).second ) +
-                                          ". This degree/order combination is not within the selected range of the current acceleration model." );
+                throw std::runtime_error(
+                        "Error when retrieving spherical harmonic acceleration at degree/order: " +
+                        std::to_string( coefficientIndices.at( i ).first ) + "/" + std::to_string( coefficientIndices.at( i ).second ) +
+                        ". This degree/order combination is not within the selected range of the current acceleration model." );
             }
         }
         return returnVector;
@@ -472,15 +450,12 @@ public:
         return maximumOrder_;
     }
 
-
 protected:
-
 private:
-
     //! Equatorial radius [m].
     /*!
      * Current value of equatorial (planetary) radius used for spherical harmonics expansion [m].
-    */
+     */
     const double equatorialRadius;
 
     //! Matrix of cosine coefficients.
@@ -539,17 +514,13 @@ private:
 
     //! Maximum order of gravity field expansion
     int maximumOrder_;
-
 };
 
-
 //! Typedef for shared-pointer to SphericalHarmonicsGravitationalAccelerationModel.
-typedef std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
-SphericalHarmonicsGravitationalAccelerationModelPointer;
+typedef std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > SphericalHarmonicsGravitationalAccelerationModelPointer;
 
+}  // namespace gravitation
 
-} // namespace gravitation
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_SPHERICAL_HARMONICS_GRAVITY_MODEL_H
+#endif  // TUDAT_SPHERICAL_HARMONICS_GRAVITY_MODEL_H

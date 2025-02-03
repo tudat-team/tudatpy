@@ -23,53 +23,47 @@ using namespace tudat::basic_mathematics;
 using namespace tudat::input_output;
 
 //! Test function for a new interplanetary trajectory class in Tudat
-struct MultipleGravityAssist
-{
+struct MultipleGravityAssist {
+    MultipleGravityAssist( ) { }
 
-    MultipleGravityAssist( ){ }
-
-    MultipleGravityAssist(
-            const SystemOfBodies& bodyMap,
-            const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
-            const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
-            const std::vector< std::string >& nodeIds,
-            const std::string& centralBody,
-            const std::vector< std::vector< double > > problemBounds_ ):
-        bodyMap_( bodyMap ), legSettings_( legSettings ), nodeSettings_( nodeSettings ),
-        nodeIds_( nodeIds ), centralBody_( centralBody ), problemBounds_( problemBounds_ )
+    MultipleGravityAssist( const SystemOfBodies& bodyMap,
+                           const std::vector< std::shared_ptr< TransferLegSettings > >& legSettings,
+                           const std::vector< std::shared_ptr< TransferNodeSettings > >& nodeSettings,
+                           const std::vector< std::string >& nodeIds,
+                           const std::string& centralBody,
+                           const std::vector< std::vector< double > > problemBounds_ ):
+        bodyMap_( bodyMap ), legSettings_( legSettings ), nodeSettings_( nodeSettings ), nodeIds_( nodeIds ), centralBody_( centralBody ),
+        problemBounds_( problemBounds_ )
     {
         numberOfNodes_ = nodeIds_.size( );
 
-        getParameterVectorDecompositionIndices(
-               legSettings_,  nodeSettings_, legParameterIndices_, nodeParameterIndices_ );
+        getParameterVectorDecompositionIndices( legSettings_, nodeSettings_, legParameterIndices_, nodeParameterIndices_ );
     }
 
-    void getDecomposedDecisionVector(
-            const Eigen::VectorXd rawDecisionVariables,
-            std::vector< double >& currentNodeTimes,
-            std::vector< Eigen::VectorXd >& currentLegFreeParameters,
-            std::vector< Eigen::VectorXd >& currentNodeFreeParameters ) const;
+    void getDecomposedDecisionVector( const Eigen::VectorXd rawDecisionVariables,
+                                      std::vector< double >& currentNodeTimes,
+                                      std::vector< Eigen::VectorXd >& currentLegFreeParameters,
+                                      std::vector< Eigen::VectorXd >& currentNodeFreeParameters ) const;
 
     // Calculates the fitness
-    std::vector< double > fitness( const std::vector< double > &x ) const;
+    std::vector< double > fitness( const std::vector< double >& x ) const;
 
-    std::pair< std::vector< double >, std::vector< double > > get_bounds() const;
+    std::pair< std::vector< double >, std::vector< double > > get_bounds( ) const;
 
     std::string get_name( ) const;
 
-    template <typename Archive>
-    void serialize(Archive &ar)
+    template< typename Archive >
+    void serialize( Archive& ar )
     {
-        ar(problemBounds_);
+        ar( problemBounds_ );
     }
 
-    std::vector< double >::size_type get_nobj() const
+    std::vector< double >::size_type get_nobj( ) const
     {
         return 1u;
     }
 
 private:
-
     SystemOfBodies bodyMap_;
     std::vector< std::shared_ptr< TransferLegSettings > > legSettings_;
     std::vector< std::shared_ptr< TransferNodeSettings > > nodeSettings_;
@@ -85,4 +79,4 @@ private:
     mutable std::shared_ptr< TransferTrajectory > transferTrajectory_;
 };
 
-#endif // TUDAT_EXAMPLE_PAGMO_MULTIPLE_GRAVITY_ASSIST_H
+#endif  // TUDAT_EXAMPLE_PAGMO_MULTIPLE_GRAVITY_ASSIST_H

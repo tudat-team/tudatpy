@@ -25,4 +25,4 @@
 #include "electromagnetism/occultationModel.h"
 #include "electromagnetism/surfacePropertyDistribution.h"
 
-#endif // TUDAT_ELECTROMAGNETISM_H
+#endif  // TUDAT_ELECTROMAGNETISM_H

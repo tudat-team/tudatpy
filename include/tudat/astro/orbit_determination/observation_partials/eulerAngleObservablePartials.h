@@ -32,16 +32,12 @@ namespace tudat
 namespace observation_partials
 {
 
-
 //! Class to compute the partial derivatives of a 3-1-3 Euler angle observable.
-class EulerAngleObervationPartialWrtCurrentRotationalState: public ObservationPartial< 3 >
+class EulerAngleObervationPartialWrtCurrentRotationalState : public ObservationPartial< 3 >
 {
-
 public:
-
     //! Local typedef for return type (list of partial matrices and associated evaluation times).
-    typedef std::vector< std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > >
-    EulerAngleObservationPartialReturnType;
+    typedef std::vector< std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > > EulerAngleObservationPartialReturnType;
 
     //! Constructor
     /*!
@@ -50,7 +46,8 @@ public:
      */
     EulerAngleObervationPartialWrtCurrentRotationalState(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
-        ObservationPartial< 3 >( parameterIdentifier ){ }
+        ObservationPartial< 3 >( parameterIdentifier )
+    { }
 
     //! Destructor
     ~EulerAngleObervationPartialWrtCurrentRotationalState( ) { }
@@ -72,20 +69,18 @@ public:
             const observation_models::LinkEndType linkEndOfFixedTime,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Vector3d& currentObservation = Eigen::Vector3d::Constant( TUDAT_NAN ) )
-    {        
+    {
         EulerAngleObservationPartialReturnType returnPartial;
 
         currentTime_ = times.at( 0 );
         currentPartial_.setZero( );
         currentPartial_.block( 0, 0, 3, 4 ) =
-                -basic_mathematics::calculateEulerAngle313WrtQuaternionPartialFromEulerAngles(
-                                                            currentObservation );
+                -basic_mathematics::calculateEulerAngle313WrtQuaternionPartialFromEulerAngles( currentObservation );
         returnPartial.push_back( std::make_pair( currentPartial_, currentTime_ ) );
         return returnPartial;
     }
 
 protected:
-
     //! Partial derivative, as computed by last call to calculatePartial function
     Eigen::Matrix< double, 3, 7 > currentPartial_;
 
@@ -93,9 +88,8 @@ protected:
     double currentTime_;
 };
 
-}
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-
-#endif // TUDAT_EULERANGLEOBSERVABLEPARTIALS_H
+#endif  // TUDAT_EULERANGLEOBSERVABLEPARTIALS_H

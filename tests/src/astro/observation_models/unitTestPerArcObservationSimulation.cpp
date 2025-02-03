@@ -16,7 +16,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "tudat/simulation/estimation.h"
 
 namespace tudat
@@ -41,11 +40,8 @@ using namespace tudat::statistics;
 
 BOOST_AUTO_TEST_SUITE( test_observation_noise_models )
 
-
-std::vector< std::vector< double > > splitArcTimes(
-        const std::vector< double >& observationTimes )
+std::vector< std::vector< double > > splitArcTimes( const std::vector< double >& observationTimes )
 {
-
     std::vector< std::vector< double > > perArcObservationTimes;
     std::vector< double > currentArc;
 
@@ -67,14 +63,12 @@ std::vector< std::vector< double > > splitArcTimes(
     return perArcObservationTimes;
 }
 
-std::vector< double > getArcLengths(
-        const std::vector< std::vector< double > >& perArcTimes )
+std::vector< double > getArcLengths( const std::vector< std::vector< double > >& perArcTimes )
 {
     std::vector< double > arcLengths;
     for( unsigned int i = 0; i < perArcTimes.size( ); i++ )
     {
-        arcLengths.push_back( perArcTimes.at( i ).at( perArcTimes.at( i ).size( ) - 1 ) -
-                              perArcTimes.at( i ).at( 0 ) );
+        arcLengths.push_back( perArcTimes.at( i ).at( perArcTimes.at( i ).size( ) - 1 ) - perArcTimes.at( i ).at( 0 ) );
     }
     return arcLengths;
 }
@@ -82,7 +76,7 @@ std::vector< double > getArcLengths(
 //! Test whether observation noise is correctly added when simulating noisy observations
 BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 {
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation
@@ -95,14 +89,13 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     double initialEphemerisTime = double( 1.0E7 );
 
     // Create bodies needed in simulation
-    BodyListSettings bodySettings =
-            getDefaultBodySettings( bodyNames );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames );
     bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
-                "ECLIPJ2000", "IAU_Earth",
-                spice_interface::computeRotationQuaternionBetweenFrames(
-                    "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
-                initialEphemerisTime, 2.0 * mathematical_constants::PI /
-                ( physical_constants::JULIAN_DAY ) );
+            "ECLIPJ2000",
+            "IAU_Earth",
+            spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+            initialEphemerisTime,
+            2.0 * mathematical_constants::PI / ( physical_constants::JULIAN_DAY ) );
 
     Eigen::Vector6d spacecraftOrbitalElements;
     spacecraftOrbitalElements( semiMajorAxisIndex ) = 2000.0E3;
@@ -116,7 +109,6 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             keplerEphemerisSettings( spacecraftOrbitalElements, 0.0, getBodyGravitationalParameter( "Moon" ), "Moon" );
 
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
-    
 
     // Creatre ground stations: same position, but different representation
     std::vector< std::string > groundStationNames;
@@ -135,32 +127,29 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
     // Create observation settings
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
-                                           one_way_range,  testLinkEnds ) );
+    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( one_way_range, testLinkEnds ) );
 
     // Create observation simulators
-    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
+    std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
             createObservationSimulators( observationSettingsList, bodies );
-
 
     // Define observation simulation settings (observation type, link end, times and reference link end)
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > idealMeasurementSimulationInput;
-    idealMeasurementSimulationInput.push_back(
-                std::make_shared< PerArcObservationSimulationSettings< double > >(
-                    one_way_range, testLinkEnds,
-                    physical_constants::JULIAN_YEAR,
-                    physical_constants::JULIAN_YEAR + 28.0 * physical_constants::JULIAN_DAY, 60.0,
-                    elevationAngleViabilitySettings( std::make_pair( "Earth", "Station1" ), 0.0 ) ) );
+    idealMeasurementSimulationInput.push_back( std::make_shared< PerArcObservationSimulationSettings< double > >(
+            one_way_range,
+            testLinkEnds,
+            physical_constants::JULIAN_YEAR,
+            physical_constants::JULIAN_YEAR + 28.0 * physical_constants::JULIAN_DAY,
+            60.0,
+            elevationAngleViabilitySettings( std::make_pair( "Earth", "Station1" ), 0.0 ) ) );
 
-
-    std::shared_ptr< ObservationCollection< > > idealObservationsAndTimes = simulateObservations< double, double >(
-                idealMeasurementSimulationInput, observationSimulators, bodies );
+    std::shared_ptr< ObservationCollection<> > idealObservationsAndTimes =
+            simulateObservations< double, double >( idealMeasurementSimulationInput, observationSimulators, bodies );
     std::vector< double > idealObservationTimes = idealObservationsAndTimes->getConcatenatedTimeVector( );
     std::vector< std::vector< double > > perArcIdealObservationTimes = splitArcTimes( idealObservationTimes );
     std::vector< double > idealArcLengths = getArcLengths( perArcIdealObservationTimes );
 
-
-    std::shared_ptr< ObservationCollection< > > caseTwoObservationsAndTimes;
+    std::shared_ptr< ObservationCollection<> > caseTwoObservationsAndTimes;
 
     for( int test = 0; test < 4; test++ )
     {
@@ -186,23 +175,25 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
         if( test == 3 )
         {
-            additionalViabilitySettingsList.push_back( bodyOccultationViabilitySettings(
-                                                           std::make_pair( "LunarOrbiter", "" ), "Moon"  ) );
-
+            additionalViabilitySettingsList.push_back( bodyOccultationViabilitySettings( std::make_pair( "LunarOrbiter", "" ), "Moon" ) );
         }
 
-        std::cout<<"******************** TEST ********************* "<<std::endl;
+        std::cout << "******************** TEST ********************* " << std::endl;
         std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-        measurementSimulationInput.push_back(
-                    std::make_shared< PerArcObservationSimulationSettings< double > >(
-                        one_way_range, testLinkEnds,
-                        physical_constants::JULIAN_YEAR,
-                        physical_constants::JULIAN_YEAR + 28.0 * physical_constants::JULIAN_DAY, 60.0,
-                        elevationAngleViabilitySettings( std::make_pair( "Earth", "Station1" ), 0.0 ),
-                        minimumArcDuration, maximumArcDuration, TUDAT_NAN, observation_models::unidentified_link_end,
-                        additionalViabilitySettingsList ) );
-        std::shared_ptr< ObservationCollection< > > testObservationsAndTimes = simulateObservations< double, double >(
-                    measurementSimulationInput, observationSimulators, bodies );
+        measurementSimulationInput.push_back( std::make_shared< PerArcObservationSimulationSettings< double > >(
+                one_way_range,
+                testLinkEnds,
+                physical_constants::JULIAN_YEAR,
+                physical_constants::JULIAN_YEAR + 28.0 * physical_constants::JULIAN_DAY,
+                60.0,
+                elevationAngleViabilitySettings( std::make_pair( "Earth", "Station1" ), 0.0 ),
+                minimumArcDuration,
+                maximumArcDuration,
+                TUDAT_NAN,
+                observation_models::unidentified_link_end,
+                additionalViabilitySettingsList ) );
+        std::shared_ptr< ObservationCollection<> > testObservationsAndTimes =
+                simulateObservations< double, double >( measurementSimulationInput, observationSimulators, bodies );
         if( test == 2 )
         {
             caseTwoObservationsAndTimes = testObservationsAndTimes;
@@ -215,8 +206,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
         if( test == 1 )
         {
-            BOOST_CHECK_EQUAL( perArcIdealObservationTimes.size( ),
-                               perArcTestObservationTimes.size( ) );
+            BOOST_CHECK_EQUAL( perArcIdealObservationTimes.size( ), perArcTestObservationTimes.size( ) );
         }
 
         for( unsigned int i = 0; i < perArcIdealObservationTimes.size( ); i++ )
@@ -240,8 +230,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             {
                 if( idealArcLengths.at( i ) < 12.0 * 3600.0 )
                 {
-                    BOOST_CHECK_EQUAL( perArcIdealObservationTimes.at( i ).size( ),
-                                       perArcTestObservationTimes.at( i ).size( ) );
+                    BOOST_CHECK_EQUAL( perArcIdealObservationTimes.at( i ).size( ), perArcTestObservationTimes.at( i ).size( ) );
                 }
                 else
                 {
@@ -250,8 +239,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
                 for( unsigned int j = 0; j < perArcTestObservationTimes.at( i ).size( ); j++ )
                 {
-                    BOOST_CHECK_EQUAL( perArcIdealObservationTimes.at( i ).at( j ),
-                                       perArcTestObservationTimes.at( i ).at( j ) );
+                    BOOST_CHECK_EQUAL( perArcIdealObservationTimes.at( i ).at( j ), perArcTestObservationTimes.at( i ).at( j ) );
                 }
             }
 
@@ -290,8 +278,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             std::vector< double > referenceObservationTimes = caseTwoObservationsAndTimes->getConcatenatedTimeVector( );
 
             std::shared_ptr< observation_models::ObservationModel< 1 > > observationModel =
-                    std::dynamic_pointer_cast< ObservationSimulator< 1 > >( observationSimulators.at( 0 ) )->getObservationModel(
-                        testLinkEnds );
+                    std::dynamic_pointer_cast< ObservationSimulator< 1 > >( observationSimulators.at( 0 ) )
+                            ->getObservationModel( testLinkEnds );
 
             unsigned int testIndex = 0;
 
@@ -302,16 +290,16 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
             std::vector< std::shared_ptr< observation_models::ObservationViabilityCalculator > > additionalViabilityCalculators =
                     observation_models::createObservationViabilityCalculators(
-                        bodies, testLinkEnds, one_way_range, additionalViabilitySettingsList );
+                            bodies, testLinkEnds, one_way_range, additionalViabilitySettingsList );
 
             BOOST_CHECK_EQUAL( ( testObservationTimes.size( ) < referenceObservationTimes.size( ) ), true );
 
             for( unsigned int i = 0; i < referenceObservationTimes.size( ); i++ )
             {
                 currentObservation = observationModel->computeIdealObservationsWithLinkEndData(
-                            referenceObservationTimes.at( i ), receiver, vectorOfTimes, vectorOfStates );
+                        referenceObservationTimes.at( i ), receiver, vectorOfTimes, vectorOfStates );
                 isObservationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, additionalViabilityCalculators );
-                if( testObservationTimes.at( testIndex ) == referenceObservationTimes.at( i )  )
+                if( testObservationTimes.at( testIndex ) == referenceObservationTimes.at( i ) )
                 {
                     BOOST_CHECK_EQUAL( isObservationFeasible, true );
                     testIndex++;
@@ -328,15 +316,12 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             }
 
             BOOST_CHECK_EQUAL( testIndex, testObservationTimes.size( ) );
-
         }
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
-}
+}  // namespace unit_tests
 
-}
-
+}  // namespace tudat

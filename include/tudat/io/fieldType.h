@@ -61,118 +61,99 @@ static FieldType hash_constructor( const char* text )
 // -----------------------------
 namespace general
 {
-    //! Object name [-].
-    static const FieldType name = hash_constructor( "General: Object_name" );
+//! Object name [-].
+static const FieldType name = hash_constructor( "General: Object_name" );
 
-    //! Object identification code [-].
-    static const FieldType id   = hash_constructor( "General: Object_id" );
+//! Object identification code [-].
+static const FieldType id = hash_constructor( "General: Object_id" );
 
-    //! Parameter name [-].
-    static const FieldType parameterName = hash_constructor( "General: Parameter_name" );
+//! Parameter name [-].
+static const FieldType parameterName = hash_constructor( "General: Parameter_name" );
 
-    //! Parameter value [-].
-    static const FieldType parameterValue = hash_constructor( "General: Parameter_value" );
-}
+//! Parameter value [-].
+static const FieldType parameterValue = hash_constructor( "General: Parameter_value" );
+}  // namespace general
 
 // -----------------------------
 // Time related fields
 // -----------------------------
 namespace time
 {
-    //! Epoch Julian Date [JD, UT1].
-    static const FieldType epoch = hash_constructor( "Time: Julian_date_epoch[UT1]" );
-}
+//! Epoch Julian Date [JD, UT1].
+static const FieldType epoch = hash_constructor( "Time: Julian_date_epoch[UT1]" );
+}  // namespace time
 
 // -----------------------------
 // State related fields
 // -----------------------------
 namespace state
 {
-    //! Cartesian X coordinate [m].
-    static const FieldType cartesianXCoordinate
-        = hash_constructor( "State: Cartesian: X_coordinate" );
+//! Cartesian X coordinate [m].
+static const FieldType cartesianXCoordinate = hash_constructor( "State: Cartesian: X_coordinate" );
 
-    //! Cartesian Y coordinate [m].
-    static const FieldType cartesianYCoordinate
-        = hash_constructor( "State: Cartesian: Y_coordinate" );
+//! Cartesian Y coordinate [m].
+static const FieldType cartesianYCoordinate = hash_constructor( "State: Cartesian: Y_coordinate" );
 
-    //! Cartesian Z coordinate [m].
-    static const FieldType cartesianZCoordinate
-    = hash_constructor( "State: Cartesian: Z_coordinate" );
+//! Cartesian Z coordinate [m].
+static const FieldType cartesianZCoordinate = hash_constructor( "State: Cartesian: Z_coordinate" );
 
-    //! Cartesian X velocity [m/s].
-    static const FieldType cartesianXVelocity
-        = hash_constructor( "State: Cartesian: X_velocity" );
+//! Cartesian X velocity [m/s].
+static const FieldType cartesianXVelocity = hash_constructor( "State: Cartesian: X_velocity" );
 
-    //! Cartesian Y velocity [m/s].
-    static const FieldType cartesianYVelocity
-        = hash_constructor( "State: Cartesian: Y_velocity" );
+//! Cartesian Y velocity [m/s].
+static const FieldType cartesianYVelocity = hash_constructor( "State: Cartesian: Y_velocity" );
 
-    //! Cartesian Z velocity [m/s].
-    static const FieldType cartesianZVelocity
-        = hash_constructor( "State: Cartesian: Z_velocity" );
+//! Cartesian Z velocity [m/s].
+static const FieldType cartesianZVelocity = hash_constructor( "State: Cartesian: Z_velocity" );
 
-    //! Cartesian X acceleration [m/s].
-    static const FieldType cartesianXAcceleration
-        = hash_constructor( "State: Cartesian: X_acceleration" );
+//! Cartesian X acceleration [m/s].
+static const FieldType cartesianXAcceleration = hash_constructor( "State: Cartesian: X_acceleration" );
 
-    //! Cartesian Y acceleration [m/s].
-    static const FieldType cartesianYAcceleration
-        = hash_constructor( "State: Cartesian: Y_acceleration" );
+//! Cartesian Y acceleration [m/s].
+static const FieldType cartesianYAcceleration = hash_constructor( "State: Cartesian: Y_acceleration" );
 
-    //! Cartesian Z acceleration [m/s].
-    static const FieldType cartesianZAcceleration
-    = hash_constructor( "State: Cartesian: Z_acceleration" );
+//! Cartesian Z acceleration [m/s].
+static const FieldType cartesianZAcceleration = hash_constructor( "State: Cartesian: Z_acceleration" );
 
-    //! Eccentricity, e [-].
-    static const FieldType eccentricity
-        = hash_constructor( "State: Kepler_element: Eccentricity" );
+//! Eccentricity, e [-].
+static const FieldType eccentricity = hash_constructor( "State: Kepler_element: Eccentricity" );
 
-    //! Inclination with respect to xy-plane, i [rad].
-    static const FieldType inclination
-        = hash_constructor( "State: Kepler_element: Inclination" );
+//! Inclination with respect to xy-plane, i [rad].
+static const FieldType inclination = hash_constructor( "State: Kepler_element: Inclination" );
 
-    //! Longitude of Ascending Node, OMEGA [rad].
-    static const FieldType longitudeOfAscendingNode
-        = hash_constructor( "State: Kepler_element: Longitude_of_the_ascending_node" );
+//! Longitude of Ascending Node, OMEGA [rad].
+static const FieldType longitudeOfAscendingNode = hash_constructor( "State: Kepler_element: Longitude_of_the_ascending_node" );
 
-    //! Argument of Perifocus, w [rad].
-    static const FieldType argumentOfPeriapsis
-        = hash_constructor( "State: Kepler_element: Argument_of_periapsis" );
+//! Argument of Perifocus, w [rad].
+static const FieldType argumentOfPeriapsis = hash_constructor( "State: Kepler_element: Argument_of_periapsis" );
 
-    //! Time of periapsis passage [JD, UT1].
-    static const FieldType timeOfPeriapsisPassage
-        = hash_constructor( "State: Kepler_element: Time_of_periapsis" );
+//! Time of periapsis passage [JD, UT1].
+static const FieldType timeOfPeriapsisPassage = hash_constructor( "State: Kepler_element: Time_of_periapsis" );
 
-    //! Mean anomaly, M [rad].
-    static const FieldType meanAnomaly
-        = hash_constructor( "State: Kepler_element: Mean_anomaly" );
+//! Mean anomaly, M [rad].
+static const FieldType meanAnomaly = hash_constructor( "State: Kepler_element: Mean_anomaly" );
 
-    //! True anomaly, theta [rad].
-    static const FieldType trueAnomaly
-        = hash_constructor( "State: Kepler_element: True_anomaly" );
+//! True anomaly, theta [rad].
+static const FieldType trueAnomaly = hash_constructor( "State: Kepler_element: True_anomaly" );
 
-    //! Semi-major axis, a [m].
-    static const FieldType semiMajorAxis
-        = hash_constructor( "State: Kepler_element: Semi_major_axis" );
+//! Semi-major axis, a [m].
+static const FieldType semiMajorAxis = hash_constructor( "State: Kepler_element: Semi_major_axis" );
 
-    //! Apoapsis distance [m].
-    static const FieldType apoapsisDistance
-    = hash_constructor( "State: Kepler_element: Apoapsis_distance" );
+//! Apoapsis distance [m].
+static const FieldType apoapsisDistance = hash_constructor( "State: Kepler_element: Apoapsis_distance" );
 
-    //! Periapsis distance [m]
-    static const FieldType periapsisDistance
-        = hash_constructor( "State: Kepler_element: Periapsis_distance" );
+//! Periapsis distance [m]
+static const FieldType periapsisDistance = hash_constructor( "State: Kepler_element: Periapsis_distance" );
 
-    //! Mean motion, n [rad/s].
-    static const FieldType meanMotion = hash_constructor( "State: Mean_motion" );
+//! Mean motion, n [rad/s].
+static const FieldType meanMotion = hash_constructor( "State: Mean_motion" );
 
-    //! Orbital period [s].
-    static const FieldType orbitalPeriod = hash_constructor( "State: Orbital_period" );
-}
+//! Orbital period [s].
+static const FieldType orbitalPeriod = hash_constructor( "State: Orbital_period" );
+}  // namespace state
 
-} // namespace field_types
-} // namespace input_output
-} // namespace tudat
+}  // namespace field_types
+}  // namespace input_output
+}  // namespace tudat
 
-#endif // TUDAT_FIELD_TYPE_H
+#endif  // TUDAT_FIELD_TYPE_H

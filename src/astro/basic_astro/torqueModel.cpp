@@ -7,9 +7,7 @@ namespace basic_astrodynamics
 {
 
 //! Update the members of a torque model and evaluate the acceleration.
-Eigen::Vector3d updateAndGetTorque(
-        const std::shared_ptr< TorqueModel > torqueModel,
-        const double currentTime )
+Eigen::Vector3d updateAndGetTorque( const std::shared_ptr< TorqueModel > torqueModel, const double currentTime )
 {
     // Update members.
     torqueModel->updateMembers( currentTime );
@@ -18,6 +16,6 @@ Eigen::Vector3d updateAndGetTorque(
     return torqueModel->getTorque( );
 }
 
-}
+}  // namespace basic_astrodynamics
 
-}
+}  // namespace tudat

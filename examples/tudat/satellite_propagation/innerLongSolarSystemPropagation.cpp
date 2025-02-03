@@ -16,7 +16,7 @@
 int main( )
 {
     time_t tstart, tend;
-    tstart = time(0);
+    tstart = time( 0 );
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            USING STATEMENTS              //////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,14 +30,13 @@ int main( )
     using namespace tudat::basic_astrodynamics;
     using namespace tudat::basic_mathematics;
     using namespace tudat::orbital_element_conversions;
-    using namespace tudat:: propagators;
+    using namespace tudat::propagators;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ENVIRONMENT            //////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-    //Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
@@ -53,8 +52,7 @@ int main( )
     bodyNames[ 6 ] = "Jupiter";
 
     // Create bodies needed in simulation
-    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( bodyNames );
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings( bodyNames );
     SystemOfBodies bodies = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodies, "SSB", "ECLIPJ2000" );
 
@@ -74,8 +72,7 @@ int main( )
                 // Create central gravity acceleration between each 2 bodies.
                 if( i != j )
                 {
-                    currentAccelerations[ bodyNames.at( j ) ].push_back(
-                                std::make_shared< AccelerationSettings >( central_gravity ) );\
+                    currentAccelerations[ bodyNames.at( j ) ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
                 }
             }
             accelerationMap[ bodyNames.at( i ) ] = currentAccelerations;
@@ -104,12 +101,8 @@ int main( )
             }
         }
 
-
         // Create acceleration models and propagation settings.
-        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                    bodies, accelerationMap, bodiesToPropagate, centralBodies );
-
-
+        AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             CREATE PROPAGATION SETTINGS            ///////////////////////////////////////
@@ -120,29 +113,35 @@ int main( )
         double finalEphemerisTime = 1000.0 * physical_constants::JULIAN_YEAR;
 
         // Get initial state vector as input to integration.
-        Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
-                    bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
-
+        Eigen::VectorXd systemInitialState = getInitialStatesOfBodies( bodiesToPropagate, centralBodies, bodies, initialEphemerisTime );
 
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime,
-                  cowell, std::shared_ptr< DependentVariableSaveSettings >( ) );
+                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                    accelerationModelMap,
+                                                                                    bodiesToPropagate,
+                                                                                    systemInitialState,
+                                                                                    finalEphemerisTime,
+                                                                                    cowell,
+                                                                                    std::shared_ptr< DependentVariableSaveSettings >( ) );
 
         // Define numerical integrator settings.
-        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-                std::make_shared< BulirschStoerIntegratorSettings< double > >(
-                    initialEphemerisTime, 3600.0, bulirsch_stoer_sequence, 6,
-                    std::numeric_limits< double >::epsilon( ), std::numeric_limits< double >::infinity( ),
-                    1.0E-10, 1.0E-8, 10 );
+        std::shared_ptr< IntegratorSettings<> > integratorSettings =
+                std::make_shared< BulirschStoerIntegratorSettings< double > >( initialEphemerisTime,
+                                                                               3600.0,
+                                                                               bulirsch_stoer_sequence,
+                                                                               6,
+                                                                               std::numeric_limits< double >::epsilon( ),
+                                                                               std::numeric_limits< double >::infinity( ),
+                                                                               1.0E-10,
+                                                                               1.0E-8,
+                                                                               10 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBITS            ///////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Create simulation object and propagate dynamics.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
-                    bodies, integratorSettings, propagatorSettings, true, false, false );
+        SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings, true, false, false );
 
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
@@ -150,14 +149,14 @@ int main( )
         std::vector< std::map< double, Eigen::VectorXd > > allBodiesPropagationHistory;
         allBodiesPropagationHistory.resize( numberOfNumericalBodies );
         for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integrationResult.begin( );
-             stateIterator != integrationResult.end( ); stateIterator++ )
+             stateIterator != integrationResult.end( );
+             stateIterator++ )
         {
             for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
             {
                 allBodiesPropagationHistory[ i ][ stateIterator->first ] = stateIterator->second.segment( i * 6, 6 );
             }
         }
-
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////        PROVIDE OUTPUT TO FILES           ////////////////////////////////////////////////
@@ -168,22 +167,20 @@ int main( )
         for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
         {
             // Write propagation history to file.
-            input_output::writeDataMapToTextFile(
-                        allBodiesPropagationHistory[ i ],
-                        "innerLongSolarSystemPropagationHistory" + bodyNames.at( i ) + ".dat",
-                        tudat_applications::getOutputPath( ) + outputSubFolder,
-                        "",
-                        std::numeric_limits< double >::digits10,
-                        std::numeric_limits< double >::digits10,
-                        "," );
+            input_output::writeDataMapToTextFile( allBodiesPropagationHistory[ i ],
+                                                  "innerLongSolarSystemPropagationHistory" + bodyNames.at( i ) + ".dat",
+                                                  tudat_applications::getOutputPath( ) + outputSubFolder,
+                                                  "",
+                                                  std::numeric_limits< double >::digits10,
+                                                  std::numeric_limits< double >::digits10,
+                                                  "," );
         }
     }
 
-    tend = time(0);
-    std::cout << "It took "<< difftime(tend, tstart) <<" second(s)."<< std::endl;
+    tend = time( 0 );
+    std::cout << "It took " << difftime( tend, tstart ) << " second(s)." << std::endl;
 
     // Final statement.
     // The exit code EXIT_SUCCESS indicates that the program was successfully executed.
     return EXIT_SUCCESS;
 }
-

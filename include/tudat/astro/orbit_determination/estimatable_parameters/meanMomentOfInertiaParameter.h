@@ -21,11 +21,9 @@ namespace estimatable_parameters
 {
 
 //! Interface class for the estimation of a mean moment of inertia parameter
-class MeanMomentOfInertiaParameter: public EstimatableParameter< double >
+class MeanMomentOfInertiaParameter : public EstimatableParameter< double >
 {
-
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -33,12 +31,12 @@ public:
      * \param setMeanMomentOfInertia Function that resets the mean moment of inertia
      * \param associatedBody Name of body containing the gravityFieldModel object
      */
-    MeanMomentOfInertiaParameter(
-            const std::function< double( ) > getMeanMomentOfInertia,
-            const std::function< void( const double ) > setMeanMomentOfInertia,
-            const std::string& associatedBody ):
-        EstimatableParameter< double >( mean_moment_of_inertia, associatedBody ),
-        getMeanMomentOfInertia_( getMeanMomentOfInertia ), setMeanMomentOfInertia_( setMeanMomentOfInertia ){ }
+    MeanMomentOfInertiaParameter( const std::function< double( ) > getMeanMomentOfInertia,
+                                  const std::function< void( const double ) > setMeanMomentOfInertia,
+                                  const std::string& associatedBody ):
+        EstimatableParameter< double >( mean_moment_of_inertia, associatedBody ), getMeanMomentOfInertia_( getMeanMomentOfInertia ),
+        setMeanMomentOfInertia_( setMeanMomentOfInertia )
+    { }
 
     //! Destructor
     ~MeanMomentOfInertiaParameter( ) { }
@@ -74,20 +72,16 @@ public:
     }
 
 protected:
-
 private:
-
     //! Function that returns the current mean moment of inertia
     std::function< double( ) > getMeanMomentOfInertia_;
 
     //! Function that resets the mean moment of inertia
     std::function< void( const double ) > setMeanMomentOfInertia_;
-
 };
 
-} // namespace estimatable_parameters
+}  // namespace estimatable_parameters
 
-} // namespace tudat
+}  // namespace tudat
 
-
-#endif // TUDAT_MEANMOMENTOFINERTIAPARAMETER_H
+#endif  // TUDAT_MEANMOMENTOFINERTIAPARAMETER_H

@@ -20,7 +20,6 @@
 
 #include <Eigen/Geometry>
 
-
 #include <functional>
 
 #include "tudat/astro/low_thrust/simsFlanagan.h"
@@ -28,8 +27,6 @@
 #include "pagmo/island.hpp"
 #include "pagmo/io.hpp"
 #include "pagmo/problem.hpp"
-
-
 
 namespace tudat
 {
@@ -44,51 +41,46 @@ namespace low_thrust_trajectories
 using namespace pagmo;
 
 //! Definition optimisation problem to minimise the total deltaV required by the trajectory.
-struct TrajectoryOptimisationProblem
-{
-
+struct TrajectoryOptimisationProblem {
     typedef Eigen::Matrix< double, 6, 1 > StateType;
 
     //! Default constructor, required for Pagmo compatibility
-    TrajectoryOptimisationProblem( ){ }
+    TrajectoryOptimisationProblem( ) { }
 
     //! Constructor.
-    TrajectoryOptimisationProblem(
-            std::function< Eigen::Vector6d( const double ) > departureStateFunction,
-            std::function< Eigen::Vector6d( const double ) > arrivalStateFunction,
-            std::pair< double, double > departureTimeBounds,
-            std::pair< double, double > timeOfFlightBounds,
-            const std::shared_ptr< low_thrust_trajectories::LowThrustLegSettings >& lowThrustLegSettings );
+    TrajectoryOptimisationProblem( std::function< Eigen::Vector6d( const double ) > departureStateFunction,
+                                   std::function< Eigen::Vector6d( const double ) > arrivalStateFunction,
+                                   std::pair< double, double > departureTimeBounds,
+                                   std::pair< double, double > timeOfFlightBounds,
+                                   const std::shared_ptr< low_thrust_trajectories::LowThrustLegSettings >& lowThrustLegSettings );
 
     //! Calculate the fitness as a function of the parameter vector x
-    std::vector< double > fitness( const std::vector< double > &x ) const;
+    std::vector< double > fitness( const std::vector< double >& x ) const;
 
     //! Retrieve the allowable limits of the parameter vector x: pair containing minima and maxima of parameter values
-    std::pair< std::vector< double >, std::vector< double > > get_bounds() const;
+    std::pair< std::vector< double >, std::vector< double > > get_bounds( ) const;
 
     //! Retrieve the name of the problem
     std::string get_name( ) const;
 
     //! Retrieve the number of objectives in problem, e.g. the size of the vector returned by the fitness function
-    vector_double::size_type get_nobj() const
+    vector_double::size_type get_nobj( ) const
     {
         return 1u;
     }
 
-    vector_double::size_type get_nic() const
+    vector_double::size_type get_nic( ) const
     {
         return 0u;
     }
 
-    vector_double::size_type get_nec() const
+    vector_double::size_type get_nec( ) const
     {
         return 0u;
     }
 
 protected:
-
 private:
-
     //! Function returning the state at departure as a function of the departure time.
     std::function< Eigen::Vector6d( const double ) > departureStateFunction_;
 
@@ -106,12 +98,10 @@ private:
 
     //! Pointer to settings for low-thrust trajectory leg.
     std::shared_ptr< low_thrust_trajectories::LowThrustLegSettings > lowThrustLegSettings_;
-
-
 };
 
-} // namespace low_thrust_trajectories
+}  // namespace low_thrust_trajectories
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_LOW_THRUST_OPTIMISATION_SETUP_H
+#endif  // TUDAT_LOW_THRUST_OPTIMISATION_SETUP_H

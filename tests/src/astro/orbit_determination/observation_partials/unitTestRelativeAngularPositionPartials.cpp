@@ -46,7 +46,7 @@ using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
 
-BOOST_AUTO_TEST_SUITE( test_relative_angular_position_partials)
+BOOST_AUTO_TEST_SUITE( test_relative_angular_position_partials )
 
 //! Test partial derivatives of relative angular position observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
@@ -69,9 +69,7 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies settings needed in simulation
-    BodyListSettings bodySettings =
-            getDefaultBodySettings(
-                    bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+    BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     bodySettings.addSettings( "Phobos" );
     bodySettings.at( "Phobos" )->ephemerisSettings = getDefaultEphemerisSettings( "Phobos" );
 
@@ -80,28 +78,32 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
 
     // Define link ends for observations.
     LinkDefinition linkEnds;
-    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
-    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
-    linkEnds[ transmitter2 ] = std::make_pair< std::string, std::string >( "Phobos" , ""  );
+    linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "" );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "" );
+    linkEnds[ transmitter2 ] = std::make_pair< std::string, std::string >( "Phobos", "" );
 
     LinkDefinition linkEndsAngularPosition;
-    linkEndsAngularPosition[ receiver ] = std::make_pair< std::string, std::string >( "Earth" , ""  );
-    linkEndsAngularPosition[ transmitter ] = std::make_pair< std::string, std::string >( "Mars" , ""  );
+    linkEndsAngularPosition[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "" );
+    linkEndsAngularPosition[ transmitter ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
     // Create light-time correction settings
     std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
     std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
-    lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-            lightTimePerturbingBodies ) );
+    lightTimeCorrectionSettings.push_back(
+            std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( lightTimePerturbingBodies ) );
 
     // Create observation settings
-    std::shared_ptr< ObservationModelSettings > angularPositionSettings = std::make_shared< ObservationModelSettings >
-            ( angular_position, linkEndsAngularPosition, lightTimeCorrectionSettings,
-              std::make_shared< ConstantObservationBiasSettings >( ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ), true ) );
+    std::shared_ptr< ObservationModelSettings > angularPositionSettings = std::make_shared< ObservationModelSettings >(
+            angular_position,
+            linkEndsAngularPosition,
+            lightTimeCorrectionSettings,
+            std::make_shared< ConstantObservationBiasSettings >( ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ), true ) );
 
-    std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings = std::make_shared< ObservationModelSettings >
-            ( relative_angular_position, linkEnds, lightTimeCorrectionSettings,
-              std::make_shared< ConstantObservationBiasSettings >( ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ), true ) );
+    std::shared_ptr< ObservationModelSettings > relativeAngularPositionSettings = std::make_shared< ObservationModelSettings >(
+            relative_angular_position,
+            linkEnds,
+            lightTimeCorrectionSettings,
+            std::make_shared< ConstantObservationBiasSettings >( ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ), true ) );
 
     // Create observation model.
     std::shared_ptr< ObservationModel< 2, double, double > > angularPositionModel =
@@ -110,62 +112,76 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
     std::shared_ptr< ObservationModel< 2, double, double > > relativeAngularPositionModel =
             ObservationModelCreator< 2, double, double >::createObservationModel( relativeAngularPositionSettings, bodies );
 
-
     // Compute observation separately with two functions.
     double receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
     std::vector< double > linkEndTimesRelativeAngularPosition;
     std::vector< Eigen::Vector6d > linkEndStatesRelativeAngularPosition;
-    //Eigen::Vector2d relativeAngularObservation =
+    // Eigen::Vector2d relativeAngularObservation =
     relativeAngularPositionModel->computeObservationsWithLinkEndData(
             receiverObservationTime, receiver, linkEndTimesRelativeAngularPosition, linkEndStatesRelativeAngularPosition );
 
-    Eigen::Vector3d positionMarsEarth = ( linkEndStatesRelativeAngularPosition[ 0 ] - linkEndStatesRelativeAngularPosition[ 2 ] ).segment( 0, 3 );
-//    Eigen::Vector3d sphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( positionMarsEarth );
-//    double rightAscensionMars = sphericalCoordinatesMars.z( );
-//    double declinationMars = mathematical_constants::PI / 2.0 - sphericalCoordinatesMars.y( );
-    double rightAscensionMars = 2.0 * std::atan( positionMarsEarth[ 1 ] /
-            ( std::sqrt( positionMarsEarth[ 0 ] * positionMarsEarth[ 0 ] + positionMarsEarth[ 1 ] * positionMarsEarth[ 1 ] ) + positionMarsEarth[ 0 ] ) );
+    Eigen::Vector3d positionMarsEarth =
+            ( linkEndStatesRelativeAngularPosition[ 0 ] - linkEndStatesRelativeAngularPosition[ 2 ] ).segment( 0, 3 );
+    //    Eigen::Vector3d sphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( positionMarsEarth );
+    //    double rightAscensionMars = sphericalCoordinatesMars.z( );
+    //    double declinationMars = mathematical_constants::PI / 2.0 - sphericalCoordinatesMars.y( );
+    double rightAscensionMars = 2.0 *
+            std::atan( positionMarsEarth[ 1 ] /
+                       ( std::sqrt( positionMarsEarth[ 0 ] * positionMarsEarth[ 0 ] + positionMarsEarth[ 1 ] * positionMarsEarth[ 1 ] ) +
+                         positionMarsEarth[ 0 ] ) );
     double declinationMars = mathematical_constants::PI / 2.0 - std::acos( positionMarsEarth[ 2 ] / positionMarsEarth.norm( ) );
 
-    Eigen::Vector3d modifiedPositionMars = linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 100.0, 0.0, 0.0 ).finished( );
+    Eigen::Vector3d modifiedPositionMars =
+            linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 100.0, 0.0, 0.0 ).finished( );
     Eigen::Vector3d modifiedPositionMarsEarth = modifiedPositionMars - linkEndStatesRelativeAngularPosition[ 2 ].segment( 0, 3 );
-//    Eigen::Vector3d modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedPositionMarsEarth );
-//    double modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
-//    double modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
-    double modifiedRightAscensionMars = 2.0 * std::atan( modifiedPositionMarsEarth[ 1 ] /
-            ( std::sqrt( modifiedPositionMarsEarth[ 0 ] * modifiedPositionMarsEarth[ 0 ] + modifiedPositionMarsEarth[ 1 ] * modifiedPositionMarsEarth[ 1 ] )
-            + modifiedPositionMarsEarth[ 0 ] ) );
-    double modifiedDeclinationMars = mathematical_constants::PI / 2.0 - std::acos( modifiedPositionMarsEarth[ 2 ] / modifiedPositionMarsEarth.norm( ) );
+    //    Eigen::Vector3d modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedPositionMarsEarth
+    //    ); double modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( ); double modifiedDeclinationMars =
+    //    mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
+    double modifiedRightAscensionMars = 2.0 *
+            std::atan( modifiedPositionMarsEarth[ 1 ] /
+                       ( std::sqrt( modifiedPositionMarsEarth[ 0 ] * modifiedPositionMarsEarth[ 0 ] +
+                                    modifiedPositionMarsEarth[ 1 ] * modifiedPositionMarsEarth[ 1 ] ) +
+                         modifiedPositionMarsEarth[ 0 ] ) );
+    double modifiedDeclinationMars =
+            mathematical_constants::PI / 2.0 - std::acos( modifiedPositionMarsEarth[ 2 ] / modifiedPositionMarsEarth.norm( ) );
 
     double partialRightAscensionWrtX = ( modifiedRightAscensionMars - rightAscensionMars ) / 100.0;
     double partialDeclinationWrtX = ( modifiedDeclinationMars - declinationMars ) / 100.0;
     std::cout << "partialRightAscensionWrtX: " << partialRightAscensionWrtX << "\n\n";
     std::cout << "partialDeclinationWrtX: " << partialDeclinationWrtX << "\n\n";
 
-    modifiedPositionMars = linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 0.0, 100.0, 0.0 ).finished( );
+    modifiedPositionMars =
+            linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 0.0, 100.0, 0.0 ).finished( );
     modifiedPositionMarsEarth = modifiedPositionMars - linkEndStatesRelativeAngularPosition[ 2 ].segment( 0, 3 );
-//    modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedPositionMarsEarth );
-//    modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
-//    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
-    modifiedRightAscensionMars = 2.0 * std::atan( modifiedPositionMarsEarth[ 1 ] /
-            ( std::sqrt( modifiedPositionMarsEarth[ 0 ] * modifiedPositionMarsEarth[ 0 ] + modifiedPositionMarsEarth[ 1 ] * modifiedPositionMarsEarth[ 1 ] )
-            + modifiedPositionMarsEarth[ 0 ] ) );
-    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - std::acos( modifiedPositionMarsEarth[ 2 ] / modifiedPositionMarsEarth.norm( ) );
+    //    modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedPositionMarsEarth );
+    //    modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
+    //    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
+    modifiedRightAscensionMars = 2.0 *
+            std::atan( modifiedPositionMarsEarth[ 1 ] /
+                       ( std::sqrt( modifiedPositionMarsEarth[ 0 ] * modifiedPositionMarsEarth[ 0 ] +
+                                    modifiedPositionMarsEarth[ 1 ] * modifiedPositionMarsEarth[ 1 ] ) +
+                         modifiedPositionMarsEarth[ 0 ] ) );
+    modifiedDeclinationMars =
+            mathematical_constants::PI / 2.0 - std::acos( modifiedPositionMarsEarth[ 2 ] / modifiedPositionMarsEarth.norm( ) );
 
     double partialRightAscensionWrtY = ( modifiedRightAscensionMars - rightAscensionMars ) / 100.0;
     double partialDeclinationWrtY = ( modifiedDeclinationMars - declinationMars ) / 100.0;
     std::cout << "partialRightAscensionWrtY: " << partialRightAscensionWrtY << "\n\n";
     std::cout << "partialDeclinationWrtY: " << partialDeclinationWrtY << "\n\n";
 
-    modifiedPositionMars = linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 0.0, 0.0, 100.0 ).finished( );
+    modifiedPositionMars =
+            linkEndStatesRelativeAngularPosition[ 0 ].segment( 0, 3 ) + ( Eigen::Vector3d( ) << 0.0, 0.0, 100.0 ).finished( );
     modifiedPositionMarsEarth = modifiedPositionMars - linkEndStatesRelativeAngularPosition[ 2 ].segment( 0, 3 );
-//    modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedPositionMarsEarth );
-//    modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
-//    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
-    modifiedRightAscensionMars = 2.0 * std::atan( modifiedPositionMarsEarth[ 1 ] /
-            ( std::sqrt( modifiedPositionMarsEarth[ 0 ] * modifiedPositionMarsEarth[ 0 ] + modifiedPositionMarsEarth[ 1 ] * modifiedPositionMarsEarth[ 1 ] )
-            + modifiedPositionMarsEarth[ 0 ] ) );
-    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - std::acos( modifiedPositionMarsEarth[ 2 ] / modifiedPositionMarsEarth.norm( ) );
+    //    modifiedSphericalCoordinatesMars = coordinate_conversions::convertCartesianToSpherical( modifiedPositionMarsEarth );
+    //    modifiedRightAscensionMars = modifiedSphericalCoordinatesMars.z( );
+    //    modifiedDeclinationMars = mathematical_constants::PI / 2.0 - modifiedSphericalCoordinatesMars.y( );
+    modifiedRightAscensionMars = 2.0 *
+            std::atan( modifiedPositionMarsEarth[ 1 ] /
+                       ( std::sqrt( modifiedPositionMarsEarth[ 0 ] * modifiedPositionMarsEarth[ 0 ] +
+                                    modifiedPositionMarsEarth[ 1 ] * modifiedPositionMarsEarth[ 1 ] ) +
+                         modifiedPositionMarsEarth[ 0 ] ) );
+    modifiedDeclinationMars =
+            mathematical_constants::PI / 2.0 - std::acos( modifiedPositionMarsEarth[ 2 ] / modifiedPositionMarsEarth.norm( ) );
 
     double partialRightAscensionWrtZ = ( modifiedRightAscensionMars - rightAscensionMars ) / 100.0;
     double partialDeclinationWrtZ = ( modifiedDeclinationMars - declinationMars ) / 100.0;
@@ -174,12 +190,12 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
 
     std::vector< double > linkEndTimesAngularPosition;
     std::vector< Eigen::Vector6d > linkEndStatesAngularPosition;
-    //Eigen::Vector2d angularObservation =
+    // Eigen::Vector2d angularObservation =
     angularPositionModel->computeObservationsWithLinkEndData(
             receiverObservationTime, receiver, linkEndTimesAngularPosition, linkEndStatesAngularPosition );
 
-    //Eigen::Matrix< double, 2, 3 > partialsAngularPositionWrtPosition =
-    calculatePartialOfAngularPositionWrtLinkEndPosition( - positionMarsEarth,  false );
+    // Eigen::Matrix< double, 2, 3 > partialsAngularPositionWrtPosition =
+    calculatePartialOfAngularPositionWrtLinkEndPosition( -positionMarsEarth, false );
 
     // Define and create ground stations.
     std::vector< std::pair< std::string, std::string > > groundStations;
@@ -201,60 +217,61 @@ BOOST_AUTO_TEST_CASE( testRelativeAngularPositionPartials )
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ transmitter2 ] = groundStations[ 2 ];
 
-
         // Generate one-way range model
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
         std::shared_ptr< ObservationModel< 2 > > relativeAngularPositionModel =
                 observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
-                    std::make_shared< observation_models::ObservationModelSettings >(
-                        observation_models::relative_angular_position, linkEnds, std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                            perturbingBodies ) ), bodies  );
+                        std::make_shared< observation_models::ObservationModelSettings >(
+                                observation_models::relative_angular_position,
+                                linkEnds,
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
+                        bodies );
 
         // Create parameter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-                createEstimatableParameters( bodies, 1.1E7 );
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
-        testObservationPartials( relativeAngularPositionModel, bodies, fullEstimatableParameterSet, linkEnds, relative_angular_position, 1.0E-4,
-                                 true, true, 1.0, parameterPerturbationMultipliers );
+        testObservationPartials( relativeAngularPositionModel,
+                                 bodies,
+                                 fullEstimatableParameterSet,
+                                 linkEnds,
+                                 relative_angular_position,
+                                 1.0E-4,
+                                 true,
+                                 true,
+                                 1.0,
+                                 parameterPerturbationMultipliers );
     }
 
+    //    // Test partials with real ephemerides (without test of position partials)
+    //    {
+    //        std::cout << "Test 1" << std::endl;
+    //        // Create environment
+    //        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
-//    // Test partials with real ephemerides (without test of position partials)
-//    {
-//        std::cout << "Test 1" << std::endl;
-//        // Create environment
-//        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+    //        // Set link ends for observation model
+    //        LinkDefinition linkEnds;
+    //        linkEnds[ transmitter ] = groundStations[ 1 ];
+    //        linkEnds[ receiver ] = groundStations[ 0 ];
 
-//        // Set link ends for observation model
-//        LinkDefinition linkEnds;
-//        linkEnds[ transmitter ] = groundStations[ 1 ];
-//        linkEnds[ receiver ] = groundStations[ 0 ];
+    //        // Generate one-way range model
+    //        std::shared_ptr< ObservationModel< 2 > > angularPositionModel =
+    //                observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
+    //                    linkEnds, std::make_shared< observation_models::ObservationModelSettings >(
+    //                        observation_models::angular_position ), bodies  );
 
-//        // Generate one-way range model
-//        std::shared_ptr< ObservationModel< 2 > > angularPositionModel =
-//                observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
-//                    linkEnds, std::make_shared< observation_models::ObservationModelSettings >(
-//                        observation_models::angular_position ), bodies  );
+    //        // Create parameter objects.
+    //        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+    //                createEstimatableParameters( bodies, 1.1E7 );
 
-//        // Create parameter objects.
-//        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
-//                createEstimatableParameters( bodies, 1.1E7 );
+    //        testObservationPartials( angularPositionModel, bodies, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4,
+    //        false, true, 1.0, parameterPerturbationMultipliers );
 
-//        testObservationPartials( angularPositionModel, bodies, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4,
-//        false, true, 1.0, parameterPerturbationMultipliers );
-
-//    }
+    //    }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
-
-
-
-
-
+}  // namespace tudat

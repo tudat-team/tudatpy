@@ -39,23 +39,23 @@ BOOST_AUTO_TEST_CASE( test2Dimensions )
 {
     // Create independent variable vector.
     std::vector< std::vector< double > > independentValues;
-    
+
     // Resize independent variable vector to two dimensions and assign values.
     independentValues.resize( 2 );
-    for ( int i = 0; i < 5; i++ )
+    for( int i = 0; i < 5; i++ )
     {
         independentValues[ 0 ].push_back( 1950.0 + static_cast< double >( i ) * 10.0 );
     }
-    
-    for ( int i = 0; i < 3; i++ )
+
+    for( int i = 0; i < 3; i++ )
     {
         independentValues[ 1 ].push_back( 10.0 + static_cast< double >( i ) * 10.0 );
     }
-    
+
     // Create two-dimensional array for dependent values.
     boost::multi_array< double, 2 > dependentValues;
     dependentValues.resize( boost::extents[ 5 ][ 3 ] );
-    
+
     dependentValues[ 0 ][ 0 ] = 150.697;
     dependentValues[ 0 ][ 1 ] = 199.592;
     dependentValues[ 0 ][ 2 ] = 187.625;
@@ -71,22 +71,20 @@ BOOST_AUTO_TEST_CASE( test2Dimensions )
     dependentValues[ 4 ][ 0 ] = 249.633;
     dependentValues[ 4 ][ 1 ] = 120.281;
     dependentValues[ 4 ][ 2 ] = 598.243;
-    
+
     // Initialize interpolator.
-    interpolators::MultiLinearInterpolator< double, double, 2 > twoDimensionalInterpolator(
-                independentValues, dependentValues );
-    
+    interpolators::MultiLinearInterpolator< double, double, 2 > twoDimensionalInterpolator( independentValues, dependentValues );
+
     // Set interpolation target's independent values.
     std::vector< double > targetValue( 2 );
     targetValue[ 0 ] = 1975.0;
     targetValue[ 1 ] = 15.0;
-    
+
     // Declare interpolated dependent variable value and execute interpolation.
     const double interpolationResult = twoDimensionalInterpolator.interpolate( targetValue );
-    
+
     // Check if equal to MATLAB result up to machine precision.
-    BOOST_CHECK_CLOSE_FRACTION( 190.62875, interpolationResult,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( 190.62875, interpolationResult, std::numeric_limits< double >::epsilon( ) );
 }
 
 // Test 2: 4-dimensional test. Comparison to matlab interpolated solution of analytical function.
@@ -94,87 +92,83 @@ BOOST_AUTO_TEST_CASE( test4Dimensions )
 {
     // Create independent variable vector.
     std::vector< std::vector< double > > independentValues;
-    
+
     // Resize independent variable vector to two dimensions and assign values.
     independentValues.resize( 4 );
-    for ( int i = 0; i < 11; i++ )
+    for( int i = 0; i < 11; i++ )
     {
         independentValues[ 0 ].push_back( -1.0 + static_cast< double >( i ) * 0.2 );
         independentValues[ 1 ].push_back( -1.0 + static_cast< double >( i ) * 0.2 );
         independentValues[ 2 ].push_back( -1.0 + static_cast< double >( i ) * 0.2 );
     }
-    
-    for ( int i = 0; i < 6; i++ )
+
+    for( int i = 0; i < 6; i++ )
     {
         independentValues[ 3 ].push_back( static_cast< double >( i ) * 2.0 );
     }
-    
+
     // Create four-dimensional array for dependent values based on analytical function
     // f = t*e^(-x^2 - y^2 - z^2 ).
     boost::multi_array< double, 4 > dependentValues;
     dependentValues.resize( boost::extents[ 11 ][ 11 ][ 11 ][ 6 ] );
-    
-    for ( int i = 0; i < 11; i++ )
+
+    for( int i = 0; i < 11; i++ )
     {
-        for ( int j = 0; j < 11; j++ )
+        for( int j = 0; j < 11; j++ )
         {
-            for ( int k = 0; k < 11; k++ )
+            for( int k = 0; k < 11; k++ )
             {
-                for ( int l = 0; l < 6; l++ )
+                for( int l = 0; l < 6; l++ )
                 {
-                    dependentValues[ i ][ j ][ k ][ l ] =
-                            independentValues[ 3 ][ l ] *
-                            std::exp( -std::pow( independentValues[ 0 ][ i ], 2 ) -
-                            std::pow( independentValues[ 1 ][ j ], 2 ) -
-                            std::pow( independentValues[ 2 ][ k ], 2 ) );
+                    dependentValues[ i ][ j ][ k ][ l ] = independentValues[ 3 ][ l ] *
+                            std::exp( -std::pow( independentValues[ 0 ][ i ], 2 ) - std::pow( independentValues[ 1 ][ j ], 2 ) -
+                                      std::pow( independentValues[ 2 ][ k ], 2 ) );
                 }
             }
         }
     }
-    
+
     // Initialize interpolator.
-    interpolators::MultiLinearInterpolator< double, double, 4 > fourDimensionalInterpolator(
-                independentValues, dependentValues );
-    
+    interpolators::MultiLinearInterpolator< double, double, 4 > fourDimensionalInterpolator( independentValues, dependentValues );
+
     // Set interpolation target's independent values.
     std::vector< double > targetValue( 4 );
     targetValue[ 0 ] = -1.0;
     targetValue[ 1 ] = 0.1;
     targetValue[ 2 ] = 0.5;
     targetValue[ 3 ] = 7.0;
-    
+
     // Declare interpolated dependent variable value and execute interpolation.
     const double interpolationResult = fourDimensionalInterpolator.interpolate( targetValue );
-    
+
     // Check if equal to MATLAB result up to machine precision
-    BOOST_CHECK_CLOSE_FRACTION( 1.956391733957447, interpolationResult,
-                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( 1.956391733957447, interpolationResult, std::numeric_limits< double >::epsilon( ) );
 }
 
 // Test 3: 2 dimensions, with independent variables out of range
 BOOST_AUTO_TEST_CASE( test2DimensionsBoundaryCase )
 {
     using namespace tudat::interpolators;
-    
+
     // Create independent variable vector.
     std::vector< std::vector< double > > independentValues;
-    
+
     // Resize independent variable vector to two dimensions and assign values.
     independentValues.resize( 2 );
-    for ( int i = 0; i < 5; i++ )
+    for( int i = 0; i < 5; i++ )
     {
         independentValues[ 0 ].push_back( 1950.0 + static_cast< double >( i ) * 10.0 );
     }
-    
-    for ( int i = 0; i < 3; i++ )
+
+    for( int i = 0; i < 3; i++ )
     {
         independentValues[ 1 ].push_back( 10.0 + static_cast< double >( i ) * 10.0 );
     }
-    
+
     // Create two-dimensional array for dependent values.
     boost::multi_array< double, 2 > dependentValues;
     dependentValues.resize( boost::extents[ 5 ][ 3 ] );
-    
+
     dependentValues[ 0 ][ 0 ] = 150.697;
     dependentValues[ 0 ][ 1 ] = 199.592;
     dependentValues[ 0 ][ 2 ] = 187.625;
@@ -190,7 +184,7 @@ BOOST_AUTO_TEST_CASE( test2DimensionsBoundaryCase )
     dependentValues[ 4 ][ 0 ] = 249.633;
     dependentValues[ 4 ][ 1 ] = 120.281;
     dependentValues[ 4 ][ 2 ] = 598.243;
-    
+
     // Set interpolation target's independent values.
     std::vector< std::vector< double > > targetValue( 5 );
     targetValue[ 0 ].resize( 2 );
@@ -210,19 +204,19 @@ BOOST_AUTO_TEST_CASE( test2DimensionsBoundaryCase )
     targetValue[ 4 ][ 1 ] = independentValues.at( 1 ).back( ) + 2.5;
 
     // Expected results
-    std::vector< double > boundaryResults( 5 ); // computed with MATLAB
+    std::vector< double > boundaryResults( 5 );  // computed with MATLAB
     boundaryResults[ 0 ] = 175.1445;
     boundaryResults[ 1 ] = 184.957;
     boundaryResults[ 2 ] = 214.8585;
     boundaryResults[ 3 ] = 374.7485;
     boundaryResults[ 4 ] = 187.625;
-    std::vector< double > extrapolationResults( 5 ); // computed with MATLAB
+    std::vector< double > extrapolationResults( 5 );  // computed with MATLAB
     extrapolationResults[ 0 ] = 163.0915;
     extrapolationResults[ 1 ] = 179.8085;
     extrapolationResults[ 2 ] = 226.973375;
     extrapolationResults[ 3 ] = 426.835875;
     extrapolationResults[ 4 ] = 105.17575;
-    
+
     // Loop over test cases and boundary handling methods.
     bool exceptionIsCaught;
     double interpolatedValue;
@@ -230,10 +224,9 @@ BOOST_AUTO_TEST_CASE( test2DimensionsBoundaryCase )
     {
         // Initialize interpolator.
         MultiLinearInterpolator< double, double, 2 > twoDimensionalInterpolator(
-                    independentValues, dependentValues, huntingAlgorithm,
-                    static_cast< BoundaryInterpolationType >( i ) );
+                independentValues, dependentValues, huntingAlgorithm, static_cast< BoundaryInterpolationType >( i ) );
 
-        for ( unsigned int j = 0; j < 5; j++ )
+        for( unsigned int j = 0; j < 5; j++ )
         {
             if( static_cast< BoundaryInterpolationType >( i ) == throw_exception_at_boundary )
             {
@@ -276,9 +269,8 @@ BOOST_AUTO_TEST_CASE( test1DimensionBoundaryCase )
     using namespace interpolators;
 
     // Load input data used for generating matlab interpolation.
-    Eigen::MatrixXd inputData = input_output::readMatrixFromFile(
-                tudat::paths::getTudatTestDataPath( ) +
-                "/interpolator_test_input_data.dat","," );
+    Eigen::MatrixXd inputData =
+            input_output::readMatrixFromFile( tudat::paths::getTudatTestDataPath( ) + "/interpolator_test_input_data.dat", "," );
 
     // Put data in STL vectors.
     std::vector< double > independentVariableValues;
@@ -286,7 +278,7 @@ BOOST_AUTO_TEST_CASE( test1DimensionBoundaryCase )
     std::vector< double > dependentVariableValues;
     boost::multi_array< double, 1 > dependentVariableValuesMulti( boost::extents[ inputData.rows( ) ] );
 
-    for ( int i = 0; i < inputData.rows( ); i++ )
+    for( int i = 0; i < inputData.rows( ); i++ )
     {
         independentVariableValues.push_back( inputData( i, 0 ) );
         dependentVariableValues.push_back( inputData( i, 1 ) );
@@ -303,18 +295,18 @@ BOOST_AUTO_TEST_CASE( test1DimensionBoundaryCase )
     double linearInterpolatedValue;
     double multiLinearInterpolatedValue;
 
-    for ( unsigned int i = 1; i < 5; i++ )
+    for( unsigned int i = 1; i < 5; i++ )
     {
         // Initialize interpolatos.
         LinearInterpolatorDouble linearInterpolator(
-                    independentVariableValues, dependentVariableValues, huntingAlgorithm,
-                    static_cast< BoundaryInterpolationType >( i ) );
-        MultiLinearInterpolator< double, double, 1 > multiLinearInterpolator(
-                    independentVariableValuesMulti, dependentVariableValuesMulti, huntingAlgorithm,
-                    static_cast< BoundaryInterpolationType >( i ) );
+                independentVariableValues, dependentVariableValues, huntingAlgorithm, static_cast< BoundaryInterpolationType >( i ) );
+        MultiLinearInterpolator< double, double, 1 > multiLinearInterpolator( independentVariableValuesMulti,
+                                                                              dependentVariableValuesMulti,
+                                                                              huntingAlgorithm,
+                                                                              static_cast< BoundaryInterpolationType >( i ) );
 
-        if ( ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value ) ||
-             ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value_with_warning ) )
+        if( ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value ) ||
+            ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value_with_warning ) )
         {
             linearInterpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
             multiLinearInterpolatedValue = multiLinearInterpolator.interpolate( valueBelowMinimumValueVector );
@@ -323,10 +315,9 @@ BOOST_AUTO_TEST_CASE( test1DimensionBoundaryCase )
             linearInterpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
             multiLinearInterpolatedValue = multiLinearInterpolator.interpolate( valueAboveMaximumValueVector );
             BOOST_CHECK_CLOSE_FRACTION( linearInterpolatedValue, multiLinearInterpolatedValue, 1.0E-15 );
-
         }
-        else if ( ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary ) ||
-                  ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary_with_warning ) )
+        else if( ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary ) ||
+                 ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary_with_warning ) )
         {
             linearInterpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
             multiLinearInterpolatedValue = multiLinearInterpolator.interpolate( valueBelowMinimumValueVector );
@@ -349,12 +340,12 @@ BOOST_AUTO_TEST_CASE( test2DimensionsDefaultExtrapolationCase )
 
     // Resize independent variable vector to two dimensions and assign values.
     independentValues.resize( 2 );
-    for ( int i = 0; i < 5; i++ )
+    for( int i = 0; i < 5; i++ )
     {
         independentValues[ 0 ].push_back( 1950.0 + static_cast< double >( i ) * 10.0 );
     }
 
-    for ( int i = 0; i < 3; i++ )
+    for( int i = 0; i < 3; i++ )
     {
         independentValues[ 1 ].push_back( 10.0 + static_cast< double >( i ) * 10.0 );
     }
@@ -393,9 +384,9 @@ BOOST_AUTO_TEST_CASE( test2DimensionsDefaultExtrapolationCase )
         // Put data in STL vectors.
         boost::multi_array< long double, 2 > dependentValues;
         dependentValues.resize( boost::extents[ 5 ][ 3 ] );
-        for ( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
+        for( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
         {
-            for ( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
+            for( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
             {
                 dependentValues[ i ][ j ] = static_cast< long double >( inputData[ i ][ j ] );
             }
@@ -405,8 +396,7 @@ BOOST_AUTO_TEST_CASE( test2DimensionsDefaultExtrapolationCase )
         for( unsigned int i = 5; i < 7; i++ )
         {
             MultiLinearInterpolator< double, long double, 2 > twoDimensionalInterpolator(
-                        independentValues, dependentValues, huntingAlgorithm,
-                        static_cast< BoundaryInterpolationType >( i ) );
+                    independentValues, dependentValues, huntingAlgorithm, static_cast< BoundaryInterpolationType >( i ) );
 
             interpolatedValue = twoDimensionalInterpolator.interpolate( targetValue.at( 0 ) );
             BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, 0.0L, 1.0E-15 );
@@ -422,9 +412,9 @@ BOOST_AUTO_TEST_CASE( test2DimensionsDefaultExtrapolationCase )
         boost::multi_array< Eigen::Vector3d, 2 > dependentValues;
         dependentValues.resize( boost::extents[ 5 ][ 3 ] );
         Eigen::Vector3d tempData = Eigen::Vector3d::Zero( );
-        for ( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
+        for( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
         {
-            for ( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
+            for( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
             {
                 tempData[ 0 ] = inputData[ i ][ j ];
                 dependentValues[ i ][ j ] = tempData;
@@ -435,8 +425,7 @@ BOOST_AUTO_TEST_CASE( test2DimensionsDefaultExtrapolationCase )
         for( unsigned int i = 5; i < 7; i++ )
         {
             MultiLinearInterpolator< double, Eigen::Vector3d, 2 > twoDimensionalInterpolator(
-                        independentValues, dependentValues, huntingAlgorithm,
-                        static_cast< BoundaryInterpolationType >( i ) );
+                    independentValues, dependentValues, huntingAlgorithm, static_cast< BoundaryInterpolationType >( i ) );
 
             interpolatedValue = twoDimensionalInterpolator.interpolate( targetValue.at( 0 ) );
             BOOST_CHECK_SMALL( ( interpolatedValue - Eigen::Vector3d::Zero( ) ).norm( ), 1.0E-15 );
@@ -451,9 +440,9 @@ BOOST_AUTO_TEST_CASE( test2DimensionsDefaultExtrapolationCase )
         boost::multi_array< Eigen::Matrix3d, 2 > dependentValues;
         dependentValues.resize( boost::extents[ 5 ][ 3 ] );
         Eigen::Matrix3d tempData = Eigen::Matrix3d::Zero( );
-        for ( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
+        for( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
         {
-            for ( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
+            for( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
             {
                 tempData( 0, 2 ) = inputData[ i ][ j ];
                 dependentValues[ i ][ j ] = tempData;
@@ -464,8 +453,7 @@ BOOST_AUTO_TEST_CASE( test2DimensionsDefaultExtrapolationCase )
         for( unsigned int i = 5; i < 7; i++ )
         {
             MultiLinearInterpolator< double, Eigen::Matrix3d, 2 > twoDimensionalInterpolator(
-                        independentValues, dependentValues, huntingAlgorithm,
-                        static_cast< BoundaryInterpolationType >( i ) );
+                    independentValues, dependentValues, huntingAlgorithm, static_cast< BoundaryInterpolationType >( i ) );
 
             interpolatedValue = twoDimensionalInterpolator.interpolate( targetValue.at( 0 ) );
             BOOST_CHECK_SMALL( ( interpolatedValue - Eigen::Matrix3d::Zero( ) ).norm( ), 1.0E-15 );
@@ -486,12 +474,12 @@ BOOST_AUTO_TEST_CASE( test2DimensionsUserExtrapolationCase )
 
     // Resize independent variable vector to two dimensions and assign values.
     independentValues.resize( 2 );
-    for ( int i = 0; i < 5; i++ )
+    for( int i = 0; i < 5; i++ )
     {
         independentValues[ 0 ].push_back( 1950.0 + static_cast< double >( i ) * 10.0 );
     }
 
-    for ( int i = 0; i < 3; i++ )
+    for( int i = 0; i < 3; i++ )
     {
         independentValues[ 1 ].push_back( 10.0 + static_cast< double >( i ) * 10.0 );
     }
@@ -530,9 +518,9 @@ BOOST_AUTO_TEST_CASE( test2DimensionsUserExtrapolationCase )
         // Put data in STL vectors.
         boost::multi_array< long double, 2 > dependentValues;
         dependentValues.resize( boost::extents[ 5 ][ 3 ] );
-        for ( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
+        for( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
         {
-            for ( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
+            for( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
             {
                 dependentValues[ i ][ j ] = static_cast< long double >( inputData[ i ][ j ] );
             }
@@ -542,9 +530,11 @@ BOOST_AUTO_TEST_CASE( test2DimensionsUserExtrapolationCase )
 
         for( unsigned int i = 5; i < 7; i++ )
         {
-            MultiLinearInterpolator< double, long double, 2 > twoDimensionalInterpolator(
-                        independentValues, dependentValues, huntingAlgorithm,
-                        static_cast< BoundaryInterpolationType >( i ), extrapolationValue );
+            MultiLinearInterpolator< double, long double, 2 > twoDimensionalInterpolator( independentValues,
+                                                                                          dependentValues,
+                                                                                          huntingAlgorithm,
+                                                                                          static_cast< BoundaryInterpolationType >( i ),
+                                                                                          extrapolationValue );
 
             interpolatedValue = twoDimensionalInterpolator.interpolate( targetValue.at( 0 ) );
             BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, extrapolationValue, 1.0E-15 );
@@ -560,9 +550,9 @@ BOOST_AUTO_TEST_CASE( test2DimensionsUserExtrapolationCase )
         boost::multi_array< Eigen::Vector3d, 2 > dependentValues;
         dependentValues.resize( boost::extents[ 5 ][ 3 ] );
         Eigen::Vector3d tempData = Eigen::Vector3d::Zero( );
-        for ( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
+        for( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
         {
-            for ( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
+            for( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
             {
                 tempData[ 0 ] = inputData[ i ][ j ];
                 dependentValues[ i ][ j ] = tempData;
@@ -576,9 +566,11 @@ BOOST_AUTO_TEST_CASE( test2DimensionsUserExtrapolationCase )
 
         for( unsigned int i = 5; i < 7; i++ )
         {
-            MultiLinearInterpolator< double, Eigen::Vector3d, 2 > twoDimensionalInterpolator(
-                        independentValues, dependentValues, huntingAlgorithm,
-                        static_cast< BoundaryInterpolationType >( i ), extrapolationValue );
+            MultiLinearInterpolator< double, Eigen::Vector3d, 2 > twoDimensionalInterpolator( independentValues,
+                                                                                              dependentValues,
+                                                                                              huntingAlgorithm,
+                                                                                              static_cast< BoundaryInterpolationType >( i ),
+                                                                                              extrapolationValue );
 
             interpolatedValue = twoDimensionalInterpolator.interpolate( targetValue.at( 0 ) );
             BOOST_CHECK_SMALL( ( interpolatedValue - extrapolationValue ).norm( ), 1.0E-15 );
@@ -593,9 +585,9 @@ BOOST_AUTO_TEST_CASE( test2DimensionsUserExtrapolationCase )
         boost::multi_array< Eigen::Matrix3d, 2 > dependentValues;
         dependentValues.resize( boost::extents[ 5 ][ 3 ] );
         Eigen::Matrix3d tempData = Eigen::Matrix3d::Zero( );
-        for ( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
+        for( size_t i = 0; i < inputData.shape( )[ 0 ]; i++ )
         {
-            for ( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
+            for( size_t j = 0; j < inputData.shape( )[ 1 ]; j++ )
             {
                 tempData( 0, 2 ) = inputData[ i ][ j ];
                 dependentValues[ i ][ j ] = tempData;
@@ -606,9 +598,11 @@ BOOST_AUTO_TEST_CASE( test2DimensionsUserExtrapolationCase )
 
         for( unsigned int i = 5; i < 7; i++ )
         {
-            MultiLinearInterpolator< double, Eigen::Matrix3d, 2 > twoDimensionalInterpolator(
-                        independentValues, dependentValues, huntingAlgorithm,
-                        static_cast< BoundaryInterpolationType >( i ), extrapolationValue );
+            MultiLinearInterpolator< double, Eigen::Matrix3d, 2 > twoDimensionalInterpolator( independentValues,
+                                                                                              dependentValues,
+                                                                                              huntingAlgorithm,
+                                                                                              static_cast< BoundaryInterpolationType >( i ),
+                                                                                              extrapolationValue );
 
             interpolatedValue = twoDimensionalInterpolator.interpolate( targetValue.at( 0 ) );
             BOOST_CHECK_SMALL( ( interpolatedValue - extrapolationValue ).norm( ), 1.0E-15 );
@@ -621,5 +615,5 @@ BOOST_AUTO_TEST_CASE( test2DimensionsUserExtrapolationCase )
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

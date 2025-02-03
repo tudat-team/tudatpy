@@ -8,10 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_ONEWAYDOPPLERPARTIAL_H
 #define TUDAT_ONEWAYDOPPLERPARTIAL_H
-
 
 #include <functional>
 
@@ -32,20 +30,20 @@ namespace observation_partials
 {
 
 //! Base class to compute the state partial scaling factors for the proper time component of one-way Doppler observables
-class OneWayDopplerProperTimeComponentScaling: public PositionPartialScaling
+class OneWayDopplerProperTimeComponentScaling : public PositionPartialScaling
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
      * \param linkEndWithPartial Link end for which this object computes partials
      */
     OneWayDopplerProperTimeComponentScaling( const observation_models::LinkEndType linkEndWithPartial ):
-        linkEndWithPartial_( linkEndWithPartial ){ }
+        linkEndWithPartial_( linkEndWithPartial )
+    { }
 
     //! Destructor
-    virtual ~OneWayDopplerProperTimeComponentScaling( ){ }
+    virtual ~OneWayDopplerProperTimeComponentScaling( ) { }
 
     //! Function to retrieve the scaling factor for the derivative w.r.t. the position of a given link end
     /*!
@@ -80,20 +78,17 @@ public:
      * \param parameterType Parameter for which dependency is to be checked.
      * \return Number of columns in direct partial derivative of proper time rates w.r.t. parameterType
      */
-    virtual int getParameterDependencySize(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterType ) = 0;
+    virtual int getParameterDependencySize( const estimatable_parameters::EstimatebleParameterIdentifier parameterType ) = 0;
 
 protected:
-
     //! Link end for which this object computes partials
     observation_models::LinkEndType linkEndWithPartial_;
 };
 
 //! Class to compute the state partial scaling factors for first-order proper time component of one-way Doppler observables
-class OneWayDopplerDirectFirstOrderProperTimeComponentScaling: public OneWayDopplerProperTimeComponentScaling
+class OneWayDopplerDirectFirstOrderProperTimeComponentScaling : public OneWayDopplerProperTimeComponentScaling
 {
 public:
-
     //! Constructor
     /*!
      * Constructor
@@ -168,7 +163,6 @@ public:
     int getParameterDependencySize( const estimatable_parameters::EstimatebleParameterIdentifier parameterType );
 
 private:
-
     //! Object used to compute proper time rate
     std::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel_;
 
@@ -203,7 +197,6 @@ private:
     int oppositeBodyIndex_;
 
     int skipBodyIndex_;
-
 };
 
 //! Derived class for scaling three-dimensional position partial to one-way doppler observable partial
@@ -211,10 +204,9 @@ private:
  *  Derived class for scaling three-dimensional position partial to one-way doppler observable partial. Implementation is taken
  *  from Moyer(2000) and is separately implemented for fixed receiver and transmitter.
  */
-class OneWayDopplerScaling: public DirectPositionPartialScaling< 1 >
+class OneWayDopplerScaling : public DirectPositionPartialScaling< 1 >
 {
 public:
-
     //! Destructor
     /*!
      * Destructor
@@ -225,24 +217,21 @@ public:
      * \param transmitterProperTimePartials Object used to compute the contribution of receiver proper time rate to the scaling
      * \param receiverProperTimePartials Object used to compute the contribution of transmitter proper time rate to the scaling
      */
-    OneWayDopplerScaling(
-            const std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
-            const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
-            const double divisionTerm,
-            const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = nullptr,
-            const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = nullptr ):
+    OneWayDopplerScaling( const std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
+                          const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
+                          const double divisionTerm,
+                          const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = nullptr,
+                          const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = nullptr ):
         DirectPositionPartialScaling< 1 >( observation_models::one_way_doppler ),
-        transmitterAccelerationFunction_( transmitterAccelerationFunction ),
-        receiverAccelerationFunction_( receiverAccelerationFunction ),
-        divisionTerm_( divisionTerm ),
-        transmitterProperTimePartials_( transmitterProperTimePartials ),
+        transmitterAccelerationFunction_( transmitterAccelerationFunction ), receiverAccelerationFunction_( receiverAccelerationFunction ),
+        divisionTerm_( divisionTerm ), transmitterProperTimePartials_( transmitterProperTimePartials ),
         receiverProperTimePartials_( receiverProperTimePartials )
     {
         this->doesVelocityScalingFactorExist_ = true;
     }
 
     //! Destructor
-    ~OneWayDopplerScaling( ){ }
+    ~OneWayDopplerScaling( ) { }
 
     //! Update the scaling object to the current times and states
     /*!
@@ -258,7 +247,6 @@ public:
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
                  const Eigen::VectorXd currentObservation = Eigen::VectorXd::Constant( 1, TUDAT_NAN ) );
-
 
     //! Function to retrieve the position scaling factor for specific link end
     /*!
@@ -313,7 +301,7 @@ public:
         else
         {
             throw std::runtime_error( "Error when getting one-way Doppler light time correction gradient partial, link end type " +
-            observation_models::getLinkEndTypeString( linkEndType ) + " not supported. " );
+                                      observation_models::getLinkEndTypeString( linkEndType ) + " not supported. " );
         }
     }
 
@@ -350,8 +338,7 @@ public:
      * \param parameterType Parameter for which dependency is to be checked.
      * \return Number of columns in direct partial derivative of proper time rates w.r.t. parameterType
      */
-    int getProperTimeParameterDependencySize(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterType );
+    int getProperTimeParameterDependencySize( const estimatable_parameters::EstimatebleParameterIdentifier parameterType );
 
     //! Function to get the direct partial derivatives, and associated times, of proper time components of Doppler partials
     /*!
@@ -373,9 +360,7 @@ public:
         return true;
     }
 
-
 private:
-
     //! Computed position scaling factor, for relative position vector (transmitter to receiver)
     Eigen::Matrix< double, 1, 3 > positionScalingFactor_;
 
@@ -416,8 +401,6 @@ private:
     Eigen::Vector3d receiverVelocity_;
 
     Eigen::Vector3d transmitterVelocity_;
-
-
 };
 
 //! Function to computed the derivative of the unit vector from transmitter to receiver w.r.t. the observation time
@@ -429,12 +412,10 @@ private:
  * \param linkEndVelocity Velocity of link end at which the time is varied
  * \return Derivative of the unit vector from transmitter to receiver w.r.t. the observation time
  */
-Eigen::Vector3d computePartialOfUnitVectorWrtLinkEndTime(
-        const Eigen::Vector3d& vectorToReceiver,
-        const Eigen::Vector3d& unitVectorToReceiver,
-        const double linkEndDistance,
-        const Eigen::Vector3d linkEndVelocity );
-
+Eigen::Vector3d computePartialOfUnitVectorWrtLinkEndTime( const Eigen::Vector3d& vectorToReceiver,
+                                                          const Eigen::Vector3d& unitVectorToReceiver,
+                                                          const double linkEndDistance,
+                                                          const Eigen::Vector3d linkEndVelocity );
 
 //! Function to computed the derivative of velocity component along line-of-sight vector w.r.t. the observation time
 /*!
@@ -449,16 +430,15 @@ Eigen::Vector3d computePartialOfUnitVectorWrtLinkEndTime(
  * for the observation (if false) or not (if true)
  * \return Derivative of velocity component along line-of-sight vector w.r.t. the observation time
  */
-double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-        const Eigen::Vector3d& vectorToReceiver,
-        const Eigen::Vector3d& projectedLinkEndVelocity,
-        const Eigen::Vector3d& variableLinkEndVelocity,
-        const Eigen::Vector3d& projectedLinkEndAcceleration,
-        const bool linkEndIsReceiver,
-        const bool projectedLinkEndIsVariableLinkEnd = true );
+double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime( const Eigen::Vector3d& vectorToReceiver,
+                                                                  const Eigen::Vector3d& projectedLinkEndVelocity,
+                                                                  const Eigen::Vector3d& variableLinkEndVelocity,
+                                                                  const Eigen::Vector3d& projectedLinkEndAcceleration,
+                                                                  const bool linkEndIsReceiver,
+                                                                  const bool projectedLinkEndIsVariableLinkEnd = true );
 
-}
+}  // namespace observation_partials
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_ONEWAYDOPPLERPARTIAL_H
+#endif  // TUDAT_ONEWAYDOPPLERPARTIAL_H

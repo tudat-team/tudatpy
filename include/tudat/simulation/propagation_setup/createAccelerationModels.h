@@ -36,8 +36,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-
-
 //! Function to create a direct (i.e. not third-body) gravitational acceleration (of any type)
 /*!
  * Function to create a direct (i.e. not third-body) gravitational acceleration of any type (i.e. point mass,
@@ -127,8 +125,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
  *  acceleration.
  *  \return Central gravity acceleration model pointer.
  */
-std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
-createCentralGravityAcceleratioModel(
+std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > createCentralGravityAcceleratioModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -156,8 +153,7 @@ createCentralGravityAcceleratioModel(
  *  cosine coefficients (default true).
  *  \return Spherical harmonic gravity acceleration model pointer.
  */
-std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
-createSphericalHarmonicsGravityAcceleration(
+std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > createSphericalHarmonicsGravityAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -187,8 +183,7 @@ createSphericalHarmonicsGravityAcceleration(
  *  for a third-body acceleration, of which the return object of this funciton is one of the sub-parts.
  *  \return Mutual spherical harmonic gravity acceleration model pointer.
  */
-std::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel >
-createMutualSphericalHarmonicsGravityAcceleration(
+std::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel > createMutualSphericalHarmonicsGravityAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -209,13 +204,12 @@ createMutualSphericalHarmonicsGravityAcceleration(
  *  gravity acceleration.
  *  \return Polyhedron gravity acceleration model pointer.
  */
-std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel >
-createPolyhedronGravityAcceleration(
+std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel > createPolyhedronGravityAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const bool useCentralBodyFixedFrame);
+        const bool useCentralBodyFixedFrame );
 
 //! Function to create ring gravity acceleration model.
 /*!
@@ -234,7 +228,7 @@ std::shared_ptr< gravitation::RingGravitationalAccelerationModel > createRingGra
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const bool useCentralBodyFixedFrame);
+        const bool useCentralBodyFixedFrame );
 
 //! Function to create a third body central gravity acceleration model.
 /*!
@@ -252,8 +246,7 @@ std::shared_ptr< gravitation::RingGravitationalAccelerationModel > createRingGra
  *  be calculated.
  *  \return Pointer to object for calculating central gravity acceleration between bodies.
  */
-std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
-createThirdBodyCentralGravityAccelerationModel(
+std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration > createThirdBodyCentralGravityAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::shared_ptr< Body > centralBody,
@@ -280,14 +273,13 @@ createThirdBodyCentralGravityAccelerationModel(
  *  \return Pointer to object for calculating third-body spheric harmonic gravity acceleration between bodies.
  */
 std::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >
-createThirdBodySphericalHarmonicGravityAccelerationModel(
-        const std::shared_ptr< Body > bodyUndergoingAcceleration,
-        const std::shared_ptr< Body > bodyExertingAcceleration,
-        const std::shared_ptr< Body > centralBody,
-        const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration,
-        const std::string& nameOfCentralBody,
-        const std::shared_ptr< AccelerationSettings > accelerationSettings );
+createThirdBodySphericalHarmonicGravityAccelerationModel( const std::shared_ptr< Body > bodyUndergoingAcceleration,
+                                                          const std::shared_ptr< Body > bodyExertingAcceleration,
+                                                          const std::shared_ptr< Body > centralBody,
+                                                          const std::string& nameOfBodyUndergoingAcceleration,
+                                                          const std::string& nameOfBodyExertingAcceleration,
+                                                          const std::string& nameOfCentralBody,
+                                                          const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create a third body mutual spheric harmonic gravity acceleration model.
 /*!
@@ -308,14 +300,13 @@ createThirdBodySphericalHarmonicGravityAccelerationModel(
  *  \return Pointer to object for calculating third-body mutual spheric harmonic gravity acceleration between bodies.
  */
 std::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
-createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
-        const std::shared_ptr< Body > bodyUndergoingAcceleration,
-        const std::shared_ptr< Body > bodyExertingAcceleration,
-        const std::shared_ptr< Body > centralBody,
-        const std::string& nameOfBodyUndergoingAcceleration,
-        const std::string& nameOfBodyExertingAcceleration,
-        const std::string& nameOfCentralBody,
-        const std::shared_ptr< AccelerationSettings > accelerationSettings );
+createThirdBodyMutualSphericalHarmonicGravityAccelerationModel( const std::shared_ptr< Body > bodyUndergoingAcceleration,
+                                                                const std::shared_ptr< Body > bodyExertingAcceleration,
+                                                                const std::shared_ptr< Body > centralBody,
+                                                                const std::string& nameOfBodyUndergoingAcceleration,
+                                                                const std::string& nameOfBodyExertingAcceleration,
+                                                                const std::string& nameOfCentralBody,
+                                                                const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create a third body polyhedron gravity acceleration model.
 /*!
@@ -333,8 +324,7 @@ createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
  *  be calculated.
  *  \return Pointer to object for calculating third-body polyhedron gravity acceleration between bodies.
  */
-std::shared_ptr< gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel >
-createThirdBodyPolyhedronGravityAccelerationModel(
+std::shared_ptr< gravitation::ThirdBodyPolyhedronGravitationalAccelerationModel > createThirdBodyPolyhedronGravityAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::shared_ptr< Body > centralBody,
@@ -377,8 +367,7 @@ std::shared_ptr< gravitation::ThirdBodyRingGravitationalAccelerationModel > crea
  *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
  *  \return Pointer to object for calculating aerodynamic acceleration.
  */
-std::shared_ptr< aerodynamics::AerodynamicAcceleration >
-createAerodynamicAcceleratioModel(
+std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcceleratioModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -395,15 +384,13 @@ createAerodynamicAcceleratioModel(
  *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
  *  \return Pointer to object for calculating radiation pressure acceleration.
  */
-std::shared_ptr< electromagnetism::RadiationPressureAcceleration >
-createRadiationPressureAccelerationModel(
+std::shared_ptr< electromagnetism::RadiationPressureAcceleration > createRadiationPressureAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const SystemOfBodies& bodies,
         const std::shared_ptr< AccelerationSettings > accelerationSetting = nullptr );
-
 
 //! Function to create a thrust acceleration model.
 /*!
@@ -415,8 +402,7 @@ createRadiationPressureAccelerationModel(
  *  \param nameOfBodyUndergoingThrust Name of body that is undergoing the thrust acceleration
  *  \return Pointer to object for calculating thrust acceleration.
  */
-std::shared_ptr< propulsion::ThrustAcceleration >
-createThrustAcceleratioModel(
+std::shared_ptr< propulsion::ThrustAcceleration > createThrustAcceleratioModel(
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const SystemOfBodies& bodies,
         const std::string& nameOfBodyUndergoingThrust );
@@ -436,7 +422,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const  std::shared_ptr< AccelerationSettings > accelerationSettings );
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create a momentum wheel desaturation acceleration model.
 /*!
@@ -453,7 +439,7 @@ std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > creat
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const  std::shared_ptr< AccelerationSettings > accelerationSettings );
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create an orbiter relativistic correction acceleration model
 /*!
@@ -528,8 +514,7 @@ std::shared_ptr< electromagnetism::YarkovskyAcceleration > createYarkovskyAccele
  *  objects.
  *  \return Acceleration model pointer.
  */
-std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
-createAccelerationModel(
+std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
@@ -547,11 +532,10 @@ createAccelerationModel(
  */
 SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationPerBody );
 
-void addEihAccelerations(
-    const SystemOfBodies& bodies,
-    const std::map< std::string, std::vector< std::string > > orderedEihBodies,
-    const std::map< std::string, std::string >& centralBodies,
-    basic_astrodynamics::AccelerationMap& accelerationMap );
+void addEihAccelerations( const SystemOfBodies& bodies,
+                          const std::map< std::string, std::vector< std::string > > orderedEihBodies,
+                          const std::map< std::string, std::string >& centralBodies,
+                          basic_astrodynamics::AccelerationMap& accelerationMap );
 
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 /*!
@@ -564,15 +548,14 @@ void addEihAccelerations(
  *  \param centralBodies Map of central bodies for each body undergoing acceleration.
  *  \return List of acceleration model objects, in form of AccelerationMap.
  */
-//basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
-//        const SystemOfBodies& bodies,
-//        const SelectedAccelerationMap& selectedAccelerationPerBody,
-//        const std::map< std::string, std::string >& centralBodies );
+// basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+//         const SystemOfBodies& bodies,
+//         const SelectedAccelerationMap& selectedAccelerationPerBody,
+//         const std::map< std::string, std::string >& centralBodies );
 //! Function to create a set of acceleration models from a map of bodies and acceleration model types.
-basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
-        const SystemOfBodies& bodies,
-        const SelectedAccelerationMap& selectedAccelerationPerBody,
-        const std::map< std::string, std::string >& centralBodies );
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap( const SystemOfBodies& bodies,
+                                                                  const SelectedAccelerationMap& selectedAccelerationPerBody,
+                                                                  const std::map< std::string, std::string >& centralBodies );
 
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 /*!
@@ -586,15 +569,13 @@ basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
  *  \param centralBodies List of central bodies for each body undergoing acceleration (in same order as propagatedBodies).
  *  \return List of acceleration model objects, in form of AccelerationMap.
  */
-basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
-        const SystemOfBodies& bodies,
-        const SelectedAccelerationMap& selectedAccelerationPerBody,
-        const std::vector< std::string >& propagatedBodies,
-        const std::vector< std::string >& centralBodies );
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap( const SystemOfBodies& bodies,
+                                                                  const SelectedAccelerationMap& selectedAccelerationPerBody,
+                                                                  const std::vector< std::string >& propagatedBodies,
+                                                                  const std::vector< std::string >& centralBodies );
 
+}  // namespace simulation_setup
 
-} // namespace simulation_setup
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_CREATEACCELERATIONMODELS_H
+#endif  // TUDAT_CREATEACCELERATIONMODELS_H

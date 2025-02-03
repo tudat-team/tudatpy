@@ -26,14 +26,11 @@ Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyPosition( )
 }
 
 //! Function to calculate the partial of position of a point on a body wrt its body-fixed position
-Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyFixedPointPosition(
-        const Eigen::Matrix3d& rotationMatrixToInertialFrame )
+Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyFixedPointPosition( const Eigen::Matrix3d& rotationMatrixToInertialFrame )
 {
     return rotationMatrixToInertialFrame;
 }
 
-}
+}  // namespace observation_partials
 
-}
-
-
+}  // namespace tudat

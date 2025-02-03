@@ -57,8 +57,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGeneratorHypersonicLocalInclinat
     const double toleranceAerodynamicCoefficients5 = 1.0e-4;
 
     // Create test sphere.
-    std::shared_ptr< geometric_shapes::SphereSegment > sphere
-            = std::make_shared< geometric_shapes::SphereSegment >( 1.0 );
+    std::shared_ptr< geometric_shapes::SphereSegment > sphere = std::make_shared< geometric_shapes::SphereSegment >( 1.0 );
 
     // Set vehicle in analysis with 10,000 panels.
     std::vector< int > numberOfLines( 1, 31 );
@@ -69,35 +68,31 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGeneratorHypersonicLocalInclinat
     std::vector< std::vector< double > > independentVariableDataPoints;
     independentVariableDataPoints.resize( 3 );
 
-    independentVariableDataPoints[ 0 ] =
-            getDefaultHypersonicLocalInclinationMachPoints( "Full" );
-    independentVariableDataPoints[ 1 ] =
-            getDefaultHypersonicLocalInclinationAngleOfAttackPoints( );
-    independentVariableDataPoints[ 2 ] =
-            getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
-
+    independentVariableDataPoints[ 0 ] = getDefaultHypersonicLocalInclinationMachPoints( "Full" );
+    independentVariableDataPoints[ 1 ] = getDefaultHypersonicLocalInclinationAngleOfAttackPoints( );
+    independentVariableDataPoints[ 2 ] = getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
 
     // Set methods to use for aerodynamic analysis.
-    std::vector< std::vector< int > > analysisMethod( 2, std::vector< int >( 1, 0 ));
+    std::vector< std::vector< int > > analysisMethod( 2, std::vector< int >( 1, 0 ) );
     analysisMethod[ 1 ][ 0 ] = 1;
 
     // Generate sphere database of aerodynamic coefficients.
     std::shared_ptr< HypersonicLocalInclinationAnalysis > coefficientInterface =
-            std::make_shared< HypersonicLocalInclinationAnalysis >(
-                independentVariableDataPoints, sphere,
-                numberOfLines, numberOfPoints,
-                invertOrder, analysisMethod, PI, 1.0,
-                Eigen::Vector3d::Zero( ) );
+            std::make_shared< HypersonicLocalInclinationAnalysis >( independentVariableDataPoints,
+                                                                    sphere,
+                                                                    numberOfLines,
+                                                                    numberOfPoints,
+                                                                    invertOrder,
+                                                                    analysisMethod,
+                                                                    PI,
+                                                                    1.0,
+                                                                    Eigen::Vector3d::Zero( ) );
 
     // Test basic properties of coefficient generator
-    BOOST_CHECK_EQUAL(
-                coefficientInterface->getIndependentVariableNames( ).size( ), 3 );
-    BOOST_CHECK_EQUAL( coefficientInterface->getIndependentVariableName( 0 ),
-                       mach_number_dependent );
-    BOOST_CHECK_EQUAL( coefficientInterface->getIndependentVariableName( 1 ),
-                       angle_of_attack_dependent );
-    BOOST_CHECK_EQUAL( coefficientInterface->getIndependentVariableName( 2 ),
-                       angle_of_sideslip_dependent );
+    BOOST_CHECK_EQUAL( coefficientInterface->getIndependentVariableNames( ).size( ), 3 );
+    BOOST_CHECK_EQUAL( coefficientInterface->getIndependentVariableName( 0 ), mach_number_dependent );
+    BOOST_CHECK_EQUAL( coefficientInterface->getIndependentVariableName( 1 ), angle_of_attack_dependent );
+    BOOST_CHECK_EQUAL( coefficientInterface->getIndependentVariableName( 2 ), angle_of_sideslip_dependent );
 
     bool isVariableIndexTooHigh = 0;
     try
@@ -110,7 +105,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGeneratorHypersonicLocalInclinat
         isVariableIndexTooHigh = 1;
     }
     BOOST_CHECK_EQUAL( isVariableIndexTooHigh, 1 );
-
 
     // Allocate memory for independent variables to pass to analysis for retrieval.
     boost::array< int, 3 > independentVariables;
@@ -128,118 +122,93 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGeneratorHypersonicLocalInclinat
     // should be one; all moment coefficients should be zero.
     // The functionality is tested directly from the generator, as well as from the
     // coefficient interface, both interpolated at the nodes, and halfway between the nodes.
-    for ( int i = 0; i < coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ); i++ )
+    for( int i = 0; i < coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ); i++ )
     {
         independentVariables[ 0 ] = i;
         independentVariablesVector[ 0 ] = coefficientInterface->getIndependentVariablePoint( 0, i );
         if( i < coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1 )
         {
-            interpolatingIndependentVariablesVector[ 0 ] =
-                    coefficientInterface->getIndependentVariablePoint( 0, i ) + 0.5 * (
-                        coefficientInterface->getIndependentVariablePoint( 0, i + 1 ) -
-                        coefficientInterface->getIndependentVariablePoint( 0, i ) );
+            interpolatingIndependentVariablesVector[ 0 ] = coefficientInterface->getIndependentVariablePoint( 0, i ) +
+                    0.5 *
+                            ( coefficientInterface->getIndependentVariablePoint( 0, i + 1 ) -
+                              coefficientInterface->getIndependentVariablePoint( 0, i ) );
         }
 
-
-        for ( int j = 0; j <
-              coefficientInterface->getNumberOfValuesOfIndependentVariable( 1 ); j++ )
+        for( int j = 0; j < coefficientInterface->getNumberOfValuesOfIndependentVariable( 1 ); j++ )
         {
             independentVariables[ 1 ] = j;
-            independentVariablesVector[ 1 ] =
-                    coefficientInterface->getIndependentVariablePoint( 1, j );
+            independentVariablesVector[ 1 ] = coefficientInterface->getIndependentVariablePoint( 1, j );
             if( j < coefficientInterface->getNumberOfValuesOfIndependentVariable( 1 ) - 1 )
             {
-                interpolatingIndependentVariablesVector[ 1 ] =
-                        coefficientInterface->getIndependentVariablePoint( 1, j ) + 0.5 * (
-                            coefficientInterface->getIndependentVariablePoint( 1, j + 1 ) -
-                            coefficientInterface->getIndependentVariablePoint( 1, j ) );
+                interpolatingIndependentVariablesVector[ 1 ] = coefficientInterface->getIndependentVariablePoint( 1, j ) +
+                        0.5 *
+                                ( coefficientInterface->getIndependentVariablePoint( 1, j + 1 ) -
+                                  coefficientInterface->getIndependentVariablePoint( 1, j ) );
             }
 
-            for ( int k = 0; k <
-                  coefficientInterface->getNumberOfValuesOfIndependentVariable( 2 ); k++ )
+            for( int k = 0; k < coefficientInterface->getNumberOfValuesOfIndependentVariable( 2 ); k++ )
             {
                 independentVariables[ 2 ] = k;
-                independentVariablesVector[ 2 ] =
-                        coefficientInterface->getIndependentVariablePoint( 2, k );
+                independentVariablesVector[ 2 ] = coefficientInterface->getIndependentVariablePoint( 2, k );
                 if( k < coefficientInterface->getNumberOfValuesOfIndependentVariable( 2 ) - 1 )
                 {
-                    interpolatingIndependentVariablesVector[ 2 ] =
-                            coefficientInterface->getIndependentVariablePoint( 2, k ) + 0.5 * (
-                                coefficientInterface->getIndependentVariablePoint( 2, k + 1 ) -
-                                coefficientInterface->getIndependentVariablePoint( 2, k ) );
+                    interpolatingIndependentVariablesVector[ 2 ] = coefficientInterface->getIndependentVariablePoint( 2, k ) +
+                            0.5 *
+                                    ( coefficientInterface->getIndependentVariablePoint( 2, k + 1 ) -
+                                      coefficientInterface->getIndependentVariablePoint( 2, k ) );
                 }
 
                 // Retrieve aerodynamic coefficients.
-                aerodynamicCoefficients_ =
-                        coefficientInterface->getAerodynamicCoefficientsDataPoint(
-                            independentVariables );
+                aerodynamicCoefficients_ = coefficientInterface->getAerodynamicCoefficientsDataPoint( independentVariables );
                 forceCoefficient_ = ( aerodynamicCoefficients_.head( 3 ) ).norm( );
 
                 // Test if the computed force coefficient corresponds to the expected value
                 // within the specified tolerance.
-                BOOST_CHECK_CLOSE_FRACTION( forceCoefficient_,
-                                            expectedValueOfForceCoefficient,
-                                            toleranceForceCoefficient );
+                BOOST_CHECK_CLOSE_FRACTION( forceCoefficient_, expectedValueOfForceCoefficient, toleranceForceCoefficient );
 
                 // Test if the computed moment coefficients correspond to the expected value (0.0)
                 // within the specified tolerance.
-                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 3 ),
-                                   toleranceAerodynamicCoefficients3 );
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 3 ), toleranceAerodynamicCoefficients3 );
 
-                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 4 ),
-                                   toleranceAerodynamicCoefficients4 );
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 4 ), toleranceAerodynamicCoefficients4 );
 
-                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 5 ),
-                                   toleranceAerodynamicCoefficients5 );
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 5 ), toleranceAerodynamicCoefficients5 );
 
                 // Retrieve aerodynamic coefficients from coefficient interface.
                 coefficientInterface->updateCurrentCoefficients( independentVariablesVector );
 
-                aerodynamicCoefficients_ =
-                        coefficientInterface->getCurrentAerodynamicCoefficients( );
+                aerodynamicCoefficients_ = coefficientInterface->getCurrentAerodynamicCoefficients( );
                 forceCoefficient_ = ( aerodynamicCoefficients_.head( 3 ) ).norm( );
 
                 // Test if the computed force coefficient corresponds to the expected value
                 // within the specified tolerance.
-                BOOST_CHECK_CLOSE_FRACTION( forceCoefficient_,
-                                            expectedValueOfForceCoefficient,
-                                            toleranceForceCoefficient );
+                BOOST_CHECK_CLOSE_FRACTION( forceCoefficient_, expectedValueOfForceCoefficient, toleranceForceCoefficient );
 
                 // Test if the computed moment coefficients correspond to the expected value (0.0)
                 // within the specified tolerance.
-                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 3 ),
-                                   toleranceAerodynamicCoefficients3 );
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 3 ), toleranceAerodynamicCoefficients3 );
 
-                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 4 ),
-                                   toleranceAerodynamicCoefficients4 );
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 4 ), toleranceAerodynamicCoefficients4 );
 
-                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 5 ),
-                                   toleranceAerodynamicCoefficients5 );
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 5 ), toleranceAerodynamicCoefficients5 );
 
                 // Retrieve aerodynamic coefficients from coefficient interface.
-                coefficientInterface->updateCurrentCoefficients(
-                            interpolatingIndependentVariablesVector );
+                coefficientInterface->updateCurrentCoefficients( interpolatingIndependentVariablesVector );
 
-                aerodynamicCoefficients_ =
-                        coefficientInterface->getCurrentAerodynamicCoefficients( );
+                aerodynamicCoefficients_ = coefficientInterface->getCurrentAerodynamicCoefficients( );
                 forceCoefficient_ = ( aerodynamicCoefficients_.head( 3 ) ).norm( );
 
                 // Test if the computed force coefficient corresponds to the expected value
                 // within the specified tolerance.
-                BOOST_CHECK_CLOSE_FRACTION( forceCoefficient_,
-                                            expectedValueOfForceCoefficient,
-                                            toleranceForceCoefficient );
+                BOOST_CHECK_CLOSE_FRACTION( forceCoefficient_, expectedValueOfForceCoefficient, toleranceForceCoefficient );
 
                 // Test if the computed moment coefficients correspond to the expected value (0.0)
                 // within the specified tolerance.
-                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 3 ),
-                                   toleranceAerodynamicCoefficients3 );
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 3 ), toleranceAerodynamicCoefficients3 );
 
-                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 4 ),
-                                   toleranceAerodynamicCoefficients4 );
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 4 ), toleranceAerodynamicCoefficients4 );
 
-                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 5 ),
-                                   toleranceAerodynamicCoefficients5 );
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_( 5 ), toleranceAerodynamicCoefficients5 );
             }
         }
     }
@@ -247,11 +216,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGeneratorHypersonicLocalInclinat
 
 std::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterface( )
 {
-
     // Create test capsule.
-    std::shared_ptr< geometric_shapes::Capsule > capsule
-            = std::make_shared< geometric_shapes::Capsule >(
-                4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
+    std::shared_ptr< geometric_shapes::Capsule > capsule =
+            std::make_shared< geometric_shapes::Capsule >( 4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
 
     std::vector< int > numberOfLines( 4 );
     std::vector< int > numberOfPoints( 4 );
@@ -280,15 +247,14 @@ std::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterf
     independentVariableDataPoints[ 0 ] = getDefaultHypersonicLocalInclinationMachPoints( "Full" );
     std::vector< double > angleOfAttackPoints( 7 );
 
-    for ( int i = 0; i < 7; i++ )
+    for( int i = 0; i < 7; i++ )
     {
         angleOfAttackPoints[ i ] = static_cast< double >( i - 6 ) * 5.0 * PI / 180.0;
     }
 
     independentVariableDataPoints[ 1 ] = angleOfAttackPoints;
-    independentVariableDataPoints[ 2 ] =
-            getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
-    std::vector< std::vector< int > > selectedMethods( 2, std::vector< int >( 4 ));
+    independentVariableDataPoints[ 2 ] = getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
+    std::vector< std::vector< int > > selectedMethods( 2, std::vector< int >( 4 ) );
 
     selectedMethods[ 0 ][ 0 ] = 1;
     selectedMethods[ 0 ][ 1 ] = 5;
@@ -300,10 +266,15 @@ std::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterf
     selectedMethods[ 1 ][ 3 ] = 3;
 
     // Create analysis object and capsule database.
-    return std::make_shared< HypersonicLocalInclinationAnalysis >(
-                independentVariableDataPoints, capsule, numberOfLines, numberOfPoints,
-                invertOrders, selectedMethods, PI * pow( capsule->getMiddleRadius( ), 2.0 ),
-                3.9116, momentReference );
+    return std::make_shared< HypersonicLocalInclinationAnalysis >( independentVariableDataPoints,
+                                                                   capsule,
+                                                                   numberOfLines,
+                                                                   numberOfPoints,
+                                                                   invertOrders,
+                                                                   selectedMethods,
+                                                                   PI * pow( capsule->getMiddleRadius( ), 2.0 ),
+                                                                   3.9116,
+                                                                   momentReference );
 }
 
 //! Apollo capsule test case.
@@ -327,72 +298,51 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     // Retrieve coefficients at zero angle of attack for comparison.
     boost::array< int, 3 > independentVariables;
 
-    independentVariables[ 0 ] =
-            coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1;
+    independentVariables[ 0 ] = coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1;
     independentVariables[ 1 ] = 6;
     independentVariables[ 2 ] = 0;
 
     // Declare local test variables.
     Eigen::VectorXd aerodynamicCoefficients_;
-    aerodynamicCoefficients_ = coefficientInterface->getAerodynamicCoefficientsDataPoint(
-                independentVariables );
+    aerodynamicCoefficients_ = coefficientInterface->getAerodynamicCoefficientsDataPoint( independentVariables );
 
     // Compare values to database values.
-    BOOST_CHECK_SMALL(
-                aerodynamicCoefficients_( 0 ) - expectedValueOfAerodynamicCoefficients0,
-                toleranceAerodynamicCoefficients0 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 0 ) - expectedValueOfAerodynamicCoefficients0, toleranceAerodynamicCoefficients0 );
 
-    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 1 ),
-                       toleranceAerodynamicCoefficients1 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 1 ), toleranceAerodynamicCoefficients1 );
 
-    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 2 ),
-                       toleranceAerodynamicCoefficients2 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 2 ), toleranceAerodynamicCoefficients2 );
 
-    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 3 ),
-                       toleranceAerodynamicCoefficients3 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 3 ), toleranceAerodynamicCoefficients3 );
 
-    BOOST_CHECK_SMALL(
-                aerodynamicCoefficients_( 4 ) - expectedValueOfAerodynamicCoefficients4,
-                toleranceAerodynamicCoefficients4 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 4 ) - expectedValueOfAerodynamicCoefficients4, toleranceAerodynamicCoefficients4 );
 
-    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 5 ),
-                       toleranceAerodynamicCoefficients5 );
-
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 5 ), toleranceAerodynamicCoefficients5 );
 
     std::vector< double > independentVariablesVector( 3 );
-    independentVariablesVector[ 0 ] = coefficientInterface->getIndependentVariablePoint(
-                0, coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1 );
-    independentVariablesVector[ 1 ] = coefficientInterface->getIndependentVariablePoint(
-                1, 6 );
-    independentVariablesVector[ 2 ] = coefficientInterface->getIndependentVariablePoint(
-                2, 0 );
+    independentVariablesVector[ 0 ] =
+            coefficientInterface->getIndependentVariablePoint( 0, coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1 );
+    independentVariablesVector[ 1 ] = coefficientInterface->getIndependentVariablePoint( 1, 6 );
+    independentVariablesVector[ 2 ] = coefficientInterface->getIndependentVariablePoint( 2, 0 );
 
     coefficientInterface->updateCurrentCoefficients( independentVariablesVector );
     aerodynamicCoefficients_ = coefficientInterface->getCurrentAerodynamicCoefficients( );
 
     // Compare values to database values.
-    BOOST_CHECK_SMALL(
-                aerodynamicCoefficients_( 0 ) - expectedValueOfAerodynamicCoefficients0,
-                toleranceAerodynamicCoefficients0 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 0 ) - expectedValueOfAerodynamicCoefficients0, toleranceAerodynamicCoefficients0 );
 
-    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 1 ),
-                       toleranceAerodynamicCoefficients1 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 1 ), toleranceAerodynamicCoefficients1 );
 
-    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 2 ),
-                       toleranceAerodynamicCoefficients2 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 2 ), toleranceAerodynamicCoefficients2 );
 
-    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 3 ),
-                       toleranceAerodynamicCoefficients3 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 3 ), toleranceAerodynamicCoefficients3 );
 
-    BOOST_CHECK_SMALL(
-                aerodynamicCoefficients_( 4 ) - expectedValueOfAerodynamicCoefficients4,
-                toleranceAerodynamicCoefficients4 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 4 ) - expectedValueOfAerodynamicCoefficients4, toleranceAerodynamicCoefficients4 );
 
-    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 5 ),
-                       toleranceAerodynamicCoefficients5 );
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_( 5 ), toleranceAerodynamicCoefficients5 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat

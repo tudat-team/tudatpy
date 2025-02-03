@@ -34,9 +34,9 @@ Eigen::Vector4d convertQuaternionsToModifiedRodriguesParameterElements( const Ei
 
     // Convert quaternions to modified Rodrigues parameters (or SMPR)
     bool shadowFlag = etaQuaternionParameter < 0;
-    double conversionSign = shadowFlag ? - 1.0 : 1.0; // conversion is slightly different for SMRP and MRP
-    convertedModifiedRodriguesParameterElements.segment( sigma1ModifiedRodriguesParametersIndex, 3 ) = conversionSign *
-            quaternionElements.segment( epsilon1QuaternionIndex, 3 ) / ( 1 + conversionSign * etaQuaternionParameter );
+    double conversionSign = shadowFlag ? -1.0 : 1.0;  // conversion is slightly different for SMRP and MRP
+    convertedModifiedRodriguesParameterElements.segment( sigma1ModifiedRodriguesParametersIndex, 3 ) =
+            conversionSign * quaternionElements.segment( epsilon1QuaternionIndex, 3 ) / ( 1 + conversionSign * etaQuaternionParameter );
     convertedModifiedRodriguesParameterElements( shadowFlagModifiedRodriguesParametersIndex ) = shadowFlag ? 1.0 : 0.0;
 
     // Give output
@@ -57,14 +57,13 @@ Eigen::Vector4d convertModifiedRodriguesParametersToQuaternionElements( const Ei
     double modifiedRodriguesParametersMagnitudeSquared = modifiedRodriguesParametersVector.squaredNorm( );
 
     // Convert modified Rodrigues parameters to quaternions
-    double conversionSign = ( int( modifiedRodriguesParameterElements( shadowFlagModifiedRodriguesParametersIndex ) ) == 1 ) ?
-                - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
-    convertedQuaternionElements( etaQuaternionIndex ) = conversionSign *
-            ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) /
-            ( 1.0 + modifiedRodriguesParametersMagnitudeSquared );
-    convertedQuaternionElements.segment( epsilon1QuaternionIndex, 3 ) = conversionSign *
-            2.0 / ( 1.0 + modifiedRodriguesParametersMagnitudeSquared ) *
-            modifiedRodriguesParametersVector;
+    double conversionSign = ( int( modifiedRodriguesParameterElements( shadowFlagModifiedRodriguesParametersIndex ) ) == 1 )
+            ? -1.0
+            : 1.0;  // converion is slightly different for SMRP and MRP
+    convertedQuaternionElements( etaQuaternionIndex ) =
+            conversionSign * ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) / ( 1.0 + modifiedRodriguesParametersMagnitudeSquared );
+    convertedQuaternionElements.segment( epsilon1QuaternionIndex, 3 ) =
+            conversionSign * 2.0 / ( 1.0 + modifiedRodriguesParametersMagnitudeSquared ) * modifiedRodriguesParametersVector;
 
     // Give output
     return convertedQuaternionElements;
@@ -85,18 +84,18 @@ Eigen::Vector4d convertQuaternionsToExponentialMapElements( const Eigen::Vector4
     double exponentialMapMagnitude = 2.0 * std::acos( quaternionElements( etaQuaternionIndex ) );
     bool shadowFlag = std::fabs( exponentialMapMagnitude ) > PI;
     Eigen::Vector3d exponentialMapVector = quaternionElements.segment( epsilon1QuaternionIndex, 3 );
-    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
+    if( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
     {
         exponentialMapVector *= 48.0 / ( 24.0 - exponentialMapMagnitude * exponentialMapMagnitude );
     }
     else
     {
-        exponentialMapVector *= shadowFlag ?
-                    - ( 2.0 * PI - exponentialMapMagnitude ) / std::sin( 0.5 * exponentialMapMagnitude ) : // shadow exponential map
-                    exponentialMapMagnitude / std::sin( 0.5 * exponentialMapMagnitude ); // exponential map
+        exponentialMapVector *= shadowFlag ? -( 2.0 * PI - exponentialMapMagnitude ) / std::sin( 0.5 * exponentialMapMagnitude )
+                                           :                                          // shadow exponential map
+                exponentialMapMagnitude / std::sin( 0.5 * exponentialMapMagnitude );  // exponential map
     }
     convertedExponentialMapElements.segment( e1ExponentialMapIndex, 3 ) = exponentialMapVector;
-    convertedExponentialMapElements( shadowFlagExponentialMapIndex ) = shadowFlag ? 1.0 : 0.0; // set flag
+    convertedExponentialMapElements( shadowFlagExponentialMapIndex ) = shadowFlag ? 1.0 : 0.0;  // set flag
 
     // Give output
     return convertedExponentialMapElements;
@@ -117,7 +116,7 @@ Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector4d
 
     // Convert exponential map to quaternions
     convertedQuaternionElements( etaQuaternionIndex ) = std::cos( 0.5 * exponentialMapMagnitude );
-    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
+    if( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
     {
         convertedQuaternionElements.segment( epsilon1QuaternionIndex, 3 ) =
                 exponentialMapVector * ( 0.5 - exponentialMapMagnitude * exponentialMapMagnitude / 48.0 );
@@ -129,13 +128,14 @@ Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector4d
     }
 
     // Change sign based on shadow flag
-    double conversionSign = ( int( exponentialMapElements( shadowFlagExponentialMapIndex ) ) == 1 ) ?
-                - 1.0 : 1.0; // converion is slightly different for SEM and EM
+    double conversionSign = ( int( exponentialMapElements( shadowFlagExponentialMapIndex ) ) == 1 )
+            ? -1.0
+            : 1.0;  // converion is slightly different for SEM and EM
 
     // Give output
     return conversionSign * convertedQuaternionElements;
 }
 
-} // namespace orbital_element_conversions
+}  // namespace orbital_element_conversions
 
-} // namespace tudat
+}  // namespace tudat

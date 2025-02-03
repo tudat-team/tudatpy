@@ -50,24 +50,19 @@ BOOST_AUTO_TEST_CASE( testKeplerEphemerisElliptical )
     PropagationHistory computedPropagationHistory;
     computedPropagationHistory[ 0.0 ] = expectedPropagationHistory[ 0.0 ];
 
-    ephemerides::KeplerEphemeris keplerEphemeris(
-                expectedPropagationHistory[ 0.0 ],
-                0.0, earthGravitationalParameter );
+    ephemerides::KeplerEphemeris keplerEphemeris( expectedPropagationHistory[ 0.0 ], 0.0, earthGravitationalParameter );
 
     for( PropagationHistory::iterator stateIterator = expectedPropagationHistory.begin( );
-         stateIterator != expectedPropagationHistory.end( ); stateIterator++ )
+         stateIterator != expectedPropagationHistory.end( );
+         stateIterator++ )
     {
         // Compute next entry.
-        computedPropagationHistory[ stateIterator->first ] =
-                orbital_element_conversions::convertCartesianToKeplerianElements(
-                    keplerEphemeris.getCartesianState( stateIterator->first ),
-                    earthGravitationalParameter );
+        computedPropagationHistory[ stateIterator->first ] = orbital_element_conversions::convertCartesianToKeplerianElements(
+                keplerEphemeris.getCartesianState( stateIterator->first ), earthGravitationalParameter );
 
         // Check that computed results match expected results.
         BOOST_CHECK_CLOSE_FRACTION(
-                    computedPropagationHistory[ stateIterator->first ]( 5 ),
-                    expectedPropagationHistory[ stateIterator->first ]( 5 ),
-                    2.5e-14 );
+                computedPropagationHistory[ stateIterator->first ]( 5 ), expectedPropagationHistory[ stateIterator->first ]( 5 ), 2.5e-14 );
     }
 }
 
@@ -82,30 +77,24 @@ BOOST_AUTO_TEST_CASE( testKeplerEphemerisHyperbolic )
     PropagationHistory computedPropagationHistory;
     computedPropagationHistory[ 0.0 ] = expectedPropagationHistory[ 0.0 ];
 
-    ephemerides::KeplerEphemeris keplerEphemeris(
-                expectedPropagationHistory[ 0.0 ],
-                0.0, getGTOPGravitationalParameter( ) );
+    ephemerides::KeplerEphemeris keplerEphemeris( expectedPropagationHistory[ 0.0 ], 0.0, getGTOPGravitationalParameter( ) );
 
     for( PropagationHistory::iterator stateIterator = expectedPropagationHistory.begin( );
-         stateIterator != expectedPropagationHistory.end( ); stateIterator++ )
+         stateIterator != expectedPropagationHistory.end( );
+         stateIterator++ )
     {
         // Compute next entry.
-        computedPropagationHistory[ stateIterator->first ] =
-                orbital_element_conversions::convertCartesianToKeplerianElements(
-                    keplerEphemeris.getCartesianState( stateIterator->first ),
-                    getGTOPGravitationalParameter( ) );
+        computedPropagationHistory[ stateIterator->first ] = orbital_element_conversions::convertCartesianToKeplerianElements(
+                keplerEphemeris.getCartesianState( stateIterator->first ), getGTOPGravitationalParameter( ) );
 
         // Check that computed results match expected results.
         BOOST_CHECK_CLOSE_FRACTION(
-                    computedPropagationHistory[ stateIterator->first ]( 5 ),
-                    expectedPropagationHistory[ stateIterator->first ]( 5 ),
-                    1.0e-15 );
+                computedPropagationHistory[ stateIterator->first ]( 5 ), expectedPropagationHistory[ stateIterator->first ]( 5 ), 1.0e-15 );
     }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+}  // namespace unit_tests
 
-} // namespace tudat
-
+}  // namespace tudat

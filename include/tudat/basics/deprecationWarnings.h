@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_DEPRECATION_WARNINGS_H
 #define TUDAT_DEPRECATION_WARNINGS_H
 
@@ -21,17 +20,12 @@ namespace tudat
 namespace utilities
 {
 
-void printDeprecationError(
-        const std::string& name,
-        const std::string& descriptionPage );
+void printDeprecationError( const std::string& name, const std::string& descriptionPage );
 
-void printDeprecationWarning(
-        const std::string& oldName,
-        const std::string& newName,
-        const std::string& description = "" );
+void printDeprecationWarning( const std::string& oldName, const std::string& newName, const std::string& description = "" );
 
-}
+}  // namespace utilities
 
-} // namespace tudatpy
+}  // namespace tudat
 
-#endif//TUDAT_DEPRECATION_WARNINGS_H
+#endif  // TUDAT_DEPRECATION_WARNINGS_H
