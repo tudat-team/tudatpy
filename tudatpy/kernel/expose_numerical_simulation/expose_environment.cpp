@@ -2623,7 +2623,7 @@ numpy.ndarray[numpy.float64[6, 1]]
 
        :type: RigidBodyProperties
     )doc")
-                    .def_property("radiation_pressure_source_models", &tss::Body::getRadiationPressureTargetModels,
+                    .def_property("radiation_pressure_target_models", &tss::Body::getRadiationPressureTargetModels,
                                   &tss::Body::setRadiationPressureTargetModels )
                     .def_property_readonly(
                         "gravitational_parameter",
