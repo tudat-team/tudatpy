@@ -213,7 +213,7 @@ void TrackingTxtFileContents::subtractColumnType( const TrackingDataType& column
                                   std::to_string( static_cast< int >( columnToSubtractFrom ) ) + " do not have same size." );
     }
 
-    for( int i = 0; i < doubleDataMap_.at( columnToSubtractFrom ).size( ); i++ )
+    for( unsigned int i = 0; i < doubleDataMap_.at( columnToSubtractFrom ).size( ); i++ )
     {
         doubleDataMap_[ columnToSubtractFrom ][ i ] -= doubleDataMap_[ columnToSubtract ][ i ];
     }
