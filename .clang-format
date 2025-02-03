@@ -1,4 +1,3 @@
----
 Language: Cpp
 BasedOnStyle: Google
 IndentWidth: 4
@@ -56,4 +55,3 @@ SpaceInEmptySquareBrackets: true
 SpaceInEmptyBlock: true
 
 ColumnLimit: 140
----
