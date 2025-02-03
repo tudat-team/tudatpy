@@ -31,20 +31,21 @@ namespace tep = tudat::estimatable_parameters;
 namespace tom = tudat::observation_models;
 namespace tba = tudat::basic_astrodynamics;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
+namespace numerical_simulation
+{
 
-    namespace numerical_simulation {
-
-        void expose_numerical_simulation_variational(py::module &m) {
-
-            m.def("create_variational_equations_solver",
-                  &tss::createVariationalEquationsSolver<STATE_SCALAR_TYPE,
-                      TIME_TYPE>,
-                  py::arg("bodies"), py::arg("propagator_settings"),
-                  py::arg("parameters_to_estimate"),
-                  py::arg("simulate_dynamics_on_creation") = true,
-                  R"doc(
+void expose_numerical_simulation_variational( py::module &m )
+{
+    m.def( "create_variational_equations_solver",
+           &tss::createVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "bodies" ),
+           py::arg( "propagator_settings" ),
+           py::arg( "parameters_to_estimate" ),
+           py::arg( "simulate_dynamics_on_creation" ) = true,
+           R"doc(
 
 Function to create object that propagates the dynamics.
 
@@ -77,16 +78,14 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-
-            // TODO: Remove variationalOnlyIntegratorSettings
-            py::class_<tp::SingleArcVariationalEquationsSolver<
-                           STATE_SCALAR_TYPE, TIME_TYPE>,
-                       std::shared_ptr<tp::SingleArcVariationalEquationsSolver<
-                           STATE_SCALAR_TYPE, TIME_TYPE>>>(
-                m, "SingleArcVariationalSimulator",
-                R"doc(
+    // TODO: Remove variationalOnlyIntegratorSettings
+    py::class_< tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m,
+            "SingleArcVariationalSimulator",
+            R"doc(
 
         Class for consolidating single arc variational dynamics functionality.
 
@@ -96,32 +95,29 @@ Returns
 
 
 
-     )doc")
-                .def(py::init<
-                         const tudat::simulation_setup::SystemOfBodies &,
-                         const std::shared_ptr<
-                             tudat::numerical_integrators::IntegratorSettings<
-                                 TIME_TYPE>>,
-                         const std::shared_ptr<
-                             tp::PropagatorSettings<STATE_SCALAR_TYPE>>,
-                         const std::shared_ptr<
-                             tep::EstimatableParameterSet<STATE_SCALAR_TYPE>>,
-                         const bool,
-                         const std::shared_ptr<tudat::numerical_integrators::
-                                                   IntegratorSettings<double>>,
-                         const bool, const bool, const bool, const bool>(),
-                     py::arg("bodies"), py::arg("integrator_settings"),
-                     py::arg("propagator_settings"),
-                     py::arg("estimated_parameters"),
-                     py::arg("integrate_equations_concurrently") = true,
-                     py::arg("variational_only_integrator_settings") =
-                         std::shared_ptr<tudat::numerical_integrators::
-                                             IntegratorSettings<TIME_TYPE>>(),
-                     py::arg("clear_numerical_solutions") = false,
-                     py::arg("integrate_on_creation") = true,
-                     py::arg("set_integrated_result") = false,
-                     py::arg("print_dependent_variable_data") = true,
-                     R"doc(
+     )doc" )
+            .def( py::init< const tudat::simulation_setup::SystemOfBodies &,
+                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >,
+                            const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
+                            const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
+                            const bool,
+                            const std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< double > >,
+                            const bool,
+                            const bool,
+                            const bool,
+                            const bool >( ),
+                  py::arg( "bodies" ),
+                  py::arg( "integrator_settings" ),
+                  py::arg( "propagator_settings" ),
+                  py::arg( "estimated_parameters" ),
+                  py::arg( "integrate_equations_concurrently" ) = true,
+                  py::arg( "variational_only_integrator_settings" ) =
+                          std::shared_ptr< tudat::numerical_integrators::IntegratorSettings< TIME_TYPE > >( ),
+                  py::arg( "clear_numerical_solutions" ) = false,
+                  py::arg( "integrate_on_creation" ) = true,
+                  py::arg( "set_integrated_result" ) = false,
+                  py::arg( "print_dependent_variable_data" ) = true,
+                  R"doc(
 
         Class constructor.
 
@@ -174,13 +170,11 @@ Returns
 
 
 
-    )doc")
-                .def("integrate_equations_of_motion_only",
-                     &tp::SingleArcVariationalEquationsSolver<
-                         STATE_SCALAR_TYPE,
-                         TIME_TYPE>::integrateDynamicalEquationsOfMotionOnly,
-                     py::arg("initial_states"),
-                     R"doc(
+    )doc" )
+            .def( "integrate_equations_of_motion_only",
+                  &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::integrateDynamicalEquationsOfMotionOnly,
+                  py::arg( "initial_states" ),
+                  R"doc(
 
         Function to trigger the integration of the (regular) equations of motion.
 
@@ -198,14 +192,12 @@ Returns
 
 
 
-    )doc")
-                .def("integrate_full_equations",
-                     &tp::SingleArcVariationalEquationsSolver<
-                         STATE_SCALAR_TYPE,
-                         TIME_TYPE>::integrateVariationalAndDynamicalEquations,
-                     py::arg("initial_states"),
-                     py::arg("integrate_equations_concurrently") = true,
-                     R"doc(
+    )doc" )
+            .def( "integrate_full_equations",
+                  &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::integrateVariationalAndDynamicalEquations,
+                  py::arg( "initial_states" ),
+                  py::arg( "integrate_equations_concurrently" ) = true,
+                  R"doc(
 
         Function to trigger the integration of variational and dynamical equations (equations of motion).
 
@@ -233,26 +225,21 @@ Returns
 
 
 
-    )doc")
-                .def_property(
-                    "parameter_vector",
-                    &tp::SingleArcVariationalEquationsSolver<
-                        STATE_SCALAR_TYPE, TIME_TYPE>::getParametersToEstimate,
-                    &tp::SingleArcVariationalEquationsSolver<
-                        STATE_SCALAR_TYPE, TIME_TYPE>::resetParameterEstimate,
-                    R"doc(
+    )doc" )
+            .def_property( "parameter_vector",
+                           &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getParametersToEstimate,
+                           &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::resetParameterEstimate,
+                           R"doc(
 
         Consolidated set of (estimatable) parameters
         w.r.t. the variational dynamics in the Variational Simulator are defined.
 
 
         :type: :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
-     )doc")
-                .def_property_readonly(
+     )doc" )
+            .def_property_readonly(
                     "variational_equations_history",
-                    &tp::SingleArcVariationalEquationsSolver<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getNumericalVariationalEquationsSolution,
+                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getNumericalVariationalEquationsSolution,
                     R"doc(
 
         **read-only**
@@ -262,12 +249,10 @@ Returns
 
 
         :type: list[ dict[float, numpy.ndarray] ]
-     )doc")
-                .def_property_readonly(
+     )doc" )
+            .def_property_readonly(
                     "state_transition_matrix_history",
-                    &tp::SingleArcVariationalEquationsSolver<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getStateTransitionMatrixSolution,
+                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionMatrixSolution,
                     R"doc(
 
         **read-only**
@@ -277,13 +262,10 @@ Returns
 
 
         :type: dict[float, numpy.ndarray]
-     )doc")
-                .def_property_readonly(
-                    "sensitivity_matrix_history",
-                    &tp::SingleArcVariationalEquationsSolver<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getSensitivityMatrixSolution,
-                    R"doc(
+     )doc" )
+            .def_property_readonly( "sensitivity_matrix_history",
+                                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getSensitivityMatrixSolution,
+                                    R"doc(
 
         **read-only**
 
@@ -292,13 +274,10 @@ Returns
 
 
         :type: dict[float, numpy.ndarray]
-     )doc")
-                .def_property_readonly(
-                    "state_history",
-                    &tp::SingleArcVariationalEquationsSolver<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getEquationsOfMotionSolution,
-                    R"doc(
+     )doc" )
+            .def_property_readonly( "state_history",
+                                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getEquationsOfMotionSolution,
+                                    R"doc(
 
         **read-only**
 
@@ -308,12 +287,10 @@ Returns
 
 
         :type: dict[float, numpy.ndarray]
-     )doc")
-                .def_property_readonly(
-                    "dynamics_simulator",
-                    &tp::SingleArcVariationalEquationsSolver<
-                        STATE_SCALAR_TYPE, TIME_TYPE>::getDynamicsSimulator,
-                    R"doc(
+     )doc" )
+            .def_property_readonly( "dynamics_simulator",
+                                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getDynamicsSimulator,
+                                    R"doc(
 
         **read-only**
 
@@ -321,10 +298,8 @@ Returns
 
 
         :type: :class:`~tudatpy.numerical_simulation.SingleArcSimulator`
-     )doc");
+     )doc" );
+}
 
-
-        }
-
-    }  // namespace numerical_simulation
+}  // namespace numerical_simulation
 }  // namespace tudatpy

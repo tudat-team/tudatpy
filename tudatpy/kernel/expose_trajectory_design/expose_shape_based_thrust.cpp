@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include "expose_shape_based_thrust.h"
 
 // #include <tudat/astro/low_thrust/lowThrustLeg.h>
@@ -25,86 +24,87 @@ namespace py = pybind11;
 namespace tsbm = tudat::shape_based_methods;
 // namespace tltt = tudat::low_thrust_trajectories;
 
-namespace tudatpy {
-    namespace trajectory_design {
-        namespace shape_based_thrust {
+namespace tudatpy
+{
+namespace trajectory_design
+{
+namespace shape_based_thrust
+{
 
+void expose_shape_based_thrust( py::module &m )
+{
+    //     py::class_<
+    //             tltt::LowThrustLeg,
+    //             std::shared_ptr<tltt::LowThrustLeg> >(m,
+    //             "LowThrustLeg",
+    //                                                   get_docstring("LowThrustLeg").c_str())
+    //             .def( "get_trajectory",
+    //                   py::overload_cast<
+    //                   std::vector< double >& >(
+    //                   &tltt::LowThrustLeg::getTrajectory ),
+    //                   py::arg("times"),
+    //                   get_docstring("LowThrustLeg.get_trajectory").c_str()
+    //                   )
+    //             .def( "get_state",
+    //                   &tltt::LowThrustLeg::getStateAtEpoch,
+    //                   py::arg("time"),
+    //                   get_docstring("LowThrustLeg.get_state").c_str()
+    //                   )
+    //             .def( "compute_delta_v",
+    //                   &tltt::LowThrustLeg::computeDeltaV,
+    //                   get_docstring("LowThrustLeg.compute_delta_v").c_str()
+    //                   );
 
-            void expose_shape_based_thrust(py::module &m) {
-                //     py::class_<
-                //             tltt::LowThrustLeg,
-                //             std::shared_ptr<tltt::LowThrustLeg> >(m,
-                //             "LowThrustLeg",
-                //                                                   get_docstring("LowThrustLeg").c_str())
-                //             .def( "get_trajectory",
-                //                   py::overload_cast<
-                //                   std::vector< double >& >(
-                //                   &tltt::LowThrustLeg::getTrajectory ),
-                //                   py::arg("times"),
-                //                   get_docstring("LowThrustLeg.get_trajectory").c_str()
-                //                   )
-                //             .def( "get_state",
-                //                   &tltt::LowThrustLeg::getStateAtEpoch,
-                //                   py::arg("time"),
-                //                   get_docstring("LowThrustLeg.get_state").c_str()
-                //                   )
-                //             .def( "compute_delta_v",
-                //                   &tltt::LowThrustLeg::computeDeltaV,
-                //                   get_docstring("LowThrustLeg.compute_delta_v").c_str()
-                //                   );
+    //     py::class_<
+    //             tsbm::ShapeBasedMethod,
+    //             std::shared_ptr<tsbm::ShapeBasedMethod>,
+    //             tltt::LowThrustLeg
+    //             >(m, "ShapeBasedMethod",
+    //               get_docstring("ShapeBasedMethod").c_str());
 
-                //     py::class_<
-                //             tsbm::ShapeBasedMethod,
-                //             std::shared_ptr<tsbm::ShapeBasedMethod>,
-                //             tltt::LowThrustLeg
-                //             >(m, "ShapeBasedMethod",
-                //               get_docstring("ShapeBasedMethod").c_str());
+    //     py::class_<
+    //             tsbm::HodographicShaping,
+    //             std::shared_ptr<tsbm::HodographicShaping>,
+    //             tsbm::ShapeBasedMethod
+    //             >(m, "HodographicShaping",
+    //               get_docstring("HodographicShaping").c_str())
+    //             .def(py::init<
+    //                  const Eigen::Vector6d&,
+    //                  const Eigen::Vector6d&,
+    //                  const double,
+    //                  const double,
+    //                  const int,
+    //                  const std::vector< std::shared_ptr<
+    //                  tsbm::BaseFunctionHodographicShaping > >&,
+    //                  const std::vector< std::shared_ptr<
+    //                  tsbm::BaseFunctionHodographicShaping > >&,
+    //                  const std::vector< std::shared_ptr<
+    //                  tsbm::BaseFunctionHodographicShaping > >&,
+    //                  const Eigen::VectorXd&,
+    //                  const Eigen::VectorXd&,
+    //                  const Eigen::VectorXd& >(),
+    //                  py::arg("initial_state"),
+    //                  py::arg("final_state"),
+    //                  py::arg("time_of_flight"),
+    //                  py::arg("central_body_gravitational_parameter"),
+    //                  py::arg("number_of_revolutions"),
+    //                  py::arg("radial_velocity_functions"),
+    //                  py::arg("normal_velocity_functions"),
+    //                  py::arg("axial_velocity_functions"),
+    //                  py::arg("radial_free_coefficients"),
+    //                  py::arg("normal_free_coefficients"),
+    //                  py::arg("axial_free_coefficients"),
+    //                  get_docstring("HodographicShaping.ctor").c_str())
+    //             .def( "get_thrust",
+    //                   py::overload_cast< double >(
+    //                   &tsbm::HodographicShaping::computeCurrentThrustAcceleration
+    //                   ), py::arg( "time_since_departure" ),
+    //                   get_docstring("HodographicShaping.get_thrust").c_str());
 
-                //     py::class_<
-                //             tsbm::HodographicShaping,
-                //             std::shared_ptr<tsbm::HodographicShaping>,
-                //             tsbm::ShapeBasedMethod
-                //             >(m, "HodographicShaping",
-                //               get_docstring("HodographicShaping").c_str())
-                //             .def(py::init<
-                //                  const Eigen::Vector6d&,
-                //                  const Eigen::Vector6d&,
-                //                  const double,
-                //                  const double,
-                //                  const int,
-                //                  const std::vector< std::shared_ptr<
-                //                  tsbm::BaseFunctionHodographicShaping > >&,
-                //                  const std::vector< std::shared_ptr<
-                //                  tsbm::BaseFunctionHodographicShaping > >&,
-                //                  const std::vector< std::shared_ptr<
-                //                  tsbm::BaseFunctionHodographicShaping > >&,
-                //                  const Eigen::VectorXd&,
-                //                  const Eigen::VectorXd&,
-                //                  const Eigen::VectorXd& >(),
-                //                  py::arg("initial_state"),
-                //                  py::arg("final_state"),
-                //                  py::arg("time_of_flight"),
-                //                  py::arg("central_body_gravitational_parameter"),
-                //                  py::arg("number_of_revolutions"),
-                //                  py::arg("radial_velocity_functions"),
-                //                  py::arg("normal_velocity_functions"),
-                //                  py::arg("axial_velocity_functions"),
-                //                  py::arg("radial_free_coefficients"),
-                //                  py::arg("normal_free_coefficients"),
-                //                  py::arg("axial_free_coefficients"),
-                //                  get_docstring("HodographicShaping.ctor").c_str())
-                //             .def( "get_thrust",
-                //                   py::overload_cast< double >(
-                //                   &tsbm::HodographicShaping::computeCurrentThrustAcceleration
-                //                   ), py::arg( "time_since_departure" ),
-                //                   get_docstring("HodographicShaping.get_thrust").c_str());
-
-
-                py::class_<
-                    tsbm::BaseFunctionHodographicShaping,
-                    std::shared_ptr<tsbm::BaseFunctionHodographicShaping> >(
-                    m, "BaseFunctionHodographicShaping",
-                    R"doc(
+    py::class_< tsbm::BaseFunctionHodographicShaping, std::shared_ptr< tsbm::BaseFunctionHodographicShaping > >(
+            m,
+            "BaseFunctionHodographicShaping",
+            R"doc(
 
         Base class for defining settings of the shape functions for hodographic shaping method.
 
@@ -115,14 +115,12 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-
-                m.def("recommended_radial_hodograph_functions",
-                      py::overload_cast<const double>(
-                          &tsbm::getRecommendedRadialVelocityBaseFunctions),
-                      py::arg("time_of_flight"),
-                      R"doc(
+    m.def( "recommended_radial_hodograph_functions",
+           py::overload_cast< const double >( &tsbm::getRecommendedRadialVelocityBaseFunctions ),
+           py::arg( "time_of_flight" ),
+           R"doc(
 
 Function for creating the default radial hodographic trajectory shaping functions.
 
@@ -150,13 +148,12 @@ list[BaseFunctionHodographicShaping]
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("recommended_normal_hodograph_functions",
-                      py::overload_cast<const double>(
-                          &tsbm::getRecommendedNormalBaseFunctions),
-                      py::arg("time_of_flight"),
-                      R"doc(
+    m.def( "recommended_normal_hodograph_functions",
+           py::overload_cast< const double >( &tsbm::getRecommendedNormalBaseFunctions ),
+           py::arg( "time_of_flight" ),
+           R"doc(
 
 Function for creating the default normal hodographic trajectory shaping functions.
 
@@ -184,14 +181,13 @@ list[BaseFunctionHodographicShaping]
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("recommended_axial_hodograph_functions",
-                      py::overload_cast<const double, const int>(
-                          &tsbm::getRecommendedAxialVelocityBaseFunctions),
-                      py::arg("time_of_flight"),
-                      py::arg("number_of_revolutions"),
-                      R"doc(
+    m.def( "recommended_axial_hodograph_functions",
+           py::overload_cast< const double, const int >( &tsbm::getRecommendedAxialVelocityBaseFunctions ),
+           py::arg( "time_of_flight" ),
+           py::arg( "number_of_revolutions" ),
+           R"doc(
 
 Function for creating the default axial hodograph	ic trajectory shaping functions.
 
@@ -221,11 +217,11 @@ list[BaseFunctionHodographicShaping]
 
 
 
-    )doc");
+    )doc" );
 
-
-                m.def("hodograph_constant", &tsbm::hodographConstant,
-                      R"doc(
+    m.def( "hodograph_constant",
+           &tsbm::hodographConstant,
+           R"doc(
 
 Function for creating a constant contribution to hodographic trajectory shaping.
 
@@ -242,11 +238,12 @@ BaseFunctionHodographicShaping
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("hodograph_sine", &tsbm::hodographSine,
-                      py::arg("frequency"),
-                      R"doc(
+    m.def( "hodograph_sine",
+           &tsbm::hodographSine,
+           py::arg( "frequency" ),
+           R"doc(
 
 Function for creating a sine contribution to hodographic trajectory shaping.
 
@@ -269,11 +266,12 @@ BaseFunctionHodographicShaping
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("hodograph_cosine", &tsbm::hodographCosine,
-                      py::arg("frequency"),
-                      R"doc(
+    m.def( "hodograph_cosine",
+           &tsbm::hodographCosine,
+           py::arg( "frequency" ),
+           R"doc(
 
 Function for creating a cosine contribution to hodographic trajectory shaping.
 
@@ -296,70 +294,70 @@ BaseFunctionHodographicShaping
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("hodograph_exponential", &tsbm::hodographExponential,
-                      py::arg("exponent"));
+    m.def( "hodograph_exponential", &tsbm::hodographExponential, py::arg( "exponent" ) );
 
-                m.def("hodograph_scaled_exponential",
-                      &tsbm::hodographScaledExponential, py::arg("exponent"),
-                      py::arg("scale_factor") = 1.0,
-                      R"doc(No documentation found.)doc");
+    m.def( "hodograph_scaled_exponential",
+           &tsbm::hodographScaledExponential,
+           py::arg( "exponent" ),
+           py::arg( "scale_factor" ) = 1.0,
+           R"doc(No documentation found.)doc" );
 
-                //    m.def("hodograph_scaled_exponential",
-                //          &tsbm::hodographScaledExponential,
-                //          py::arg("exponent"),
-                //          py::arg("scale_factor"));
+    //    m.def("hodograph_scaled_exponential",
+    //          &tsbm::hodographScaledExponential,
+    //          py::arg("exponent"),
+    //          py::arg("scale_factor"));
 
-                m.def("hodograph_exponential_sine",
-                      &tsbm::hodographExponentialSine, py::arg("exponent"),
-                      py::arg("frequency"));
+    m.def( "hodograph_exponential_sine", &tsbm::hodographExponentialSine, py::arg( "exponent" ), py::arg( "frequency" ) );
 
-                m.def("hodograph_scaled_exponential_sine",
-                      &tsbm::hodographScaledExponentialSine,
-                      py::arg("exponent"), py::arg("frequency"),
-                      py::arg("scale_factor") = 1.0,
-                      R"doc(No documentation found.)doc");
+    m.def( "hodograph_scaled_exponential_sine",
+           &tsbm::hodographScaledExponentialSine,
+           py::arg( "exponent" ),
+           py::arg( "frequency" ),
+           py::arg( "scale_factor" ) = 1.0,
+           R"doc(No documentation found.)doc" );
 
-                //    m.def("hodograph_scaled_exponential_sine",
-                //          &tsbm::hodographScaledExponentialSine,
-                //          py::arg("exponent"),
-                //          py::arg("frequency"),
-                //          py::arg("scale_factor") );
+    //    m.def("hodograph_scaled_exponential_sine",
+    //          &tsbm::hodographScaledExponentialSine,
+    //          py::arg("exponent"),
+    //          py::arg("frequency"),
+    //          py::arg("scale_factor") );
 
-                m.def("hodograph_exponential_cosine",
-                      &tsbm::hodographExponentialCosine, py::arg("exponent"),
-                      py::arg("frequency"));
+    m.def( "hodograph_exponential_cosine", &tsbm::hodographExponentialCosine, py::arg( "exponent" ), py::arg( "frequency" ) );
 
-                m.def("hodograph_scaled_exponential_cosine",
-                      &tsbm::hodographScaledExponentialCosine,
-                      py::arg("exponent"), py::arg("frequency"),
-                      py::arg("scale_factor") = 1.0,
-                      R"doc(No documentation found.)doc");
+    m.def( "hodograph_scaled_exponential_cosine",
+           &tsbm::hodographScaledExponentialCosine,
+           py::arg( "exponent" ),
+           py::arg( "frequency" ),
+           py::arg( "scale_factor" ) = 1.0,
+           R"doc(No documentation found.)doc" );
 
-                //    m.def("hodograph_scaled_exponential_cosine",
-                //          &tsbm::hodographScaledExponentialCosine,
-                //          py::arg("exponent"),
-                //          py::arg("frequency"),
-                //          py::arg("scale_factor") );
+    //    m.def("hodograph_scaled_exponential_cosine",
+    //          &tsbm::hodographScaledExponentialCosine,
+    //          py::arg("exponent"),
+    //          py::arg("frequency"),
+    //          py::arg("scale_factor") );
 
-                m.def("hodograph_power", &tsbm::hodographPower,
-                      py::arg("exponent"));
+    m.def( "hodograph_power", &tsbm::hodographPower, py::arg( "exponent" ) );
 
-                m.def("hodograph_scaled_power", &tsbm::hodographScaledPower,
-                      py::arg("exponent"), py::arg("scale_factor") = 1.0,
-                      R"doc(No documentation found.)doc");
+    m.def( "hodograph_scaled_power",
+           &tsbm::hodographScaledPower,
+           py::arg( "exponent" ),
+           py::arg( "scale_factor" ) = 1.0,
+           R"doc(No documentation found.)doc" );
 
-                //    m.def("hodograph_scaled_power",
-                //          &tsbm::hodographScaledPower,
-                //          py::arg("exponent"),
-                //          py::arg("scale_factor") );
+    //    m.def("hodograph_scaled_power",
+    //          &tsbm::hodographScaledPower,
+    //          py::arg("exponent"),
+    //          py::arg("scale_factor") );
 
-
-                m.def("hodograph_power_sine", &tsbm::hodographScaledPowerSine,
-                      py::arg("exponent"), py::arg("frequency"),
-                      py::arg("scale_factor") = 1.0,
-                      R"doc(
+    m.def( "hodograph_power_sine",
+           &tsbm::hodographScaledPowerSine,
+           py::arg( "exponent" ),
+           py::arg( "frequency" ),
+           py::arg( "scale_factor" ) = 1.0,
+           R"doc(
 
 Function for creating a power sine function contribution to hodographic trajectory shaping.
 
@@ -386,17 +384,21 @@ BaseFunctionHodographicShaping
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("hodograph_scaled_power_sine",
-                      &tsbm::hodographScaledPowerSine, py::arg("exponent"),
-                      py::arg("frequency"), py::arg("scale_factor"),
-                      R"doc(No documentation found.)doc");
+    m.def( "hodograph_scaled_power_sine",
+           &tsbm::hodographScaledPowerSine,
+           py::arg( "exponent" ),
+           py::arg( "frequency" ),
+           py::arg( "scale_factor" ),
+           R"doc(No documentation found.)doc" );
 
-                m.def("hodograph_power_cosine",
-                      &tsbm::hodographScaledPowerCosine, py::arg("exponent"),
-                      py::arg("frequency"), py::arg("scale_factor") = 1.0,
-                      R"doc(
+    m.def( "hodograph_power_cosine",
+           &tsbm::hodographScaledPowerCosine,
+           py::arg( "exponent" ),
+           py::arg( "frequency" ),
+           py::arg( "scale_factor" ) = 1.0,
+           R"doc(
 
 Function for creating a power cosine function contribution to hodographic trajectory shaping.
 
@@ -423,15 +425,16 @@ BaseFunctionHodographicShaping
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("hodograph_scaled_power_cosine",
-                      &tsbm::hodographScaledPowerCosine, py::arg("exponent"),
-                      py::arg("frequency"), py::arg("scale_factor"),
-                      R"doc(No documentation found.)doc");
-            }
+    m.def( "hodograph_scaled_power_cosine",
+           &tsbm::hodographScaledPowerCosine,
+           py::arg( "exponent" ),
+           py::arg( "frequency" ),
+           py::arg( "scale_factor" ),
+           R"doc(No documentation found.)doc" );
+}
 
-
-        }  // namespace shape_based_thrust
-    }      // namespace trajectory_design
+}  // namespace shape_based_thrust
+}  // namespace trajectory_design
 }  // namespace tudatpy
