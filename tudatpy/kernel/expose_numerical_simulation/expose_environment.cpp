@@ -51,6 +51,7 @@ namespace tss = tudat::simulation_setup;
 namespace ti = tudat::interpolators;
 namespace tsm = tudat::system_models;
 namespace tom = tudat::observation_models;
+namespace tem = tudat::electromagnetism;
 
 namespace tudat
 {
@@ -1154,7 +1155,7 @@ The body-fixed frame of the body itself.
         Parameters
         ----------
         original_frame : AerodynamicsReferenceFrameAngles
-            The identifier for the angle that is to be returnd
+            The identifier for the angle that is to be returned
 
         Returns
         -------
@@ -1851,7 +1852,7 @@ Function to convert a Cartesian state vector from a body-fixed to an inertial fr
 object as a model for the rotation. The body-fixed frame from which the conversion takes place is the :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.body_fixed_frame_name` frame,
 the (assumedly) inertial frame to which the conversion is done is :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.inertial_frame_name`.
 
-This function calls :func:`~tudaypy.astro.element_conversion.rotate_state_to_frame` (with frame :math:`A` the inertial frame, and frame :math:`B` the body-fixed frame). The present function
+This function calls :func:`~tudatpy.astro.element_conversion.rotate_state_to_frame` (with frame :math:`A` the inertial frame, and frame :math:`B` the body-fixed frame). The present function
 computes the required rotation matrix and its time derivative from the ``rotational_ephemeris`` input given here.
 
 Parameters
@@ -2063,35 +2064,62 @@ numpy.ndarray[numpy.float64[6, 1]]
         Matrix with sine spherical harmonic coefficients :math:`\bar{S}_{lm}` (geodesy normalized). Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
 
         :type: numpy.ndarray[numpy.float64[l, m]]
-     )doc" );
+     )doc");
 
-    py::class_< tg::TimeDependentSphericalHarmonicsGravityField,
-                std::shared_ptr< tg::TimeDependentSphericalHarmonicsGravityField >,
-                tg::SphericalHarmonicsGravityField >( m, "TimeDependentSphericalHarmonicsGravityField", R"doc(No documentation found.)doc" )
-            .def_property_readonly( "gravity_field_variation_models",
-                                    &tg::TimeDependentSphericalHarmonicsGravityField::getGravityFieldVariations,
-                                    R"doc(No documentation found.)doc" );
+                py::class_<tg::TimeDependentSphericalHarmonicsGravityField,
+                           std::shared_ptr<
+                               tg::TimeDependentSphericalHarmonicsGravityField>,
+                           tg::SphericalHarmonicsGravityField>(
+                    m, "TimeDependentSphericalHarmonicsGravityField",
+                    R"doc(No documentation found.)doc")
+                    .def_property_readonly(
+                        "gravity_field_variation_models",
+                        &tg::TimeDependentSphericalHarmonicsGravityField::
+                            getGravityFieldVariations,
+                        R"doc(No documentation found.)doc");
 
-    py::class_< tg::PolyhedronGravityField, std::shared_ptr< tg::PolyhedronGravityField >, tg::GravityFieldModel >(
-            m, "PolyhedronGravityField" )
-            .def_property_readonly( "volume", &tg::PolyhedronGravityField::getVolume )
-            .def_property_readonly( "vertices_coordinates", &tg::PolyhedronGravityField::getVerticesCoordinates )
-            .def_property_readonly( "vertices_defining_each_facet", &tg::PolyhedronGravityField::getVerticesDefiningEachFacet );
+                py::class_<tg::PolyhedronGravityField,
+                           std::shared_ptr<tg::PolyhedronGravityField>,
+                           tg::GravityFieldModel>(m, "PolyhedronGravityField")
+                    .def_property_readonly(
+                        "volume", &tg::PolyhedronGravityField::getVolume)
+                    .def_property_readonly(
+                        "vertices_coordinates",
+                        &tg::PolyhedronGravityField::getVerticesCoordinates)
+                    .def_property_readonly("vertices_defining_each_facet",
+                                           &tg::PolyhedronGravityField::
+                                               getVerticesDefiningEachFacet);
 
-    py::class_< tg::GravityFieldVariations, std::shared_ptr< tg::GravityFieldVariations > >( m, "GravityFieldVariationModel" );
+                py::class_<tg::GravityFieldVariations,
+                           std::shared_ptr<tg::GravityFieldVariations>>(
+                    m, "GravityFieldVariationModel");
 
-    /*!
-     **************   SHAPE MODELS  ******************
-     */
+                /*!
+                 **************   RADIATION MODELS  ******************
+                 */
+                py::class_<tem::RadiationPressureTargetModel,
+                           std::shared_ptr< tem::RadiationPressureTargetModel > >(
+                    m, "RadiationPressureTargetModel" );
 
-    py::class_< tba::BodyShapeModel, std::shared_ptr< tba::BodyShapeModel > >( m,
-                                                                               "BodyShapeModel",
-                                                                               R"doc(
+                py::class_<tem::CannonballRadiationPressureTargetModel,
+                    std::shared_ptr<tem::CannonballRadiationPressureTargetModel>,
+                    tem::RadiationPressureTargetModel>(m, "CannonballRadiationPressureTargetModel")
+                    .def_property( "radiation_pressure_coefficient",
+                    &tem::CannonballRadiationPressureTargetModel::getCoefficient,
+                    &tem::CannonballRadiationPressureTargetModel::resetCoefficient );
+                /*!
+                 **************   SHAPE MODELS  ******************
+                 */
+
+                py::class_<tba::BodyShapeModel,
+                           std::shared_ptr<tba::BodyShapeModel>>(
+                    m, "BodyShapeModel",
+                    R"doc(
 
         Object that provides a shape model for a natural body.
 
         Object (typically stored inside a :class:`~Body` object) that provides a shape model for a body, for instance to compute the altitude from a body-centered state, or w.r.t. which
-        to place ground stations. This shape model is typically only associcated with natural bodies. Shape models for spacecraft (for non-conservative force models) use properties stored inside the
+        to place ground stations. This shape model is typically only associated with natural bodies. Shape models for spacecraft (for non-conservative force models) use properties stored inside the
         :class:`~VehicleSystems` object.
 
     )doc" )
@@ -2473,7 +2501,7 @@ numpy.ndarray[numpy.float64[6, 1]]
                            R"doc(
 
         The current inertia tensor :math:`\mathbf{I}` of the vehicle, as used in the calculation of
-        (for instance) the reponse to torques. This attribute is a shorthand for accessing the
+        (for instance) the response to torques. This attribute is a shorthand for accessing the
         inertia tensor as computed/stored in the :attr:`~Body.rigid_body_properties` attribute. For certain
         types of rigid-body properties, this attribute cannot be used to (re)set the current
         mass.
@@ -2503,7 +2531,7 @@ numpy.ndarray[numpy.float64[6, 1]]
         Returns
         -------
         numpy.ndarray
-            Cartesian state (position and velocity) of the body w.r.t. the global frame origin at the requeste time.
+            Cartesian state (position and velocity) of the body w.r.t. the global frame origin at the requested time.
 
 
 
@@ -2591,12 +2619,15 @@ numpy.ndarray[numpy.float64[6, 1]]
        the gravity field of a body (defined by the :attr:`Body.gravity_field` object). A body endowed with this property does *not*
        automatically have a gravity field created for it. However, the whenever a body is endowed with a gravity field,
        a rigid body properties attribute is created to be consistent with this gravity field (e.g. for a spherical harmonic gravity field
-       the mass, center of mass and inertia tensor are created from the gravitational parameter, degree-1 coefficients, and degree-2 coefficients plus mean moment of inertia, respetively).
+       the mass, center of mass and inertia tensor are created from the gravitational parameter, degree-1 coefficients, and degree-2 coefficients plus mean moment of inertia, respectively).
 
        :type: RigidBodyProperties
-    )doc" )
-            .def_property_readonly( "gravitational_parameter", &tss::Body::getGravitationalParameter, R"doc(
-
+    )doc")
+                    .def_property("radiation_pressure_source_models", &tss::Body::getRadiationPressureTargetModels,
+                                  &tss::Body::setRadiationPressureTargetModels )
+                    .def_property_readonly(
+                        "gravitational_parameter",
+                        &tss::Body::getGravitationalParameter, R"doc(
         **read-only**
 
         Attribute of convenience, equivalent to ``.gravity_field_model.gravitational_parameter``

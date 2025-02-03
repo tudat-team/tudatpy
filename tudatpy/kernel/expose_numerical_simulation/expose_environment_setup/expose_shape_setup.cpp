@@ -382,7 +382,7 @@ Function for creating hybrid body shape model settings.
 
 Function for settings object, defining a hybrid shape model.
 
-The hybrid shape model is constituded by two shape models: a low-resolution model which is used at high altitudes
+The hybrid shape model is constituted by two shape models: a low-resolution model which is used at high altitudes
 (above the switchover altitude) and a high-resolution model used at low altitudes (below the switchover altitude).
 In each computation of the altitude, the altitude is first computed with the low-resolution model. The
 low-resolution altitude is then compared to the switchover altitude to decide whether to compute the high-resolution

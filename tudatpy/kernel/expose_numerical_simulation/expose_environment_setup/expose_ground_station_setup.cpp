@@ -231,7 +231,7 @@ GroundStationMotionSettings
 Function for creating settings for a piecewise constant ground station position variation
 
 Function for creating settings for a piecewise constant ground station position. Using this model, the added station velocity in a body-fixed frame :math:`\dot{\mathbf{r}}` is
-always zero, but its displacement :math:`\Delta\mathbf{r}` is set according to the input list, which contains a list of times and displacments :math:`[t_{i},\Delta\mathbf{r}_{i}]`.
+always zero, but its displacement :math:`\Delta\mathbf{r}` is set according to the input list, which contains a list of times and displacements :math:`[t_{i},\Delta\mathbf{r}_{i}]`.
 When the resulting model is queried at a given time :math:`t`, the nearest lower neighbour :math:`t_{i}` from this list is found, and the associated :math:`\Delta\mathbf{r}_{i}` is applied.
 
 

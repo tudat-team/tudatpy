@@ -133,7 +133,7 @@ void expose_radiation_pressure_setup( py::module& m )
                                                                                                  "LuminosityModelSettings",
                                                                                                  R"doc(
 
-        Base class for providing settings for body source luminosity settings, to be used (typically but not necesarilly) for defining the Sun's luminosity.
+        Base class for providing settings for body source luminosity settings, to be used (typically but not necessarily) for defining the Sun's luminosity.
 
 
 
@@ -268,7 +268,7 @@ LuminosityModelSettings
             "SurfacePropertyDistributionSettings",
             R"doc(
 
-        Base class for providing settings for body surface property distribution settings, to be used (typically but not necesarilly) for defining surface distribution of albedo and emissivity of solar system bodies for calculations of albedo and planetary radiation pressure.Note that not all albedo/emissivity models require this type of distribution model
+        Base class for providing settings for body surface property distribution settings, to be used (typically but not necessarily) for defining surface distribution of albedo and emissivity of solar system bodies for calculations of albedo and planetary radiation pressure.Note that not all albedo/emissivity models require this type of distribution model
 
 
 
@@ -283,7 +283,7 @@ LuminosityModelSettings
 
 Function for creating constant radiative surface property distribution settings.
 
-Function for creating constant radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings.
+Function for creating constant radiative surface property (e.g. albedo, emissivity, etc.) distribution settings.
 
 
 Parameters
@@ -311,7 +311,7 @@ SurfacePropertyDistributionSettings
 
 Function for creating radiative surface property distribution settings according to a spherical harmonic model.
 
-Function for creating radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings
+Function for creating radiative surface property (e.g. albedo, emissivity, etc.) distribution settings
 according to a spherical harmonic model. The user provides unnormalized cosine and sine coefficients :math:`C_{lm}` and :math:`S_{lm}`,
 from which the surface property :math:`k` is computed from:
 
@@ -380,7 +380,7 @@ SurfacePropertyDistributionSettings
 
 Function for creating radiative surface property distribution settings according to 'Knocke-type' model
 
-Function for creating radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings
+Function for creating radiative surface property (e.g. albedo, emissivity, etc.) distribution settings
 according to a model such as the one used by Knocke (1988). This model uses a degree two zonal spherical harmonic model, with
 a sinusoidal variation in the degree one coefficient. The surface property :math:`k` is computed from:
 
@@ -455,7 +455,7 @@ SurfacePropertyDistributionSettings
 
 Function for creating radiative surface property distribution settings according to a custom user-defined model.
 
-Function for creating radiative surface property (e.g. albedo, emmisivitiy, etc.) distribution settings
+Function for creating radiative surface property (e.g. albedo, emissivity, etc.) distribution settings
 according to a custom user-defined model, as a function of latitude, longitude and time.
 
 
@@ -483,7 +483,7 @@ SurfacePropertyDistributionSettings
                                                                                                          "PanelRadiosityModelSettings",
                                                                                                          R"doc(
 
-        Base class for providing settings for body panel radiosity models, to be used (typically but not necesarilly) for defining surface radiosoty of a panelled solar system body as a result of albedo and/or planetary radiation pressure
+        Base class for providing settings for body panel radiosity models, to be used (typically but not necessarily) for defining surface radiosity of a panelled solar system body as a result of albedo and/or planetary radiation pressure
 
 
 
@@ -598,7 +598,7 @@ PanelRadiosityModelSettings
            py::arg( "original_source_name" ),
            R"doc(
 
-Function for creating settings for surface radiosity of an extended source from an isotropically heated body with constant emmisivity
+Function for creating settings for surface radiosity of an extended source from an isotropically heated body with constant emissivity
 
 Function for creating settings for surface radiosity of an extended source from an isotropically heated body (e.g. IR radiation) with constant surface
 emissivity,
@@ -641,9 +641,9 @@ PanelRadiosityModelSettings
            py::arg( "original_source_name" ),
            R"doc(
 
-Function for creating settings for surface radiosity of an extended source from an isotropically heated body with variable emmisivity
+Function for creating settings for surface radiosity of an extended source from an isotropically heated body with variable emissivity
 
-As :func:`thermal_emission_blackbody_constant_emissivity`, but with the surface emmisivity :math:`\epsilon` defined by a surface distribution model.
+As :func:`thermal_emission_blackbody_constant_emissivity`, but with the surface emissivity :math:`\epsilon` defined by a surface distribution model.
 
 
 Parameters
@@ -680,7 +680,7 @@ with surface temperature :math:`T` computed from the angle of the surface normal
 .. math::
    T=\max\left(T_{max}(\cos\phi_{s})^{1/4},T_{min} \right)
 
-with :math:`phi_{s}` the angle along a great cirlce arc from the panel to the subsolar (for the Sun as original source) point; for
+with :math:`phi_{s}` the angle along a great circle arc from the panel to the subsolar (for the Sun as original source) point; for
 a circular body equivalent to the angle of the vector to the original source and the surface normal. The minimum and
 maximum temperatures are user parameters.
 
@@ -725,7 +725,7 @@ PanelRadiosityModelSettings
             "BodyPanelReflectionLawSettings",
             R"doc(
 
-        Base class for providing settings for body panel relfection law models, to be used for defining spacecraft surface properties relevant for the compuation of radiation pressure acting on a macromodel.
+        Base class for providing settings for body panel reflection law models, to be used for defining spacecraft surface properties relevant for the computation of radiation pressure acting on a macromodel.
 
 
 
@@ -920,7 +920,7 @@ RadiationSourceModelSettings
            py::arg( "per_source_occulting_bodies" ) = std::map< std::string, std::vector< std::string > >( ),
            R"doc(
 
-Function for cannonball radtiation target
+Function for cannonball radiation target
 
 
 Parameters

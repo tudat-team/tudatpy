@@ -374,7 +374,7 @@ Convert Unified State Model (USM) elements with Exponential map for rotational c
 Parameters
 ----------
 usm_em_elements : numpy.ndarray
-    USM elements using exponential map that is to be converted to Cartesiamn elements
+    USM elements using exponential map that is to be converted to Cartesian elements
 gravitational_parameter : float
     Gravitational parameter of central body used for conversion
 Returns
@@ -404,7 +404,7 @@ Convert Unified State Model (USM) elements with quaternion for rotational coordi
 Parameters
 ----------
 usm_7_elements : numpy.ndarray
-    USM elements using quaternion that is to be converted to Cartesiamn elements
+    USM elements using quaternion that is to be converted to Cartesian elements
 gravitational_parameter : float
     Gravitational parameter of central body used for conversion
 Returns
@@ -433,7 +433,7 @@ Convert Unified State Model (USM) elements with Modified Rodrigues parameters fo
 Parameters
 ----------
 usm_6_elements : numpy.ndarray
-    USM elements using Modified Rodrigues parameters that is to be converted to Cartesiamn elements
+    USM elements using Modified Rodrigues parameters that is to be converted to Cartesian elements
 gravitational_parameter : float
     Gravitational parameter of central body used for conversion
 Returns
@@ -1255,7 +1255,7 @@ Computes the rotation matrix from the TEME (True Equator Mean Equinox) frame to 
 .. math::
     \mathbf{R}^{(\text{J2000}/\text{TEME})}=\mathbf{PN}(t)\mathbf{R}_{z}(-\theta(t)))
 
-where :math:`\theta` is the difference between the actual and mean position of the first poing of Aries (or 'equation of the equinoxes`), computes using the ``iauEe00b`` function of the SOFA
+where :math:`\theta` is the difference between the actual and mean position of the first point of Aries (or 'equation of the equinoxes`), computes using the ``iauEe00b`` function of the SOFA
 library (which computes this angle compatible with IAU 2000 resolutions but using the truncated nutation model IAU 2000B), and the precession-nutation matrix :math:`\mathbf{PN}` is computes using
 the function ``iauPnm80`` of the Sofa library, which uses th IAU 1976 precession model, and the IAU 1980 nutation model. The choice of slightly inconsistent IAU conventions is made for computational
 efficiency, as the 1976/1980 model includes fewer terms that the newer resolutions, and is combined with the truncated nutation model. Since the definition of the TEME frame is slightly ambiguous,
