@@ -39,7 +39,6 @@ AllowAllParametersOfDeclarationOnNextLine: false
 
 CommentPragmas: '^!|^@'
 SpaceAfterTemplateKeyword: false
-SpacesInTemplateDeclarations: true
 
 ContinuationIndentWidth: 8
 ConstructorInitializerIndentWidth: 4
@@ -51,7 +50,6 @@ SpacesInAngles: true
 SpacesInParentheses: true
 SpacesInSquareBrackets: true
 SpaceInEmptyParentheses: true
-SpaceInEmptySquareBrackets: true
 SpaceInEmptyBlock: true
 
 ColumnLimit: 140
