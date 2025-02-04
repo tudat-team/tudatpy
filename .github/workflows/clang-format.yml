@@ -7,51 +7,82 @@ on:
 
 jobs:
   format-check:
+    if: ${{ !contains(github.event.head_commit.message, 'Apply clang-format') }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 2
+          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 1
           persist-credentials: true
 
       - name: Install Clang-Format
-        run: sudo apt-get install -y clang-format
-
-      - name: Display Clang-Format Version
-        run: clang-format --version
-
-      - name: Identify Changed Files in Push
         run: |
-          echo "Changed files in push:"
-          git diff --name-only --diff-filter=ACM "${{ github.event.before }}" "${{ github.sha }}" | grep -E '\.(cpp|hpp|c|h)$' || echo "No matching files changed."
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+          clang-format --version
+
+      - name: Ensure the previous commit is available
+        run: |
+          # Try to fetch the commit corresponding to github.event.before
+          git fetch origin ${{ github.event.before }} --depth=1
+
+      - name: Get list of changed files
+        id: changed-files
+        run: |
+          CHANGED_FILES=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -E "\.(cpp|h|c)$" || true)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changed files detected."
+            echo "files=" >> "$GITHUB_OUTPUT"
+          else
+            # Use heredoc syntax to correctly handle multi-line output
+            echo "files<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$CHANGED_FILES" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Run Clang-Format on Changed Files
         run: |
-          git diff --name-only --diff-filter=ACM "${{ github.event.before }}" "${{ github.sha }}" | grep -E '\.(cpp|hpp|c|h)$' | xargs -r clang-format -style=file -i
+          if [ -z "${{ steps.changed-files.outputs.files }}" ]; then
+            echo "No changed C/C++ files detected. Exiting."
+          else
+            echo "Running clang-format on the following files:"
+            echo "${{ steps.changed-files.outputs.files }}" | tr ' ' '\n'
+            # Using newline as the delimiter for xargs
+            echo "${{ steps.changed-files.outputs.files }}" | tr ' ' '\n' | xargs -r clang-format -style=file -i
+          fi
 
       - name: Check for Formatting Differences
         id: check_diff
         run: |
-          # This command will exit with a non-zero status if there are differences.
-          git diff --exit-code
-        continue-on-error: true
+          # Instead of exiting with non-zero, check if there is any diff and store that as an output.
+          if git diff --quiet; then
+            echo "No formatting differences."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Formatting differences detected."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Auto-commit Formatting Changes
-        if: failure()
+        if: steps.check_diff.outputs.changed == 'true'
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Apply clang-format"
-          # Strip the "refs/heads/" prefix to get the branch name.
+          # Commit only if there is something to commit.
+          git commit -m "Apply clang-format" || exit 0
           branch=${GITHUB_REF#refs/heads/}
           git push origin HEAD:"$branch"
 
+
       - name: Report Success or Failure
         run: |
-          if [ "${{ steps.check_diff.outcome }}" == "failure" ]; then
+          if [ "${{ steps.check_diff.outputs.changed }}" == "true" ]; then
             echo "Formatting issues were detected and fixed."
           else
             echo "Code is properly formatted."
