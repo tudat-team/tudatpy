@@ -751,7 +751,8 @@ public:
     DirectTleEphemerisSettings( std::shared_ptr< ephemerides::Tle > tle,
                                 const std::string frameOrigin = "Earth",
                                 const std::string frameOrientation = "J2000" ):
-        EphemerisSettings( direct_tle_ephemeris, frameOrigin, frameOrientation )
+        EphemerisSettings( direct_tle_ephemeris, frameOrigin, frameOrientation ),
+        tle_( tle )
     { }
 
     const std::shared_ptr< ephemerides::Tle > getTle( ) const
