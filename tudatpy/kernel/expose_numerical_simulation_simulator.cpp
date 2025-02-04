@@ -31,26 +31,20 @@ namespace tep = tudat::estimatable_parameters;
 namespace tom = tudat::observation_models;
 namespace tba = tudat::basic_astrodynamics;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
+namespace numerical_simulation
+{
 
-    namespace numerical_simulation {
-
-        void expose_numerical_simulation_simulator(py::module &m) {
-
-            m.def(
-                "get_integrated_type_and_body_list",
-                &tp::getIntegratedTypeAndBodyList<STATE_SCALAR_TYPE, TIME_TYPE>,
-                py::arg("propagator_settings"));
-
-            m.def("get_single_integration_size", &tp::getSingleIntegrationSize,
-                  py::arg("state_type"));
-
-            m.def("create_dynamics_simulator",
-                  &tss::createDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>,
-                  py::arg("bodies"), py::arg("propagator_settings"),
-                  py::arg("simulate_dynamics_on_creation") = true,
-                  R"doc(
+void expose_numerical_simulation_simulator( py::module &m )
+{
+    m.def( "create_dynamics_simulator",
+           &tss::createDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "bodies" ),
+           py::arg( "propagator_settings" ),
+           py::arg( "simulate_dynamics_on_creation" ) = true,
+           R"doc(
 
 Function to create object that propagates the dynamics.
 
@@ -69,7 +63,7 @@ bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
 propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
     Settings to be used for the numerical propagation (dynamics type, termination conditions, integrator, etc.)
 
-simulate_dynamics_on_creation : Bool, default=True
+simulate_dynamics_on_creation : bool, default=True
     Boolean defining whether to propagate the dynamics upon creation of the Simulator. If false, the dynamics c
     can be propagated at a later time by calling the :class:`~tudatpy.numerical_simulation.Simulator.integrate_equations_of_motion` function
 
@@ -83,93 +77,58 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
+    py::class_< tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m,
+            "DynamicsSimulator",
+            R"doc(Base class for propagation of dynamics (with derived classes implementing single-, multi- or hybrid-arc.)doc" );
 
-            py::class_<tp::DynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>,
-                       std::shared_ptr<tp::DynamicsSimulator<STATE_SCALAR_TYPE,
-                                                             TIME_TYPE>>>(
-                m, "DynamicsSimulator", R"doc(No documentation found.)doc");
+    py::class_< tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >( m, "SingleArcSimulator", R"doc(
 
-            py::class_<
-                tp::SingleArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>,
-                std::shared_ptr<tp::SingleArcDynamicsSimulator<
-                    STATE_SCALAR_TYPE, TIME_TYPE>>,
-                tp::DynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>>(
-                m, "SingleArcSimulator", R"doc(
+        Class for propagation of single arc dynamics.
 
-        Class for consolidating single arc dynamics simulation functionality.
+        Class for propagation of single arc dynamics, from propagation settings and environment models, typically
+        instantiated using :func:`~create_dynamics_simulator` function. See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagating_dynamics.html>`_ for more details.
 
-        Class for consolidating all functionality required to perform single arc dynamics simulations.
+     )doc" )
+            .def_property_readonly( "bodies",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getSystemOfBodies,
+                                    R"doc(
+        **read-only**
 
+        Object storing the set of bodies that comprise the physical environment.
 
+        :type: SystemOfBodies
+     )doc" )
+            .def_property_readonly( "propagator_settings",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagatorSettings,
+                                    R"doc(
+        **read-only**
 
+        Settings for the propagation used to initialize the simulator
 
+        :type: SingleArcPropagatorProcessingSettings
+     )doc" )
+            .def( "integrate_equations_of_motion",
+                  &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::integrate,
+                  py::arg( "initial_state" ),
+                  R"doc(
 
-     )doc")
-                .def(py::init<const tudat::simulation_setup::SystemOfBodies &,
-                              const std::shared_ptr<
-                                  tudat::numerical_integrators::
-                                      IntegratorSettings<TIME_TYPE>>,
-                              const std::shared_ptr<
-                                  tp::PropagatorSettings<STATE_SCALAR_TYPE>>,
-                              const bool, const bool, const bool, const bool,
-                              const bool, const bool>(),
-                     py::arg("bodies"), py::arg("integrator_settings"),
-                     py::arg("propagator_settings"),
-                     py::arg("are_equations_of_motion_to_be_integrated") = true,
-                     py::arg("clear_numerical_solutions") = false,
-                     py::arg("set_integrated_result") = false,
-                     py::arg("print_number_of_function_evaluations") = false,
-                     py::arg("print_dependent_variable_data") = true,
-                     py::arg("print_state_data") = true)
-                .def_property_readonly(
-                    "bodies",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE, TIME_TYPE>::getSystemOfBodies)
-                .def_property_readonly(
-                    "state_history",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getEquationsOfMotionNumericalSolution)
-                .def_property_readonly(
-                    "unprocessed_state_history",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getEquationsOfMotionNumericalSolutionRaw)
-                .def_property_readonly(
-                    "dependent_variable_history",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getDependentVariableHistory)
-                .def_property_readonly(
-                    "cumulative_computation_time_history",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getCumulativeComputationTimeHistory)
-                .def_property_readonly(
-                    "cumulative_number_of_function_evaluations",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getCumulativeNumberOfFunctionEvaluations)
-                .def_property_readonly(
-                    "integrator_settings",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE, TIME_TYPE>::getIntegratorSettings,
-                    R"doc(
+Function to reintegrate the equations of motion with a new initial state.
 
-        Settings to create the numerical integrator that is to be used
-        for the integration of the equations of motion
+Parameters
+----------
+initial_state : New initial state from which the dynamics is to be propagated
 
-
-        :type: IntegratorSettings
-     )doc")
-                .def_property_readonly(
-                    "state_derivative_function",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getStateDerivativeFunction,
-                    R"doc(
+:type: numpy.ndarray
+     )doc" )
+            .def_property_readonly( "state_derivative_function",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getStateDerivativeFunction,
+                                    R"doc(
 
         **read-only**
 
@@ -179,12 +138,10 @@ Returns
 
 
         :type: Callable[[float, numpy.ndarray], numpy.ndarray]
-     )doc")
-                .def_property_readonly(
-                    "environment_updater",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE, TIME_TYPE>::getEnvironmentUpdater,
-                    R"doc(
+     )doc" )
+            .def_property_readonly( "environment_updater",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getEnvironmentUpdater,
+                                    R"doc(
 
         **read-only**
 
@@ -194,61 +151,206 @@ Returns
 
 
         :type: EnvironmentUpdater
-     )doc")
-                .def_property_readonly(
-                    "propagation_results",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE, TIME_TYPE>::getPropagationResults,
-                    R"doc(
+     )doc" )
+            .def_property_readonly( "propagation_results",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagationResults,
+                                    R"doc(
 
         **read-only**
 
-        This function retrieves all the results of the numerical propagation, stored
-        in a single wrapper object
+        Object containing all the results of the numerical propagation, stored
+        in a single wrapper object.
 
 
         :type: SingleArcSimulationResults
-     )doc")
-                .def_property_readonly(
-                    "propagation_termination_details",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getPropagationTerminationReason)
-                .def_property_readonly(
-                    "integration_completed_successfully",
-                    &tp::SingleArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::integrationCompletedSuccessfully);
+     )doc" )
+            .def_property_readonly( "state_history",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getEquationsOfMotionNumericalSolution,
+                                    R"doc(
+        **read-only**
 
-            py::class_<
-                tp::MultiArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>,
-                std::shared_ptr<tp::MultiArcDynamicsSimulator<STATE_SCALAR_TYPE,
-                                                              TIME_TYPE>>,
-                tp::DynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>>(
-                m, "MultiArcDynamicsSimulator",
-                R"doc(No documentation found.)doc")
-                .def_property_readonly(
-                    "propagation_results",
-                    &tp::MultiArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getMultiArcPropagationResults,
-                    R"doc(No documentation found.)doc");
+        Shorthand for propagation_results.state_history
 
-            py::class_<
-                tp::HybridArcDynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>,
-                std::shared_ptr<tp::HybridArcDynamicsSimulator<
-                    STATE_SCALAR_TYPE, TIME_TYPE>>,
-                tp::DynamicsSimulator<STATE_SCALAR_TYPE, TIME_TYPE>>(
-                m, "HybridArcDynamicsSimulator",
-                R"doc(No documentation found.)doc")
-                .def_property_readonly(
-                    "propagation_results",
-                    &tp::HybridArcDynamicsSimulator<
-                        STATE_SCALAR_TYPE,
-                        TIME_TYPE>::getHybridArcPropagationResults,
-                    R"doc(No documentation found.)doc");
+        :type: dict[float, numpy.ndarray]
+     )doc" )
+            .def_property_readonly(
+                    "unprocessed_state_history",
+                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getEquationsOfMotionNumericalSolutionRaw,
+                    R"doc(
+        **read-only**
 
-        };
+        Shorthand for propagation_results.unprocessed_state_history
 
-    }  // namespace numerical_simulation
+        :type: dict[float, numpy.ndarray]
+     )doc" )
+            .def_property_readonly( "dependent_variable_history",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistory,
+                                    R"doc(
+        **read-only**
+
+        Shorthand for propagation_results.dependent_variable_history
+
+        :type: dict[float, numpy.ndarray]
+     )doc" )
+            .def_property_readonly( "cumulative_computation_time_history",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getCumulativeComputationTimeHistory,
+                                    R"doc(
+        **read-only**
+
+        Shorthand for propagation_results.cumulative_computation_time_history
+
+        :type: dict[float, float]
+     )doc" )
+            .def_property_readonly(
+                    "cumulative_number_of_function_evaluations",
+                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getCumulativeNumberOfFunctionEvaluations,
+                    R"doc(
+        **read-only**
+
+        Shorthand for propagation_results.cumulative_number_of_function_evaluations
+
+        :type: dict[float, int]
+     )doc" )
+            .def_property_readonly( "propagation_termination_details",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagationTerminationReason,
+                                    R"doc(
+        **read-only**
+
+        Shorthand for propagation_results.termination_details
+
+        :type: PropagationTerminationDetails
+     )doc" )
+            .def_property_readonly( "integration_completed_successfully",
+                                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::integrationCompletedSuccessfully,
+                                    R"doc(
+        **read-only**
+
+        Shorthand for propagation_results.integration_completed_successfully
+
+        :type: bool
+     )doc" );
+
+    py::class_< tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                         "MultiArcSimulator",
+                                                                         R"doc(
+
+        Class for propagation of multi-arc dynamics.
+
+        Class for propagation of multi-arc dynamics, from propagation settings and environment models, typically
+        instantiated using :func:`~create_dynamics_simulator` function. See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagating_dynamics.html>`_ for more details.
+
+     )doc" )
+            .def( "integrate_equations_of_motion",
+                  &tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::integrate,
+                  py::arg( "initial_state" ),
+                  R"doc(
+
+Function to reintegrate the equations of motion with a new initial state.
+
+Parameters
+----------
+initial_state : New initial state from which the dynamics is to be propagated, consisting of concatenated initial states of each arc
+
+                    :type: numpy.ndarray
+     )doc" )
+            .def_property_readonly( "propagation_results",
+                                    &tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getMultiArcPropagationResults,
+                                    R"doc(
+
+        **read-only**
+
+        Object containing all the results of the numerical propagation, stored
+        in a single wrapper object
+
+
+        :type: MultiArcSimulationResults
+        )doc" )
+            .def_property_readonly( "single_arc_simulators",
+                                    &tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcDynamicsSimulators,
+                                    R"doc(
+
+        **read-only**
+
+        List of single-arc simulators, that were used to propagate the dynamics on the constituent single arcs
+
+
+        :type: list[SingleArcSimulator]
+        )doc" );
+
+    py::class_< tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                         "HybridArcSimulator",
+                                                                         R"doc(
+
+        Class for propagation of hybrid-arc dynamics.
+
+        Class for propagation of hybrid-arc dynamics, from propagation settings and environment models, typically
+        instantiated using :func:`~create_dynamics_simulator` function. See `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagating_dynamics.html>`_ for more details.
+
+     )doc" )
+            .def( "integrate_equations_of_motion",
+                  &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::integrate,
+                  py::arg( "initial_state" ),
+                  R"doc(
+
+Function to reintegrate the equations of motion with a new initial state.
+
+Parameters
+----------
+initial_state : New initial state from which the dynamics is to be propagated, consisting of concatenated initial state
+                single-arc portion of dynamics, followed by concatenated initial states of the constituent arcs of the multi-arc portion
+
+                    :type: numpy.ndarray
+     )doc" )
+            .def_property_readonly( "single_arc_simulator",
+                                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcDynamicsSimulator,
+                                    R"doc(
+
+        **read-only**
+
+        Object used to propagate the single-arc portion of the hybrid-arc dynamics
+
+
+        :type: SingleArcSimulator
+        )doc" )
+            .def_property_readonly( "multi_arc_simulator",
+                                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getMultiArcDynamicsSimulator,
+                                    R"doc(
+
+        **read-only**
+
+        Object used to propagate the multi-arc portion of the hybrid-arc dynamics
+
+        :type: MultiArcSimulator
+        )doc" )
+            .def_property_readonly( "propagation_results",
+                                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getHybridArcPropagationResults,
+                                    R"doc(
+
+        **read-only**
+
+        Object containing all the results of the numerical propagation, stored
+        in a single wrapper object
+
+
+        :type: HybridArcSimulationResults
+        )doc" )
+            .def_property_readonly( "propagation_results",
+                                    &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getHybridArcPropagationResults,
+                                    R"doc(
+
+        **read-only**
+
+        Object containing all the results of the numerical propagation, stored
+        in a single wrapper object
+
+
+        :type: HybridArcSimulationResults
+        )doc" );
+};
+
+}  // namespace numerical_simulation
 }  // namespace tudatpy

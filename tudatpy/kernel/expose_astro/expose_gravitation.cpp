@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include "expose_gravitation.h"
 
 #include <pybind11/eigen.h>
@@ -21,31 +20,35 @@ namespace py = pybind11;
 namespace tg = tudat::gravitation;
 namespace tbm = tudat::basic_mathematics;
 
-namespace tudat {
-    namespace gravitation {
-        std::tuple<Eigen::MatrixXd, Eigen::MatrixXd, double>
-        getDegreeTwoSphericalHarmonicCoefficientsPy(
-            const Eigen::Matrix3d inertiaTensor,
-            const double bodyGravitationalParameter,
-            const double referenceRadius,
-            const bool useNormalizedCoefficients) {
-            return tg::getDegreeTwoSphericalHarmonicCoefficients(
-                inertiaTensor, bodyGravitationalParameter, referenceRadius, 2,
-                useNormalizedCoefficients);
-        }
-    }  // namespace gravitation
+namespace tudat
+{
+namespace gravitation
+{
+std::tuple< Eigen::MatrixXd, Eigen::MatrixXd, double > getDegreeTwoSphericalHarmonicCoefficientsPy( const Eigen::Matrix3d inertiaTensor,
+                                                                                                    const double bodyGravitationalParameter,
+                                                                                                    const double referenceRadius,
+                                                                                                    const bool useNormalizedCoefficients )
+{
+    return tg::getDegreeTwoSphericalHarmonicCoefficients(
+            inertiaTensor, bodyGravitationalParameter, referenceRadius, 2, useNormalizedCoefficients );
+}
+}  // namespace gravitation
 }  // namespace tudat
 
-namespace tudatpy {
-    namespace astro {
-        namespace gravitation {
+namespace tudatpy
+{
+namespace astro
+{
+namespace gravitation
+{
 
-
-            void expose_gravitation(py::module& m) {
-                m.def("legendre_normalization_factor",
-                      &tbm::calculateLegendreGeodesyNormalizationFactor,
-                      py::arg("degree"), py::arg("order"),
-                      R"doc(
+void expose_gravitation( py::module& m )
+{
+    m.def( "legendre_normalization_factor",
+           &tbm::calculateLegendreGeodesyNormalizationFactor,
+           py::arg( "degree" ),
+           py::arg( "order" ),
+           R"doc(
 
 Function to calculate the normalization factor for spherical harmonics at a given degree and order
 
@@ -82,17 +85,13 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "normalize_spherical_harmonic_coefficients",
-                    py::overload_cast<const Eigen::MatrixXd&,
-                                      const Eigen::MatrixXd&>(
-                        &tbm::
-                            convertUnnormalizedToGeodesyNormalizedCoefficients),
-                    py::arg("unnormalized_cosine_coefficients"),
-                    py::arg("unnormalized_sine_coefficients"),
-                    R"doc(
+    m.def( "normalize_spherical_harmonic_coefficients",
+           py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >( &tbm::convertUnnormalizedToGeodesyNormalizedCoefficients ),
+           py::arg( "unnormalized_cosine_coefficients" ),
+           py::arg( "unnormalized_sine_coefficients" ),
+           R"doc(
 
 Function to normalize spherical harmonic coefficients
 
@@ -114,17 +113,13 @@ tuple[numpy.ndarray, numpy.ndarray]
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "unnormalize_spherical_harmonic_coefficients",
-                    py::overload_cast<const Eigen::MatrixXd&,
-                                      const Eigen::MatrixXd&>(
-                        &tbm::
-                            convertGeodesyNormalizedToUnnormalizedCoefficients),
-                    py::arg("normalized_cosine_coefficients"),
-                    py::arg("normalized_sine_coefficients"),
-                    R"doc(
+    m.def( "unnormalize_spherical_harmonic_coefficients",
+           py::overload_cast< const Eigen::MatrixXd&, const Eigen::MatrixXd& >( &tbm::convertGeodesyNormalizedToUnnormalizedCoefficients ),
+           py::arg( "normalized_cosine_coefficients" ),
+           py::arg( "normalized_sine_coefficients" ),
+           R"doc(
 
 Function to unnormalize spherical harmonic coefficients
 
@@ -146,15 +141,15 @@ tuple[numpy.ndarray, numpy.ndarray]
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("spherical_harmonic_coefficients_from_inertia",
-                      tg::getDegreeTwoSphericalHarmonicCoefficientsPy,
-                      py::arg("inertia_tensor"),
-                      py::arg("gravitational_parameter"),
-                      py::arg("reference_radius"),
-                      py::arg("output_normalized_coefficients") = true,
-                      R"doc(
+    m.def( "spherical_harmonic_coefficients_from_inertia",
+           tg::getDegreeTwoSphericalHarmonicCoefficientsPy,
+           py::arg( "inertia_tensor" ),
+           py::arg( "gravitational_parameter" ),
+           py::arg( "reference_radius" ),
+           py::arg( "output_normalized_coefficients" ) = true,
+           R"doc(
 
 Function to compute degree-two spherical harmonic coefficients from an inertia tensor
 
@@ -189,10 +184,9 @@ tuple[numpy.ndarray, numpy.ndarray]
 
 
 
-    )doc");
-            }
+    )doc" );
+}
 
-
-        }  // namespace gravitation
-    }      // namespace astro
+}  // namespace gravitation
+}  // namespace astro
 }  // namespace tudatpy

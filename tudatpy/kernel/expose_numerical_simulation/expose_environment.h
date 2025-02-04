@@ -17,18 +17,19 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment
+{
 
-            void expose_environment(py::module &m);
+void expose_environment( py::module &m );
 
-        }  // namespace environment
-    }      // namespace numerical_simulation
+}  // namespace environment
+}  // namespace numerical_simulation
 }  // namespace tudatpy
-
 
 #endif  // TUDATPY_EXPOSE_ENVIRONMENT_H
