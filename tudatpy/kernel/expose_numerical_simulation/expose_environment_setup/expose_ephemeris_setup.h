@@ -15,17 +15,20 @@
 
 namespace py = pybind11;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace ephemeris {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace ephemeris
+{
 
-                void expose_ephemeris_setup(py::module &m);
+void expose_ephemeris_setup( py::module &m );
 
-            }  // namespace ephemeris
-        }      // namespace environment_setup
-    }          // namespace numerical_simulation
+}  // namespace ephemeris
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
-
 
 #endif  // TUDATPY_EXPOSE_EPHEMERIS_SETUP_H
