@@ -11,7 +11,6 @@
 #ifndef TUDATPY_DEPRECATION_SUPPORT_H
 #define TUDATPY_DEPRECATION_SUPPORT_H
 
-
 // namespace tudat
 //{
 
@@ -26,6 +25,5 @@
 
 //}
 //}
-
 
 #endif  // TUDATPY_DEPRECATION_SUPPORT_H

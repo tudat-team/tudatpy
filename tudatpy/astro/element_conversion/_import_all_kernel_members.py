@@ -43,7 +43,6 @@ from tudatpy.kernel.astro.element_conversion import \
      quaternion_entries_to_rotation_matrix, \
      quaternion_to_exponential_map, \
      quaternion_to_modified_rodrigues_parameters, \
-     rotate_state_to_frame, \
      rotation_matrix_to_quaternion_entries, \
      semi_major_axis_to_mean_motion, \
      spherical_to_cartesian, \

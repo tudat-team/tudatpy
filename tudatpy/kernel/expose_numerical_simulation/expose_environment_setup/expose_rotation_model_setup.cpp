@@ -13,10 +13,10 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
-//#include <pybind11/chrono.h>
+// #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
-//#include <pybind11/numpy.h>
+// #include <pybind11/numpy.h>
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -25,17 +25,23 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tba = tudat::basic_astrodynamics;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace rotation_model {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace rotation_model
+{
 
-                void expose_rotation_model_setup(py::module &m) {
-                    /////////////////////////////////////////////////////////////////////////////
-                    // createRotationalModel.h
-                    /////////////////////////////////////////////////////////////////////////////
-                    py::enum_<tss::RotationModelType>(m, "RotationModelType",
-                                                      R"doc(
+void expose_rotation_model_setup( py::module &m )
+{
+    /////////////////////////////////////////////////////////////////////////////
+    // createRotationalModel.h
+    /////////////////////////////////////////////////////////////////////////////
+    py::enum_< tss::RotationModelType >( m,
+                                         "RotationModelType",
+                                         R"doc(
 
         Enumeration of rotation model types.
 
@@ -45,32 +51,29 @@ namespace tudatpy {
 
 
 
-     )doc")
-                        .value("simple_rotational_model",
-                               tss::RotationModelType::simple_rotation_model,
-                               R"doc(No documentation found.)doc")
-                        .value("spice_rotation_model",
-                               tss::RotationModelType::spice_rotation_model,
-                               R"doc(
-     )doc")
-                        .value(
-                            "gcrs_to_itrs_rotation_model",
-                            tss::RotationModelType::gcrs_to_itrs_rotation_model,
-                            R"doc(
-     )doc")
-                        .value(
-                            "synchronous_rotation_model",
-                            tss::RotationModelType::synchronous_rotation_model,
-                            R"doc(
-     )doc")
-                        .value("planetary_rotation_model",
-                               tss::RotationModelType::planetary_rotation_model,
-                               R"doc(
-     )doc")
-                        .export_values();
+     )doc" )
+            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model, R"doc(No documentation found.)doc" )
+            .value( "spice_rotation_model",
+                    tss::RotationModelType::spice_rotation_model,
+                    R"doc(
+     )doc" )
+            .value( "gcrs_to_itrs_rotation_model",
+                    tss::RotationModelType::gcrs_to_itrs_rotation_model,
+                    R"doc(
+     )doc" )
+            .value( "synchronous_rotation_model",
+                    tss::RotationModelType::synchronous_rotation_model,
+                    R"doc(
+     )doc" )
+            .value( "planetary_rotation_model",
+                    tss::RotationModelType::planetary_rotation_model,
+                    R"doc(
+     )doc" )
+            .export_values( );
 
-                    py::enum_<tba::IAUConventions>(m, "IAUConventions",
-                                                   R"doc(
+    py::enum_< tba::IAUConventions >( m,
+                                      "IAUConventions",
+                                      R"doc(
 
         Enumeration of IAU conventions for Earth rotation.
 
@@ -80,21 +83,22 @@ namespace tudatpy {
 
 
 
-     )doc")
-                        .value("iau_2000_a", tba::IAUConventions::iau_2000_a,
-                               R"doc(
-     )doc")
-                        .value("iau_2000_b", tba::IAUConventions::iau_2000_b,
-                               R"doc(
-     )doc")
-                        .value("iau_2006", tba::IAUConventions::iau_2006,
-                               R"doc(
-     )doc")
-                        .export_values();
+     )doc" )
+            .value( "iau_2000_a",
+                    tba::IAUConventions::iau_2000_a,
+                    R"doc(
+     )doc" )
+            .value( "iau_2000_b",
+                    tba::IAUConventions::iau_2000_b,
+                    R"doc(
+     )doc" )
+            .value( "iau_2006",
+                    tba::IAUConventions::iau_2006,
+                    R"doc(
+     )doc" )
+            .export_values( );
 
-                    py::class_<tss::RotationModelSettings,
-                               std::shared_ptr<tss::RotationModelSettings>>(
-                        m, "RotationModelSettings", R"doc(
+    py::class_< tss::RotationModelSettings, std::shared_ptr< tss::RotationModelSettings > >( m, "RotationModelSettings", R"doc(
 
         Base class for providing settings for automatic rotation model creation.
 
@@ -106,72 +110,59 @@ namespace tudatpy {
 
 
 
-     )doc")
-                        //            .def(py::init<const
-                        //            tss::RotationModelType, const std::string
-                        //            &,
-                        //                 const std::string &>(),
-                        //                 py::arg("rotation_type"),
-                        //                 py::arg("base_frame"),
-                        //                 py::arg("target_frame"))
-                        .def_property_readonly(
-                            "rotation_type",
-                            &tss::RotationModelSettings::getRotationType,
-                            R"doc(
+     )doc" )
+            //            .def(py::init<const
+            //            tss::RotationModelType, const std::string
+            //            &,
+            //                 const std::string &>(),
+            //                 py::arg("rotation_type"),
+            //                 py::arg("base_frame"),
+            //                 py::arg("target_frame"))
+            .def_property_readonly( "rotation_type",
+                                    &tss::RotationModelSettings::getRotationType,
+                                    R"doc(
 
         **read-only**
 
         Type of rotation model that is to be created.
 
         :type: RotationModelType
-     )doc")
-                        .def_property(
-                            "base_frame",
-                            &tss::RotationModelSettings::getOriginalFrame,
-                            &tss::RotationModelSettings::resetOriginalFrame,
-                            R"doc(
+     )doc" )
+            .def_property( "base_frame",
+                           &tss::RotationModelSettings::getOriginalFrame,
+                           &tss::RotationModelSettings::resetOriginalFrame,
+                           R"doc(
 
         Name of the base frame of rotation model.
 
         :type: str
-     )doc")
-                        .def_property_readonly(
-                            "target_frame",
-                            &tss::RotationModelSettings::getTargetFrame,
-                            R"doc(
+     )doc" )
+            .def_property_readonly( "target_frame",
+                                    &tss::RotationModelSettings::getTargetFrame,
+                                    R"doc(
 
         **read-only**
 
         Name of the target frame of rotation model.
 
         :type: str
-     )doc");
+     )doc" );
 
-                    py::class_<
-                        tss::SimpleRotationModelSettings,
-                        std::shared_ptr<tss::SimpleRotationModelSettings>,
-                        tss::RotationModelSettings>(
-                        m, "SimpleRotationModelSettings",
-                        R"doc(No documentation found.)doc");
+    py::class_< tss::SimpleRotationModelSettings, std::shared_ptr< tss::SimpleRotationModelSettings >, tss::RotationModelSettings >(
+            m, "SimpleRotationModelSettings", R"doc(No documentation found.)doc" );
 
-                    py::class_<
-                        tss::PlanetaryRotationModelSettings,
-                        std::shared_ptr<tss::PlanetaryRotationModelSettings>,
-                        tss::RotationModelSettings>(
-                        m, "PlanetaryRotationModelSettings",
-                        R"doc(No documentation found.)doc");
+    py::class_< tss::PlanetaryRotationModelSettings, std::shared_ptr< tss::PlanetaryRotationModelSettings >, tss::RotationModelSettings >(
+            m, "PlanetaryRotationModelSettings", R"doc(No documentation found.)doc" );
 
-
-                    m.def("simple",
-                          py::overload_cast<const std::string &,
-                                            const std::string &,
-                                            const Eigen::Matrix3d &,
-                                            const double, const double>(
-                              &tss::simpleRotationModelSettings),
-                          py::arg("base_frame"), py::arg("target_frame"),
-                          py::arg("initial_orientation"),
-                          py::arg("initial_time"), py::arg("rotation_rate"),
-                          R"doc(
+    m.def( "simple",
+           py::overload_cast< const std::string &, const std::string &, const Eigen::Matrix3d &, const double, const double >(
+                   &tss::simpleRotationModelSettings ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "initial_orientation" ),
+           py::arg( "initial_time" ),
+           py::arg( "rotation_rate" ),
+           R"doc(
 
 Function for creating simple rotation model settings.
 
@@ -182,7 +173,7 @@ Rotation about the body-fixed z-axis is defined by the ``rotation_rate`` (:math:
 .. math::
    \mathbf{R}^{(B/I)}(t)=\mathbf{R}_{z}(\omega(t-t_{0}))(t_{0})\mathbf{R}^{(B/I)}(t_{0})
 
-where :math:`\mathbf{R}^{(B/I)}` denotes the rotation matrix from inertial to body-fixed frame, and :math:`\mathbf{R}_{z}` denotes a rotaion matrix about the z-axis.
+where :math:`\mathbf{R}^{(B/I)}` denotes the rotation matrix from inertial to body-fixed frame, and :math:`\mathbf{R}_{z}` denotes a rotation matrix about the z-axis.
 
 The matrix :math:`\mathbf{R}^{(B/I)}(t_{0})` is sometimes parameterized by pole right ascension and declination (:math:`\alpha` and :math:`\delta`), as well as the meridian of date :math:`W_{0}` with
 
@@ -233,14 +224,15 @@ using a simple rotation model with constant orientation of the rotation axis (bo
       rotation_rate)
 
 
-    )doc");
+    )doc" );
 
-                    m.def("simple_from_spice",
-                          &tss::simpleRotationModelFromSpiceSettings,
-                          py::arg("base_frame"), py::arg("target_frame"),
-                          py::arg("target_frame_spice"),
-                          py::arg("initial_time"),
-                          R"doc(
+    m.def( "simple_from_spice",
+           &tss::simpleRotationModelFromSpiceSettings,
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "target_frame_spice" ),
+           py::arg( "initial_time" ),
+           R"doc(
 
 Function for creating simple rotation model settings using initial orientation and rotation rates from Spice.
 
@@ -293,12 +285,14 @@ The initial orientation and rotation rate are extracted from Spice at the time d
    original_frame, target_frame, target_frame_spice, initial_time)
 
 
-    )doc");
+    )doc" );
 
-                    m.def("synchronous", &tss::synchronousRotationModelSettings,
-                          py::arg("central_body_name"), py::arg("base_frame"),
-                          py::arg("target_frame"),
-                          R"doc(
+    m.def( "synchronous",
+           &tss::synchronousRotationModelSettings,
+           py::arg( "central_body_name" ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           R"doc(
 
 Function for creating synchronous rotational ephemeris settings.
 
@@ -344,12 +338,14 @@ and ``"Phobos_Fixed"`` as the target frame.
    central_body_name, original_frame, target_frame)
 
 
-    )doc");
+    )doc" );
 
-                    m.def("spice", &tss::spiceRotationModelSettings,
-                          py::arg("base_frame"), py::arg("target_frame"),
-                          py::arg("spice_frame_name") = "",
-                          R"doc(
+    m.def( "spice",
+           &tss::spiceRotationModelSettings,
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "spice_frame_name" ) = "",
+           R"doc(
 
 Function for creating rotation model settings from the Spice interface.
 
@@ -388,16 +384,16 @@ using full rotation model data from Spice:
    original_frame, target_frame)
 
 
-    )doc");
+    )doc" );
 
-                    m.def("gcrs_to_itrs", &tss::gcrsToItrsRotationModelSettings,
-                          py::arg("precession_nutation_theory") = tba::iau_2006,
-                          py::arg("base_frame") = "GCRS",
-                          py::arg("cio_interpolation_settings") = nullptr,
-                          py::arg("tdb_to_tt_interpolation_settings") = nullptr,
-                          py::arg("short_term_eop_interpolation_settings") =
-                              nullptr,
-                          R"doc(
+    m.def( "gcrs_to_itrs",
+           &tss::gcrsToItrsRotationModelSettings,
+           py::arg( "precession_nutation_theory" ) = tba::iau_2006,
+           py::arg( "base_frame" ) = "GCRS",
+           py::arg( "cio_interpolation_settings" ) = nullptr,
+           py::arg( "tdb_to_tt_interpolation_settings" ) = nullptr,
+           py::arg( "short_term_eop_interpolation_settings" ) = nullptr,
+           R"doc(
 
 Function for creating high-accuracy Earth rotation model settings.
 
@@ -420,14 +416,14 @@ Depending on the selected ``precession_nutation_theory`` input, the SOFA functio
 :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.IAUConventions` ``iau_2000a``, ``iau_2000b`` or ``iau_2006``, respectively. Corrections to the nominal values of :math:`X,Y`
 are applied using linear interpolation of daily corrections for :math:`X,Y` from the eopc04_14_IAU2000.62-now.txt file. The quantity :math:`s'` is computed from Eq. (5.13) (implemented in SOFA's ``iauSp00`` function).
 
-The value of :math:`\theta_{E}` is computed directtly from UTC-UT1, which is computed using settings given in :func:`~tudatpy.astro.time_conversions.default_time_scale_converter`, the computation of
+The value of :math:`\theta_{E}` is computed directly from UTC-UT1, which is computed using settings given in :func:`~tudatpy.astro.time_conversions.default_time_scale_converter`, the computation of
 :math:`theta_{E}` from this quantity follows from Eq. (5.15), implemented by SOFA's ``iauEra00`` function.
 
 The polar motion components :math:`x_{p}`, :math:`y_{p}` are computed from:
 
 * Corrections for semi-diurnal variations due to libration for a non-rigid Earth as per Table 5.1a (with :math:`n=2`) of IERS Conventions 2010
 * Corrections diurnal and semidiurnal variations due to ocean tides as per Tables 8.1a and 8.1b of the IERS Conventions 2010
-* Linear interpolation (correcting for discontunities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
+* Linear interpolation (correcting for discontinuities during days with leap seconds) of daily corrections for :math:`x_{p}, y_{p}`: from the eopc04_14_IAU2000.62-now.txt file in the tudat-resources directory
 
 Note that for this model the original frame must be J2000 or GCRS (in the case of the former, the frame bias between GCRS and J2000 is automatically corrected for). The target frame (e.g. body-fixed frame) name is ITRS.
 The target frame (e.g. body-fixed frame) name is ITRS.
@@ -465,14 +461,15 @@ using a high-accuracy Earth rotation model as defined by IERS Conventions 2010:
    precession_nutation_theory, original_frame)
 
 
-    )doc");
+    )doc" );
 
-                    m.def("aerodynamic_angle_based",
-                          &tss::aerodynamicAngleRotationSettings,
-                          py::arg("central_body"), py::arg("base_frame"),
-                          py::arg("target_frame"),
-                          py::arg("angle_funcion") = nullptr,
-                          R"doc(
+    m.def( "aerodynamic_angle_based",
+           &tss::aerodynamicAngleRotationSettings,
+           py::arg( "central_body" ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "angle_funcion" ) = nullptr,
+           R"doc(
 
 Function for creating rotation model settings based on custom aerodynamic angles (attack, sideslip, bank).
 
@@ -513,14 +510,15 @@ CustomRotationModelSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("zero_pitch_moment_aerodynamic_angle_based",
-                          &tss::pitchTrimRotationSettings,
-                          py::arg("central_body"), py::arg("base_frame"),
-                          py::arg("target_frame"),
-                          py::arg("angle_funcion") = nullptr,
-                          R"doc(
+    m.def( "zero_pitch_moment_aerodynamic_angle_based",
+           &tss::pitchTrimRotationSettings,
+           py::arg( "central_body" ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "angle_funcion" ) = nullptr,
+           R"doc(
 
 Function for creating rotation model settings based on an angle of attack calculated from pitch-trim, and custom aerodynamic angles sideslip, bank.
 
@@ -550,14 +548,15 @@ CustomRotationModelSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("custom_inertial_direction_based",
-                          &tss::bodyFixedDirectionBasedRotationSettings,
-                          py::arg("inertial_body_axis_direction"),
-                          py::arg("base_frame"), py::arg("target_frame"),
-                          py::arg("free_rotation_angle_function") = nullptr,
-                          R"doc(
+    m.def( "custom_inertial_direction_based",
+           &tss::bodyFixedDirectionBasedRotationSettings,
+           py::arg( "inertial_body_axis_direction" ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "free_rotation_angle_function" ) = nullptr,
+           R"doc(
 
 Function for creating rotation model settings where the body-fixed x-axis is imposed to lie in a user-defined inertial direction
 
@@ -593,16 +592,17 @@ BodyFixedDirectionBasedRotationSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("orbital_state_direction_based",
-                          &tss::orbitalStateBasedRotationSettings,
-                          py::arg("central_body"),
-                          py::arg("is_colinear_with_velocity"),
-                          py::arg("direction_is_opposite_to_vector"),
-                          py::arg("base_frame"), py::arg("target_frame") = "",
-                          py::arg("free_rotation_angle_function") = nullptr,
-                          R"doc(
+    m.def( "orbital_state_direction_based",
+           &tss::orbitalStateBasedRotationSettings,
+           py::arg( "central_body" ),
+           py::arg( "is_colinear_with_velocity" ),
+           py::arg( "direction_is_opposite_to_vector" ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ) = "",
+           py::arg( "free_rotation_angle_function" ) = nullptr,
+           R"doc(
 
 Function for creating rotation model settings where the body-fixed x-axis is imposed to lie in the direction of a relative position or velocity vector.
 
@@ -636,17 +636,14 @@ BodyFixedDirectionBasedRotationSettings
 
 
 
-    )doc");
+    )doc" );
 
-
-                    m.def("constant_rotation_model",
-                          py::overload_cast<const std::string &,
-                                            const std::string &,
-                                            const Eigen::Matrix3d &>(
-                              &tss::constantRotationModelSettings),
-                          py::arg("base_frame"), py::arg("target_frame"),
-                          py::arg("initial_orientation"),
-                          R"doc(
+    m.def( "constant_rotation_model",
+           py::overload_cast< const std::string &, const std::string &, const Eigen::Matrix3d & >( &tss::constantRotationModelSettings ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "initial_orientation" ),
+           R"doc(
 
 Function for creating simple rotation model settings for target-frames with constant orientation.
 
@@ -689,21 +686,22 @@ using a constant rotation matrix between Earth-fixed and inertial frame:
       constant_orientation )
 
 
-    )doc");
+    )doc" );
 
-                    m.def("custom_rotation_model",
-                          &tss::customRotationModelSettings,
-                          py::arg("base_frame"), py::arg("target_frame"),
-                          py::arg("custom_rotation_matrix_function"),
-                          py::arg("finite_difference_time_step"),
-                          R"doc(
+    m.def( "custom_rotation_model",
+           &tss::customRotationModelSettings,
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "custom_rotation_matrix_function" ),
+           py::arg( "finite_difference_time_step" ),
+           R"doc(
 
 Function for creating rotation model settings based on custom definition of rotation matrix.
 
 Function for creating rotation model settings based on custom definition of rotation matrix. The user provides a custom function that computes the rotation matrix
 from body-fixed to inertial frame as a function of time. This function can
-depend on any quantites of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`_.
-Since this function only computes the rotation matrix directly, the rotation matrix time derivative (and consequently, the angular velocity) are computed nunerically, using a second
+depend on any quantities of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`_.
+Since this function only computes the rotation matrix directly, the rotation matrix time derivative (and consequently, the angular velocity) are computed numerically, using a second
 order finite-difference method. Note that this computation of time derivative will only take into account the explicit time-dependence of thh custom rotation matrix.
 
 Parameters
@@ -723,14 +721,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-
-                    m.def("mars_high_accuracy",
-                          &tss::getHighAccuracyMarsRotationModel,
-                          py::arg("base_frame") = "ECLIPJ2000",
-                          py::arg("target_frame") = "Mars_Fixed",
-                          R"doc(
+    m.def( "mars_high_accuracy",
+           &tss::getHighAccuracyMarsRotationModel,
+           py::arg( "base_frame" ) = "ECLIPJ2000",
+           py::arg( "target_frame" ) = "Mars_Fixed",
+           R"doc(
 
 Function for creating a high-accuracy Mars rotation model.
 
@@ -756,10 +753,10 @@ RotationModelSettings
 
 
 
-    )doc");
-                }
+    )doc" );
+}
 
-            }  // namespace rotation_model
-        }      // namespace environment_setup
-    }          // namespace numerical_simulation
+}  // namespace rotation_model
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy

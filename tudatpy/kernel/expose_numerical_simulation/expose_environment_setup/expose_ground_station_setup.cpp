@@ -23,16 +23,20 @@ namespace tss = tudat::simulation_setup;
 namespace tcc = tudat::coordinate_conversions;
 namespace tba = tudat::basic_astrodynamics;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace ground_station {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace ground_station
+{
 
-                void expose_ground_station_setup(py::module &m) {
-                    py::class_<tss::GroundStationSettings,
-                               std::shared_ptr<tss::GroundStationSettings>>(
-                        m, "GroundStationSettings",
-                        R"doc(
+void expose_ground_station_setup( py::module &m )
+{
+    py::class_< tss::GroundStationSettings, std::shared_ptr< tss::GroundStationSettings > >( m,
+                                                                                             "GroundStationSettings",
+                                                                                             R"doc(
 
         Base class for providing settings for the creation of a ground station.
 
@@ -43,11 +47,9 @@ namespace tudatpy {
 
                         .def_property_readonly("station_name", &tss::GroundStationSettings::getStationName);
 
-                    py::class_<
-                        tss::GroundStationMotionSettings,
-                        std::shared_ptr<tss::GroundStationMotionSettings>>(
-                        m, "GroundStationMotionSettings",
-                        R"doc(
+    py::class_< tss::GroundStationMotionSettings, std::shared_ptr< tss::GroundStationMotionSettings > >( m,
+                                                                                                         "GroundStationMotionSettings",
+                                                                                                         R"doc(
 
         Base class for providing settings for the motion of a single ground station.
 
@@ -58,14 +60,13 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-                    py::class_<
-                        tss::LinearGroundStationMotionSettings,
-                        std::shared_ptr<tss::LinearGroundStationMotionSettings>,
-                        tss::GroundStationMotionSettings>(
-                        m, "LinearGroundStationMotionSettings",
-                        R"doc(
+    py::class_< tss::LinearGroundStationMotionSettings,
+                std::shared_ptr< tss::LinearGroundStationMotionSettings >,
+                tss::GroundStationMotionSettings >( m,
+                                                    "LinearGroundStationMotionSettings",
+                                                    R"doc(
 
         Class for defining linear motion (in an Earth-fixed frame) in time of a ground station.
 
@@ -74,15 +75,13 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-                    py::class_<
-                        tss::PiecewiseConstantGroundStationMotionSettings,
-                        std::shared_ptr<
-                            tss::PiecewiseConstantGroundStationMotionSettings>,
-                        tss::GroundStationMotionSettings>(
-                        m, "PiecewiseConstantGroundStationMotionSettings",
-                        R"doc(
+    py::class_< tss::PiecewiseConstantGroundStationMotionSettings,
+                std::shared_ptr< tss::PiecewiseConstantGroundStationMotionSettings >,
+                tss::GroundStationMotionSettings >( m,
+                                                    "PiecewiseConstantGroundStationMotionSettings",
+                                                    R"doc(
 
         Class for defining piecewise-constant position (e.g. instantaneous change in position at given epochs) of a ground station.
 
@@ -91,14 +90,13 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-                    py::class_<
-                        tss::CustomGroundStationMotionSettings,
-                        std::shared_ptr<tss::CustomGroundStationMotionSettings>,
-                        tss::GroundStationMotionSettings>(
-                        m, "CustomGroundStationMotionSettings",
-                        R"doc(
+    py::class_< tss::CustomGroundStationMotionSettings,
+                std::shared_ptr< tss::CustomGroundStationMotionSettings >,
+                tss::GroundStationMotionSettings >( m,
+                                                    "CustomGroundStationMotionSettings",
+                                                    R"doc(
 
         Class for defining custom time-dependent motion of a ground station.
 
@@ -107,23 +105,21 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
 
-                    m.def("add_motion_model_to_each_ground_station",
+                    m.def("add_motion_model_to_each_groun_station",
                           &tss::addStationMotionModelToEachGroundStation,
                           py::arg("ground_station_settings_list"),
                           py::arg("station_motion_setting"));
 
-                    m.def("basic_station", &tss::groundStationSettings,
-                          py::arg("station_name"),
-                          py::arg("station_nominal_position"),
-                          py::arg("station_position_element_type") =
-                              tcc::cartesian_position,
-                          py::arg("station_motion_settings") =
-                              std::vector<std::shared_ptr<
-                                  tss::GroundStationMotionSettings>>(),
-                          R"doc(
+    m.def( "basic_station",
+           &tss::groundStationSettings,
+           py::arg( "station_name" ),
+           py::arg( "station_nominal_position" ),
+           py::arg( "station_position_element_type" ) = tcc::cartesian_position,
+           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ),
+           R"doc(
 
 Function for creating settings for a ground station
 
@@ -171,10 +167,11 @@ In this example, we create a station using geodetic coordinates at the approxima
   		body_settings.get( "Earth" ).ground_station_settings.append( ground_station_settings )
 
 
-    )doc");
+    )doc" );
 
-                    m.def("dsn_stations", &tss::getDsnStationSettings,
-                          R"doc(
+    m.def( "dsn_stations",
+           &tss::getDsnStationSettings,
+           R"doc(
 
 Function for creating settings for all DSN stations
 
@@ -193,21 +190,17 @@ list[ GroundStationSettings ]
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("evn_stations", &tss::getEvnStationSettings,
-                          R"doc(No documentation found.)doc");
+    m.def( "evn_stations", &tss::getEvnStationSettings, R"doc(No documentation found.)doc" );
 
-                    m.def("radio_telescope_stations",
-                          &tss::getRadioTelescopeStationSettings,
-                          R"doc(No documentation found.)doc");
+    m.def( "radio_telescope_stations", &tss::getRadioTelescopeStationSettings, R"doc(No documentation found.)doc" );
 
-
-                    m.def("linear_station_motion",
-                          &tss::linearGroundStationMotionSettings,
-                          py::arg("linear_velocity"),
-                          py::arg("reference_epoch") = 0.0,
-                          R"doc(
+    m.def( "linear_station_motion",
+           &tss::linearGroundStationMotionSettings,
+           py::arg( "linear_velocity" ),
+           py::arg( "reference_epoch" ) = 0.0,
+           R"doc(
 
 Function for creating settings for a linear station motion
 
@@ -230,17 +223,17 @@ GroundStationMotionSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("piecewise_constant_station_motion",
-                          &tss::piecewiseConstantGroundStationMotionSettings,
-                          py::arg("displacement_list"),
-                          R"doc(
+    m.def( "piecewise_constant_station_motion",
+           &tss::piecewiseConstantGroundStationMotionSettings,
+           py::arg( "displacement_list" ),
+           R"doc(
 
 Function for creating settings for a piecewise constant ground station position variation
 
 Function for creating settings for a piecewise constant ground station position. Using this model, the added station velocity in a body-fixed frame :math:`\dot{\mathbf{r}}` is
-always zero, but its displacement :math:`\Delta\mathbf{r}` is set according to the input list, which contains a list of times and displacments :math:`[t_{i},\Delta\mathbf{r}_{i}]`.
+always zero, but its displacement :math:`\Delta\mathbf{r}` is set according to the input list, which contains a list of times and displacements :math:`[t_{i},\Delta\mathbf{r}_{i}]`.
 When the resulting model is queried at a given time :math:`t`, the nearest lower neighbour :math:`t_{i}` from this list is found, and the associated :math:`\Delta\mathbf{r}_{i}` is applied.
 
 
@@ -258,13 +251,12 @@ GroundStationMotionSettings
 
 
 
-    )doc");
+    )doc" );
 
-
-                    m.def("custom_station_motion",
-                          &tss::customGroundStationMotionSettings,
-                          py::arg("custom_displacement_function"),
-                          R"doc(
+    m.def( "custom_station_motion",
+           &tss::customGroundStationMotionSettings,
+           py::arg( "custom_displacement_function" ),
+           R"doc(
 
 Function for creating settings for a custom ground station position variation
 
@@ -286,14 +278,12 @@ GroundStationMotionSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("approximate_ground_stations_position",
-                          &tss::getCombinedApproximateGroundStationPositions,
-                          R"doc(No documentation found.)doc");
-                }
+    m.def( "approximate_ground_stations_position", &tss::getCombinedApproximateGroundStationPositions, R"doc(No documentation found.)doc" );
+}
 
-            }  // namespace ground_station
-        }      // namespace environment_setup
-    }          // namespace numerical_simulation
+}  // namespace ground_station
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy

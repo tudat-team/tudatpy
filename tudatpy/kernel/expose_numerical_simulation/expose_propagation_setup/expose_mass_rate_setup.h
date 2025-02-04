@@ -34,16 +34,20 @@
 #include "tudat/simulation/propagation_setup/torqueSettings.h"
 
 namespace py = pybind11;
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace propagation_setup {
-            namespace mass_rate {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace propagation_setup
+{
+namespace mass_rate
+{
 
-                void expose_mass_rate_setup(py::module &m);
+void expose_mass_rate_setup( py::module &m );
 
-            }  // namespace mass_rate
-        }      // namespace propagation_setup
-    }          // namespace numerical_simulation
+}  // namespace mass_rate
+}  // namespace propagation_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
 
 #endif  // TUDATPY_EXPOSE_MASS_RATE_SETUP_H
