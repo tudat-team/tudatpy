@@ -23,8 +23,8 @@ from tudatpy.kernel.numerical_simulation import \
 from tudatpy.kernel.numerical_simulation import \
      DynamicsSimulator, \
      Estimator, \
-     HybridArcDynamicsSimulator, \
-     MultiArcDynamicsSimulator, \
+     HybridArcSimulator, \
+     MultiArcSimulator, \
      SingleArcSimulator, \
      SingleArcVariationalSimulator, \
      Time

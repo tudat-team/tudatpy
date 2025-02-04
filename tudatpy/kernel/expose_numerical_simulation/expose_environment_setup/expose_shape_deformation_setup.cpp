@@ -20,16 +20,20 @@
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace shape_deformation {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace shape_deformation
+{
 
-                void expose_shape_deformation_setup(py::module &m) {
-                    py::class_<tss::BodyDeformationSettings,
-                               std::shared_ptr<tss::BodyDeformationSettings>>(
-                        m, "BodyDeformationSettings",
-                        R"doc(
+void expose_shape_deformation_setup( py::module &m )
+{
+    py::class_< tss::BodyDeformationSettings, std::shared_ptr< tss::BodyDeformationSettings > >( m,
+                                                                                                 "BodyDeformationSettings",
+                                                                                                 R"doc(
 
         Base class for providing settings for body shape deformation model.
 
@@ -40,14 +44,13 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-                    py::class_<
-                        tss::BasicSolidBodyDeformationSettings,
-                        std::shared_ptr<tss::BasicSolidBodyDeformationSettings>,
-                        tss::BodyDeformationSettings>(
-                        m, "BasicSolidBodyDeformationSettings",
-                        R"doc(
+    py::class_< tss::BasicSolidBodyDeformationSettings,
+                std::shared_ptr< tss::BasicSolidBodyDeformationSettings >,
+                tss::BodyDeformationSettings >( m,
+                                                "BasicSolidBodyDeformationSettings",
+                                                R"doc(
 
         Class for defining model settings for simple tidal solid-body shape deformation.
 
@@ -56,15 +59,14 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-
-                    m.def("basic_solid_body_tidal",
-                          &tss::basicTidalBodyShapeDeformation,
-                          py::arg("tide_raising_bodies"),
-                          py::arg("displacement_love_numbers"),
-                          py::arg("reference_radius") = TUDAT_NAN,
-                          R"doc(
+    m.def( "basic_solid_body_tidal",
+           &tss::basicTidalBodyShapeDeformation,
+           py::arg( "tide_raising_bodies" ),
+           py::arg( "displacement_love_numbers" ),
+           py::arg( "reference_radius" ) = TUDAT_NAN,
+           R"doc(
 
 Function for creating basic tidal solid-body shape deformation
 
@@ -76,7 +78,7 @@ Parameters
 tide_raising_bodies : list[ string ]
     List of bodies that raise a tide that induces the shape variation.
 displacement_love_numbers : dict[ int, [float,float] ]
-    Dictionary of pairs. The dictionary key the spherical harmonic degree :math:`l` of the tidal deformation (2 or 3 are currenty supported). The dictionary value is comprised of a pair of floats representing the :math:`h_{2}` and :math:`l_{2}` deformation Love numbers
+    Dictionary of pairs. The dictionary key the spherical harmonic degree :math:`l` of the tidal deformation (2 or 3 are currently supported). The dictionary value is comprised of a pair of floats representing the :math:`h_{2}` and :math:`l_{2}` deformation Love numbers
 reference_radius : float, default = NaN
     Spherical harmonic reference radius of the deformed body. If this value is left undefined (e.g at NaN), the reference radius of the existing spherical harmonic gravity field of the deformed body is used.
 Returns
@@ -107,14 +109,15 @@ In this example, we create a settings for degree 2 tidal deformation of the Eart
           tide_raising_bodies, love_numbers ) )
 
 
-    )doc");
+    )doc" );
 
-                    m.def("degree_two_basic_solid_body_tidal",
-                          &tss::degreeTwoBasicTidalBodyShapeDeformation,
-                          py::arg("tide_raising_bodies"),
-                          py::arg("love_number"), py::arg("shida_number"),
-                          py::arg("reference_radius") = TUDAT_NAN,
-                          R"doc(
+    m.def( "degree_two_basic_solid_body_tidal",
+           &tss::degreeTwoBasicTidalBodyShapeDeformation,
+           py::arg( "tide_raising_bodies" ),
+           py::arg( "love_number" ),
+           py::arg( "shida_number" ),
+           py::arg( "reference_radius" ) = TUDAT_NAN,
+           R"doc(
 
 Function for creating degree 2 basic tidal solid-body shape deformation
 
@@ -159,11 +162,11 @@ In this example, we create a settings for degree 2 tidal deformation of the Eart
           tide_raising_bodies, h2_love_number, l2_shida_number ) )
 
 
-    )doc");
+    )doc" );
 
-                    m.def("iers_2010_solid_body_tidal",
-                          &tss::iers2010TidalBodyShapeDeformation,
-                          R"doc(
+    m.def( "iers_2010_solid_body_tidal",
+           &tss::iers2010TidalBodyShapeDeformation,
+           R"doc(
 
 Function for creating full IERS 2010 shape deformation model
 
@@ -179,17 +182,14 @@ BodyDeformationSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("pole_tidal", &tss::poleTideBodyShapeDeformation,
-                          R"doc(No documentation found.)doc");
+    m.def( "pole_tidal", &tss::poleTideBodyShapeDeformation, R"doc(No documentation found.)doc" );
 
-                    m.def("ocean_tidal", &tss::oceanTideBodyShapeDeformation,
-                          py::arg("blq_files"),
-                          R"doc(No documentation found.)doc");
-                }
+    m.def( "ocean_tidal", &tss::oceanTideBodyShapeDeformation, py::arg( "blq_files" ), R"doc(No documentation found.)doc" );
+}
 
-            }  // namespace shape_deformation
-        }      // namespace environment_setup
-    }          // namespace numerical_simulation
+}  // namespace shape_deformation
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy

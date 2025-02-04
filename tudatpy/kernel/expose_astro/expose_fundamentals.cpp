@@ -17,18 +17,23 @@
 namespace py = pybind11;
 namespace tmg = tudat::mission_geometry;
 
-namespace tudatpy {
-    namespace astro {
-        namespace fundamentals {
+namespace tudatpy
+{
+namespace astro
+{
+namespace fundamentals
+{
 
-            void expose_fundamentals(py::module &m) {
-                m.def("compute_shadow_function", &tmg::computeShadowFunction,
-                      py::arg("occulted_body_position"),
-                      py::arg("occulted_body_radius"),
-                      py::arg("occulting_body_position"),
-                      py::arg("occulting_body_radius"),
-                      py::arg("satellite_position"),
-                      R"doc(
+void expose_fundamentals( py::module &m )
+{
+    m.def( "compute_shadow_function",
+           &tmg::computeShadowFunction,
+           py::arg( "occulted_body_position" ),
+           py::arg( "occulted_body_radius" ),
+           py::arg( "occulting_body_position" ),
+           py::arg( "occulting_body_radius" ),
+           py::arg( "satellite_position" ),
+           R"doc(
 
 Compute the shadow function.
 
@@ -57,9 +62,9 @@ Returns
 float
     Shadow function value
 
-    )doc");
-            }
+    )doc" );
+}
 
-        }  // namespace fundamentals
-    }      // namespace astro
+}  // namespace fundamentals
+}  // namespace astro
 }  // namespace tudatpy
