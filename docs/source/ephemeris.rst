@@ -30,18 +30,25 @@ inertial Cartesian state elements produced by the ephemeris.
 
 .. code-block:: python
 
-  bodies = .... // Create system of bodies
+  bodies = .... # Create system of bodies
   earth_ephemeris = bodies.get('Earth').ephemeris
   earth_state_at_epoch = earth_ephemeris.cartesian_state( epoch )
 
 where the ``epoch`` input is (as always in Tudat) the time in seconds since J2000. The ``earth_state_at_epoch`` is always in a frame with inertial orientation. The specific orientation and origin can be access from the :attr:`~tudatpy.numerical_simulation.environment.Ephemeris.frame_orientation` and :attr:`~tudatpy.numerical_simulation.environment.Ephemeris.frame_origin` attributes.
 
-* jpl_horizons (:func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.jpl_horizons`)
+**Creating ephemeris objects from ephemeris settings**
+Ephemeris objects can also be created directly from ephemeris settings using the :func:`~tudatpy.numerical_simulation.environment_setup.create_body_ephemeris` function.
+This can be useful if you want to create an ephemeris object for a body that is not part of a system of bodies to perform further analysis, such as the barycenter of the Martian system:
 
+.. code-block:: python
 
-
-
-
+  frame_origin = "SSB"
+  frame_orientation = "ECLIPJ2000"
+  body_name_to_use =  "MARS BARYCENTER"
+  mars_system_ephemeris_settings = environment_setup.ephemeris.direct_spice(
+     frame_origin, frame_orientation, body_name_to_use ) # Create ephemeris settings
+  mars_system_ephemeris = environment_setup.create_body_ephemeris(mars_system_ephemeris_settings,
+     "MARS BARYCENTER") # Create ephemeris object
 
 
 
@@ -66,6 +73,8 @@ Functions
    keplerian
 
    keplerian_from_spice
+
+   sgp4
 
    scaled_by_constant
 
@@ -93,6 +102,8 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ephemeris.keplerian
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ephemeris.keplerian_from_spice
+
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.ephemeris.sgp4
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ephemeris.scaled_by_constant
 

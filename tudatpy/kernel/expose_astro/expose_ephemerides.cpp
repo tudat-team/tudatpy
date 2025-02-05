@@ -38,35 +38,42 @@ public:
     {
         PYBIND11_OVERLOAD_PURE( Eigen::Vector6d,    /* Return type */
                                 te::Ephemeris,      /* Parent class */
-                                getCartesianState,  /* Name of function in C++ (must match Python name) */
+                                getCartesianState,  /* Name of function in C++ (must match
+                                                       Python name) */
                                 seconds_since_epoch /* Argument(s) */
         );
     }
 
-    //  Eigen::Matrix<long double, 6, 1> getCartesianLongState(const double seconds_since_epoch) override {
+    //  Eigen::Matrix<long double, 6, 1> getCartesianLongState(const
+    //  double seconds_since_epoch) override {
     //    PYBIND11_OVERLOAD_PURE(
     //        Eigen::Matrix<long double, 6, 1>, /* Return type */
     //        te::Ephemeris,                    /* Parent class */
-    //        getCartesianLongState,            /* Name of function in C++ (must match Python name) */
-    //        seconds_since_epoch               /* Argument(s) */
+    //        getCartesianLongState,            /* Name of function in
+    //        C++ (must match Python name) */ seconds_since_epoch /*
+    //        Argument(s) */
     //    );
     //  }
 
-    //  Eigen::Matrix<long double, 6, 1> getCartesianStateFromExtendedTime() override {
+    //  Eigen::Matrix<long double, 6, 1>
+    //  getCartesianStateFromExtendedTime() override {
     //    PYBIND11_OVERLOAD_PURE(
     //        Eigen::Matrix<long double, 6, 1>,  /* Return type */
     //        te::Ephemeris,                     /* Parent class */
-    //        getCartesianStateFromExtendedTime, /* Name of function in C++ (must match Python name) */
-    //        const Time &                       /* Argument(s) */
+    //        getCartesianStateFromExtendedTime, /* Name of function in
+    //        C++ (must match Python name) */ const Time & /*
+    //        Argument(s) */
     //    );
     //  }
 
-    //  Eigen::Matrix<long double, 6, 1> getCartesianStateFromExtendedTime() override {
+    //  Eigen::Matrix<long double, 6, 1>
+    //  getCartesianStateFromExtendedTime() override {
     //    PYBIND11_OVERLOAD_PURE(
     //        Eigen::Matrix<long double, 6, 1>,  /* Return type */
     //        te::Ephemeris,                     /* Parent class */
-    //        getCartesianStateFromExtendedTime, /* Name of function in C++ (must match Python name) */
-    //        const double                       /* Argument(s) */
+    //        getCartesianStateFromExtendedTime, /* Name of function in
+    //        C++ (must match Python name) */ const double /*
+    //        Argument(s) */
     //    );
 };
 

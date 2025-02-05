@@ -20,11 +20,11 @@ Functions
 
    propagate_kepler_orbit
 
-
+   compute_escape_or_capture_delta_v
 
 .. autofunction:: tudatpy.astro.two_body_dynamics.propagate_kepler_orbit
 
-
+.. autofunction:: tudatpy.astro.two_body_dynamics.compute_escape_or_capture_delta_v
 
 
 
