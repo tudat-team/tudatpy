@@ -74,8 +74,28 @@ The element :math:`I`, which defines the location of the MEE singularity is not 
 
 
 
+Enumerations
+------------
+.. currentmodule:: tudatpy.astro.element_conversion
+
+.. autosummary::
+
+   KeplerianElementIndices
+
+   SphericalOrbitalStateElementIndices
+
+   PositionElementTypes
 
 
+
+.. autoclass:: tudatpy.astro.element_conversion.KeplerianElementIndices
+   :members:
+
+.. autoclass:: tudatpy.astro.element_conversion.SphericalOrbitalStateElementIndices
+   :members:
+
+.. autoclass:: tudatpy.astro.element_conversion.PositionElementTypes
+   :members:
 
 
 
@@ -84,6 +104,8 @@ Functions
 .. currentmodule:: tudatpy.astro.element_conversion
 
 .. autosummary::
+
+   convert_position_elements
 
    cartesian_to_keplerian
 
@@ -125,9 +147,29 @@ Functions
 
    mee_to_cartesian
 
+   usm_em_to_cartesian
+
+   cartesian_to_usm_em
+
+   usm_7_to_cartesian
+
+   cartesian_to_usm_7
+
+   usm_6_to_cartesian
+
+   cartesian_to_usm_6
+
    quaternion_entries_to_rotation_matrix
 
    rotation_matrix_to_quaternion_entries
+
+   quaternion_to_modified_rodrigues_parameters
+
+   modified_rodrigues_parameters_to_quaternion
+
+   quaternion_to_exponential_map
+
+   exponential_map_to_quaternion
 
    cartesian_to_spherical
 
@@ -135,7 +177,18 @@ Functions
 
    spherical_to_cartesian_elementwise
 
+   teme_to_j2000
 
+   j2000_to_teme
+
+   eclipj2000_to_j2000
+
+   j2000_to_eclipj2000
+
+
+
+
+.. autofunction:: tudatpy.astro.element_conversion.convert_position_elements
 
 .. autofunction:: tudatpy.astro.element_conversion.cartesian_to_keplerian
 
@@ -177,15 +230,45 @@ Functions
 
 .. autofunction:: tudatpy.astro.element_conversion.mee_to_cartesian
 
+.. autofunction:: tudatpy.astro.element_conversion.usm_em_to_cartesian
+
+.. autofunction:: tudatpy.astro.element_conversion.cartesian_to_usm_em
+
+.. autofunction:: tudatpy.astro.element_conversion.usm_7_to_cartesian
+
+.. autofunction:: tudatpy.astro.element_conversion.cartesian_to_usm_7
+
+.. autofunction:: tudatpy.astro.element_conversion.usm_6_to_cartesian
+
+.. autofunction:: tudatpy.astro.element_conversion.cartesian_to_usm_6
+
 .. autofunction:: tudatpy.astro.element_conversion.quaternion_entries_to_rotation_matrix
 
 .. autofunction:: tudatpy.astro.element_conversion.rotation_matrix_to_quaternion_entries
+
+.. autofunction:: tudatpy.astro.element_conversion.quaternion_to_modified_rodrigues_parameters
+
+.. autofunction:: tudatpy.astro.element_conversion.modified_rodrigues_parameters_to_quaternion
+
+.. autofunction:: tudatpy.astro.element_conversion.quaternion_to_exponential_map
+
+.. autofunction:: tudatpy.astro.element_conversion.exponential_map_to_quaternion
 
 .. autofunction:: tudatpy.astro.element_conversion.cartesian_to_spherical
 
 .. autofunction:: tudatpy.astro.element_conversion.spherical_to_cartesian
 
 .. autofunction:: tudatpy.astro.element_conversion.spherical_to_cartesian_elementwise
+
+.. autofunction:: teme_to_j2000
+
+.. autofunction:: j2000_to_teme
+
+.. autofunction:: eclipj2000_to_j2000
+
+.. autofunction:: j2000_to_eclipj2000
+
+
 
 
 

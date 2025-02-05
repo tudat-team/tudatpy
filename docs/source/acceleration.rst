@@ -18,12 +18,6 @@ Functions
 
    point_mass_gravity
 
-   aerodynamic
-
-   radiation_pressure
-
-   cannonball_radiation_pressure
-
    spherical_harmonic_gravity
 
    mutual_spherical_harmonic_gravity
@@ -31,6 +25,10 @@ Functions
    polyhedron_gravity
 
    ring_gravity
+
+   aerodynamic
+
+   radiation_pressure
 
    relativistic_correction
 
@@ -54,12 +52,6 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.point_mass_gravity
 
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.cannonball_radiation_pressure
-
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic_gravity
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.mutual_spherical_harmonic_gravity
@@ -67,6 +59,10 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.polyhedron_gravity
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.ring_gravity
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.relativistic_correction
 
@@ -157,6 +153,3 @@ Classes
 
 .. autoclass:: tudatpy.numerical_simulation.propagation_setup.acceleration.MomentumWheelDesaturationAccelerationSettings
    :members:
-
-
-
