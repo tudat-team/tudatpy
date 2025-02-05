@@ -15,7 +15,6 @@
 #include <pybind11/stl.h>
 #include <tudat/basics/basicTypedefs.h>
 
-#include "docstrings.h"
 #include "tudat/astro/system_models/timingSystem.h"
 
 namespace py = pybind11;
@@ -32,16 +31,16 @@ void expose_statistics( py::module &m )
            &ts::calculateAllanVarianceOfTimeDataSet,
            py::arg( "timing_errors" ),
            py::arg( "time_step_size" ),
-           get_docstring( "calculate_allan_variance_of_dataset" ).c_str( ) );
+           R"doc(No documentation found.)doc" );
 
     m.def( "convert_allan_variance_amplitudes_to_phase_noise_amplitudes",
            &tsm::convertAllanVarianceAmplitudesToPhaseNoiseAmplitudes,
            py::arg( "allan_variance_amplitudes" ),
            py::arg( "frequency_domain_cutoff_frequency" ),
            py::arg( "is_inverse_square_term_flicker_phase_noise" ) = 0,
-           get_docstring( "convert_allan_variance_amplitudes_to_phase_noise_amplitudes" ).c_str( ) );
+           R"doc(No documentation found.)doc" );
 
-#if( TUDAT_BUILD_WITH_FFTW3 )
+#if ( TUDAT_BUILD_WITH_FFTW3 )
     m.def( "generate_noise_from_allan_deviation",
            &tsm::generateClockNoise,
            py::arg( "allan_variance_amplitudes" ),
@@ -50,7 +49,7 @@ void expose_statistics( py::module &m )
            py::arg( "number_of_time_steps" ),
            py::arg( "is_inverse_square_term_flicker_phase_noise" ) = 0,
            py::arg( "seed" ) = ts::defaultRandomSeedGenerator->getRandomVariableValue( ),
-           get_docstring( "generate_clock_noise" ).c_str( ) );
+           R"doc(No documentation found.)doc" );
 
     m.def( "generate_colored_clock_noise",
            &tsm::generateColoredClockNoise,
@@ -60,7 +59,7 @@ void expose_statistics( py::module &m )
            py::arg( "end_time" ),
            py::arg( "number_of_time_steps" ),
            py::arg( "seed" ) = ts::defaultRandomSeedGenerator->getRandomVariableValue( ),
-           get_docstring( "generate_clock_noise" ).c_str( ) );
+           R"doc(No documentation found.)doc" );
 
     m.def( "get_clock_noise_interpolator",
            &tsm::getClockNoiseInterpolator,
@@ -70,7 +69,7 @@ void expose_statistics( py::module &m )
            py::arg( "time_step" ),
            py::arg( "is_inverse_square_term_flicker_phase_noise" ) = 0,
            py::arg( "seed" ) = ts::defaultRandomSeedGenerator->getRandomVariableValue( ),
-           get_docstring( "get_clock_noise_interpolator" ).c_str( ) );
+           R"doc(No documentation found.)doc" );
 
     m.def( "get_colored_clock_noise_interpolator",
            &tsm::getColoredClockNoiseInterpolator,
@@ -80,7 +79,7 @@ void expose_statistics( py::module &m )
            py::arg( "end_time" ),
            py::arg( "time_step" ),
            py::arg( "seed" ) = ts::defaultRandomSeedGenerator->getRandomVariableValue( ),
-           get_docstring( "get_clock_noise_interpolator" ).c_str( ) );
+           R"doc(No documentation found.)doc" );
 #endif
 };
 

@@ -88,6 +88,10 @@ Functions
    TT_to_TAI
 
    TT_to_TDB_approximate
+   
+   TT_to_TDB
+   
+   TDB_to_TT
 
    epoch_from_date_time_components
 
@@ -96,7 +100,8 @@ Functions
    date_time_from_epoch
 
    date_time_from_iso_string
-
+   
+   default_time_scale_converter
 
 
 .. autofunction:: tudatpy.astro.time_conversion.datetime_to_tudat
@@ -149,6 +154,10 @@ Functions
 
 .. autofunction:: tudatpy.astro.time_conversion.TT_to_TDB_approximate
 
+.. autofunction:: tudatpy.astro.time_conversion.TT_to_TDB
+
+.. autofunction:: tudatpy.astro.time_conversion.TDB_to_TT
+
 .. autofunction:: tudatpy.astro.time_conversion.epoch_from_date_time_components
 
 .. autofunction:: tudatpy.astro.time_conversion.epoch_from_date_time_iso_string
@@ -157,6 +166,21 @@ Functions
 
 .. autofunction:: tudatpy.astro.time_conversion.date_time_from_iso_string
 
+.. autofunction:: tudatpy.astro.time_conversion.default_time_scale_converter
+
+
+Enumerations
+------------
+.. currentmodule:: tudatpy.astro.time_conversion
+
+.. autosummary::
+
+   TimeScales
+
+
+
+.. autoclass:: tudatpy.astro.time_conversion.TimeScales
+   :members:
 
 
 
@@ -169,11 +193,15 @@ Classes
 .. autosummary::
 
    DateTime
-
-
+   
+   TimeScaleConverter
 
 .. autoclass:: tudatpy.astro.time_conversion.DateTime
+   :members:   
+
+.. autoclass:: tudatpy.astro.time_conversion.TimeScaleConverter
    :members:
+
 
 
 

@@ -13,7 +13,6 @@
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 
-#include "docstrings.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/constants.h"
 
@@ -29,7 +28,7 @@ namespace constants
 {
 void expose_constants( py::module &m )
 {
-    m.attr( "__doc__" ) = get_docstring( "constants" ).c_str( );
+    m.attr( "__doc__" ) = R"doc(No documentation found)doc";
 
     // physicalConstants.h
     m.attr( "SEA_LEVEL_GRAVITATIONAL_ACCELERATION" ) = tpc::SEA_LEVEL_GRAVITATIONAL_ACCELERATION;
