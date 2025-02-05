@@ -25,12 +25,15 @@ Functions
 
 .. autosummary::
 
+   transform_to_inertial_orientation
+   
    save_vehicle_mesh_to_file
 
 
 
 .. autofunction:: tudatpy.numerical_simulation.environment.save_vehicle_mesh_to_file
 
+.. autofunction:: tudatpy.numerical_simulation.environment.transform_to_inertial_orientation
 
 
 
@@ -45,6 +48,8 @@ Enumerations
    AerodynamicCoefficientFrames
 
    AerodynamicCoefficientsIndependentVariables
+   
+   AtmosphericCompositionSpecies
 
 
 
@@ -57,7 +62,8 @@ Enumerations
 .. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicCoefficientsIndependentVariables
    :members:
 
-
+.. autoclass:: tudatpy.numerical_simulation.environment.AtmosphericCompositionSpecies
+   :members:
 
 
 Classes
@@ -66,21 +72,40 @@ Classes
 
 .. autosummary::
 
+
+   Ephemeris
+   
+   RotationalEphemeris
+
+   GcrsToItrsRotationModel
+
+   EarthOrientationAnglesCalculator
+
+   GravityFieldModel
+   
+   SphericalHarmonicsGravityField
+   
+   BodyShapeModel
+   
+   RigidBodyProperties
+      
+   AtmosphereModel
+   
    AerodynamicCoefficientInterface
 
    HypersonicLocalInclinationAnalysis
+   
+   GroundStation
+   
+   GroundStationState
 
    FlightConditions
 
    AtmosphericFlightConditions
 
    AerodynamicAngleCalculator
-
-   RotationalEphemeris
-
+   
    VehicleSystems
-
-   Ephemeris
 
    EngineModel
 
@@ -90,6 +115,34 @@ Classes
 
 
 
+   
+.. autoclass:: tudatpy.numerical_simulation.environment.Ephemeris
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment.RotationalEphemeris
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment.GcrsToItrsRotationModel
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment.EarthOrientationAnglesCalculator
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment.GravityFieldModel
+   :members:
+      
+.. autoclass:: tudatpy.numerical_simulation.environment.SphericalHarmonicsGravityField
+   :members:
+      
+.. autoclass:: tudatpy.numerical_simulation.environment.BodyShapeModel
+   :members:
+  
+.. autoclass:: tudatpy.numerical_simulation.environment.RigidBodyProperties
+   :members: 
+
+.. autoclass:: tudatpy.numerical_simulation.environment.AtmosphereModel
+   :members:     
+   
 .. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicCoefficientInterface
    :members:
 
@@ -97,7 +150,11 @@ Classes
    :members:
    :special-members: __init__
 
-
+.. autoclass:: tudatpy.numerical_simulation.environment.GroundStation
+   :members:
+      
+.. autoclass:: tudatpy.numerical_simulation.environment.GroundStationState
+   :members:
 
 .. autoclass:: tudatpy.numerical_simulation.environment.FlightConditions
    :members:
@@ -107,16 +164,10 @@ Classes
 
 .. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicAngleCalculator
    :members:
-
-.. autoclass:: tudatpy.numerical_simulation.environment.RotationalEphemeris
-   :members:
-
+   
 .. autoclass:: tudatpy.numerical_simulation.environment.VehicleSystems
    :members:
-
-.. autoclass:: tudatpy.numerical_simulation.environment.Ephemeris
-   :members:
-
+   
 .. autoclass:: tudatpy.numerical_simulation.environment.EngineModel
    :members:
 

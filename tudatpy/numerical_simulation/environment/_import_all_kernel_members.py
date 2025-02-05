@@ -33,20 +33,24 @@ from tudatpy.kernel.numerical_simulation.environment import \
      AerodynamicsReferenceFrameAngles, \
      AerodynamicsReferenceFrames, \
      AtmosphereModel, \
+     AtmosphericCompositionSpecies, \
      AtmosphericFlightConditions, \
      Body, \
+     BodyShapeModel, \
      ConstantEphemeris, \
-     ConstantFrequencyInterpolator, \
+     ConstantTransmittingFrequencyCalculator, \
      ControlSurfaceIncrementAerodynamicInterface, \
      CustomBodyFixedDirectionCalculator, \
      CustomControlSurfaceIncrementAerodynamicInterface, \
      CustomInertialDirectionBasedRotationalEphemeris, \
      DirectLongitudeLibrationCalculator, \
+     EarthOrientationAnglesCalculator, \
      EngineModel, \
      Ephemeris, \
      FlightConditions, \
      GcrsToItrsRotationModel, \
      GravityFieldModel, \
+     GravityFieldVariationModel, \
      GroundStation, \
      GroundStationState, \
      HypersonicLocalInclinationAnalysis, \
@@ -56,16 +60,17 @@ from tudatpy.kernel.numerical_simulation.environment import \
      MultiArcEphemeris, \
      PointingAnglesCalculator, \
      PolyhedronGravityField, \
+     RigidBodyProperties, \
      RotationalEphemeris, \
-     ShapeModel, \
      SphericalHarmonicsGravityField, \
-     StationFrequencyInterpolator, \
      SynchronousRotationalEphemeris, \
      SystemOfBodies, \
      TabulatedEphemeris, \
+     TimeDependentSphericalHarmonicsGravityField, \
      TimingSystem, \
      Tle, \
      TleEphemeris, \
+     TransmittingFrequencyCalculator, \
      VehicleSystems, \
      aerodynamic_frame, \
      altitude_dependent, \
@@ -73,25 +78,33 @@ from tudatpy.kernel.numerical_simulation.environment import \
      angle_of_attack_dependent, \
      angle_of_sideslip, \
      anomalous_o_number_density_dependent, \
+     anomalous_o_species, \
      ar_number_density_dependent, \
+     ar_species, \
      bank_angle, \
      body_frame, \
      control_surface_deflection_dependent, \
      corotating_frame, \
      flight_path_angle, \
      h_number_density_dependent, \
+     h_species, \
      he_number_density_dependent, \
+     he_species, \
      heading_angle, \
      inertial_frame, \
      latitude_angle, \
      longitude_angle, \
      mach_number_dependent, \
      n2_number_density_dependent, \
+     n2_species, \
      n_number_density_dependent, \
+     n_species, \
      negative_aerodynamic_frame_coefficients, \
      negative_body_fixed_frame_coefficients, \
      o2_number_density_dependent, \
+     o2_species, \
      o_number_density_dependent, \
+     o_species, \
      positive_aerodynamic_frame_coefficients, \
      positive_body_fixed_frame_coefficients, \
      sideslip_angle_dependent, \

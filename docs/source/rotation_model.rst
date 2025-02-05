@@ -66,6 +66,8 @@ Functions
 
    constant_rotation_model
 
+   custom_rotation_model
+
    aerodynamic_angle_based
 
    zero_pitch_moment_aerodynamic_angle_based
@@ -89,6 +91,8 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.rotation_model.gcrs_to_itrs
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.rotation_model.constant_rotation_model
+
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.rotation_model.custom_rotation_model
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.rotation_model.aerodynamic_angle_based
 
