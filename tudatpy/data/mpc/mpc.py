@@ -3,6 +3,7 @@ from tudatpy.numerical_simulation import estimation, environment  # type:ignore
 from tudatpy.numerical_simulation.estimation_setup import observation  # type:ignore
 from tudatpy.numerical_simulation.environment_setup import add_gravity_field_model
 from tudatpy.numerical_simulation.environment_setup.gravity_field import central_sbdb
+from tudatpy.astro import time_conversion
 
 import pandas as pd
 import numpy as np
@@ -1363,8 +1364,8 @@ class BatchMPC:
             observation_set = estimation.single_observation_set(
                 observation.angular_position_type,
                 link_definition,
-                [observation_angles],
-                [observation_times],
+                observation_angles,
+                [time_conversion.datetime_to_tudat(time_conversion.julian_day_to_calendar_date(time_conversion.seconds_since_epoch_to_julian_day(observation_time))).epoch() for observation_time in observation_times],
                 observation.receiver,
             )
 
