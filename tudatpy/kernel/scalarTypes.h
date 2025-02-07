@@ -14,7 +14,7 @@
 #include "tudat/basics/timeType.h"
 
 #define STATE_SCALAR_TYPE double       // long double
-#define TIME_TYPE double               // tudat::Time
-#define INTERPOLATOR_TIME_TYPE double  // tudat::Time
+#define TIME_TYPE tudat::Time               // double
+#define INTERPOLATOR_TIME_TYPE tudat::Time  // double
 
 #endif  // TUDATPY_SCALAR_TYPES_H
