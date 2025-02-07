@@ -22,6 +22,7 @@ namespace observation_models
 
 bool TabulatedMediaReferenceCorrection::isTimeValid( const double time )
 {
+    /*
     if( !std::isnan( startTime_ ) && time < startTime_ )
     {
         throw std::runtime_error( "Error when computing tabulated media reference correction: selected time (" + std::to_string( time ) +
@@ -33,21 +34,47 @@ bool TabulatedMediaReferenceCorrection::isTimeValid( const double time )
         throw std::runtime_error( "Error when computing tabulated media reference correction: selected time (" + std::to_string( time ) +
                                   ") is over end time (" + std::to_string( endTime_ ) + ")." );
     }
+    */
+
+    ///// Warnings instead of error:
+    if ( !std::isnan( startTime_ ) && time < startTime_ )
+
+    {
+        std::cerr << "Warning when computing tabulated media reference correction: selected time (" + std::to_string( time ) +
+                ") is below start time (" + std::to_string( startTime_ ) + "). Applying 0 correction." << std::endl;
+
+        return false;
+    }
+
+    if ( !std::isnan( endTime_ ) && time > endTime_ )
+
+    {
+        std::cerr << "Warning when computing tabulated media reference correction: selected time (" + std::to_string( time ) +
+            ") is over end time (" + std::to_string( endTime_ ) + "). Applying 0 correction." << std::endl;
+
+        return false;
+    }
 
     return true;
+
 }
 
 double PowerSeriesReferenceCorrection::computeReferenceCorrection( const double time )
 {
-    isTimeValid( time );
-
+    bool timeCover = isTimeValid( time );
     const double normalizedTime = 2.0 * ( ( time - startTime_ ) / ( endTime_ - startTime_ ) ) - 1.0;
-
     double correction = 0;
-    for( unsigned int i = 0; i < coefficients_.size( ); ++i )
+
+    if (timeCover == true)
+
     {
-        correction += coefficients_.at( i ) * std::pow( normalizedTime, i );
+        for ( unsigned int i = 0; i < coefficients_.size( ); ++i )
+        {
+            correction += coefficients_.at( i ) * std::pow( normalizedTime, i );
+        }
+
     }
+    // else correction 0
 
     return correction;
 }
