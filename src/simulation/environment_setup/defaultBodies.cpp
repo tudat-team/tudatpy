@@ -456,11 +456,10 @@ std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions
         { "DSS-34", ( Eigen::Vector3d( ) << -4461147.093, +2682439.239, -3674393.133 ).finished( ) },
         { "DSS-35", ( Eigen::Vector3d( ) << -4461273.090, +2682568.925, -3674152.093 ).finished( ) },
         { "DSS-36", ( Eigen::Vector3d( ) << -4461168.415, +2682814.657, -3674083.901 ).finished( ) },
-        { "DSS-42",
-          ( Eigen::Vector3d( ) << -4460981.016, +2682413.525, -3674582.072 )
-                  .finished( ) },  // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt
+        { "DSS-42", ( Eigen::Vector3d( ) << -4460981.016, +2682413.525, -3674582.072 ).finished( ) },  // https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/stations/a_old_versions/dsnstns.cmt
         { "DSS-43", ( Eigen::Vector3d( ) << -4460894.917, +2682361.507, -3674748.152 ).finished( ) },
         { "DSS-45", ( Eigen::Vector3d( ) << -4460935.578, +2682765.661, -3674380.982 ).finished( ) },
+        { "DSS-47", ( Eigen::Vector3d( ) << -4750915.837, +2792906.182, -3200483.747 ).finished( ) },  // W196: https://www.narrabri.atnf.csiro.au/observing/users_guide/html_old_20090512/Cartesian_Coordinates.html (may not be entirely accurate)
         { "DSS-54", ( Eigen::Vector3d( ) << +4849434.488, -360723.8999, +4114618.835 ).finished( ) },
         { "DSS-55", ( Eigen::Vector3d( ) << +4849525.256, -360606.0932, +4114495.084 ).finished( ) },
         { "DSS-61",
