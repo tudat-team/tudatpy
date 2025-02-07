@@ -2307,6 +2307,15 @@ numpy.ndarray[numpy.float64[6, 1]]
                 tgs::StationFrequencyInterpolator >( m, "ConstantTransmittingFrequencyCalculator" )
             .def( py::init< double >( ), py::arg( "frequency" ) );
 
+    py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
+        std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
+        tgs::StationFrequencyInterpolator >( m, "PiecewiseLinearFrequencyInterpolator" )
+        .def( py::init< double >( ),
+            py::arg( "start_times" ),
+            py::arg( "end_times" ),
+            py::arg( "ramp_rates" ),
+            py::arg( "start_frequency" ) );
+    
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator" )
             .def( "calculate_elevation_angle",
                   py::overload_cast< const Eigen::Vector3d &, const double >(
