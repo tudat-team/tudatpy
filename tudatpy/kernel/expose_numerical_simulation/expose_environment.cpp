@@ -2310,7 +2310,10 @@ numpy.ndarray[numpy.float64[6, 1]]
     py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
         std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
         tgs::StationFrequencyInterpolator >( m, "PiecewiseLinearFrequencyInterpolator" )
-        .def( py::init< double >( ),
+        .def( py::init< const std::vector< tudat::Time >&,
+                        const std::vector< tudat::Time >&,
+                        const std::vector< double >&,
+                        const std::vector< double >& >( ),
             py::arg( "start_times" ),
             py::arg( "end_times" ),
             py::arg( "ramp_rates" ),
