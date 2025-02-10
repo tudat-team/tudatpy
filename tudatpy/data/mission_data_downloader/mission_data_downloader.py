@@ -1975,28 +1975,35 @@ class LoadPDS:
         response.raise_for_status()  # Check for request errors
         aareadme_text = response.text
 
+        print(aareadme_text)
+
         # Step 2: Parse content using regex to extract the table entries
         self.mapping_dict = {}
-        pattern = re.compile(r'^\s*(MEXMRS_\d{4})\s+(\d{4}-\d{2}-\d{2})\s+(\d{4}-\d{2}-\d{2})\s+(.+?)\s*$', re.MULTILINE)
+        pattern = re.compile(r'^\s*(MEXMRS_\d{4})\s+(MEXMRS_\d{4}|\d{4}-\d{2}-\d{2})\s+(\d{4}-\d{2}-\d{2})\s+(.+?)\s*$', re.MULTILINE)
 
         # Step 3: Find all matches and populate the dictionary
         for match in pattern.finditer(aareadme_text):
             volume_id = match.group(1)
-            start_date_file = match.group(2)
-            end_date_file = match.group(3)
-            start_date_utc = self.format_string_to_datetime(match.group(2))
-            end_date_utc = self.format_string_to_datetime(match.group(3))
+            start_date_file = match.group(2) if len(match.group(2)) == 10 else match.group(3)
+            end_date_file = match.group(3) if len(match.group(2)) == 10 else None
+            start_date_utc = self.format_string_to_datetime(start_date_file)
+            end_date_utc = self.format_string_to_datetime(end_date_file) if end_date_file != None else None
             interval_key_for_retrieval = (start_date_utc, end_date_utc)
             observation_type = match.group(4).strip()
 
             # Add entry to dictionary
-            self.mapping_dict[interval_key_for_retrieval] = {
+            if interval_key_for_retrieval not in self.mapping_dict:
+                self.mapping_dict[interval_key_for_retrieval] = []  # Initialize as a list
+
+            # Append the current entry to the list
+            self.mapping_dict[interval_key_for_retrieval].append({
                 "volume_id": volume_id,
                 "start_date_file": start_date_file,
                 "end_date_file": end_date_file,
+                "start_date_utc": start_date_utc,
+                "end_date_utc": end_date_utc,
                 "observation_type": observation_type
-            }
-
+            })
         return self.mapping_dict
 
     ########################################################################################################################################
