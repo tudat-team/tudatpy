@@ -2307,6 +2307,18 @@ numpy.ndarray[numpy.float64[6, 1]]
                 tgs::StationFrequencyInterpolator >( m, "ConstantTransmittingFrequencyCalculator" )
             .def( py::init< double >( ), py::arg( "frequency" ) );
 
+    py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
+        std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
+        tgs::StationFrequencyInterpolator >( m, "PiecewiseLinearFrequencyInterpolator" )
+        .def( py::init< const std::vector< tudat::Time >&,
+                        const std::vector< tudat::Time >&,
+                        const std::vector< double >&,
+                        const std::vector< double >& >( ),
+            py::arg( "start_times" ),
+            py::arg( "end_times" ),
+            py::arg( "ramp_rates" ),
+            py::arg( "start_frequency" ) );
+    
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator" )
             .def( "calculate_elevation_angle",
                   py::overload_cast< const Eigen::Vector3d &, const double >(
@@ -2623,7 +2635,7 @@ numpy.ndarray[numpy.float64[6, 1]]
 
        :type: RigidBodyProperties
     )doc")
-                    .def_property("radiation_pressure_source_models", &tss::Body::getRadiationPressureTargetModels,
+                    .def_property("radiation_pressure_target_models", &tss::Body::getRadiationPressureTargetModels,
                                   &tss::Body::setRadiationPressureTargetModels )
                     .def_property_readonly(
                         "gravitational_parameter",
