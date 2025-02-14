@@ -17,6 +17,7 @@
 
 #include "tudat/astro/ground_stations/groundStationState.h"
 #include "tudat/astro/ground_stations/pointingAnglesCalculator.h"
+#include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
@@ -121,79 +122,57 @@ public:
         transmittingFrequencyCalculator_ = transmittingFrequencyCalculator;
     }
 
-    void setTemperatureFunction( const std::function< double( const double time ) >& temperatureFunction )
-    {
-        temperatureFunction_ = temperatureFunction;
-    }
-
     std::function< double( const double time ) > getTemperatureFunction( )
     {
-        if( temperatureFunction_ == nullptr )
+        if( meteoData_ == nullptr )
         {
             throw std::runtime_error( "Error when getting temperature function from ground station " + stationId_ +
                                       ": function is not defined." );
         }
-        return temperatureFunction_;
+        return std::bind( &StationMeteoData::getTemperature, meteoData_, std::placeholders::_1 );
     }
 
-    void setPressureFunction( const std::function< double( const double time ) >& pressureFunction )
-    {
-        pressureFunction_ = pressureFunction;
-    }
 
     std::function< double( const double time ) > getPressureFunction( )
     {
-        if( pressureFunction_ == nullptr )
+        if( meteoData_ == nullptr )
         {
             throw std::runtime_error( "Error when getting pressure function from ground station " + stationId_ +
                                       ": function is not defined." );
         }
-        return pressureFunction_;
+        return std::bind( &StationMeteoData::getPressure, meteoData_, std::placeholders::_1 );
     }
 
-    void setWaterVaporPartialPressureFunction( const std::function< double( const double time ) >& waterVaporPartialPressureFunction )
-    {
-        waterVaporPartialPressureFunction_ = waterVaporPartialPressureFunction;
-    }
 
     std::function< double( const double time ) > getWaterVaporPartialPressureFunction( )
     {
-        if( waterVaporPartialPressureFunction_ == nullptr )
+        if( meteoData_ == nullptr )
         {
             throw std::runtime_error( "Error when getting water vapor partial pressure function from ground station " + stationId_ +
                                       ": function is not defined." );
         }
-        return waterVaporPartialPressureFunction_;
+        return std::bind( &StationMeteoData::getWaterVaporPartialPressure, meteoData_, std::placeholders::_1 );
     }
 
-    void setRelativeHumidityFunction( const std::function< double( const double time ) >& relativeHumidityFunction )
-    {
-        relativeHumidityFunction_ = relativeHumidityFunction;
-    }
 
     std::function< double( const double time ) > getRelativeHumidityFunction( )
     {
-        if( relativeHumidityFunction_ == nullptr )
+        if( meteoData_ == nullptr )
         {
             throw std::runtime_error( "Error when getting relative humidity function from ground station " + stationId_ +
                                       ": function is not defined." );
         }
-        return relativeHumidityFunction_;
-    }
-
-    void setDewPointFunction( const std::function< double( const double time ) >& dewPointFunction )
-    {
-        dewPointFunction_ = dewPointFunction;
+        return std::bind( &StationMeteoData::getRelativeHumidity, meteoData_, std::placeholders::_1 );
     }
 
     std::function< double( const double time ) > getDewPointFunction( )
     {
-        if( dewPointFunction_ == nullptr )
+        if( meteoData_ == nullptr )
         {
             throw std::runtime_error( "Error when getting dew point function from ground station " + stationId_ +
                                       ": function is not defined." );
         }
-        return dewPointFunction_;
+        return std::bind( &StationMeteoData::getDewPointTemperature, meteoData_, std::placeholders::_1 );
     }
 
     //! Function to retrieve container object with hardware systems present on/in body
@@ -216,6 +195,26 @@ public:
         vehicleSystems_ = vehicleSystems;
     }
 
+    std::shared_ptr< StationMeteoData > getMeteoData( )
+    {
+        return meteoData_;
+    }
+
+    void setMeteoData( const std::shared_ptr< StationMeteoData > meteoData )
+    {
+        std::cout<<"Setting meteo "<<meteoData_<<" "<<stationId_<<std::endl;
+        meteoData_ = meteoData;
+    }
+
+    std::shared_ptr< StationTroposphereData > getTroposphereData( )
+    {
+        return troposphereData_;
+    }
+
+    void setTroposphereData( const std::shared_ptr< StationTroposphereData > troposphereData )
+    {
+        troposphereData_ = troposphereData;
+    }
 private:
     //! Object to define and compute the state of the ground station.
     std::shared_ptr< GroundStationState > nominalStationState_;
@@ -231,24 +230,14 @@ private:
     //! Object used to defined and compute the ground station's transmitting frequency.
     std::shared_ptr< StationFrequencyInterpolator > transmittingFrequencyCalculator_;
 
-    //! Function returning the temperature [K] as a function of time.
-    std::function< double( const double time ) > temperatureFunction_;
+    std::shared_ptr< StationMeteoData > meteoData_;
 
-    //! Function returning the pressure [Pa] as a function of time.
-    std::function< double( const double time ) > pressureFunction_;
-
-    //! Function returning the water vapor partial pressure [Pa] as a function of time.
-    std::function< double( const double time ) > waterVaporPartialPressureFunction_;
-
-    //! Function returning the relative humidity [-] (defined in [0,1]) as a function of time.
-    std::function< double( const double time ) > relativeHumidityFunction_;
-
-    //! Function returning the dew point [K] as a function of time.
-    std::function< double( const double time ) > dewPointFunction_;
+    std::shared_ptr< StationTroposphereData > troposphereData_;
 
     //! Container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
 };
+
 
 }  // namespace ground_stations
 

@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudat/io/readViennaMappingFunctionData.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
@@ -248,7 +249,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 else if( troposphericCorrectionSettings->getWaterVaporPartialPressureModelType( ) == bean_and_dutton )
                 {
                     waterVaporPartialPressureFunction =
-                            getBeanAndDuttonWaterVaporPartialPressureFunction( bodies.getBody( groundStation.bodyName_ )
+                            ground_stations::getBeanAndDuttonWaterVaporPartialPressureFunction( bodies.getBody( groundStation.bodyName_ )
                                                                                        ->getGroundStation( groundStation.stationName_ )
                                                                                        ->getRelativeHumidityFunction( ),
                                                                                bodies.getBody( groundStation.bodyName_ )
@@ -576,6 +577,49 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
     }
 
     return troposphericMappingModel;
+}
+
+
+void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
+                                   const bool fileHasMeteo,
+                                   const bool fileHasGradient,
+                                   const simulation_setup::SystemOfBodies& bodies,
+                                   const bool setTropospherData,
+                                   const bool setMeteoData,
+                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+{
+    std::map< std::string, input_output::VMFData > vmfData;
+    input_output::readVMFFiles( dataFiles, vmfData, fileHasMeteo, fileHasGradient );
+
+    for( auto it : vmfData )
+    {
+        std::string currentStationName = it.first;
+        if( bodies.at( "Earth")->getGroundStationMap( ).count( currentStationName ) > 0 )
+        {
+            std::cout<<"Creating meteo from VMF"<<currentStationName<<std::endl;
+            std::shared_ptr< ground_stations::GroundStation > currentStation =
+                bodies.at( "Earth")->getGroundStationMap( ).at( currentStationName );
+
+            std::map< double, Eigen::VectorXd > processedTroposphereData;
+            std::map< double, Eigen::Vector3d > processedMeteoData;
+            it.second.getFullDataSet( processedTroposphereData, processedMeteoData );
+
+            if( setMeteoData )
+            {
+                currentStation->setMeteoData( std::make_shared<ground_stations::InterpolatedStationVmfMeteoData>(
+                    interpolators::createOneDimensionalInterpolator( processedMeteoData, interpolatorSettings )));
+            }
+
+            if( setTropospherData )
+            {
+                currentStation->setTroposphereData(
+                    std::make_shared<ground_stations::InterpolatedStationTroposphereData>(
+                        interpolators::createOneDimensionalInterpolator( processedTroposphereData,
+                                                                         interpolatorSettings ),
+                                                                         fileHasMeteo, fileHasGradient ));
+            }
+        }
+    }
 }
 
 std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequencyFunction(
