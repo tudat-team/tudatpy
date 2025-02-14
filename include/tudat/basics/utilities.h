@@ -1104,6 +1104,24 @@ bool compareStlVectors( const std::vector< T >& v1, const std::vector< T >& v2 )
     std::sort( v2Sort.begin( ), v2Sort.end( ) );
     return v1Sort == v2Sort;
 }
+
+//! Function to convert std::vector to Eigen::Vector.
+template< typename T, typename S >
+T getKeyByIndex( const std::map< T, S >& mapToIterate, const int index )
+{
+    if( index >= mapToIterate.size() )
+    {
+        throw std::runtime_error( "Error when getting mpa key by index, size of map is insufficient" );
+    }
+    auto it = mapToIterate.begin( );
+    for( unsigned int i = 0; i < index; i++ )
+    {
+        it++;
+    }
+    return it->first;
+}
+
+
 }  // namespace utilities
 
 }  // namespace tudat

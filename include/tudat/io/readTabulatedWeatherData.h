@@ -52,23 +52,8 @@ public:
     // Names of the files from which the data originaets
     std::vector< std::string > fileNames_;
 
-    // Time since J2000 [s]
-    std::vector< double > time_;
-
-    // Dew point [K]
-    std::vector< double > dewPoint_;
-
-    // Temperature [K]
-    std::vector< double > temperature_;
-
-    // Pressure [Pa]
-    std::vector< double > pressure_;
-
-    // Water vapor partial pressure [Pa]
-    std::vector< double > waterVaporPartialPressure_;
-
-    // Relative humidity [-] (defined in [0,1])
-    std::vector< double > relativeHumidity_;
+    // Time since J2000 [s UTC]; { Dew point [K]; Temperature [K]; Pressure [Pa]; Water vapor partial pressure [Pa]; Relative humidity [-] (defined in [0,1]) }
+    std::map< double, Eigen::VectorXd > meteoDataMap_;
 
 private:
     /*!
