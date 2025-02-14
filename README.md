@@ -1,13 +1,409 @@
-# tudatpy
+# tudat-bundle
 
-TU Delft Astrodynamics Toolbox in Python, or **tudatpy**, is a library that primarily exposes the powerful set of C++ 
-libraries, [Tudat](https://tudat.tudelft.nl/). TudatPy aims at accelerating the implementation of Tudat simulations,
-providing an interface between Tudat and popular machine learning frameworks and establishing a platform to provide 
-quality education in the field of astrodynamics. See the [documentation](https://tudat-space.readthedocs.io) for more.
+This repository facilitates parallel development and compilation of the `tudat` (C++) and the
+`tudatpy` (Python exposure) libraries.
 
-Installation
-===================
-=======
-* For more details, we refer to the [project website](https://docs.tudat.space/en/latest/) and our [project Github page](https://github.com/tudat-team)
-* For developers, this repository is best built as part of the [tudat-bundle](https://github.com/tudat-team/tudat-bundle)
-* Conda package for this repository are available on [anaconda](anaconda.org/tudat-team/tudatpy/), which is built through the [tudat-feedstock](https://github.com/tudat-team/tudatpy-feedstock) on [Azure](https://dev.azure.com/tudat-team/feedstock-builds/_build?definitionId=3)
+For more details on the project, we refer to the [project website](https://docs.tudat.space/en/latest/) and our [project Github page](https://github.com/tudat-team).
+
+## Structure of the `tudat-bundle`
+
+The `tudat-bundle` comprises the following repositories:
+
+- `tudat`, where the tudat source code is located (this is a separate git repository);
+- `tudatpy`, where the tudatpy binding code is located (this is a separate git repository);
+
+Once the project is built, all the build output will be stored in a build directory (name `build`, `cmake-build-debug`, or similar, depending on your workflow), which is not tracked by Git. 
+
+## Prerequisites
+
+- [**Windows Users**] Windows Subsystem for Linux ([WSL](https://docs.microsoft.com/en-us/windows/wsl/install))
+  - All procedures, including the following prerequisite, assume the use of WSL. 
+  - Note that WSL is a, partially separated, Ubuntu terminal environment for Windows. Anaconda/Miniconda, Python and any other dependencies you require while **executing code** from the `tudat-bundle`, must be installed in its Linux version via the Ubuntu terminal. This does not apply to PyCharm/CLion however, which can be configured to compile and/or run Python code through the WSL.
+  - Note that, to access files and folders of WSL directly in Windows explorer, one can type `\\wsl$` or `Linux` in the Windows explorer access bar, then press enter.
+  - At the opposite, please follow [this guide](https://docs.microsoft.com/en-us/windows/wsl/wsl2-mount-disk) to access Windows file trough WSL.
+  - [This guide from Microsoft](https://docs.microsoft.com/en-us/windows/wsl/setup/environment) contains more information on the possibilities given trough WSL.
+  - In the Ubuntu terminal environment under WSL, run the command `sudo apt-get install build-essential` to install the necessary compilation tools
+- Anaconda/Miniconda installation ([Installing Anaconda](https://tudat-space.readthedocs.io/en/latest/_src_first_steps/tudat_py.html#installing-anaconda))
+- CMake installation
+  - Inside the (Ubuntu) terminal, install CMake by calling `sudo apt install cmake`.
+
+## Setup
+
+1. Clone the repository and enter directory
+
+````
+git clone https://github.com/tudat-team/tudat-bundle
+cd tudat-bundle
+````
+
+2. Clone the `tudat` & `tudatpy` submodules (which are submodules of tudat-bundle, see [the Git guide](https://git-scm.com/book/en/v2/Git-Tools-Submodules))
+
+````
+git submodule update --init --recursive
+````
+
+3. Switch `tudat` & `tudatpy` to their desired branches using
+
+````
+cd tudat
+git checkout develop
+
+cd  ..
+
+cd tudatpy
+git checkout develop
+````
+We recommend working with the `develop` branches ([tudatpy/develop](https://github.com/tudat-team/tudatpy/tree/develop), [tudat/develop](https://github.com/tudat-team/tudat/tree/develop)), which is the typical entry point for developers.
+
+4. Install the contained `environment.yaml` file to satisfy dependencies
+
+````
+conda env create -f environment.yaml
+````
+
+There are two directions you can go from here: the command line or CLion.
+
+### Build & Install: Command line
+
+5. Activate the conda environment
+
+````
+conda activate tudat-bundle
+````
+
+6. Build Tudat and TudatPy
+
+You can compile the C++ source code into libraries using the following command, using the option `-j` and the number of cores you want to allocate to it:
+
+```
+python build.py -j 4
+```
+for using 4 cores (note that each core may take up to 4 GB of RAM, if the compilation is killed prematurely, rerun the above command with a smaller number of cores),
+
+You can further adjust the behavior of `build.py` with additional command line arguments. Running `python build.py -h` will give you a list with all the available options. For instance
+
+```
+python build.py  --no-tests -j 4
+```
+
+will build only the Python exposure and required Tudat librarues, and not the unit test of the C++ code, and will be **much** faster than a full build.
+
+7. Install the compiled libraries in the current environment
+
+Building the libraries from source is conceptually equivalent to manually downloading them as a zip file: you do have the code, but Conda is not aware of it, so you will get an error if you try to import it. The following script creates links to the files generated by `build.py` in the place where Conda will look for them or, in other words, installs your libraries in your Conda environment.
+
+```
+python install.py
+```
+
+If you know about PIP's editable installs, that is exactly what `install.py` does. If you don't, just know that there is no need to reinstall the libraries when you recompile them or modify the Python source, your environment is automatically updated every time you modify a file.
+
+If you ever want to uninstall the libraries, just run `python uninstall.py`. Note that this will not eliminate the build itself, but just remove it from your Conda environment.
+
+### Build & Install: CLion
+**Note - Windows users**
+Be sure to set WSL as your Toolchain in `File>Settings>Build, Execution, Deployment>Toolchains`.
+
+5. Open CLion, create a new project from `File > New Project` and select the directory that has been cloned under bullet
+   point 1 (named `tudat-bundle`).
+
+6. Create a build profile in `File > Settings > Build, Execution, Deployment > CMake`.
+
+7. Add the CMake configuration to the `File > Settings > Build, Execution, Deployment > CMake > CMake options` text box:
+
+```
+-DCMAKE_PREFIX_PATH=<CONDA_PREFIX>
+-DCMAKE_CXX_STANDARD=14
+-DBoost_NO_BOOST_CMAKE=ON
+```
+
+The `CONDA_PREFIX` may be determined by activating the environment installed in step 4 and printing its value:
+````
+conda activate tudat-bundle && echo $CONDA_PREFIX
+````
+
+
+[**Optional**] Add `-j<n>` to `File > Settings > Build, Execution, Deployment > CMake > Build options` to use multiple
+processors (note that each core may take up to 4 GB of RAM, if the compilation is killed prematurely, rerun the above command with a smaller number of cores).
+
+8. In the source tree on the left, right click the top level `CMakeLists.txt` then `Load/Reload CMake Project`.
+
+9. In the top menu, select `Build > Build Project` to compile tudat with the selected settings.
+
+10. To use your manually compiled `tudatpy` kernel in your Python script, set:
+
+```
+import sys
+sys.path.insert(0, "<build_directory>/tudatpy/")
+```
+
+replacing `<build_directory>` with the full path of your build directory for the project.
+
+### Build & Install: VSCode
+
+This section explains how to configure VSCode with CMake presets to build and manage your `tudat` build. The configuration supports parallel builds, switching between Debug and Release modes, enabling/disabling tests, and cleaning build directories. 
+
+#### Requirements
+
+1. **VSCode** with the following extensions:
+   - [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
+   - [C++ Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+   
+2. **CMake** installed on your system (minimum version 3.19).
+   
+3. **Conda** environment for managing dependencies.
+
+4. **Make/Ninja** installed based on your operating system for build generation.
+
+#### Steps to Configure VSCode
+
+1. **Create the `CMakePresets.json` file** in the root directory of your project. Use the following template with necessary adjustments:
+
+```json
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 19,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "hidden": false,
+      "generator": "Unix Makefiles", // Set this based on the OS: "Unix Makefiles" for Linux/macOS, "Ninja" or "Visual Studio" for Windows
+      "binaryDir": "${sourceDir}/build", // Build directory
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "/path/to/your/conda/environment", // <--- CHANGE THIS: Set this to your conda environment or other toolchain path
+        "CMAKE_INSTALL_PREFIX": "/path/to/your/conda/environment", // <--- CHANGE THIS
+        "CMAKE_CXX_STANDARD": "14", // The C++ standard to use
+        "Boost_NO_BOOST_CMAKE": "ON", // Ensures that the system-installed Boost CMake files are not used
+        "CMAKE_BUILD_TYPE": "Release", // Default to Release build
+        "TUDAT_BUILD_TESTS": "ON" // Set to ON to build tests by default
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "default",
+      "description": "Debug build configuration",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug" // Use Debug mode for this preset
+      }
+    },
+    {
+      "name": "no-tests",
+      "inherits": "default",
+      "description": "Build without tests",
+      "cacheVariables": {
+        "TUDAT_BUILD_TESTS": "OFF" // Disable test building in this preset
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "hidden": false,
+      "configurePreset": "default", // Use the default configuration preset
+      "jobs": 8, //<--- CHANGE THIS: Parallel build with N cores
+      "targets": [
+        "all" // Build the default target (usually all)
+      ]
+    },
+    {
+      "name": "debug-build",
+      "configurePreset": "debug", // Use the debug configuration preset
+      "jobs": 8, //<--- CHANGE THIS: Parallel build with N cores
+      "targets": [
+        "all"
+      ]
+    },
+    {
+      "name": "build-no-tests",
+      "configurePreset": "no-tests", // Use the no-tests configuration preset
+      "jobs": 8, //<--- CHANGE THIS: Parallel build with N cores
+      "targets": [
+        "all"
+      ]
+    },
+    {
+      "name": "clean",
+      "configurePreset": "default",
+      "jobs": 8, //<--- CHANGE THIS: Parallel build with N cores
+      "targets": [
+        "clean" // Run the clean target
+      ]
+    }
+  ]
+}
+```
+
+##### Comments on the Configuration
+
+- **CMAKE_PREFIX_PATH**: Set the `CMAKE_PREFIX_PATH` and `CMAKE_INSTALL_PREFIX` to your `tudat-bundle` environment. This is critical to ensure CMake can find the necessary libraries and dependencies.
+  
+- **Generator**: Depending on your OS, the generator should be:
+  - `"Unix Makefiles"` for **macOS** and **Linux**.
+  - `"Ninja"` for **Windows** (if Ninja is installed).
+  - `"Visual Studio"` for **Windows** if using Visual Studio.
+
+- **Parallel Jobs**: The `jobs` key is used to specify the number of jobs for parallel builds. Set the number of cores to be used for the build.
+
+- **Presets**:
+  - `default`: Builds the project in Release mode with tests.
+  - `debug`: Builds the project in Debug mode.
+  - `no-tests`: Builds the project without tests.
+  - `clean`: Cleans the build directory.
+
+#### How to Use Presets in VSCode
+
+1. **Open VSCode** in your project directory.
+   
+2. Open the Command Palette (`F1` or `Ctrl+Shift+P`) and run the command `CMake: Select Configure Preset`.
+
+3. Choose one of the configure presets:
+   - `default`: for Release builds.
+   - `debug`: for Debug builds.
+   - `no-tests`: to skip building tests.
+
+4. Once configured, run the command `CMake: Select Build Preset` from the Command Palette, and choose one of the build presets:
+   - `default`: to build the project.
+   - `debug-build`: to build in Debug mode.
+   - `build-no-tests`: to build without tests.
+   - `clean`: to clean the build directory.
+
+5. To start the build, run `CMake: Build` from the Command Palette or use the build button in the status bar.
+
+#### Troubleshooting
+
+- **CMake Errors**: If CMake cannot find dependencies, check that the `CMAKE_PREFIX_PATH` and `CMAKE_INSTALL_PREFIX` are set correctly in the `CMakePresets.json` file.
+- **Wrong Generator**: If the build fails due to an unsupported generator, change the `"generator"` field in the preset to match your OS and toolchain.
+
+<!--
+The following line can also be edited if you wish to build tudatpy with its debug info (switching from `Release` to `RelWithDebInfo`; note that `Debug` is also available):
+````
+-DCMAKE_BUILD_TYPE=RelWithDebInfo
+````
+
+As building can take a while, you can build using multiple processors by appending by modifying your [build.sh](build.sh) script. For instance, you can modify the existing line defining the ``NUMBER_OF_PROCESSORS`` to the following, to use 2 threads for compilation. Note that a single thread may use up to 4 GB of RAM, and using too many parallel threads will make the compilation run out of RAM and terminate.
+````
+NUMBER_OF_PROCESSORS=${number_of_processors:-2}
+````
+
+6. Run the [build.sh](build.sh) script.
+
+````
+bash build.sh
+```` -->
+
+## Verify your build
+
+### Running `tudat` tests
+
+1. Enter the `tudat` build directory
+````
+cd <build_directory>/tudat
+````
+
+2. Run the tests using `ctest` (packaged with CMake)
+````
+ctest
+````
+
+Desired result:
+````
+..
+100% tests passed, 0 tests failed out of 224
+Total Test time (real) = 490.77 sec
+````
+
+### Running `tudatpy` tests
+
+1. Enter the `tudatpy` build directory
+````
+cd <build_directory>/tudatpy
+````
+
+2. Run the tests using `pytest`
+````
+pytest
+````
+
+Desired result:
+````
+=========================================== 6 passed in 1.78s ============================================
+````
+
+## C++ Code Formatting with Clang-Format
+`tudat-bundle` uses `clang-format` to enforce a consistent code style. The configuration file is located in the root of the repository as `.clang-format`.
+
+### Prerequisites
+
+Ensure `clang-format` is installed. You can check the installation by running:
+
+```bash
+clang-format --version
+```
+
+If it's not installed, install `clang-format` using a package manager:
+
+- **On Ubuntu/Debian**: `sudo apt install clang-format`
+- **On macOS**: `brew install clang-format`
+- **On Windows**: Download and install from [LLVM's official site](https://releases.llvm.org/).
+
+### Configuration File
+
+This `.clang-format` file configures formatting settings, including indentation width, brace wrapping, spacing rules, and alignment settings. These settings will ensure your code remains organized, readable, and consistent with `tudat` code style.
+
+### Usage
+
+#### 1. Running Clang-Format on a Single File
+
+To format a single file, run:
+
+```bash
+clang-format -i path/to/your/file.cpp
+```
+
+The `-i` flag formats the file in place.
+
+#### 2. Running Clang-Format on Multiple Files
+
+To format all `.cpp` and `.h` files in your project directory:
+
+```bash
+find path/to/your/project -name '*.cpp' -o -name '*.h' | xargs clang-format -i
+```
+
+Alternatively, if you're using an IDE like Visual Studio Code, you can configure it to automatically format on save.
+
+#### 3. Setting Up Automatic Formatting in VSCode
+
+If you’re using Visual Studio Code, you can automate code formatting:
+
+1. Install the **Clang-Format** extension from the marketplace.
+2. Open your project’s **Settings** (File > Preferences > Settings).
+3. Search for `Clang-Format` and set the path to your `.clang-format` file.
+4. Enable **Format on Save** by setting `"editor.formatOnSave": true` in your `settings.json`.
+
+#### 4. Checking Format Without Applying
+
+To preview formatting changes without modifying files, run:
+
+```bash
+clang-format -output-replacements-xml path/to/your/file.cpp
+```
+
+This will show XML output if there are any format issues. You can then decide to apply formatting manually.
+
+<!-- ## Use your build
+The path of the TudatPy kernel that has been manually compiled needs to be added before importing any `tudatpy.kernel` module.
+This can be done with the following two lines, with `<kernel_path>` being similar to `<tudat-bundle_path>/build/tudatpy`:
+```
+import sys
+sys.path.insert(0, <kernel_path>)
+``` -->
+
+<!-- ## Notes
+
+- [**All Users**] You can increase the number of cores used to compile `tudat` & `tudatpy` using the `-j<n>`
+  build argument, but **be aware** that the current complexity of the libraries can often result in your PC freezing indefinitely. -->

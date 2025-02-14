@@ -1,199 +1,185 @@
-# Configure the version file.
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/_version.py.in" "${CMAKE_CURRENT_BINARY_DIR}/_version.py" @ONLY)
+cmake_minimum_required(VERSION 2.8.3)
 
-# Configure the files needed to make the python wheels (for PyPi packages)
-#if(MINGW OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-#    message(STATUS "Creating the files for the generation of a binary wheel.")
-#    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../tools/wheel_setup.py" "${CMAKE_CURRENT_BINARY_DIR}/../wheel/setup.py" @ONLY)
-#    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-#        # NOTE: this is necessary on linux but harmful on mingw.
-#        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../tools/wheel_setup.cfg" "${CMAKE_CURRENT_BINARY_DIR}/../wheel/setup.cfg" @ONLY)
-#    endif()
-#    if(MINGW)
-#        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../tools/mingw_wheel_libs_python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR}.txt" "${CMAKE_CURRENT_BINARY_DIR}/wheel/mingw_wheel_libs_python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR}.txt" @ONLY)
-#    endif()
-#endif()
+if (POLICY CMP0048)
+    cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
 
-# Offer the user the choice of overriding the installation directories
-#set(INSTALL_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib CACHE PATH "Installation directory for libraries")
-#set(INSTALL_BIN_DIR ${CMAKE_INSTALL_PREFIX}/bin CACHE PATH "Installation directory for executables")
-#set(INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include CACHE PATH "Installation directory for header files")
-#set(INSTALL_DATA_DIR ${CMAKE_INSTALL_PREFIX}/data/ CACHE PATH "Installation directory for data files")
-#set(INSTALL_MAN_DIR ${CMAKE_INSTALL_PREFIX} CACHE PATH "Installation directory for man documentation")
-#set(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake/cspice CACHE PATH "Installation directory for cmake config files")
+# Get version+label from file.
+file(STRINGS "version" tudatpy_VERSION_LABEL)
 
+# Get version from version_label argument using regex (x.y.z-rc -> x.y.z).
+string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" tudatpy_VERSION "${tudatpy_VERSION_LABEL}")
 
-# The list of pygmo's Python files.
-set(TUDATPY_PYTHON_FILES
-        __init__.py
-        )
+# Project declaration.
+project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
 
-# Copy the python files in the current binary dir,
-# so that we can import pygmo from the build dir.
-# NOTE: importing from the build dir will work
-# only on single-configuration generators.
-foreach (TUDATPY_PYTHON_FILE ${TUDATPY_PYTHON_FILES})
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${TUDATPY_PYTHON_FILE}"
-            "${CMAKE_CURRENT_BINARY_DIR}/${TUDATPY_PYTHON_FILE}" COPYONLY)
-endforeach ()
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+else()
+#    add_definitions(-DVERSION_INFO "${tudatpy_VERSION_LABEL}")
+endif()
 
+option(TUDAT_BUILD_WITH_FFTW3 "Build Tudat with FFTW3." OFF)
 
-# Core module.
-YACMA_PYTHON_MODULE(kernel
-        # kernel
-        kernel/kernel.cpp
+include_directories("tudatpy/kernel")
+# Add cmake modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 
-        # kernel/utils
-        kernel/expose_utils.cpp
-        kernel/expose_utils/expose_data.cpp
+message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "tudatpy version: ${tudatpy_VERSION}")
 
+#set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_CXX_EXTENSIONS OFF)
 
-        # kernel/astro
-        kernel/expose_astro.cpp
-        kernel/expose_astro/expose_gravitation.cpp
-        kernel/expose_astro/expose_element_conversion.cpp
-        kernel/expose_astro/expose_frame_conversion.cpp
-        kernel/expose_astro/expose_time_conversion.cpp
-        kernel/expose_astro/expose_two_body_dynamics.cpp
-        kernel/expose_astro/expose_fundamentals.cpp
-        kernel/expose_astro/expose_polyhedron_utilities.cpp
+if (_ENABLE_EXTENDED_ALIGNED_STORAGE)
+    add_definitions("-D_ENABLE_EXTENDED_ALIGNED_STORAGE")
+endif ()
 
-        # kernel/trajectory_design
-        kernel/expose_trajectory_design.cpp
-        kernel/expose_trajectory_design/expose_transfer_trajectory.cpp
-        kernel/expose_trajectory_design/expose_shape_based_thrust.cpp
+# `PyLong_Type' can not be used when making a shared object; recompile with -fPIC
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-        # kernel/constants
-        kernel/expose_constants.cpp
+if (MINGW)
+    # https://github.com/tudat-team/tudatpy-feedstock/issues/3
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_hypot=hypot")
+    # https://stackoverflow.com/questions/16596876/object-file-has-too-many-sections
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+    # https://sourceforge.net/p/mingw-w64/mailman/message/33154210/
+    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--large-address-aware")
+endif ()
 
-        # kernel/interface
-        kernel/expose_interface.cpp
-        kernel/expose_interface/expose_spice.cpp
+if (MSVC)
+    # https://docs.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file?view=vs-2019
+    # This is equivalent to the big-obj for MinGW, this should stop error C1128.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+endif ()
+message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_STATIC_RUNTIME OFF)
 
+if (NOT TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
+    add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=0)
+else ()
+    add_definitions(-DTUDAT_BUILD_WITH_ESTIMATION_TOOLS=1)
+endif ()
 
-        # kernel/data
-        kernel/expose_data.cpp
-        kernel/expose_data/expose_mpc.cpp
-        kernel/expose_data/expose_horizons.cpp
-        kernel/expose_data/expose_sbdb.cpp
-        kernel/expose_data/expose_mission_data_downloader.cpp
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+# Find Boost libraries on local system.
+find_package(Boost 1.72.0
+        COMPONENTS thread date_time system unit_test_framework filesystem regex REQUIRED)
 
-        # kernel/math
-        kernel/expose_math.cpp
-        kernel/expose_math/expose_interpolators.cpp
-        kernel/expose_math/expose_numerical_integrators.cpp
-        kernel/expose_math/expose_root_finders.cpp
-        kernel/expose_math/expose_geometry.cpp
-        kernel/expose_math/expose_statistics.cpp
+find_package(Eigen3 REQUIRED)
+include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 
-        kernel/expose_numerical_simulation.cpp
-        kernel/expose_numerical_simulation_simulator.cpp
-        kernel/expose_numerical_simulation_variational.cpp
-        kernel/expose_numerical_simulation_estimator.cpp
+# TODO: Make Tudat export definitions to the config for inheritence to this project.
+add_definitions(-DTUDAT_BUILD_WITH_SPICE_INTERFACE=1)
 
-        kernel/expose_numerical_simulation/expose_propagation.cpp
-        kernel/expose_numerical_simulation/expose_environment.cpp
-        kernel/expose_numerical_simulation/expose_estimation.cpp
-        kernel/expose_numerical_simulation/expose_estimation_filter_parser.cpp
-        kernel/expose_numerical_simulation/expose_estimation_observation_collection.cpp
-        kernel/expose_numerical_simulation/expose_estimation_propagated_covariance.cpp
-        kernel/expose_numerical_simulation/expose_estimation_single_observation_set.cpp
+#if (DEFINED _GLIBCXX_USE_CXX11_ABI)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=${_GLIBCXX_USE_CXX11_ABI}")
+#endif ()
+#set(TUDAT_BUNDLE_BUILD ON)
+#find_package(Python3 COMPONENTS Interpreter Development)
 
-        kernel/expose_numerical_simulation/expose_environment_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_aerodynamic_coefficient_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_atmosphere_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_ephemeris_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_gravity_field_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_gravity_field_variation_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_radiation_pressure_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_deformation_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_rotation_model_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_shape_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_ground_station_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_rigid_body_setup.cpp
-        kernel/expose_numerical_simulation/expose_environment_setup/expose_vehicle_systems_setup.cpp
+if (TUDAT_INSTALL)
+    add_definitions(-DTUDAT_INSTALL=1)
+endif ()
+
+if (TUDAT_CONDA_INSTALL)
+    add_definitions(-DTUDAT_CONDA_INSTALL=1)
+endif ()
+
+if (TUDAT_TEST_INSTALL)
+    add_definitions(-DTUDAT_TEST_INSTALL=1)
+endif ()
+
+# CSpice dependency.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(CSpice REQUIRED 1.0.0)
+else ()
+    set(CSpice_INCLUDE_DIRS ${CSpice_BUILD_INCLUDE_DIRS})
+endif ()
 
 
-        kernel/expose_numerical_simulation/expose_propagation_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_acceleration_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_dependent_variable_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_integrator_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_mass_rate_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_propagator_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_torque_setup.cpp
-        kernel/expose_numerical_simulation/expose_propagation_setup/expose_thrust_setup.cpp
+# Sofa dependency.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(Sofa 1.0.0 REQUIRED)
+else ()
+    set(Sofa_INCLUDE_DIRS ${Sofa_BUILD_INCLUDE_DIRS})
+endif ()
 
-        kernel/expose_numerical_simulation/expose_estimation_setup.cpp
-        kernel/expose_numerical_simulation/expose_estimation_setup/expose_observation_setup.cpp
-        kernel/expose_numerical_simulation/expose_estimation_setup/expose_estimated_parameter_setup.cpp
+# nrlmsise-00 dependency.
+#if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+find_package(NRLMSISE00 0.1 REQUIRED)
+#else ()
+#    set(NRLMSISE00_INCLUDE_DIRS ${NRLMSISE00_BUILD_INCLUDE_DIRS})
+#endif ()
 
-#        kernel/expose_unit_tests.cpp
 
-#        kernel/expose_example.cpp
-        )
+if (TUDAT_BUILD_WITH_FFTW3)
+    if(NOT APPLE)
+        find_package(FFTW3)
+        message(STATUS "FFTW " ${FFTW3_LIBRARIES})
+        include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+        if(WIN32)
+            set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/fftw3.lib")
+        else()
+            set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/libfftw3.so")
+        endif()
+        add_definitions(-DTUDAT_BUILD_WITH_FFTW3=1)
+    else( )
+        find_package(FFTW3)
+        message(STATUS ${FFTW3_LIBRARIES})
+        include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${FFTW3_INCLUDE_DIR}\"")
+        set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/libfftw3.dylib")
+        add_definitions(-DTUDAT_BUILD_WITH_FFTW3=1)
+    endif( )
+else( )
+    add_definitions(-DTUDAT_BUILD_WITH_FFTW3=0)
+endif( )
 
-target_link_libraries(kernel PRIVATE
-        ${Boost_LIBRARIES}
-        ${Boost_SYSTEM_LIBRARY}
-        ${Tudat_PROPAGATION_LIBRARIES}
-        ${Tudat_ESTIMATION_LIBRARIES}
-        )
+# Sofa dependency if in build settings.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(Tudat REQUIRED)
+    # TODO: Fi   gure out when and how to increment minimum Tudat version
+    add_definitions(${Tudat_DEFINITIONS})
+else ()
+    set(Tudat_INCLUDE_DIRS ${Tudat_BUILD_INCLUDE_DIRS})
+endif ()
 
-target_include_directories(kernel PUBLIC
-        $<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${Tudat_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${CSpice_INCLUDE_DIRS}>
-        $<BUILD_INTERFACE:${Sofa_INCLUDE_DIRS}>
-        $<INSTALL_INTERFACE:include>)
+#endif ()
+message(STATUS Tudat: [Tudat_PROPAGATION_LIBRARIES] ${Tudat_PROPAGATION_LIBRARIES})
+message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_INCLUDE_DIRS})
 
-target_include_directories(kernel SYSTEM PRIVATE "${pybind11_INCLUDE_DIR}")
-target_include_directories(kernel SYSTEM PRIVATE "${EIGEN3_INCLUDE_DIRS}")
-target_include_directories(kernel SYSTEM PRIVATE "${CSpice_INCLUDE_DIRS}")
-target_include_directories(kernel SYSTEM PRIVATE "${Sofa_INCLUDE_DIRS}")
-target_include_directories(kernel SYSTEM PRIVATE "${Tudat_INCLUDE_DIRS}")
-target_compile_definitions(kernel PRIVATE "${pybind11_DEFINITIONS}")
-set_target_properties(kernel PROPERTIES CXX_VISIBILITY_PRESET hidden)
-set_target_properties(kernel PROPERTIES VISIBILITY_INLINES_HIDDEN TRUE)
+set(POSITION_INDEPENDENT_CODE True)
 
-# Setup the installation path.
-set(TUDATPY_INSTALL_PATH "${YACMA_PYTHON_MODULES_INSTALL_PATH}/tudatpy")
+enable_testing()
 
-# Install the kernel module.
-install(TARGETS kernel
-        RUNTIME DESTINATION ${TUDATPY_INSTALL_PATH}
-        LIBRARY DESTINATION ${TUDATPY_INSTALL_PATH}
-        )
+# python.
+include(YACMAPythonSetup)
 
-# Install Python files.
-install(FILES ${TUDATPY_PYTHON_FILES} "${CMAKE_CURRENT_BINARY_DIR}/_version.py"
-        DESTINATION ${TUDATPY_INSTALL_PATH})
+# python version check.
+if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
+    message(FATAL_ERROR "Minimum supported python version is 3.4.")
+endif ()
 
-# Install hybrid C++/Python modules
-macro(INSTALL_HYBRID_CPP_PYTHON_MODULE module_dir_name)
-    install(DIRECTORY ${module_dir_name}/ DESTINATION "${TUDATPY_INSTALL_PATH}/${module_dir_name}")
-    file(COPY ${module_dir_name}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${module_dir_name}/)
-endmacro()
+# pybind11.
+if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+    find_package(pybind11 REQUIRED)
+else ()
+    set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS})
+    set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})
+endif ()
 
-# Hybrid modules
-INSTALL_HYBRID_CPP_PYTHON_MODULE(astro)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(trajectory_design)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(constants)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(interface)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(math)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(numerical_simulation)
-# Pure Python modules
-INSTALL_HYBRID_CPP_PYTHON_MODULE(plotting)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(data)
-INSTALL_HYBRID_CPP_PYTHON_MODULE(util)
+# Configure the sphinx config file.
+#configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py.in" "${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py" @ONLY)
 
-#install(FILES test.py "${CMAKE_CURRENT_BINARY_DIR}/_version.py")
-file(COPY ../tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 
-# collect all example-X.py files
-file(GLOB EXAMPLE_SCRIPTS "../examples/example*.py")
-
-# copy them into the root build tree
-file(COPY ${EXAMPLE_SCRIPTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
+# Add the module directory.
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+add_subdirectory(tudatpy)

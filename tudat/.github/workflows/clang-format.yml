@@ -1,0 +1,58 @@
+name: Clang-Format Check and Fix
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+          persist-credentials: true
+
+      - name: Install Clang-Format
+        run: sudo apt-get install -y clang-format
+
+      - name: Display Clang-Format Version
+        run: clang-format --version
+
+      - name: Identify Changed Files in Push
+        run: |
+          echo "Changed files in push:"
+          git diff --name-only --diff-filter=ACM "${{ github.event.before }}" "${{ github.sha }}" | grep -E '\.(cpp|hpp|c|h)$' || echo "No matching files changed."
+
+      - name: Run Clang-Format on Changed Files
+        run: |
+          git diff --name-only --diff-filter=ACM "${{ github.event.before }}" "${{ github.sha }}" | grep -E '\.(cpp|hpp|c|h)$' | xargs -r clang-format -style=file -i
+
+      - name: Check for Formatting Differences
+        id: check_diff
+        run: |
+          # This command will exit with a non-zero status if there are differences.
+          git diff --exit-code
+        continue-on-error: true
+
+      - name: Auto-commit Formatting Changes
+        if: failure()
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Apply clang-format"
+          # Strip the "refs/heads/" prefix to get the branch name.
+          branch=${GITHUB_REF#refs/heads/}
+          git push origin HEAD:"$branch"
+
+      - name: Report Success or Failure
+        run: |
+          if [ "${{ steps.check_diff.outcome }}" == "failure" ]; then
+            echo "Formatting issues were detected and fixed."
+          else
+            echo "Code is properly formatted."
+          fi

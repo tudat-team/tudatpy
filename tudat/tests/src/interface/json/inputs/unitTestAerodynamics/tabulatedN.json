@@ -1,0 +1,27 @@
+{
+  "forceCoefficients": [
+    "@path(aurora_CD.txt)",
+    "@path()",
+    "@path(aurora_CL.txt)"
+  ],
+  "momentCoefficients": [
+    "@path()",
+    "@path(aurora_Cm.txt)",
+    "@path()"
+  ],
+  "coefficientsType": "tabulated",
+  "referenceLength": 5,
+  "referenceArea": 10.5,
+  "lateralReferenceLength": 4,
+  "momentReferencePoint": [
+    0.7,
+    0.8,
+    0.9
+  ],
+  "independentVariableNames": [
+    "machNumber",
+    "angleOfAttack"
+  ],
+  "areCoefficientsInAerodynamicFrame": true,
+  "areCoefficientsInNegativeAxisDirection": true
+}

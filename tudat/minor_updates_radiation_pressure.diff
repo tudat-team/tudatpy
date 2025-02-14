@@ -1,0 +1,1602 @@
+diff --git a/include/tudat/astro/electromagnetism/radiationPressureTargetModel.h b/include/tudat/astro/electromagnetism/radiationPressureTargetModel.h
+index 870aae130..1697c481b 100644
+--- a/include/tudat/astro/electromagnetism/radiationPressureTargetModel.h
++++ b/include/tudat/astro/electromagnetism/radiationPressureTargetModel.h
+@@ -356,150 +356,22 @@ public:
+     void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override ;
+ 
+     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > getPanelsFromId(
+-            const std::string& panelTypeId)
+-    {
+-        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panels;
+-        for( unsigned int i = 0; i < static_cast<unsigned int>(totalNumberOfPanels_); i++ )
+-        {
+-            if(fullPanels_.at(i)->getPanelTypeId() == panelTypeId)
+-            {
+-                panels.push_back(fullPanels_.at(i));
+-            }
+-        }
+-        return panels;
+-    }
+-
+-    double getAverageDiffuseReflectivity(const std::string& panelTypeId)
+-    {
+-        std::vector<double> coefficients;
+-        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+-        panelsFromId = this->getPanelsFromId(panelTypeId);
+-        for( unsigned int i = 0; i < panelsFromId.size(); i++ ){
+-            {
+-                auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
+-                coefficients.push_back(reflectionLaw->getDiffuseReflectivity());
+-            }
+-        }
+-
+-        // Check if coefficients are consistent
+-        if (!coefficients.empty()) {
+-            double firstCoefficient = coefficients[0];
+-            for (size_t i = 1; i < coefficients.size(); ++i) {
+-                if (coefficients[i] != firstCoefficient) {
+-                    std::cerr << "Warning: Diffuse reflectivity coefficients for panel group "
+-                              << panelTypeId << " are not consistent. Returning average value" << std::endl;
+-                    break;  } } }
+-
+-        // Calculate average coefficient
+-        double averageCoefficient = 0.0;
+-        if (!coefficients.empty())
+-        {
+-            averageCoefficient = std::accumulate(coefficients.begin(), coefficients.end(), 0.0) / coefficients.size();
+-        }
++            const std::string& panelTypeId);
+ 
+-        return averageCoefficient;
+-    };
++    double getAverageDiffuseReflectivity(const std::string& panelTypeId);
+ 
+-    double getAverageSpecularReflectivity(const std::string& panelTypeId)
+-    {
+-        std::vector<double> coefficients;
+-        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+-        panelsFromId = this->getPanelsFromId(panelTypeId);
+-        for( unsigned int i = 0; i < panelsFromId.size(); i++ ){
+-            {
+-                auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
+-                coefficients.push_back(reflectionLaw->getSpecularReflectivity());
+-            }
+-        }
++    double getAverageSpecularReflectivity(const std::string& panelTypeId);
+ 
+-        // Check if coefficients are consistent
+-        if (!coefficients.empty()) {
+-            double firstCoefficient = coefficients[0];
+-            for (size_t i = 1; i < coefficients.size(); ++i) {
+-                if (coefficients[i] != firstCoefficient) {
+-                    std::cerr << "Warning: Specular reflectivity coefficients for panel group "
+-                              << panelTypeId << " are not consistent. Returning average value" << std::endl;
+-                    break;  } } }
+-
+-        // Calculate average coefficient
+-        double averageCoefficient = 0.0;
+-        if (!coefficients.empty())
+-        {
+-            averageCoefficient = std::accumulate(coefficients.begin(), coefficients.end(), 0.0) / coefficients.size();
+-        }
++    std::vector<double> getSpecularReflectivityForPanelTypeId(const std::string& panelTypeId);
+ 
+-        return averageCoefficient;
+-    };
++    std::vector<double> getDiffuseReflectivityForPanelTypeId(const std::string& panelTypeId);
+ 
+-    std::vector<double> getSpecularReflectivityForPanelTypeId(const std::string& panelTypeId)
+-    {
+-        std::vector<double> coefficients;
+-        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+ 
+-        panelsFromId = this->getPanelsFromId(panelTypeId);
+-        for (unsigned int i = 0; i < panelsFromId.size(); i++) {
+-            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
+-            coefficients.push_back(reflectionLaw->getSpecularReflectivity());
+-        }
++    void setGroupSpecularReflectivity(const std::string& panelTypeId, double specularReflectivity);
+ 
+-        return coefficients;
+-    }
++    void setGroupDiffuseReflectivity(const std::string& panelTypeId, double diffuseReflectivity);
+ 
+-    std::vector<double> getDiffuseReflectivityForPanelTypeId(const std::string& panelTypeId)
+-    {
+-        std::vector<double> coefficients;
+-        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+-
+-        panelsFromId = this->getPanelsFromId(panelTypeId);
+-        for (unsigned int i = 0; i < panelsFromId.size(); i++) {
+-            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
+-            coefficients.push_back(reflectionLaw->getDiffuseReflectivity());
+-        }
+-
+-        return coefficients;
+-    }
+-
+-
+-    void setGroupSpecularReflectivity(const std::string& panelTypeId, double specularReflectivity)
+-    {
+-        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+-        panelsFromId = this->getPanelsFromId(panelTypeId);
+-        for( unsigned int i = 0; i < panelsFromId.size(); i++ )
+-        {
+-            if(panelsFromId.at(i)->getReflectionLaw() != nullptr )
+-            {
+-                auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(fullPanels_.at(i)->getReflectionLaw());
+-                reflectionLaw->setSpecularReflectivity(specularReflectivity);
+-            }
+-        }
+-    };
+-    void setGroupDiffuseReflectivity(const std::string& panelTypeId, double diffuseReflectivity)
+-    {
+-        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+-        panelsFromId = this->getPanelsFromId(panelTypeId);
+-        for( unsigned int i = 0; i < panelsFromId.size(); i++ )
+-        {
+-            if(panelsFromId.at(i)->getReflectionLaw() != nullptr )
+-            {
+-                auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(fullPanels_.at(i)->getReflectionLaw());
+-                reflectionLaw->setDiffuseReflectivity(diffuseReflectivity);
+-            }
+-        }
+-    };
+-
+-    void setGroupAbsorptivity(const std::string& panelTypeId, double absorbtivity)
+-    {
+-        std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
+-        panelsFromId = this->getPanelsFromId(panelTypeId);
+-        for( unsigned int i = 0; i < panelsFromId.size(); i++ )
+-        {
+-            if(panelsFromId.at(i)->getReflectionLaw() != nullptr )
+-            {
+-                auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(fullPanels_.at(i)->getReflectionLaw());
+-                reflectionLaw->setAbsorptivity(absorbtivity);
+-            }
+-        }
+-    };
++    void setGroupAbsorptivity(const std::string& panelTypeId, double absorbtivity);
+ 
+ private:
+     void updateMembers_( double currentTime ) override;
+@@ -516,7 +388,7 @@ private:
+         {
+             panelTorques_.at( i ).setZero( );
+         }
+-        panelForcesPerSource_[ sourceName ] = panelTorques_;
++        panelTorquesPerSource_[ sourceName ] = panelTorques_;
+     }
+ 
+ 
+diff --git a/include/tudat/astro/electromagnetism/reflectionLaw.h b/include/tudat/astro/electromagnetism/reflectionLaw.h
+index f5ac50c30..658108007 100644
+--- a/include/tudat/astro/electromagnetism/reflectionLaw.h
++++ b/include/tudat/astro/electromagnetism/reflectionLaw.h
+@@ -163,9 +163,13 @@ public:
+         return specularReflectivity_;
+     }
+ 
+-    void setSpecularReflectivity( const double specularReflectivity)
++    void setSpecularReflectivity( const double specularReflectivity, bool normalizeParameters = false )
+     {
+         specularReflectivity_ = specularReflectivity;
++        if( normalizeParameters )
++        {
++            absorptivity_ = 1.0 - specularReflectivity_ - diffuseReflectivity_;
++        }
+     }
+ 
+     double getDiffuseReflectivity() const
+@@ -173,9 +177,13 @@ public:
+         return diffuseReflectivity_;
+     }
+ 
+-    void setDiffuseReflectivity( const double diffuseReflectivity)
++    void setDiffuseReflectivity( const double diffuseReflectivity, bool normalizeParameters = false )
+     {
+         diffuseReflectivity_ = diffuseReflectivity;
++        if( normalizeParameters )
++        {
++            absorptivity_ = 1.0 - specularReflectivity_ - diffuseReflectivity_;
++        }
+     }
+ 
+     bool isWithInstantaneousReradiation() const
+diff --git a/include/tudat/astro/orbit_determination/acceleration_partials/fullRadiationPressureAccelerationPartial.h b/include/tudat/astro/orbit_determination/acceleration_partials/fullRadiationPressureAccelerationPartial.h
+index 0759a931f..977873dbd 100644
+--- a/include/tudat/astro/orbit_determination/acceleration_partials/fullRadiationPressureAccelerationPartial.h
++++ b/include/tudat/astro/orbit_determination/acceleration_partials/fullRadiationPressureAccelerationPartial.h
+@@ -164,7 +164,6 @@ public:
+     std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+     getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+     {
+-        std::cout << "getParameterPartialFunction call " << std::endl;
+         std::function< void( Eigen::MatrixXd& ) > partialFunction;
+         int parameterSize = 0;
+         if( customAccelerationPartialSet_->customDoubleParameterPartials_.count( parameter->getParameterName() )!= 0 )
+@@ -189,7 +188,6 @@ public:
+         else if( parameter->getParameterName( ).first == estimatable_parameters::specular_reflectivity &&
+                  parameter->getParameterName( ).second.first == acceleratedBody_)
+         {
+-            std::cout << "specular_reflectivity creating xxx" << std::endl;
+             if(std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
+                     radiationPressureAcceleration_->getTargetModel( ) ) != nullptr){
+                 throw std::runtime_error( "Error when creating specular reflectivity partial, PaneledRadiationPressureTargetModel not specified" );
+@@ -198,7 +196,6 @@ public:
+                 throw std::runtime_error( "Error when creating specular reflectivity partial, panel group name not specified" );
+             }
+             else{
+-                std::cout << "specular_reflectivity partialFunction" << std::endl;
+                 partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtSpecularReflectivity,
+                                              this,
+                                              std::placeholders::_1,
+diff --git a/include/tudat/astro/orbit_determination/estimatable_parameters/diffuseReflectivity.h b/include/tudat/astro/orbit_determination/estimatable_parameters/diffuseReflectivity.h
+index c5fd15af8..a93afefb6 100644
+--- a/include/tudat/astro/orbit_determination/estimatable_parameters/diffuseReflectivity.h
++++ b/include/tudat/astro/orbit_determination/estimatable_parameters/diffuseReflectivity.h
+@@ -54,12 +54,13 @@ class DiffuseReflectivity: public EstimatableParameter< double >
+                 throw std::runtime_error( "Error when creating estimated diffuse reflectivity for " +
+                 panelTypeId + " of " + associatedBody + ", no corresponding panels defined" );
+             }
++            normalizeValue( );
+ 
+         }
+         //! Destructor.
+         ~DiffuseReflectivity( ) { }
+ 
+-        double getParameterValue( )
++        double normalizeValue( )
+         {
+             // Retrieve all diffuse reflectivity values for the panels corresponding to the given panelTypeId
+             std::vector<double> diffuseReflectivities = radiationPressureInterface_->getDiffuseReflectivityForPanelTypeId(panelTypeId_);
+@@ -85,11 +86,14 @@ class DiffuseReflectivity: public EstimatableParameter< double >
+                 double apsorptivity = 1 - averageDiffuseReflectivity - averageSpecularReflectivity;
+                 radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, apsorptivity);
+             }
+-
+-            // Return the average diffuse reflectivity in all cases
+             return averageDiffuseReflectivity;
+         }
+ 
++        double getParameterValue( )
++        {
++            return normalizeValue( );
++        }
++
+ 
+         void setParameterValue( double parameterValue )
+         {
+diff --git a/include/tudat/astro/orbit_determination/estimatable_parameters/specularReflectivity.h b/include/tudat/astro/orbit_determination/estimatable_parameters/specularReflectivity.h
+index ae18dbda6..0b6178ad5 100644
+--- a/include/tudat/astro/orbit_determination/estimatable_parameters/specularReflectivity.h
++++ b/include/tudat/astro/orbit_determination/estimatable_parameters/specularReflectivity.h
+@@ -29,7 +29,7 @@ namespace estimatable_parameters
+ {
+ 
+ //! Interface class for the estimation of a specular reflectivity coefficient per group of panels
+-class SpecularReflectivity: public EstimatableParameter< double >
++class SpecularDiffuseReflectivityParameter: public EstimatableParameter< double >
+ {
+     public:
+         //! Constructor.
+@@ -39,81 +39,20 @@ class SpecularReflectivity: public EstimatableParameter< double >
+         * \param associatedBody Name of body containing the radiationPressureInterface object
+         * \param panelTypeID Name of panel group for which to estimate the coefficient
+         */
+-        SpecularReflectivity(
+-                const std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > radiationPressureInterface,
++        SpecularDiffuseReflectivityParameter(
++                const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels,
+                 const std::string& associatedBody,
+-                const std::string panelTypeId):
+-            EstimatableParameter< double >( specular_reflectivity, associatedBody, panelTypeId ),
+-            radiationPressureInterface_( radiationPressureInterface ),
+-            panelTypeId_( panelTypeId )
+-        {
+-            // check if the panelTypeID exists among the panels
+-            std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId =
+-            radiationPressureInterface_->getPanelsFromId( panelTypeId_);
+-            if(panelsFromId.size() < 1){
+-                throw std::runtime_error( "Error when creating estimated specular reflectivity for " +
+-                panelTypeId + " of " + associatedBody + ", no corresponding panels defined" );
+-            }
+-
+-        }
++                const std::string& panelTypeId,
++                const EstimatebleParametersEnum parameterType );
++
+         //! Destructor.
+-        ~SpecularReflectivity( ) { }
+-
+-        double getParameterValue( )
+-        {
+-            // Retrieve all specular reflectivity values for the panels corresponding to the given panelTypeId
+-            std::vector<double> specularReflectivities = radiationPressureInterface_->getSpecularReflectivityForPanelTypeId(panelTypeId_);
+-
+-            // Calculate the average diffuse reflectivity
+-            double averageSpecularReflectivity = std::accumulate(specularReflectivities.begin(), specularReflectivities.end(), 0.0) / specularReflectivities.size();
+-
+-            // Check if all values are the same
+-            bool allValuesSame = std::all_of(specularReflectivities.begin(), specularReflectivities.end(),
+-                                             [&](double value) { return value == specularReflectivities[0]; });
+-
+-            // If not all values are the same, print a warning and reset the values to the average
+-            if (!allValuesSame)
+-            {
+-                std::cerr << "Warning: Specular reflectivity values for panel group "
+-                          << panelTypeId_ << " are not consistent. Resetting all to the average value." << std::endl;
+-
+-                // Set all panels' specular reflectivity to the average value
+-                radiationPressureInterface_->setGroupSpecularReflectivity(panelTypeId_, averageSpecularReflectivity);
+-
+-                // Adjust the absorptivity
+-                double averageDiffuseReflectivity = radiationPressureInterface_->getAverageDiffuseReflectivity(panelTypeId_);
+-                double apsorptivity = 1 - averageDiffuseReflectivity - averageSpecularReflectivity;
+-                radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, apsorptivity);
+-            }
+-
+-            // Return the average diffuse reflectivity in all cases
+-            return averageSpecularReflectivity;
+-        }
+-
+-        void setParameterValue( double parameterValue )
+-        {
+-            // Set the specular reflectivity, even if it's greater than 1 (non-physical case)
+-            radiationPressureInterface_->setGroupSpecularReflectivity(panelTypeId_, parameterValue);
+-
+-            // Get the current diffuse reflectivity
+-            double diffuseReflectivity = radiationPressureInterface_->getAverageDiffuseReflectivity( panelTypeId_ );
+-
+-            // Compute the absorptivity such that the sum of specular + diffuse + absorptivity = 1
+-            double absorptivity = 1.0 - parameterValue - diffuseReflectivity;
+-
+-            // Check if the absorptivity is negative, which indicates non-physical behavior
+-            if ( absorptivity < 0.0 )
+-            {
+-                // Print a warning with both the non-physical specular reflectivity and the resulting negative absorptivity
+-                std::cerr << "Warning: Non-physical behavior detected for panel group "
+-                          << panelTypeId_ << ". Specular reflectivity = " << parameterValue
+-                          << ", resulting absorptivity = " << absorptivity << "."
+-                          << std::endl;
+-            }
+-
+-            // Set the absorptivity for the panel group (even if it's negative)
+-            radiationPressureInterface_->setGroupAbsorptivity(panelTypeId_, absorptivity);
+-        }
++        ~SpecularDiffuseReflectivityParameter( ) { }
++
++        double normalizeValue( );
++
++        double getParameterValue( );
++
++        void setParameterValue( double parameterValue );
+ 
+         int getParameterSize( ){ return 1; }
+ 
+@@ -121,7 +60,9 @@ class SpecularReflectivity: public EstimatableParameter< double >
+ 
+     private:
+ 
+-        std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > radiationPressureInterface_;
++        std::vector< double > getPanelReflectivities( );
++
++        std::vector< std::shared_ptr< electromagnetism::SpecularDiffuseMixReflectionLaw > > reflectionLaws_;
+ 
+         std::string panelTypeId_;
+ 
+diff --git a/include/tudat/io/SimulationOutput/MichaelearthOrbitParameterHistory.dat b/include/tudat/io/SimulationOutput/MichaelearthOrbitParameterHistory.dat
+deleted file mode 100644
+index ceb48aeb8..000000000
+--- a/include/tudat/io/SimulationOutput/MichaelearthOrbitParameterHistory.dat
++++ /dev/null
+@@ -1,9 +0,0 @@
+-	 6536590.886116448	 6536589.887103135	 6536589.886237196	 6536589.886238642	 6536589.886238161	 6536589.886237697	 6536589.886238284	 6536589.886237103	 6536589.886239386	 6536589.886237225	 6536589.886237146
+-	 3007590.61912863 	 3007589.617172949	 3007589.618977908	 3007589.618982877	 3007589.618984306	 3007589.61897927 	 3007589.618981976	 3007589.618982347	 3007589.618979368	 3007589.618988412	 3007589.618977285
+-	 1997647.029346528	 1997646.02938418 	 1997646.028755905	 1997646.028764767	 1997646.028743793	 1997646.028769845	 1997646.028744712	 1997646.028812978	 1997646.028784791	 1997646.028747152	 1997646.028789164
+-	 -1779.482489786228	 -1779.483488385192	 -1779.48348955053	 -1779.483489553645	 -1779.483489535115	 -1779.483489558445	 -1779.483489537736	 -1779.483489591892	 -1779.483489570145	 -1779.483489537017	 -1779.483489576378
+-	 -148.0676796020939	 -148.068682742752	 -148.0686794298298	 -148.068679436934	 -148.0686794299434	 -148.0686794359285	 -148.0686794279751	 -148.0686794510109	 -148.0686794423036	 -148.0686794297658	 -148.0686794439122
+-	 6943.109149517739	 6943.108149746808	 6943.1081497224  	 6943.108149716361	 6943.108149725481	 6943.108149716891	 6943.10814972616 	 6943.108149696449	 6943.108149708164	 6943.108149723816	 6943.108149707427
+-	 0.4              	 0.2712024204458093	 0.2693619667525841	 0.2693992587474977	 0.2693535718113103	 0.269330916107999	 0.2693475842949707	 0.2694632721917162	 0.2693604168345229	 0.2693757767399192	 0.2694309431126852
+-	 0.275            	 0.2248726982571103	 0.2250817997486413	 0.2250756300837075	 0.2250825150294973	 0.22508518780548 	 0.2250844375855132	 0.2250648165280636	 0.2250801192152476	 0.2250785875688772	 0.2250710742480229
+-
+diff --git a/include/tudat/simulation/estimation_setup/createEstimatableParameters.h b/include/tudat/simulation/estimation_setup/createEstimatableParameters.h
+index 23da5f8f0..4bb208650 100644
+--- a/include/tudat/simulation/estimation_setup/createEstimatableParameters.h
++++ b/include/tudat/simulation/estimation_setup/createEstimatableParameters.h
+@@ -1313,34 +1313,33 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
+             break;
+         }
+         case specular_reflectivity:
+-        {
+-            if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr)
+-            {
+-                std::string errorMessage = "Error, no panelled radiation pressure target model found in body " +
+-                        currentBodyName + " when making specular reflectivity parameter.";
+-                throw std::runtime_error( errorMessage );
+-            }
+-            else
+-            {
+-                doubleParameterToEstimate = std::make_shared< SpecularReflectivity >(
+-                    std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
+-                    currentBodyName, doubleParameterName->parameterType_.second.second);
+-            }
+-            break;
+-        }
+         case diffuse_reflectivity:
+         {
+-            if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ) == nullptr)
++
++            if( currentBody->getVehicleSystems( )->getVehicleExteriorPanels( ).size( ) == 0)
+             {
+-                std::string errorMessage = "Error, no panelled radiation pressure target model found in body " +
+-                        currentBodyName + " when making diffuse reflectivity parameter.";
++                std::string errorMessage = "Error, no vehicle panelsl found in body " +
++                        currentBodyName + " when making specular/diffuse reflectivity parameter.";
+                 throw std::runtime_error( errorMessage );
+             }
+             else
+             {
+-                doubleParameterToEstimate = std::make_shared< DiffuseReflectivity >(
+-                    std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( currentBody->getRadiationPressureTargetModel( ) ),
+-                    currentBodyName, doubleParameterName->parameterType_.second.second);
++                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
++                std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > fullPanels =
++                    currentBody->getVehicleSystems( )->getVehicleExteriorPanels( );
++                for( auto it : fullPanels )
++                {
++                    for( unsigned int i = 0; i < it.second.size( ); i++ )
++                    {
++                        if( it.second.at( i  )->getPanelTypeId( ) == doubleParameterName->parameterType_.second.second )
++                        {
++                            panelsFromId.push_back( it.second.at( i ) );
++                        }
++                    }
++                }
++
++                doubleParameterToEstimate = std::make_shared< SpecularDiffuseReflectivityParameter >(  panelsFromId,
++                    currentBodyName, doubleParameterName->parameterType_.second.second, doubleParameterName->parameterType_.first );
+             }
+             break;
+         }
+diff --git a/src/astro/electromagnetism/radiationPressureTargetModel.cpp b/src/astro/electromagnetism/radiationPressureTargetModel.cpp
+index 6a8fc042f..aa41b1671 100644
+--- a/src/astro/electromagnetism/radiationPressureTargetModel.cpp
++++ b/src/astro/electromagnetism/radiationPressureTargetModel.cpp
+@@ -141,6 +141,155 @@ void PaneledRadiationPressureTargetModel::saveLocalComputations( const std::stri
+     panelTorquesPerSource_[ sourceName ] = panelTorques_;
+ }
+ 
++std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > PaneledRadiationPressureTargetModel::getPanelsFromId(
++    const std::string& panelTypeId)
++{
++    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panels;
++    for( unsigned int i = 0; i < static_cast<unsigned int>(totalNumberOfPanels_); i++ )
++    {
++        if(fullPanels_.at(i)->getPanelTypeId() == panelTypeId)
++        {
++            panels.push_back(fullPanels_.at(i));
++        }
++    }
++    return panels;
++}
++
++double PaneledRadiationPressureTargetModel::getAverageDiffuseReflectivity(const std::string& panelTypeId)
++{
++    std::vector<double> coefficients;
++    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
++    panelsFromId = this->getPanelsFromId(panelTypeId);
++    for( unsigned int i = 0; i < panelsFromId.size(); i++ ){
++        {
++            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
++            coefficients.push_back(reflectionLaw->getDiffuseReflectivity());
++        }
++    }
++
++    // Check if coefficients are consistent
++    if (!coefficients.empty()) {
++        double firstCoefficient = coefficients[0];
++        for (size_t i = 1; i < coefficients.size(); ++i) {
++            if (coefficients[i] != firstCoefficient) {
++                std::cerr << "Warning: Diffuse reflectivity coefficients for panel group "
++                          << panelTypeId << " are not consistent. Returning average value" << std::endl;
++                break;  } } }
++
++    // Calculate average coefficient
++    double averageCoefficient = 0.0;
++    if (!coefficients.empty())
++    {
++        averageCoefficient = std::accumulate(coefficients.begin(), coefficients.end(), 0.0) / coefficients.size();
++    }
++
++    return averageCoefficient;
++};
++
++double PaneledRadiationPressureTargetModel::getAverageSpecularReflectivity(const std::string& panelTypeId)
++{
++    std::vector<double> coefficients;
++    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
++    panelsFromId = this->getPanelsFromId(panelTypeId);
++    for( unsigned int i = 0; i < panelsFromId.size(); i++ ){
++        {
++            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
++            coefficients.push_back(reflectionLaw->getSpecularReflectivity());
++        }
++    }
++
++    // Check if coefficients are consistent
++    if (!coefficients.empty()) {
++        double firstCoefficient = coefficients[0];
++        for (size_t i = 1; i < coefficients.size(); ++i) {
++            if (coefficients[i] != firstCoefficient) {
++                std::cerr << "Warning: Specular reflectivity coefficients for panel group "
++                          << panelTypeId << " are not consistent. Returning average value" << std::endl;
++                break;  } } }
++
++    // Calculate average coefficient
++    double averageCoefficient = 0.0;
++    if (!coefficients.empty())
++    {
++        averageCoefficient = std::accumulate(coefficients.begin(), coefficients.end(), 0.0) / coefficients.size();
++    }
++
++    return averageCoefficient;
++};
++
++std::vector<double> PaneledRadiationPressureTargetModel::getSpecularReflectivityForPanelTypeId(const std::string& panelTypeId)
++{
++    std::vector<double> coefficients;
++    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
++
++    panelsFromId = this->getPanelsFromId(panelTypeId);
++    for (unsigned int i = 0; i < panelsFromId.size(); i++)
++    {
++        auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
++        coefficients.push_back(reflectionLaw->getSpecularReflectivity());
++    }
++
++    return coefficients;
++}
++
++std::vector<double> PaneledRadiationPressureTargetModel::getDiffuseReflectivityForPanelTypeId(const std::string& panelTypeId)
++{
++    std::vector<double> coefficients;
++    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
++
++    panelsFromId = this->getPanelsFromId(panelTypeId);
++    for (unsigned int i = 0; i < panelsFromId.size(); i++) {
++        auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(panelsFromId.at(i)->getReflectionLaw());
++        coefficients.push_back(reflectionLaw->getDiffuseReflectivity());
++    }
++
++    return coefficients;
++}
++
++
++void PaneledRadiationPressureTargetModel::setGroupSpecularReflectivity(const std::string& panelTypeId, double specularReflectivity)
++{
++    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
++    panelsFromId = this->getPanelsFromId(panelTypeId);
++
++    for( unsigned int i = 0; i < panelsFromId.size(); i++ )
++    {
++        if(panelsFromId.at(i)->getReflectionLaw() != nullptr )
++        {
++            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(fullPanels_.at(i)->getReflectionLaw());
++            reflectionLaw->setSpecularReflectivity(specularReflectivity);
++        }
++    }
++};
++
++void PaneledRadiationPressureTargetModel::setGroupDiffuseReflectivity(const std::string& panelTypeId, double diffuseReflectivity)
++{
++    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
++    panelsFromId = this->getPanelsFromId(panelTypeId);
++    for( unsigned int i = 0; i < panelsFromId.size(); i++ )
++    {
++        if(panelsFromId.at(i)->getReflectionLaw() != nullptr )
++        {
++            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(fullPanels_.at(i)->getReflectionLaw());
++            reflectionLaw->setDiffuseReflectivity(diffuseReflectivity);
++        }
++    }
++};
++
++void PaneledRadiationPressureTargetModel::setGroupAbsorptivity(const std::string& panelTypeId, double absorbtivity)
++{
++    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
++    panelsFromId = this->getPanelsFromId(panelTypeId);
++    for( unsigned int i = 0; i < panelsFromId.size(); i++ )
++    {
++        if(panelsFromId.at(i)->getReflectionLaw() != nullptr )
++        {
++            auto reflectionLaw = std::dynamic_pointer_cast<SpecularDiffuseMixReflectionLaw>(fullPanels_.at(i)->getReflectionLaw());
++            reflectionLaw->setAbsorptivity(absorbtivity);
++        }
++    }
++};
++
+ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureForcePartialWrtDiffuseReflectivity(
+         double sourceIrradiance,
+         const Eigen::Vector3d& sourceToTargetDirectionLocalFrame)
+@@ -151,7 +300,6 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
+     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
+     int counter = 0;
+     Eigen::Quaterniond currentOrientation;
+-    Eigen::Vector3d currentCenterOfMass = Eigen::Vector3d::Constant( TUDAT_NAN );
+ 
+     for( unsigned int i = 0; i < segmentFixedPanels_.size( ) + 1; i++ )
+     {
+@@ -196,7 +344,6 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
+     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
+     int counter = 0;
+     Eigen::Quaterniond currentOrientation;
+-    Eigen::Vector3d currentCenterOfMass = Eigen::Vector3d::Constant( TUDAT_NAN );
+ 
+     for( unsigned int i = 0; i < segmentFixedPanels_.size( ) + 1; i++ )
+     {
+diff --git a/src/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.cpp b/src/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.cpp
+index 016b9fcae..55cd8ed64 100755
+--- a/src/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.cpp
++++ b/src/astro/orbit_determination/acceleration_partials/panelledRadiationPressureAccelerationPartial.cpp
+@@ -33,6 +33,9 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
+                     2.0 * currentRadiationPressure * bodyFixedUnitVectorToSource.transpose( ) / ( distanceToSource );
+ 
+             currentCosineAnglePartial_ = Eigen::Matrix< double, 1, 3 >::Zero( );
++
++            Eigen::Matrix3d rotationToInertialFrame =
++                Eigen::Matrix3d( radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrame( ) );
+             Eigen::Vector3d currentPanelReactionVector = Eigen::Vector3d::Zero( );
+             Eigen::Vector3d currentPanelNormal = Eigen::Vector3d::Zero( );
+             Eigen::Matrix3d currentPanelPartialContribution = Eigen::Matrix3d::Zero( );
+@@ -42,31 +45,39 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
+ 
+             for( int i = 0; i < panelledTargetModel_->getTotalNumberOfPanels( ); i++ )
+             {
+-                currentPanelNormal = panelledTargetModel_->getSurfaceNormals( ).at( i );
+-                cosineOfPanelInclination = panelledTargetModel_->getSurfacePanelCosines( acceleratingBody_ ).at( i );
+-
+                 currentPanelPartialContribution.setZero( );
+-                if( cosineOfPanelInclination > 0.0 )
++                if( panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( ) != acceleratingBody_ )
+                 {
+-                    currentCosineAnglePartial_ = currentPanelNormal.transpose( ) * currentSourceUnitVectorPartial_;
+-
+-                    currentPanelArea = panelledTargetModel_->getBodyFixedPanels( ).at( i )->getPanelArea( );
+-                    currentPanelReactionVector = panelledTargetModel_->getPanelForces( acceleratingBody_ ).at( i ) / ( currentRadiationPressure * currentPanelArea );
++                    currentPanelNormal = panelledTargetModel_->getSurfaceNormals( ).at( i );
++                    cosineOfPanelInclination = panelledTargetModel_->getSurfacePanelCosines( acceleratingBody_ ).at( i );
+ 
+-                    currentPanelPartialContribution += panelledTargetModel_->getFullPanels( ).at( i )->getReflectionLaw( )->
+-                        evaluateReactionVectorDerivativeWrtTargetPosition(
+-                            currentPanelNormal, -bodyFixedUnitVectorToSource, cosineOfPanelInclination, currentPanelReactionVector,
+-                            currentSourceUnitVectorPartial_, currentCosineAnglePartial_ );
++                    currentPanelPartialContribution.setZero( );
++                    if( cosineOfPanelInclination > 0.0 )
++                    {
++                        currentCosineAnglePartial_ = currentPanelNormal.transpose( ) * currentSourceUnitVectorPartial_;
+ 
+-                    currentPanelPartialContribution *= currentRadiationPressure * currentPanelArea;
++                        currentPanelArea = panelledTargetModel_->getBodyFixedPanels( ).at( i )->getPanelArea( );
++                        currentPanelReactionVector = panelledTargetModel_->getPanelForces( acceleratingBody_ ).at( i ) / ( currentRadiationPressure * currentPanelArea );
+ 
++                        currentPanelPartialContribution += panelledTargetModel_->getFullPanels( ).at( i )->getReflectionLaw( )->
++                            evaluateReactionVectorDerivativeWrtTargetPosition(
++                                currentPanelNormal, -bodyFixedUnitVectorToSource, cosineOfPanelInclination, currentPanelReactionVector,
++                                currentSourceUnitVectorPartial_, currentCosineAnglePartial_ );
+ 
++                        currentPanelPartialContribution *= currentRadiationPressure * currentPanelArea;
++                    }
++                }
++                else
++                {
++                    currentPanelPartialContribution =
++                        panelledTargetModel_->getPanelForces( acceleratingBody_ ).at( i ).norm( ) *
++                        rotationToInertialFrame.transpose( ) *
++                        ( Eigen::Matrix3d::Identity( ) / distanceToSource - inertialVectorFromSource * inertialVectorFromSource.transpose( ) / ( distanceToSource * distanceToSource * distanceToSource ) ) *
++                        rotationToInertialFrame;
+                 }
+                 currentPartialWrtPosition_ += currentPanelPartialContribution;
+             }
+ 
+-            Eigen::Matrix3d rotationToInertialFrame =
+-                Eigen::Matrix3d( radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrame( ) );
+             currentPartialWrtPosition_ = rotationToInertialFrame * currentPartialWrtPosition_ * rotationToInertialFrame.transpose( );
+             currentPartialWrtPosition_ /= currentMass;
+ 
+diff --git a/src/astro/orbit_determination/estimatable_parameters/CMakeLists.txt b/src/astro/orbit_determination/estimatable_parameters/CMakeLists.txt
+index 972bc496b..7119bdcd4 100644
+--- a/src/astro/orbit_determination/estimatable_parameters/CMakeLists.txt
++++ b/src/astro/orbit_determination/estimatable_parameters/CMakeLists.txt
+@@ -14,7 +14,8 @@ set(estimatable_parameters_SOURCES
+   "sphericalHarmonicSineCoefficients.cpp"
+   "sphericalHarmonicCosineCoefficients.cpp"
+   "tidalLoveNumber.cpp"
+-        )
++  "specularReflectivity.cpp"
++)
+ 
+ # Set the header files.
+ set(estimatable_parameters_HEADERS
+diff --git a/src/astro/orbit_determination/estimatable_parameters/specularReflectivity.cpp b/src/astro/orbit_determination/estimatable_parameters/specularReflectivity.cpp
+new file mode 100644
+index 000000000..30f297b6c
+--- /dev/null
++++ b/src/astro/orbit_determination/estimatable_parameters/specularReflectivity.cpp
+@@ -0,0 +1,152 @@
++/*    Copyright (c) 2010-2019, Delft University of Technology
++ *    All rigths reserved
++ *
++ *    This file is part of the Tudat. Redistribution and use in source and
++ *    binary forms, with or without modification, are permitted exclusively
++ *    under the terms of the Modified BSD license. You should have received
++ *    a copy of the license with this file. If not, please or visit:
++ *    http://tudat.tudelft.nl/LICENSE.
++ */
++
++
++
++#include "tudat/astro/orbit_determination/estimatable_parameters/specularReflectivity.h"
++
++namespace tudat
++{
++
++namespace estimatable_parameters
++{
++
++SpecularDiffuseReflectivityParameter::SpecularDiffuseReflectivityParameter(
++    const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > vehiclePanels,
++    const std::string& associatedBody,
++    const std::string& panelTypeId,
++    const EstimatebleParametersEnum parameterType ):
++    EstimatableParameter< double >( parameterType, associatedBody, panelTypeId ),
++    panelTypeId_( panelTypeId )
++{
++    if( !( ( parameterType == specular_reflectivity ) || ( parameterType == diffuse_reflectivity ) ) )
++    {
++        throw std::runtime_error( "Error when creating estimated specular/diffuse reflectivity for " +
++                                  panelTypeId + " of " + associatedBody + ", input type is inconsistent" );
++    }
++    // check if the panelTypeID exists among the panels
++    if(vehiclePanels.size() < 1)
++    {
++        throw std::runtime_error( "Error when creating estimated specular/diffuse reflectivity for " +
++                                  panelTypeId + " of " + associatedBody + ", no corresponding panels defined" );
++    }
++
++    for( unsigned int i = 0; i < vehiclePanels.size( ); i++ )
++    {
++        bool isNull = true;
++        if(vehiclePanels.at ( i )->getReflectionLaw() != nullptr )
++        {
++            auto reflectionLaw = std::dynamic_pointer_cast<electromagnetism::SpecularDiffuseMixReflectionLaw>(vehiclePanels.at(i)->getReflectionLaw());
++            if( reflectionLaw != nullptr )
++            {
++                reflectionLaws_.push_back( reflectionLaw );
++                isNull = false;
++            }
++        }
++
++        if( isNull )
++        {
++            throw std::runtime_error( "Error when creating estimated specular/diffuse reflectivity for " +
++                                      panelTypeId + " of " + associatedBody + ", detected incompatible panel reflection law" );
++        }
++    }
++    normalizeValue( );
++}
++
++double SpecularDiffuseReflectivityParameter::normalizeValue( )
++{
++
++    // Retrieve all reflectivity values for the panels corresponding to the given panelTypeId
++    std::vector<double> reflectivities = getPanelReflectivities( );
++
++    // Calculate the average diffuse reflectivity
++    double averageReflectivity = std::accumulate(reflectivities.begin(), reflectivities.end(), 0.0) / reflectivities.size();
++
++    // Check if all values are the same
++    bool allValuesSame = std::all_of(reflectivities.begin(), reflectivities.end(),
++                                     [&](double value) { return value == reflectivities[0]; });
++
++    // If not all values are the same, print a warning and reset the values to the average
++    if (!allValuesSame)
++    {
++        std::cerr << "Warning: reflectivity values for panel group "
++                  << panelTypeId_ << " are not consistent. Resetting all to the average value." << std::endl;
++
++        // Set all panels' reflectivity to the average value
++        for( unsigned int i  = 0; i < reflectionLaws_.size( ); i++ )
++        {
++            if( parameterName_.first == specular_reflectivity )
++            {
++                reflectionLaws_.at( i )->setSpecularReflectivity( averageReflectivity, true );
++            }
++            else
++            {
++                reflectionLaws_.at( i )->setDiffuseReflectivity( averageReflectivity, true );
++            }
++        }
++    }
++
++    // Return the average diffuse reflectivity in all cases
++    return averageReflectivity;
++}
++
++double SpecularDiffuseReflectivityParameter::getParameterValue( )
++{
++    return normalizeValue( );
++}
++
++void SpecularDiffuseReflectivityParameter::setParameterValue( double parameterValue )
++{
++    for( unsigned int i  = 0; i < reflectionLaws_.size( ); i++ )
++    {
++        if( parameterName_.first == specular_reflectivity )
++        {
++            reflectionLaws_.at( i )->setSpecularReflectivity( parameterValue, true );
++        }
++        else
++        {
++            reflectionLaws_.at( i )->setDiffuseReflectivity( parameterValue, true );
++        }
++        double absorptivity = reflectionLaws_.at( i )->getAbsorptivity( );
++
++        // Check if the absorptivity is negative, which indicates non-physical behavior
++        if ( absorptivity < 0.0 )
++        {
++            // Print a warning with both the non-physical specular reflectivity and the resulting negative absorptivity
++            std::cerr << "Warning: Non-physical behavior detected for panel group "
++                      << panelTypeId_ << ". reflectivity = " << parameterValue
++                      << ", resulting absorptivity = " << absorptivity << "."
++                      << std::endl;
++        }
++    }
++}
++
++std::vector< double > SpecularDiffuseReflectivityParameter::getPanelReflectivities( )
++{
++    std::vector< double > values;
++    for( unsigned int i = 0; i < reflectionLaws_.size( ); i++ )
++    {
++        if( parameterName_.first == specular_reflectivity )
++        {
++            values.push_back( reflectionLaws_.at( i )->getSpecularReflectivity( ) );
++        }
++        else
++        {
++            values.push_back( reflectionLaws_.at( i )->getDiffuseReflectivity( ) );
++        }
++    }
++    return values;
++}
++
++
++} // namespace estimatable_parameters
++
++} // namespace tudat
++
+diff --git a/tests/src/astro/orbit_determination/acceleration_partials/unitTestAccelerationPartials.cpp b/tests/src/astro/orbit_determination/acceleration_partials/unitTestAccelerationPartials.cpp
+index 25e3ab6c3..ad1710d4c 100644
+--- a/tests/src/astro/orbit_determination/acceleration_partials/unitTestAccelerationPartials.cpp
++++ b/tests/src/astro/orbit_determination/acceleration_partials/unitTestAccelerationPartials.cpp
+@@ -72,208 +72,225 @@ BOOST_AUTO_TEST_SUITE( test_acceleration_partials )
+ 
+ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
+ {
+-    // Create empty bodies, earth and sun.
+-    std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
+-    double vehicleMass = 400.0;
+-    vehicle->setConstantBodyMass( vehicleMass );
+-    std::shared_ptr< Body > sun = std::make_shared< Body >( );
+-    SystemOfBodies bodies;
+-    bodies.addBody( vehicle, "Vehicle" );
+-    bodies.addBody( sun, "Sun" );
+-
+-    // Load spice kernels.
+     tudat::spice_interface::loadStandardSpiceKernels( );
+ 
+-    // Set current state of sun and earth.
+-    sun->setState( Eigen::Vector6d::Zero( ) );//getBodyCartesianStateAtEpoch( "Sun", "SSB", "J2000", "NONE", 1.0E6 ) );
+-    sun->setRadiationSourceModel(
+-        createRadiationSourceModel(
+-            getDefaultRadiationSourceModelSettings( "Sun", TUDAT_NAN, TUDAT_NAN ),
+-            "Sun", bodies ) );
+-    vehicle->setState(
+-                ( Eigen::Vector6d( ) << 1.4E11, 1.0E11, 1.1E11, 0.0, 0.0, 0.0 ).finished( ) );//getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
+-    vehicle->setRotationalEphemeris(
+-//        std::make_shared< ephemerides::CustomRotationalEphemeris >(
+-//            [=](const double){return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); }, "ECLIPJ2000", "VehicleFixed" ) );
+-                std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >( 0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
+-    vehicle->setCurrentRotationalStateToLocalFrameFromEphemeris( 0.0 );
+-
+-    // Create links to set and get state functions of bodies.
+-    std::function< void( Eigen::Vector6d ) > sunStateSetFunction =
+-            std::bind( &Body::setState, sun, std::placeholders::_1  );
+-    std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
+-            std::bind( &Body::setState, vehicle, std::placeholders::_1  );
+-    std::function< Eigen::Vector6d( ) > sunStateGetFunction =
+-            std::bind( &Body::getState, sun );
+-    std::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
+-            std::bind( &Body::getState, vehicle );
+-
+-    std::vector< std::shared_ptr< BodyPanelSettings > > panelSettingsList;
+-    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+-        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitX( ), 1.0 ),
+-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.5, 0.1, true ), "SolarPanel" ) );
+-    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+-        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitY( ), 3.254 ),
+-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.4, 0.2, true ), "SolarPanel" ) );
+-    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+-        std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitZ( ), 8.654 ),
+-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.2, 0.3, true ), "SolarPanel" ) );
+-    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+-        std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitX( ), 1.346  ),
+-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.25, 0.15, true ), "SolarPanel" ) );
+-    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+-        std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitY( ), 10.4783 ),
+-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.44, 0.51, true ), "SolarPanel" ) );
+-    panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
+-        std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitZ( ), 6.4235 ),
+-        std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( 0.16, 0.34, true ), "SolarPanel" ) );
+-
+-    addBodyExteriorPanelledShape(
+-        std::make_shared< FullPanelledBodySettings >( panelSettingsList ), "Vehicle", bodies );
+-
+-    auto paneledRadiationPressureTargetSettings =
+-        std::make_shared< RadiationPressureTargetModelSettings >( paneled_target );
+-
+-    std::shared_ptr<electromagnetism::PaneledRadiationPressureTargetModel> radiationPressureInterface =
+-            std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
+-                    createRadiationPressureTargetModel(
+-                            paneledRadiationPressureTargetSettings, "Vehicle", bodies ).at( 0 ) );
+-    vehicle->addRadiationPressureTargetModel( radiationPressureInterface );
+-
+-    // Create acceleration model.
+-    std::shared_ptr< RadiationPressureAcceleration > accelerationModel =
+-            std::dynamic_pointer_cast< RadiationPressureAcceleration >(
+-                createRadiationPressureAccelerationModel(
+-                    vehicle, sun, "Vehicle", "Sun", bodies ) );
+-    accelerationModel->updateMembers( 0.0 );
+-    // Create partial-calculating object.
+-    std::shared_ptr< AccelerationPartial > accelerationPartial =
+-        createAnalyticalAccelerationPartial( accelerationModel, { "Vehicle", vehicle }, { "Sun", sun}, bodies );
+-
+-    //    std::vector< int > panelIndices1 = boost::assign::list_of( 0 )( 6 );
+-    //    std::vector< int > panelIndices2 = boost::assign::list_of( 2 );
+-
+-    //    std::vector< std::vector< int > > panelIndices;
+-    //    panelIndices.push_back( panelIndices2 );
+-    //    panelIndices.push_back( panelIndices1 );
+-
+-    //    std::shared_ptr< EstimatableParameterSettings > panelEmissivitiesSettings =
+-    //            std::make_shared< PanelRadiationEmissivitiesParameterSettings >( "Vehicle", panelIndices );
+-    //    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterSettingsVector;
+-    //    parameterSettingsVector.push_back( panelEmissivitiesSettings );
+-    //    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > estimatableParameters = createParametersToEstimate(
+-    //                parameterSettingsVector, bodies );
+-    //    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > panelEmissivitiesParameter =
+-    //            estimatableParameters->getVectorParameters( ).begin( )->second;
+-
+-
+-    std::shared_ptr< EstimatableParameter< double > > parallelScalingFactor =
+-        std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
+-    std::shared_ptr< EstimatableParameter< double > > perpendicularScalingFactor =
+-        std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_perpendicular_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
+-    std::shared_ptr< EstimatableParameter< double > > diffuseReflectivity =
+-        std::make_shared< DiffuseReflectivity >( radiationPressureInterface, "Vehicle", "SolarPanel" );
+-    std::shared_ptr< EstimatableParameter< double > > specularReflectivity =
+-            std::make_shared< SpecularReflectivity >( radiationPressureInterface, "Vehicle", "SolarPanel" );
+-
+-
+-
+-    // Calculate analytical partials.
+-    accelerationPartial->update( 0.0 );
+-    Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
+-    accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
++    for( int testIndex = 0; testIndex < 7; testIndex++ )
++    {
++        // Create empty bodies, earth and sun.
++        std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
++        double vehicleMass = 400.0;
++        vehicle->setConstantBodyMass( vehicleMass );
++        std::shared_ptr< Body > sun = std::make_shared< Body >( );
++        SystemOfBodies bodies;
++        bodies.addBody( vehicle, "Vehicle" );
++        bodies.addBody( sun, "Sun" );
++
++        // Load spice kernels.
++
++        // Set current state of sun and earth.
++        sun->setState( Eigen::Vector6d::Zero( ) );//getBodyCartesianStateAtEpoch( "Sun", "SSB", "J2000", "NONE", 1.0E6 ) );
++        sun->setRadiationSourceModel(
++            createRadiationSourceModel(
++                getDefaultRadiationSourceModelSettings( "Sun", TUDAT_NAN, TUDAT_NAN ),
++                "Sun", bodies ) );
++        vehicle->setState(
++                    ( Eigen::Vector6d( ) << 1.4E11, 1.0E11, 1.1E11, 0.0, 0.0, 0.0 ).finished( ) );//getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
++        vehicle->setRotationalEphemeris(
++    //        std::make_shared< ephemerides::CustomRotationalEphemeris >(
++    //            [=](const double){return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); }, "ECLIPJ2000", "VehicleFixed" ) );
++                    std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >( 0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
++        vehicle->setCurrentRotationalStateToLocalFrameFromEphemeris( 0.0 );
++
++        // Create links to set and get state functions of bodies.
++        std::function< void( Eigen::Vector6d ) > sunStateSetFunction =
++                std::bind( &Body::setState, sun, std::placeholders::_1  );
++        std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
++                std::bind( &Body::setState, vehicle, std::placeholders::_1  );
++        std::function< Eigen::Vector6d( ) > sunStateGetFunction =
++                std::bind( &Body::getState, sun );
++        std::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
++                std::bind( &Body::getState, vehicle );
++
++        double specularReflectivity = 0.5;
++        double diffuseReflectivity = 0.1;
++        bool useInstantaneousReradiation = false;
++        std::vector< std::shared_ptr< BodyPanelSettings > > panelSettingsList;
++
++        if( testIndex < 6 )
++        {
++            if( testIndex % 2 == 1 )
++            {
++                useInstantaneousReradiation = true;
++            }
++            std::string panelName = "SolarPanel";
++            double scalingValue = 1.0;
++            if( testIndex > 3 )
++            {
++                scalingValue = 0.5;
++                panelName = "PanelName";
++            }
++            panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
++                std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitX( ), 1.0 ),
++                std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
++            if( testIndex > 2 )
++            {
++                panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
++                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitY( ), 3.254 ),
++                    std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
++                panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
++                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( -Eigen::Vector3d::UnitZ( ), 8.654 ),
++                    std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
++                panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
++                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitX( ), 1.346  ),
++                    std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
++                        scalingValue * specularReflectivity, scalingValue * diffuseReflectivity, useInstantaneousReradiation ), panelName ) );
++                panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
++                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitY( ), 10.4783 ),
++                    std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
++                        scalingValue * specularReflectivity, scalingValue * diffuseReflectivity, useInstantaneousReradiation ), panelName ) );
++                panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
++                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( Eigen::Vector3d::UnitZ( ), 6.4235 ),
++                    std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >(
++                        scalingValue * specularReflectivity, scalingValue * diffuseReflectivity, useInstantaneousReradiation ), panelName ) );
++            }
++        }
++        else
++        {
++            panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
++                bodyTrackingPanelGeometry( "Sun", true , 1.0 ),
++                std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
++            panelSettingsList.push_back( std::make_shared< BodyPanelSettings >(
++                bodyTrackingPanelGeometry( "Sun", false , 1.346 ),
++                std::make_shared< SpecularDiffuseBodyPanelReflectionLawSettings >( specularReflectivity, diffuseReflectivity, useInstantaneousReradiation ), "SolarPanel" ) );
+ 
+-    Eigen::MatrixXd partialWrtSunVelocity = Eigen::Matrix3d::Zero( );
+-    accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtSunVelocity.block( 0, 0, 3, 3 ) );
++        }
+ 
+-    Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+-    accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+ 
+-    Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+-    accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ) );
++        addBodyExteriorPanelledShape(
++            std::make_shared< FullPanelledBodySettings >( panelSettingsList ), "Vehicle", bodies );
++
++        auto paneledRadiationPressureTargetSettings =
++            std::make_shared< RadiationPressureTargetModelSettings >( paneled_target );
++
++        std::shared_ptr<electromagnetism::PaneledRadiationPressureTargetModel> radiationPressureInterface =
++                std::dynamic_pointer_cast<electromagnetism::PaneledRadiationPressureTargetModel>(
++                        createRadiationPressureTargetModel(
++                                paneledRadiationPressureTargetSettings, "Vehicle", bodies ).at( 0 ) );
++        vehicle->addRadiationPressureTargetModel( radiationPressureInterface );
++
++        // Create acceleration model.
++        std::shared_ptr< RadiationPressureAcceleration > accelerationModel =
++                std::dynamic_pointer_cast< RadiationPressureAcceleration >(
++                    createRadiationPressureAccelerationModel(
++                        vehicle, sun, "Vehicle", "Sun", bodies ) );
++        accelerationModel->updateMembers( 0.0 );
++        // Create partial-calculating object.
++        std::shared_ptr< AccelerationPartial > accelerationPartial =
++            createAnalyticalAccelerationPartial( accelerationModel, { "Vehicle", vehicle }, { "Sun", sun}, bodies );
++
++        std::shared_ptr< EstimatableParameter< double > > parallelScalingFactor =
++            std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
++        std::shared_ptr< EstimatableParameter< double > > perpendicularScalingFactor =
++            std::make_shared< RadiationPressureScalingFactor >( accelerationModel, source_perpendicular_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
++        std::shared_ptr< EstimatableParameter< double > > diffuseReflectivityParameter =
++            std::make_shared< DiffuseReflectivity >( radiationPressureInterface, "Vehicle", "SolarPanel" );
++        std::shared_ptr< EstimatableParameter< double > > specularReflectivityParameter =
++                std::make_shared< SpecularReflectivity >( radiationPressureInterface, "Vehicle", "SolarPanel" );
+ 
+-    //Eigen::MatrixXd partialWrtEmissivities = accelerationPartial->wrtParameter( panelEmissivitiesParameter );
+-    Eigen::MatrixXd partialWrtParallelScaling = accelerationPartial->wrtParameter( parallelScalingFactor );
+-    Eigen::MatrixXd partialWrtPerpendicularScaling = accelerationPartial->wrtParameter( perpendicularScalingFactor );
+-    Eigen::Vector3d partialWrtSpecularReflectivity = accelerationPartial->wrtParameter( specularReflectivity );
+-    Eigen::Vector3d partialWrtDiffuseReflectivity = accelerationPartial->wrtParameter( diffuseReflectivity );
++        // Calculate analytical partials.
++        accelerationPartial->update( 0.0 );
++        Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
++        accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
+ 
+-    // Declare numerical partials.
+-    Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+-    Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+-    Eigen::Matrix3d testPartialWrtSunPosition = Eigen::Matrix3d::Zero( );
+-    Eigen::Matrix3d testPartialWrtSunVelocity = Eigen::Matrix3d::Zero( );
+-    Eigen::MatrixXd testPartialWrtEmissivities = Eigen::MatrixXd::Zero( 3, 2 );
+-    Eigen::MatrixXd testPartialWrtParallelScaling = Eigen::MatrixXd::Zero( 3, 1 );
+-    Eigen::MatrixXd testPartialWrtPerpendicularScaling = Eigen::MatrixXd::Zero( 3, 1 );
+-    Eigen::Vector3d testPartialWrtSpecularReflectivity = Eigen::Vector3d::Zero( );
+-    Eigen::Vector3d testPartialWrtDiffuseReflectivity = Eigen::Vector3d::Zero( );
++        Eigen::MatrixXd partialWrtSunVelocity = Eigen::Matrix3d::Zero( );
++        accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtSunVelocity.block( 0, 0, 3, 3 ) );
+ 
+-    // Declare perturbations in position for numerical partial/
+-    Eigen::Vector3d positionPerturbation;
+-    positionPerturbation<< 10000.0, 10000.0, 10000.0;
+-    Eigen::Vector3d velocityPerturbation;
+-    velocityPerturbation<< 0.1, 0.1, 0.1;
+-    //    Eigen::VectorXd emissivityPerturbations = Eigen::VectorXd::Zero( 2 );
+-    //    emissivityPerturbations( 0 ) = 1.0;
+-    //    emissivityPerturbations( 1 ) = 1.0;
++        Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
++        accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+ 
+-    // Calculate numerical partials.
+-   std::function< void( const double ) > updateFunction1 = std::bind(
+-       &RadiationPressureTargetModel::updateMembers, vehicle->getRadiationPressureTargetModel( ), std::placeholders::_1 );
+-   std::function< void( const double ) > updateFunction2 = std::bind(
+-        &RadiationSourceModel::updateMembers, sun->getRadiationSourceModel( ), std::placeholders::_1  );
+-    std::function< void( ) > updateFunction = [=]( ){
+-        updateFunction2( 0.0 );
+-        updateFunction1( 0.0 );
+-    };
++        Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
++        accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ) );
+ 
+-    testPartialWrtSunPosition = calculateAccelerationWrtStatePartials(
+-                sunStateSetFunction, accelerationModel, sun->getState( ), positionPerturbation, 0, updateFunction );
+-    testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
+-                vehicleStateSetFunction, accelerationModel, vehicle->getState( ), positionPerturbation, 0, updateFunction );
+-    testPartialWrtSunVelocity = calculateAccelerationWrtStatePartials(
+-                sunStateSetFunction, accelerationModel, sun->getState( ),velocityPerturbation, 3, updateFunction );
+-    testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
+-                vehicleStateSetFunction, accelerationModel, vehicle->getState( ), velocityPerturbation, 3, updateFunction );
+-    //    testPartialWrtEmissivities = calculateAccelerationWrtParameterPartials(
+-    //                panelEmissivitiesParameter, accelerationModel, emissivityPerturbations );
++        //Eigen::MatrixXd partialWrtEmissivities = accelerationPartial->wrtParameter( panelEmissivitiesParameter );
++        Eigen::MatrixXd partialWrtParallelScaling = accelerationPartial->wrtParameter( parallelScalingFactor );
++        Eigen::MatrixXd partialWrtPerpendicularScaling = accelerationPartial->wrtParameter( perpendicularScalingFactor );
++        Eigen::Vector3d partialWrtSpecularReflectivity = accelerationPartial->wrtParameter( specularReflectivityParameter );
++        Eigen::Vector3d partialWrtDiffuseReflectivity = accelerationPartial->wrtParameter( diffuseReflectivityParameter );
+ 
+-    testPartialWrtParallelScaling = calculateAccelerationWrtParameterPartials(
+-        parallelScalingFactor, accelerationModel, 10.0, updateFunction );
+-    testPartialWrtPerpendicularScaling = calculateAccelerationWrtParameterPartials(
+-        perpendicularScalingFactor, accelerationModel, 10.0, updateFunction );
++        // Declare numerical partials.
++        Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
++        Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
++        Eigen::Matrix3d testPartialWrtSunPosition = Eigen::Matrix3d::Zero( );
++        Eigen::Matrix3d testPartialWrtSunVelocity = Eigen::Matrix3d::Zero( );
++        Eigen::MatrixXd testPartialWrtEmissivities = Eigen::MatrixXd::Zero( 3, 2 );
++        Eigen::MatrixXd testPartialWrtParallelScaling = Eigen::MatrixXd::Zero( 3, 1 );
++        Eigen::MatrixXd testPartialWrtPerpendicularScaling = Eigen::MatrixXd::Zero( 3, 1 );
++        Eigen::Vector3d testPartialWrtSpecularReflectivity = Eigen::Vector3d::Zero( );
++        Eigen::Vector3d testPartialWrtDiffuseReflectivity = Eigen::Vector3d::Zero( );
+ 
+-    testPartialWrtDiffuseReflectivity = calculateAccelerationWrtParameterPartials(
+-        diffuseReflectivity, accelerationModel, 1.0E-3, updateFunction );
+-    testPartialWrtSpecularReflectivity = calculateAccelerationWrtParameterPartials(
+-        specularReflectivity, accelerationModel, 1.0E-3, updateFunction );
++        // Declare perturbations in position for numerical partial/
++        Eigen::Vector3d positionPerturbation;
++        positionPerturbation<< 10000.0, 10000.0, 10000.0;
++        Eigen::Vector3d velocityPerturbation;
++        velocityPerturbation<< 0.1, 0.1, 0.1;
+ 
+-//    std::cout<<testPartialWrtParallelScaling<<std::endl<<std::endl;
+-//    std::cout<<partialWrtParallelScaling<<std::endl<<std::endl;
+-//
+-//    std::cout<<testPartialWrtPerpendicularScaling<<std::endl<<std::endl;
+-//    std::cout<<partialWrtPerpendicularScaling<<std::endl<<std::endl;
++        // Calculate numerical partials.
++       std::function< void( const double ) > updateFunction1 = std::bind(
++           &RadiationPressureTargetModel::updateMembers, vehicle->getRadiationPressureTargetModel( ), std::placeholders::_1 );
++       std::function< void( const double ) > updateFunction2 = std::bind(
++            &RadiationSourceModel::updateMembers, sun->getRadiationSourceModel( ), std::placeholders::_1  );
++        std::function< void( ) > updateFunction = [=]( ){
++            updateFunction2( 0.0 );
++            updateFunction1( 0.0 );
++        };
++
++        testPartialWrtSunPosition = calculateAccelerationWrtStatePartials(
++                    sunStateSetFunction, accelerationModel, sun->getState( ), positionPerturbation, 0, updateFunction );
++        testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
++                    vehicleStateSetFunction, accelerationModel, vehicle->getState( ), positionPerturbation, 0, updateFunction );
++        testPartialWrtSunVelocity = calculateAccelerationWrtStatePartials(
++                    sunStateSetFunction, accelerationModel, sun->getState( ),velocityPerturbation, 3, updateFunction );
++        testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
++                    vehicleStateSetFunction, accelerationModel, vehicle->getState( ), velocityPerturbation, 3, updateFunction );
++        //    testPartialWrtEmissivities = calculateAccelerationWrtParameterPartials(
++        //                panelEmissivitiesParameter, accelerationModel, emissivityPerturbations );
++
++        testPartialWrtParallelScaling = calculateAccelerationWrtParameterPartials(
++            parallelScalingFactor, accelerationModel, 10.0, updateFunction );
++        testPartialWrtPerpendicularScaling = calculateAccelerationWrtParameterPartials(
++            perpendicularScalingFactor, accelerationModel, 10.0, updateFunction );
++
++        testPartialWrtDiffuseReflectivity = calculateAccelerationWrtParameterPartials(
++            diffuseReflectivityParameter, accelerationModel, 0.1, updateFunction );
++        testPartialWrtSpecularReflectivity = calculateAccelerationWrtParameterPartials(
++            specularReflectivityParameter, accelerationModel, 0.1, updateFunction );
+ 
+-    // Compare numerical and analytical results.
+-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition,
+-                                       partialWrtSunPosition, 1.0e-6 );
+-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity,
+-                                       partialWrtSunVelocity, std::numeric_limits< double >::epsilon( ) );
+-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition,
+-                                       partialWrtVehiclePosition, 1.0e-6 );
+-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity,
+-                                       partialWrtVehicleVelocity, std::numeric_limits< double >::epsilon( ) );
+-    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEmissivities,
+-    //                                       partialWrtEmissivities, 1.0e-14 );
+-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtParallelScaling,
+-                                       partialWrtParallelScaling, 1.0E-13 );
+-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPerpendicularScaling,
+-                                       partialWrtPerpendicularScaling, 1.0E-13 );
+-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtSpecularReflectivity,
+-                                       testPartialWrtSpecularReflectivity, 1.0E-8 );
+-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDiffuseReflectivity,
+-                                       testPartialWrtDiffuseReflectivity, 1.0E-13 );
++        // Compare numerical and analytical results.
++        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition,
++                                           partialWrtSunPosition, 1.0e-6 );
++        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity,
++                                           partialWrtSunVelocity, std::numeric_limits< double >::epsilon( ) );
++        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition,
++                                           partialWrtVehiclePosition, 1.0e-6 );
++        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity,
++                                           partialWrtVehicleVelocity, std::numeric_limits< double >::epsilon( ) );
++        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtParallelScaling,
++                                           partialWrtParallelScaling, 1.0E-13 );
++        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPerpendicularScaling,
++                                           partialWrtPerpendicularScaling, 1.0E-13 );
++        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtSpecularReflectivity,
++                                           testPartialWrtSpecularReflectivity, 1.0E-8 );
++        if( testIndex % 2 == 0 )
++        {
++            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDiffuseReflectivity,
++                                               testPartialWrtDiffuseReflectivity, 1.0E-13 );
++        }
++        else
++        {
++            BOOST_CHECK_EQUAL( testPartialWrtDiffuseReflectivity.norm( ), 0.0 );
++            BOOST_CHECK_EQUAL( partialWrtDiffuseReflectivity.norm( ), 0.0 );
++        }
++    }
+ 
+ }
+ 
+diff --git a/tests/src/astro/orbit_determination/unitTestRadiationPressureEstimation.cpp b/tests/src/astro/orbit_determination/unitTestRadiationPressureEstimation.cpp
+index 194305ce0..7eb1e3c3b 100644
+--- a/tests/src/astro/orbit_determination/unitTestRadiationPressureEstimation.cpp
++++ b/tests/src/astro/orbit_determination/unitTestRadiationPressureEstimation.cpp
+@@ -21,7 +21,7 @@
+ 
+ #include "tudat/basics/testMacros.h"
+ #include "tudat/simulation/estimation.h"
+-
++#include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
+ 
+ namespace tudat
+ {
+@@ -46,10 +46,12 @@ using namespace tudat::basic_astrodynamics;
+ using namespace tudat::coordinate_conversions;
+ using namespace tudat::ground_stations;
+ using namespace tudat::observation_models;
++using namespace tudat::ephemerides;
++using namespace tudat::electromagnetism;
+ using namespace tudat;
+ 
+ 
+-BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
++BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
+ {
+     std::string initialTimeString = "2012-04-06 01:44:04.686";
+ 
+@@ -92,7 +94,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
+ 
+     std::map<std::string, std::vector<std::string> > sourceToTargetOccultingBodies;
+     sourceToTargetOccultingBodies[ "Sun" ].push_back( "Moon" );
+-    bodySettings.get( spacecraftName )->bodyExteriorPanelSettings_ = bodyWingPanelledGeometry( 2.0*100.0*std::sqrt(10.0), 1.0*100.0*std::sqrt(10.0), 4.0*100.0*std::sqrt(10.0), 1.0E5, 0.0, 0.0, 0.0, 0.0, false, false );
++    bodySettings.get( spacecraftName )->bodyExteriorPanelSettings_ = bodyWingPanelledGeometry( 2.0*100.0*std::sqrt(10.0), 1.0*100.0*std::sqrt(10.0), 4.0*100.0*std::sqrt(10.0), 1.0E5, 0.1, 0.2, 0.2, 0.3, false, false );
+     bodySettings.get( spacecraftName )->rotationModelSettings = constantRotationModelSettings( "J2000", spacecraftName + "_Fixed", Eigen::Matrix3d::Identity( ) );
+ 
+     // Test for separate source, and double source
+@@ -168,16 +170,17 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
+             // Parameter perturbations and tolerances determined empirically to be acceptable
+             int scalingIndex = 4;
+             double toleranceStates = 1E-3;
++            if( test == 0 || test == 3 )
++            {
++                toleranceStates /= 100.0;
++            }
+             double toleranceParameter = 1E-12;
+             if( test % 3 > 0|| test == 6 )
+             {
+                 scalingIndex = 2;
+                 toleranceParameter = 1.0E-7;
+             }
+-//            if( test > 3 )
+-//            {
+-//                toleranceStates = 1.0E-3;
+-//            }
++
+ 
+             // Perturb parameters
+             auto perturbedParameters = nominalParameters;
+@@ -262,6 +265,246 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation)
+     }
+ }
+ 
++
++BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
++{
++    spice_interface::loadStandardSpiceKernels( );
++
++    for( int testCase = 0; testCase < 3; testCase++ )
++    {
++        // Define bodies in simulation
++        std::vector<std::string> bodyNames;
++        bodyNames.push_back( "Earth" );
++        bodyNames.push_back( "Sun" );
++
++        // Specify initial time
++        double initialEphemerisTime = double( 1.0E7 );
++        double finalEphemerisTime = initialEphemerisTime + 0.5 * 86400.0;
++
++        // Create bodies needed in simulation
++        BodyListSettings bodySettings =
++            getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0, finalEphemerisTime + 3600.0 );
++        setSimpleRotationSettingsFromSpice( bodySettings, "Earth", initialEphemerisTime );
++        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
++
++        // Create spacecraft object.
++        bodies.createEmptyBody( "Vehicle" );
++        bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
++
++        Eigen::Vector7d rotationalStateVehicle;
++        rotationalStateVehicle.segment( 0, 4 ) =
++            linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity( )));
++        rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero( );
++        bodies.at( "Vehicle" )->setRotationalEphemeris(
++            std::make_shared<ConstantRotationalEphemeris>(
++                rotationalStateVehicle, "ECLIPJ2000", "VehicleFixed" ));
++
++        {
++            std::shared_ptr<FullPanelledBodySettings> panelSettings;
++            if( testCase < 2 )
++            {
++                std::vector<std::shared_ptr<BodyPanelSettings> > panelSettingsList;
++
++                double specular1 = 0.35, specular2 = 0.35, diffuse1 = 0.25, diffuse2 = 0.25;
++                if ( testCase == 1 )
++                {
++                    specular1 += 0.1;
++                    specular2 -= 0.1;
++                    diffuse1 += 0.05;
++                    diffuse2 -= 0.05;
++                }
++                panelSettingsList.push_back(
++                    bodyPanelSettings(
++                        frameFixedPanelGeometry( Eigen::Vector3d::UnitX( ), 9.9 ),
++                        specularDiffuseBodyPanelReflectionLawSettings( specular1, diffuse1, false ), "Bus" ));
++                panelSettingsList.push_back(
++                    bodyPanelSettings(
++                        frameFixedPanelGeometry( Eigen::Vector3d::UnitY( ), 9.9 ),
++                        specularDiffuseBodyPanelReflectionLawSettings( specular2, diffuse2, false ), "Bus" ));
++                panelSettings =
++                    fullPanelledBodySettings( panelSettingsList );
++            }
++            else
++            {
++                panelSettings =
++                    bodyWingPanelledGeometry(
++                    2., 3., 4., 0., 0.35, 0.25, 0.35, 0.25, false, false );
++            }
++            addBodyExteriorPanelledShape(
++                panelSettings, "Vehicle", bodies );
++            bodies.at( "Vehicle" )->setRadiationPressureTargetModels(
++                { createRadiationPressureTargetModel(
++                    std::make_shared<RadiationPressureTargetModelSettings>( paneled_target ), "Vehicle", bodies ) } );
++        }
++
++
++        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
++        ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
++        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
++
++        // Set accelerations on Vehicle that are to be taken into account.
++        SelectedAccelerationMap accelerationSettingsList;
++        std::map<std::string, std::vector<std::shared_ptr<AccelerationSettings> > > accelerationsOfVehicle;
++
++        accelerationsOfVehicle[ "Earth" ] = {
++            sphericalHarmonicAcceleration( 2, 2 ) };
++        accelerationsOfVehicle[ "Sun" ] = {
++            pointMassGravityAcceleration( ),
++            radiationPressureAcceleration( ) };
++
++        accelerationSettingsList[ "Vehicle" ] = accelerationsOfVehicle;
++
++        // Set bodies for which initial state is to be estimated and integrated.
++        std::vector<std::string> bodiesToIntegrate = { "Vehicle" };
++        std::vector<std::string> centralBodies = { "Earth" };
++
++        // Create acceleration models
++        AccelerationMap accelerationModelMap = createAccelerationModelsMap(
++            bodies, accelerationSettingsList, bodiesToIntegrate, centralBodies );
++
++        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
++        ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
++        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
++
++        // Set Keplerian elements for Vehicle.
++        Eigen::Vector6d vehicleInitialStateInKeplerianElements;
++        vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7200.0E3;
++        vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
++        vehicleInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
++        vehicleInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) =
++            unit_conversions::convertDegreesToRadians( 235.7 );
++        vehicleInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) =
++            unit_conversions::convertDegreesToRadians( 23.4 );
++        vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) =
++            unit_conversions::convertDegreesToRadians( 139.87 );
++
++        // Set initial state.
++        double earthGravitationalParameter = getBodyGravitationalParameter( bodies, "Earth" );
++        Eigen::Matrix<double, 6, 1> systemInitialState = convertKeplerianToCartesianElements(
++            vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
++
++        // Create integrator settings
++        std::shared_ptr<IntegratorSettings<double> > integratorSettings =
++            rungeKuttaFixedStepSettings( 40.0, rungeKuttaFehlberg78 );
++
++        // Create propagator settings
++        std::shared_ptr<TranslationalStatePropagatorSettings<double> > propagatorSettings =
++            std::make_shared<TranslationalStatePropagatorSettings<double> >(
++                centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime,
++                integratorSettings, propagationTimeTerminationSettings( finalEphemerisTime ));
++
++        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
++        ///////////////////////    DEFINE PARAMETERS THAT ARE TO BE ESTIMATED      ////////////////////////////////////////////
++        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
++
++        // Define list of parameters to estimate.
++        std::vector<std::shared_ptr<EstimatableParameterSettings> > parameterNames;
++        parameterNames = getInitialStateParameterSettings<double>( propagatorSettings, bodies );
++        parameterNames.push_back(
++            std::make_shared<EstimatableParameterSettings>( "Vehicle", specular_reflectivity, "Bus" ));
++        parameterNames.push_back(
++            std::make_shared<EstimatableParameterSettings>( "Vehicle", diffuse_reflectivity, "Bus" ));
++
++        // Create parameters
++        std::shared_ptr<estimatable_parameters::EstimatableParameterSet<double> > parametersToEstimate =
++            createParametersToEstimate( parameterNames, bodies );
++
++        // Print identifiers and indices of parameters to terminal.
++        printEstimatableParameterEntries( parametersToEstimate );
++
++        std::vector<std::shared_ptr<ObservationModelSettings> > observationSettingsList;
++        LinkEnds linkEnds;
++        linkEnds[ observed_body ] = LinkEndId( "Vehicle", "" );
++        observationSettingsList.push_back(
++            std::make_shared<ObservationModelSettings>(
++                position_observable, linkEnds ));
++
++        // Create orbit determination object.
++        OrbitDeterminationManager<double, double> orbitDeterminationManager = OrbitDeterminationManager<double, double>(
++            bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
++
++        // Compute list of observation times.
++        std::vector<double> baseTimeList;
++        double observationTime = initialEphemerisTime + 1000.0;
++        double observationInterval = 60.0;
++        while ( observationTime < finalEphemerisTime - 1000.0 )
++        {
++            baseTimeList.push_back( observationTime );
++            observationTime += observationInterval;
++        }
++
++        std::vector<std::shared_ptr<ObservationSimulationSettings<double> > > measurementSimulationInput;
++        measurementSimulationInput.push_back(
++            std::make_shared<TabulatedObservationSimulationSettings<> >( position_observable, linkEnds, baseTimeList,
++                                                                         observed_body ));
++
++        // Simulate observations.
++        std::shared_ptr<ObservationCollection<> > observationsAndTimes = simulateObservations<double, double>(
++            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
++
++
++        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
++        //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     ////////////////////////////////////////////
++        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
++
++        // Perturb parameter estimate.
++        Eigen::Matrix<double, Eigen::Dynamic, 1> initialParameterEstimate =
++            parametersToEstimate->template getFullParameterValues<double>( );
++        Eigen::Matrix<double, Eigen::Dynamic, 1> truthParameters = initialParameterEstimate;
++        Eigen::Matrix<double, Eigen::Dynamic, 1> parameterPerturbation =
++            Eigen::Matrix<double, Eigen::Dynamic, 1>::Zero( truthParameters.rows( ));
++
++        // Perturbe initial state estimate.
++        parameterPerturbation.segment( 0, 3 ) = Eigen::Vector3d::Constant( 1.0 );
++        parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
++        parameterPerturbation.segment( 6, 1 ) = Eigen::Vector1d::Constant( 0.1 );
++        parameterPerturbation.segment( 7, 1 ) = Eigen::Vector1d::Constant( 0.1 );
++
++        initialParameterEstimate += parameterPerturbation;
++        parametersToEstimate->resetParameterValues( initialParameterEstimate );
++        Eigen::Matrix<double, Eigen::Dynamic, 1> testValues =
++            parametersToEstimate->template getFullParameterValues<double>( );
++        std::cout<<"TEST A:"<<truthParameters.transpose( )<<std::endl;
++        std::cout<<"TEST B:"<<testValues.transpose( )<<std::endl;
++
++//
++
++        // Define estimation input
++        std::shared_ptr<EstimationInput<double, double> >
++            estimationInput = std::make_shared<EstimationInput<double, double> >(
++            observationsAndTimes );
++
++        estimationInput->defineEstimationSettings( true, true, true, true, true );
++        estimationInput->setConvergenceChecker(
++            std::make_shared<EstimationConvergenceChecker>( 4 ));
++
++        // Perform estimation
++        std::shared_ptr<EstimationOutput<double> > estimationOutput = orbitDeterminationManager.estimateParameters(
++            estimationInput );
++
++        double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( observationsAndTimes->getConcatenatedResiduals( ) );
++        BOOST_CHECK_SMALL( rmsResidual, 5.0E-5 );
++        Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_;
++        std::cout << "parameter estimate: " << ( parameterEstimate ).transpose( ) << std::endl;
++
++        Eigen::VectorXd estimationError = parameterEstimate - truthParameters;
++        for( int i = 0; i < 3; i++ )
++        {
++            BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-4 );
++            BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-7 );
++        }
++        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 1.0E-4 );
++        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 1.0E-4 );
++
++        Eigen::Matrix<double, Eigen::Dynamic, 1> newTestValues =
++            parametersToEstimate->template getFullParameterValues<double>( );
++        std::cout<<"TEST C:"<<newTestValues.transpose( )<<std::endl;
++
++        std::cout << "estimation error: " << ( estimationError ).transpose( ) << std::endl;
++        std::cout << "truth value: " << ( truthParameters ).transpose( ) << std::endl;
++    }
++}
++
+ BOOST_AUTO_TEST_SUITE_END( )
+ 
+ }
