@@ -650,8 +650,8 @@ In this example, we define the spherical harmonic gravity accelerations exerted 
 
 For the case where the mutual spherical harmonic acceleration is a third-body acceleration,
 additional parameters have to be provided to denote the expansion of the spherical harmonics of the central body.
-In the following example, we consider the spherical harmonic gravity acceleration mutually exerted between
-Ganymede and Io when propagating w.r.t. Jupiter:
+In the following example, we consider the mutual spherical harmonic gravity acceleration exerted on Io by
+Ganymede when propagating w.r.t. Jupiter:
 
 .. code-block:: python
 
@@ -665,13 +665,13 @@ Ganymede and Io when propagating w.r.t. Jupiter:
    # Create acceleration dict
    acceleration_settings_on_io = dict()
    # Add the acceleration to the dict
-   acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.mutual_spherical_harmonic_gravity(
-        maximum_degree_of_jupiter,
-        maximum_order_of_jupiter,
-        maximum_degree_of_ganymede,
-        maximum_order_of_ganymede,
-        maximum_degree_of_io,
-        maximum_order_of_io)]
+   acceleration_settings_on_io["Ganymede"] = [propagation_setup.acceleration.mutual_spherical_harmonic_gravity(
+       maximum_degree_of_ganymede,
+       maximum_order_of_ganymede,
+       maximum_degree_of_io,
+       maximum_order_of_io,
+       maximum_degree_of_jupiter,
+       maximum_order_of_jupiter)]
 
 
     )doc" );
