@@ -2361,8 +2361,8 @@ numpy.ndarray[numpy.float64[6, 1]]
 
 
      )doc" )
-            .def_property(
-                    "ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame, &tss::Body::setEphemerisFrameToBaseFrame )
+//            .def_property(
+//                    "ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame, &tss::Body::setEphemerisFrameToBaseFrame )
             .def_property_readonly( "state", &tss::Body::getState, R"doc(
 
         **read-only**

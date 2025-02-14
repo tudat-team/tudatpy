@@ -246,7 +246,7 @@ Dict[float, numpy.ndarray]
 
     py::class_< tudat::input_output::MissileDatcomData, std::shared_ptr< tudat::input_output::MissileDatcomData > >(
             m, "missile_DATCOM_data", R"doc(No documentation available.)doc" )
-            .def( py::init< const std::string & >( ), py::arg( "file_name_and_path" ), R"doc(No documentation available.)doc" )
+            .def( py::init< const std::string & >( ), py::arg( "file_name_and_path" ) )
             .def( "get_static_coefficient",
                   &tudat::input_output::MissileDatcomData::getStaticCoefficient,
                   py::arg( "mach_index" ),
@@ -262,7 +262,7 @@ Dict[float, numpy.ndarray]
             .def( "get_angle_of_attacks",
                   &tudat::input_output::MissileDatcomData::getAngleOfAttacks,
                   R"doc(No documentation available.)doc" )
-            .def( "get_mach_numbers", &tudat::input_output::MissileDatcomData::getMachNumbers, R"doc(No documentation available.)doc" )
+            .def( "get_mach_numbers", &tudat::input_output::MissileDatcomData::getMachNumbers )
             .def( "get_Reynolds_numbers",
                   &tudat::input_output::MissileDatcomData::getReynoldsNumbers,
                   R"doc(No documentation available.)doc" )
@@ -280,42 +280,42 @@ Dict[float, numpy.ndarray]
                   R"doc(No documentation available.)doc" );
 
     py::enum_< tudat::input_output::MissileDatcomData::DynamicCoefficientNames >(
-            m, "DynamicCoefficientNames", R"doc(No documentation available.)doc" )
-            .value( "cnq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnq, R"doc(No documentation available.)doc" )
-            .value( "cmq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmq, R"doc(No documentation available.)doc" )
-            .value( "caq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::caq, R"doc(No documentation available.)doc" )
-            .value( "cyq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyq, R"doc(No documentation available.)doc" )
-            .value( "clnq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnq, R"doc(No documentation available.)doc" )
-            .value( "cllq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllq, R"doc(No documentation available.)doc" )
-            .value( "cnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnr, R"doc(No documentation available.)doc" )
-            .value( "cmr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmr, R"doc(No documentation available.)doc" )
-            .value( "car", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car, R"doc(No documentation available.)doc" )
-            .value( "cyr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyr, R"doc(No documentation available.)doc" )
-            .value( "clnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnr, R"doc(No documentation available.)doc" )
-            .value( "cllr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllr, R"doc(No documentation available.)doc" )
-            .value( "cnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnp, R"doc(No documentation available.)doc" )
-            .value( "cmp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmp, R"doc(No documentation available.)doc" )
-            .value( "cap", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cap, R"doc(No documentation available.)doc" )
-            .value( "cyp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyp, R"doc(No documentation available.)doc" )
-            .value( "clnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnp, R"doc(No documentation available.)doc" )
-            .value( "cllp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllp, R"doc(No documentation available.)doc" )
-            .value( "cnad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnad, R"doc(No documentation available.)doc" )
-            .value( "cmad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmad, R"doc(No documentation available.)doc" )
+            m, "DynamicCoefficientNames" )
+            .value( "cnq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnq )
+            .value( "cmq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmq )
+            .value( "caq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::caq )
+            .value( "cyq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyq )
+            .value( "clnq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnq )
+            .value( "cllq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllq )
+            .value( "cnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnr )
+            .value( "cmr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmr )
+            .value( "car", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car )
+            .value( "cyr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyr )
+            .value( "clnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnr )
+            .value( "cllr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllr )
+            .value( "cnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnp )
+            .value( "cmp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmp )
+            .value( "cap", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cap )
+            .value( "cyp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyp )
+            .value( "clnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnp )
+            .value( "cllp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllp )
+            .value( "cnad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnad )
+            .value( "cmad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmad )
             .export_values( );
 
     py::enum_< tudat::input_output::MissileDatcomData::StaticCoefficientNames >(
-            m, "StaticCoefficientNames", R"doc(No documentation available.)doc" )
-            .value( "cn", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cn, R"doc(No documentation available.)doc" )
-            .value( "cm", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cm, R"doc(No documentation available.)doc" )
-            .value( "ca", tudat::input_output::MissileDatcomData::StaticCoefficientNames::ca, R"doc(No documentation available.)doc" )
-            .value( "cy", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cy, R"doc(No documentation available.)doc" )
-            .value( "cln", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cln, R"doc(No documentation available.)doc" )
-            .value( "cll", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cll, R"doc(No documentation available.)doc" )
-            .value( "cna", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cna, R"doc(No documentation available.)doc" )
-            .value( "cma", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cma, R"doc(No documentation available.)doc" )
-            .value( "cyb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cyb, R"doc(No documentation available.)doc" )
-            .value( "cnb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cnb, R"doc(No documentation available.)doc" )
-            .value( "clb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::clb, R"doc(No documentation available.)doc" )
+            m, "StaticCoefficientNames" )
+            .value( "cn", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cn )
+            .value( "cm", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cm )
+            .value( "ca", tudat::input_output::MissileDatcomData::StaticCoefficientNames::ca )
+            .value( "cy", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cy )
+            .value( "cln", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cln )
+            .value( "cll", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cll )
+            .value( "cna", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cna )
+            .value( "cma", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cma )
+            .value( "cyb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cyb )
+            .value( "cnb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cnb )
+            .value( "clb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::clb )
             .export_values( );
 
     py::class_< tio::solar_activity::SolarActivityData, std::shared_ptr< tio::solar_activity::SolarActivityData > >(
