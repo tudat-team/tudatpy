@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "tudat/math/interpolators.h"
+#include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
@@ -592,7 +593,8 @@ public:
             std::function< double( double time ) > wetZenithRangeCorrectionFunction = []( double ) { return 0.0; } ):
         LightTimeCorrection( lightTimeCorrectionType ), dryZenithRangeCorrectionFunction_( dryZenithRangeCorrectionFunction ),
         wetZenithRangeCorrectionFunction_( wetZenithRangeCorrectionFunction ), elevationMapping_( elevationMapping ),
-        isUplinkCorrection_( isUplinkCorrection )
+        isUplinkCorrection_( isUplinkCorrection ),
+        timePerturbation_( 60.0 ), positionPerturbation_( 1.0E4 )
     { }
 
     /*!
@@ -630,7 +632,29 @@ public:
                                                                         const LinkEndType fixedLinkEnd,
                                                                         const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
-        return 0.0;
+        double upPerturbedCorrection, downPerturbedCorrection;
+        if( isUplinkCorrection_ )
+        {
+            double upPerturbedTransmissionTime = transmissionTime + timePerturbation_;
+            upPerturbedCorrection = calculateLightTimeCorrection(
+                transmitterState, receiverState, upPerturbedTransmissionTime, receptionTime );
+
+            double downPerturbedTransmissionTime = transmissionTime - timePerturbation_;
+            downPerturbedCorrection = calculateLightTimeCorrection(
+                transmitterState, receiverState, downPerturbedTransmissionTime, receptionTime );
+
+        }
+        else
+        {
+            double upPerturbedReceptionTime = receptionTime + timePerturbation_;
+            upPerturbedCorrection = calculateLightTimeCorrection(
+                transmitterState, receiverState, upPerturbedReceptionTime, receptionTime );
+
+            double downPerturbedReceptionTime = receptionTime - timePerturbation_;
+            downPerturbedCorrection = calculateLightTimeCorrection(
+                transmitterState, receiverState, downPerturbedReceptionTime, receptionTime );
+        }
+        return ( upPerturbedCorrection - downPerturbedCorrection ) / ( 2.0 * timePerturbation_ );
     }
 
     /*!
@@ -651,7 +675,40 @@ public:
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
-        return Eigen::Vector3d::Zero( );
+        Eigen::Matrix< double, 3, 1 > positionPartial = Eigen::Matrix< double, 3, 1 >::Zero( );
+
+        Eigen::Vector6d perturbedState;
+        for( int i = 0; i < 3; i++ )
+        {
+            double upPerturbedCorrection, downPerturbedCorrection;
+            if ( linkEndAtWhichPartialIsEvaluated == receiver )
+            {
+                perturbedState = receiverState;
+                perturbedState( i ) += positionPerturbation_;
+                upPerturbedCorrection = calculateLightTimeCorrection(
+                    transmitterState, perturbedState, transmissionTime, receptionTime );
+
+                perturbedState = receiverState;
+                perturbedState( i ) -= positionPerturbation_;
+                downPerturbedCorrection = calculateLightTimeCorrection(
+                    transmitterState, perturbedState, transmissionTime, receptionTime );
+
+            }
+            else
+            {
+                perturbedState = transmitterState;
+                perturbedState( i ) += positionPerturbation_;
+                upPerturbedCorrection = calculateLightTimeCorrection(
+                    perturbedState, receiverState, transmissionTime, receptionTime );
+
+                perturbedState = transmitterState;
+                perturbedState( i ) -= positionPerturbation_;
+                downPerturbedCorrection = calculateLightTimeCorrection(
+                    perturbedState, receiverState, transmissionTime, receptionTime );
+            }
+            positionPartial( i ) = ( upPerturbedCorrection - downPerturbedCorrection ) / ( 2.0 * positionPerturbation_ );
+        }
+        return positionPartial;
     }
 
     // Returns the function that computes the dry zenith correction as a function of time.
@@ -678,6 +735,10 @@ protected:
 
     // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
     bool isUplinkCorrection_;
+
+    double timePerturbation_;
+
+    double positionPerturbation_;
 };
 
 // Class to compute the tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1.
@@ -736,29 +797,6 @@ private:
 //! Enum defining different types of water vapor partial pressure models.
 enum WaterVaporPartialPressureModel { tabulated, bean_and_dutton };
 
-/*! Calculate the partial vapor pressure.
- *
- * Calculate the partial vapor pressure according to the Bean and Dutton (1966) model, as described by Estefan and Sovers
- * (1994), Eq. 16.
- *
- * @param relativeHumidity Relative humidity, defined in [0,1]
- * @param temperature Temperature in Kelvin
- * @return Partial vapor pressure in Pa
- */
-double calculateBeanAndDuttonWaterVaporPartialPressure( double relativeHumidity, double temperature );
-
-/*!
- * Returns a function that computes the water vapor partial pressure as a function of time, according to the Bean and
- * Dutton (1966) model.
- *
- * @param relativeHumidity Relative humidity as a function of time.
- * @param temperature Temperature as a function of time.
- * @return Water vapor partial pressure as a function of time.
- */
-std::function< double( const double time ) > getBeanAndDuttonWaterVaporPartialPressureFunction(
-        std::function< double( const double time ) > relativeHumidity,
-        std::function< double( const double time ) > temperature );
-
 // Class to compute the Saastamaoinen tropospheric corrections, according to Estefan and Sovers (1994). Derived class
 // from MappedTroposphericCorrection.
 class SaastamoinenTroposphericCorrection : public MappedTroposphericCorrection
@@ -810,6 +848,41 @@ private:
     // Water vapor partial pressure at the ground station as a function of time
     std::function< double( const double ) > waterVaporPartialPressureFunction_;
 };
+//
+//class VMF1TroposphericCorrection : public MappedTroposphericCorrection
+//{
+//public:
+//    /*!
+//     * Constructor
+//     * @param lightTimeCorrectionType Type of light-time correction represented by instance of class.
+//     * @param elevationMapping Mapping function of range corrections from zenith to other elevations
+//     * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
+//     *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
+//     * @param dryZenithRangeCorrectionFunction Function computing the dry atmosphere zenith correction for a given time
+//     * @param wetZenithRangeCorrectionFunction Function computing the wet atmosphere zenith correction for a given time
+//     */
+//    VMF1TroposphericCorrection(
+//        bool isUplinkCorrection ):
+//        Mapp( vmf_tropospheric ),
+//        isUplinkCorrection_( isUplinkCorrection )
+//    { }
+//
+//
+//    double getDryMappingFunctions(
+//        const double dryACoefficient,
+//        const double wetACoefficient,
+//        const double elevationAngle,
+//        const double stationLatitude,
+//        const double currentModifiedJulianDay );
+//
+//
+//protected:
+//
+//    // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
+//    bool isUplinkCorrection_;
+//
+//    std::shared_ptr< ground_stations::InterpolatedStationTroposphereData > troposphereData_;
+//};
 
 // Tabulated ionospheric corrections using DSN data, according to Moyer (2000), section 10.2.2
 class TabulatedIonosphericCorrection : public LightTimeCorrection

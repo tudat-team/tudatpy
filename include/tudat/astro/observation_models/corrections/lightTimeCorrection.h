@@ -27,6 +27,7 @@ enum LightTimeCorrectionType {
     function_wrapper_light_time_correction,
     tabulated_tropospheric,
     saastamoinen_tropospheric,
+    vmf_tropospheric,
     tabulated_ionospheric,
     jakowski_vtec_ionospheric,
     inverse_power_series_solar_corona
