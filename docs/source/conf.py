@@ -19,6 +19,7 @@
 
 import os
 import sys
+from datetime import datetime
 
 sys.path.insert(0, os.path.abspath("."))
 
@@ -105,7 +106,8 @@ master_doc = "index"
 
 # General information about the project.
 project = "TudatPy API"
-copyright = "2021, Tudat Team"
+year = datetime.now().year
+copyright = f"{year}, Tudat Team"
 author = "Tudat Team"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -122,7 +124,7 @@ release = ""
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -144,7 +146,7 @@ todo_include_todos = True
 html_theme = "furo"
 html_theme_options = {
     "navigation_with_keys": True,
-    "announcement": "<em>These docs are a work-in-progress!</em>",
+    "announcement": "Have questions or feedback? See the <a href='https://docs.tudat.space/en/latest/index_user_guide.html'>User Guide</a> or let us know in our <a href='https://github.com/orgs/tudat-team/discussions?discussions_q='>Github Discussion forum</a>!",
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -235,5 +237,5 @@ intersphinx_mapping = {
     "pagmo": ("https://esa.github.io/pagmo2/", None),
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
     "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
-    "matplotlib": ("https://matplotlib.org/stable/api/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
 }
