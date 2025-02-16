@@ -24,17 +24,9 @@ Constants
     
     Julian day in seconds [1]_.
 
-.. autodata:: tudatpy.constants.JULIAN_DAY_LONG
-    
-    Julian day in seconds [1]_, in long double precision.
-
 .. autodata:: tudatpy.constants.JULIAN_YEAR_IN_DAYS
 
     Julian year in Julian days [1]_.
-
-.. autodata:: tudatpy.constants.JULIAN_YEAR_IN_DAYS_LONG
-
-    Julian year in Julian days [1]_, in long double precision.
 
 .. autodata:: tudatpy.constants.JULIAN_YEAR
 
@@ -55,10 +47,6 @@ Constants
 .. autodata:: tudatpy.constants.SPEED_OF_LIGHT
 
     Speed of light in meters per second [2]_.
-
-.. autodata:: tudatpy.constants.SPEED_OF_LIGHT_LONG
-
-    Speed of light in meters per second [2]_, in long double precision.
 
 .. autodata:: tudatpy.constants.GRAVITATIONAL_CONSTANT
 
@@ -116,10 +104,6 @@ Constants
 .. autodata:: tudatpy.constants.LG_TIME_RATE_TERM
 
     Relative time rate difference between TCG and TT time scales.
-
-.. autodata:: tudatpy.constants.LG_TIME_RATE_TERM_LONG
-
-    Relative time rate difference between TCG and TT time scales, in long double precision.
 
 .. autodata:: tudatpy.constants.JULIAN_DAY_ON_J2000
 
