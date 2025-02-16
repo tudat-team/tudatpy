@@ -21,6 +21,7 @@ astrodynamics.
    :caption: Modules
 
    astro
+   constants
    data
    interface
    math
