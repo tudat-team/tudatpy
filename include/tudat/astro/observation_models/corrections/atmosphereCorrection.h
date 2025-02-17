@@ -590,12 +590,7 @@ public:
             std::shared_ptr< TroposhericElevationMapping > elevationMapping,
             bool isUplinkCorrection,
             std::function< double( double time ) > dryZenithRangeCorrectionFunction = []( double ) { return 0.0; },
-            std::function< double( double time ) > wetZenithRangeCorrectionFunction = []( double ) { return 0.0; } ):
-        LightTimeCorrection( lightTimeCorrectionType ), dryZenithRangeCorrectionFunction_( dryZenithRangeCorrectionFunction ),
-        wetZenithRangeCorrectionFunction_( wetZenithRangeCorrectionFunction ), elevationMapping_( elevationMapping ),
-        isUplinkCorrection_( isUplinkCorrection ),
-        timePerturbation_( 60.0 ), positionPerturbation_( 1.0E4 )
-    { }
+            std::function< double( double time ) > wetZenithRangeCorrectionFunction = []( double ) { return 0.0; } );
 
     /*!
      * Function to computes a mapped tropospheric light-time correction. Correction is computed according to Moyer
@@ -630,32 +625,7 @@ public:
                                                                         const double transmissionTime,
                                                                         const double receptionTime,
                                                                         const LinkEndType fixedLinkEnd,
-                                                                        const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        double upPerturbedCorrection, downPerturbedCorrection;
-        if( isUplinkCorrection_ )
-        {
-            double upPerturbedTransmissionTime = transmissionTime + timePerturbation_;
-            upPerturbedCorrection = calculateLightTimeCorrection(
-                transmitterState, receiverState, upPerturbedTransmissionTime, receptionTime );
-
-            double downPerturbedTransmissionTime = transmissionTime - timePerturbation_;
-            downPerturbedCorrection = calculateLightTimeCorrection(
-                transmitterState, receiverState, downPerturbedTransmissionTime, receptionTime );
-
-        }
-        else
-        {
-            double upPerturbedReceptionTime = receptionTime + timePerturbation_;
-            upPerturbedCorrection = calculateLightTimeCorrection(
-                transmitterState, receiverState, upPerturbedReceptionTime, receptionTime );
-
-            double downPerturbedReceptionTime = receptionTime - timePerturbation_;
-            downPerturbedCorrection = calculateLightTimeCorrection(
-                transmitterState, receiverState, downPerturbedReceptionTime, receptionTime );
-        }
-        return ( upPerturbedCorrection - downPerturbedCorrection ) / ( 2.0 * timePerturbation_ );
-    }
+                                                                        const LinkEndType linkEndAtWhichPartialIsEvaluated );
 
     /*!
      * Function to compute the partial derivative of the light-time correction w.r.t. link end position. Partial is
@@ -673,43 +643,7 @@ public:
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        Eigen::Matrix< double, 3, 1 > positionPartial = Eigen::Matrix< double, 3, 1 >::Zero( );
-
-        Eigen::Vector6d perturbedState;
-        for( int i = 0; i < 3; i++ )
-        {
-            double upPerturbedCorrection, downPerturbedCorrection;
-            if ( linkEndAtWhichPartialIsEvaluated == receiver )
-            {
-                perturbedState = receiverState;
-                perturbedState( i ) += positionPerturbation_;
-                upPerturbedCorrection = calculateLightTimeCorrection(
-                    transmitterState, perturbedState, transmissionTime, receptionTime );
-
-                perturbedState = receiverState;
-                perturbedState( i ) -= positionPerturbation_;
-                downPerturbedCorrection = calculateLightTimeCorrection(
-                    transmitterState, perturbedState, transmissionTime, receptionTime );
-
-            }
-            else
-            {
-                perturbedState = transmitterState;
-                perturbedState( i ) += positionPerturbation_;
-                upPerturbedCorrection = calculateLightTimeCorrection(
-                    perturbedState, receiverState, transmissionTime, receptionTime );
-
-                perturbedState = transmitterState;
-                perturbedState( i ) -= positionPerturbation_;
-                downPerturbedCorrection = calculateLightTimeCorrection(
-                    perturbedState, receiverState, transmissionTime, receptionTime );
-            }
-            positionPartial( i ) = ( upPerturbedCorrection - downPerturbedCorrection ) / ( 2.0 * positionPerturbation_ );
-        }
-        return positionPartial;
-    }
+            const LinkEndType linkEndAtWhichPartialIsEvaluated );
 
     // Returns the function that computes the dry zenith correction as a function of time.
     std::function< double( double time ) > getDryZenithRangeCorrectionFunction( )
@@ -738,7 +672,7 @@ protected:
 
     double timePerturbation_;
 
-    double positionPerturbation_;
+    double positionRelativePerturbation_;
 };
 
 // Class to compute the tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1.

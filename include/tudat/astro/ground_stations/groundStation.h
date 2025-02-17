@@ -202,7 +202,6 @@ public:
 
     void setMeteoData( const std::shared_ptr< StationMeteoData > meteoData )
     {
-        std::cout<<"Setting meteo "<<meteoData_<<" "<<stationId_<<std::endl;
         meteoData_ = meteoData;
     }
 

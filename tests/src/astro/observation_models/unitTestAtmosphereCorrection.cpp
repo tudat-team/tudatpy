@@ -21,13 +21,16 @@
 #include "tudat/simulation/environment_setup.h"
 #include "tudat/io/readTabulatedWeatherData.h"
 #include "tudat/io/readTabulatedMediaCorrections.h"
+#include "tudat/astro/ground_stations/meteorologicalConditions.h"
 
 namespace tudat
 {
 namespace unit_tests
 {
 
+using namespace input_output;
 using namespace observation_models;
+using namespace ground_stations;
 
 BOOST_AUTO_TEST_SUITE( test_tabulated_media_corrections )
 
@@ -569,6 +572,181 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
                                    computedTabulatedCorrection,
                            2.1 );
     }
+}
+
+// Check consistency between tabulated and Jakowski ionospheric corrections
+BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
+{
+    double initialTime = 544795200.0 + 100.0;
+    DateTime initialDate = getCalendarDateFromTime< double >( initialTime );
+    std::cout<<initialDate.isoString( )<<std::endl;
+
+    // Create bodies
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth", "Mars", "Sun" };
+    simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getDsnStationSettings( );
+
+    std::string spacecraftName = "MRO";
+    bodySettings.addSettings( spacecraftName );
+    bodySettings.at( spacecraftName )->ephemerisSettings = std::make_shared< simulation_setup::DirectSpiceEphemerisSettings >( );
+
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    setDsnWeatherDataInGroundStations(
+        bodies,
+        std::vector< std::string >{ "/home/dominic/Downloads/2017_001_2017_365_w10.tab" } );
+
+    // Set transmitting frequency calculator
+    double frequency = 8e9;
+    bodies.getBody( "Earth" )
+        ->getGroundStation( "DSS-26" )
+        ->setTransmittingFrequencyCalculator( std::make_shared< ground_stations::ConstantFrequencyInterpolator >( frequency ) );
+
+
+    // Create link ends
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = LinkEndId( "Earth", "DSS-26" );
+    linkEnds[ receiver ] = LinkEndId( "MRO" );
+
+
+    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
+        std::make_shared< ObservationAncilliarySimulationSettings >( );
+    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+
+    // Create Saastamoinen corrections
+    for( int test = 0; test < 2; test++ )
+    {
+        std::shared_ptr<LightTimeCorrectionSettings> correctionSettings;
+        if( test == 0 )
+        {
+            correctionSettings = saastamoinenTroposphericCorrectionSettings( );
+        }
+        else
+        {
+            correctionSettings = jakowskiIonosphericCorrectionSettings( );
+        }
+        std::shared_ptr<LightTimeCorrection> troposphereCorrectionModel = createLightTimeCorrections(
+            correctionSettings, bodies, linkEnds, transmitter, receiver, observation_models::n_way_range );
+
+        double timeStep = 30.0;
+        unsigned int numberOfPoints = 10000;
+
+        unsigned int currentMultiLegTransmitterIndex = 0;
+
+        double time = initialTime - timeStep;
+        std::vector<double> delays;
+        std::vector<Eigen::Vector3d> delaysWrtReceiver;
+        std::vector<Eigen::Vector3d> delaysWrtTransmitter;
+        std::vector<Eigen::Vector3d> receiverVelocities;
+        std::vector<Eigen::Vector3d> transmitterVelocities;
+        std::vector<double> delaysWrtTime;
+        std::vector<double> elevationAngles;
+
+        for ( unsigned int i = 0; i < numberOfPoints; ++i )
+        {
+            time += timeStep;
+
+            // Approximate light time
+            double lightTime = ( bodies.getBody( "Mars" )->getStateInBaseFrameFromEphemeris( time ) -
+                                 bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( time ))
+                                   .segment( 0, 3 )
+                                   .norm( ) /
+                               SPEED_OF_LIGHT;
+
+            std::vector<Eigen::Vector6d> linkEndsStates;
+            std::vector<double> linkEndsTimes;
+
+            // Approximate state and time of DSS-26
+            linkEndsStates.push_back( bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( time ));
+            linkEndsTimes.push_back( time );
+
+            // Approximate state and time of MRO
+            linkEndsStates.push_back( bodies.getBody( "Mars" )->getStateInBaseFrameFromEphemeris( time + lightTime ));
+            linkEndsTimes.push_back( time + lightTime );
+
+            double currentElevation =
+                bodies.at( "Earth" )->getGroundStation(
+                    "DSS-26" )->getPointingAnglesCalculator( )->calculateElevationAngleFromInertialVector(
+                    ( linkEndsStates.at( 1 ) - linkEndsStates.at( 0 )).segment( 0, 3 ), time );
+
+            elevationAngles.push_back( currentElevation );
+
+            // Try/catch block used to jump over time epochs when the ionospheric tabulated corrections aren't defined
+            double computedTabulatedCorrection;
+
+            delays.push_back( troposphereCorrectionModel->calculateLightTimeCorrection(
+                linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
+                linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ),
+                ancillarySettings ));
+
+            delaysWrtTransmitter.push_back(
+                troposphereCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
+                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter ));
+
+            delaysWrtReceiver.push_back(
+                troposphereCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
+                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver ));
+
+            delaysWrtTime.push_back(
+                troposphereCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
+                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver, receiver ));
+
+            transmitterVelocities.push_back( linkEndsStates.at( 0 ).segment( 3, 3 ));
+            receiverVelocities.push_back( linkEndsStates.at( 1 ).segment( 3, 3 ));
+
+//        troposphereCorrectionModel->calculateLightTimeCorrectionDerivativeWrtLinkEndTime(
+//
+//            )
+        }
+
+
+    double maxError = 0.0;
+    double minError = 1.0E100;
+    double maxErrorElevation = TUDAT_NAN;
+    double minErrorElevation = TUDAT_NAN;
+    double maxErrorRelative = TUDAT_NAN;
+    double minErrorRelative = TUDAT_NAN;
+
+        std::vector<double> numericalDerivativesWrtTime;
+        std::vector<double> reconstructedDerivativesWrtTime;
+        int counter = 0;
+        for ( unsigned int i = 2; i < delays.size( ) - 2; i++ )
+        {
+            if ( elevationAngles.at( i ) > 10.0 * mathematical_constants::PI / 180.0 )
+            {
+                numericalDerivativesWrtTime.push_back(( -delays.at( i + 2 ) + 8.0 * delays.at( i + 1 ) - 8.0 * delays.at( i - 1 ) + delays.at( i - 2 )) / ( 12.0 * timeStep ));
+                reconstructedDerivativesWrtTime.push_back(
+                    delaysWrtTime.at( i ) + delaysWrtReceiver.at( i ).dot( receiverVelocities.at( i )) +
+                    delaysWrtTransmitter.at( i ).dot( transmitterVelocities.at( i )));
+                double absoluteError = std::fabs(
+                    numericalDerivativesWrtTime.at( counter ) - reconstructedDerivativesWrtTime.at( counter ));
+
+                BOOST_CHECK_SMALL( absoluteError, 5.0E-14 * ( test == 0 ? 1.0 : 10.0 ) );
+
+                double relativeError =  absoluteError / numericalDerivativesWrtTime.at( counter );
+                if( absoluteError > maxError )
+                {
+                    maxError = absoluteError;
+                    maxErrorRelative = relativeError;
+                    maxErrorElevation = elevationAngles.at( i );
+                }
+
+                if( absoluteError < minError )
+                {
+                    minError = absoluteError;
+                    minErrorRelative = relativeError;
+                    minErrorElevation = elevationAngles.at( i );
+                }
+                counter++;
+            }
+        }
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
