@@ -604,6 +604,8 @@ public:
                 linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true );
         lightTimePartialWrtTransmitterPosition_ = lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
                 linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
+//        lightTimePartialWrtReceiverTime_ = lightTimeCalculator_->getPar(
+//            linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
         ObservationScalarType firstOrderDopplerObservable = computeOneWayFirstOrderDopplerTaylorSeriesExpansion< ObservationScalarType >(
                 linkEndStates.at( 0 ).template cast< ObservationScalarType >( ),
                 linkEndStates.at( 1 ).template cast< ObservationScalarType >( ),
@@ -691,6 +693,8 @@ private:
 
     //! Pre-declared light-time partial w.r.t. transmitter sensitivity (used fopr first-order Doppler)
     Eigen::Matrix< ObservationScalarType, 1, 3 > lightTimePartialWrtTransmitterPosition_;
+
+    ObservationScalarType lightTimePartialWrtReceiverTime_;
 
     bool normalizeWithSpeedOfLight_;
 
