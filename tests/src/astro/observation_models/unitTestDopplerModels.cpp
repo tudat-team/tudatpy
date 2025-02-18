@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                 std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double > >( observationModel );
 
         // Test observable for both fixed link ends
-        for( unsigned testCase = 2; testCase < 4; testCase++ )
+        for( unsigned testCase = 0; testCase < 4; testCase++ )
         {
             std::cout << testCase << " " << useCorrections << std::endl;
             double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;

@@ -694,7 +694,7 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
             delaysWrtTime.push_back(
                 troposphereCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
                     linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
-                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver, receiver ));
+                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver ));
 
             transmitterVelocities.push_back( linkEndsStates.at( 0 ).segment( 3, 3 ));
             receiverVelocities.push_back( linkEndsStates.at( 1 ).segment( 3, 3 ));

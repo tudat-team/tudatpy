@@ -251,7 +251,6 @@ public:
                                                                         const Eigen::Vector6d& receiverState,
                                                                         const double transmissionTime,
                                                                         const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
                                                                         const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
         if( !isWarningProvided_ )
@@ -649,6 +648,37 @@ public:
                     physical_constants::SPEED_OF_LIGHT;
         }
         return partialWrtLinkEndPosition;
+    }
+
+    ObservationScalarType getPartialOfLightTimeWrtLinkEndTime(
+        const Eigen::Vector6d& transmitterState,
+        const Eigen::Vector6d& receiverState,
+        const double transmitterTime,
+        const double receiverTime,
+        const bool isPartialWrtReceiver,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+    {
+        setTotalLightTimeCorrection( transmitterState.template cast< ObservationScalarType >( ),
+                                     receiverState.template cast< ObservationScalarType >( ),
+                                     transmitterTime,
+                                     receiverTime,
+                                     ancillarySettings );
+
+        Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
+            ( receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 ) ).template cast< ObservationScalarType >( );
+        ObservationScalarType partialWrtLinkEndTime = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
+
+        for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
+        {
+            partialWrtLinkEndTime += correctionFunctions_.at( i )
+                                             ->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                                                 transmitterState.template cast< double >( ),
+                                                 receiverState.template cast< double >( ),
+                                                 transmitterTime,
+                                                 receiverTime,
+                                                 isPartialWrtReceiver ? receiver : transmitter );
+        }
+        return partialWrtLinkEndTime;
     }
 
     //! Function to get list of light-time correction functions
