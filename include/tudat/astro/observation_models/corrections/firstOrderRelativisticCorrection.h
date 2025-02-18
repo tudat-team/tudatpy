@@ -123,7 +123,6 @@ public:
                                                                         const Eigen::Vector6d& receiverState,
                                                                         const double transmissionTime,
                                                                         const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
                                                                         const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
         return 0.0;

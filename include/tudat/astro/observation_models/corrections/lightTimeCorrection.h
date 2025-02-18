@@ -112,7 +112,6 @@ public:
                                                                                 const Eigen::Vector6d& receiverState,
                                                                                 const double transmissionTime,
                                                                                 const double receptionTime,
-                                                                                const LinkEndType fixedLinkEnd,
                                                                                 const LinkEndType linkEndAtWhichPartialIsEvaluated ) = 0;
 
     //! Pure virtual function to compute the partial derivative of the light-time correction w.r.t. link end position
@@ -133,33 +132,7 @@ public:
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated ) = 0;
 
-    //! Function to compute the full derivative of the light-time correction w.r.t. observation time
-    /*!
-     * Function to compute the full derivative of the light-time correction w.r.t. observation time. The function as implemented
-     * here combines the position and time partial derivatives into the full time-derivative.
-     * The function is virtual and may be overridden in derived class for specific correction model.
-     * \param transmitterState State of transmitted at transmission time
-     * \param receiverState State of receiver at reception time
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param fixedLinkEnd Reference link end for observation
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
-     * \return Light-time correction w.r.t. observation time
-     */
-    virtual double calculateLightTimeCorrectionDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
-                                                                         const Eigen::Vector6d& receiverState,
-                                                                         const double transmissionTime,
-                                                                         const double receptionTime,
-                                                                         const LinkEndType fixedLinkEnd,
-                                                                         const LinkEndType linkEndAtWhichPartialIsEvaluated )
-    {
-        return calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                       transmitterState, receiverState, transmissionTime, receptionTime, fixedLinkEnd, linkEndAtWhichPartialIsEvaluated ) +
-                ( calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                          transmitterState, receiverState, transmissionTime, receptionTime, linkEndAtWhichPartialIsEvaluated ) *
-                  ( ( linkEndAtWhichPartialIsEvaluated == transmitter ) ? ( transmitterState.segment( 3, 3 ) )
-                                                                        : ( receiverState.segment( 3, 3 ) ) ) )( 0 );
-    }
+
 
     //! Function to retrieve the type of light-time correction represented by instance of class.
     /*!

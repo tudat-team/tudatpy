@@ -624,7 +624,6 @@ public:
                                                                         const Eigen::Vector6d& receiverState,
                                                                         const double transmissionTime,
                                                                         const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
                                                                         const LinkEndType linkEndAtWhichPartialIsEvaluated );
 
     /*!
@@ -872,7 +871,6 @@ public:
                                                                         const Eigen::Vector6d& receiverState,
                                                                         const double transmissionTime,
                                                                         const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
                                                                         const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
         // TODO: Add computation of partial
@@ -1121,7 +1119,6 @@ public:
                                                                         const Eigen::Vector6d& receiverState,
                                                                         const double transmissionTime,
                                                                         const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
                                                                         const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
     {
         // TODO: Add computation of partial
