@@ -326,7 +326,6 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionPartialDerivati
                                                                                                   const Eigen::Vector6d& receiverState,
                                                                                                   const double transmissionTime,
                                                                                                   const double receptionTime,
-                                                                                                  const LinkEndType fixedLinkEnd,
                                                                                                   const LinkEndType linkEndAtWhichPartialIsEvaluated )
 {
     double upPerturbedCorrection, downPerturbedCorrection;
