@@ -596,7 +596,7 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
 
     setDsnWeatherDataInGroundStations(
         bodies,
-        std::vector< std::string >{ "/home/dominic/Downloads/2017_001_2017_365_w10.tab" } );
+        std::vector< std::string >{ paths::getTudatTestDataPath( ) + "2017_001_2017_365_w10.tab" } );
 
     // Set transmitting frequency calculator
     double frequency = 8e9;

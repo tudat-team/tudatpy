@@ -596,7 +596,6 @@ void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
         std::string currentStationName = it.first;
         if( bodies.at( "Earth")->getGroundStationMap( ).count( currentStationName ) > 0 )
         {
-            std::cout<<"Creating meteo from VMF"<<currentStationName<<std::endl;
             std::shared_ptr< ground_stations::GroundStation > currentStation =
                 bodies.at( "Earth")->getGroundStationMap( ).at( currentStationName );
 
