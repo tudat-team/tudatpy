@@ -50,7 +50,9 @@ public:
      * Constructor
      * \param lightTimeCorrectionType Type of light-time correction represented by instance of class.
      */
-    LightTimeCorrection( const LightTimeCorrectionType lightTimeCorrectionType ): lightTimeCorrectionType_( lightTimeCorrectionType ) { }
+    LightTimeCorrection( const LightTimeCorrectionType lightTimeCorrectionType ):
+    lightTimeCorrectionType_( lightTimeCorrectionType ),
+    timePerturbation_( 15.0 ), positionRelativePerturbation_( 1.0E-4 ) { }
 
     //! Destructor
     virtual ~LightTimeCorrection( ) { }
@@ -112,7 +114,7 @@ public:
                                                                                 const Eigen::Vector6d& receiverState,
                                                                                 const double transmissionTime,
                                                                                 const double receptionTime,
-                                                                                const LinkEndType linkEndAtWhichPartialIsEvaluated ) = 0;
+                                                                                const LinkEndType linkEndAtWhichPartialIsEvaluated );
 
     //! Pure virtual function to compute the partial derivative of the light-time correction w.r.t. link end position
     /*!
@@ -130,7 +132,7 @@ public:
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated ) = 0;
+            const LinkEndType linkEndAtWhichPartialIsEvaluated );
 
 
 
@@ -170,6 +172,11 @@ protected:
 
     //! Type of light-time correction represented by instance of class.
     LightTimeCorrectionType lightTimeCorrectionType_;
+
+
+    double timePerturbation_;
+
+    double positionRelativePerturbation_;
 };
 
 }  // namespace observation_models
