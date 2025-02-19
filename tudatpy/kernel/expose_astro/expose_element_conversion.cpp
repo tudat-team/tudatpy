@@ -448,36 +448,6 @@ numpy.ndarray
 
     )doc" );
 
-    m.def( "keplerian_to_cartesian",
-           py::overload_cast< const Eigen::Vector6d&, double >( &toec::convertKeplerianToCartesianElements< double > ),
-           py::arg( "keplerian_elements" ),
-           py::arg( "gravitational_parameter" ),
-           R"doc(
-
-Convert Keplerian elements to Cartesian.
-
-.. note:: See module level documentation for the standard ordering
-          convention of Keplerian elements used.
-
-
-Parameters
-----------
-keplerian_elements : numpy.ndarray
-    Keplerian state that is to be converted to Cartesian elements
-gravitational_parameter : float
-    Gravitational parameter of central body used for conversion
-Returns
--------
-numpy.ndarray
-    Cartesian elements, as computed from Keplerian element input.
-
-
-
-
-
-
-    )doc" );
-
     m.def( "mean_to_true_anomaly",
            &toec::convertMeanAnomalyToTrueAnomaly< double >,
            py::arg( "eccentricity" ),
