@@ -2499,7 +2499,6 @@ public:
                     std::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings;
                     std::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings;
 
-
                     if( std::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings ) != nullptr )
                     {
                         std::shared_ptr< TwoWayDopplerObservationSettings > twoWayFrequencySettings =
@@ -2510,15 +2509,20 @@ public:
                     else
                     {
                         uplinkOneWayDopplerSettings = std::make_shared< OneWayDopplerObservationSettings >(
-                                getUplinkFromTwoWayLinkEnds( linkEnds ), observationSettings->lightTimeCorrectionsList_,
-                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( std::vector< std::string >( { "Sun", "Earth", "Moon"} ) ),
-                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( std::vector< std::string >( { "Sun", "Earth", "Moon"} ) ));
+                                getUplinkFromTwoWayLinkEnds( linkEnds ),
+                                observationSettings->lightTimeCorrectionsList_,
+                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >(
+                                        std::vector< std::string >( { "Sun", "Earth", "Moon" } ) ),
+                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >(
+                                        std::vector< std::string >( { "Sun", "Earth", "Moon" } ) ) );
                         uplinkOneWayDopplerSettings->normalizeWithSpeedOfLight_ = false;
-                        downlinkOneWayDopplerSettings =
-                                std::make_shared< OneWayDopplerObservationSettings >( getDownlinkFromTwoWayLinkEnds( linkEnds ),
-                                                                                      observationSettings->lightTimeCorrectionsList_,
-                                                                                      std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( std::vector< std::string >( { "Sun", "Earth", "Moon"} ) ),
-                                                                                      std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( std::vector< std::string >( { "Sun", "Earth", "Moon"} ) ) );
+                        downlinkOneWayDopplerSettings = std::make_shared< OneWayDopplerObservationSettings >(
+                                getDownlinkFromTwoWayLinkEnds( linkEnds ),
+                                observationSettings->lightTimeCorrectionsList_,
+                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >(
+                                        std::vector< std::string >( { "Sun", "Earth", "Moon" } ) ),
+                                std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >(
+                                        std::vector< std::string >( { "Sun", "Earth", "Moon" } ) ) );
                         downlinkOneWayDopplerSettings->normalizeWithSpeedOfLight_ = false;
                     }
                     std::shared_ptr< ObservationModelSettings > twoWaySettings = std::make_shared< TwoWayDopplerObservationSettings >(
