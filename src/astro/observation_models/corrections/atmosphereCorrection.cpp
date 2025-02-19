@@ -328,8 +328,8 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionPartialDerivati
                                                                                                   const double receptionTime,
                                                                                                   const LinkEndType linkEndAtWhichPartialIsEvaluated )
 {
-    double upPerturbedCorrection, downPerturbedCorrection;
-    if( isUplinkCorrection_ )
+    double upPerturbedCorrection = 0.0, downPerturbedCorrection = 0.0;
+    if( isUplinkCorrection_ && ( linkEndAtWhichPartialIsEvaluated == transmitter ) )
     {
         double upPerturbedTransmissionTime = transmissionTime + timePerturbation_;
         upPerturbedCorrection = calculateLightTimeCorrection(
@@ -340,7 +340,7 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionPartialDerivati
             transmitterState, receiverState, downPerturbedTransmissionTime, receptionTime );
 
     }
-    else
+    else if( !isUplinkCorrection_ && ( linkEndAtWhichPartialIsEvaluated == receiver ) )
     {
         double upPerturbedReceptionTime = receptionTime + timePerturbation_;
         upPerturbedCorrection = calculateLightTimeCorrection(
@@ -442,12 +442,13 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLin
     }
 
     // Moyer (2000), eq. 10-1
-    return ( dryZenithRangeCorrectionFunction_( stationTime ) *
+    double delay = ( dryZenithRangeCorrectionFunction_( stationTime ) *
                      elevationMapping_->computeDryTroposphericMapping( transmitterState, receiverState, transmissionTime, receptionTime ) +
              wetZenithRangeCorrectionFunction_( stationTime ) *
                      elevationMapping_->computeWetTroposphericMapping(
                              transmitterState, receiverState, transmissionTime, receptionTime ) ) /
             physical_constants::getSpeedOfLight< double >( );
+    return delay;
 }
 
 //double VMF1TroposphericCorrection::getDryMappingFunctions(
