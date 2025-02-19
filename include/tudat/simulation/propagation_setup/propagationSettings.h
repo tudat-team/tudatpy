@@ -1786,7 +1786,6 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > getEx
                 fullBodiesToIntegrate.insert(
                         fullBodiesToIntegrate.end( ), multiArcBodiesToIntegrate.begin( ), multiArcBodiesToIntegrate.end( ) );
 
-
                 // Create full initial state list
                 int fullSingleArcSize = 6 * fullCentralBodies.size( );
                 int singleArcSize = 6 * singleArcTranslationalSettings->centralBodies_.size( );
