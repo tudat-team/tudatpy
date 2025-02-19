@@ -332,7 +332,12 @@ Function that retrieves the default settings for the given set of input bodies.
 Function that retrieves the default settings for the given set of input bodies. Default settings are described in
 detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models.html>`_ .
 Note that if a body is provided as input for which default settings do not exist, an exception is thrown. In addition
-to settings for each separate body, this function returns an object that defines the global frame origin and orientation,
+to settings for each separate body, this function returns an object that defines the global frame origin and orientation.
+
+.. note::
+
+    Before using this function, make sure to have the appropriate set of SPICE kernels loaded.
+    Typically, this is done through the :func:`~tudatpy.interface.spice.load_standard_kernels` function.
 
 
 Parameters
