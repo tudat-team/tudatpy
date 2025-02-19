@@ -46,17 +46,15 @@ std::function< double( const double ) > getBeanAndDuttonWaterVaporPartialPressur
 double computeSaturationWaterVaporPressure( const double temperature)
 {
     double temperatureInCelsius = temperature - 273.15; // Convert Kelvin to Celsius
-    std::cout<<"Celsius "<<temperatureInCelsius<<std::endl;
-    std::cout<<"Saturation pressure "<<611.2 * exp((17.62 * temperatureInCelsius) / (temperatureInCelsius + 243.12))<<std::endl<<std::endl;
-
     return 611.2 * exp((17.62 * temperatureInCelsius) / (temperatureInCelsius + 243.12));
 }
 
-// Clausius-Clapeyron equation and Magnus approximation (Improved Magnus Form Approximation of Saturation Vapor Pressure)
-double computeDewPoint( const double waterVaporPartialPressure)
+// Magnus formula
+double computeDewPoint( const double relativeHumidity, const double temperature )
 {
-    return ( 243.04 * std::log( waterVaporPartialPressure / 100.0  ) - 17.625 ) /
-        ( 17.625 - std::log( waterVaporPartialPressure / 100.0  ) );
+    double temperatureInCelsius = temperature - 273.15; // Convert Kelvin to Celsius
+    double gamma = std::log( relativeHumidity ) + 17.625 * temperatureInCelsius / ( 243.04 + temperatureInCelsius );
+    return 243.04 * gamma / ( 17.625  - gamma ) + 273.15;
 }
 
 
