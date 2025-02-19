@@ -330,7 +330,7 @@ void expose_environment_setup( py::module &m )
 Function that retrieves the default settings for the given set of input bodies.
 
 Function that retrieves the default settings for the given set of input bodies. Default settings are described in
-detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models.html>`_ .
+detail `in the user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models.html>`_ .
 Note that if a body is provided as input for which default settings do not exist, an exception is thrown. In addition
 to settings for each separate body, this function returns an object that defines the global frame origin and orientation.
 
@@ -345,7 +345,7 @@ Parameters
 bodies : list[str]
     List of name of bodies for which default settings are to be retrieved and created.
 base_frame_origin : str, default = 'SSB'
-    Base frame origin of the set of bodies that is to be created. It defaults to the solar system barycenter (SSB), but it can by any of the bodies in `bodies_to_create` (provided it has an ephemeris defined).
+    Base frame origin of the set of bodies that is to be created. It defaults to the solar system barycenter (SSB), but it can by any of the bodies in `bodies` (provided it has an ephemeris defined).
 base_frame_orientation : str, default = 'ECLIPJ2000'
     Base frame orientation of the set of bodies that is to be created. It can be either ECLIPJ2000 (default) or J2000.
 Returns
