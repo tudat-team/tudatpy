@@ -329,7 +329,7 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionPartialDerivati
                                                                                                   const LinkEndType linkEndAtWhichPartialIsEvaluated )
 {
     double upPerturbedCorrection = 0.0, downPerturbedCorrection = 0.0;
-    if( isUplinkCorrection_ && ( linkEndAtWhichPartialIsEvaluated == transmitter ) )
+    if( ( linkEndAtWhichPartialIsEvaluated == transmitter ) )
     {
         double upPerturbedTransmissionTime = transmissionTime + timePerturbation_;
         upPerturbedCorrection = calculateLightTimeCorrection(
@@ -340,15 +340,15 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionPartialDerivati
             transmitterState, receiverState, downPerturbedTransmissionTime, receptionTime );
 
     }
-    else if( !isUplinkCorrection_ && ( linkEndAtWhichPartialIsEvaluated == receiver ) )
+    else if( ( linkEndAtWhichPartialIsEvaluated == receiver ) )
     {
         double upPerturbedReceptionTime = receptionTime + timePerturbation_;
         upPerturbedCorrection = calculateLightTimeCorrection(
-            transmitterState, receiverState, upPerturbedReceptionTime, receptionTime );
+            transmitterState, receiverState, transmissionTime, upPerturbedReceptionTime );
 
         double downPerturbedReceptionTime = receptionTime - timePerturbation_;
         downPerturbedCorrection = calculateLightTimeCorrection(
-            transmitterState, receiverState, downPerturbedReceptionTime, receptionTime );
+            transmitterState, receiverState, transmissionTime, downPerturbedReceptionTime );
     }
 
     return ( upPerturbedCorrection - downPerturbedCorrection ) / ( 2.0 * timePerturbation_ );
