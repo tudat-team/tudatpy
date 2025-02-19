@@ -204,7 +204,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
             if( !isRadiometricObservableType( observableType ) )
             {
                 throw std::runtime_error(
-                        "Error when creating tabulated tropospheric correction: selected observable type is not radiometric." );
+                        "Error when creating saastamoinen tropospheric correction: selected observable type is not radiometric." );
             }
 
             // If one of the link ends is the body with the atmosphere then create the tropospheric correction
