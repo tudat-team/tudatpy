@@ -54,7 +54,7 @@ std::function< double( const double time ) > getBeanAndDuttonWaterVaporPartialPr
 // Function to compute saturation vapor pressure (Pa) using Tetens' formula
 double computeSaturationWaterVaporPressure( const double temperature);
 
-double computeDewPoint( const double waterVaporPartialPressure);
+double computeDewPoint( const double relativeHumidity, const double temperature );
 
 class StationMeteoData
 {
@@ -77,7 +77,7 @@ public:
 
     virtual double getDewPointTemperature( const double currentUtc )
     {
-        return computeDewPoint( getWaterVaporPartialPressure( currentUtc ) );
+        return computeDewPoint( getRelativeHumidity( currentUtc ), getTemperature( currentUtc ) );
     }
 
 
