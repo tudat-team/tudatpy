@@ -186,7 +186,7 @@ Returns
         Returns
         -------
         None
-            Creates / modifies the `state_history` property of the :class:`~tudatpy.numerical_simulation.SingleArcVariationalSolver` object.
+            Creates / modifies the `state_history` property of the :class:`~tudatpy.numerical_simulation.SingleArcVariationalSimulator` object.
 
 
 
