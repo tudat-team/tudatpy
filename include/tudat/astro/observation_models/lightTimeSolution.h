@@ -664,8 +664,6 @@ public:
                                      receiverTime,
                                      ancillarySettings );
 
-        Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
-            ( receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 ) ).template cast< ObservationScalarType >( );
         ObservationScalarType partialWrtLinkEndTime = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
 
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
@@ -676,9 +674,11 @@ public:
                                                  receiverState.template cast< double >( ),
                                                  transmitterTime,
                                                  receiverTime,
-                                                 isPartialWrtReceiver ? receiver : transmitter );
+                                                 isPartialWrtReceiver ? receiver : transmitter ) *
+                                         physical_constants::SPEED_OF_LIGHT;
         }
         return partialWrtLinkEndTime;
+
     }
 
     //! Function to get list of light-time correction functions
