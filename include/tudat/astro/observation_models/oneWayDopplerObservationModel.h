@@ -600,7 +600,7 @@ public:
         // Compute proper time correction term
         ObservationScalarType properTimeCorrectionTerm = computeDopplerProperTimeInfluenceTaylorSeriesExpansion(
                 transmitterProperTimeDifference, receiverProperTimeDifference, taylorSeriesExpansionOrder_ );
-
+        
         // Compute first-order (geometrical) one-way Doppler contribution
         lightTimePartialWrtReceiverPosition_ = lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
                 linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true );
