@@ -955,7 +955,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;
         case radiation_pressure_dependent_variable:
-            variablesToUpdate[ radiation_source_model_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            variablesToUpdate[ radiation_source_model_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
             variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
             break;
