@@ -77,13 +77,18 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
     Eigen::Vector3d dummyMeteo;
     dummyMeteo<<1.0E8, 280.0, 1.0E3;
-    std::map< double, Eigen::Vector3d > dummyMeteoMap;
+    std::map< double, Eigen::VectorXd > dummyMeteoMap;
     dummyMeteoMap[ initialEphemerisTime ] = dummyMeteo;
     dummyMeteoMap[ finalEphemerisTime ] = dummyMeteo;
 
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > meteoDataInterpolator =
+    std::map< ground_stations::MeteoDataEntries, int > vmfMeteoEntries =
+        {{ ground_stations::temperature_meteo_data, 1 },
+         { ground_stations::pressure_meteo_data, 0 },
+         { ground_stations::water_vapor_pressure_meteo_data, 2 }};
+
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > meteoDataInterpolator =
         interpolators::createOneDimensionalInterpolator( dummyMeteoMap, interpolators::linearInterpolation( ) );
-    bodies.at( "Earth" )->getGroundStation( "Station1" )->setMeteoData( std::make_shared< InterpolatedStationVmfMeteoData >( meteoDataInterpolator ) );
+    bodies.at( "Earth" )->getGroundStation( "Station1" )->setMeteoData( std::make_shared< ContinuousInterpolatedMeteoData >( meteoDataInterpolator, vmfMeteoEntries ) );
     // Create Spacecraft
     Eigen::Vector6d spacecraftOrbitalElements;
     spacecraftOrbitalElements( semiMajorAxisIndex ) = 10000.0E3;
