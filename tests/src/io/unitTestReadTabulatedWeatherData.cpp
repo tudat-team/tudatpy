@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( readWeatherData )
 
 // Check that date is set correctly into the ground stations
 // Also checks that files are ordered correctly
-BOOST_AUTO_TEST_CASE( setWeatherData )
+BOOST_AUTO_TEST_CASE( compareDsnAndWmfWeatherData )
 {
     using namespace tudat;
     using namespace tudat::input_output;
@@ -123,7 +123,8 @@ BOOST_AUTO_TEST_CASE( setWeatherData )
             bodies,
             std::vector< std::string >{ tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_60.wea.txt",
                                         tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_10.wea.txt",
-                                        tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_40.wea.txt" } );
+                                        tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_40.wea.txt" },
+                                        interpolators::linearInterpolation( ) );
 
     simulation_setup::SystemOfBodies bodies2 = createSystemOfBodies( bodySettings );
     observation_models::setVmfTroposphereCorrections(
@@ -189,7 +190,7 @@ BOOST_AUTO_TEST_CASE( setWeatherData )
     }
 }
 
-BOOST_AUTO_TEST_CASE( compareDsnAndWmfWeatherData )
+BOOST_AUTO_TEST_CASE( setDsnWeatherData )
 {
     double tolerance = 1e-13;  // Corresponds to numerical precision for temperature values
 
@@ -206,7 +207,8 @@ BOOST_AUTO_TEST_CASE( compareDsnAndWmfWeatherData )
                                     tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_60.wea.txt",
                                     tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_10.wea.txt",
                                     tudat::paths::getTudatTestDataPath( ) + "mromagr20170012017365_40.wea.txt",
-                                    tudat::paths::getTudatTestDataPath( ) + "mromagr20160012016366_10.wea.txt" } );
+                                    tudat::paths::getTudatTestDataPath( ) + "mromagr20160012016366_10.wea.txt" },
+        interpolators::linearInterpolation( ) );
 
     simulation_setup::SystemOfBodies bodies2 = createSystemOfBodies( bodySettings );
 
@@ -248,6 +250,175 @@ BOOST_AUTO_TEST_CASE( compareDsnAndWmfWeatherData )
         BOOST_CHECK_CLOSE_FRACTION( gs->getPressureFunction( )( time ) * 1e-2, 894.7, tolerance );
         BOOST_CHECK_CLOSE_FRACTION( gs->getWaterVaporPartialPressureFunction( )( time ) * 1e-2, 6.6, tolerance );
         BOOST_CHECK_CLOSE_FRACTION( gs->getRelativeHumidityFunction( )( time ) * 100, 51, tolerance );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( setEstrackWeatherData )
+{
+    double tolerance = 1e-13;  // Corresponds to numerical precision for temperature values
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::vector< std::string > bodiesToCreate = { "Earth" };
+    simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
+    bodySettings.at( "Earth" )->groundStationSettings = simulation_setup::getRadioTelescopeStationSettings( );
+    simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    std::vector< std::string > fullEstrackDataFiles = std::vector< std::string >{
+          tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_00.TAB",
+          tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_01.TAB",
+          tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_02.TAB",
+          tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_03.TAB",
+          tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_04.TAB",
+          tudat::paths::getTudatTestDataPath( ) + "M32ICL2L1B_MET_133621727_05.TAB" };
+
+    std::vector< double > fullTimes;
+    std::vector< Eigen::VectorXd > fullMeteo;
+
+    for( int test = 0; test < 4; test++ )
+    {
+        std::vector< std::string > estrackDataFiles;
+        if( test == 0 )
+        {
+            estrackDataFiles = fullEstrackDataFiles;
+        }
+        else if( test == 1 )
+        {
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 1 ) );
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 0 ) );
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 4 ) );
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 5 ) );
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 3 ) );
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 2 ) );
+        }
+        else if( test == 2 )
+        {
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 0 ) );
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 1 ) );
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 3 ) );
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 4 ) );
+        }
+        else if( test == 3 )
+        {
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 0 ) );
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 2 ) );
+            estrackDataFiles.push_back( fullEstrackDataFiles.at( 4 ) );
+        }
+        setEstrackWeatherDataInGroundStation(
+            bodies,
+            estrackDataFiles,
+            "NWNORCIA", interpolators::linearInterpolation( ) );
+
+        std::shared_ptr< ground_stations::GroundStation > gs = bodies.getBody( "Earth" )->getGroundStation( "NWNORCIA" );
+        std::shared_ptr< ground_stations::PiecewiseInterpolatedMeteoData > meteoDataObject =
+            std::dynamic_pointer_cast< ground_stations::PiecewiseInterpolatedMeteoData >( gs->getMeteoData( ) );
+
+        if( test == 0 )
+        {
+            BOOST_CHECK_EQUAL( meteoDataObject->getMeteoDataInterpolators( ).size( ), 1 );
+
+            fullTimes = meteoDataObject->getMeteoDataInterpolators( ).at( 0 )->getIndependentValues( );
+            fullMeteo = meteoDataObject->getMeteoDataInterpolators( ).at( 0 )->getDependentValues( );
+        }
+        else if( test == 1 )
+        {
+            BOOST_CHECK_EQUAL( meteoDataObject->getMeteoDataInterpolators( ).size( ), 1 );
+
+            std::vector< double > currentTimes = meteoDataObject->getMeteoDataInterpolators( ).at( 0 )->getIndependentValues( );
+            std::vector< Eigen::VectorXd > currentMeteo = meteoDataObject->getMeteoDataInterpolators( ).at( 0 )->getDependentValues( );
+
+            BOOST_CHECK_EQUAL( currentTimes.size( ), fullTimes.size( ) );
+
+            for( int i = 0; i < currentTimes.size( ); i++ )
+            {
+                BOOST_CHECK_EQUAL( currentTimes.at( i ), fullTimes.at( i ) );
+                BOOST_CHECK_EQUAL( currentMeteo.at( i )( 0 ), fullMeteo.at( i )( 0 ) );
+                BOOST_CHECK_EQUAL( currentMeteo.at( i )( 1 ), fullMeteo.at( i )( 1 ) );
+                BOOST_CHECK_EQUAL( currentMeteo.at( i )( 2 ), fullMeteo.at( i )( 2 ) );
+
+            }
+        }
+        else if( test == 2 || test == 3 )
+        {
+            BOOST_CHECK_EQUAL( meteoDataObject->getMeteoDataInterpolators( ).size( ), test );
+
+            std::vector< int > shiftIndex;
+            int blockSize;
+            if( test == 2 )
+            {
+                shiftIndex = { 0, 180 };
+                blockSize = 120;
+            }
+            else
+            {
+                shiftIndex = { 0, 120, 240 };
+                blockSize = 60;
+            }
+            for( int j = 0; j < test; j++ )
+            {
+                std::vector< double > currentTimes = meteoDataObject->getMeteoDataInterpolators( ).at( j )->getIndependentValues( );
+                std::vector< Eigen::VectorXd > currentMeteo = meteoDataObject->getMeteoDataInterpolators( ).at( j )->getDependentValues( );
+
+                BOOST_CHECK_EQUAL( currentTimes.size( ), blockSize );
+
+                for( int i = 0; i < blockSize; i++ )
+                {
+                    BOOST_CHECK_EQUAL( currentTimes.at( i ), fullTimes.at( i + shiftIndex.at( j ) ) );
+                    BOOST_CHECK_EQUAL( currentMeteo.at( i )( 0 ), fullMeteo.at( i + shiftIndex.at( j ) )( 0 ) );
+                    BOOST_CHECK_EQUAL( currentMeteo.at( i )( 1 ), fullMeteo.at( i + shiftIndex.at( j )  )( 1 ) );
+                    BOOST_CHECK_EQUAL( currentMeteo.at( i )( 2 ), fullMeteo.at( i + shiftIndex.at( j )  )( 2 ) );
+                }
+            }
+        }
+
+        {
+            double testEpoch = basic_astrodynamics::dateTimeFromIsoString( "2013-12-28T17:43:20.000" ).epoch<double>( );
+
+            double testTemperature = 19.6 + 273.15;
+            double testHumidity = 0.549;
+            double testPressure = 97950.0;
+
+            BOOST_CHECK_CLOSE_FRACTION( gs->getDewPointFunction( )( testEpoch ),
+                                        ground_stations::computeDewPoint( testHumidity, testTemperature ), tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getTemperatureFunction( )( testEpoch ), testTemperature, tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getPressureFunction( )( testEpoch ), testPressure, tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getWaterVaporPartialPressureFunction( )( testEpoch ),
+                                        testHumidity * ground_stations::computeSaturationWaterVaporPressure( testTemperature ), tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getRelativeHumidityFunction( )( testEpoch ), testHumidity, tolerance );
+        }
+
+        {
+            double testEpoch = basic_astrodynamics::dateTimeFromIsoString( "2013-12-28T22:21:20.000" ).epoch<double>( );
+
+            double testTemperature = 21.9 + 273.15;
+            double testHumidity = 0.385;
+            double testPressure = 98020.0;
+
+            BOOST_CHECK_CLOSE_FRACTION( gs->getDewPointFunction( )( testEpoch ),
+                                        ground_stations::computeDewPoint( testHumidity, testTemperature ), tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getTemperatureFunction( )( testEpoch ), testTemperature, tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getPressureFunction( )( testEpoch ), testPressure, tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getWaterVaporPartialPressureFunction( )( testEpoch ),
+                                        testHumidity * ground_stations::computeSaturationWaterVaporPressure( testTemperature ), tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getRelativeHumidityFunction( )( testEpoch ), testHumidity, tolerance );
+        }
+
+        if( test < 3 )
+        {
+            double testEpoch = basic_astrodynamics::dateTimeFromIsoString( "2013-12-28T18:26:50.000" ).epoch<double>( );
+
+            double testTemperature = ( 19.8 + 19.7 ) / 2.0 + 273.15;
+            double testHumidity = ( 0.529 + 0.533 ) / 2.0;
+            double testPressure = ( 97920.0 + 97980.0 ) / 2.0;
+
+            BOOST_CHECK_CLOSE_FRACTION( gs->getDewPointFunction( )( testEpoch ),
+                                        ground_stations::computeDewPoint( testHumidity, testTemperature ), tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getTemperatureFunction( )( testEpoch ), testTemperature, tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getPressureFunction( )( testEpoch ), testPressure, tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getWaterVaporPartialPressureFunction( )( testEpoch ),
+                                        testHumidity * ground_stations::computeSaturationWaterVaporPressure( testTemperature ), tolerance );
+            BOOST_CHECK_CLOSE_FRACTION( gs->getRelativeHumidityFunction( )( testEpoch ), testHumidity, tolerance );
+        }
     }
 }
 

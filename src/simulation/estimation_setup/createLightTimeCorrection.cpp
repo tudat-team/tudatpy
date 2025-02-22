@@ -600,13 +600,23 @@ void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
                 bodies.at( "Earth")->getGroundStationMap( ).at( currentStationName );
 
             std::map< double, Eigen::VectorXd > processedTroposphereData;
-            std::map< double, Eigen::Vector3d > processedMeteoData;
+            std::map< double, Eigen::VectorXd > processedMeteoData;
             it.second.getFullDataSet( processedTroposphereData, processedMeteoData );
 
             if( setMeteoData )
             {
-                currentStation->setMeteoData( std::make_shared<ground_stations::InterpolatedStationVmfMeteoData>(
-                    interpolators::createOneDimensionalInterpolator( processedMeteoData, interpolatorSettings )));
+
+                std::map< ground_stations::MeteoDataEntries, int > vmfMeteoEntries =
+                    {{ ground_stations::temperature_meteo_data, 1 },
+                     { ground_stations::pressure_meteo_data, 0 },
+                     { ground_stations::water_vapor_pressure_meteo_data, 2 }};
+
+                std::shared_ptr< ground_stations::StationMeteoData > meteoData =
+                    std::make_shared<ground_stations::ContinuousInterpolatedMeteoData>(
+                interpolators::createOneDimensionalInterpolator( processedMeteoData, interpolatorSettings ), vmfMeteoEntries );
+
+
+                currentStation->setMeteoData( meteoData );
             }
 
             if( setTropospherData )

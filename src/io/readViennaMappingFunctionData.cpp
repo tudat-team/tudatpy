@@ -53,7 +53,7 @@ void VMFData::validate( )
 }
 
 void VMFData::getFullDataSet( std::map< double, Eigen::VectorXd >& processedTroposphereData,
-                     std::map< double, Eigen::Vector3d >& processedMeteoData )
+                     std::map< double, Eigen::VectorXd >& processedMeteoData )
 {
     validate( );
 
