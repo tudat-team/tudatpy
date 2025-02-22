@@ -95,7 +95,7 @@ private:
 
     void readWeatherDataFiles( const std::vector< std::string >& weatherFiles )
     {
-        for( int i = 0; i < weatherFiles.size( ); i++ )
+        for( unsigned int i = 0; i < weatherFiles.size( ); i++ )
         {
             readSingleWeatherDataFile( weatherFiles.at( i ) );
         }
