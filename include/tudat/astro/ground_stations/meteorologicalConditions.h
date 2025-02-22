@@ -56,140 +56,190 @@ double computeSaturationWaterVaporPressure( const double temperature);
 
 double computeDewPoint( const double relativeHumidity, const double temperature );
 
+
+enum MeteoDataEntries
+{
+    temperature_meteo_data,
+    pressure_meteo_data,
+    water_vapor_pressure_meteo_data,
+    relative_humidity_meteo_data,
+    dew_point_meteo_data
+};
+
 class StationMeteoData
 {
 public:
-    StationMeteoData( ){ }
+    StationMeteoData( const std::map< MeteoDataEntries, int > vectorEntries ):
+        vectorEntries_( vectorEntries ),
+        currentUtc_( TUDAT_NAN ),
+        currentData_( Eigen::VectorXd::Zero( vectorEntries.size( ) ) )
+    {
+        setAndValidateInput( vectorEntries );
+    }
 
     virtual ~StationMeteoData( ){ }
 
-    virtual double getTemperature( const double currentUtc ) = 0;
-
-    virtual double getPressure( const double currentUtc ) = 0;
-
-    virtual double getWaterVaporPartialPressure( const double currentUtc ) = 0;
-
-    virtual double getRelativeHumidity( const double currentUtc )
-    {
-        return getWaterVaporPartialPressure( currentUtc ) /
-        computeSaturationWaterVaporPressure( getTemperature( currentUtc ) );
-    }
-
-    virtual double getDewPointTemperature( const double currentUtc )
-    {
-        return computeDewPoint( getRelativeHumidity( currentUtc ), getTemperature( currentUtc ) );
-    }
-
-
-};
-
-class InterpolatedStationVmfMeteoData: public StationMeteoData
-{
-public:
-
-    InterpolatedStationVmfMeteoData(
-        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > meteoDataInterpolator ):
-        meteoDataInterpolator_( meteoDataInterpolator ){ }
-
-    ~InterpolatedStationVmfMeteoData( ){ }
-
     double getTemperature( const double currentUtc )
     {
         updateData( currentUtc );
-        return currentData_( 1 );
+        return currentData_( vectorEntries_.at( temperature_meteo_data ) );
     }
 
     double getPressure( const double currentUtc )
     {
         updateData( currentUtc );
-        return currentData_( 0 );
+        return currentData_( vectorEntries_.at( pressure_meteo_data ) );
     }
 
     double getWaterVaporPartialPressure( const double currentUtc )
     {
-        updateData( currentUtc );
-        return currentData_( 2 );
-    }
-
-private:
-
-    void updateData( const double currentUtc )
-    {
-        if( !( currentUtc == currentUtc_ ) )
+        if( hasVaporPressure_ )
         {
-            currentUtc_ = currentUtc;
-            currentData_ = meteoDataInterpolator_->interpolate( currentUtc_ );
+            updateData( currentUtc );
+            return currentData_( vectorEntries_.at( water_vapor_pressure_meteo_data ));
+        }
+        else
+        {
+            return getRelativeHumidity( currentUtc ) *
+                   computeSaturationWaterVaporPressure( getTemperature( currentUtc ));
         }
     }
 
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > meteoDataInterpolator_;
+    virtual double getRelativeHumidity( const double currentUtc )
+    {
+        if( hasRelativeHumidity_ )
+        {
+            updateData( currentUtc );
+            return currentData_( vectorEntries_.at( relative_humidity_meteo_data ));
+        }
+        else
+        {
+            return getWaterVaporPartialPressure( currentUtc ) /
+                   computeSaturationWaterVaporPressure( getTemperature( currentUtc ));
+        }
+    }
+
+    virtual double getDewPointTemperature( const double currentUtc )
+    {
+        if( hasDewPoint_ )
+        {
+            updateData( currentUtc );
+            return currentData_( vectorEntries_.at( dew_point_meteo_data ));
+        }
+        else
+        {
+            return computeDewPoint( getRelativeHumidity( currentUtc ), getTemperature( currentUtc ));
+        }
+    }
+
+protected:
+
+    virtual void updateData( const double currentUtc ) = 0;
+
+    void setAndValidateInput( const std::map< MeteoDataEntries, int >& vectorEntries )
+    {
+        if( vectorEntries.count( pressure_meteo_data ) == 0 )
+        {
+            throw std::runtime_error( "Error, meteo data requires pressure" );
+        }
+        if( vectorEntries.count( temperature_meteo_data ) == 0 )
+        {
+            throw std::runtime_error( "Error, meteo data requires temperature" );
+        }
+        hasVaporPressure_ = ( vectorEntries.count( water_vapor_pressure_meteo_data ) == 0 ) ? false : true;
+        hasRelativeHumidity_ = ( vectorEntries.count( relative_humidity_meteo_data ) == 0 ) ? false : true;
+        hasDewPoint_ = ( vectorEntries.count( dew_point_meteo_data ) == 0 ) ? false : true;
+
+        if( !hasVaporPressure_ && !hasRelativeHumidity_ )
+        {
+            throw std::runtime_error( "Error, meteo data requires vapor pressure or relative humidity." );
+        }
+    }
+
+    std::map< MeteoDataEntries, int > vectorEntries_;
+
+    double currentUtc_;
 
     Eigen::VectorXd currentData_;
 
-    double currentUtc_;
+    bool hasVaporPressure_;
+
+    bool hasRelativeHumidity_;
+
+    bool hasDewPoint_;
+
+
 };
 
 
-class InterpolatedStationDsnMeteoData: public StationMeteoData
+class ContinuousInterpolatedMeteoData: public StationMeteoData
 {
 public:
 
-    InterpolatedStationDsnMeteoData(
-        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > meteoDataInterpolator ):
-        meteoDataInterpolator_( meteoDataInterpolator ), currentUtc_( TUDAT_NAN ), currentData_( Eigen::VectorXd::Zero( 5 ) ){ }
+    ContinuousInterpolatedMeteoData(
+        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > meteoDataInterpolator,
+        const std::map< MeteoDataEntries, int > vectorEntries ):StationMeteoData( vectorEntries ),
+        meteoDataInterpolator_( meteoDataInterpolator ){ }
 
-    ~InterpolatedStationDsnMeteoData( ){ }
-
-
-    double getTemperature( const double currentUtc )
-    {
-        updateData( currentUtc );
-        return currentData_( 1 );
-    }
-
-    double getPressure( const double currentUtc )
-    {
-        updateData( currentUtc );
-        return currentData_( 2 );
-    }
-
-    double getWaterVaporPartialPressure( const double currentUtc )
-    {
-        updateData( currentUtc );
-        return currentData_( 3 );
-    }
-
-    virtual double getRelativeHumidity( const double currentUtc )
-    {
-        updateData( currentUtc );
-        return currentData_( 4 );
-    }
-
-    virtual double getDewPointTemperature( const double currentUtc )
-    {
-        updateData( currentUtc );
-        return currentData_( 0 );
-    }
+    ~ContinuousInterpolatedMeteoData( ){ }
 
 private:
 
-    void updateData( const double currentUtc )
-    {
-        if( !( currentUtc == currentUtc_ ) )
-        {
-            currentUtc_ = currentUtc;
-            currentData_ = meteoDataInterpolator_->interpolate( currentUtc_ );
-        }
-    }
+    void updateData( const double currentUtc );
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > meteoDataInterpolator_;
 
-    double currentUtc_;
-
-    Eigen::VectorXd currentData_;
-
 };
 
+
+class PiecewiseInterpolatedMeteoData: public StationMeteoData
+{
+public:
+
+    PiecewiseInterpolatedMeteoData(
+        const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > meteoDataInterpolators,
+        const std::map< MeteoDataEntries, int > vectorEntries ):StationMeteoData( vectorEntries ),
+        meteoDataInterpolators_( meteoDataInterpolators )
+    {
+        for( unsigned int i = 0; i < meteoDataInterpolators_.size( ); i++ )
+        {
+            startTimes_.push_back( meteoDataInterpolators.at( i )->getIndependentValues( ).front( ) );
+            endTimes_.push_back( meteoDataInterpolators.at( i )->getIndependentValues( ).back( ) );
+        }
+        lookUpScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( startTimes_ );
+    }
+
+    ~PiecewiseInterpolatedMeteoData( ){ }
+
+    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > getMeteoDataInterpolators( )
+    {
+        return meteoDataInterpolators_;
+    }
+
+    std::vector< double > getStartTimes( )
+    {
+        return startTimes_;
+    }
+
+    std::vector< double > getEndTimes( )
+    {
+        return endTimes_;
+    }
+
+private:
+
+    void updateData( const double currentUtc );
+
+    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > meteoDataInterpolators_;
+
+    std::vector< double > startTimes_;
+
+    std::vector< double > endTimes_;
+
+    std::shared_ptr< interpolators::LookUpScheme< double > > lookUpScheme_;
+
+    int currentInterpolator_;
+};
 
 class StationTroposphereData
 {

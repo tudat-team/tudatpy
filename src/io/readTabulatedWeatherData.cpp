@@ -157,6 +157,45 @@ void DsnWeatherData::readSingleFileWeatherData( const std::string& weatherFile )
     stream.close( );
 }
 
+void EstrackWeatherData::readSingleWeatherDataFile( const std::string& weatherFile )
+{
+    // Open file
+    std::ifstream stream( weatherFile, std::ios_base::in );
+    if( !stream.good( ) )
+    {
+        throw std::runtime_error( "Error when opening ESTRACK file: " + weatherFile );
+    }
+
+    // Line based parsing
+    std::string currentLine;
+    std::vector< std::string > currentSplitLine;
+
+    std::map< double, Eigen::VectorXd > meteoMap;
+    while( stream.good( ) && !stream.eof( ) )
+    {
+        // Get line from stream
+        std::getline( stream, currentLine );
+
+        if ( currentLine.size( ) > 0 )
+        {
+            // Trim input string (removes all leading and trailing whitespaces).
+            boost::algorithm::trim( currentLine );
+            boost::algorithm::split(
+                currentSplitLine, currentLine, boost::algorithm::is_any_of( " \t" ),
+                boost::algorithm::token_compress_on );
+            std::string utcString = currentSplitLine.at( 1 );
+            double utc = basic_astrodynamics::dateTimeFromIsoString( utcString ).epoch< double >( );
+            double humidity = std::stod( currentSplitLine.at( 4 ) ) / 100.0;
+            double pressure = std::stod( currentSplitLine.at( 5 ) ) * 100.0;
+            double temperature = std::stod( currentSplitLine.at( 6 ) ) + 273.15;
+            meteoMap[ utc ] = ( Eigen::VectorXd( 3 ) << humidity, pressure, temperature ).finished( );
+
+        }
+    }
+    meteoDataPerFile_.push_back( meteoMap );
+
+}
+
 bool compareDsnWeatherFileStartDate( std::shared_ptr< DsnWeatherData > file1, std::shared_ptr< DsnWeatherData > file2 )
 {
     if( file1 == nullptr || file2 == nullptr )
@@ -265,15 +304,49 @@ void setDsnWeatherDataInGroundStations( simulation_setup::SystemOfBodies& bodies
             throw std::runtime_error( "Error when setting weather data in ground station: no ground stations in complex." );
         }
 
+        std::map< ground_stations::MeteoDataEntries, int > dsnMeteoEntries =
+            {{ ground_stations::temperature_meteo_data, 1 },
+             { ground_stations::pressure_meteo_data, 2 },
+             { ground_stations::water_vapor_pressure_meteo_data, 3 },
+             { ground_stations::relative_humidity_meteo_data, 4 },
+             { ground_stations::dew_point_meteo_data, 0 }};
+
         std::shared_ptr< ground_stations::StationMeteoData > meteoData =
-            std::make_shared< ground_stations::InterpolatedStationDsnMeteoData >(
-                interpolators::createOneDimensionalInterpolator( weatherData->meteoDataMap_, interpolatorSettings ) );
+            std::make_shared< ground_stations::ContinuousInterpolatedMeteoData >(
+                interpolators::createOneDimensionalInterpolator( weatherData->meteoDataMap_, interpolatorSettings ), dsnMeteoEntries );
         // Set functions in ground stations
         for( const std::string& groundStation: groundStations )
         {
             bodies.getBody( bodyWithGroundStations )->getGroundStation( groundStation )->setMeteoData( meteoData );
         }
     }
+}
+
+void setEstrackWeatherDataInGroundStation(
+    simulation_setup::SystemOfBodies& bodies,
+    const std::vector< std::string >& weatherFiles,
+    const std::string groundStation,
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
+    const std::string& bodyWithGroundStations )
+{
+    EstrackWeatherData weatherData = EstrackWeatherData( weatherFiles );
+    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > interpolators;
+    auto meteoDataList = weatherData.getMeteoDataPerFile( );
+    for( unsigned int i = 0; i < meteoDataList.size( ); i++ )
+    {
+        interpolators.push_back(
+            interpolators::createOneDimensionalInterpolator( meteoDataList.at( i ), interpolatorSettings ) );
+
+    }
+
+    std::map< ground_stations::MeteoDataEntries, int > estrackMeteoEntries =
+        {{ ground_stations::temperature_meteo_data, 2 },
+         { ground_stations::pressure_meteo_data, 1 },
+         { ground_stations::relative_humidity_meteo_data, 0 }};
+
+    std::shared_ptr< ground_stations::StationMeteoData > meteoData =
+        std::make_shared< ground_stations::PiecewiseInterpolatedMeteoData >( interpolators, estrackMeteoEntries );
+    bodies.at( bodyWithGroundStations )->getGroundStation( groundStation )->setMeteoData( meteoData );
 }
 
 }  // namespace input_output

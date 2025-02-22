@@ -718,7 +718,7 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
         for ( unsigned int i = 2; i < delays.size( ) - 2; i++ )
         {
             // Why the fuck does the ionosphere partial go all wobbly around 1 radian elevation???
-            if ( ( elevationAngles.at( i ) > 10.0 * mathematical_constants::PI / 180.0 ) )// && ( std::fabs( elevationAngles.at( i ) - 1.0 ) > 0.02 ) )
+            if ( ( elevationAngles.at( i ) > 10.0 * mathematical_constants::PI / 180.0 ) && ( std::fabs( elevationAngles.at( i ) - 1.0 ) > 0.02 ) )
             {
                 numericalDerivativesWrtTime.push_back(( -delays.at( i + 2 ) + 8.0 * delays.at( i + 1 ) - 8.0 * delays.at( i - 1 ) + delays.at( i - 2 )) / ( 12.0 * timeStep ));
                 reconstructedDerivativesWrtTime.push_back(
