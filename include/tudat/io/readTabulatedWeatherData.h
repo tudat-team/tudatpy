@@ -65,6 +65,51 @@ private:
     void readSingleFileWeatherData( const std::string& weatherFile );
 };
 
+inline bool compareEstrackWeatherDataEntries( std::map< double, Eigen::VectorXd >& firstMap, std::map< double, Eigen::VectorXd >& secondMap )
+{
+    return firstMap.begin( )->first < secondMap.begin()->first;
+}
+
+class EstrackWeatherData
+{
+public:
+    /*!
+     * Constructor. Reads weather file and saves the data.
+     *
+     * @param weatherFile File name.
+     */
+    EstrackWeatherData( const std::vector< std::string >& weatherFiles )
+    {
+        readWeatherDataFiles( weatherFiles );
+        processWeatherData( );
+    }
+
+    std::vector< std::map< double, Eigen::VectorXd > > getMeteoDataPerFile( )
+    {
+        return meteoDataPerFile_;
+    }
+
+private:
+
+    void readSingleWeatherDataFile( const std::string& weatherFile );
+
+    void readWeatherDataFiles( const std::vector< std::string >& weatherFiles )
+    {
+        for( int i = 0; i < weatherFiles.size( ); i++ )
+        {
+            readSingleWeatherDataFile( weatherFiles.at( i ) );
+        }
+    }
+
+    void processWeatherData( )
+    {
+        std::sort( meteoDataPerFile_.begin( ), meteoDataPerFile_.end( ), &compareEstrackWeatherDataEntries );
+        meteoDataPerFile_ = utilities::mergeMaps( meteoDataPerFile_, 2.0 );
+    }
+
+    std::vector< std::map< double, Eigen::VectorXd > > meteoDataPerFile_;
+};
+
 /*!
  * Checks which file starts first. Used to sort weather files. Returns true if file1 starts first, false otherwise.
  *
@@ -133,6 +178,13 @@ inline void setDsnWeatherDataInGroundStations(
     setDsnWeatherDataInGroundStations(
             bodies, readDsnWeatherDataFiles( weatherFiles ), interpolatorSettings, groundStationsPerComplex, bodyWithGroundStations );
 }
+
+void setEstrackWeatherDataInGroundStation(
+    simulation_setup::SystemOfBodies& bodies,
+    const std::vector< std::string >& weatherFiles,
+    const std::string groundStation,
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
+    const std::string& bodyWithGroundStations = "Earth" );
 
 }  // namespace input_output
 

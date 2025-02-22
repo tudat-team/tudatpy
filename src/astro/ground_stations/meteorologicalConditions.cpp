@@ -57,7 +57,24 @@ double computeDewPoint( const double relativeHumidity, const double temperature 
     return 243.04 * gamma / ( 17.625  - gamma ) + 273.15;
 }
 
+void ContinuousInterpolatedMeteoData::updateData( const double currentUtc )
+{
+    if( !( currentUtc == currentUtc_ ) )
+    {
+        currentUtc_ = currentUtc;
+        currentData_ = meteoDataInterpolator_->interpolate( currentUtc_ );
+    }
+}
 
+void PiecewiseInterpolatedMeteoData::updateData( const double currentUtc )
+{
+    if( !( currentUtc == currentUtc_ ) )
+    {
+        currentUtc_ = currentUtc;
+        currentInterpolator_ = lookUpScheme_->findNearestLowerNeighbour( currentUtc_ );
+        currentData_ = meteoDataInterpolators_.at( currentInterpolator_ )->interpolate( currentUtc_ );
+    }
+}
 }  // namespace ground_stations
 
 }  // namespace tudat
