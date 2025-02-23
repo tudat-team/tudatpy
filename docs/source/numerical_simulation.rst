@@ -35,9 +35,13 @@ Functions
 
    create_dynamics_simulator
 
+   create_variational_equations_solver
+
 
 
 .. autofunction:: tudatpy.numerical_simulation.create_dynamics_simulator
+
+.. autofunction:: tudatpy.numerical_simulation.create_variational_equations_solver
 
 
 
@@ -50,6 +54,8 @@ Classes
 
 .. autosummary::
 
+   DynamicsSimulator
+
    SingleArcSimulator
 
    MultiArcSimulator
@@ -61,6 +67,9 @@ Classes
    Estimator
 
 
+
+.. autoclass:: tudatpy.numerical_simulation.DynamicsSimulator
+   :members:
 
 .. autoclass:: tudatpy.numerical_simulation.SingleArcSimulator
    :members:
