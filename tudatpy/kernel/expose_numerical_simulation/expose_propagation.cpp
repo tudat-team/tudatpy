@@ -372,10 +372,58 @@ numpy.ndarray
                                     R"doc(
 
         List of booleans defining, per entry in ``termination_settings`` when calling :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`,
-        whether the corresponding entry of the hybrid termination settings was met or not
+        whether the corresponding entry of the hybrid termination settings was met or not.
 
 
         :type: list[bool]
+
+        Examples
+        --------
+
+        Assuming the hybrid termination settings were defined similar to the example in the :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`:
+
+        .. code-block:: python
+
+            # Store termination setting objects in a list
+            termination_settings_list = [
+                time_termination_settings,
+                altitude_termination_settings,
+                cpu_termination_settings,
+            ]
+            # Define string representations for output
+            termination_conditions_repr = [
+                "Time Termination",
+                "Altitude Termination",
+                "CPU Time Termination",
+            ]
+
+            # Create hybrid termination settings
+            termination_settings = propagation_setup.propagator.hybrid_termination(
+                termination_settings_list, fulfill_single_condition=True
+            )
+
+        The ``was_condition_met_when_stopping`` attribute contains a list of booleans, with the same length as the
+        ``termination_settings_list``. The following code can be used to print if the termination condition was met for each
+        of the termination settings:
+
+        .. code-block:: python
+
+            # perform propagation
+            ...
+
+            # post-process propagation results
+            termination_details = dynamics_simulator.propagation_results.termination_details
+            condition_met_flags = termination_details.was_condition_met_when_stopping
+
+            condition_fulfilled = [
+                f"{condition:<35}: {met}"
+                for condition, met in zip(termination_conditions_repr, condition_met_flags)
+            ]
+
+            print("Termination Conditions fulfilled:")
+            print("\n".join(condition_fulfilled))
+
+
      )doc" );
 
     py::class_< tp::DependentVariablesInterface< TIME_TYPE >, std::shared_ptr< tp::DependentVariablesInterface< TIME_TYPE > > >(

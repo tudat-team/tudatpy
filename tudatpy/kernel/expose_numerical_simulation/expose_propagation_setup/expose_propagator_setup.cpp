@@ -1550,17 +1550,20 @@ to define that all conditions or a single condition of the conditions provided m
 stop the propagation. Each termination condition should be created according to each individual function
 and then added to a list of termination conditions.
 
-Note that, when using this option, the :attr:`~tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.termination_details` of
-the simulation results object (obtained from here after a propagation: :attr:`~tudatpy.numerical_simulation.SingleArcSimulator.propagation_results`)
-is of derived type :class:`~tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition`, which
-contains additional details on the hybrid termination (such as the specific conditions that were met).
+.. note::
+
+    When using this option, the :attr:`~tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.termination_details` of
+    the simulation results object (obtained from here after a propagation: :attr:`~tudatpy.numerical_simulation.SingleArcSimulator.propagation_results`)
+    is of derived type :class:`~tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition`.
+    
+    See the :attr:`~tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping` attribute for an example of how to retrieve which condition was met when the propagation was terminated.
 
 
 Parameters
 ----------
 termination_settings : list[PropagationTerminationSettings]
     List of single PropagationTerminationSettings objects to be checked during the propagation.
-fulfill_single_condition : bool, default=False
+fulfill_single_condition : bool
     Whether only a single condition of those provided must be met to stop the propagation (true) or all of them simultaneously (false).
 Returns
 -------
@@ -1575,33 +1578,48 @@ Examples
 --------
 In the following example, the propagation will terminate once *one of the three* termination settings (simulated time, cpu time, altitude)
 has reached the imposed limit value. The ``fulfill_single_condition`` variable determines whether the propagation
-terminates once a *single* condition is met (if True, as above) or once *all* conditions must be met (False).
+terminates once a *single* condition is met (if True, as above) or once *all* conditions are met (False).
 
 .. code-block:: python
 
-  # Set simulation termination time
-  termination_time = simulation_start_epoch + 86400.0
-  # Create simulation time termination setting
-  time_termination_settings = propagation_setup.propagator.time_termination( termination_time )
+    # Set simulation termination time
+    termination_time = simulation_start_epoch + 86400.0
+    # Create simulation time termination setting
+    time_termination_settings = propagation_setup.propagator.time_termination(
+        termination_time
+    )
 
-  # Set dependent variable termination setting
-  termination_variable = propagation_setup.dependent_variable.altitude( "Spacecraft", "Earth" )
-  # Create altitude-based termination setting
-  altitude_termination_settings = propagation_setup.propagator.dependent_variable_termination(
-    dependent_variable_settings = termination_variable,
-    limit_value = 25.0E3,
-    use_as_lower_limit = True)
+    # Set dependent variable termination setting
+    termination_variable = propagation_setup.dependent_variable.altitude(
+        "Spacecraft", "Earth"
+    )
+    # Create altitude-based termination setting
+    altitude_termination_settings = (
+        propagation_setup.propagator.dependent_variable_termination(
+            dependent_variable_settings=termination_variable,
+            limit_value=25.0e3,
+            use_as_lower_limit=True,
+        )
+    )
 
-  # Set cpu termination time
-  cpu_termination_time = 120.0
-  # Create cpu time termination setting
-  cpu_termination_settings = propagation_setup.propagator.cpu_time_termination( cpu_termination_time )
+    # Set cpu termination time
+    cpu_termination_time = 120.0
+    # Create cpu time termination setting
+    cpu_termination_settings = propagation_setup.propagator.cpu_time_termination(
+        cpu_termination_time
+    )
 
-  # Store termination setting objects in a list
-  termination_settings_list = [time_termination_settings, altitude_termination_settings, cpu_termination_settings]
+    # Store termination setting objects in a list
+    termination_settings_list = [
+        time_termination_settings,
+        altitude_termination_settings,
+        cpu_termination_settings,
+    ]
 
-  # Create hybrid termination settings
-  termination_settings = propagation_setup.propagator.hybrid_termination( termination_settings_list, fulfill_single_condition = True )
+    # Create hybrid termination settings
+    termination_settings = propagation_setup.propagator.hybrid_termination(
+        termination_settings_list, fulfill_single_condition=True
+    )
 
 
     )doc" );
