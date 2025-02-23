@@ -295,7 +295,7 @@ simulate_dynamics_on_creation : bool, default=True
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.VariationalSimulator`
+:class:`~tudatpy.numerical_simulation.VariationalEquationsSolver`
  Object that propagates the dynamics, and processes the results.
 
 
