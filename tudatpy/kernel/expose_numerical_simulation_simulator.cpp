@@ -39,46 +39,6 @@ namespace numerical_simulation
 
 void expose_numerical_simulation_simulator( py::module &m )
 {
-    m.def( "create_dynamics_simulator",
-           &tss::createDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "bodies" ),
-           py::arg( "propagator_settings" ),
-           py::arg( "simulate_dynamics_on_creation" ) = true,
-           R"doc(
-
-Function to create object that propagates the dynamics.
-
-Function to create object that propagates the dynamics, as specified by propagator settings, and the physical environment.
-Depending on the specific input type (e.g. which function from the :ref:`\`\`propagator\`\`` module was used),
-a single-, multi- or hybrid-arc simulator is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
-function. When using default settings, calling this function will automatically propagate the dynamics.
-
-
-Parameters
-----------
-bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
-    Object defining the physical environment, with all
-    properties of artificial and natural bodies.
-
-propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
-    Settings to be used for the numerical propagation (dynamics type, termination conditions, integrator, etc.)
-
-simulate_dynamics_on_creation : bool, default=True
-    Boolean defining whether to propagate the dynamics upon creation of the Simulator. If false, the dynamics c
-    can be propagated at a later time by calling the :class:`~tudatpy.numerical_simulation.Simulator.integrate_equations_of_motion` function
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.Simulator`
-    Object that propagates the dynamics, and processes the results.
-
-
-
-
-
-
-    )doc" );
-
     py::class_< tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::DynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m,
@@ -122,9 +82,9 @@ Function to reintegrate the equations of motion with a new initial state.
 
 Parameters
 ----------
-initial_state : New initial state from which the dynamics is to be propagated
+initial_state : numpy.ndarray
+       New initial state from which the dynamics is to be propagated
 
-:type: numpy.ndarray
      )doc" )
             .def_property_readonly( "state_derivative_function",
                                     &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getStateDerivativeFunction,
@@ -251,9 +211,9 @@ Function to reintegrate the equations of motion with a new initial state.
 
 Parameters
 ----------
-initial_state : New initial state from which the dynamics is to be propagated, consisting of concatenated initial states of each arc
+initial_state : numpy.ndarray
+       New initial state from which the dynamics is to be propagated, consisting of concatenated initial states of each arc
 
-                    :type: numpy.ndarray
      )doc" )
             .def_property_readonly( "propagation_results",
                                     &tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getMultiArcPropagationResults,
@@ -300,10 +260,9 @@ Function to reintegrate the equations of motion with a new initial state.
 
 Parameters
 ----------
-initial_state : New initial state from which the dynamics is to be propagated, consisting of concatenated initial state
-                single-arc portion of dynamics, followed by concatenated initial states of the constituent arcs of the multi-arc portion
+initial_state : numpy.ndarray
+       New initial state from which the dynamics is to be propagated, consisting of concatenated initial state single-arc portion of dynamics, followed by concatenated initial states of the constituent arcs of the multi-arc portion
 
-                    :type: numpy.ndarray
      )doc" )
             .def_property_readonly( "single_arc_simulator",
                                     &tp::HybridArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcDynamicsSimulator,
@@ -350,6 +309,51 @@ initial_state : New initial state from which the dynamics is to be propagated, c
 
         :type: HybridArcSimulationResults
         )doc" );
+
+    m.def( "create_dynamics_simulator",
+           &tss::createDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "bodies" ),
+           py::arg( "propagator_settings" ),
+           py::arg( "simulate_dynamics_on_creation" ) = true,
+           R"doc(
+   
+   Function to create object that propagates the dynamics.
+   
+   Function to create object that propagates the dynamics, as specified by propagator settings, and the physical environment.
+   Depending on the specific input type (e.g. which function from the :ref:`\`\`propagator\`\`` module was used),
+   a single-, multi- or hybrid-arc simulator is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
+   function.
+   
+   .. note::
+
+       When using default settings, calling this function will automatically propagate the dynamics.
+   
+   
+   Parameters
+   ----------
+   bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+       Object defining the physical environment, with all
+       properties of artificial and natural bodies.
+   
+   propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+       Settings to be used for the numerical propagation (dynamics type, termination conditions, integrator, etc.)
+   
+   simulate_dynamics_on_creation : bool, default=True
+       Boolean defining whether to propagate the dynamics upon creation of the Simulator. If false, the dynamics c
+       can be propagated at a later time by calling the :class:`~tudatpy.numerical_simulation.DynamicsSimulator.integrate_equations_of_motion` function
+   
+   Returns
+   -------
+   :class:`~tudatpy.numerical_simulation.DynamicsSimulator`
+       Object that propagates the dynamics, and processes the results.
+       Depending on the ``propagator_settings``, this object can be a single-, multi- or hybrid-arc simulator.
+   
+   
+   
+   
+   
+   
+       )doc" );
 };
 
 }  // namespace numerical_simulation
