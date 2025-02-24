@@ -197,7 +197,8 @@ Classes
    TimeScaleConverter
 
 .. autoclass:: tudatpy.astro.time_conversion.DateTime
-   :members:   
+   :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.astro.time_conversion.TimeScaleConverter
    :members:
