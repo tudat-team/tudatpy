@@ -543,12 +543,14 @@ class LoadPDS:
             soup = BeautifulSoup(reqs.text, 'html.parser')
 
             for wanted_files_pattern in wanted_files_patterns:
+                print(wanted_files_pattern)
                 # Extract all links that match the pattern
                 regex_pattern = re.escape(wanted_files_pattern).replace(r'\*', '.*')
                 matched_files = [
                     os.path.basename(link.get('href')) for link in soup.find_all('a', href=True)
                     if re.match(regex_pattern, link.get('href'))
                 ]
+                print(matched_files)
                 matched_files_list.extend(matched_files)
 
         # Combine explicitly specified files and pattern-matched files
@@ -1779,21 +1781,6 @@ class LoadPDS:
         self.ancillary_files_to_load = {} #empty for now
 
         input_mission = 'mex'
-        print(f'===========================================================================================================')
-        print(f'Download {input_mission.upper()} Radio Science Kernels:')
-        url_radio_science_files = self.get_url_mex_radio_science_files(start_date, end_date, radio_observation_type)
-        for url_radio_science_file_new in url_radio_science_files:
-            for closed_loop_type in ['ifms/dp2/', 'dsn/dps/', 'dsn/dpx/']:
-                try:
-                    url_radio_science_file = url_radio_science_file_new + 'data/level02/closed_loop/' + closed_loop_type
-                    files = self.dynamic_download_url_files_single_time(input_mission,
-                                                                        local_path=local_folder, start_date=start_date,end_date=end_date,
-                                                                        url=url_radio_science_file)
-                    key = f"{closed_loop_type.split('/')[0]}_{closed_loop_type.split('/')[1]}"
-                    self.radio_science_files_to_load[key] = files
-                except:
-                    continue
-
         # Tropospheric corrections
         print(f'===========================================================================================================')
         print(f'Download {input_mission.upper()} Tropospheric and Ionospheric Corrections Files')
@@ -1812,15 +1799,14 @@ class LoadPDS:
                     wanted_tropo_files = []
                     for link in soup.find_all('a'):
                         href = link.get('href')
-                        if href.endswith('.tab') or href.endswith('.aux') :
+                        if href.endswith('.tab') or href.endswith('.aux'):
                             wanted_tropo_files.append(href.split('/')[-1])
                     tropo_files_to_load = self.get_kernels(
                         input_mission = input_mission,
                         url = url_tropo_file,
-                        wanted_files = wanted_tropo_files,
+                        wanted_files_patterns= ['*l3l1b*.tab'],
                         custom_output = local_folder)
                 else:
-                    #print(f'URL: {url_tropo_file} does not exist.')
                     continue
 
                 if tropo_files_to_load:
@@ -1829,6 +1815,21 @@ class LoadPDS:
 
                 else:
                     print('No tropospheric or ionospheric files to download this time.')
+
+        print(f'===========================================================================================================')
+        print(f'Download {input_mission.upper()} Radio Science Kernels:')
+        url_radio_science_files = self.get_url_mex_radio_science_files(start_date, end_date, radio_observation_type)
+        for url_radio_science_file_new in url_radio_science_files:
+            for closed_loop_type in ['ifms/dp2/', 'dsn/dps/', 'dsn/dpx/']:
+                try:
+                    url_radio_science_file = url_radio_science_file_new + 'data/level02/closed_loop/' + closed_loop_type
+                    files = self.dynamic_download_url_files_single_time(input_mission,
+                                                                        local_path=local_folder, start_date=start_date,end_date=end_date,
+                                                                        url=url_radio_science_file)
+                    key = f"{closed_loop_type.split('/')[0]}_{closed_loop_type.split('/')[1]}"
+                    self.radio_science_files_to_load[key] = files
+                except:
+                    continue
 
         # Clock files
         print(f'===========================================================================================================')
