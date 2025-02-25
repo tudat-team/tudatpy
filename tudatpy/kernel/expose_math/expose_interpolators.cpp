@@ -538,8 +538,8 @@ data_to_interpolate : dict[float, float]
     Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
 interpolator_settings : InterpolatorSettings
     Settings that define the type of interpolator that is to be used
-data_first_derivatives : dict[float, float] = dict()
-    Key-value container with pairs of independent variables (key) and first derivative dependent variables w.r.t. independent variable (value) from which the interpolation is to be performed. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator
+data_first_derivatives : list[float] = []
+    List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in ``data_to_interpolate``. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).
 Returns
 -------
 OneDimensionalInterpolatorScalar
@@ -570,8 +570,8 @@ data_to_interpolate : dict[float, np.array]
     Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
 interpolator_settings : InterpolatorSettings
     Settings that define the type of interpolator that is to be used
-data_first_derivatives : dict[float, np.array] = dict()
-    Key-value container with pairs of independent variables (key) and first derivative dependent variables w.r.t. independent variable (value) from which the interpolation is to be performed. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).
+data_first_derivatives : list[np.ndarray] = []
+    List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in ``data_to_interpolate``. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).
 Returns
 -------
 OneDimensionalInterpolatorVector
@@ -602,8 +602,8 @@ data_to_interpolate : dict[float, np.array]
     Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
 interpolator_settings : InterpolatorSettings
     Settings that define the type of interpolator that is to be used
-data_first_derivatives : dict[float, np.array] = dict()
-    Key-value container with pairs of independent variables (key) and first derivative dependent variables w.r.t. independent variable (value) from which the interpolation is to be performed. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator
+data_first_derivatives : list[np.ndarray] = []
+    List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in ``data_to_interpolate``. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).
 Returns
 -------
 OneDimensionalInterpolatorMatrix
