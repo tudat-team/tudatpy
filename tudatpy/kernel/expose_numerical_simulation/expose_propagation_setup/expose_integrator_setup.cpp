@@ -837,7 +837,7 @@ embedded propagators of the RKF7(8) method are created, with a time-step of 120 
            py::arg( "assess_termination_on_minor_steps" ) = false,
            R"doc(
 
-Creates the settings for the Runge-Kutta fixed step size integrator.
+Creates the settings for the Runge-Kutta variable step size integrator.
 
 Function to create settings for the Runge-Kutta variable step size integrator.
 Different coefficient sets (Butcher's tableau) can be used (see the :class:`CoefficientSets` enum).
@@ -875,7 +875,7 @@ IntegratorSettings
 
 Examples
 --------
-In this example, settings for the varianle step RK4(5) integrator are created, with the same tolerances (:math:`10^{-10}`)
+In this example, settings for the variable step RK4(5) integrator are created, with the same tolerances (:math:`10^{-10}`)
 applied element-wise on the propagated state. The minimum and maximum time steps are set to 0.001 and 1000 seconds,
 and the initial step is set to 30 seconds. All other inputs are left on their defaults
 
