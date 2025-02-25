@@ -80,20 +80,27 @@ Returns
 
     )doc" );
 
-    // TODO: Remove variationalOnlyIntegratorSettings
+    py::class_< tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >,
+        std::shared_ptr< tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+        m,
+            "VariationalSimulator",
+            R"doc(
+
+        Base class for variational equations propagation.
+
+        Base class for variational equations propagation.
+        Derived classes :class:`~SingleArcVariationalSimulator`, :class:`~MultiArcVariationalSimulator` and
+        :class:`~HybridArcVariationalSimulator` implement single-, multi- and hybrid-arc functionality, respectively."
+
+     )doc" );
+
     py::class_< tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+        std::shared_ptr< tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m,
             "SingleArcVariationalSimulator",
             R"doc(
 
-        Class for consolidating single arc variational dynamics functionality.
-
-        Class for consolidating all functionality required to perform single arc variational dynamics simulations.
-
-
-
-
+        Class for single arc variational equations propagation.
 
      )doc" )
             .def( py::init< const tudat::simulation_setup::SystemOfBodies &,
