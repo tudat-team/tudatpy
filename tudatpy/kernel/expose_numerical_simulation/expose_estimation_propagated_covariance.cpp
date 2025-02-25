@@ -190,8 +190,7 @@ void expose_estimation_propagated_covariance( py::module& m )
         Class containing a consolidated set of estimatable parameters.
 
         Class containing a consolidated set of estimatable parameters, linked to the environment and acceleration settings of the simulation.
-        The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.create_parameters_to_estimate` function,
-        whose output is indeed an *EstimatableParameterSet* object.
+        The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.create_parameter_set` function.
 
 
 
