@@ -31,10 +31,10 @@ class LoadPDS:
                  },
 
             "mro":
-                {"ck": r"^(?P<mission>mro)_(?P<instrument>(sc|hga|sa))_(?P<mission_phase>(cru|ab|psp|rel|psp))_(?P<start_date_file>\d{6})_(?P<end_date_file>\d{6})(?P<version>v\d{2})?(?P<extension>\.bc)$",
+                {"ck":  r"^(?P<mission>mro)_(?P<instrument>(sc|hga|sa))_(?P<mission_phase>(cru|ab|psp|rel|psp))_(?P<start_date_file>\d{6})_(?P<end_date_file>\d{6})(?P<version>v\d{2})?(?P<extension>\.bc)$",
                  "spk": r"^(?P<mission>mro)_(?P<instrument>(sc|hga|sa|struct))_(?P<mission_phase>(cru|ab|psp|rel|psp))_(?P<start_date_file>\d{6})_(?P<end_date_file>\d{6})(?P<version>v\d{2})?(?P<extension>\.bsp)$",
-                 "odf":
-                     r'^(?P<mission>mro)(?P<dataset>magr)(?P<date_file>\d{4}_\d{3}_\d{4})(?P<uplink>x|n)(?P<station>nn|mm|[0-9]{2})(?P<downlink>[123m])(?P<version>v\d+)(?P<extension>\.odf)$',
+                 "odf": r'^(?P<mission>mro)(?P<dataset>magr)(?P<date_file>\d{4}_\d{3}_\d{4})(?P<uplink>x|n)(?P<station>nn|mm|[0-9]{2})(?P<downlink>[123m])(?P<version>v\d+)(?P<extension>\.odf)$',
+                 "tnf": r"^(?P<mission>mro)(?P<dataset>magr)(?P<date_file>\d{4}_\d{3}_\d{4})(?P<uplink>x|n)(?P<station>nn|mm|[0-9]{2})(?P<downlink>[123m])(?P<version>v\d+)(?P<extension>\.tnf)$",
                  "tro": r"^(?P<mission>mro)(?P<dataset>magr)(?P<start_date_file>\d{4}_\d{3})_(?P<end_date_file>\d{4}_\d{3})(?P<extension>\.tro)$",
                  "ion": r"^(?P<mission>mro)(?P<dataset>magr)(?P<start_date_file>\d{4}_\d{3})_(?P<end_date_file>\d{4}_\d{3})(?P<extension>\.ion)$"
                  },
@@ -171,7 +171,7 @@ class LoadPDS:
         # Mapping of data types to their expected file extensions
         self.type_to_extension = {
             'ck': 'bc', 'dsk': 'bds', 'spk': 'bsp', 'fk': 'tpc', 'mk': 'tm', 'ik': 'ti',
-            'lsk': 'tls', 'pck': 'bpc', 'sclk': 'tsc', 'odf': 'odf', 'ifms': 'tab',
+            'lsk': 'tls', 'pck': 'bpc', 'sclk': 'tsc', 'odf': 'odf','tnf': 'tnf', 'ifms': 'tab',
             'dp2': 'tab', 'dps': 'tab', 'dpx': 'tab', 'ion': 'ion', 'tro': 'tro', 'eop':'eop', 'maneuver':'asc',
             'antenna_switch': 'asc'
         }
@@ -1476,8 +1476,17 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def get_mission_files(self, input_mission, start_date = None, end_date = None, flyby_IDs = None, custom_output = None, all_meta_kernel_files = None, load_kernels = None):
-
+    def get_mission_files(
+            self,
+            input_mission,
+            start_date=None,
+            end_date=None,
+            flyby_IDs=None,
+            custom_output=None,
+            all_meta_kernel_files=None,
+            load_kernels=None,
+            radio_science_file_type="odf",
+    ):
         """
         Description:
         This function downloads and organizes mission-specific data files (kernels, radio science files, and ancillary files)
@@ -1646,12 +1655,28 @@ class LoadPDS:
                 else:
                     kernel_files_to_load, radio_science_files_to_load, ancillary_files_to_load = self.get_juice_files(local_folder, start_date, end_date)
 
-            elif input_mission == 'mro':
+            elif input_mission == "mro":
                 if kernel_files_to_load:
-                    _, radio_science_files_to_load, ancillary_files_to_load = self.get_mro_files(local_folder, start_date, end_date)
+                    _, radio_science_files_to_load, ancillary_files_to_load = (
+                        self.get_mro_files(
+                            local_folder,
+                            start_date,
+                            end_date,
+                            radio_science_file_type=radio_science_file_type,
+                        )
+                    )
 
                 else:
-                    kernel_files_to_load, radio_science_files_to_load, ancillary_files_to_load = self.get_mro_files(local_folder, start_date, end_date)
+                    (
+                        kernel_files_to_load,
+                        radio_science_files_to_load,
+                        ancillary_files_to_load,
+                    ) = self.get_mro_files(
+                        local_folder,
+                        start_date,
+                        end_date,
+                        radio_science_file_type=radio_science_file_type,
+                    )
             elif input_mission == 'cassini':
                 if kernel_files_to_load:
                     _, radio_science_files_to_load, ancillary_files_to_load = self.get_cassini_flyby_files(local_folder)
@@ -1936,7 +1961,6 @@ class LoadPDS:
     #########################################################################################################
 
     def get_url_mex_radio_science_files(self, start_date_mex, end_date_mex):
-
         url = "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext9-v1/mexmrs_4405/aareadme.txt"
         radio_science_base_url = "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-v1/"
         mapping_dict = self.get_mex_volume_ID_mapping(url)
@@ -2193,8 +2217,13 @@ class LoadPDS:
     ################################################### START OF MRO SECTION ###############################################################
     ########################################################################################################################################
 
-    def get_mro_files(self,local_folder, start_date, end_date):
+    ########################################################################################################################################
+    ################################################### START OF MRO SECTION ###############################################################
+    ########################################################################################################################################
 
+    def get_mro_files(
+            self, local_folder, start_date, end_date, radio_science_file_type="odf"
+    ):
         """
         Description:
         Downloads various SPICE kernel and ancillary files for the MRO mission, including clock, frame,
@@ -2212,29 +2241,39 @@ class LoadPDS:
             - `ancillary_files_to_load` (`dict`): An empty dictionary for now, intended for ancillary files.
         """
 
-
         self.radio_science_files_to_load = {}
         self.kernel_files_to_load = {}
         self.ancillary_files_to_load = {}
 
-        input_mission = 'mro'
+        input_mission = "mro"
         # ODF files
-        print(f'===========================================================================================================')
-        print(f'Download {input_mission.upper()} ODF files:')
-        url_radio_science_files = ["https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/mrors_0xxx/odf/"]
-        for url_radio_science_file in url_radio_science_files:
+        print(
+            f"==========================================================================================================="
+        )
+        print(
+            f"Download {input_mission.upper()} {radio_science_file_type.upper()} files:"
+        )
+        url_radio_science_file_type = [
+            "https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/mrors_0xxx/{}/".format(
+                radio_science_file_type
+            )
+        ]
+        key = radio_science_file_type
+        for url_radio_science_file in url_radio_science_file_type:
             try:
-                files = self.dynamic_download_url_files_single_time(input_mission,
-                                                                    local_path=local_folder, start_date=start_date,end_date=end_date,
-                                                                    url=url_radio_science_file)
-                key = "odf"
+                files = self.dynamic_download_url_files_single_time(
+                    input_mission,
+                    local_path=local_folder,
+                    start_date=start_date,
+                    end_date=end_date,
+                    url=url_radio_science_file,
+                )
                 self.radio_science_files_to_load[key] = files
             except:
                 continue
 
         if not self.radio_science_files_to_load:
-            print('No Radio Science files to download this time.')
-
+            print("No Radio Science files to download this time.")
         #Clock Kernels
         print(f'===========================================================================================================')
         print(f'Download {input_mission.upper()} Clock Kernels:')
