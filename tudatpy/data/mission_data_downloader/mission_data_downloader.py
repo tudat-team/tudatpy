@@ -543,12 +543,14 @@ class LoadPDS:
             soup = BeautifulSoup(reqs.text, 'html.parser')
 
             for wanted_files_pattern in wanted_files_patterns:
+                print(wanted_files_pattern)
                 # Extract all links that match the pattern
                 regex_pattern = re.escape(wanted_files_pattern).replace(r'\*', '.*')
                 matched_files = [
                     os.path.basename(link.get('href')) for link in soup.find_all('a', href=True)
                     if re.match(regex_pattern, link.get('href'))
                 ]
+                print(matched_files)
                 matched_files_list.extend(matched_files)
 
         # Combine explicitly specified files and pattern-matched files
@@ -1485,6 +1487,7 @@ class LoadPDS:
             custom_output=None,
             all_meta_kernel_files=None,
             load_kernels=None,
+            radio_observation_type = None,
             radio_science_file_type="odf",
     ):
         """
@@ -1506,6 +1509,8 @@ class LoadPDS:
                 It can also include special values like 'ALL_TITAN' or 'ALL_ENCELADUS' to download all flybys for Titan or Enceladus.
             - custom_output (`str`, optional): A custom path where the downloaded files will be stored. If not provided,
                 the default folder structure is used based on the mission name.
+            - radio_observation_type: ('str', optional): type of (mex) radio_observation_type (e.g. phobos gravity, commissioning, occultation, etc ...)
+            - radio_science_file_type ('str', optional): tnf or odf
 
         Outputs:
             - (`dict`, `dict`, `dict`): A tuple containing:
@@ -1643,10 +1648,10 @@ class LoadPDS:
                 kernel_files_to_load = self.download_kernels_from_meta_kernel(input_mission, local_folder)
             if input_mission == 'mex':
                 if kernel_files_to_load:
-                    _, radio_science_files_to_load, ancillary_files_to_load = self.get_mex_files(local_folder, start_date, end_date)
+                    _, radio_science_files_to_load, ancillary_files_to_load = self.get_mex_files(local_folder, start_date, end_date, radio_observation_type)
 
                 else:
-                    kernel_files_to_load, radio_science_files_to_load, ancillary_files_to_load = self.get_mex_files(local_folder, start_date, end_date)
+                    kernel_files_to_load, radio_science_files_to_load, ancillary_files_to_load = self.get_mex_files(local_folder, start_date, end_date, radio_observation_type)
 
             elif input_mission == 'juice':
                 if kernel_files_to_load:
@@ -1767,7 +1772,7 @@ class LoadPDS:
     ############################################# START OF MEX SECTION #####################################################################
     ########################################################################################################################################
 
-    def get_mex_files(self, local_folder, start_date, end_date):
+    def get_mex_files(self, local_folder, start_date, end_date, radio_observation_type = None):
 
         """
         Description:
@@ -1784,6 +1789,7 @@ class LoadPDS:
               This will filter the data to include only those within the date range.
             - end_date (`datetime`): The end date for downloading data.
               This will filter the data to include only those within the date range.
+            - radio_observation_type (`str`): The type of radio science files to download (e.g. phobos gravity, commissioniong, etc...)
 
         Outputs:
             - (`dict`, `dict`, `dict`): A tuple containing:
@@ -1802,9 +1808,44 @@ class LoadPDS:
         self.ancillary_files_to_load = {} #empty for now
 
         input_mission = 'mex'
+        # Tropospheric corrections
+        print(f'===========================================================================================================')
+        print(f'Download {input_mission.upper()} Tropospheric and Ionospheric Corrections Files')
+        url_tropo_files = self.get_url_mex_radio_science_files(start_date, end_date, radio_observation_type)
+        for url_tropo_file_new in url_tropo_files:
+            for folder_type in ['calib/closed_loop/ifms/met/','calib/closed_loop/dsn/ion/', 'calib/closed_loop/dsn/tro/']:
+                url_flag = False
+                url_tropo_file = url_tropo_file_new + folder_type
+                response = requests.get(url_tropo_file)
+                if response.status_code == 200:
+                    url_flag = True
+                    html = response.text
+                    # Parse the HTML with BeautifulSoup
+                    soup = BeautifulSoup(html, 'html.parser')
+                    # Extract file links and their names
+                    wanted_tropo_files = []
+                    for link in soup.find_all('a'):
+                        href = link.get('href')
+                        if href.endswith('.tab') or href.endswith('.aux'):
+                            wanted_tropo_files.append(href.split('/')[-1])
+                    tropo_files_to_load = self.get_kernels(
+                        input_mission = input_mission,
+                        url = url_tropo_file,
+                        wanted_files_patterns= ['*l3l1b*.tab'],
+                        custom_output = local_folder)
+                else:
+                    continue
+
+                if tropo_files_to_load:
+                    key = folder_type.split('/')[-2]
+                    self.ancillary_files_to_load[key] = tropo_files_to_load
+
+                else:
+                    print('No tropospheric or ionospheric files to download this time.')
+
         print(f'===========================================================================================================')
         print(f'Download {input_mission.upper()} Radio Science Kernels:')
-        url_radio_science_files = self.get_url_mex_radio_science_files(start_date, end_date)
+        url_radio_science_files = self.get_url_mex_radio_science_files(start_date, end_date, radio_observation_type)
         for url_radio_science_file_new in url_radio_science_files:
             for closed_loop_type in ['ifms/dp2/', 'dsn/dps/', 'dsn/dpx/']:
                 try:
@@ -1898,42 +1939,6 @@ class LoadPDS:
         else:
             print('No spk files to download this time.')
 
-            # Tropospheric corrections
-        print(f'===========================================================================================================')
-        print(f'Download {input_mission.upper()} Tropospheric and Ionospheric Corrections Files')
-        url_tropo_files = self.get_url_mex_radio_science_files(start_date, end_date)
-        for url_tropo_file_new in url_tropo_files:
-            for folder_type in ['calib/closed_loop/ifms/met/','calib/closed_loop/dsn/ion/', 'calib/closed_loop/dsn/tro/']:
-                url_flag = False
-                url_tropo_file = url_tropo_file_new + folder_type
-                response = requests.get(url_tropo_file)
-                if response.status_code == 200:
-                    url_flag = True
-                    html = response.text
-                    # Parse the HTML with BeautifulSoup
-                    soup = BeautifulSoup(html, 'html.parser')
-                    # Extract file links and their names
-                    wanted_tropo_files = []
-                    for link in soup.find_all('a'):
-                        href = link.get('href')
-                        if href.endswith('.tab') or href.endswith('.aux') :
-                            wanted_tropo_files.append(href.split('/')[-1])
-                    tropo_files_to_load = self.get_kernels(
-                        input_mission = input_mission,
-                        url = url_tropo_file,
-                        wanted_files = wanted_tropo_files,
-                        custom_output = local_folder)
-                else:
-                    #print(f'URL: {url_tropo_file} does not exist.')
-                    continue
-
-                if tropo_files_to_load:
-                    key = folder_type.split('/')[-2]
-                    self.ancillary_files_to_load[key] = tropo_files_to_load
-
-                else:
-                    print('No tropospheric or ionospheric files to download this time.')
-
         print(f'-----------------------------------------------------------------------------------------------------------')
         print('All requested, relevant and previously non-existing MEX files have been now downloaded. Enjoy!')
 
@@ -1944,39 +1949,109 @@ class LoadPDS:
     def get_mex_volume_ID(self, start_date, end_date, interval_dict):
         self.volume_id_list = []
         for (key_start, key_end), items in interval_dict.items():
-            # Check if either start or end of the input interval overlaps with the dictionary interval
-            if key_end and start_date <= key_end and end_date >= key_start:
-            # Iterate over the list of dictionaries and collect volume IDs
-                for entry in items:
-                    self.volume_id_list.append(entry['volume_id'])
-            elif not key_end and end_date >= key_start:
-                for entry in items:
-                    self.volume_id_list.append(entry['volume_id'])
+            if not isinstance(items, list):
+                items = [items]
+
+            for item in items:
+                # Check if either start or end of the input interval overlaps with the dictionary interval
+                if key_end:
+                    if (start_date <= key_end and end_date >= key_start):
+                        self.volume_id_list.append(item['volume_id'])
+                if (end_date >= key_start):
+                    self.volume_id_list.append(item['volume_id'])
 
         if self.volume_id_list:
             return self.volume_id_list
         else:
-            raise ValueError(f'No MEX Volume_ID found associated with input interval: {start_date} - {end_date}.')
+            raise ValueError(f'No MEX Volume_ID found associated to input interval: {start_date} - {end_date}.')
 
     #########################################################################################################
+    def get_url_mex_radio_science_files(self, start_date_mex, end_date_mex, radio_observation_type = None):
 
-    def get_url_mex_radio_science_files(self, start_date_mex, end_date_mex):
-        url = "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext9-v1/mexmrs_4405/aareadme.txt"
+        #url = "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-v1/mexmrs_0735/aareadme.txt"
+        url = 'https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext9-v1/mexmrs_4405/aareadme.txt'
         radio_science_base_url = "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-v1/"
+        radio_science_base_urls = [
+            "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-v1/",
+            "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext1-v1/",
+            "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext2-v1/",
+            "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext3-v1/",
+            "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext4-v1/",
+            "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext5-v1/",
+            "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext6-v1/",
+            "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext7-v1/",
+            "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext8-v1/",
+            "https://pds-geosciences.wustl.edu/mex/mex-m-mrs-1_2_3-ext9-v1/",
+            ]
+
         mapping_dict = self.get_mex_volume_ID_mapping(url)
+
+        if radio_observation_type:
+            mapping_dict = self.filter_mapping_dict_by_radio_observation_type(mapping_dict, radio_observation_type, start_date_mex, end_date_mex)
 
         self.radio_science_urls = []
         volume_ID_list = self.get_mex_volume_ID(start_date_mex, end_date_mex, mapping_dict)
         if self.get_mex_volume_ID(start_date_mex, end_date_mex, mapping_dict):
             for volume_ID in volume_ID_list:
-                volume_ID_url = radio_science_base_url + volume_ID + '/'
-                self.radio_science_urls.append(volume_ID_url)
+                for radio_science_base_url in radio_science_base_urls:
+                    try:
+                        volume_ID_url = radio_science_base_url + volume_ID + '/'
+                        response = requests.head(volume_ID_url)  # Use HEAD to check existence without downloading the content
+                        if response.status_code == 200:
+                            print(f'URL Exists: {volume_ID_url}')
+                            self.radio_science_urls.append(volume_ID_url)
+                        else:
+                            print(f"URL does not exist: {volume_ID_url}")
+
+                        self.radio_science_urls.append(volume_ID_url)
+                    except:
+                        #print(f"Error occurred for radio science base url {radio_science_base_url} and volume ID {volume_ID}: {e}")
+                        continue
 
         if len(self.radio_science_urls) > 0:
             return self.radio_science_urls
         else:
             raise ValueError(f'No url available for MEX radio science files. Please check the mapping.')
 
+    #########################################################################################################
+
+    def filter_mapping_dict_by_radio_observation_type(self, mapping_dict, radio_observation_type, start_date_mex, end_date_mex):
+
+        """
+        Description:
+        Filters a mapping dictionary to extract entries based on a specified observation type and a date range.
+        The function returns a new dictionary where each key corresponds to a filtered set of entries that match
+        the specified observation type and fall within the given start and end dates.
+
+        Inputs:
+            - mapping_dict (`dict`): A dictionary where keys represent categories and values are lists of entries.
+              Each entry is expected to be a dictionary containing:
+                - `start_date_utc` (`str`): The start date in UTC (format: YYYY-MM-DD).
+                - `radio_observation_type` (`str`): The type of observation.
+
+            - radio_observation_type (`str`): The type of observation to filter by (e.g., 'Phobos Gravity').
+
+            - start_date_mex (`str`): The start date for filtering in UTC (format: YYYY-MM-DD).
+
+            - end_date_mex (`str`): The end date for filtering in UTC (format: YYYY-MM-DD).
+
+        Outputs:
+            - `filtered_dict` (`dict`): A dictionary where keys are the same as in `mapping_dict`, and values are lists
+              of filtered entries that match the specified observation type and fall within the date range.
+        """
+
+        filtered_dict = {
+            key: [
+                entry for entry in values
+                if entry['radio_observation_type'] == radio_observation_type and start_date_mex <= entry['start_date_utc'] <= end_date_mex
+            ]
+            for key, values in mapping_dict.items()
+            if any(
+                entry['radio_observation_type'] == radio_observation_type and start_date_mex <= entry['start_date_utc'] <= end_date_mex
+                for entry in values
+            )
+        }
+        return filtered_dict
     #########################################################################################################
 
     def get_mex_volume_ID_mapping(self, url):
@@ -1996,13 +2071,15 @@ class LoadPDS:
                 - `volume_id` (`str`): The volume ID.
                 - `start_date_file` (`str`): Start date (YYYY-MM-DD).
                 - `end_date_file` (`str`): End date (YYYY-MM-DD).
-                - `observation_type` (`str`): Type of observation.
+                - `radio_observation_type` (`str`): Type of observation.
         """
 
         # Step 1: Fetch content from the URL
         response = requests.get(url)
         response.raise_for_status()  # Check for request errors
         aareadme_text = response.text
+
+        print(aareadme_text)
 
         # Step 2: Parse content using regex to extract the table entries
         self.mapping_dict = {}
@@ -2016,7 +2093,7 @@ class LoadPDS:
             start_date_utc = self.format_string_to_datetime(start_date_file)
             end_date_utc = self.format_string_to_datetime(end_date_file) if end_date_file != None else None
             interval_key_for_retrieval = (start_date_utc, end_date_utc)
-            observation_type = match.group(4).strip()
+            radio_observation_type = match.group(4).strip()
 
             # Add entry to dictionary
             if interval_key_for_retrieval not in self.mapping_dict:
@@ -2029,7 +2106,7 @@ class LoadPDS:
                 "end_date_file": end_date_file,
                 "start_date_utc": start_date_utc,
                 "end_date_utc": end_date_utc,
-                "observation_type": observation_type
+                "radio_observation_type": radio_observation_type
             })
         return self.mapping_dict
 
