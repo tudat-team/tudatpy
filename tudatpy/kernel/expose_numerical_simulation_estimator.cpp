@@ -223,7 +223,7 @@ void expose_numerical_simulation_estimator( py::module &m )
         equations of motion and variational equations/dynamics in the Estimator object.
 
 
-        :type: :class:`~tudatpy.numerical_simulation.SingleArcVariationalSolver`
+        :type: :class:`~tudatpy.numerical_simulation.VariationalSimulator`
      )doc" );
 };
 
