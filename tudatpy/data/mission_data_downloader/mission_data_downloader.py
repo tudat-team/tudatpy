@@ -820,7 +820,7 @@ class LoadPDS:
                             # Downloading only the latest version of a file
                             version = RS_dict.get("version")  # Define default version if not provided
                             if not version:
-                                files_url_dict[(start_time, end_time)] = filename_to_download
+                                files_url_dict[(start_date, end_date)] = filename_to_download
 
                             else:
                                 ext = RS_dict.get("extension")
@@ -1504,7 +1504,8 @@ class LoadPDS:
                 - 'juice'
                 - 'mro'
             - start_date (`datetime`, optional): The start date for downloading data. If not provided, data is not filtered by date.
-            - end_date (`datetime`, optional): The end date for downloading data. If not provided, data is not filtered by date.
+            - end_date (`datetime`, optional): The end date for downloading data (data from the end_date will be downloaded as well, meaning data from start_date <= date <= end_date).
+                                                If not provided, data is not filtered by date.
             - flyby_IDs (`list` or `str`, optional): A list of flyby IDs (e.g., ['T101', 'E303']) for Cassini missions.
                 It can also include special values like 'ALL_TITAN' or 'ALL_ENCELADUS' to download all flybys for Titan or Enceladus.
             - custom_output (`str`, optional): A custom path where the downloaded files will be stored. If not provided,
