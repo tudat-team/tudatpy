@@ -2240,14 +2240,14 @@ numpy.ndarray[numpy.float64[6, 1]]
             .def( "set_transmitting_frequency_calculator",
                   &tgs::GroundStation::setTransmittingFrequencyCalculator,
                   py::arg( "transmitting_frequency_calculator" ) )
-            .def( "set_water_vapor_partial_pressure_function",
-                  &tgs::GroundStation::setWaterVaporPartialPressureFunction,
-                  py::arg( "water_vapor_partial_pressure_function" ) )
-            .def( "set_temperature_function", &tgs::GroundStation::setTemperatureFunction, py::arg( "temperature_function" ) )
-            .def( "set_pressure_function", &tgs::GroundStation::setPressureFunction, py::arg( "pressure_function" ) )
-            .def( "set_relative_humidity_function",
-                  &tgs::GroundStation::setRelativeHumidityFunction,
-                  py::arg( "relative_humidity_function" ) )
+//            .def( "set_water_vapor_partial_pressure_function",
+//                  &tgs::GroundStation::setWaterVaporPartialPressureFunction,
+//                  py::arg( "water_vapor_partial_pressure_function" ) )
+//            .def( "set_temperature_function", &tgs::GroundStation::setTemperatureFunction, py::arg( "temperature_function" ) )
+//            .def( "set_pressure_function", &tgs::GroundStation::setPressureFunction, py::arg( "pressure_function" ) )
+//            .def( "set_relative_humidity_function",
+//                  &tgs::GroundStation::setRelativeHumidityFunction,
+//                  py::arg( "relative_humidity_function" ) )
             .def_property( "transmitting_frequency_calculator",
                            &tgs::GroundStation::getTransmittingFrequencyCalculator,
                            &tgs::GroundStation::setTransmittingFrequencyCalculator,
