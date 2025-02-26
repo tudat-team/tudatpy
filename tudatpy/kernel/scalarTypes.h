@@ -13,7 +13,7 @@
 
 #include "tudat/basics/timeType.h"
 
-#define STATE_SCALAR_TYPE double       // long double
+#define STATE_SCALAR_TYPE long double
 #define TIME_TYPE tudat::Time
 #define INTERPOLATOR_TIME_TYPE tudat::Time
 
