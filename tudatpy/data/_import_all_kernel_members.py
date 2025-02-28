@@ -34,43 +34,10 @@ from tudatpy.kernel.data import \
 #                 OBJECTS                 
 # ----------------------------------------
 from tudatpy.kernel.data import \
-     DynamicCoefficientNames, \
      OdfRawFileContents, \
      SolarActivityData, \
-     StaticCoefficientNames, \
      TrackingDataType, \
      TrackingTxtFileContents, \
-     ca, \
-     cap, \
-     caq, \
-     car, \
-     clb, \
-     cll, \
-     cllp, \
-     cllq, \
-     cllr, \
-     cln, \
-     clnp, \
-     clnq, \
-     clnr, \
-     cm, \
-     cma, \
-     cmad, \
-     cmp, \
-     cmq, \
-     cmr, \
-     cn, \
-     cna, \
-     cnad, \
-     cnb, \
-     cnp, \
-     cnq, \
-     cnr, \
-     cy, \
-     cyb, \
-     cyp, \
-     cyq, \
-     cyr, \
      day, \
      doppler_bandwidth, \
      doppler_base_frequency, \
@@ -84,7 +51,6 @@ from tudatpy.kernel.data import \
      light_time_measurement_accuracy, \
      light_time_measurement_delay, \
      minute, \
-     missile_DATCOM_data, \
      month, \
      n_way_light_time, \
      observation_body, \
