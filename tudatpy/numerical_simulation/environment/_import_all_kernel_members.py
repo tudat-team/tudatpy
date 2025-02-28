@@ -37,6 +37,7 @@ from tudatpy.kernel.numerical_simulation.environment import \
      AtmosphericFlightConditions, \
      Body, \
      BodyShapeModel, \
+     CannonballRadiationPressureTargetModel, \
      ConstantEphemeris, \
      ConstantTransmittingFrequencyCalculator, \
      ControlSurfaceIncrementAerodynamicInterface, \
@@ -58,8 +59,10 @@ from tudatpy.kernel.numerical_simulation.environment import \
      KeplerEphemeris, \
      LongitudeLibrationCalculator, \
      MultiArcEphemeris, \
+     PiecewiseLinearFrequencyInterpolator, \
      PointingAnglesCalculator, \
      PolyhedronGravityField, \
+     RadiationPressureTargetModel, \
      RigidBodyProperties, \
      RotationalEphemeris, \
      SphericalHarmonicsGravityField, \
