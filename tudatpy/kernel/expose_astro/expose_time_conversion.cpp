@@ -135,6 +135,215 @@ void expose_time_conversion( py::module& m )
     //    m.attr("default_time_converter") =
     //    tudat::earth_orientation::defaultTimeConverter;
 
+    py::enum_< tba::TimeScales >( m,
+                                  "TimeScales",
+                                  R"doc(
+
+Enumeration of available time scales between which the :class:`~TimeScaleConverter` can automaticaly convert.
+
+)doc" )
+            .value( "tai_scale", tba::tai_scale, R"doc(
+)doc" )
+            .value( "tt_scale", tba::tt_scale, R"doc(
+)doc" )
+            .value( "tdb_scale", tba::tdb_scale, R"doc(
+)doc" )
+            .value( "utc_scale", tba::utc_scale, R"doc(
+)doc" )
+            .value( "ut1_scale", tba::ut1_scale, R"doc(
+)doc" )
+            .export_values( );
+
+    py::class_< teo::TerrestrialTimeScaleConverter, std::shared_ptr< teo::TerrestrialTimeScaleConverter > >( m,
+                                                                                                             "TimeScaleConverter",
+                                                                                                             R"doc(
+
+Class to convert between different time scales (TAI, TT, TDB, UTC, UT1)
+
+Class to convert between different time scales (TAI, TT, TDB, UTC, UT1), as per algorithms described in (for instance) IERS 2010 Conventions and USNO circular no. 179.
+The algorithms used for the conversion are (where there is any choice in models):
+
+* Conversion between TDB and TT uses the SOFA function ``iauDtdb`` function (equivalently to :func:`TT_to_TDB` and :func:`TDB_to_TT`)
+* Conversion between UTC and UT1 applies (semi-)diurnal and daily measured variations depending on settings during object creation (typically as per :func:`~default_time_scale_converter`)
+* Leap seconds as per the latest SOFA package
+
+)doc" )
+            .def( "convert_time",
+                  &teo::TerrestrialTimeScaleConverter::getCurrentTime< TIME_TYPE >,
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_value" ),
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
+            .def( "get_time_difference",
+                  &teo::TerrestrialTimeScaleConverter::getCurrentTimeDifference< double >,
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_value" ),
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) );
+
+    py::class_< tba::DateTime >( m, "DateTime", R"doc(
+
+Class to store a calendar date and time of day, with high resolution.
+
+Class to store a calendar date and time of day, with high resolution compared to Python datetime.datetime. This class
+stores the seconds as a ``long double`` variable in the C++ implementation, corresponding to about
+16 or 19 digits of precision (depending on the compiler used). In either case, this will be sufficient for sub-femtosecond
+resolution. In addition, this class allows easy conversion to typical time representations in astrodynamics (seconds since J2000,
+Julian day, and modified Julian day).
+
+
+
+
+
+)doc" )
+            .def( py::init< const int, const int, const int, const int, const int, const long double >( ),
+                  py::arg( "year" ),
+                  py::arg( "month" ),
+                  py::arg( "day" ),
+                  py::arg( "hour" ) = 12,
+                  py::arg( "minute" ) = 0,
+                  py::arg( "seconds" ) = 0.0L )
+            .def_property( "year", &tba::DateTime::getYear, &tba::DateTime::setYear, R"doc(
+
+Calendar year
+
+
+:type: int
+)doc" )
+            .def_property( "month", &tba::DateTime::getMonth, &tba::DateTime::setMonth, R"doc(
+
+Calendar month (value must be 1-12)
+
+
+:type: int
+)doc" )
+            .def_property( "day", &tba::DateTime::getDay, &tba::DateTime::setDay, R"doc(
+
+Calendar day in current month, value must be larger than 0, and smaller or equal to the number of days in the month
+
+
+:type: int
+)doc" )
+            .def_property( "hour", &tba::DateTime::getHour, &tba::DateTime::setHour, R"doc(
+
+Full hours into the current day (value must be 0-23)
+
+
+:type: int
+)doc" )
+            .def_property( "minute", &tba::DateTime::getMinute, &tba::DateTime::setMinute, R"doc(
+
+Full minutes into the current hour (value must be 0-59)
+
+
+:type: int
+)doc" )
+            .def_property( "seconds", &tba::DateTime::getSeconds, &tba::DateTime::setSeconds, R"doc(
+
+Number of seconds into the current minute. Note that this value is stored as ``long double`` in Tudat, which may be 64-bit or 80-bit (16 or 19 digits) depending on the compiler used.
+
+
+:type: float
+)doc" )
+            .def( "iso_string",
+                  &tba::DateTime::isoString,
+                  py::arg( "add_T" ) = false,
+                  py::arg( "number_of_digits_seconds" ) = 15,
+                  R"doc(
+
+Function to get the ISO-compatible string.
+
+
+Function to get the current date and time as an ISO-compatible string ("YYYY-MM-DDTHH:MM:SS.SSSSS..") where the seconds may be provided with any number of digits. The 'T' entry separating the date from the time may be omitted by setting the ``add_T`` parameter to false
+
+
+Parameters
+----------
+add_T : bool
+Boolean denoting whether to use a 'T' or a blank space to separate the date from the time
+
+number_of_digits_seconds : int, default = 15
+Number of digits to use after the decimal separator (trailing zeros will be truncated)
+
+Returns
+-------
+str
+    ISO-compatible string representing the date and time
+
+
+
+
+
+)doc" )
+            .def( "day_of_year",
+                  &tba::DateTime::dayOfYear,
+                  R"doc(
+
+Function to get the day number in the current year
+
+
+Returns
+-------
+int
+    Day number in the current year
+
+
+
+
+
+)doc" )
+            .def( "epoch",
+                  &tba::DateTime::epoch< TIME_TYPE >,
+                  R"doc(
+
+Function to get the epoch in seconds since J2000 for the current date and time
+
+
+Returns
+-------
+float
+    Current epoch in seconds since J2000
+
+
+
+
+
+)doc" )
+            .def( "julian_day",
+                  &tba::DateTime::julianDay< double >,
+                  R"doc(
+
+Function to get the epoch as Julian day for the current date and time
+
+
+Returns
+-------
+float
+    Current Julian day
+
+
+
+
+
+)doc" )
+            .def( "modified_julian_day",
+                  &tba::DateTime::modifiedJulianDay< double >,
+                  R"doc(
+
+Function to get the epoch as modified Julian day for the current date and time
+
+
+Returns
+-------
+float
+    Current modified Julian day
+
+
+
+
+
+)doc" );
+
     m.def( "datetime_to_tudat",
            &timePointToDateTime,
            py::arg( "datetime" ),
@@ -981,25 +1190,6 @@ float
 
     )doc" );
 
-    py::enum_< tba::TimeScales >( m,
-                                  "TimeScales",
-                                  R"doc(
-
-        Enumeration of available time scales between which the :class:`~TimeScaleConverter` can automaticaly convert.
-
-     )doc" )
-            .value( "tai_scale", tba::tai_scale, R"doc(
-     )doc" )
-            .value( "tt_scale", tba::tt_scale, R"doc(
-     )doc" )
-            .value( "tdb_scale", tba::tdb_scale, R"doc(
-     )doc" )
-            .value( "utc_scale", tba::utc_scale, R"doc(
-     )doc" )
-            .value( "ut1_scale", tba::ut1_scale, R"doc(
-     )doc" )
-            .export_values( );
-
     m.def( "default_time_scale_converter",
            &teo::createDefaultTimeConverterPy,
            R"doc(
@@ -1016,204 +1206,6 @@ Returns
 -------
 TimeScaleConverter
     Object to convert between different terrestrial time scales.
-
-
-
-
-
-    )doc" );
-
-    py::class_< teo::TerrestrialTimeScaleConverter, std::shared_ptr< teo::TerrestrialTimeScaleConverter > >( m,
-                                                                                                             "TimeScaleConverter",
-                                                                                                             R"doc(
-
-        Class to convert between different time scales (TAI, TT, TDB, UTC, UT1)
-
-        Class to convert between different time scales (TAI, TT, TDB, UTC, UT1), as per algorithms described in (for instance) IERS 2010 Conventions and USNO circular no. 179.
-        The algorithms used for the conversion are (where there is any choice in models):
-
-         * Conversion between TDB and TT uses the SOFA function ``iauDtdb`` function (equivalently to :func:`TT_to_TDB` and :func:`TDB_to_TT`)
-         * Conversion between UTC and UT1 applies (semi-)diurnal and daily measured variations depending on settings during object creation (typically as per :func:`~default_time_scale_converter`)
-         * Leap seconds as per the latest SOFA package
-
-    )doc" )
-            .def( "convert_time",
-                  &teo::TerrestrialTimeScaleConverter::getCurrentTime< TIME_TYPE >,
-                  py::arg( "input_scale" ),
-                  py::arg( "output_scale" ),
-                  py::arg( "input_value" ),
-                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
-            .def( "get_time_difference",
-                  &teo::TerrestrialTimeScaleConverter::getCurrentTimeDifference< double >,
-                  py::arg( "input_scale" ),
-                  py::arg( "output_scale" ),
-                  py::arg( "input_value" ),
-                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) );
-
-    py::class_< tba::DateTime >( m, "DateTime", R"doc(
-
-        Class to store a calendar date and time of day, with high resolution.
-
-        Class to store a calendar date and time of day, with high resolution compared to Python datetime.datetime. This class
-        stores the seconds as a ``long double`` variable in the C++ implementation, corresponding to about
-        16 or 19 digits of precision (depending on the compiler used). In either case, this will be sufficient for sub-femtosecond
-        resolution. In addition, this class allows easy conversion to typical time representations in astrodynamics (seconds since J2000,
-        Julian day, and modified Julian day).
-
-    m.def( "epoch_from_date_time_iso_string",
-           &tba::timeFromIsoString< TIME_TYPE >,
-           py::arg( "iso_datetime" ),
-           get_docstring( "epoch_from_date_time_iso_string" ).c_str( ) );
-
-
-    m.def( "date_time_from_epoch",
-           &tba::getCalendarDateFromTime< TIME_TYPE >,
-           py::arg( "epoch" ),
-           get_docstring( "date_time_from_epoch" ).c_str( ) );
-
-
-     )doc" )
-            .def( py::init< const int, const int, const int, const int, const int, const long double >( ),
-                  py::arg( "year" ),
-                  py::arg( "month" ),
-                  py::arg( "day" ),
-                  py::arg( "hour" ) = 12,
-                  py::arg( "minute" ) = 0,
-                  py::arg( "seconds" ) = 0.0L )
-            .def_property( "year", &tba::DateTime::getYear, &tba::DateTime::setYear, R"doc(
-
-        Calendar year
-
-
-        :type: int
-     )doc" )
-            .def_property( "month", &tba::DateTime::getMonth, &tba::DateTime::setMonth, R"doc(
-
-        Calendar month (value must be 1-12)
-
-
-        :type: int
-     )doc" )
-            .def_property( "day", &tba::DateTime::getDay, &tba::DateTime::setDay, R"doc(
-
-        Calendar day in current month, value must be larger than 0, and smaller or equal to the number of days in the month
-
-
-        :type: int
-     )doc" )
-            .def_property( "hour", &tba::DateTime::getHour, &tba::DateTime::setHour, R"doc(
-
-        Full hours into the current day (value must be 0-23)
-
-
-        :type: int
-     )doc" )
-            .def_property( "minute", &tba::DateTime::getMinute, &tba::DateTime::setMinute, R"doc(
-
-        Full minutes into the current hour (value must be 0-59)
-
-
-        :type: int
-     )doc" )
-            .def_property( "seconds", &tba::DateTime::getSeconds, &tba::DateTime::setSeconds, R"doc(
-
-        Number of seconds into the current minute. Note that this value is stored as ``long double`` in Tudat, which may be 64-bit or 80-bit (16 or 19 digits) depending on the compiler used.
-
-
-        :type: float
-     )doc" )
-            .def( "iso_string",
-                  &tba::DateTime::isoString,
-                  py::arg( "add_T" ) = false,
-                  py::arg( "number_of_digits_seconds" ) = 15,
-                  R"doc(
-
-        Function to get the ISO-compatible string.
-
-
-        Function to get the current date and time as an ISO-compatible string ("YYYY-MM-DDTHH:MM:SS.SSSSS..") where the seconds may be provided with any number of digits. The 'T' entry separating the date from the time may be omitted by setting the ``add_T`` parameter to false
-
-
-        Parameters
-        ----------
-        add_T : bool
-            Boolean denoting whether to use a 'T' or a blank space to separate the date from the time
-
-        number_of_digits_seconds : int, default = 15
-            Number of digits to use after the decimal separator (trailing zeros will be truncated)
-
-        Returns
-        -------
-        str
-            ISO-compatible string representing the date and time
-
-
-
-
-
-    )doc" )
-            .def( "day_of_year",
-                  &tba::DateTime::dayOfYear,
-                  R"doc(
-
-        Function to get the day number in the current year
-
-
-        Returns
-        -------
-        int
-            Day number in the current year
-
-
-
-
-
-    )doc" )
-            .def( "epoch",
-                  &tba::DateTime::epoch< TIME_TYPE >,
-                  R"doc(
-
-        Function to get the epoch in seconds since J2000 for the current date and time
-
-
-        Returns
-        -------
-        float
-            Current epoch in seconds since J2000
-
-
-
-
-
-    )doc" )
-            .def( "julian_day",
-                  &tba::DateTime::julianDay< double >,
-                  R"doc(
-
-        Function to get the epoch as Julian day for the current date and time
-
-
-        Returns
-        -------
-        float
-            Current Julian day
-
-
-
-
-
-    )doc" )
-            .def( "modified_julian_day",
-                  &tba::DateTime::modifiedJulianDay< double >,
-                  R"doc(
-
-        Function to get the epoch as modified Julian day for the current date and time
-
-
-        Returns
-        -------
-        float
-            Current modified Julian day
 
 
 
