@@ -416,6 +416,9 @@ In this example, we define the point mass gravity acceleration exerted by the Ea
 
     )doc" );
 
+    m.def( "einstein_infeld_hofmann",
+           &tss::einsteinInfledHoffmannGravityAcceleration );
+
     m.def( "aerodynamic",
            &tss::aerodynamicAcceleration,
            R"doc(
