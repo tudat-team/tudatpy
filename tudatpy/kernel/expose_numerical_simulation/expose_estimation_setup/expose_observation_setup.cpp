@@ -2684,8 +2684,8 @@ Examples
             .value( "doppler_reference_frequency", tom::ObservationAncilliarySimulationVariable::doppler_reference_frequency )
             .value( "frequency_bands", tom::ObservationAncilliarySimulationVariable::frequency_bands )
             .value( "reception_reference_frequency_band", tom::ObservationAncilliarySimulationVariable::reception_reference_frequency_band )
-            .value( "sequential_range_reference_frequency",
-                    tom::ObservationAncilliarySimulationVariable::sequential_range_reference_frequency )
+            // .value( "sequential_range_reference_frequency",
+            //         tom::ObservationAncilliarySimulationVariable::sequential_range_reference_frequency )
             .value( "sequential_range_lowest_ranging_component",
                     tom::ObservationAncilliarySimulationVariable::sequential_range_lowest_ranging_component )
             .value( "range_conversion_factor", tom::ObservationAncilliarySimulationVariable::range_conversion_factor )
@@ -3313,7 +3313,7 @@ Returns
     m.def( "dsn_n_way_range_ancilliary_settings",
            &tom::getDsnNWayRangeAncillarySettings,
            py::arg( "frequency_bands" ),
-           py::arg( "reference_frequency" ),
+           //    py::arg( "reference_frequency" ),
            py::arg( "lowest_ranging_component" ),
            py::arg( "link_end_delays" ) = std::vector< double >( ),
            R"doc(No documentation found.)doc" );
