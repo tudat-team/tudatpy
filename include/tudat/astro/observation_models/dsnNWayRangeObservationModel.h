@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
@@ -171,9 +172,16 @@ public:
         TimeType utcTransmissionTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time - lightTime, nominalReceivingStationState );
 
+        ObservationScalarType uplinkFrequency =
+                transmittingFrequencyCalculator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >(
+                        utcTransmissionTime );
+        ancillarySettings->setAncilliaryDoubleData( observation_models::range_conversion_factor,
+                                                    physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) );
+
         ObservationScalarType transmitterFrequencyIntegral =
                 transmittingFrequencyCalculator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
                         utcTransmissionTime, utcReceptionTime );
+        // ObservationScalarType rangeUnitIntegral = conversionFactor * transmitterFrequencyIntegral - stationCalibration;
         ObservationScalarType rangeUnitIntegral = conversionFactor * transmitterFrequencyIntegral;
 
         // Moyer (2000), eq. 13-54
