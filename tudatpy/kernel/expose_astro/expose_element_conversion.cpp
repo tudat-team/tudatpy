@@ -128,6 +128,36 @@ Enumeration describing different types of position element types (typically used
             .value( "geodetic_position_type", tcc::PositionElementTypes::geodetic_position )
             .export_values( );
 
+    m.def( "convert_cartesian_to_geodetic_coordinates",
+       &tcc::convertCartesianToGeodeticCoordinates,
+       py::arg( "cartesian_coordinates" ),
+       py::arg( "equatorial_radius" ),
+       py::arg( "flattening" ),
+       py::arg( "tolerance" ),
+       R"doc(
+
+Convert cartesian position to geodetic position, given equatorial radius and flattening (based on the Body Shape Model).
+
+Parameters
+----------
+cartesian_coordinates : numpy.ndarray
+    Position from which the conversion is to be performed
+equatorial_radius : float
+flattening : float
+tolerance : float
+    Tolerance (in meters) used as convergence criterion for converting to/from geodetic altitude
+Returns
+-------
+numpy.ndarray
+    Geodetic coordinates, as computed from Cartesian element input.
+
+
+
+
+
+
+    )doc" );
+
     m.def( "convert_position_elements",
            &tcc::convertPositionElements,
            py::arg( "original_elements" ),
