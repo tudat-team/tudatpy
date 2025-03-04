@@ -181,7 +181,6 @@ public:
         ObservationScalarType transmitterFrequencyIntegral =
                 transmittingFrequencyCalculator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
                         utcTransmissionTime, utcReceptionTime );
-        // ObservationScalarType rangeUnitIntegral = conversionFactor * transmitterFrequencyIntegral - stationCalibration;
         ObservationScalarType rangeUnitIntegral = conversionFactor * transmitterFrequencyIntegral;
 
         // Moyer (2000), eq. 13-54

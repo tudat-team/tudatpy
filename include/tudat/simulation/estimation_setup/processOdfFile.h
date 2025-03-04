@@ -1149,8 +1149,6 @@ observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySe
         std::shared_ptr< ProcessedOdfFileSequentialRangeData< TimeType > > sequentialRangeDataBlock =
                 std::dynamic_pointer_cast< ProcessedOdfFileSequentialRangeData< TimeType > >( odfDataContents );
 
-        // ancillarySettings.setAncilliaryDoubleData( observation_models::sequential_range_reference_frequency,
-        //                                            sequentialRangeDataBlock->referenceFrequency_.at( dataIndex ) );
         ancillarySettings.setAncilliaryDoubleData( observation_models::sequential_range_lowest_ranging_component,
                                                    sequentialRangeDataBlock->lowestRangingComponent_.at( dataIndex ) );
 
