@@ -898,10 +898,15 @@ def create_observation_collection_from_tnf(tnf_file_paths, bodies, spacecraftNam
 
     # Exclude unsupported observables
     if not dopplerDf.empty:
-        dopplerDf = dopplerDf[dopplerDf["tracking_mode"] != "1W"]
+        dopplerDf = dopplerDf[
+            (dopplerDf["tracking_mode"] != "None")
+            & (dopplerDf["tracking_mode"] != "1W")
+        ]
+
     if not rangeDf.empty:
         rangeDf = rangeDf[rangeDf["tracking_mode"] == "2W"]
 
+    print(dopplerDf["tracking_mode"].unique())
     obsColl = create_ObservationCollection(dopplerDf, rangeDf, spacecraftName)
 
     # Extract the spacecraft name if not provided
