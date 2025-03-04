@@ -289,7 +289,6 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRang
             std::make_shared< ObservationAncilliarySimulationSettings >( );
 
     ancillarySettings->setAncilliaryDoubleData( sequential_range_lowest_ranging_component, lowestRangingComponent );
-    // ancillarySettings->setAncilliaryDoubleData( sequential_range_reference_frequency, referenceFrequency );
 
     ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
