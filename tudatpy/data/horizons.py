@@ -1038,7 +1038,6 @@ class HorizonsQuery:
             **kwargs,
         )
 
-        print(raw)
         res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "AZ", "EL"]]
 
         if not degrees:
