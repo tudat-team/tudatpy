@@ -27103,7 +27103,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
     )";
     }
-    else if( name == "GroundStationState.geodetic_positon_at_reference_epoch" )
+    else if( name == "GroundStationState.geodetic_position_at_reference_epoch" )
     {
         return R"(
 
