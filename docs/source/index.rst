@@ -23,6 +23,7 @@ astrodynamics.
    astro
    constants
    data
+   exceptions
    interface
    math
    numerical_simulation
