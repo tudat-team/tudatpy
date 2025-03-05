@@ -66,6 +66,9 @@ YACMA_PYTHON_MODULE(kernel
         # kernel/constants
         kernel/expose_constants.cpp
 
+        # kernel/exceptions
+        kernel/expose_exceptions.cpp
+
         # kernel/interface
         kernel/expose_interface.cpp
         kernel/expose_interface/expose_spice.cpp
@@ -181,6 +184,7 @@ endmacro()
 INSTALL_HYBRID_CPP_PYTHON_MODULE(astro)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(trajectory_design)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(constants)
+INSTALL_HYBRID_CPP_PYTHON_MODULE(exceptions)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(interface)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(math)
 INSTALL_HYBRID_CPP_PYTHON_MODULE(numerical_simulation)
