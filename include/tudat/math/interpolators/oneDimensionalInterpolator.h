@@ -23,6 +23,7 @@
 #include "tudat/math/interpolators/interpolator.h"
 
 #include "tudat/basics/identityElements.h"
+#include "tudat/basics/tudatExceptions.h"
 
 namespace tudat
 {
@@ -245,7 +246,7 @@ protected:
                                 boost::lexical_cast< std::string >( targetIndependentVariable ) + " but limit values are " +
                                 boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
                                 boost::lexical_cast< std::string >( independentValues_.back( ) );
-                        throw std::runtime_error( errorMessage );
+                        throw tudat::exceptions::TudatError( errorMessage );
                         break;
                     }
                     case extrapolate_at_boundary_with_warning: {
