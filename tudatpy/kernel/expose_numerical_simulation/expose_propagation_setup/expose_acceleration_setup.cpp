@@ -416,6 +416,9 @@ In this example, we define the point mass gravity acceleration exerted by the Ea
 
     )doc" );
 
+    m.def( "einstein_infeld_hofmann",
+           &tss::einsteinInfledHoffmannGravityAcceleration );
+
     m.def( "aerodynamic",
            &tss::aerodynamicAcceleration,
            R"doc(
@@ -738,7 +741,7 @@ Parameters
 ----------
 use_schwarzschild : bool, default=False
     Boolean defining whether or not to use the Schwarzschild contribution to the acceleration correction
-use_lense_thirring : bool
+use_lense_thirring : bool, default=False
     Boolean defining whether or not to use the Lense-Thirring contribution to the acceleration correction
 use_de_sitter : bool, default=False
     Boolean defining whether or not to use the de Sitter contribution to the acceleration correction

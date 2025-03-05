@@ -550,17 +550,23 @@ Propagation of Unified state model using exponential map (state vector size 7, l
             .value( "quaternions",
                     tp::RotationalPropagatorType::quaternions,
                     R"doc(
-Entries 1-4: The quaternion defining the rotation from inertial to body-fixed frame (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`_) Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
+Entries 1-4: The quaternion defining the rotation from inertial to body-fixed frame (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`_)
+
+Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
      )doc" )
             .value( "modified_rodrigues_parameters",
                     tp::RotationalPropagatorType::modified_rodrigues_parameters,
                     R"doc(
-Entries 1-4: The modified Rodrigues parameters defining the rotation from inertial to body-fixed frame (with entry four the shadow parameter) Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
+Entries 1-4: The modified Rodrigues parameters defining the rotation from inertial to body-fixed frame (with entry four the shadow parameter)
+
+Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
      )doc" )
             .value( "exponential_map",
                     tp::RotationalPropagatorType::exponential_map,
                     R"doc(
-Entries 1-4: The exponential map defining the rotation from inertial to body-fixed frame (with entry four the shadow parameter) Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
+Entries 1-4: The exponential map defining the rotation from inertial to body-fixed frame (with entry four the shadow parameter)
+
+Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
      )doc" )
             .export_values( );
 
@@ -924,7 +930,7 @@ The propagated state vector is defined by the integrated bodies, which defines t
 differential equation defining the evolution of the rotational state between an
 inertial and body-fixed frame are to be solved. The propagator input defines the
 formulation in which the differential equations are set up. The dynamical models are
-defined by an ``TorqueModelMap``, as created by ``create_torque_models`` function.
+defined by a ``TorqueModelMap``, as created by :func:`~tudatpy.numerical_simulation.propagation_setup.create_torque_models` function.
 Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/rotational.html>`_
 
 
@@ -1008,7 +1014,7 @@ Parameters
 ----------
 bodies_with_mass_to_propagate : list[str]
     List of bodies whose mass should be numerically propagated.
-mass_rate_settings : SelectedMassRateModelMap
+mass_rate_models : SelectedMassRateModelMap
     Mass rates associated to each body, provided as a mass rate settings object.
 initial_body_masses : numpy.ndarray
     Initial masses of the bodies to integrate (one initial mass for each body), provided in the same order as the bodies to integrate.
@@ -1355,7 +1361,7 @@ very minor deviations from the specified final condition can occur.
 
 Examples
 --------
-In this example, we set the termination time of the propagation equal to one day (86400 $s$).
+In this example, we set the termination time of the propagation equal to one day (86400 s).
 
 .. code-block:: python
 
@@ -1435,7 +1441,7 @@ use_as_lower_limit : bool, default=False
     Denotes whether the limit value should be used as lower or upper limit.
 terminate_exactly_on_final_condition : bool, default=False
     Denotes whether the propagation is to terminate exactly on the final condition, or whether it is to terminate on the first step where it is violated.
-termination_root_finder_settings : bool, default=None
+termination_root_finder_settings : RootFinderSettings, default=None
     Settings object to create root finder used to converge on exact final condition.
 Returns
 -------
@@ -1544,17 +1550,20 @@ to define that all conditions or a single condition of the conditions provided m
 stop the propagation. Each termination condition should be created according to each individual function
 and then added to a list of termination conditions.
 
-Note that, when using this option, the :attr:`~tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.termination_details` of
-the simulation results object (obtained from here after a propagation: `:attr:`~tudatpy.numerical_simulation.SingleArcSimulator.propagation_results`)
-is of derived type :class:`~tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition`, which
-contains additional details on the hybrid termination (such as the specific conditions that were met).
+.. note::
+
+    When using this option, the :attr:`~tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.termination_details` of
+    the simulation results object (obtained from here after a propagation: :attr:`~tudatpy.numerical_simulation.SingleArcSimulator.propagation_results`)
+    is of derived type :class:`~tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition`.
+    
+    See the :attr:`~tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping` attribute for an example of how to retrieve which condition was met when the propagation was terminated.
 
 
 Parameters
 ----------
 termination_settings : list[PropagationTerminationSettings]
     List of single PropagationTerminationSettings objects to be checked during the propagation.
-fulfill_single_condition : bool, default=False
+fulfill_single_condition : bool
     Whether only a single condition of those provided must be met to stop the propagation (true) or all of them simultaneously (false).
 Returns
 -------
@@ -1569,33 +1578,48 @@ Examples
 --------
 In the following example, the propagation will terminate once *one of the three* termination settings (simulated time, cpu time, altitude)
 has reached the imposed limit value. The ``fulfill_single_condition`` variable determines whether the propagation
-terminates once a *single* condition is met (if True, as above) or once *all* conditions must be met (False).
+terminates once a *single* condition is met (if True, as above) or once *all* conditions are met (False).
 
 .. code-block:: python
 
-  # Set simulation termination time
-  termination_time = simulation_start_epoch + 86400.0
-  # Create simulation time termination setting
-  time_termination_settings = propagation_setup.propagator.time_termination( termination_time )
+    # Set simulation termination time
+    termination_time = simulation_start_epoch + 86400.0
+    # Create simulation time termination setting
+    time_termination_settings = propagation_setup.propagator.time_termination(
+        termination_time
+    )
 
-  # Set dependent variable termination setting
-  termination_variable = propagation_setup.dependent_variable.altitude( "Spacecraft", "Earth" )
-  # Create altitude-based termination setting
-  altitude_termination_settings = propagation_setup.propagator.dependent_variable_termination(
-    dependent_variable_settings = termination_variable,
-    limit_value = 25.0E3,
-    use_as_lower_limit = True)
+    # Set dependent variable termination setting
+    termination_variable = propagation_setup.dependent_variable.altitude(
+        "Spacecraft", "Earth"
+    )
+    # Create altitude-based termination setting
+    altitude_termination_settings = (
+        propagation_setup.propagator.dependent_variable_termination(
+            dependent_variable_settings=termination_variable,
+            limit_value=25.0e3,
+            use_as_lower_limit=True,
+        )
+    )
 
-  # Set cpu termination time
-  cpu_termination_time = 120.0
-  # Create cpu time termination setting
-  cpu_termination_settings = propagation_setup.propagator.cpu_time_termination( cpu_termination_time )
+    # Set cpu termination time
+    cpu_termination_time = 120.0
+    # Create cpu time termination setting
+    cpu_termination_settings = propagation_setup.propagator.cpu_time_termination(
+        cpu_termination_time
+    )
 
-  # Store termination setting objects in a list
-  termination_settings_list = [time_termination_settings, altitude_termination_settings, cpu_termination_settings]
+    # Store termination setting objects in a list
+    termination_settings_list = [
+        time_termination_settings,
+        altitude_termination_settings,
+        cpu_termination_settings,
+    ]
 
-  # Create hybrid termination settings
-  termination_settings = propagation_setup.propagator.hybrid_termination( termination_settings_list, fulfill_single_condition = True )
+    # Create hybrid termination settings
+    termination_settings = propagation_setup.propagator.hybrid_termination(
+        termination_settings_list, fulfill_single_condition=True
+    )
 
 
     )doc" );
