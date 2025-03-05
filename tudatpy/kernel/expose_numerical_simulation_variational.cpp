@@ -39,44 +39,6 @@ namespace numerical_simulation
 
 void expose_numerical_simulation_variational( py::module &m )
 {
-    m.def( "create_variational_equations_solver",
-           &tss::createVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "bodies" ),
-           py::arg( "propagator_settings" ),
-           py::arg( "parameters_to_estimate" ),
-           py::arg( "simulate_dynamics_on_creation" ) = true,
-           R"doc(
-
-Function to create object that propagates the dynamics and variational equations.
-
-Function to create object that propagates the dynamics and variational equations, as specified by propagator settings, the physical environment, and a set of parameters for which to compute the partials.
-Depending on the specific input type (e.g. which function from the :ref:`\`\`propagator\`\`` module was used to define the propagator settings),
-a single-, multi- or hybrid-arc variational solver is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
-function. When using default settings, calling this function will automatically propagate the dynamics.
-
-Parameters
-----------
-bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
- Object defining the physical environment, with all
- properties of artificial and natural bodies.
-
-propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
- Settings to be used for the numerical propagation (dynamics type, termination conditions, integrator, etc.)
-
-parameters_to_estimate : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
- Object defining a consolidated set of (estimatable) parameters (w.r.t. variational equations are defined),
- linked to the environment and acceleration settings of the simulation.
-
-simulate_dynamics_on_creation : bool, default=True
- Boolean defining whether to propagate the dynamics upon creation of the Simulator. If false, the dynamics
- can be propagated at a later time by calling the :class:`~tudatpy.numerical_simulation.Simulator.integrate_equations_of_motion` function
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.VariationalSimulator`
- Object that propagates the dynamics, and processes the results.
-
- )doc" );
 
     py::class_< tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >,
         std::shared_ptr< tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > > >(
@@ -313,13 +275,12 @@ Returns
            py::arg( "simulate_dynamics_on_creation" ) = true,
            R"doc(
 
-Function to create object that propagates the dynamics.
+Function to create object that propagates the dynamics and variational equations.
 
-Function to create object that propagates the dynamics, as specified by propagator settings, and the physical environment.
-Depending on the specific input type (e.g. which function from the :ref:`\`\`propagator\`\`` module was used),
-a single-, multi- or hybrid-arc simulator is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
+Function to create object that propagates the dynamics and variational equations, as specified by propagator settings, the physical environment, and a set of parameters for which to compute the partials.
+Depending on the specific input type (e.g. which function from the :ref:`\`\`propagator\`\`` module was used to define the propagator settings),
+a single-, multi- or hybrid-arc variational solver is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
 function. When using default settings, calling this function will automatically propagate the dynamics.
-
 
 Parameters
 ----------
@@ -340,13 +301,8 @@ simulate_dynamics_on_creation : bool, default=True
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.VariationalEquationsSolver`
+:class:`~tudatpy.numerical_simulation.VariationalSimulator`
  Object that propagates the dynamics, and processes the results.
-
-
-
-
-
 
  )doc" );
 }
