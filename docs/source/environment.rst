@@ -52,6 +52,8 @@ Enumerations
    AtmosphericCompositionSpecies
 
 
+.. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrameAngles
+   :members:
 
 .. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrames
    :members:
