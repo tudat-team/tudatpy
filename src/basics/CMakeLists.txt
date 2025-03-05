@@ -22,6 +22,7 @@ set(basics_HEADERS
         "timeType.h"
         "basicTypedefs.h"
         "identityElements.h"
+        "tudatExceptions.h"
         "tudatTypeTraits.h"
         "deprecationWarnings.h"
         )
