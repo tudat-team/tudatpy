@@ -24,6 +24,8 @@
 #include "tudat/math/interpolators/cubicSplineInterpolator.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 
+#include "tudat/basics/tudatExceptions.h"
+
 namespace tudat
 {
 
@@ -352,8 +354,9 @@ private:
                 interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
                 break;
             case lagrange_no_boundary_interpolation:
-                throw std::runtime_error( "Error: Lagrange interpolator called outside permitted bounds, at " +
-                                          std::to_string( static_cast< double >( targetIndependentVariableValue ) ) );
+                throw tudat::exceptions::LagrangeInterpolationOutOfBoundsError(
+                        "Error: Lagrange interpolator called outside permitted bounds, at " +
+                        std::to_string( static_cast< double >( targetIndependentVariableValue ) ) );
                 break;
             default:
                 throw std::runtime_error( "Error when handling Lagrange boundary case, option not implemented" );
