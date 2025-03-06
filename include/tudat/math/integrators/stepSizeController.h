@@ -110,11 +110,13 @@ public:
                 }
                 minimumStepWarningIsPrinted_ = true;
                 newStepSize = currentStep / std::fabs( currentStep ) * std::fabs( minimumStep_ );
+                acceptStep = true;
             }
         }
         else if( std::fabs( recommendedStep.first ) > std::fabs( maximumStep_ ) )
         {
             newStepSize = currentStep / std::fabs( currentStep ) * std::fabs( maximumStep_ );
+            acceptStep = true;
         }
         else
         {
