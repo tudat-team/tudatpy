@@ -23,10 +23,25 @@ namespace exceptions
 class TudatError : public std::runtime_error
 {
 private:
-    /* data */
 public:
     TudatError( const std::string& errorMessage ): std::runtime_error( errorMessage ) { }
     ~TudatError( ) { }
+};
+
+class InterpolationOutOfBoundsError : public TudatError
+{
+private:
+public:
+    InterpolationOutOfBoundsError( const std::string& errorMessage ): exceptions::TudatError( errorMessage ) { }
+    ~InterpolationOutOfBoundsError( ) { }
+};
+
+class LagrangeInterpolationOutOfBoundsError : public InterpolationOutOfBoundsError
+{
+private:
+public:
+    LagrangeInterpolationOutOfBoundsError( const std::string& errorMessage ): exceptions::InterpolationOutOfBoundsError( errorMessage ) { }
+    ~LagrangeInterpolationOutOfBoundsError( ) { }
 };
 
 }  // namespace exceptions
