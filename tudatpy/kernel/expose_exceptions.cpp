@@ -27,9 +27,16 @@ namespace exceptions
 
 void expose_exceptions( py::module &m )
 {
-    py::register_exception< te::TudatError >( m, "TudatError", PyExc_RuntimeError ).doc( ) = R"(
-        Base Error thrown by Tudat.
-    )";
+    auto tudatErrorExp = py::register_exception< te::TudatError >( m, "TudatError", PyExc_RuntimeError );
+    tudatErrorExp.doc( ) = R"(Base Error thrown by Tudat.)";
+
+    auto interpolationOutOfBoundsErrorExp =
+            py::register_exception< te::InterpolationOutOfBoundsError >( m, "InterpolationOutOfBoundsError", tudatErrorExp.ptr( ) );
+    interpolationOutOfBoundsErrorExp.doc( ) = R"(Error thrown when the interpolation is out of bounds.)";
+
+    auto lagrangeInterpolationOutOfBoundsErrorExp = py::register_exception< te::LagrangeInterpolationOutOfBoundsError >(
+            m, "LagrangeInterpolationOutOfBoundsError", interpolationOutOfBoundsErrorExp.ptr( ) );
+    lagrangeInterpolationOutOfBoundsErrorExp.doc( ) = R"(Error thrown when the Lagrange interpolation is out of bounds.)";
 }
 
 }  // namespace exceptions

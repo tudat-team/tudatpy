@@ -71,7 +71,7 @@ void expose_interpolators( py::module &m )
             .value( "throw_exception_at_boundary",
                     ti::BoundaryInterpolationType::throw_exception_at_boundary,
                     R"doc(
-The program will terminate with an error message when the interpolator is interrogated beyond the range :math:`[t_{0}...t_{N}]`
+The program will terminate and throw a :class:`~tudatpy.exceptions.InterpolationOutOfBoundsError` error when the interpolator is interrogated beyond the range :math:`[t_{0}...t_{N}]`
      )doc" )
             .value( "use_boundary_value",
                     ti::BoundaryInterpolationType::use_boundary_value,
@@ -148,7 +148,7 @@ A cubic-spline interpolator is created from the first and last :math:`\max(m/2-1
             .value( "lagrange_no_boundary_interpolation",
                     ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation,
                     R"doc(
-The program will terminate with an exception when the Lagrange interpolator is interrogated beyond its valid range
+The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInterpolationOutOfBoundsError` when the Lagrange interpolator is interrogated beyond its valid range
      )doc" )
             .export_values( );
 
