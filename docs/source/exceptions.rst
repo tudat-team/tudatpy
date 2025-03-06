@@ -20,9 +20,19 @@ Classes
 
    TudatError
 
+   InterpolationOutOfBoundsError
+
+   LagrangeInterpolationOutOfBoundsError
 
 
-.. autoclass:: tudatpy.exceptions.TudatError
+.. autoexception:: tudatpy.exceptions.TudatError
    :members:
+   :show-inheritance:
 
+.. autoexception:: tudatpy.exceptions.InterpolationOutOfBoundsError
+   :members:
+   :show-inheritance:
 
+.. autoexception:: tudatpy.exceptions.LagrangeInterpolationOutOfBoundsError
+   :members:
+   :show-inheritance:
