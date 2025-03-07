@@ -1363,8 +1363,8 @@ class BatchMPC:
             observation_set = estimation.single_observation_set(
                 observation.angular_position_type,
                 link_definition,
-                [observation_angles],
-                [observation_times],
+                observation_angles,
+                observation_times,
                 observation.receiver,
             )
 
