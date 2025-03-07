@@ -187,8 +187,10 @@ list[ GroundStationSettings ]
 
     )doc" );
 
-    m.def( "evn_stations", &tss::getEvnStationSettings,
+    m.def( "evn_stations",
+        &tss::getEvnStationSettings,
         R"doc(
+
 Function for creating settings for all EVN stations.
 
 Function for creating settings for all EVN stations. EVN stations are defined by nominal positions and linear velocities, as defined by the glo.sit station file, see `this link <https://gitlab.com/gofrito/pysctrack/-/blob/master/cats/glo.sit?ref_type=heads>`_.
@@ -199,11 +201,16 @@ Returns
 list[ GroundStationSettings ]
     List of settings to create EVN stations
 
+
+
+
+
+
     )doc" );
 
-    m.def( "radio_telescope_stations", &tss::getRadioTelescopeStationSettings,
-
-    R"doc(
+    m.def( "radio_telescope_stations",
+        &tss::getRadioTelescopeStationSettings,
+        R"doc(
 
 Function for creating settings for all DSN and EVN stations.
 
@@ -216,6 +223,11 @@ Returns
 -------
 list[ GroundStationSettings ]
     List of settings to create DSN + EVN stations
+
+
+
+
+
 
     )doc" );
 
