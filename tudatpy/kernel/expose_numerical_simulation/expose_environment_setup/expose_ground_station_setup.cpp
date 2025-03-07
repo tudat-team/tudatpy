@@ -194,6 +194,11 @@ Function for creating settings for all EVN stations.
 Function for creating settings for all EVN stations. EVN stations are defined by nominal positions and linear velocities, as defined by the glo.sit station file, see `this link <https://gitlab.com/gofrito/pysctrack/-/blob/master/cats/glo.sit?ref_type=heads>`_.
 Note that calling these settings will use the Cartesian elements provided by these documents and apply them to the Earth-fixed station positions, regardless of the selected Earth rotation model.
 
+Returns
+-------
+list[ GroundStationSettings ]
+    List of settings to create EVN stations
+
     )doc" );
 
     m.def( "radio_telescope_stations", &tss::getRadioTelescopeStationSettings,
@@ -206,6 +211,11 @@ Function for creating settings for all DSN and EVN stations.
 DSN stations are defined by nominal positions and linear velocities, as defined by Cartesian elements in DSN No. 810-005, 301, Rev. K., see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`_.
 EVN stations are defined by nominal positions and linear velocities, as defined by the glo.sit station file, see `this link <https://gitlab.com/gofrito/pysctrack/-/blob/master/cats/glo.sit?ref_type=heads>`_.
 Note that calling these settings will use the Cartesian elements provided by these documents and apply them to the Earth-fixed station positions, regardless of the selected Earth rotation model.
+
+Returns
+-------
+list[ GroundStationSettings ]
+    List of settings to create DSN + EVN stations
 
     )doc" );
 

@@ -107,7 +107,7 @@ Functions
 
    convert_position_elements
 
-    convert_cartesian_to_geodetic_coordinates
+   convert_cartesian_to_geodetic_coordinates
 
    cartesian_to_keplerian
 
