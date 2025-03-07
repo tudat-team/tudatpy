@@ -543,14 +543,12 @@ class LoadPDS:
             soup = BeautifulSoup(reqs.text, 'html.parser')
 
             for wanted_files_pattern in wanted_files_patterns:
-                print(wanted_files_pattern)
                 # Extract all links that match the pattern
                 regex_pattern = re.escape(wanted_files_pattern).replace(r'\*', '.*')
                 matched_files = [
                     os.path.basename(link.get('href')) for link in soup.find_all('a', href=True)
                     if re.match(regex_pattern, link.get('href'))
                 ]
-                print(matched_files)
                 matched_files_list.extend(matched_files)
 
         # Combine explicitly specified files and pattern-matched files
