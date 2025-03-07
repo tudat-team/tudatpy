@@ -107,6 +107,8 @@ Functions
 
    convert_position_elements
 
+    convert_cartesian_to_geodetic_coordinates
+
    cartesian_to_keplerian
 
    keplerian_to_cartesian
@@ -189,6 +191,8 @@ Functions
 
 
 .. autofunction:: tudatpy.astro.element_conversion.convert_position_elements
+
+.. autofunction:: tudatpy.astro.element_conversion.convert_cartesian_to_geodetic_coordinates
 
 .. autofunction:: tudatpy.astro.element_conversion.cartesian_to_keplerian
 

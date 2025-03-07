@@ -153,9 +153,6 @@ numpy.ndarray
 
 
 
-
-
-
     )doc" );
 
     m.def( "convert_position_elements",
