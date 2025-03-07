@@ -201,11 +201,6 @@ Returns
 list[ GroundStationSettings ]
     List of settings to create EVN stations
 
-
-
-
-
-
     )doc" );
 
     m.def( "radio_telescope_stations",
@@ -223,11 +218,6 @@ Returns
 -------
 list[ GroundStationSettings ]
     List of settings to create DSN + EVN stations
-
-
-
-
-
 
     )doc" );
 
@@ -252,9 +242,6 @@ Returns
 -------
 GroundStationMotionSettings
     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.GroundStationMotionSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.LinearGroundStationMotionSettings` class
-
-
-
 
 
 
