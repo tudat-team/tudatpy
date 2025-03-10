@@ -21,6 +21,8 @@
 #include <memory>
 #include <vector>
 
+#include "tudat/basics/tudatExceptions.h"
+
 namespace tudat
 {
 namespace root_finders
@@ -58,7 +60,7 @@ inline bool checkMaximumIterationsExceeded( const unsigned int numberOfIteration
                 std::cerr << errorMessage << std::endl;
                 break;
             case throw_exception:
-                throw std::runtime_error( errorMessage );
+                throw tudat::exceptions::MaximumIterationsExceededError( errorMessage );
                 break;
         }
     }
