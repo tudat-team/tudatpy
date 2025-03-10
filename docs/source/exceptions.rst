@@ -42,3 +42,11 @@ Classes
 .. autoexception:: tudatpy.exceptions.MaximumIterationsExceededError
    :members:
    :show-inheritance:
+
+.. autoexception:: tudatpy.exceptions.StepSizeViolationError
+   :members:
+   :show-inheritance:
+
+.. autoexception:: tudatpy.exceptions.MinimumStepSizeViolatedError
+   :members:
+   :show-inheritance:

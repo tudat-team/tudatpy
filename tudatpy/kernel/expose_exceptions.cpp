@@ -41,6 +41,14 @@ void expose_exceptions( py::module &m )
     auto maximumIterationsExceededErrorExp =
             py::register_exception< te::MaximumIterationsExceededError >( m, "MaximumIterationsExceededError", tudatErrorExp.ptr( ) );
     maximumIterationsExceededErrorExp.doc( ) = R"(Error thrown when the maximum number of iterations is exceeded.)";
+
+    auto stepSizeViolatedErrorExp =
+            py::register_exception< te::StepSizeViolationError >( m, "StepSizeViolationError", tudatErrorExp.ptr( ) );
+    stepSizeViolatedErrorExp.doc( ) = R"(Error thrown when the step size in a numerical integration is not valid.)";
+
+    auto minimumStepSizeViolatedErrorExp = py::register_exception< te::MinimumStepSizeViolatedError >(
+            m, "MinimumStepSizeViolatedError", stepSizeViolatedErrorExp.ptr( ) );
+    minimumStepSizeViolatedErrorExp.doc( ) = R"(Error thrown when the defined minimum step size is violated in a numerical integration.)";
 }
 
 }  // namespace exceptions
