@@ -24,6 +24,8 @@ Classes
 
    LagrangeInterpolationOutOfBoundsError
 
+   MaximumIterationsExceededError
+
 
 .. autoexception:: tudatpy.exceptions.TudatError
    :members:
@@ -34,5 +36,9 @@ Classes
    :show-inheritance:
 
 .. autoexception:: tudatpy.exceptions.LagrangeInterpolationOutOfBoundsError
+   :members:
+   :show-inheritance:
+
+.. autoexception:: tudatpy.exceptions.MaximumIterationsExceededError
    :members:
    :show-inheritance:
