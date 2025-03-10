@@ -52,6 +52,22 @@ public:
     ~MaximumIterationsExceededError( ) { }
 };
 
+class StepSizeViolationError : public TudatError
+{
+private:
+public:
+    StepSizeViolationError( const std::string& errorMessage ): exceptions::TudatError( errorMessage ) { }
+    ~StepSizeViolationError( ) { }
+};
+
+class MinimumStepSizeViolatedError : public StepSizeViolationError
+{
+private:
+public:
+    MinimumStepSizeViolatedError( const std::string& errorMessage ): exceptions::StepSizeViolationError( errorMessage ) { }
+    ~MinimumStepSizeViolatedError( ) { }
+};
+
 }  // namespace exceptions
 
 }  // namespace tudat
