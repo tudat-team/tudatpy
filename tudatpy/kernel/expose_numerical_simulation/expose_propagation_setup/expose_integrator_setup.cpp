@@ -54,7 +54,7 @@ void expose_integrator_setup( py::module &m )
             .value( "throw_exception_below_minimum",
                     tni::MinimumIntegrationTimeStepHandling::throw_exception_below_minimum,
                     R"doc(
-Exception is throw, and propagation is terminated
+The propagation is terminated and a :class:`tudatpy.exceptions.MinimumStepSizeViolatedError` is thrown.
      )doc" )
             .value( "set_to_minimum_step_silently",
                     tni::MinimumIntegrationTimeStepHandling::set_to_minimum_step_silently,
