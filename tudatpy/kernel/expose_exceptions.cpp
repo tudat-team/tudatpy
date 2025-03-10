@@ -37,6 +37,10 @@ void expose_exceptions( py::module &m )
     auto lagrangeInterpolationOutOfBoundsErrorExp = py::register_exception< te::LagrangeInterpolationOutOfBoundsError >(
             m, "LagrangeInterpolationOutOfBoundsError", interpolationOutOfBoundsErrorExp.ptr( ) );
     lagrangeInterpolationOutOfBoundsErrorExp.doc( ) = R"(Error thrown when the Lagrange interpolation is out of bounds.)";
+
+    auto maximumIterationsExceededErrorExp =
+            py::register_exception< te::MaximumIterationsExceededError >( m, "MaximumIterationsExceededError", tudatErrorExp.ptr( ) );
+    maximumIterationsExceededErrorExp.doc( ) = R"(Error thrown when the maximum number of iterations is exceeded.)";
 }
 
 }  // namespace exceptions
