@@ -32,15 +32,18 @@ void expose_exceptions( py::module &m )
 
     auto interpolationOutOfBoundsErrorExp =
             py::register_exception< te::InterpolationOutOfBoundsError >( m, "InterpolationOutOfBoundsError", tudatErrorExp.ptr( ) );
-    interpolationOutOfBoundsErrorExp.doc( ) = R"(Error thrown when the interpolation is out of bounds.)";
+    interpolationOutOfBoundsErrorExp.doc( ) =
+            R"(Error thrown when the independent variable data point is out of the bounds of the data to be interpolated.)";
 
     auto lagrangeInterpolationOutOfBoundsErrorExp = py::register_exception< te::LagrangeInterpolationOutOfBoundsError >(
             m, "LagrangeInterpolationOutOfBoundsError", interpolationOutOfBoundsErrorExp.ptr( ) );
-    lagrangeInterpolationOutOfBoundsErrorExp.doc( ) = R"(Error thrown when the Lagrange interpolation is out of bounds.)";
+    lagrangeInterpolationOutOfBoundsErrorExp.doc( ) =
+            R"(Error thrown when the independent variable data point of a Lagrange interpolation is outside the reliable bounds of the data to be interpolated. For more information, see :func:`~tudatpy.math.interpolators.lagrange_interpolation`)";
 
     auto maximumIterationsExceededErrorExp =
             py::register_exception< te::MaximumIterationsExceededError >( m, "MaximumIterationsExceededError", tudatErrorExp.ptr( ) );
-    maximumIterationsExceededErrorExp.doc( ) = R"(Error thrown when the maximum number of iterations is exceeded.)";
+    maximumIterationsExceededErrorExp.doc( ) =
+            R"(Error thrown when the maximum number of iterations of an iterative operation is exceeded.)";
 
     auto stepSizeViolatedErrorExp =
             py::register_exception< te::StepSizeViolationError >( m, "StepSizeViolationError", tudatErrorExp.ptr( ) );
@@ -48,7 +51,8 @@ void expose_exceptions( py::module &m )
 
     auto minimumStepSizeViolatedErrorExp = py::register_exception< te::MinimumStepSizeViolatedError >(
             m, "MinimumStepSizeViolatedError", stepSizeViolatedErrorExp.ptr( ) );
-    minimumStepSizeViolatedErrorExp.doc( ) = R"(Error thrown when the defined minimum step size is violated in a numerical integration.)";
+    minimumStepSizeViolatedErrorExp.doc( ) =
+            R"(Error thrown when the step size requested by the step size controller is smaller than the defined minimum step size in a numerical integration.)";
 }
 
 }  // namespace exceptions
