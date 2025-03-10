@@ -44,6 +44,14 @@ public:
     ~LagrangeInterpolationOutOfBoundsError( ) { }
 };
 
+class MaximumIterationsExceededError : public TudatError
+{
+private:
+public:
+    MaximumIterationsExceededError( const std::string& errorMessage ): exceptions::TudatError( errorMessage ) { }
+    ~MaximumIterationsExceededError( ) { }
+};
+
 }  // namespace exceptions
 
 }  // namespace tudat
