@@ -50,7 +50,6 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude,
 
     // Check if solar activity is found for current day.
     SolarActivityDataPtr solarActivity;
-
     if( solarActivityMap.count( julianDay ) == 0 )
     {
         auto activityIterator = solarActivityMap.lower_bound( julianDay );
@@ -66,6 +65,22 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude,
         solarActivity = solarActivityMap.at( julianDay );
     }
 
+    SolarActivityDataPtr solarActivityPreviousSay;
+    if( solarActivityMap.count( julianDay - 1 ) == 0 )
+    {
+        auto activityIterator = solarActivityMap.lower_bound( julianDay - 1 );
+        if( ( julianDay - 1 - activityIterator->first > 30 ) )
+        {
+            throw std::runtime_error( "Error when retrieving solar activity data at JD" + std::to_string( julianDate ) +
+                                      ", most recent data is more than 30 days old" );
+        }
+        solarActivityPreviousSay = activityIterator->second;
+    }
+    else
+    {
+        solarActivityPreviousSay = solarActivityMap.at( julianDay - 1 );
+    }
+
     // Compute julian date at the first of januari
     double julianDate1Jan = tudat::basic_astrodynamics::convertCalendarDateToJulianDay( solarActivity->year, 1, 1, 0, 0, 0.0 );
 
@@ -76,12 +91,12 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude,
 
     if( solarActivity->fluxQualifier == 1 )
     {  // requires adjustment
-        nrlmsiseInputData.f107 = solarActivity->solarRadioFlux107Adjusted;
+        nrlmsiseInputData.f107 = solarActivityPreviousSay->solarRadioFlux107Adjusted;
         nrlmsiseInputData.f107a = solarActivity->centered81DaySolarRadioFlux107Adjusted;
     }
     else
     {  // no adjustment required
-        nrlmsiseInputData.f107 = solarActivity->solarRadioFlux107Observed;
+        nrlmsiseInputData.f107 = solarActivityPreviousSay->solarRadioFlux107Observed;
         nrlmsiseInputData.f107a = solarActivity->centered81DaySolarRadioFlux107Observed;
     }
     nrlmsiseInputData.apDaily = solarActivity->planetaryEquivalentAmplitudeAverage;
