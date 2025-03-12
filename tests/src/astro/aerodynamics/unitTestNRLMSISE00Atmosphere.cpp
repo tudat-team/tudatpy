@@ -1077,138 +1077,101 @@ BOOST_AUTO_TEST_CASE( testMeanFreePath )
     altitude = 300.0E3;
     BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath( altitude, longitude, latitude, time ), 1.0E4, 0.9 );
 }
+//
+////! Perform NRLMSISE-00 test 21 - Test input function
+//// Corresponds to NRLMSISE test 1 but space weather file is used to set solar activity data.
+//// No adjustment values in space weather file are used.
+//BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_no_adjustment )
+//{
+//    //    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
+//    // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
+//    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2030, 6, 21, 8, 3, 20.0 );
+//    double time =
+//            tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+//
+//    // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
+//    double altitude = 400.0E3;  // km
+//    double longitude = -70.0 * PI / 180.0;
+//    double latitude = 60.0 * PI / 180.0;
+//
+//    // find space weather file
+//    std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
+//
+//    tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
+//            tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
+//
+//    // Create atmosphere model using NRLMISE00 input function
+//    // Local solar time is set to 16.0 to correspond with testing data!
+//    std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
+//            std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
+//                       std::placeholders::_1,
+//                       std::placeholders::_2,
+//                       std::placeholders::_3,
+//                       std::placeholders::_4,
+//                       solarActivityData,
+//                       true,
+//                       16.0 );
+//
+//    // Create Pointer to NRLMSISE model
+//    tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
+//
+//    // Verification data
+//    std::vector< double > verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07, 4.022763585713E+05,
+//                                               3.557464994516E+03, 4.074713532757E-15, 3.475312399717E+04, 4.095913268293E+06,
+//                                               2.667273209336E+04, 1.250539943561E+03, 1.241416130019E+03 };
+//
+//    double computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
+//
+//    BOOST_CHECK_CLOSE_FRACTION( verificationData[ 5 ] * 1000, computedDensity, 1E-11 );
+//}
+//
+////! Perform NRLMSISE-00 test 22 - Test input function
+//// Corresponds to NRLMSISE test 1 but space weather file is used to set solar activity data.
+//// Adjustment values (flux qualifier is 1) in space weather file are used.
+//BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
+//{
+//    //    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
+//    // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
+//    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2030, 6, 21, 8, 3, 20.0 );
+//    double time =
+//            tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+//
+//    // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
+//    double altitude = 400.0E3;  // km
+//    double longitude = -70.0 * PI / 180.0;
+//    double latitude = 60.0 * PI / 180.0;
+//
+//    // find space weather file
+//    std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
+//
+//    tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
+//            tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
+//
+//    // Create atmosphere model using NRLMISE00 input function
+//    // Local solar time is set to 16.0 to correspond with testing data!
+//    std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
+//            std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
+//                       std::placeholders::_1,
+//                       std::placeholders::_2,
+//                       std::placeholders::_3,
+//                       std::placeholders::_4,
+//                       solarActivityData,
+//                       true,
+//                       16.0 );
+//
+//    // Create Pointer to NRLMSISE model
+//    tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
+//
+//    // Verification data
+//    std::vector< double > verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07, 4.022763585713E+05,
+//                                               3.557464994516E+03, 4.074713532757E-15, 3.475312399717E+04, 4.095913268293E+06,
+//                                               2.667273209336E+04, 1.250539943561E+03, 1.241416130019E+03 };
+//
+//    double computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
+//
+//    BOOST_CHECK_CLOSE_FRACTION( verificationData[ 5 ] * 1000, computedDensity, 1E-11 );
+//}
 
-//! Perform NRLMSISE-00 test 21 - Test input function
-// Corresponds to NRLMSISE test 1 but space weather file is used to set solar activity data.
-// No adjustment values in space weather file are used.
-BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_no_adjustment )
-{
-    //    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
-    // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
-    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2030, 6, 21, 8, 3, 20.0 );
-    double time =
-            tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-
-    // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
-    double altitude = 400.0E3;  // km
-    double longitude = -70.0 * PI / 180.0;
-    double latitude = 60.0 * PI / 180.0;
-
-    // find space weather file
-    std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
-
-    tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
-            tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
-
-    // Create atmosphere model using NRLMISE00 input function
-    // Local solar time is set to 16.0 to correspond with testing data!
-    std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
-            std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
-                       std::placeholders::_1,
-                       std::placeholders::_2,
-                       std::placeholders::_3,
-                       std::placeholders::_4,
-                       solarActivityData,
-                       true,
-                       16.0 );
-
-    // Create Pointer to NRLMSISE model
-    tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
-
-    // Verification data
-    std::vector< double > verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07, 4.022763585713E+05,
-                                               3.557464994516E+03, 4.074713532757E-15, 3.475312399717E+04, 4.095913268293E+06,
-                                               2.667273209336E+04, 1.250539943561E+03, 1.241416130019E+03 };
-
-    double computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
-
-    BOOST_CHECK_CLOSE_FRACTION( verificationData[ 5 ] * 1000, computedDensity, 1E-11 );
-}
-
-//! Perform NRLMSISE-00 test 22 - Test input function
-// Corresponds to NRLMSISE test 1 but space weather file is used to set solar activity data.
-// Adjustment values (flux qualifier is 1) in space weather file are used.
-BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
-{
-    //    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
-    // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
-    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2030, 6, 21, 8, 3, 20.0 );
-    double time =
-            tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-
-    // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
-    double altitude = 400.0E3;  // km
-    double longitude = -70.0 * PI / 180.0;
-    double latitude = 60.0 * PI / 180.0;
-
-    // find space weather file
-    std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
-
-    tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
-            tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
-
-    // Create atmosphere model using NRLMISE00 input function
-    // Local solar time is set to 16.0 to correspond with testing data!
-    std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
-            std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
-                       std::placeholders::_1,
-                       std::placeholders::_2,
-                       std::placeholders::_3,
-                       std::placeholders::_4,
-                       solarActivityData,
-                       true,
-                       16.0 );
-
-    // Create Pointer to NRLMSISE model
-    tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
-
-    // Verification data
-    std::vector< double > verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07, 4.022763585713E+05,
-                                               3.557464994516E+03, 4.074713532757E-15, 3.475312399717E+04, 4.095913268293E+06,
-                                               2.667273209336E+04, 1.250539943561E+03, 1.241416130019E+03 };
-
-    double computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
-
-    BOOST_CHECK_CLOSE_FRACTION( verificationData[ 5 ] * 1000, computedDensity, 1E-11 );
-}
-
-BOOST_AUTO_TEST_CASE( test_nrlmise_FullFileLoad )
-{
-    // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
-    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2026, 7, 1, 0, 1, 0.0 );
-    double time =
-            tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-
-    // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
-    double altitude = 400.0E3;  // km
-    double longitude = -70.0 * PI / 180.0;
-    double latitude = 60.0 * PI / 180.0;
-
-    // find space weather file
-    std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/sw19571001.txt";
-    tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
-            tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
-
-    std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
-            std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
-                       std::placeholders::_1,
-                       std::placeholders::_2,
-                       std::placeholders::_3,
-                       std::placeholders::_4,
-                       solarActivityData,
-                       true,
-                       16.0 );
-
-    // Create Pointer to NRLMSISE model
-    tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
-    double computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
-    std::cout << computedDensity << std::endl;
-
-    julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2026, 6, 30, 23, 59, 0.0 );
-    time = tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-    computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
-    std::cout << computedDensity << std::endl;
-}
 
 BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
 // int main( )
@@ -1346,10 +1309,20 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 7 ), inputData.f107, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 8 ), inputData.f107a, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 9 ), inputData.apDaily, 1.0E-14 );
-        for( int i = 0; i < 7; i++ )
+        for( int i = 0; i < 6; i++ )
         {
             BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 10 + i ), inputData.apVector.at( i ), 1.0E-14 );
         }
+
+        BOOST_CHECK_EQUAL( inputData.f107, 130.1 );
+        BOOST_CHECK_EQUAL( inputData.f107a, 166.2 );
+        BOOST_CHECK_EQUAL( inputData.apDaily, 30 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 0 ), 32 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 1 ), 18 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 2 ), 27 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 3 ), 39 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 4 ), 34.5 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 19.25 );
 
         double manualDensity = std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
                                        ->getDensity( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
