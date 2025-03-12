@@ -48,7 +48,7 @@ struct NRLMSISE00Input {
                      double f107 = 0.0,
                      double f107a = 0.0,
                      double apDaily = 0.0,
-                     std::vector< double > apVector = std::vector< double >( 7, 0.0 ),
+                     std::vector< double > apVector = std::vector< double >( 6, 0.0 ),
                      std::vector< int > switches = std::vector< int >( ) ):
         year( year ), dayOfTheYear( dayOfTheYear ), secondOfTheDay( secondOfTheDay ), localSolarTime( localSolarTime ), f107( f107 ),
         f107a( f107a ), apDaily( apDaily ), apVector( apVector ), switches( switches )
@@ -57,6 +57,7 @@ struct NRLMSISE00Input {
         {
             this->switches = std::vector< int >( 24, 1 );
             this->switches[ 0 ] = 0;
+            this->switches[ 9 ] = -1;
         }
     }
 
@@ -102,11 +103,19 @@ struct NRLMSISE00Input {
  * \param localSolarTime Local solar time that is used when adjustSolarTime is set to true.
  * \return NRLMSISE00Input nrlmsiseInputFunction
  */
+NRLMSISE00Input nrlmsiseInputFunctionFromMap( const double altitude,
+                                              const double longitude,
+                                              const double latitude,
+                                              const double time,
+                                              const tudat::input_output::solar_activity::SolarActivityDataMap& solarActivityMap,
+                                              const bool adjustSolarTime = false,
+                                              const double localSolarTime = 0.0 );
+
 NRLMSISE00Input nrlmsiseInputFunction( const double altitude,
                                        const double longitude,
                                        const double latitude,
                                        const double time,
-                                       const tudat::input_output::solar_activity::SolarActivityDataMap& solarActivityMap,
+                                       const tudat::input_output::solar_activity::SolarActivityContainer& solarActivityContainer,
                                        const bool adjustSolarTime = false,
                                        const double localSolarTime = 0.0 );
 
