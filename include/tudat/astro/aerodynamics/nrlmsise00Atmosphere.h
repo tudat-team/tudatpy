@@ -138,17 +138,16 @@ public:
     }
 
     NRLMSISE00Atmosphere( const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData,
-                          const bool useIdealGasLaw = true )
+                          const bool useIdealGasLaw = true ): solarActivityContainer_( solarActivityData )
     {
         nrlmsise00InputFunction_ = std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
                                               std::placeholders::_1,
                                               std::placeholders::_2,
                                               std::placeholders::_3,
                                               std::placeholders::_4,
-                                              solarActivityData,
+                                              solarActivityContainer_,
                                               false,
                                               TUDAT_NAN );
-        solarActivityContainer_ = std::make_shared< input_output::solar_activity::SolarActivityContainer >( solarActivityData );
 
         resetHashKey( );
         molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
@@ -170,17 +169,16 @@ public:
     NRLMSISE00Atmosphere( const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData,
                           const double specificHeatRatio,
                           const GasComponentProperties gasProperties,
-                          const bool useIdealGasLaw = true )
+                          const bool useIdealGasLaw = true ): solarActivityContainer_( solarActivityData )
     {
         nrlmsise00InputFunction_ = std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
                                               std::placeholders::_1,
                                               std::placeholders::_2,
                                               std::placeholders::_3,
                                               std::placeholders::_4,
-                                              solarActivityData,
+                                              solarActivityContainer_,
                                               false,
                                               TUDAT_NAN );
-        solarActivityContainer_ = std::make_shared< input_output::solar_activity::SolarActivityContainer >( solarActivityData );
 
         resetHashKey( );
         molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
@@ -396,7 +394,7 @@ public:
         hashKey_ = 0;
     }
 
-    std::shared_ptr< input_output::solar_activity::SolarActivityContainer > getSolarActivityContainer( )
+    input_output::solar_activity::SolarActivityContainer& getSolarActivityContainer( )
     {
         return solarActivityContainer_;
     }
@@ -582,7 +580,7 @@ private:
     //! Input data to NRLMSISE00 atmosphere model
     NRLMSISE00Input inputData_;
 
-    std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer_;
+    input_output::solar_activity::SolarActivityContainer solarActivityContainer_;
 
     std::map< AtmosphericCompositionSpecies, int > speciesIndices = { { he_species, 0 }, { o_species, 1 },          { n2_species, 2 },
                                                                       { o2_species, 3 }, { ar_species, 4 },         { h_species, 5 },
