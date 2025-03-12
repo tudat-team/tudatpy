@@ -86,6 +86,9 @@ NRLMSISE00Input nrlmsiseTestFunction( double altitude,
 //  Check the consistency between full output and get parameter output functions.
 BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestFunctions )
 {
+    // Manual reset of switch
+    gen_data.switches[ 9 ] = 1;
+
     // Define tolerance for equality
     double tolerance = 1.0E-18;
 
@@ -186,6 +189,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestHashing )
 //  obtained from the similar nrlmsise-test.c program.
 BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest1 )
 {
+
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
     std::vector< double > verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07, 4.022763585713E+05,
