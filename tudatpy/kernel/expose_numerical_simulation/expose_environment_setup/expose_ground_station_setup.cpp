@@ -41,10 +41,11 @@ void expose_ground_station_setup( py::module &m )
         Base class for providing settings for the creation of a ground station.
 
 
-     )doc" )
-            .def_property( "station_position",
-                           &tss::GroundStationSettings::getGroundStationPosition,
-                           &tss::GroundStationSettings::resetGroundStationPosition );
+     )doc")
+                        .def_property("station_position", &tss::GroundStationSettings::getGroundStationPosition,
+                                      &tss::GroundStationSettings::resetGroundStationPosition )
+
+                        .def_property_readonly("station_name", &tss::GroundStationSettings::getStationName);
 
     py::class_< tss::GroundStationMotionSettings, std::shared_ptr< tss::GroundStationMotionSettings > >( m,
                                                                                                          "GroundStationMotionSettings",
@@ -106,10 +107,11 @@ void expose_ground_station_setup( py::module &m )
 
      )doc" );
 
-    m.def( "add_motion_model_to_each_groun_station",
-           &tss::addStationMotionModelToEachGroundStation,
-           py::arg( "ground_station_settings_list" ),
-           py::arg( "station_motion_setting" ) );
+
+                    m.def("add_motion_model_to_each_groun_station",
+                          &tss::addStationMotionModelToEachGroundStation,
+                          py::arg("ground_station_settings_list"),
+                          py::arg("station_motion_setting"));
 
     m.def( "basic_station",
            &tss::groundStationSettings,
