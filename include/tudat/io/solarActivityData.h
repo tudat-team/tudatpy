@@ -167,34 +167,106 @@ typedef std::shared_ptr< SolarActivityData > SolarActivityDataPtr;
 typedef std::map< double, SolarActivityDataPtr > SolarActivityDataMap;
 
 struct SolarActivityContainer {
+
+    SolarActivityContainer( ):currentJulianDay_( TUDAT_NAN ), nearestJulianDay_( TUDAT_NAN ){ }
+
     SolarActivityContainer( const std::map< double, SolarActivityDataPtr >& solarActivityDataMap ):
-        solarActivityDataMap_( solarActivityDataMap )
+        solarActivityDataMap_( solarActivityDataMap ), currentJulianDay_( TUDAT_NAN ), nearestJulianDay_( TUDAT_NAN )
     {
         lookUpScheme_ = std::make_shared< interpolators::BinarySearchLookupScheme< double > >(
                 utilities::createVectorFromMapKeys( solarActivityDataMap ) );
     }
 
-    std::shared_ptr< SolarActivityData > getSolarActivityData( const double time )
+    std::shared_ptr< SolarActivityData > getSolarActivityData( const double time ) const
     {
-        double julianDay = basic_astrodynamics::convertSecondsSinceEpochToJulianDay( time );
-        return getSolarActivityDataAtJulianDay( julianDay );
+        currentJulianDay_ = basic_astrodynamics::convertSecondsSinceEpochToJulianDay( time );
+        return getSolarActivityDataAtJulianDay( );
     }
 
-    std::shared_ptr< SolarActivityData > getSolarActivityDataAtJulianDay( const double julianDay )
+    std::shared_ptr< SolarActivityData > getDelayedSolarActivityData( const double time, const double delayInDays ) const
     {
-        double nearestJulianDay = lookUpScheme_->getIndependentVariableValue( lookUpScheme_->findNearestLowerNeighbour( julianDay ) );
-        return solarActivityDataMap_.at( nearestJulianDay );
+        currentJulianDay_ = basic_astrodynamics::convertSecondsSinceEpochToJulianDay( time ) - delayInDays;
+        return getSolarActivityDataAtJulianDay( );
     }
 
-    std::map< double, SolarActivityDataPtr > getSolarActivityDataMap( )
+    void getDelayedApValues( const double time, std::vector< double >& delayedApValues ) const
+    {
+        std::shared_ptr< SolarActivityData > activityData = getSolarActivityData( time );
+        double julianDayFraction = currentJulianDay_ - nearestJulianDay_;
+        int currentDayApIndex = std::floor( julianDayFraction * 8.0 );
+        delayedApValues[ 0 ] = activityData->planetaryEquivalentAmplitudeVector( currentDayApIndex );
+
+        std::shared_ptr< SolarActivityData > activityDataOneDayOld = getDelayedSolarActivityData( time, 1.0 );
+        for( int i = 1; i < 4; i++ )
+        {
+            int currentIndex = currentDayApIndex - i;
+            if( currentIndex >= 0 )
+            {
+                delayedApValues[ i ] = activityData->planetaryEquivalentAmplitudeVector( currentIndex );
+            }
+            else
+            {
+                delayedApValues[ i ] = activityDataOneDayOld->planetaryEquivalentAmplitudeVector( currentIndex + 8 );
+            }
+        }
+
+        std::shared_ptr< SolarActivityData > activityDataTwoDayOld = getDelayedSolarActivityData( time, 2.0 );
+        std::shared_ptr< SolarActivityData > activityDataThreeDayOld = getDelayedSolarActivityData( time, 3.0 );
+
+        for( int j = 0; j < 2; j++ )
+        {
+            double averagedValue = 0.0;
+            for ( int i = 4 + j * 8; i < 12 + j * 8; i++ )
+            {
+                int currentIndex = currentDayApIndex - i;
+                if ( currentIndex >= 0 )
+                {
+                    averagedValue += activityData->planetaryEquivalentAmplitudeVector( currentIndex );
+                }
+                else if ( currentIndex >= -8 )
+                {
+                    averagedValue += activityDataOneDayOld->planetaryEquivalentAmplitudeVector( currentIndex + 8 );
+                }
+                else if ( currentIndex >= -16 )
+                {
+                    averagedValue += activityDataTwoDayOld->planetaryEquivalentAmplitudeVector( currentIndex + 16 );
+                }
+                else
+                {
+                    averagedValue += activityDataThreeDayOld->planetaryEquivalentAmplitudeVector( currentIndex + 24 );
+                }
+            }
+            delayedApValues[ 4 + j ] = averagedValue / 8.0;
+        }
+    }
+
+    std::map< double, SolarActivityDataPtr > getSolarActivityDataMap( ) const
     {
         return solarActivityDataMap_;
     }
 
 private:
+
+    std::shared_ptr< SolarActivityData > getSolarActivityDataAtJulianDay( ) const
+    {
+        nearestJulianDay_ = lookUpScheme_->getIndependentVariableValue( lookUpScheme_->findNearestLowerNeighbour( currentJulianDay_ ) );
+        if( nearestJulianDay_ > currentJulianDay_ || currentJulianDay_ > nearestJulianDay_ + 1.0 )
+        {
+            throw std::runtime_error(
+                "Error when getting current Julian day for solar activity; data is incompatible " +
+                std::to_string( nearestJulianDay_ ) + " " + std::to_string( currentJulianDay_ ) + " " +
+                std::to_string( nearestJulianDay_ - currentJulianDay_ ));
+        }
+        return solarActivityDataMap_.at( nearestJulianDay_ );
+    }
+
     std::map< double, SolarActivityDataPtr > solarActivityDataMap_;
 
     std::shared_ptr< interpolators::LookUpScheme< double > > lookUpScheme_;
+
+    mutable double currentJulianDay_;
+
+    mutable double nearestJulianDay_;
 };
 
 //! Function that reads a SpaceWeather data file
