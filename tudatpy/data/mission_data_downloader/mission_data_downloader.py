@@ -425,11 +425,9 @@ class LoadPDS:
         for key, str_format in self.supported_time_formats.items():
             try:
                 self.date = datetime.strptime(date,str_format)
-                #print(f'converted {self.date}, with format {str_format}')
                 if self.date is not None:
                     return (self.date)
             except:
-                #print('didnt work strptime')
                 continue
 
     def format_datetime_to_string(self, date, format_key):
@@ -507,7 +505,6 @@ class LoadPDS:
         """
 
         input_mission = input_mission.lower()
-        print('input mission lower', input_mission)
         # Determine data type and file extension
         data_type = url.split('/')[-2]
         ext = self.get_extension_for_data_type(data_type)
@@ -543,14 +540,12 @@ class LoadPDS:
             soup = BeautifulSoup(reqs.text, 'html.parser')
 
             for wanted_files_pattern in wanted_files_patterns:
-                print(wanted_files_pattern)
                 # Extract all links that match the pattern
                 regex_pattern = re.escape(wanted_files_pattern).replace(r'\*', '.*')
                 matched_files = [
                     os.path.basename(link.get('href')) for link in soup.find_all('a', href=True)
                     if re.match(regex_pattern, link.get('href'))
                 ]
-                print(matched_files)
                 matched_files_list.extend(matched_files)
 
         # Combine explicitly specified files and pattern-matched files
@@ -980,7 +975,6 @@ class LoadPDS:
                         dictionary, underscores = self.parse_filename(input_mission, data_type, filename)
                         # Reconstruct the filename and get time intervals
                         filename_to_download = self.reconstruct_filename(dictionary, underscores)
-                        #print(f'filename_to_download: {filename_to_download}')
                         start_time = dictionary["start_date_utc"]
                         end_time = dictionary["end_date_utc"]
 
@@ -2079,8 +2073,6 @@ class LoadPDS:
         response = requests.get(url)
         response.raise_for_status()  # Check for request errors
         aareadme_text = response.text
-
-        print(aareadme_text)
 
         # Step 2: Parse content using regex to extract the table entries
         self.mapping_dict = {}
