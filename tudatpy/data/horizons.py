@@ -980,7 +980,7 @@ class HorizonsQuery:
             If time query has incorrect format or an incorrect reference system is chosen
         """
 
-        kwargs["quantities"] = 1
+        kwargs["quantities"] = 1 # this prints Only Ra and Dec
         raw = self.ephemerides(
             reference_system=reference_system,
             extra_precision=extra_precision,
@@ -988,7 +988,6 @@ class HorizonsQuery:
             **kwargs,
         )
 
-        print(raw)
         res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]]
 
         if not degrees:
@@ -1030,7 +1029,7 @@ class HorizonsQuery:
             If time query has incorrect format or an incorrect reference system is chosen
         """
 
-        kwargs["quantities"] = 4
+        kwargs["quantities"] = 4 #Allows to get azimuth and elevation
         raw = self.ephemerides(
             reference_system=reference_system,
             extra_precision=extra_precision,
