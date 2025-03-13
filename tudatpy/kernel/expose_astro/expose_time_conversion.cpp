@@ -1312,7 +1312,7 @@ DateTime
     )doc" );
 
     m.def( "date_time_from_iso_string",
-           &tba::getCalendarDateFromTime< TIME_TYPE >,
+           &tba::dateTimeFromIsoString,
            py::arg( "iso_datetime" ),
            R"doc(
 
