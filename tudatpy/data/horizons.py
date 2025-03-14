@@ -997,7 +997,7 @@ class HorizonsQuery:
 
         return res
 
-    def interpolated_az_el(
+    def interpolated_station_angles(
             self,
             degrees: bool = False,
             reference_system: str = "J2000",
