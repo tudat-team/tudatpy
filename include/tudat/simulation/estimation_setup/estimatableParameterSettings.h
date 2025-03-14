@@ -1515,6 +1515,15 @@ inline std::shared_ptr< EstimatableParameterSettings > polynomialGravityFieldVar
             bodyName, cosineBlockIndicesPerPower, sineBlockIndicesPerPower );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > periodicGravityFieldVariationParameter(
+        const std::string bodyName,
+        const std::map< int, std::vector< std::pair< int, int > > >& cosineBlockIndicesPerPower,
+        const std::map< int, std::vector< std::pair< int, int > > >& sineBlockIndicesPerPower )
+{
+    return std::make_shared< PeriodicGravityFieldVariationEstimatableParameterSettings >(
+            bodyName, cosineBlockIndicesPerPower, sineBlockIndicesPerPower );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > polynomialSinglePowerGravityFieldVariationParameter(
         const std::string bodyName,
         const int power,
