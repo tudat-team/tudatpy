@@ -1338,6 +1338,13 @@ Returns
            py::arg( "sine_indices_per_power" ),
            R"doc(No documentation found.)doc" );
 
+    m.def( "periodic_gravity_field_variation_amplitudes",
+           &tep::periodicGravityFieldVariationParameter,
+           py::arg( "body_name" ),
+           py::arg( "cosine_indices_per_power" ),
+           py::arg( "sine_indices_per_power" ),
+           R"doc(No documentation found.)doc" );
+
     m.def( "monomial_gravity_field_variation_amplitudes",
            &tep::polynomialSinglePowerGravityFieldVariationParameter,
            py::arg( "body_name" ),
