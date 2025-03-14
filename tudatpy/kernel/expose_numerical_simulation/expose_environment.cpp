@@ -2202,7 +2202,7 @@ numpy.ndarray[numpy.float64[6, 1]]
         :type: numpy.ndarray[numpy.float64[3, 1]]
 
     )doc" )
-            .def_property_readonly( "geodetic_positon_at_reference_epoch",
+            .def_property_readonly( "geodetic_position_at_reference_epoch",
                                     &tgs::GroundStationState::getNominalGeodeticPosition,
                                     R"doc(
 

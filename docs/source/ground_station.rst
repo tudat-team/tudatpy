@@ -55,21 +55,29 @@ Functions
 
 .. autosummary::
 
-   basic_station
+    basic_station
 
-   dsn_stations
+    dsn_stations
 
-   linear_station_motion
+    radio_telescope_stations
 
-   piecewise_constant_station_motion
+    evn_stations
 
-   custom_station_motion
+    linear_station_motion
+
+    piecewise_constant_station_motion
+
+    custom_station_motion
 
 
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ground_station.basic_station
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ground_station.dsn_stations
+
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.ground_station.radio_telescope_stations
+
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.ground_station.evn_stations
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ground_station.linear_station_motion
 
