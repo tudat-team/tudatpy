@@ -3,6 +3,8 @@
 # PYTHON_NUMPY_FOUND
 # will be set by this script
 
+message(WARNING "FindNumpy.cmake IS CALLED!!!!!!!!!!!!!!!!!")
+
 cmake_minimum_required(VERSION 2.6)
 
 if(NOT PYTHON_EXECUTABLE)
