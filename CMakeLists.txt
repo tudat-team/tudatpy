@@ -27,18 +27,40 @@ project(TudatBundle)
 #  documented versions of the source is desired. This step is OPTIONAL, so if development is not related to
 #  docstrings present in the releases, then no need to worry.
 # Tudat project.
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.tudat-documented)
-    message(STATUS "Using DOCUMENTED tudat")
-    add_subdirectory(".tudat-documented")
-else ()
-    message(STATUS "Using UNDOCUMENTED tudat")
+message(
+    WARNING "The possibility to build from .tudat-documented and "
+    ".tudatpy-documented has been removed. If you expect them to still be "
+    "available, please contact the Tudat team on Github. This warning will "
+    "be removed in the future."
+)
+
+# Control build based on user input
+if (SKIP_TUDAT)
+    message(STATUS "Skipping tudat (C++) build.")
+else()
     add_subdirectory(tudat)
-endif ()
-# TudatPy project.
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.tudatpy-documented)
-    message(STATUS "Using DOCUMENTED tudatpy")
-    add_subdirectory(".tudatpy-documented")
-else ()
-    message(STATUS "Using UNDOCUMENTED tudatpy")
+endif()
+
+if (SKIP_TUDATPY)
+    message(STATUS "Skipping tudatpy (Python) build.")
+else()
     add_subdirectory(tudatpy)
-endif ()
+endif()
+
+
+
+# if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.tudat-documented)
+#     message(STATUS "Using DOCUMENTED tudat")
+#     add_subdirectory(".tudat-documented")
+# else ()
+#     message(STATUS "Using UNDOCUMENTED tudat")
+#     add_subdirectory(tudat)
+# endif ()
+# # TudatPy project.
+# if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.tudatpy-documented)
+#     message(STATUS "Using DOCUMENTED tudatpy")
+#     add_subdirectory(".tudatpy-documented")
+# else ()
+#     message(STATUS "Using UNDOCUMENTED tudatpy")
+#     add_subdirectory(tudatpy)
+# endif ()
