@@ -41,6 +41,9 @@ macro (yacma_extension import_path)
 
     unset(CMAKE_LIBRARY_OUTPUT_DIRECTORY)
 
+    # Update kernel target with extension
+    add_dependencies(kernel ${extension_name})
+
     # # Install
     # install(
     #     TARGETS ${extension_name}
