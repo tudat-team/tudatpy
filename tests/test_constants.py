@@ -1,4 +1,4 @@
-import tudatpy.kernel.constants as constants
+from tudatpy import constants
 
 
 def test_constant_values():
