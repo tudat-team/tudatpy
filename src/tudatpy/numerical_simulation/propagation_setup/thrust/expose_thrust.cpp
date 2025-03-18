@@ -77,20 +77,20 @@ PYBIND11_MODULE( expose_thrust, m )
             "ThrustMagnitudeSettings",
             R"doc(
 
-        Functional base class to define settings for the thrust magnitude.
+         Functional base class to define settings for the thrust magnitude.
 
 
-        Attributes
-        ----------
-        thrust_magnitude_type : ThrustMagnitudeType
-            Thrust magnitude type object.
-        thrust_origin_id : str
-            Reference ID of the thrust origin that should be used (empty if N/A).
+         Attributes
+         ----------
+         thrust_magnitude_type : ThrustMagnitudeType
+             Thrust magnitude type object.
+         thrust_origin_id : str
+             Reference ID of the thrust origin that should be used (empty if N/A).
 
 
 
 
-     )doc" )
+      )doc" )
             .def_readonly( "thrust_magnitude_type",
                            &tss::ThrustMagnitudeSettings::thrustMagnitudeType_ )
             .def_readonly( "thrust_origin_id", &tss::ThrustMagnitudeSettings::thrustOriginId_ );
@@ -101,25 +101,25 @@ PYBIND11_MODULE( expose_thrust, m )
                                                 "ConstantThrustMagnitudeSettings",
                                                 R"doc(
 
-        `ThrustMagnitudeSettings`-derived class to define settings for constant thrust magnitude.
+         `ThrustMagnitudeSettings`-derived class to define settings for constant thrust magnitude.
 
-        Derived class to provide settings for the thrust magnitude. This class should be used to define a constant thrust
-        magnitude.
-
-
-        Attributes
-        ----------
-        thrust_magnitude : float
-            Value of the constant thrust magnitude.
-        specific_impulse : float
-            Value of the constant specific impulse.
-        specific_impulse : numpy.ndarray
-            Thrust direction vector expressed in the body-fixed reference frame.
+         Derived class to provide settings for the thrust magnitude. This class should be used to define a constant thrust
+         magnitude.
 
 
+         Attributes
+         ----------
+         thrust_magnitude : float
+             Value of the constant thrust magnitude.
+         specific_impulse : float
+             Value of the constant specific impulse.
+         specific_impulse : numpy.ndarray
+             Thrust direction vector expressed in the body-fixed reference frame.
 
 
-     )doc" )
+
+
+      )doc" )
             .def_readonly( "thrust_magnitude",
                            &tss::ConstantThrustMagnitudeSettings::thrustMagnitude_ )
             .def_readonly( "specific_impulse",
@@ -131,16 +131,16 @@ PYBIND11_MODULE( expose_thrust, m )
                                                 "CustomThrustMagnitudeSettings",
                                                 R"doc(
 
-        `ThrustMagnitudeSettings`-derived class to define settings for constant thrust magnitude.
+         `ThrustMagnitudeSettings`-derived class to define settings for constant thrust magnitude.
 
-        Derived class to provide settings for the thrust magnitude. This class should be used to define a thrust
-        magnitude through a custom function.
-
-
+         Derived class to provide settings for the thrust magnitude. This class should be used to define a thrust
+         magnitude through a custom function.
 
 
 
-     )doc" );
+
+
+      )doc" );
 
     m.def( "get_propulsion_input_variables",
            &tss::getPropulsionInputVariables,
@@ -159,42 +159,42 @@ PYBIND11_MODULE( expose_thrust, m )
            py::arg( "specific_impulse" ),
            R"doc(
 
-Create thrust magnitude settings from a constant thrust magnitude and Isp.
+ Create thrust magnitude settings from a constant thrust magnitude and Isp.
 
-Function that creates constant thrust magnitude settings. The specific impulse to use for the thrust is
-also supplied when applying a mass rate model in the propagation of the vehicle dynamics, relating the thrust
-to the mass decrease of the vehicle.
-
-
-Parameters
-----------
-thrust_magnitude : float
-    Value of the constant thrust magnitude.
-specific_impulse : float
-    Value of the constant specific impulse, used to link the thrust model to the mass propagation.
-Returns
--------
-ConstantThrustMagnitudeSettings
-    Constant thrust magnitude settings object.
+ Function that creates constant thrust magnitude settings. The specific impulse to use for the thrust is
+ also supplied when applying a mass rate model in the propagation of the vehicle dynamics, relating the thrust
+ to the mass decrease of the vehicle.
 
 
+ Parameters
+ ----------
+ thrust_magnitude : float
+     Value of the constant thrust magnitude.
+ specific_impulse : float
+     Value of the constant specific impulse, used to link the thrust model to the mass propagation.
+ Returns
+ -------
+ ConstantThrustMagnitudeSettings
+     Constant thrust magnitude settings object.
 
 
 
-Examples
---------
-In this example, we define constant thrust magnitude of 1.5 kN and a specific impulse of 315 s.
-
-.. code-block:: python
-
-  # Define constant thrust magnitude settings of 1.5kN, an Isp of 315s
-  thrust.constant_thrust_magnitude(
-      thrust_magnitude=1.5e3,
-      specific_impulse=315
-  )
 
 
-    )doc" );
+ Examples
+ --------
+ In this example, we define constant thrust magnitude of 1.5 kN and a specific impulse of 315 s.
+
+ .. code-block:: python
+
+   # Define constant thrust magnitude settings of 1.5kN, an Isp of 315s
+   thrust.constant_thrust_magnitude(
+       thrust_magnitude=1.5e3,
+       specific_impulse=315
+   )
+
+
+     )doc" );
 
     m.def( "custom_thrust_magnitude",
            &tss::fromFunctionThrustMagnitudeSettings,
@@ -202,51 +202,51 @@ In this example, we define constant thrust magnitude of 1.5 kN and a specific im
            py::arg( "specific_impulse_function" ),
            R"doc(
 
-Create thrust magnitude settings from a custom thrust force magnitude function.
+ Create thrust magnitude settings from a custom thrust force magnitude function.
 
-Function that creates thrust magnitude from a custom thrust force magnitude function.
-This model defines a thrust force and specific impulse that can vary with time. The thrust acceleration
-is computed during the propagation by dividing the thrust force by the current vehicle mass.
-The specific impulse can be used to apply a mass rate model in the propagation the vehicle dynamics, relating the thrust to the mass
-decrease of the vehicle.
-
-
-Parameters
-----------
-thrust_magnitude_function : callable[[float], float]
-    Function of time returning the value of the thrust force magnitude.
-specific_impulse_function : callable[[float], float]
-    Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
-Returns
--------
-FromFunctionThrustMagnitudeSettings
-    From function thrust magnitude settings object.
+ Function that creates thrust magnitude from a custom thrust force magnitude function.
+ This model defines a thrust force and specific impulse that can vary with time. The thrust acceleration
+ is computed during the propagation by dividing the thrust force by the current vehicle mass.
+ The specific impulse can be used to apply a mass rate model in the propagation the vehicle dynamics, relating the thrust to the mass
+ decrease of the vehicle.
 
 
+ Parameters
+ ----------
+ thrust_magnitude_function : callable[[float], float]
+     Function of time returning the value of the thrust force magnitude.
+ specific_impulse_function : callable[[float], float]
+     Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
+ Returns
+ -------
+ FromFunctionThrustMagnitudeSettings
+     From function thrust magnitude settings object.
 
 
 
-Examples
---------
-In this example, we define a thrust force magnitude based on a set of custom functions.
-The magnitude itself starts from 500N, and linearly increases with time.
-The specific impulse is constant, at 350s. Note that we use a `lambda` function to achieve this neatly.
-Finally, the engine is setup to work for 50s, and be turned off afterwards.
-
-.. code-block:: python
-
-  # Define the thrust magnitude function: thrust increases linearly with time
-  def thrust_magnitude_function(time):
-      return 500 + time/2
-
-  # Define a lambda specific impulse function: constant at 350s
-  specific_impulse_function = lambda time: 350
-
-  # Define the custom thrust magnitude settings based on the pre-defined functions
-  thrust.custom_thrust_magnitude(thrust_magnitude_function, specific_impulse_function )
 
 
-    )doc" );
+ Examples
+ --------
+ In this example, we define a thrust force magnitude based on a set of custom functions.
+ The magnitude itself starts from 500N, and linearly increases with time.
+ The specific impulse is constant, at 350s. Note that we use a `lambda` function to achieve this neatly.
+ Finally, the engine is setup to work for 50s, and be turned off afterwards.
+
+ .. code-block:: python
+
+   # Define the thrust magnitude function: thrust increases linearly with time
+   def thrust_magnitude_function(time):
+       return 500 + time/2
+
+   # Define a lambda specific impulse function: constant at 350s
+   specific_impulse_function = lambda time: 350
+
+   # Define the custom thrust magnitude settings based on the pre-defined functions
+   thrust.custom_thrust_magnitude(thrust_magnitude_function, specific_impulse_function )
+
+
+     )doc" );
 
     m.def( "custom_thrust_magnitude_fixed_isp",
            &tss::fromFunctionThrustMagnitudeFixedIspSettings,
@@ -254,26 +254,26 @@ Finally, the engine is setup to work for 50s, and be turned off afterwards.
            py::arg( "specific_impulse" ),
            R"doc(
 
-Same as :func:`~custom_thrust_magnitude`, but with a fixed value for the specific impulse.
+ Same as :func:`~custom_thrust_magnitude`, but with a fixed value for the specific impulse.
 
 
-Parameters
-----------
-thrust_magnitude_function : callable[[float], float]
-    Function of time returning the value of the thrust force magnitude.
-specific_impulse : float
-    Constant value for specific impulse, useful to link the mass propagation to the thrust model.
-Returns
--------
-FromFunctionThrustMagnitudeSettings
-    From function thrust magnitude settings object.
-
-
-
+ Parameters
+ ----------
+ thrust_magnitude_function : callable[[float], float]
+     Function of time returning the value of the thrust force magnitude.
+ specific_impulse : float
+     Constant value for specific impulse, useful to link the mass propagation to the thrust model.
+ Returns
+ -------
+ FromFunctionThrustMagnitudeSettings
+     From function thrust magnitude settings object.
 
 
 
-    )doc" );
+
+
+
+     )doc" );
 
     m.def( "custom_thrust_acceleration_magnitude",
            &tss::customThrustAccelerationMagnitudeSettings,
@@ -281,30 +281,30 @@ FromFunctionThrustMagnitudeSettings
            py::arg( "specific_impulse_function" ),
            R"doc(
 
-Create thrust magnitude settings from a custom thrust acceleration magnitude function.
+ Create thrust magnitude settings from a custom thrust acceleration magnitude function.
 
-Function that creates thrust magnitude from a custom thrust acceleration magnitude function.
-This model is similar to the :func:`~custom_thrust_magnitude`, with the difference being that this function
-directly provides the thrust *acceleration*, not the thrust *force*.
-
-
-Parameters
-----------
-thrust_acceleration_magnitude_function : callable[[float], float]
-    Function of time returning the value of the thrust acceleration magnitude.
-specific_impulse_function : callable[[float], float]
-    Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
-Returns
--------
-FromFunctionThrustMagnitudeSettings
-    From function thrust magnitude settings object.
+ Function that creates thrust magnitude from a custom thrust acceleration magnitude function.
+ This model is similar to the :func:`~custom_thrust_magnitude`, with the difference being that this function
+ directly provides the thrust *acceleration*, not the thrust *force*.
 
 
+ Parameters
+ ----------
+ thrust_acceleration_magnitude_function : callable[[float], float]
+     Function of time returning the value of the thrust acceleration magnitude.
+ specific_impulse_function : callable[[float], float]
+     Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
+ Returns
+ -------
+ FromFunctionThrustMagnitudeSettings
+     From function thrust magnitude settings object.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "custom_thrust_acceleration_magnitude_fixed_isp",
            &tss::customThrustAccelerationMagnitudeFixedIspSettings,
@@ -312,26 +312,26 @@ FromFunctionThrustMagnitudeSettings
            py::arg( "specific_impulse" ),
            R"doc(
 
-Same as :func:`~custom_thrust_acceleration_magnitude`, but with a fixed value for the specific impulse.
+ Same as :func:`~custom_thrust_acceleration_magnitude`, but with a fixed value for the specific impulse.
 
 
-Parameters
-----------
-thrust_acceleration_magnitude_function : callable[[float], float]
-    Function of time returning the value of the thrust acceleration magnitude.
-specific_impulse : float
-    Constant value for specific impulse, useful to link the mass propagation to the thrust model.
-Returns
--------
-FromFunctionThrustMagnitudeSettings
-    From function thrust magnitude settings object.
-
-
-
+ Parameters
+ ----------
+ thrust_acceleration_magnitude_function : callable[[float], float]
+     Function of time returning the value of the thrust acceleration magnitude.
+ specific_impulse : float
+     Constant value for specific impulse, useful to link the mass propagation to the thrust model.
+ Returns
+ -------
+ FromFunctionThrustMagnitudeSettings
+     From function thrust magnitude settings object.
 
 
 
-    )doc" );
+
+
+
+     )doc" );
 
     /*!
      *  To be removed, no longer used, kept only to support

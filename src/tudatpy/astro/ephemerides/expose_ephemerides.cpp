@@ -173,7 +173,7 @@ PYBIND11_MODULE( expose_ephemerides, m )
     // constantEphemeris.h
     //////////////////////////////////////////////////////////////////////////////
     py::class_< te::ConstantEphemeris, std::shared_ptr< te::ConstantEphemeris >, te::Ephemeris >(
-            m, "ConstantEphemeris", R"doc(No documentation found.)doc" )
+            m, "ConstantEphemeris" )
             .def( py::init<
                           const std::function<
                                   Eigen::Vector6d( ) >,  //<pybind11/functional.h>,<pybind11/eigen.h>
@@ -190,8 +190,7 @@ PYBIND11_MODULE( expose_ephemerides, m )
                   py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" )
             .def( "update_constant_state",
                   &te::ConstantEphemeris::updateConstantState,
-                  py::arg( "new_state" ),
-                  R"doc(No documentation found.)doc" );
+                  py::arg( "new_state" ) );
 
     //////////////////////////////////////////////////////////////////////////////
     // keplerEphemeris.h

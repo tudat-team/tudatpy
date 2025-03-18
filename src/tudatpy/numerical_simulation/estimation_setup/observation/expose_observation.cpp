@@ -223,27 +223,27 @@ PYBIND11_MODULE( expose_observation, m )
 
     py::enum_< tom::LinkEndType >( m, "LinkEndType", R"doc(
 
-        Enumeration of available link end types.
+         Enumeration of available link end types.
 
-Examples
---------
-.. code-block:: python
+ Examples
+ --------
+ .. code-block:: python
 
-    # Code snippet to print all available Link End Types
-    from tudatpy.numerical_simulation import estimation_setup
+     # Code snippet to print all available Link End Types
+     from tudatpy.numerical_simulation import estimation_setup
 
-    # Check how many Link End Types are available in Tudatpy
-    num_link_end_types = len(estimation_setup.observation.LinkEndType.__members__)
-    print(f'The length of all available Tudatpy Link End Types is: {num_link_end_types}')
+     # Check how many Link End Types are available in Tudatpy
+     num_link_end_types = len(estimation_setup.observation.LinkEndType.__members__)
+     print(f'The length of all available Tudatpy Link End Types is: {num_link_end_types}')
 
-    # Print all available Link End Types using the "name" property
-    for i in range(num_link_end_types):
-        print(i, estimation_setup.observation.LinkEndType(i).name)
-
-
+     # Print all available Link End Types using the "name" property
+     for i in range(num_link_end_types):
+         print(i, estimation_setup.observation.LinkEndType(i).name)
 
 
-     )doc" )
+
+
+      )doc" )
             .value( "unidentified_link_end", tom::LinkEndType::unidentified_link_end )
             .value( "transmitter", tom::LinkEndType::transmitter )
             .value( "reflector1", tom::LinkEndType::reflector1 )
@@ -264,59 +264,59 @@ Examples
            py::arg( "receivers" ),
            R"doc(
 
-Function for defining one-way downlinks via LinkDefinition types.
+ Function for defining one-way downlinks via LinkDefinition types.
 
-Function for defining single or multiple one-way downlinks via LinkDefinition types.
-Multiple downlinks share the same transmitters, but may each have a different receiver.
-For each downlink, the returned list will contain an additional `LinkDefinition` type.
-
-
-Parameters
-----------
-transmitter : Tuple[str, str]
-    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry reference point of the single transmitter link end(s).
-
-receivers : List[ Tuple[str, str] ]
-    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where for each tuple the first entrance identifies the body and the second entry the reference point of the receiver link end(s).
-
-Returns
--------
-List[ LinkDefinition ]
-    List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition` types, each defining the geometry for one one-way downlink.
-    A `LinkDefinition` type for a one one-way link is composed a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the one_way_downlink_link_ends function to return a LinkDefinition object
-
-    from tudatpy.kernel.numerical_simulation.estimation_setup import observation
-
-    # Create a dictionary of LinkEndId objects
-    link_ends = {
-        observation.receiver: observation.body_origin_link_end_id("Earth"),
-        observation.transmitter: observation.body_origin_link_end_id("Delfi-C3")
-    }
-
-    # Print individual LinkEndId objects
-    print("Transmitter:", link_ends[observation.transmitter])
-    print("Receiver:", link_ends[observation.receiver])
-
-    # Call one_way_downlink_link_ends with properly formatted arguments
-    # Note: The function expects a transmitter and a list of receivers
-    link_definition = observation.one_way_downlink_link_ends(
-        link_ends[observation.transmitter],
-        [link_ends[observation.receiver]]  # Receivers must be in a list
-    )
-
-    # Verify that the one_way_downlink_link_ends function returns a LinkDefinition object
-    print(link_definition)
+ Function for defining single or multiple one-way downlinks via LinkDefinition types.
+ Multiple downlinks share the same transmitters, but may each have a different receiver.
+ For each downlink, the returned list will contain an additional `LinkDefinition` type.
 
 
+ Parameters
+ ----------
+ transmitter : Tuple[str, str]
+     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry reference point of the single transmitter link end(s).
+
+ receivers : List[ Tuple[str, str] ]
+     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where for each tuple the first entrance identifies the body and the second entry the reference point of the receiver link end(s).
+
+ Returns
+ -------
+ List[ LinkDefinition ]
+     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition` types, each defining the geometry for one one-way downlink.
+     A `LinkDefinition` type for a one one-way link is composed a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the one_way_downlink_link_ends function to return a LinkDefinition object
+
+     from tudatpy.kernel.numerical_simulation.estimation_setup import observation
+
+     # Create a dictionary of LinkEndId objects
+     link_ends = {
+         observation.receiver: observation.body_origin_link_end_id("Earth"),
+         observation.transmitter: observation.body_origin_link_end_id("Delfi-C3")
+     }
+
+     # Print individual LinkEndId objects
+     print("Transmitter:", link_ends[observation.transmitter])
+     print("Receiver:", link_ends[observation.receiver])
+
+     # Call one_way_downlink_link_ends with properly formatted arguments
+     # Note: The function expects a transmitter and a list of receivers
+     link_definition = observation.one_way_downlink_link_ends(
+         link_ends[observation.transmitter],
+         [link_ends[observation.receiver]]  # Receivers must be in a list
+     )
+
+     # Verify that the one_way_downlink_link_ends function returns a LinkDefinition object
+     print(link_definition)
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "one_way_uplink_link_ends",
            &tom::getOneWayUplinkLinkEndsList,
@@ -324,82 +324,82 @@ Examples
            py::arg( "receiver" ),
            R"doc(
 
-Function for defining single or multiple one-way uplinks via LinkDefinition types.
+ Function for defining single or multiple one-way uplinks via LinkDefinition types.
 
-Function for defining single or multiple one-way uplinks via LinkDefinition types.
-Multiple uplinks share the same receiver, but may each have a different transmitter.
-For each uplink, the returned list will contain an additional `LinkDefinition` type.
-
-
-Parameters
-----------
-transmitters : List[ Tuple[str, str] ]
-    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the transmitter link end(s).
-
-receivers : Tuple[str, str]
-    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the single receiver link end(s).
-
-Returns
--------
-List[ LinkDefinition ]
-    List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition` types, each defining the geometry for one one-way uplink.
-    A :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type for a one one-way link is made of a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the one_way_uplink_link_ends function to return a LinkDefinition object
-    from tudatpy.kernel.numerical_simulation.estimation_setup import observation
-
-    # Create a dictionary of LinkEndId objects
-    link_ends = {
-        observation.receiver: observation.body_origin_link_end_id("Earth"),
-        observation.transmitter: observation.body_origin_link_end_id("Delfi-C3")
-    }
-
-    # Print individual LinkEndId objects
-    print("Transmitter:", link_ends[observation.transmitter])
-    print("Receiver:", link_ends[observation.receiver])
-
-    # Call one_way_uplink_link_ends with properly formatted arguments
-    # Note: The function expects a transmitter and a list of receivers
-    link_definition = observation.one_way_uplink_link_ends(
-        [link_ends[observation.transmitter]], # Transmitters must be in a list
-        link_ends[observation.receiver]
-    )
-
-    # Verify that the one_way_uplink_link_ends function returns a LinkDefinition object
-    print(link_definition)
+ Function for defining single or multiple one-way uplinks via LinkDefinition types.
+ Multiple uplinks share the same receiver, but may each have a different transmitter.
+ For each uplink, the returned list will contain an additional `LinkDefinition` type.
 
 
+ Parameters
+ ----------
+ transmitters : List[ Tuple[str, str] ]
+     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the transmitter link end(s).
+
+ receivers : Tuple[str, str]
+     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the single receiver link end(s).
+
+ Returns
+ -------
+ List[ LinkDefinition ]
+     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition` types, each defining the geometry for one one-way uplink.
+     A :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type for a one one-way link is made of a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the one_way_uplink_link_ends function to return a LinkDefinition object
+     from tudatpy.kernel.numerical_simulation.estimation_setup import observation
+
+     # Create a dictionary of LinkEndId objects
+     link_ends = {
+         observation.receiver: observation.body_origin_link_end_id("Earth"),
+         observation.transmitter: observation.body_origin_link_end_id("Delfi-C3")
+     }
+
+     # Print individual LinkEndId objects
+     print("Transmitter:", link_ends[observation.transmitter])
+     print("Receiver:", link_ends[observation.receiver])
+
+     # Call one_way_uplink_link_ends with properly formatted arguments
+     # Note: The function expects a transmitter and a list of receivers
+     link_definition = observation.one_way_uplink_link_ends(
+         [link_ends[observation.transmitter]], # Transmitters must be in a list
+         link_ends[observation.receiver]
+     )
+
+     # Verify that the one_way_uplink_link_ends function returns a LinkDefinition object
+     print(link_definition)
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "get_default_reference_link_end",
            &tom::getDefaultReferenceLinkEndType,
            py::arg( "observabl_type" ),
            R"doc(
 
-Function for automatically retrieving the reference link end associated with a given observable type.
+ Function for automatically retrieving the reference link end associated with a given observable type.
 
 
-Parameters
-----------
-observable_type : :class:`ObservableType`
-    Observable type for which the associated reference link end is to be retrieved.
-Returns
--------
-:class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is typically used as a reference for observation times in *e.g.* :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`.
-
-
-
+ Parameters
+ ----------
+ observable_type : :class:`ObservableType`
+     Observable type for which the associated reference link end is to be retrieved.
+ Returns
+ -------
+ :class:`LinkEndType`
+     Defines the link end (via the :class:`LinkEndType`) which is typically used as a reference for observation times in *e.g.* :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`.
 
 
 
-    )doc" );
+
+
+
+     )doc" );
 
     // ###########      Observation Model Settings
     // ################
@@ -408,138 +408,138 @@ Returns
                                                                      "LinkEndId",
                                                                      R"doc(
 
-        Base class serving as identifier of a specific link end.
+         Base class serving as identifier of a specific link end.
 
-        Base class serving as identifier of a specific link end.
-        Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_origin_link_end_id` function,
-        whose output is indeed a *LinkEndId* object, representing the center of mass of a body.
+         Base class serving as identifier of a specific link end.
+         Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_origin_link_end_id` function,
+         whose output is indeed a *LinkEndId* object, representing the center of mass of a body.
 
-Examples
---------
-.. code-block:: python
+ Examples
+ --------
+ .. code-block:: python
 
-    # Code Snippet to produce a LinkEndId object
-    from tudatpy.numerical_simulation.estimation_setup import observation
+     # Code Snippet to produce a LinkEndId object
+     from tudatpy.numerical_simulation.estimation_setup import observation
 
-    link_ends = dict()
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+     link_ends = dict()
+     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
 
-    # The keys of this dictionary are LinkEndType objects.
-    print(link_ends.keys())
-    # The values of this dictionary are LinkEndId objects.
-    print(link_ends.values())
+     # The keys of this dictionary are LinkEndType objects.
+     print(link_ends.keys())
+     # The values of this dictionary are LinkEndId objects.
+     print(link_ends.values())
 
-    # Print out (explicitly) the keys (link types) and values (link names).
-    # [Note: To accomplish this, we use the "name" property (link_type.name) of the LinkEndType enumeration,
-    # and the "body_name" property (link_name.body_name) of the LinkEndId class]
+     # Print out (explicitly) the keys (link types) and values (link names).
+     # [Note: To accomplish this, we use the "name" property (link_type.name) of the LinkEndType enumeration,
+     # and the "body_name" property (link_name.body_name) of the LinkEndId class]
 
-    for link_type, link_name in link_ends.items():
-        print(f'LinkEndType: {link_type.name}, LinkEndId: {link_name.body_name}')
+     for link_type, link_name in link_ends.items():
+         print(f'LinkEndType: {link_type.name}, LinkEndId: {link_name.body_name}')
 
 
-     )doc" )
+      )doc" )
             .def_property_readonly( "body_name",
                                     &tom::LinkEndId::getBodyName,
                                     R"doc(
-        Name of the body where the reference point is located, str
+         Name of the body where the reference point is located, str
 
-    Examples
-    --------
-    .. code-block:: python
+     Examples
+     --------
+     .. code-block:: python
 
-        # Code Snippet to produce a LinkEndId object
-        from tudatpy.numerical_simulation.estimation_setup import observation
+         # Code Snippet to produce a LinkEndId object
+         from tudatpy.numerical_simulation.estimation_setup import observation
 
-        link_ends = dict()
-        link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-        link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+         link_ends = dict()
+         link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+         link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
 
-        # The keys of this dictionary are LinkEndType objects.
-        print(link_ends.keys())
-        # The values of this dictionary are LinkEndId objects.
-        print(link_ends.values())
+         # The keys of this dictionary are LinkEndType objects.
+         print(link_ends.keys())
+         # The values of this dictionary are LinkEndId objects.
+         print(link_ends.values())
 
-        # Print out the keys (link types) and values (link names)
-        for link_type, link_name in link_ends.items():
-            print(f'LinkEndType: {link_type.name}, LinkEndId: {link_name.body_name}')
-
-
+         # Print out the keys (link types) and values (link names)
+         for link_type, link_name in link_ends.items():
+             print(f'LinkEndType: {link_type.name}, LinkEndId: {link_name.body_name}')
 
 
-     )doc" )
+
+
+      )doc" )
             .def_property_readonly( "reference_point",
                                     &tom::LinkEndId::getStationName,
                                     R"doc(
-        Function for setting a name for the reference point on a body.
+         Function for setting a name for the reference point on a body.
 
-        Function for setting a name for the reference point on a body (tipically, the name of a ground station).
+         Function for setting a name for the reference point on a body (tipically, the name of a ground station).
 
-    Examples
-    --------
-    .. code-block:: python
+     Examples
+     --------
+     .. code-block:: python
 
-        # Code Snippet to produce a LinkEndId object (e.g. ground station) on the Earth Surface
-        # and retrieve the link reference point using the  "reference_point" property
+         # Code Snippet to produce a LinkEndId object (e.g. ground station) on the Earth Surface
+         # and retrieve the link reference point using the  "reference_point" property
 
-        from tudatpy.numerical_simulation.estimation_setup import observation
+         from tudatpy.numerical_simulation.estimation_setup import observation
 
-        # Set CoolTrackingStation (defined as a Reference Point on Earth) as a receiver
-        link_ends = dict()
-        link_ends[observation.receiver] = observation.body_reference_point_link_end_id("Earth", "CoolTrackingStation")
+         # Set CoolTrackingStation (defined as a Reference Point on Earth) as a receiver
+         link_ends = dict()
+         link_ends[observation.receiver] = observation.body_reference_point_link_end_id("Earth", "CoolTrackingStation")
 
-        # Verify that CoolTracking Station is associated to the key observation.receiver
-        link_end_body = link_ends[observation.receiver].body_name # body on which the reference point is located
-        link_end_name = link_ends[observation.receiver].reference_point #reference point name
-        print(f'Link End Name: {link_end_name} is found on body: {link_end_body}')
+         # Verify that CoolTracking Station is associated to the key observation.receiver
+         link_end_body = link_ends[observation.receiver].body_name # body on which the reference point is located
+         link_end_name = link_ends[observation.receiver].reference_point #reference point name
+         print(f'Link End Name: {link_end_name} is found on body: {link_end_body}')
 
 
 
-     )doc" );
+      )doc" );
 
     m.def( "body_origin_link_end_id",
            py::overload_cast< const std::string& >( &tom::linkEndId ),
            py::arg( "body_name" ),
            R"doc(
 
-Function to create a link end identifier for the origin (typically center of mass) of a body.
+ Function to create a link end identifier for the origin (typically center of mass) of a body.
 
-Function to create a link end identifier for the origin (typically center of mass) of a body.
-Using this option will simulate the origin of a body transmitter, receiving, etc. the observation.
-Although this is typically not physically realistic, it can be a useful approximation, in particular for simulation studies.
-
-
-Parameters
-----------
-body_name : str
-    Name of the body
-
-Returns
--------
-LinkEndId
-    A LinkEndId object representing the center of mass of a body
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the body_origin_link_end_id
-    from tudatpy.numerical_simulation.estimation_setup import observation
-
-    # Input of body_origin_link_end_id are strings (name of bodies, or satellites, or ground stations, etc...)
-    receiver = "Earth"
-    transmitter = "Delfi-C3"
-
-    # Call and print observation.body_origin_link_end_id with the proper inputs (receiver, transmitter)
-    # a LinkEndId object is returned for both receiver and transmitter
-    print(observation.body_origin_link_end_id(receiver))
-    print(observation.body_origin_link_end_id(transmitter))
+ Function to create a link end identifier for the origin (typically center of mass) of a body.
+ Using this option will simulate the origin of a body transmitter, receiving, etc. the observation.
+ Although this is typically not physically realistic, it can be a useful approximation, in particular for simulation studies.
 
 
+ Parameters
+ ----------
+ body_name : str
+     Name of the body
+
+ Returns
+ -------
+ LinkEndId
+     A LinkEndId object representing the center of mass of a body
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the body_origin_link_end_id
+     from tudatpy.numerical_simulation.estimation_setup import observation
+
+     # Input of body_origin_link_end_id are strings (name of bodies, or satellites, or ground stations, etc...)
+     receiver = "Earth"
+     transmitter = "Delfi-C3"
+
+     # Call and print observation.body_origin_link_end_id with the proper inputs (receiver, transmitter)
+     # a LinkEndId object is returned for both receiver and transmitter
+     print(observation.body_origin_link_end_id(receiver))
+     print(observation.body_origin_link_end_id(transmitter))
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "body_reference_point_link_end_id",
            py::overload_cast< const std::string&, const std::string& >( &tom::linkEndId ),
@@ -547,77 +547,76 @@ Examples
            py::arg( "reference_point_id" ),
            R"doc(
 
-Function to create a link end identifier for a reference point on a body.
+ Function to create a link end identifier for a reference point on a body.
 
-Function to create a link end identifier for a reference point on a body, where the reference point
-is typically the identifier of a ground stations.
-
-
-Parameters
-----------
-body_name : str
-    Name of the body on which the reference point is located: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`, str
-
-reference_point_id : str
-    Identifier of a specific link end: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`, str
-
-Returns
--------
-LinkEndId
-    A LinkEndId object representing a reference point on a body
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the body_reference_point_link_end_id
-    from tudatpy.numerical_simulation.estimation_setup import observation
-
-    # Input of body_reference_point_link_end_id are strings (name of bodies, or satellites, or ground stations, etc...)
-    receiver = "Earth"
-    reference_point = "CoolTrackingStation"
-
-    # Call and print observation.body_reference_point_link_end_id with the proper inputs (receiver, reference_point)
-    # a LinkEndId object is returned
-    print(observation.body_reference_point_link_end_id(receiver, reference_point))
+ Function to create a link end identifier for a reference point on a body, where the reference point
+ is typically the identifier of a ground stations.
 
 
+ Parameters
+ ----------
+ body_name : str
+     Name of the body on which the reference point is located: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`, str
 
-    )doc" );
+ reference_point_id : str
+     Identifier of a specific link end: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`, str
 
-    py::class_< tom::LinkDefinition, std::shared_ptr< tom::LinkDefinition > >( m,
-                                                                               "LinkDefinition",
-                                                                               R"doc(
+ Returns
+ -------
+ LinkEndId
+     A LinkEndId object representing a reference point on a body
 
-        Base class storing the link ends involved in a given observation.
-        Instances of this class are typically created defining a *Link_Ends* dictionary via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.link_definition` function,
-        whose output is a *LinkDefinition* object, storing the Link Ends involved in a given observation.
+ Examples
+ --------
+ .. code-block:: python
 
-        Examples
-        --------
-        .. code-block:: python
+     # Code Snippet to showcase the use of the body_reference_point_link_end_id
+     from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Code Snippet to produce a LinkDefinition object
-            from tudatpy.numerical_simulation.estimation_setup import observation
+     # Input of body_reference_point_link_end_id are strings (name of bodies, or satellites, or ground stations, etc...)
+     receiver = "Earth"
+     reference_point = "CoolTrackingStation"
 
-            link_ends = dict()
-            link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
-
-            # Show that what we created is a LinkDefinition object
-            Link_Definition_Object = observation.link_definition(link_ends)
-            print(Link_Definition_Object)
-
-            # [Optional]: Print the Link Ends (receiver and transmitter)  names
-            receiver_name = observation.link_definition(link_ends).link_end_id(observation.receiver).body_name
-            transmitter_name = observation.link_definition(link_ends).link_end_id(observation.transmitter).body_name
-            print(receiver_name)
-            print(transmitter_name)
+     # Call and print observation.body_reference_point_link_end_id with the proper inputs (receiver, reference_point)
+     # a LinkEndId object is returned
+     print(observation.body_reference_point_link_end_id(receiver, reference_point))
 
 
 
+     )doc" );
 
-     )doc" )
+    py::class_< tom::LinkDefinition, std::shared_ptr< tom::LinkDefinition > >(
+            m, "LinkDefinition", R"doc(
+
+         Base class storing the link ends involved in a given observation.
+         Instances of this class are typically created defining a *Link_Ends* dictionary via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.link_definition` function,
+         whose output is a *LinkDefinition* object, storing the Link Ends involved in a given observation.
+
+         Examples
+         --------
+         .. code-block:: python
+
+             # Code Snippet to produce a LinkDefinition object
+             from tudatpy.numerical_simulation.estimation_setup import observation
+
+             link_ends = dict()
+             link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+             # Show that what we created is a LinkDefinition object
+             Link_Definition_Object = observation.link_definition(link_ends)
+             print(Link_Definition_Object)
+
+             # [Optional]: Print the Link Ends (receiver and transmitter)  names
+             receiver_name = observation.link_definition(link_ends).link_end_id(observation.receiver).body_name
+             transmitter_name = observation.link_definition(link_ends).link_end_id(observation.transmitter).body_name
+             print(receiver_name)
+             print(transmitter_name)
+
+
+
+
+      )doc" )
             .def( py::init< const std::map< tom::LinkEndType, tom::LinkEndId >& >( ),
                   py::arg( "link_ends" ) )
             .def( "link_end_id",
@@ -625,43 +624,43 @@ Examples
                   py::arg( "link_end_type" ),
                   R"doc(
 
-        Function to provide a dictionary of link ends.
+         Function to provide a dictionary of link ends.
 
-        Function to provide a dictionary of link ends, with the key denoting the role in the observation, and the associated value the identifier for the link end.
+         Function to provide a dictionary of link ends, with the key denoting the role in the observation, and the associated value the identifier for the link end.
 
-        Parameters
-        ----------
-        "link_end_type" : :type: LinkEndType
+         Parameters
+         ----------
+         "link_end_type" : :type: LinkEndType
 
-        Returns
-        -------
-        :type: dict[LinkEndType,LinkEndId]
-            Dictionary of link ends
+         Returns
+         -------
+         :type: dict[LinkEndType,LinkEndId]
+             Dictionary of link ends
 
-        Examples
-        --------
-        .. code-block:: python
+         Examples
+         --------
+         .. code-block:: python
 
-            # Code Snippet to retrieve the LinkEnds names from a LinkDefinition object,
-            # using the "link_end_id" property of LinkDefinition (LinkDefinition.link_end_id)
-            from tudatpy.numerical_simulation.estimation_setup import observation
+             # Code Snippet to retrieve the LinkEnds names from a LinkDefinition object,
+             # using the "link_end_id" property of LinkDefinition (LinkDefinition.link_end_id)
+             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            link_ends = dict()
-            link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+             link_ends = dict()
+             link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
 
-            Link_Definition_Object = observation.link_definition(link_ends)
+             Link_Definition_Object = observation.link_definition(link_ends)
 
-            # [Optional] Show that what we created is a LinkDefinition object
-            print(Link_Definition_Object)
+             # [Optional] Show that what we created is a LinkDefinition object
+             print(Link_Definition_Object)
 
-            # Print the Link Ends (receiver and transmitter)  names using the "link_end_id" property
-            print(observation.link_definition(link_ends).link_end_id(observation.receiver).body_name)
-            print(observation.link_definition(link_ends).link_end_id(observation.transmitter).body_name)
+             # Print the Link Ends (receiver and transmitter)  names using the "link_end_id" property
+             print(observation.link_definition(link_ends).link_end_id(observation.receiver).body_name)
+             print(observation.link_definition(link_ends).link_end_id(observation.transmitter).body_name)
 
 
 
-     )doc" );
+      )doc" );
     //            .def_property( "link_ends",
     //            &tom::LinkDefinition::linkEnds_,
     //                           get_docstring("LinkDefinition.link_ends").c_str()
@@ -672,63 +671,61 @@ Examples
            py::arg( "link_ends" ),
            R"doc(
 
-Function to create a link definition object.
+ Function to create a link definition object.
 
-Function to create a link definition object.
-It returns the ``LinkDefinition`` object storing the link ends of the observation.
-
-
-Parameters
-----------
-link_ends : dict[LinkEndType,LinkEndId]
-    Dictionary of link ends, with the key denoting the role in the observation, and the associated value the identifier for the link end.
-Returns
--------
-LinkDefinition
-    The ``LinkDefinition`` object storing the link ends of the observation
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the link_definition function to return a LinkDefinition object
-    from tudatpy.numerical_simulation.estimation_setup import observation
-
-    # Create link_ends. These are the input parameters of the link_definition function
-    link_ends = dict()
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
-
-    # Show that, using observation.link_definition, a LinkDefinition object is returned
-    print(observation.link_definition(link_ends))
+ Function to create a link definition object.
+ It returns the ``LinkDefinition`` object storing the link ends of the observation.
 
 
-    )doc" );
+ Parameters
+ ----------
+ link_ends : dict[LinkEndType,LinkEndId]
+     Dictionary of link ends, with the key denoting the role in the observation, and the associated value the identifier for the link end.
+ Returns
+ -------
+ LinkDefinition
+     The ``LinkDefinition`` object storing the link ends of the observation
 
-    py::enum_< tom::ObservableType >( m,
-                                      "ObservableType",
-                                      R"doc(
+ Examples
+ --------
+ .. code-block:: python
 
-        Enumeration of available observable types.
+     # Code Snippet to showcase the use of the link_definition function to return a LinkDefinition object
+     from tudatpy.numerical_simulation.estimation_setup import observation
 
-Examples
---------
-.. code-block:: python
+     # Create link_ends. These are the input parameters of the link_definition function
+     link_ends = dict()
+     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
 
-    # Code snippet to print all available Observable Types
-    from tudatpy.numerical_simulation import estimation_setup
+     # Show that, using observation.link_definition, a LinkDefinition object is returned
+     print(observation.link_definition(link_ends))
 
-    num_observable_types = len(estimation_setup.observation.ObservableType.__members__)
-    print(f'The length of all available Tudatpy Observable Types is: {num_observable_types}')
 
-    # Print all available Observable Types using the "name" property
-    for i in range(num_observable_types):
-        print(i, estimation_setup.observation.ObservableType(i).name)
+     )doc" );
+
+    py::enum_< tom::ObservableType >( m, "ObservableType", R"doc(
+
+         Enumeration of available observable types.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code snippet to print all available Observable Types
+     from tudatpy.numerical_simulation import estimation_setup
+
+     num_observable_types = len(estimation_setup.observation.ObservableType.__members__)
+     print(f'The length of all available Tudatpy Observable Types is: {num_observable_types}')
+
+     # Print all available Observable Types using the "name" property
+     for i in range(num_observable_types):
+         print(i, estimation_setup.observation.ObservableType(i).name)
 
 
 
 
-     )doc" )
+      )doc" )
             .value( "one_way_range_type", tom::ObservableType::one_way_range )
             .value( "n_way_range_type", tom::ObservableType::n_way_range )
             .value( "angular_position_type", tom::ObservableType::angular_position )
@@ -756,61 +753,59 @@ Examples
             "DopplerProperTimeRateSettings",
             R"doc(
 
-        Base class to define proper time rate settings.
+         Base class to define proper time rate settings.
 
-        Base class to define proper time rate settings (at a single link end) for instantaneous Doppler observation model settings.
-        Specific proper time rate settings must be defined using an object derived from this class.
-        The derived classes are made accessible via dedicated functions.
-
-
+         Base class to define proper time rate settings (at a single link end) for instantaneous Doppler observation model settings.
+         Specific proper time rate settings must be defined using an object derived from this class.
+         The derived classes are made accessible via dedicated functions.
 
 
 
-     )doc" );
+
+
+      )doc" );
 
     py::class_< tom::ObservationModelSettings, std::shared_ptr< tom::ObservationModelSettings > >(
-            m,
-            "ObservationSettings",
-            R"doc(
+            m, "ObservationSettings", R"doc(
 
-        Base class to define settings of observation models.
+         Base class to define settings of observation models.
 
-        Base class to define settings of observation models.
-        Observation model settings define at least the type and geometry of a given observation.
-        They can furthermore set observation biases and/or light-time corrections.
-        Simple observation models settings that are fully characterised by these elements can be managed by this base class.
-        Instances of this class are typically created via functions, such as
-        :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.cartesian_position`,
-        :func:`~tudatpy.numerical_simulation.estimation_setup.observation.angular_position`, etc.
-        Model settings for specific observation models that require additional information such as integration time, retransmission time, etc. must be defined using an object derived from this class.
-        The derived classes are made accessible through further functions.
+         Base class to define settings of observation models.
+         Observation model settings define at least the type and geometry of a given observation.
+         They can furthermore set observation biases and/or light-time corrections.
+         Simple observation models settings that are fully characterised by these elements can be managed by this base class.
+         Instances of this class are typically created via functions, such as
+         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.cartesian_position`,
+         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.angular_position`, etc.
+         Model settings for specific observation models that require additional information such as integration time, retransmission time, etc. must be defined using an object derived from this class.
+         The derived classes are made accessible through further functions.
 
-        Examples
-        --------
-        .. code-block:: python
+         Examples
+         --------
+         .. code-block:: python
 
-            # Code snippet to show the creation of an ObservationSettings object
-            from tudatpy.numerical_simulation.estimation_setup import observation
+             # Code snippet to show the creation of an ObservationSettings object
+             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Create Link Ends dictionary
-            link_ends = dict()
-            link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+             # Create Link Ends dictionary
+             link_ends = dict()
+             link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
 
-            # Create a Link Definition Object from link_ends dictionary
-            Link_Definition_Object = observation.LinkDefinition(link_ends)
+             # Create a Link Definition Object from link_ends dictionary
+             Link_Definition_Object = observation.LinkDefinition(link_ends)
 
-            # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
-            # Other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) are set by default
-            observation_settings = observation.one_way_range(Link_Definition_Object)
+             # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
+             # Other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) are set by default
+             observation_settings = observation.one_way_range(Link_Definition_Object)
 
-            # Show that it is an ObservationSettings object.
-            print(observation_settings)
+             # Show that it is an ObservationSettings object.
+             print(observation_settings)
 
 
 
 
-     )doc" );
+      )doc" );
 
     py::class_< tom::OneWayDopplerObservationSettings,
                 std::shared_ptr< tom::OneWayDopplerObservationSettings >,
@@ -818,39 +813,39 @@ Examples
                                                  "OneWayDopplerObservationSettings",
                                                  R"doc(
 
-        Derived Class for defining the settings of one-way instantaneous Doppler observation models.
+         Derived Class for defining the settings of one-way instantaneous Doppler observation models.
 
-        Derived Class for defining the settings of one-way instantaneous Doppler observation models.
-        Settings object can account for additional observation model aspects such as light time corrections and proper time rate settings.
-        Instances of this class can be created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_instantaneous` function.
-        Associated base class: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`.
+         Derived Class for defining the settings of one-way instantaneous Doppler observation models.
+         Settings object can account for additional observation model aspects such as light time corrections and proper time rate settings.
+         Instances of this class can be created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_instantaneous` function.
+         Associated base class: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`.
 
-        Examples
-        --------
-        .. code-block:: python
+         Examples
+         --------
+         .. code-block:: python
 
-            # Code snippet to show the creation of a OneWayDopplerObservationSettings object
-            from tudatpy.numerical_simulation.estimation_setup import observation
+             # Code snippet to show the creation of a OneWayDopplerObservationSettings object
+             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Create Link Ends dictionary
-            link_ends = dict()
-            link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+             # Create Link Ends dictionary
+             link_ends = dict()
+             link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
 
-            # Create a Link Definition Object from link_ends dictionary
-            Link_Definition_Object = observation.LinkDefinition(link_ends)
+             # Create a Link Definition Object from link_ends dictionary
+             Link_Definition_Object = observation.LinkDefinition(link_ends)
 
-            # Use: observation.one_way_doppler_instantaneous to create a OneWayDopplerObservationSettings object (only required Link_Definition_Object argument is passed)
-            # Other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings, proper time rate) are set by default
-            doppler_observation_settings = observation.one_way_doppler_instantaneous(Link_Definition_Object)
+             # Use: observation.one_way_doppler_instantaneous to create a OneWayDopplerObservationSettings object (only required Link_Definition_Object argument is passed)
+             # Other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings, proper time rate) are set by default
+             doppler_observation_settings = observation.one_way_doppler_instantaneous(Link_Definition_Object)
 
-            # Show that it is an OneWayDopplerObservationSettings object.
-            print(doppler_observation_settings)
-
-
+             # Show that it is an OneWayDopplerObservationSettings object.
+             print(doppler_observation_settings)
 
 
-     )doc" );
+
+
+      )doc" );
 
     py::class_< tom::NWayRangeObservationSettings,
                 std::shared_ptr< tom::NWayRangeObservationSettings >,
@@ -863,54 +858,52 @@ Examples
             "LightTimeConvergenceCriteria",
             R"doc(
 
-        Base class to define criteria of light time convergence.
+         Base class to define criteria of light time convergence.
 
-        Base class to define criteria of light time convergence.
-        This class is not used for calculations of corrections, but is used for the purpose of defining the light time convergence criteria.
-        Specific light time convergence criteria must be defined using an object derived from this class.
-        Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.light_time_convergence_settings` function.
+         Base class to define criteria of light time convergence.
+         This class is not used for calculations of corrections, but is used for the purpose of defining the light time convergence criteria.
+         Specific light time convergence criteria must be defined using an object derived from this class.
+         Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.light_time_convergence_settings` function.
 
-        Examples
-        --------
-        .. code-block:: python
+         Examples
+         --------
+         .. code-block:: python
 
-            # Code snippet to show the creation of a LightTimeConvergenceCriteria object
-            from tudatpy.numerical_simulation.estimation_setup import observation
+             # Code snippet to show the creation of a LightTimeConvergenceCriteria object
+             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Create Default Light Time Convergence Settings (no args specified = setting default arguments)
-            light_time_convergence_settings = observation.light_time_convergence_settings()
+             # Create Default Light Time Convergence Settings (no args specified = setting default arguments)
+             light_time_convergence_settings = observation.light_time_convergence_settings()
 
-            # Show that it is an LightTimeConvergenceCriteria object.
-            print(light_time_convergence_settings)
-
-
-
-
-     )doc" );
-
-    py::enum_< tom::LightTimeFailureHandling >( m,
-                                                "LightTimeFailureHandling",
-                                                R"doc(
-
-        Enumeration of behaviour when failing to converge light-time with required settings.
-
-Examples
---------
-.. code-block:: python
-
-    # Code snippet to print all available Light Time Failure Handling Types
-    from tudatpy.numerical_simulation import estimation_setup
-
-    num_LightTimeFailureHandling_types = len(estimation_setup.observation.LightTimeFailureHandling.__members__)
-    print(f'The length of all available Tudatpy Light Time Failure Handling Types is: {num_LightTimeFailureHandling_types}')
-
-    # Print all available Observation Viability Types using the "name" property
-    for i in range(num_LightTimeFailureHandling_types):
-        print(i, estimation_setup.observation.LightTimeFailureHandling(i).name)
+             # Show that it is an LightTimeConvergenceCriteria object.
+             print(light_time_convergence_settings)
 
 
 
-     )doc" )
+
+      )doc" );
+
+    py::enum_< tom::LightTimeFailureHandling >( m, "LightTimeFailureHandling", R"doc(
+
+         Enumeration of behaviour when failing to converge light-time with required settings.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code snippet to print all available Light Time Failure Handling Types
+     from tudatpy.numerical_simulation import estimation_setup
+
+     num_LightTimeFailureHandling_types = len(estimation_setup.observation.LightTimeFailureHandling.__members__)
+     print(f'The length of all available Tudatpy Light Time Failure Handling Types is: {num_LightTimeFailureHandling_types}')
+
+     # Print all available Observation Viability Types using the "name" property
+     for i in range(num_LightTimeFailureHandling_types):
+         print(i, estimation_setup.observation.LightTimeFailureHandling(i).name)
+
+
+
+      )doc" )
             .value( "accept_without_warning",
                     tom::LightTimeFailureHandling::accept_without_warning )
             .value( "print_warning_and_accept",
@@ -926,67 +919,67 @@ Examples
            py::arg( "failure_handling" ) = tom::accept_without_warning,
            R"doc(
 
-Function for creating convergence settings for solving the light-time equation.
+ Function for creating convergence settings for solving the light-time equation.
 
-Function for creating convergence settings for solving the light-time equation. Computing the light time
-:math:`s=t_{R}-t_{T}` between two receiver :math:`R` and transmiter :math:`T` requires the iterative
-solution of the following equation:
+ Function for creating convergence settings for solving the light-time equation. Computing the light time
+ :math:`s=t_{R}-t_{T}` between two receiver :math:`R` and transmitter :math:`T` requires the iterative
+ solution of the following equation:
 
-.. math::
-    t_{R} - t_{T} = c\left(|\mathbf{r}_{R}(t_{R}) - \mathbf{r}_{T}(t_{T})| + \Delta s(t_{R}, t_{T}, \mathbf{r}_{R}(t_{R}), \mathbf{r}_{T}(t_{T}))\right)
+ .. math::
+     t_{R} - t_{T} = c\left(|\mathbf{r}_{R}(t_{R}) - \mathbf{r}_{T}(t_{T})| + \Delta s(t_{R}, t_{T}, \mathbf{r}_{R}(t_{R}), \mathbf{r}_{T}(t_{T}))\right)
 
-where either the reception time :math:`t_{R}` or the transmission time :math:`t_{T}` is kept fixed (reference link end time). The term :math:`\Delta s` contains any
-deviations in the light-time from straight-line propagation at speed of light (relativistic corrections, media corrections, etc.). The algorithm starts
-at :math:`t_{R}=t_{T}`, and uses this to evaluate the right-hand side of the above equation. This leads to a new value of :math:`t_{R}` or :math:`t_{T}` (depending on which is kept fixed)
-and the right-hand side is re-evaluated in a new iteration. The input to this function defines the settings for when the iteration will terminate.
+ where either the reception time :math:`t_{R}` or the transmission time :math:`t_{T}` is kept fixed (reference link end time). The term :math:`\Delta s` contains any
+ deviations in the light-time from straight-line propagation at speed of light (relativistic corrections, media corrections, etc.). The algorithm starts
+ at :math:`t_{R}=t_{T}`, and uses this to evaluate the right-hand side of the above equation. This leads to a new value of :math:`t_{R}` or :math:`t_{T}` (depending on which is kept fixed)
+ and the right-hand side is re-evaluated in a new iteration. The input to this function defines the settings for when the iteration will terminate.
 
-Parameters
-----------
-iterate_corrections : bool, default = False
-    Boolean denoting whether the terms :math:`\Delta s` are recomputed at each iteration or not. If false, the corrections are calculated only on the first iteration. Afterwards, the value
-    is kept fixed until convergence. Once preliminarily converged, the algorithm recomputes :math:`\Delta s`, and continues the iteration (until proper convergence) while now recomputing
-    :math:`\Delta s` each iteration. Setting this input to false is typically safe, and is computationally more efficient.
+ Parameters
+ ----------
+ iterate_corrections : bool, default = False
+     Boolean denoting whether the terms :math:`\Delta s` are recomputed at each iteration or not. If false, the corrections are calculated only on the first iteration. Afterwards, the value
+     is kept fixed until convergence. Once preliminarily converged, the algorithm recomputes :math:`\Delta s`, and continues the iteration (until proper convergence) while now recomputing
+     :math:`\Delta s` each iteration. Setting this input to false is typically safe, and is computationally more efficient.
 
-maximum_number_of_iterations : int, default = 50
-    Maximum number of iterations taken by the algorithm. If this number of iterations is reached without convergence (as defined by ``absolute_tolerance`` input),
-    the behaviour of the algorithm is defined by the ``failure_handling`` input.
+ maximum_number_of_iterations : int, default = 50
+     Maximum number of iterations taken by the algorithm. If this number of iterations is reached without convergence (as defined by ``absolute_tolerance`` input),
+     the behaviour of the algorithm is defined by the ``failure_handling`` input.
 
-absolute_tolerance : float, default = nan
-    Difference in :math:`t_{R}-t_{T}` between two consecutive iterataions below which the algorithm is considered to be converged. Default value is nan, which means the default value is taken.
-    The default value depends on the time representation used (1 ps for float; 1 fs for Time class)
+ absolute_tolerance : float, default = nan
+     Difference in :math:`t_{R}-t_{T}` between two consecutive iterations below which the algorithm is considered to be converged. Default value is nan, which means the default value is taken.
+     The default value depends on the time representation used (1 ps for float; 1 fs for Time class)
 
-failure_handling : LightTimeFailureHandling, default = accept_without_warning
-    Input defines behaviour when failing to converge within the required number of iterations. NOTE: the default value should be overridden for high-accuracy applications
+ failure_handling : LightTimeFailureHandling, default = accept_without_warning
+     Input defines behaviour when failing to converge within the required number of iterations. NOTE: the default value should be overridden for high-accuracy applications
 
-Returns
--------
-:class:`LightTimeConvergenceCriteria`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria` with the required settings.
+ Returns
+ -------
+ :class:`LightTimeConvergenceCriteria`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria` with the required settings.
 
-Examples
---------
-.. code-block:: python
+ Examples
+ --------
+ .. code-block:: python
 
-    # Code Snippet to showcase the use of the light_time_convergence_settings function
-    from tudatpy.numerical_simulation.estimation_setup import observation
+     # Code Snippet to showcase the use of the light_time_convergence_settings function
+     from tudatpy.numerical_simulation.estimation_setup import observation
 
-    # The light_time_convergence_settings function can be used with default inputs as just:
-    light_time_convergence_settings = observation.light_time_convergence_settings()
-    # A LightTimeConvergenceCriteria object is returned
-    print(light_time_convergence_settings)
+     # The light_time_convergence_settings function can be used with default inputs as just:
+     light_time_convergence_settings = observation.light_time_convergence_settings()
+     # A LightTimeConvergenceCriteria object is returned
+     print(light_time_convergence_settings)
 
-    # Users can also specify the following input arguments:
-    # iterate_corrections, maximum_number_of_iterations, absolute_tolerance, failure_handling.
-    # Let's set the failure_handling argument to LightTimeFailureHandling.print_warning_and_accept (default was LightTimeFailureHandling.accept_without_warning)
-    light_time_convergence_settings = observation.light_time_convergence_settings(
-        failure_handling = observation.LightTimeFailureHandling.print_warning_and_accept
-    )
-    # Again, a LightTimeConvergenceCriteria object is returned
-    print(light_time_convergence_settings)
+     # Users can also specify the following input arguments:
+     # iterate_corrections, maximum_number_of_iterations, absolute_tolerance, failure_handling.
+     # Let's set the failure_handling argument to LightTimeFailureHandling.print_warning_and_accept (default was LightTimeFailureHandling.accept_without_warning)
+     light_time_convergence_settings = observation.light_time_convergence_settings(
+         failure_handling = observation.LightTimeFailureHandling.print_warning_and_accept
+     )
+     # Again, a LightTimeConvergenceCriteria object is returned
+     print(light_time_convergence_settings)
 
 
 
-    )doc" );
+     )doc" );
 
     m.def( "one_way_range",
            &tom::oneWayRangeSettings,
@@ -998,72 +991,72 @@ Examples
                    std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for a one-way range observable.
+ Function for creating settings for a one-way range observable.
 
-Function for creating observation model settings of one-way range type observables, for a single link definition. The associated observation model creates
-a single-valued observable :math:`h_{_{\text{1-range}}}` as follows (in the unbiased case):
+ Function for creating observation model settings of one-way range type observables, for a single link definition. The associated observation model creates
+ a single-valued observable :math:`h_{_{\text{1-range}}}` as follows (in the unbiased case):
 
-.. math::
-   h_{_{\text{1-range}}}(t_{R},t_{T})=|\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})| + \Delta s
+ .. math::
+    h_{_{\text{1-range}}}(t_{R},t_{T})=|\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})| + \Delta s
 
-where :math:`\mathbf{r}_{R}`, :math:`\mathbf{r}_{T}`, :math:`t_{R}` and :math:`t_{T}` denote the position function of receiver and transmitter, and evaluation time
-of receiver and transmitter. The term :math:`\Delta s` denotes light-time corrections due to e.g relativistic, atmospheric effects (as defined by the ``light_time_correction_settings`` input).
-The transmission and reception time are related to the light-time :math:`T=t_{R}-t_{T}`, which is in turn related to the one-way range as :math:`T=h/c`
-As a result, the calculation of the one-way range (and light-time) requires the iterative solution of the equation:
+ where :math:`\mathbf{r}_{R}`, :math:`\mathbf{r}_{T}`, :math:`t_{R}` and :math:`t_{T}` denote the position function of receiver and transmitter, and evaluation time
+ of receiver and transmitter. The term :math:`\Delta s` denotes light-time corrections due to e.g relativistic, atmospheric effects (as defined by the ``light_time_correction_settings`` input).
+ The transmission and reception time are related to the light-time :math:`T=t_{R}-t_{T}`, which is in turn related to the one-way range as :math:`T=h/c`
+ As a result, the calculation of the one-way range (and light-time) requires the iterative solution of the equation:
 
-.. math::
-   t_{R}-t_{T}=c\left(|\mathbf{r}_{R}(t_{R})-\mathbf{r}(t_{R})| + \Delta s\right)
+ .. math::
+    t_{R}-t_{T}=c\left(|\mathbf{r}_{R}(t_{R})-\mathbf{r}(t_{R})| + \Delta s\right)
 
-The method for the iterative solution is described in the :func:`light_time_convergence_settings` entry
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires the
-    `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
-
-light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
-    List of corrections for the light-time that are to be used. Default is none, which will result
-    in the signal being modelled as moving in a straight line with the speed of light
-
-bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is None (unbiased observation)
-
-light_time_convergence_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the one-way observable.
+ The method for the iterative solution is described in the :func:`light_time_convergence_settings` entry
 
 
-Examples
---------
-.. code-block:: python
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires the
+     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
 
-    # Code Snippet to showcase the use of the one_way_range function
-    from tudatpy.numerical_simulation.estimation_setup import observation
+ light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
 
-    # Create Link Ends dictionary
-    link_ends = dict()
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+ bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is None (unbiased observation)
 
-    # Create a Link Definition Object from link_ends dictionary. This will be the input to the function.
-    Link_Definition_Object = observation.LinkDefinition(link_ends)
+ light_time_convergence_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
 
-    # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
-    # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
-    observation_settings = observation.one_way_range(Link_Definition_Object)
-
-    # Show that this returns an ObservationSettings object.
-    print(observation_settings)
-
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the one-way observable.
 
 
-    )doc" );
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the one_way_range function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+
+     # Create Link Ends dictionary
+     link_ends = dict()
+     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+     # Create a Link Definition Object from link_ends dictionary. This will be the input to the function.
+     Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+     # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
+     # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
+     observation_settings = observation.one_way_range(Link_Definition_Object)
+
+     # Show that this returns an ObservationSettings object.
+     print(observation_settings)
+
+
+
+     )doc" );
 
     m.def( "two_way_range",
            &tom::twoWayRangeSimple,
@@ -1075,61 +1068,61 @@ Examples
                    std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for a two-way range observable.
+ Function for creating settings for a two-way range observable.
 
-Same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range`, with :math:`n=2`. This function is provided
-for convenience.
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires the
-    `transmitter`, `retransmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined
-
-light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
-    List of corrections for the light-time that are to be used for each constituent one-way range. Default is none, which will result
-    in the signal being modelled as moving in a straight line with the speed of light
-
-bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
-    Note that only one bias setting is applied to the n-way observable.
-
-light_time_convergence_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the two_way_range function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-
-    # two_way_range() takes a Link Definition Object as input to the function.
-    # Note: as for this case, transmitter, retransmitter and receiver are required to define the Link Ends dictionary
-    link_ends = dict()
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.retransmitter] = observation.body_origin_link_end_id("Delfi-C3")
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-
-    # Create the LinkDefinition object
-    Link_Definition_Object = observation.LinkDefinition(link_ends)
-
-    # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
-    # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
-    observation_settings = observation.two_way_range(Link_Definition_Object)
-
-    # Show that two_way_range() returns an NWayRangeObservationSettings object.
-    print(observation_settings)
+ Same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range`, with :math:`n=2`. This function is provided
+ for convenience.
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires the
+     `transmitter`, `retransmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined
 
-    )doc" );
+ light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used for each constituent one-way range. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
+
+ bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
+     Note that only one bias setting is applied to the n-way observable.
+
+ light_time_convergence_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the two_way_range function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+
+     # two_way_range() takes a Link Definition Object as input to the function.
+     # Note: as for this case, transmitter, retransmitter and receiver are required to define the Link Ends dictionary
+     link_ends = dict()
+     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
+     link_ends[observation.retransmitter] = observation.body_origin_link_end_id("Delfi-C3")
+     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+
+     # Create the LinkDefinition object
+     Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+     # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
+     # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
+     observation_settings = observation.two_way_range(Link_Definition_Object)
+
+     # Show that two_way_range() returns an NWayRangeObservationSettings object.
+     print(observation_settings)
+
+
+
+     )doc" );
 
     m.def( "two_way_range_from_one_way_links",
            &tom::twoWayRange,
@@ -1137,54 +1130,54 @@ Examples
            py::arg( "bias_settings" ) = nullptr,
            R"doc(
 
-Function for creating settings for a two-way range observable.
+ Function for creating settings for a two-way range observable.
 
-Same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range_from_one_way_links`, with :math:`n=2`. This function is provided
-for convenience.
-
-
-Parameters
-----------
-one_way_range_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` ]
-    List of observation model settings of size two, with the first entry the one-way range settings for the uplink, and the second entry the one-way range settings for the downlink.
-    The ``LinkDefinition`` of this two-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
-    ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` and ``receiver`` are defined by the
-    ``transmitter`` and ``receiver`` of the second entry of this list.
-
-bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
-    Note that only one bias setting is applied to the n-way observable.
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the two_way_range_from_one_way_links function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-
-    # two_way_range_from_one_way_links() takes a list of ObservationSettings objects
-    # Note: as for this case, transmitter, retransmitter and receiver are required to define the Link Ends dictionary
-    link_ends = dict()
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.retransmitter] = observation.body_origin_link_end_id("Delfi-C3")
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-
-    # Create the LinkDefinition object to be used as input
-    Link_Definition_Object = observation.LinkDefinition(link_ends) # define LinkDefinition object
-    two_way_range_observation_settings_list = [observation.two_way_range(Link_Definition_Object)] # define (minimal) NWayRangeObservationSettings object
-    two_way_range_one_way_link_settings = observation.two_way_range_from_one_way_links(two_way_range_observation_settings_list)
-
-    # Show that two_way_range_from_one_way_links() returns an NWayRangeObservationSettings object.
-    print(two_way_range_one_way_link_settings)
+ Same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range_from_one_way_links`, with :math:`n=2`. This function is provided
+ for convenience.
 
 
+ Parameters
+ ----------
+ one_way_range_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` ]
+     List of observation model settings of size two, with the first entry the one-way range settings for the uplink, and the second entry the one-way range settings for the downlink.
+     The ``LinkDefinition`` of this two-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
+     ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` and ``receiver`` are defined by the
+     ``transmitter`` and ``receiver`` of the second entry of this list.
 
-    )doc" );
+ bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
+     Note that only one bias setting is applied to the n-way observable.
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the two_way_range_from_one_way_links function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+
+     # two_way_range_from_one_way_links() takes a list of ObservationSettings objects
+     # Note: as for this case, transmitter, retransmitter and receiver are required to define the Link Ends dictionary
+     link_ends = dict()
+     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
+     link_ends[observation.retransmitter] = observation.body_origin_link_end_id("Delfi-C3")
+     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+
+     # Create the LinkDefinition object to be used as input
+     Link_Definition_Object = observation.LinkDefinition(link_ends) # define LinkDefinition object
+     two_way_range_observation_settings_list = [observation.two_way_range(Link_Definition_Object)] # define (minimal) NWayRangeObservationSettings object
+     two_way_range_one_way_link_settings = observation.two_way_range_from_one_way_links(two_way_range_observation_settings_list)
+
+     # Show that two_way_range_from_one_way_links() returns an NWayRangeObservationSettings object.
+     print(two_way_range_one_way_link_settings)
+
+
+
+     )doc" );
 
     m.def( "n_way_range",
            &tom::nWayRangeSimple,
@@ -1196,69 +1189,69 @@ Examples
                    std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for a n-way range observable.
+ Function for creating settings for a n-way range observable.
 
-Function for creating observation model settings of n-way range type observables, for a single link definition. The associated observation model creates
-a single-valued observable :math:`h_{_{\text{N-range}}}` by combining together a series :math:`n` one-way range observations
-(see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`). By default, the reception time of the :math:`i^{th}` one-way range is set as the
-transmission time of the :math:`(i+1)^{th}` one-way range. A retransmission delay may be defined by ancilliary settings (see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings`) when creating observation
-simulation setings.
+ Function for creating observation model settings of n-way range type observables, for a single link definition. The associated observation model creates
+ a single-valued observable :math:`h_{_{\text{N-range}}}` by combining together a series :math:`n` one-way range observations
+ (see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`). By default, the reception time of the :math:`i^{th}` one-way range is set as the
+ transmission time of the :math:`(i+1)^{th}` one-way range. A retransmission delay may be defined by ancilliary settings (see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings`) when creating observation
+ simulation setings.
 
-For this function, the settings for each constituent one-way range (with the exception of the link end identifiers) are equal.
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires the
-    `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
-    as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
-
-light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
-    List of corrections for the light-time that are to be used for each constituent one-way range. Default is none, which will result
-    in the signal being modelled as moving in a straight line with the speed of light
-
-bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
-    Note that only one bias setting is applied to the n-way observable.
-
-light_time_convergence_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
+ For this function, the settings for each constituent one-way range (with the exception of the link end identifiers) are equal.
 
 
-Examples
---------
-.. code-block:: python
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires the
+     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
 
-    # Code Snippet to showcase the use of the n_way_range function
-    from tudatpy.numerical_simulation.estimation_setup import observation
+ light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used for each constituent one-way range. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
 
-    # Create Link Ends dictionary
-    link_ends = dict()
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+ bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
+     Note that only one bias setting is applied to the n-way observable.
 
-    # n_way_range() takes a Link Definition Object as input to the function.
-    # Let's create it from link_ends
-    Link_Definition_Object = observation.LinkDefinition(link_ends)
+ light_time_convergence_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
 
-    # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
-    # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
-    observation_settings = observation.n_way_range(Link_Definition_Object)
-
-    # Show that n_way_range() returns an NWayRangeObservationSettings object.
-    print(observation_settings)
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
 
 
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the n_way_range function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+
+     # Create Link Ends dictionary
+     link_ends = dict()
+     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+     # n_way_range() takes a Link Definition Object as input to the function.
+     # Let's create it from link_ends
+     Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+     # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
+     # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
+     observation_settings = observation.n_way_range(Link_Definition_Object)
+
+     # Show that n_way_range() returns an NWayRangeObservationSettings object.
+     print(observation_settings)
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "n_way_range_from_one_way_links",
            &tom::nWayRange,
@@ -1266,55 +1259,55 @@ Examples
            py::arg( "bias_settings" ) = nullptr,
            R"doc(
 
-Function for creating settings for a n-way range observable.
+ Function for creating settings for a n-way range observable.
 
-Function for creating observation model settings of n-way range type observables, for a single link definition. The
-implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range`, with the difference
-that the constituent one-way ranges may have different settings.s
-
-
-Parameters
-----------
-one_way_range_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` ]
-    List of observation model settings for each of the :math:`n` constituent one-way ranges of the n-way range observable.
-    The ``LinkDefinition`` of this n-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
-    ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` (n-1) and ``receiver`` are defined by the
-    ``transmitter`` and ``receiver`` of the :math:`\text{n}^{th}` entry of this list.
-
-bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
-    Note that only one bias setting is applied to the n-way observable.
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the n_way_range_from_one_way_links function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-
-    # Create Link Ends dictionary
-    link_ends = dict()
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
-
-    # n_way_range_from_one_way_links() takes 1) a list of ObservationSettings objects and 2) bias as input (default is None)
-    # Let's create it.
-    Link_Definition_Object = observation.LinkDefinition(link_ends) # define LinkDefinition object
-    n_way_observation_settings_list = [observation.n_way_range(Link_Definition_Object)] # define (minimal) ObservationSettings object
-
-    n_way_from_one_link_observation_settings = observation.n_way_range_from_one_way_links(n_way_observation_settings_list, bias_settings = None)
-
-    # Show that n_way_range_from_one_way_links() returns an NWayRangeObservationSettings object.
-    print(n_way_from_one_link_observation_settings)
+ Function for creating observation model settings of n-way range type observables, for a single link definition. The
+ implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range`, with the difference
+ that the constituent one-way ranges may have different settings.s
 
 
+ Parameters
+ ----------
+ one_way_range_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` ]
+     List of observation model settings for each of the :math:`n` constituent one-way ranges of the n-way range observable.
+     The ``LinkDefinition`` of this n-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
+     ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` (n-1) and ``receiver`` are defined by the
+     ``transmitter`` and ``receiver`` of the :math:`\text{n}^{th}` entry of this list.
 
-    )doc" );
+ bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
+     Note that only one bias setting is applied to the n-way observable.
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the n_way_range_from_one_way_links function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+
+     # Create Link Ends dictionary
+     link_ends = dict()
+     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+     # n_way_range_from_one_way_links() takes 1) a list of ObservationSettings objects and 2) bias as input (default is None)
+     # Let's create it.
+     Link_Definition_Object = observation.LinkDefinition(link_ends) # define LinkDefinition object
+     n_way_observation_settings_list = [observation.n_way_range(Link_Definition_Object)] # define (minimal) ObservationSettings object
+
+     n_way_from_one_link_observation_settings = observation.n_way_range_from_one_way_links(n_way_observation_settings_list, bias_settings = None)
+
+     # Show that n_way_range_from_one_way_links() returns an NWayRangeObservationSettings object.
+     print(n_way_from_one_link_observation_settings)
+
+
+
+     )doc" );
 
     m.def( "angular_position",
            &tom::angularPositionSettings,
@@ -1326,49 +1319,49 @@ Examples
                    std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for an angular position observable.
+ Function for creating settings for an angular position observable.
 
-Function for creating observation model settings of angular position type observables (as right ascension :math:`\alpha` and declination :math:`\delta`),
-for a single link definition. The associated observation model creates an observable :math:`\mathbf{h}_{_{\text{ang.pos.}}}` of type two as follows (in the unbiased case):
+ Function for creating observation model settings of angular position type observables (as right ascension :math:`\alpha` and declination :math:`\delta`),
+ for a single link definition. The associated observation model creates an observable :math:`\mathbf{h}_{_{\text{ang.pos.}}}` of type two as follows (in the unbiased case):
 
-.. math::
-   \Delta\mathbf{r}=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})\\
-   \tan\alpha=\frac{\Delta r_{y}}{\Delta r_{x}}\\
-   \delta=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
-   \mathbf{h}_{_{\text{ang.pos.}}} = [\alpha;\delta]
+ .. math::
+    \Delta\mathbf{r}=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})\\
+    \tan\alpha=\frac{\Delta r_{y}}{\Delta r_{x}}\\
+    \delta=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
+    \mathbf{h}_{_{\text{ang.pos.}}} = [\alpha;\delta]
 
-The relative position vector :math:`\Delta\mathbf{r}` is computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`
-The angular position observable can be used for optical astrometry, VLBI, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
-environment.
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires the
-    `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
-
-light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
-    List of corrections for the light-time that are to be used. Default is none, which will result
-    in the signal being modelled as moving in a straight line with the speed of light
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-Returns
--------
-:class:`ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the angular position observable.
+ The relative position vector :math:`\Delta\mathbf{r}` is computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`
+ The angular position observable can be used for optical astrometry, VLBI, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
+ environment.
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires the
+     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+
+ light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
+
+ Returns
+ -------
+ :class:`ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the angular position observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "relative_angular_position",
            &tom::relativeAngularPositionSettings,
@@ -1380,49 +1373,49 @@ Returns
                    std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for an angular position observable.
+ Function for creating settings for an angular position observable.
 
-Function for creating observation model settings of angular position type observables (as right ascension :math:`\alpha` and declination :math:`\delta`),
-for a single link definition. The associated observation model creates an observable :math:`\mathbf{h}_{_{\text{ang.pos.}}}` of type two as follows (in the unbiased case):
+ Function for creating observation model settings of angular position type observables (as right ascension :math:`\alpha` and declination :math:`\delta`),
+ for a single link definition. The associated observation model creates an observable :math:`\mathbf{h}_{_{\text{ang.pos.}}}` of type two as follows (in the unbiased case):
 
-.. math::
-   \Delta\mathbf{r}=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})\\
-   \tan\alpha=\frac{\Delta r_{y}}{\Delta r_{x}}\\
-   \delta=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
-   \mathbf{h}_{_{\text{ang.pos.}}} = [\alpha;\delta]
+ .. math::
+    \Delta\mathbf{r}=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})\\
+    \tan\alpha=\frac{\Delta r_{y}}{\Delta r_{x}}\\
+    \delta=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
+    \mathbf{h}_{_{\text{ang.pos.}}} = [\alpha;\delta]
 
-The relative position vector :math:`\Delta\mathbf{r}` is computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`
-The angular position observable can be used for optical astrometry, VLBI, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
-environment.
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires the
-    `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
-
-light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
-    List of corrections for the light-time that are to be used. Default is none, which will result
-    in the signal being modelled as moving in a straight line with the speed of light
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-Returns
--------
-:class:`ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the angular position observable.
+ The relative position vector :math:`\Delta\mathbf{r}` is computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`
+ The angular position observable can be used for optical astrometry, VLBI, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
+ environment.
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires the
+     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+
+ light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
+
+ Returns
+ -------
+ :class:`ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the angular position observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "cartesian_position",
            &tom::positionObservableSettings,
@@ -1430,34 +1423,34 @@ Returns
            py::arg( "bias_settings" ) = nullptr,
            R"doc(
 
-Function for creating settings for a Cartesian position observable.
+ Function for creating settings for a Cartesian position observable.
 
-Function for creating observation model settings of Cartesian position type observables.
-Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
-This observable provides the inertial (w.r.t. global frame origin) Cartesian position of the `observed_body` defined by the `link_ends` input.
-The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` position
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires that the
-    `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-Returns
--------
-:class:`ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian position observable.
+ Function for creating observation model settings of Cartesian position type observables.
+ Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
+ This observable provides the inertial (w.r.t. global frame origin) Cartesian position of the `observed_body` defined by the `link_ends` input.
+ The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` position
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires that the
+     `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ Returns
+ -------
+ :class:`ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian position observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "relative_cartesian_position",
            &tom::relativePositionObservableSettings,
@@ -1465,34 +1458,34 @@ Returns
            py::arg( "bias_settings" ) = nullptr,
            R"doc(
 
-Function for creating settings for a Cartesian position observable.
+ Function for creating settings for a Cartesian position observable.
 
-Function for creating observation model settings of Cartesian position type observables.
-Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
-This observable provides the inertial (w.r.t. global frame origin) Cartesian position of the `observed_body` defined by the `link_ends` input.
-The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` position
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires that the
-    `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-Returns
--------
-:class:`ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian position observable.
+ Function for creating observation model settings of Cartesian position type observables.
+ Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
+ This observable provides the inertial (w.r.t. global frame origin) Cartesian position of the `observed_body` defined by the `link_ends` input.
+ The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` position
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires that the
+     `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ Returns
+ -------
+ :class:`ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian position observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "cartesian_velocity",
            &tom::velocityObservableSettings,
@@ -1500,34 +1493,34 @@ Returns
            py::arg( "bias_settings" ) = nullptr,
            R"doc(
 
-Function for creating settings for a Cartesian velocity observable.
+ Function for creating settings for a Cartesian velocity observable.
 
-Function for creating observation model settings of Cartesian position type observables.
-Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
-This observable provides the inertial (w.r.t. global frame origin) Cartesian velocity of the `observed_body` defined by the `link_ends` input.
-The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` velocity
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires that the
-    `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-Returns
--------
-:class:`ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian velocity observable.
+ Function for creating observation model settings of Cartesian position type observables.
+ Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
+ This observable provides the inertial (w.r.t. global frame origin) Cartesian velocity of the `observed_body` defined by the `link_ends` input.
+ The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` velocity
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires that the
+     `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ Returns
+ -------
+ :class:`ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian velocity observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "euler_angles_313",
            &tom::eulerAngle313ObservableSettings,
@@ -1548,66 +1541,66 @@ Returns
            py::arg( "normalized_with_speed_of_light" ) = false,
            R"doc(
 
-Function for creating settings for a one-way instantaneous Doppler observable.
+ Function for creating settings for a one-way instantaneous Doppler observable.
 
-Function for creating settings for a one-way instantaneous Doppler observable for a single link definition. The associated observation model creates
-a single-valued observable :math:`h_{_{\text{1-Dopp.}}}` as follows (in the unbiased case):
+ Function for creating settings for a one-way instantaneous Doppler observable for a single link definition. The associated observation model creates
+ a single-valued observable :math:`h_{_{\text{1-Dopp.}}}` as follows (in the unbiased case):
 
-.. math::
-   h_{_{\text{1-Dopp.}}}=c\left(\frac{d\tau_{T}}{dt_{T}}\frac{t_{T}}{dt_{R}}\frac{dt_{R}}{d\tau_{R}}-1\right)
+ .. math::
+    h_{_{\text{1-Dopp.}}}=c\left(\frac{d\tau_{T}}{dt_{T}}\frac{t_{T}}{dt_{R}}\frac{dt_{R}}{d\tau_{R}}-1\right)
 
-where :math:`t` and :math:`\tau` denote coordinate and proper time of the transmitter T and receiver R, respectively.
-The receiver and transmitter position and coordinate time are computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`.
-The detailed mathematical implementation are described in: `Moyer, T.D. (2000) Formulation for Observed and Computed Values of Deep Space Network Data Types for Navigation. Monograph 2, Deep Space Communications and Navigation Series, JPL Publication 00-7 <https://www.scirp.org/reference/referencespapers?referenceid=1827210>`_.
+ where :math:`t` and :math:`\tau` denote coordinate and proper time of the transmitter T and receiver R, respectively.
+ The receiver and transmitter position and coordinate time are computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`.
+ The detailed mathematical implementation are described in: `Moyer, T.D. (2000) Formulation for Observed and Computed Values of Deep Space Network Data Types for Navigation. Monograph 2, Deep Space Communications and Navigation Series, JPL Publication 00-7 <https://www.scirp.org/reference/referencespapers?referenceid=1827210>`_.
 
-This observable represents the 'instantaneous (non-integrated)' Doppler observable, as obtained from open-loop observations.
-It should *not* be used for the modelling of the typical closed-loop observations used in deep space tracking (for which the
-:func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` should be used)
+ This observable represents the 'instantaneous (non-integrated)' Doppler observable, as obtained from open-loop observations.
+ It should *not* be used for the modelling of the typical closed-loop observations used in deep space tracking (for which the
+ :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` should be used)
 
-The coordinate
-time derivative :math:`\frac{t_{A}}{dt_{B}}` is always computed when generating this observable. Settings for the proper time
-rates :math:`\frac{d\tau}{dt}` can be specified by the user through the ``transmitter_proper_time_rate_settings`` and ``receiver_proper_time_rate_settings``
-arguments (inputs, see Parameters). Whenever these are left empty, the proper time rates are omitted (set to 1.0).
+ The coordinate
+ time derivative :math:`\frac{t_{A}}{dt_{B}}` is always computed when generating this observable. Settings for the proper time
+ rates :math:`\frac{d\tau}{dt}` can be specified by the user through the ``transmitter_proper_time_rate_settings`` and ``receiver_proper_time_rate_settings``
+ arguments (inputs, see Parameters). Whenever these are left empty, the proper time rates are omitted (set to 1.0).
 
-The observable may be non-dimensionalized by the speed of light :math:`c`, which results in the observable being equal to thee received and transmitted signal frequencies :math:`f_{R}/f_{T}-1`.
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires that the
-    `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
-
-light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
-    List of corrections for the light-time that are to be used. Default is none, which will result
-    in the signal being modelled as moving in a straight line with the speed of light
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-transmitter_proper_time_rate_settings : :class:`DopplerProperTimeRateSettings`, default = None
-    Settings for computing the transmitter proper time rate :math:`\frac{d\tau}{dt}`, default is none (:math:`\frac{d\tau}{dt}=1`)
-
-receiver_proper_time_rate_settings : :class:`DopplerProperTimeRateSettings`, default = None
-    Settings for computing the receiver proper time rate :math:`\frac{d\tau}{dt}`, default is none (:math:`\frac{d\tau}{dt}=1`)
-
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-normalized_with_speed_of_light : bool, default = false
-    Option to non-dimensionalize the observable with speed of light :math:`c`
-
-Returns
--------
-:class:`OneWayDopplerObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`OneWayDopplerObservationSettings` class defining the settings for the one-way open doppler observable observable.
+ The observable may be non-dimensionalized by the speed of light :math:`c`, which results in the observable being equal to thee received and transmitted signal frequencies :math:`f_{R}/f_{T}-1`.
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires that the
+     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+
+ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ transmitter_proper_time_rate_settings : :class:`DopplerProperTimeRateSettings`, default = None
+     Settings for computing the transmitter proper time rate :math:`\frac{d\tau}{dt}`, default is none (:math:`\frac{d\tau}{dt}=1`)
+
+ receiver_proper_time_rate_settings : :class:`DopplerProperTimeRateSettings`, default = None
+     Settings for computing the receiver proper time rate :math:`\frac{d\tau}{dt}`, default is none (:math:`\frac{d\tau}{dt}=1`)
+
+ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
+
+ normalized_with_speed_of_light : bool, default = false
+     Option to non-dimensionalize the observable with speed of light :math:`c`
+
+ Returns
+ -------
+ :class:`OneWayDopplerObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`OneWayDopplerObservationSettings` class defining the settings for the one-way open doppler observable observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "two_way_doppler_instantaneous_from_one_way_links",
            py::overload_cast< const std::shared_ptr< tom::OneWayDopplerObservationSettings >,
@@ -1619,43 +1612,43 @@ Returns
            py::arg( "bias_settings" ) = nullptr,
            R"doc(
 
-Function for creating settings for a two-way instantaneous Doppler observable.
+ Function for creating settings for a two-way instantaneous Doppler observable.
 
 
-Function for creating settings for a two-way instantaneous Doppler observable for a single link definition. The
-implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.two_way_doppler_instantaneous`, with the difference
-that the constituent one-way ranges may have different settings.
+ Function for creating settings for a two-way instantaneous Doppler observable for a single link definition. The
+ implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.two_way_doppler_instantaneous`, with the difference
+ that the constituent one-way ranges may have different settings.
 
-The observable may be non-dimensionalized by the speed of light :math:`c` (in the constituent one-way Doppler observable settings),
-which results in the observable being equal to the received and transmitted signal frequencies :math:`f_{R}/f_{T}-1`.
-
-
-Parameters
-----------
-uplink_doppler_settings : :class:`OneWayDopplerObservationSettings`
-    Settings for uplink leg of one-way observable, created using :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_open_loop_doppler`
-
-downlink_doppler_settings : :class:`OneWayDopplerObservationSettings`
-    Settings for downlink leg of one-way observable, created using :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_open_loop_doppler`
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the full observation, default is none (unbiased observation). Note that,
-    even if no bias is applied to the two-way observable, the constituent one-way observables may still be biased.
-
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-Returns
--------
-:class:`TwoWayDopplerObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`TwoWayDopplerObservationSettings` class defining the settings for the two-way open doppler observable.
+ The observable may be non-dimensionalized by the speed of light :math:`c` (in the constituent one-way Doppler observable settings),
+ which results in the observable being equal to the received and transmitted signal frequencies :math:`f_{R}/f_{T}-1`.
 
 
+ Parameters
+ ----------
+ uplink_doppler_settings : :class:`OneWayDopplerObservationSettings`
+     Settings for uplink leg of one-way observable, created using :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_open_loop_doppler`
 
+ downlink_doppler_settings : :class:`OneWayDopplerObservationSettings`
+     Settings for downlink leg of one-way observable, created using :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_open_loop_doppler`
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the full observation, default is none (unbiased observation). Note that,
+     even if no bias is applied to the two-way observable, the constituent one-way observables may still be biased.
+
+ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
+
+ Returns
+ -------
+ :class:`TwoWayDopplerObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`TwoWayDopplerObservationSettings` class defining the settings for the two-way open doppler observable.
 
 
 
-    )doc" );
+
+
+
+     )doc" );
 
     m.def( "two_doppler_instantaneous",
            py::overload_cast<
@@ -1688,49 +1681,49 @@ Returns
                    std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for a one-way averaged Doppler observable.
+ Function for creating settings for a one-way averaged Doppler observable.
 
-Function for creating observation model settings for one-way averaged Doppler observables, for a single link definition. The associated observation model creates
-a single-valued observable :math:`h_{_{\text{1-\bar{Dopp}}}}` as follows (in the unbiased case):
+ Function for creating observation model settings for one-way averaged Doppler observables, for a single link definition. The associated observation model creates
+ a single-valued observable :math:`h_{_{\text{1-\bar{Dopp}}}}` as follows (in the unbiased case):
 
-.. math::
-   h_{_{\text{1-\bar{Dopp}}}}&=c\int_{t-\Delta t}^{t+\Delta t}\frac{t_{T}}{dt_{R}}d\bar{t}\\
-                             &=\frac{h_{_{\text{1-range}}}(t_{R}=t+\Delta t,t_{T})-h_{_{\text{1-range}}}(t_{R}=t,t_{T})}{\Delta t}
+ .. math::
+    h_{_{\text{1-\bar{Dopp}}}}&=c\int_{t-\Delta t}^{t+\Delta t}\frac{t_{T}}{dt_{R}}d\bar{t}\\
+                              &=\frac{h_{_{\text{1-range}}}(t_{R}=t+\Delta t,t_{T})-h_{_{\text{1-range}}}(t_{R}=t,t_{T})}{\Delta t}
 
-where, in the latter formulation (which is the one that is implemented), the observable is referenced to the receiver time. This averaged Doppler observable
-is computed as the difference of two one-way range observables (see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`),
-with the reference time shifted by :math:`\Delta t`. As such, it is sensitive to numerical errors for small :math:`\Delta t`
+ where, in the latter formulation (which is the one that is implemented), the observable is referenced to the receiver time. This averaged Doppler observable
+ is computed as the difference of two one-way range observables (see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`),
+ with the reference time shifted by :math:`\Delta t`. As such, it is sensitive to numerical errors for small :math:`\Delta t`
 
-The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires that the
-    `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
-
-light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
-    List of corrections for the light-time that are to be used. Default is none, which will result
-    in the signal being modelled as moving in a straight line with the speed of light
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-Returns
--------
-:class:`ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `OneWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+ The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires that the
+     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+
+ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
+
+ Returns
+ -------
+ :class:`ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `OneWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "two_way_doppler_averaged",
            py::overload_cast<
@@ -1747,43 +1740,43 @@ Returns
                    std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for an n-way averaged Doppler observable.
+ Function for creating settings for an n-way averaged Doppler observable.
 
-Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
-analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
-the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
+ Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implementation is
+ analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
+ the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
-The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires the
-    `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
-    as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
-
-light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
-    List of corrections for the light-time that are to be used. Default is none, which will result
-    in the signal being modelled as moving in a straight line with the speed of light
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+ The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires the
+     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
+
+ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "two_way_doppler_averaged_from_one_way_links",
            py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
@@ -1793,43 +1786,43 @@ Returns
            py::arg( "bias_settings" ) = nullptr,
            R"doc(
 
-Function for creating settings for an n-way averaged Doppler observable.
+ Function for creating settings for an n-way averaged Doppler observable.
 
-Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
-analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
-the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
+ Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
+ analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
+ the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
-The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires the
-    `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
-    as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
-
-light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
-    List of corrections for the light-time that are to be used. Default is none, which will result
-    in the signal being modelled as moving in a straight line with the speed of light
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+ The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires the
+     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
+
+ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "n_way_doppler_averaged",
            py::overload_cast<
@@ -1846,43 +1839,43 @@ Returns
                    std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for an n-way averaged Doppler observable.
+ Function for creating settings for an n-way averaged Doppler observable.
 
-Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
-analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
-the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
+ Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implementation is
+ analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
+ the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
-The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
-
-
-Parameters
-----------
-link_ends : LinkDefinition
-    Set of link ends that define the geometry of the observation. This observable requires the
-    `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
-    as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
-
-light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
-    List of corrections for the light-time that are to be used. Default is none, which will result
-    in the signal being modelled as moving in a straight line with the speed of light
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
-    Settings for convergence of the light-time
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+ The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
 
 
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires the
+     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
+
+ light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "n_way_doppler_averaged_from_one_way_links",
            py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >,
@@ -1895,35 +1888,35 @@ Returns
                    std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for an n-way averaged Doppler observable.
+ Function for creating settings for an n-way averaged Doppler observable.
 
-Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition.
-The implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_averaged`, with the difference
-that the constituent one-way range observables may have different settings.
-
-
-Parameters
-----------
-one_way_range_settings : List[ :class:`ObservationSettings` ]
-    List of observation model settings for each of the :math:`n` constituent one-way ranges of the n-way averaged range rate observable.
-    The ``LinkDefinition`` of this n-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
-    ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` (n-1) and ``receiver`` are defined by the
-    ``transmitter`` and ``receiver`` of the :math:`\text{n}^{th}` entry of this list.
-
-bias_settings : :class:`ObservationBiasSettings`, default = None
-    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+ Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition.
+ The implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_averaged`, with the difference
+ that the constituent one-way range observables may have different settings.
 
 
+ Parameters
+ ----------
+ one_way_range_settings : List[ :class:`ObservationSettings` ]
+     List of observation model settings for each of the :math:`n` constituent one-way ranges of the n-way averaged range rate observable.
+     The ``LinkDefinition`` of this n-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
+     ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` (n-1) and ``receiver`` are defined by the
+     ``transmitter`` and ``receiver`` of the :math:`\text{n}^{th}` entry of this list.
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "dsn_n_way_doppler_averaged",
            py::overload_cast<
@@ -1995,108 +1988,108 @@ Returns
             "LightTimeCorrectionSettings",
             R"doc(
 
-        Base class to define light time correction settings.
+         Base class to define light time correction settings.
 
-        Base class to define light time correction settings.
-        This class is not used for calculations of corrections, but is used for the purpose of defining the light time correction properties.
-        Specific light time correction settings must be defined using an object derived from this class.
+         Base class to define light time correction settings.
+         This class is not used for calculations of corrections, but is used for the purpose of defining the light time correction properties.
+         Specific light time correction settings must be defined using an object derived from this class.
 
-        Instances of this class are typically created via the
-        :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction` function
+         Instances of this class are typically created via the
+         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction` function
 
-        Examples
-        --------
-        .. code-block:: python
+         Examples
+         --------
+         .. code-block:: python
 
-            # Code snippet to show the creation of a LightTimeCorrectionSettings object
-            from tudatpy.numerical_simulation.estimation_setup import observation
+             # Code snippet to show the creation of a LightTimeCorrectionSettings object
+             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Create Link Ends dictionary
-            link_ends = dict()
-            link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+             # Create Link Ends dictionary
+             link_ends = dict()
+             link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
 
-            # Create a Link Definition Object from link_ends dictionary
-            Link_Definition_Object = observation.LinkDefinition(link_ends)
+             # Create a Link Definition Object from link_ends dictionary
+             Link_Definition_Object = observation.LinkDefinition(link_ends)
 
-            # Case 1: perturbing body (Earth) involved in the observations
-            # In this case, Earth is a receiver, so the body’s state will be evaluated at the reception time.
-            perturbing_body = ['Earth']
-            doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+             # Case 1: perturbing body (Earth) involved in the observations
+             # In this case, Earth is a receiver, so the body’s state will be evaluated at the reception time.
+             perturbing_body = ['Earth']
+             doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
 
-            # Show that it is a LightTimeCorrectionSettings object.
-            print(doppler_observation_settings)
+             # Show that it is a LightTimeCorrectionSettings object.
+             print(doppler_observation_settings)
 
-            # Case 2: perturbing body (Sun) not involved in the observations
-            # In this case, the body's state will be evaluated at the midpoint time between the transmission and reception events.
-            perturbing_body = ['Sun']
+             # Case 2: perturbing body (Sun) not involved in the observations
+             # In this case, the body's state will be evaluated at the midpoint time between the transmission and reception events.
+             perturbing_body = ['Sun']
 
-            # Use: observation.first_order_relativistic_light_time_correction to create a LightTimeCorrectionSettings object
-            # Note: first_order_relativistic_light_time_correction only requires the perturbing list of bodies to be passed as arguments
-            doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+             # Use: observation.first_order_relativistic_light_time_correction to create a LightTimeCorrectionSettings object
+             # Note: first_order_relativistic_light_time_correction only requires the perturbing list of bodies to be passed as arguments
+             doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
 
-            # Show that it is an LightTimeCorrectionSettings object.
-            print(doppler_observation_settings.transmitter_proper_time_rate_settings)
-            print(dir(doppler_observation_settings))
+             # Show that it is an LightTimeCorrectionSettings object.
+             print(doppler_observation_settings.transmitter_proper_time_rate_settings)
+             print(dir(doppler_observation_settings))
 
 
 
-     )doc" );
+      )doc" );
 
     m.def( "first_order_relativistic_light_time_correction",
            &tom::firstOrderRelativisticLightTimeCorrectionSettings,
            py::arg( "perturbing_bodies" ),
            R"doc(
 
-Function for creating settings for first-order relativistic light-time corrections.
+ Function for creating settings for first-order relativistic light-time corrections.
 
-Function for creating settings for first-order relativistic light-time corrections:  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
-:math:`c^{-2}` according to general relativity (e.g., Moyer, 2000). A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
+ Function for creating settings for first-order relativistic light-time corrections:  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
+ :math:`c^{-2}` according to general relativity (e.g., Moyer, 2000). A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
 
-* 1. **Perturbing Body as a Link End:**
-If the perturbing body (e.g., Earth) is directly involved in the observation (e.g., as the location of a transmitter or receiver):
+ * 1. **Perturbing Body as a Link End:**
+ If the perturbing body (e.g., Earth) is directly involved in the observation (e.g., as the location of a transmitter or receiver):
 
-    - The body's state is evaluated at the **transmission time** if it acts as the **transmitter**.
+     - The body's state is evaluated at the **transmission time** if it acts as the **transmitter**.
 
-    - The body's state is evaluated at the **reception time** if it acts as the **receiver**.
+     - The body's state is evaluated at the **reception time** if it acts as the **receiver**.
 
-* 2. **Perturbing Body Not as a Link End:**
-If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
+ * 2. **Perturbing Body Not as a Link End:**
+ If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
 
-Parameters
-----------
-perturbing_bodies : List[str]
-    A list containing the names of the bodies due to which the light-time correction is to be taken into account.
+ Parameters
+ ----------
+ perturbing_bodies : List[str]
+     A list containing the names of the bodies due to which the light-time correction is to be taken into account.
 
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` configured to include
-    first-order relativistic light-time corrections.
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` configured to include
+     first-order relativistic light-time corrections.
 
-Examples
---------
-.. code-block:: python
+ Examples
+ --------
+ .. code-block:: python
 
-    # Code Snippet to showcase the use of the first_order_relativistic_light_time_correction function
-    from tudatpy.numerical_simulation.estimation_setup import observation
+     # Code Snippet to showcase the use of the first_order_relativistic_light_time_correction function
+     from tudatpy.numerical_simulation.estimation_setup import observation
 
-    # Create Link Ends dictionary
-    link_ends = dict()
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+     # Create Link Ends dictionary
+     link_ends = dict()
+     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
 
-    # Create a Link Definition Object from link_ends dictionary
-    Link_Definition_Object = observation.LinkDefinition(link_ends)
+     # Create a Link Definition Object from link_ends dictionary
+     Link_Definition_Object = observation.LinkDefinition(link_ends)
 
-    # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
-    perturbing_body = ['Earth']
-    doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+     # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
+     perturbing_body = ['Earth']
+     doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
 
-    # Show that it returns a LightTimeCorrectionSettings object.
-    print(doppler_observation_settings)
+     # Show that it returns a LightTimeCorrectionSettings object.
+     print(doppler_observation_settings)
 
-    )doc" );
+     )doc" );
 
     py::enum_< tom::TroposphericMappingModel >(
             m, "TroposphericMappingModel", R"doc(No documentation found.)doc" )
@@ -2157,38 +2150,36 @@ Examples
            R"doc(No documentation found.)doc" );
 
     py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >(
-            m,
-            "ObservationBiasSettings",
-            R"doc(
+            m, "ObservationBiasSettings", R"doc(
 
-        Base class to defining observation bias settings.
+         Base class to defining observation bias settings.
 
-        Base class to defining observation bias settings.
-        Specific observation bias settings must be defined using an object derived from this class.
-        Instances of this class are typically created via the
-        :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` function.
+         Base class to defining observation bias settings.
+         Specific observation bias settings must be defined using an object derived from this class.
+         Instances of this class are typically created via the
+         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` function.
 
 
-        Examples
-        --------
-        .. code-block:: python
-            # Code snippet to show the creation of an ObservationBiasSettings object
-            # using absolute and relative bias settings
-            from tudatpy.numerical_simulation.estimation_setup import observation
-            import numpy as np
+         Examples
+         --------
+         .. code-block:: python
+             # Code snippet to show the creation of an ObservationBiasSettings object
+             # using absolute and relative bias settings
+             from tudatpy.numerical_simulation.estimation_setup import observation
+             import numpy as np
 
-            bias_array = np.array([1e-2])
+             bias_array = np.array([1e-2])
 
-            # Use absolute_bias function
-            absolute_bias_settings = observation.absolute_bias(bias_array)
-            # Show that it is an ObservationBiasSettings object.
-            print(absolute_bias_settings)
+             # Use absolute_bias function
+             absolute_bias_settings = observation.absolute_bias(bias_array)
+             # Show that it is an ObservationBiasSettings object.
+             print(absolute_bias_settings)
 
-            # Use relative_bias function
-            relative_bias_settings = observation.relative_bias(bias_array)
-            # Show that it is an ObservationBiasSettings object.
-            print(relative_bias_settings)
-     )doc" );
+             # Use relative_bias function
+             relative_bias_settings = observation.relative_bias(bias_array)
+             # Show that it is an ObservationBiasSettings object.
+             print(relative_bias_settings)
+      )doc" );
 
     m.def( "clock_induced_bias",
            &tom::clockInducedBias,
@@ -2201,94 +2192,94 @@ Examples
            py::arg( "bias_value" ),
            R"doc(
 
-Function for creating settings for an absolute observation bias.
+ Function for creating settings for an absolute observation bias.
 
-Function for creating settings for an absolute observation bias. When calculating the observable value, applying this setting
-will take the physically ideal observation :math:`h`, and modify it to obtain the biased observation :math:`\tilde{h}` as follows:
+ Function for creating settings for an absolute observation bias. When calculating the observable value, applying this setting
+ will take the physically ideal observation :math:`h`, and modify it to obtain the biased observation :math:`\tilde{h}` as follows:
 
-.. math::
-   \tilde{h}=h+K
+ .. math::
+    \tilde{h}=h+K
 
-where :math:`K` is the `bias_value`. For an observable with size greater than 1, :math:`K` is a vector and the addition is component-wise.
-
-
-Parameters
-----------
-bias_value : numpy.ndarray
-    A vector containing the bias that is to be applied to the observable. This vector should be the same size as the observable to which it is
-    applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` defining the settings for a constant, absolute observation bias.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the absolute_bias function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-    import numpy as np
-
-    # The function absolute_bias() requires a numpy.array of bias values in input
-    bias_array = np.array([1e-2])
-    absolute_bias_settings = observation.absolute_bias(bias_array)
-
-    # Show that it returns an ObservationBiasSettings object.
-    print(absolute_bias_settings)
+ where :math:`K` is the `bias_value`. For an observable with size greater than 1, :math:`K` is a vector and the addition is component-wise.
 
 
+ Parameters
+ ----------
+ bias_value : numpy.ndarray
+     A vector containing the bias that is to be applied to the observable. This vector should be the same size as the observable to which it is
+     applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
-    )doc" );
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` defining the settings for a constant, absolute observation bias.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the absolute_bias function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+     import numpy as np
+
+     # The function absolute_bias() requires a numpy.array of bias values in input
+     bias_array = np.array([1e-2])
+     absolute_bias_settings = observation.absolute_bias(bias_array)
+
+     # Show that it returns an ObservationBiasSettings object.
+     print(absolute_bias_settings)
+
+
+
+     )doc" );
 
     m.def( "relative_bias",
            &tom::constantRelativeBias,
            py::arg( "bias_value" ),
            R"doc(
 
-Function for creating settings for a relative observation bias.
+ Function for creating settings for a relative observation bias.
 
-Function for creating settings for a relative observation bias. When calculating the observable value, applying this setting
-will take the physically ideal observation :math:`h`, and modify it to obtain the biased observation :math:`\tilde{h}` as follows:
+ Function for creating settings for a relative observation bias. When calculating the observable value, applying this setting
+ will take the physically ideal observation :math:`h`, and modify it to obtain the biased observation :math:`\tilde{h}` as follows:
 
-.. math::
-   \tilde{h}=h(1+K)
+ .. math::
+    \tilde{h}=h(1+K)
 
-where :math:`K` is the`bias_value`. For an observable with size greater than 1, :math:`K` is a vector and the multiplication is component-wise.
-
-
-Parameters
-----------
-bias_value : numpy.ndarray
-    A vector containing the bias that is to be applied to the observable. This vector should be the same size as the observable to which it is
-    applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-Returns
--------
-:class:`ConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` class,
-    defining the settings for a constant, relative observation bias.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the relative_bias function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-    import numpy as np
-
-    # The function relative_bias() requires a numpy.array of bias values in input
-    bias_array = np.array([1e-2])
-    relative_bias_settings_settings = observation.relative_bias(bias_array)
-
-    # Show that it returns an ObservationBiasSettings object.
-    print(relative_bias_settings_settings)
+ where :math:`K` is the`bias_value`. For an observable with size greater than 1, :math:`K` is a vector and the multiplication is component-wise.
 
 
+ Parameters
+ ----------
+ bias_value : numpy.ndarray
+     A vector containing the bias that is to be applied to the observable. This vector should be the same size as the observable to which it is
+     applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
+
+ Returns
+ -------
+ :class:`ConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` class,
+     defining the settings for a constant, relative observation bias.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the relative_bias function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+     import numpy as np
+
+     # The function relative_bias() requires a numpy.array of bias values in input
+     bias_array = np.array([1e-2])
+     relative_bias_settings_settings = observation.relative_bias(bias_array)
+
+     # Show that it returns an ObservationBiasSettings object.
+     print(relative_bias_settings_settings)
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "arcwise_absolute_bias",
            py::overload_cast< const std::vector< double >&,
@@ -2299,52 +2290,52 @@ Examples
            py::arg( "reference_link_end_type" ),
            R"doc(
 
-Function for creating settings for arc-wise absolute observation biases.
+ Function for creating settings for arc-wise absolute observation biases.
 
-Function for creating settings for arc-wise absolute observation biases.
-This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
-
-
-Parameters
-----------
-arc_start_times : List[ float ]
-    List containing starting times for each arc.
-
-bias_values : List[ numpy.ndarray ]
-    List of arc-wise bias vectors that are to be applied to the given observable. The vectors should be the same size as the observable to which it is
-    applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-reference_link_end_type : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the arcwise_absolute_bias function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-    import numpy as np
-
-    # The function arcwise_absolute_bias() requires:
-    # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
-    # Let's simulate two arcs
-    arc_start_times = [0, 60] # define start time in seconds
-    arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
-    reference_link_end_type = observation.receiver # set bias at receiving link end
-    arcwise_absolute_bias_settings = observation.arcwise_absolute_bias(arc_start_times, arcwise_bias_array, observation.receiver)
-
-    # Show that it returns an ObservationBiasSettings object.
-    print(arcwise_absolute_bias_settings)
+ Function for creating settings for arc-wise absolute observation biases.
+ This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
+ Parameters
+ ----------
+ arc_start_times : List[ float ]
+     List containing starting times for each arc.
+
+ bias_values : List[ numpy.ndarray ]
+     List of arc-wise bias vectors that are to be applied to the given observable. The vectors should be the same size as the observable to which it is
+     applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
+
+ reference_link_end_type : :class:`LinkEndType`
+     Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the arcwise_absolute_bias function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+     import numpy as np
+
+     # The function arcwise_absolute_bias() requires:
+     # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
+     # Let's simulate two arcs
+     arc_start_times = [0, 60] # define start time in seconds
+     arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
+     reference_link_end_type = observation.receiver # set bias at receiving link end
+     arcwise_absolute_bias_settings = observation.arcwise_absolute_bias(arc_start_times, arcwise_bias_array, observation.receiver)
+
+     # Show that it returns an ObservationBiasSettings object.
+     print(arcwise_absolute_bias_settings)
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "arcwise_absolute_bias_per_time",
            py::overload_cast< const std::map< double, Eigen::VectorXd >&, const tom::LinkEndType >(
@@ -2353,50 +2344,50 @@ Examples
            py::arg( "reference_link_end_type" ),
            R"doc(
 
-Function for creating settings for arc-wise absolute observation biases.
+ Function for creating settings for arc-wise absolute observation biases.
 
-Function for creating settings for arc-wise absolute observation biases.
-This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
-
-
-Parameters
-----------
-bias_values_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
-    Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
-    The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-reference_link_end_type : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
-
-Examples
---------
-.. code-block:: python
-
-# Code Snippet to showcase the use of the arcwise_absolute_bias function
-from tudatpy.numerical_simulation.estimation_setup import observation
-import numpy as np
-
-    # The function arcwise_absolute_bias_settings_per_time() requires:
-    # 1) a dictionary with times as keys and bias values as values ,2) a reference_link_end_type
-    # Let's simulate two arcs
-    bias_value_per_start_time = dict()
-    bias_value_per_start_time[0] = np.array([1e-2])
-    bias_value_per_start_time[60] = np.array([2e-2])
-    reference_link_end_type = observation.receiver # set bias at receiving link end
-
-    arcwise_absolute_bias_settings_per_time = observation.arcwise_absolute_bias_per_time(bias_value_per_start_time, reference_link_end_type)
-
-    # Show that it returns an ObservationBiasSettings object.
-    print(arcwise_absolute_bias_settings_per_time)
+ Function for creating settings for arc-wise absolute observation biases.
+ This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
+ Parameters
+ ----------
+ bias_values_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
+     Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
+     The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
-    )doc" );
+ reference_link_end_type : :class:`LinkEndType`
+     Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
+
+ Examples
+ --------
+ .. code-block:: python
+
+ # Code Snippet to showcase the use of the arcwise_absolute_bias function
+ from tudatpy.numerical_simulation.estimation_setup import observation
+ import numpy as np
+
+     # The function arcwise_absolute_bias_settings_per_time() requires:
+     # 1) a dictionary with times as keys and bias values as values ,2) a reference_link_end_type
+     # Let's simulate two arcs
+     bias_value_per_start_time = dict()
+     bias_value_per_start_time[0] = np.array([1e-2])
+     bias_value_per_start_time[60] = np.array([2e-2])
+     reference_link_end_type = observation.receiver # set bias at receiving link end
+
+     arcwise_absolute_bias_settings_per_time = observation.arcwise_absolute_bias_per_time(bias_value_per_start_time, reference_link_end_type)
+
+     # Show that it returns an ObservationBiasSettings object.
+     print(arcwise_absolute_bias_settings_per_time)
+
+
+
+     )doc" );
 
     m.def( "arcwise_relative_bias",
            py::overload_cast< const std::vector< double >&,
@@ -2407,52 +2398,52 @@ import numpy as np
            py::arg( "reference_link_end_type" ),
            R"doc(
 
-Function for creating settings for arc-wise relative observation biases.
+ Function for creating settings for arc-wise relative observation biases.
 
-Function for creating settings for arc-wise relative observation biases.
-This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
-
-
-Parameters
-----------
-arc_start_times : List[ float ]
-    List containing starting times for each arc.
-
-bias_values : List[ numpy.ndarray ]
-    List of arc-wise bias vectors that are to be applied to the given observable. The vectors should be the same size as the observable to which it is
-    applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-reference_link_end_type : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
-
-Returns
--------
-:class:`ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the arcwise_relative_bias function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-    import numpy as np
-
-    # The function arcwise_relative_bias() requires:
-    # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
-    # Let's simulate two arcs
-    arc_start_times = [0, 60] # define start time in seconds
-    arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
-    reference_link_end_type = observation.receiver # set bias at receiving link end
-    arcwise_relative_bias_settings = observation.arcwise_relative_bias(arc_start_times, arcwise_bias_array, reference_link_end_type)
-
-    # Show that it returns an ObservationBiasSettings object.
-    print(arcwise_relative_bias_settings)
+ Function for creating settings for arc-wise relative observation biases.
+ This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
+ Parameters
+ ----------
+ arc_start_times : List[ float ]
+     List containing starting times for each arc.
+
+ bias_values : List[ numpy.ndarray ]
+     List of arc-wise bias vectors that are to be applied to the given observable. The vectors should be the same size as the observable to which it is
+     applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
+
+ reference_link_end_type : :class:`LinkEndType`
+     Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
+
+ Returns
+ -------
+ :class:`ArcWiseConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the arcwise_relative_bias function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+     import numpy as np
+
+     # The function arcwise_relative_bias() requires:
+     # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type
+     # Let's simulate two arcs
+     arc_start_times = [0, 60] # define start time in seconds
+     arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
+     reference_link_end_type = observation.receiver # set bias at receiving link end
+     arcwise_relative_bias_settings = observation.arcwise_relative_bias(arc_start_times, arcwise_bias_array, reference_link_end_type)
+
+     # Show that it returns an ObservationBiasSettings object.
+     print(arcwise_relative_bias_settings)
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "arcwise_relative_bias_per_time",
            py::overload_cast< const std::map< double, Eigen::VectorXd >&, const tom::LinkEndType >(
@@ -2461,52 +2452,52 @@ Examples
            py::arg( "reference_link_end_type" ),
            R"doc(
 
-Function for creating settings for arc-wise relative observation biases.
+ Function for creating settings for arc-wise relative observation biases.
 
-Function for creating settings for arc-wise relative observation biases.
-This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
-
-
-Parameters
-----------
-bias_values_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
-    Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
-    The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-reference_link_end_type : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
-
-Returns
--------
-:class:`ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the arcwise_relative_bias function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-    import numpy as np
-
-    # The function arcwise_relative_bias_per_time() requires:
-    # 1) a dictionary with times as keys and bias values as values ,2) a reference_link_end_type
-    # Let's simulate two arcs
-    bias_value_per_start_time = dict()
-    bias_value_per_start_time[0] = np.array([1e-2])
-    bias_value_per_start_time[60] = np.array([2e-2])
-    reference_link_end_type = observation.receiver # set bias at receiving link end
-
-    arcwise_relative_bias_settings_per_time = observation.arcwise_relative_bias_per_time(bias_value_per_start_time, reference_link_end_type)
-
-    # Show that it returns an ObservationBiasSettings object.
-    print(arcwise_relative_bias_settings_per_time)
+ Function for creating settings for arc-wise relative observation biases.
+ This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
+ Parameters
+ ----------
+ bias_values_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
+     Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
+     The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
+
+ reference_link_end_type : :class:`LinkEndType`
+     Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
+
+ Returns
+ -------
+ :class:`ArcWiseConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the arcwise_relative_bias function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+     import numpy as np
+
+     # The function arcwise_relative_bias_per_time() requires:
+     # 1) a dictionary with times as keys and bias values as values ,2) a reference_link_end_type
+     # Let's simulate two arcs
+     bias_value_per_start_time = dict()
+     bias_value_per_start_time[0] = np.array([1e-2])
+     bias_value_per_start_time[60] = np.array([2e-2])
+     reference_link_end_type = observation.receiver # set bias at receiving link end
+
+     arcwise_relative_bias_settings_per_time = observation.arcwise_relative_bias_per_time(bias_value_per_start_time, reference_link_end_type)
+
+     # Show that it returns an ObservationBiasSettings object.
+     print(arcwise_relative_bias_settings_per_time)
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "time_drift_bias",
            &tom::constantTimeDriftBias,
@@ -2515,52 +2506,52 @@ Examples
            py::arg( "ref_epoch" ),
            R"doc(
 
-Function for creating settings for a time-drift bias.
+ Function for creating settings for a time-drift bias.
 
-Function for creating settings for a time-drift bias.
-This bias setting generates the configuration for applying a constant time-drift bias to an observation model.
+ Function for creating settings for a time-drift bias.
+ This bias setting generates the configuration for applying a constant time-drift bias to an observation model.
 
-Parameters
-----------
-bias_value : numpy.ndarray
-    Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
-    assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
+ Parameters
+ ----------
+ bias_value : numpy.ndarray
+     Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
+     assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
-time_link_end : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used the current time.
+ time_link_end : :class:`LinkEndType`
+     Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
-ref_epoch : float
-    Defines the reference epoch at which the effect of the time drift is initialised.
+ ref_epoch : float
+     Defines the reference epoch at which the effect of the time drift is initialised.
 
-Returns
--------
-:class:`constantTimeDriftBias`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.constantTimeDriftBias` class,
-    defining the settings for a constant, relative observation bias.
+ Returns
+ -------
+ :class:`constantTimeDriftBias`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.constantTimeDriftBias` class,
+     defining the settings for a constant, relative observation bias.
 
-Examples
---------
-.. code-block:: python
+ Examples
+ --------
+ .. code-block:: python
 
-    # Code Snippet to showcase the use of the time_drift_bias function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-    import numpy as np
+     # Code Snippet to showcase the use of the time_drift_bias function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+     import numpy as np
 
-    # The function time_drift_bias() requires a numpy.array of bias value, time_link_end and ref_epoch as inputs
-    bias_array = np.array([1e-2])
-    time_link_end = observation.receiver
-    ref_epoch = 0
-    time_drift_bias_settings = observation.time_drift_bias(bias_array, time_link_end, ref_epoch)
+     # The function time_drift_bias() requires a numpy.array of bias value, time_link_end and ref_epoch as inputs
+     bias_array = np.array([1e-2])
+     time_link_end = observation.receiver
+     ref_epoch = 0
+     time_drift_bias_settings = observation.time_drift_bias(bias_array, time_link_end, ref_epoch)
 
-    # Show that it returns an ObservationBiasSettings object.
-    print(time_drift_bias_settings)
-
-
+     # Show that it returns an ObservationBiasSettings object.
+     print(time_drift_bias_settings)
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "arc_wise_time_drift_bias",
            py::overload_cast< const std::vector< Eigen::VectorXd >&,
@@ -2573,56 +2564,56 @@ Examples
            py::arg( "ref_epochs" ),
            R"doc(
 
-Function for creating settings for arc-wise time-drift biases.
+ Function for creating settings for arc-wise time-drift biases.
 
-Function for creating settings for arc-wise time-drift biases.
-This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
-
-
-Parameters
-----------
-bias_value : numpy.ndarray
-    Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
-    assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
-
-arc_start_times : List[ float ]
-    List containing starting times for each arc.
-
-time_link_end : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used the current time.
-
-ref_epochs : List[ float ]
-    List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the arcwise_time_drift_bias function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-    import numpy as np
-
-    # The function arcwise_time_drift_bias() requires:
-    # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type, 4) list of reference epochs
-    # Let's simulate two arcs
-    arc_start_times = [0, 60] # define start time in seconds
-    arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
-    reference_link_end_type = observation.receiver # set bias at receiving link end
-    ref_epochs = [0,60]
-    arcwise_time_drift_bias_settings = observation.arc_wise_time_drift_bias(arcwise_bias_array, arc_start_times, observation.receiver, ref_epochs)
-
-    # Show that it returns an ObservationBiasSettings object.
-    print(arcwise_time_drift_bias_settings)
+ Function for creating settings for arc-wise time-drift biases.
+ This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
 
 
+ Parameters
+ ----------
+ bias_value : numpy.ndarray
+     Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
+     assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
+
+ arc_start_times : List[ float ]
+     List containing starting times for each arc.
+
+ time_link_end : :class:`LinkEndType`
+     Defines the link end (via the :class:`LinkEndType`) which is used the current time.
+
+ ref_epochs : List[ float ]
+     List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the arcwise_time_drift_bias function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+     import numpy as np
+
+     # The function arcwise_time_drift_bias() requires:
+     # 1) an arc_start_times list ,2) a numpy.array of bias values in input, 3) reference_link_end_type, 4) list of reference epochs
+     # Let's simulate two arcs
+     arc_start_times = [0, 60] # define start time in seconds
+     arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
+     reference_link_end_type = observation.receiver # set bias at receiving link end
+     ref_epochs = [0,60]
+     arcwise_time_drift_bias_settings = observation.arc_wise_time_drift_bias(arcwise_bias_array, arc_start_times, observation.receiver, ref_epochs)
+
+     # Show that it returns an ObservationBiasSettings object.
+     print(arcwise_time_drift_bias_settings)
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "arc_wise_time_drift_bias_per_time",
            py::overload_cast< const std::map< double, Eigen::VectorXd >&,
@@ -2633,117 +2624,117 @@ Examples
            py::arg( "ref_epochs" ),
            R"doc(
 
-Function for creating settings for arc-wise time-drift biases.
+ Function for creating settings for arc-wise time-drift biases.
 
-Function for creating settings for arc-wise time-drift biases.
-This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
+ Function for creating settings for arc-wise time-drift biases.
+ This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
 
-Parameters
-----------
-bias_value_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
-    Dictionary, in which the time bias value vectors for each arc are directly mapped to the starting times of the respective arc.
-    The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
+ Parameters
+ ----------
+ bias_value_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
+     Dictionary, in which the time bias value vectors for each arc are directly mapped to the starting times of the respective arc.
+     The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
-time_link_end : :class:`LinkEndType`
-    Defines the link end (via the :class:`LinkEndType`) which is used the current time.
+ time_link_end : :class:`LinkEndType`
+     Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
-ref_epochs : List[ float ]
-    List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
+ ref_epochs : List[ float ]
+     List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
-Returns
--------
-:class:`ArcWiseConstantObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
+ Returns
+ -------
+ :class:`ArcWiseConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
 
-Examples
---------
-.. code-block:: python
+ Examples
+ --------
+ .. code-block:: python
 
-    # Code Snippet to showcase the use of the arcwise_time_drift_bias_per_time function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-    import numpy as np
+     # Code Snippet to showcase the use of the arcwise_time_drift_bias_per_time function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+     import numpy as np
 
-    # The function arcwise_time_drift_bias_per_time() requires:
-    # 1) an arc_start_times list ,2)  a dictionary with times as keys and bias values as values, 2) a reference_link_end_type, 3) reference_link_end_type, 4) list of reference epochs
-    # Let's simulate two arcs
-    bias_value_per_start_time = dict()
-    bias_value_per_start_time[0] = np.array([1e-2])
-    bias_value_per_start_time[60] = np.array([2e-2])
-    reference_link_end_type = observation.receiver # set bias at receiving link end
-    ref_epochs = [0,60]
-    arcwise_time_drift_bias_settings = observation.arc_wise_time_drift_bias(bias_value_per_start_time, reference_link_end_type, ref_epochs)
+     # The function arcwise_time_drift_bias_per_time() requires:
+     # 1) an arc_start_times list ,2)  a dictionary with times as keys and bias values as values, 2) a reference_link_end_type, 3) reference_link_end_type, 4) list of reference epochs
+     # Let's simulate two arcs
+     bias_value_per_start_time = dict()
+     bias_value_per_start_time[0] = np.array([1e-2])
+     bias_value_per_start_time[60] = np.array([2e-2])
+     reference_link_end_type = observation.receiver # set bias at receiving link end
+     ref_epochs = [0,60]
+     arcwise_time_drift_bias_settings = observation.arc_wise_time_drift_bias(bias_value_per_start_time, reference_link_end_type, ref_epochs)
 
-    # Show that it returns an ObservationBiasSettings object.
-    print(arcwise_time_drift_bias_settings)
-
-
+     # Show that it returns an ObservationBiasSettings object.
+     print(arcwise_time_drift_bias_settings)
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "combined_bias",
            &tom::multipleObservationBiasSettings,
            py::arg( "bias_list" ),
            R"doc(
 
-Function for creating settings for a combined observation bias.
+ Function for creating settings for a combined observation bias.
 
-Function for creating settings for a combined observation bias, calculating by combining any number of bias types.
-Each contribution of the combined bias is computed from the unbiased observable, so when applying both a relative and absolute bias, we get:
+ Function for creating settings for a combined observation bias, calculating by combining any number of bias types.
+ Each contribution of the combined bias is computed from the unbiased observable, so when applying both a relative and absolute bias, we get:
 
-.. math::
-   \tilde{h}=h+K_{a}+hK_{r}
+ .. math::
+    \tilde{h}=h+K_{a}+hK_{r}
 
-And, crucially:
+ And, crucially:
 
-.. math::
-   \tilde{h}\neq (h+K_{a})(1+K_{r})
+ .. math::
+    \tilde{h}\neq (h+K_{a})(1+K_{r})
 
-where :math:`K_{r}` and :math:`K_{a}` is the relative and absolute bias, respectively.
-
-
-Parameters
-----------
-bias_list : List[:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings]
-    A list containing the bias settings that are to be applied to the observable.
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.multipleObservationBiasSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.multipleObservationBiasSettings` class, combining the settings for multiple observation biases.
-
-Examples
---------
-.. code-block:: python
-
-    # Code Snippet to showcase the use of the combined_bias function
-    from tudatpy.numerical_simulation.estimation_setup import observation
-    import numpy as np
-
-    # The function combined_bias() allows to combine multiple ObservationBiasSettings objects.
-    # Let's combine absolute, relative and time_drift biases.
-    bias_array = np.array([1e-2])
-
-    # Define absolute and relative bias settings
-    absolute_bias_settings = observation.absolute_bias(bias_array)
-    relative_bias_settings = observation.absolute_bias(bias_array)
-
-    # Define Time Drift Bias
-    time_link_end = observation.receiver
-    ref_epoch = 0
-    time_drift_bias_settings = observation.time_drift_bias(bias_array, time_link_end, ref_epoch)
-
-    # combined_bias takes a list of ObservationBiasSettings objects as input
-    bias_list = [absolute_bias_settings, relative_bias_settings, time_drift_bias_settings]
-    combined_bias = observation.combined_bias(bias_list)
-
-    # Show that it returns an ObservationBiasSettings object.
-    print(combined_bias)
+ where :math:`K_{r}` and :math:`K_{a}` is the relative and absolute bias, respectively.
 
 
+ Parameters
+ ----------
+ bias_list : List[:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings]
+     A list containing the bias settings that are to be applied to the observable.
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.multipleObservationBiasSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.multipleObservationBiasSettings` class, combining the settings for multiple observation biases.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Code Snippet to showcase the use of the combined_bias function
+     from tudatpy.numerical_simulation.estimation_setup import observation
+     import numpy as np
+
+     # The function combined_bias() allows to combine multiple ObservationBiasSettings objects.
+     # Let's combine absolute, relative and time_drift biases.
+     bias_array = np.array([1e-2])
+
+     # Define absolute and relative bias settings
+     absolute_bias_settings = observation.absolute_bias(bias_array)
+     relative_bias_settings = observation.absolute_bias(bias_array)
+
+     # Define Time Drift Bias
+     time_link_end = observation.receiver
+     ref_epoch = 0
+     time_drift_bias_settings = observation.time_drift_bias(bias_array, time_link_end, ref_epoch)
+
+     # combined_bias takes a list of ObservationBiasSettings objects as input
+     bias_list = [absolute_bias_settings, relative_bias_settings, time_drift_bias_settings]
+     combined_bias = observation.combined_bias(bias_list)
+
+     # Show that it returns an ObservationBiasSettings object.
+     print(combined_bias)
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "two_way_time_scale_range_bias",
            &tom::twoWayTimeScaleRangeBias,
@@ -2752,30 +2743,28 @@ Examples
     // ###########    Observation Simulation Settings
     // #############
 
-    py::enum_< tom::ObservationViabilityType >( m,
-                                                "ObservationViabilityType",
-                                                R"doc(
+    py::enum_< tom::ObservationViabilityType >( m, "ObservationViabilityType", R"doc(
 
-        Enumeration of observation viability criterion types.
+         Enumeration of observation viability criterion types.
 
-Examples
---------
-.. code-block:: python
+ Examples
+ --------
+ .. code-block:: python
 
-    # Code snippet to print all available Observation Viability Types
-    from tudatpy.numerical_simulation import estimation_setup
+     # Code snippet to print all available Observation Viability Types
+     from tudatpy.numerical_simulation import estimation_setup
 
-    num_observation_viability_types = len(estimation_setup.observation.ObservationViabilityType.__members__)
-    print(f'The length of all available Tudatpy Observation Viability Types is: {num_observation_viability_types}')
+     num_observation_viability_types = len(estimation_setup.observation.ObservationViabilityType.__members__)
+     print(f'The length of all available Tudatpy Observation Viability Types is: {num_observation_viability_types}')
 
-    # Print all available Observation Viability Types using the "name" property
-    for i in range(num_observation_viability_types):
-        print(i, estimation_setup.observation.ObservationViabilityType(i).name)
+     # Print all available Observation Viability Types using the "name" property
+     for i in range(num_observation_viability_types):
+         print(i, estimation_setup.observation.ObservationViabilityType(i).name)
 
 
 
 
-     )doc" )
+      )doc" )
             .value( "minimum_elevation_angle",
                     tom::ObservationViabilityType::minimum_elevation_angle )
             .value( "body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle )
@@ -2787,25 +2776,25 @@ Examples
             "ObservationAncilliarySimulationVariable",
             R"doc(
 
-        Enumeration of observation ancillary variable types.
+         Enumeration of observation ancillary variable types.
 
-Examples
---------
-.. code-block:: python
+ Examples
+ --------
+ .. code-block:: python
 
-    # Code snippet to print all available Observation Ancillary Variable Types
-    from tudatpy.numerical_simulation import estimation_setup
+     # Code snippet to print all available Observation Ancillary Variable Types
+     from tudatpy.numerical_simulation import estimation_setup
 
-    num_observation_ancillary_variable_types = len(estimation_setup.observation.ObservationAncilliarySimulationVariable.__members__)
-    print(f'The length of all available Tudatpy  Observation Ancillary Variable Types is: {num_observation_ancillary_variable_types}')
+     num_observation_ancillary_variable_types = len(estimation_setup.observation.ObservationAncilliarySimulationVariable.__members__)
+     print(f'The length of all available Tudatpy  Observation Ancillary Variable Types is: {num_observation_ancillary_variable_types}')
 
-    # Print all Observation Ancillary Variable Types using the "name" property
-    for i in range(num_observation_ancillary_variable_types):
-        print(i, estimation_setup.observation.ObservationAncilliarySimulationVariable(i).name)
+     # Print all Observation Ancillary Variable Types using the "name" property
+     for i in range(num_observation_ancillary_variable_types):
+         print(i, estimation_setup.observation.ObservationAncilliarySimulationVariable(i).name)
 
 
 
-     )doc" )
+      )doc" )
             .value( "link_ends_delays",
                     tom::ObservationAncilliarySimulationVariable::link_ends_delays )
             .value( "doppler_integration_time",
@@ -2833,32 +2822,32 @@ Examples
             "ObservationViabilitySettings",
             R"doc(
 
-        Class for defining observation viability calculator settings.
+         Class for defining observation viability calculator settings.
 
-        Class for defining the settings for observation viability calculator creation.
-        Instances of this class are typically be created through various dedicated functions,such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_viability`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_avoidance_viability` and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_occultation_viability`
+         Class for defining the settings for observation viability calculator creation.
+         Instances of this class are typically be created through various dedicated functions,such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_viability`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_avoidance_viability` and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_occultation_viability`
 
-        Examples
-        --------
-        .. code-block:: python
+         Examples
+         --------
+         .. code-block:: python
 
-            # Code snippet to show the creation of an ObservationViabilitySettings object
-            import numpy as np
-            from tudatpy.numerical_simulation.estimation_setup import observation
+             # Code snippet to show the creation of an ObservationViabilitySettings object
+             import numpy as np
+             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Create ObservationViabilitySettings object
-            # In this case, we exclude observations for which the local elevation angle at link end is less 15 degrees.
-            min_elevation = np.deg2rad(15)
-            # We apply these settings to every ground station on Earth using the following link_end_id: [“Earth”, “”]
-            viability_settings = observation.elevation_angle_viability(["Earth", ""], min_elevation)
+             # Create ObservationViabilitySettings object
+             # In this case, we exclude observations for which the local elevation angle at link end is less 15 degrees.
+             min_elevation = np.deg2rad(15)
+             # We apply these settings to every ground station on Earth using the following link_end_id: [“Earth”, “”]
+             viability_settings = observation.elevation_angle_viability(["Earth", ""], min_elevation)
 
-            # Show that this is indeed an ObservationViabilitySettings object
-            print(viability_settings)
-
-
+             # Show that this is indeed an ObservationViabilitySettings object
+             print(viability_settings)
 
 
-     )doc" );
+
+
+      )doc" );
 
     m.def( "elevation_angle_viability",
            py::overload_cast< const std::pair< std::string, std::string >, const double >(
@@ -2867,33 +2856,33 @@ Examples
            py::arg( "elevation_angle" ),
            R"doc(
 
-Function for defining single elevation angle viability setting.
+ Function for defining single elevation angle viability setting.
 
-Function for defining elevation angle viability settings for single link end.
-When simulating observations, this setting ensures that any applicable observations, for which the local elevation angle at link end is less than some limit value, will be omitted.
-
-
-Parameters
-----------
-link_end_id : Tuple[str,str]
-    Link end (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`), for which the elevation angle viability setting is to be created.
-    To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
-
-elevation_angle : float
-    Limit elevation angle, below which no observations are produced when using the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.simulate_observations` function. Note: this
-    value must be in radians.
-
-Returns
--------
-:class:`ObservationViabilitySettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` class, defining the settings for observation viability
+ Function for defining elevation angle viability settings for single link end.
+ When simulating observations, this setting ensures that any applicable observations, for which the local elevation angle at link end is less than some limit value, will be omitted.
 
 
+ Parameters
+ ----------
+ link_end_id : Tuple[str,str]
+     Link end (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`), for which the elevation angle viability setting is to be created.
+     To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
+
+ elevation_angle : float
+     Limit elevation angle, below which no observations are produced when using the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.simulate_observations` function. Note: this
+     value must be in radians.
+
+ Returns
+ -------
+ :class:`ObservationViabilitySettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` class, defining the settings for observation viability
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "body_avoidance_viability",
            py::overload_cast< const std::pair< std::string, std::string >,
@@ -2904,45 +2893,45 @@ Returns
            py::arg( "avoidance_angle" ),
            R"doc(
 
-Function for defining body avoidance observation viability settings.
+ Function for defining body avoidance observation viability settings.
 
-Function for defining body avoidance observation viability settings for single link ends.
-When simulating observations, this settings ensures that any applicable observations, for which the signal path passes 'too close' to a body, will be omitted.
-The definition of 'too close' is computed as the angle between:
+ Function for defining body avoidance observation viability settings for single link ends.
+ When simulating observations, this settings ensures that any applicable observations, for which the signal path passes 'too close' to a body, will be omitted.
+ The definition of 'too close' is computed as the angle between:
 
-* The line-of-sight vector from a link end to a given third body
-* The line-of-sight between two link ends
+ * The line-of-sight vector from a link end to a given third body
+ * The line-of-sight between two link ends
 
-This constraint is typically used to prevent the Sun from being too close to the field-of-view of the telescope(s), as defined by
-a so-called 'SPE' (Sun-Probe-Earth) angle constraint. The present viability setting generalizes this constraint.
-
-
-Parameters
-----------
-link_end_id : Tuple[str,str]
-    Link end (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` ), for which the viability settings are to be created.
-    To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""] is entry in this list.
-    For each link end included in this list, it will be checked if a signal received by and/or transmitted (or reflected) by this
-    link end passes too close to the specified body.
-
-body_to_avoid : str
-    Name of the body which the signal path should not pass 'too close' to.
-
-avoidance_angle : float
-    Limit angle (generalization of SPE angle), below which no observations are produced when using the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.simulate_observations` function. Note: this
-    value must be in radians.
-
-Returns
--------
-:class:`ObservationViabilitySettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings`, defining the settings for observation viability.
+ This constraint is typically used to prevent the Sun from being too close to the field-of-view of the telescope(s), as defined by
+ a so-called 'SPE' (Sun-Probe-Earth) angle constraint. The present viability setting generalizes this constraint.
 
 
+ Parameters
+ ----------
+ link_end_id : Tuple[str,str]
+     Link end (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` ), for which the viability settings are to be created.
+     To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""] is entry in this list.
+     For each link end included in this list, it will be checked if a signal received by and/or transmitted (or reflected) by this
+     link end passes too close to the specified body.
+
+ body_to_avoid : str
+     Name of the body which the signal path should not pass 'too close' to.
+
+ avoidance_angle : float
+     Limit angle (generalization of SPE angle), below which no observations are produced when using the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.simulate_observations` function. Note: this
+     value must be in radians.
+
+ Returns
+ -------
+ :class:`ObservationViabilitySettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings`, defining the settings for observation viability.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "body_occultation_viability",
            py::overload_cast< const std::pair< std::string, std::string >, const std::string >(
@@ -2951,33 +2940,33 @@ Returns
            py::arg( "occulting_body" ),
            R"doc(
 
-Function for defining body occultation viability settings.
+ Function for defining body occultation viability settings.
 
-Function for defining body occultation viability settings for single link ends.
-When simulating observations, this setting ensures that any applicable observations, for which the signal path is occulted by a given body, will be omitted.
-The occultation is computed using the shape model of the specified body.
-
-
-Parameters
-----------
-link_end_id : Tuple[str,str]
-    Link end (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`), for which the viability settings are to be created.
-    To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""] is entry in this list.
-
-body_to_avoid : str
-    Name of the body which the signal path should not be occulted by.
-
-Returns
--------
-:class:`ObservationViabilitySettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings`, defining the settings for observation viability.
+ Function for defining body occultation viability settings for single link ends.
+ When simulating observations, this setting ensures that any applicable observations, for which the signal path is occulted by a given body, will be omitted.
+ The occultation is computed using the shape model of the specified body.
 
 
+ Parameters
+ ----------
+ link_end_id : Tuple[str,str]
+     Link end (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`), for which the viability settings are to be created.
+     To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""] is entry in this list.
+
+ body_to_avoid : str
+     Name of the body which the signal path should not be occulted by.
+
+ Returns
+ -------
+ :class:`ObservationViabilitySettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings`, defining the settings for observation viability.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "elevation_angle_viability_list",
            py::overload_cast< const std::vector< std::pair< std::string, std::string > >,
@@ -2986,36 +2975,36 @@ Returns
            py::arg( "elevation_angle" ),
            R"doc(
 
-Function for defining list of elevation angle viability settings.
+ Function for defining list of elevation angle viability settings.
 
-Function for defining elevation angle viability settings for multiple link ends.
-Each entry in the returned list contains the observation viability settings for one link end.
-When simulating observations, these settings ensure that any applicable observations, for which the local elevation angle at a link end is less than some limit value, will be omitted.
-
-
-Parameters
-----------
-link_end_ids : List[ Tuple[str,str] ]
-    List of individual link ends (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`), for which the elevation angle viability setting is to be created.
-    To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
-    For each link end included in this list, it will be checked if a signal received by and/or transmitted (or reflected) by this
-    link end violates the minimum elevation angle constraint.
-
-elevation_angle : float
-    Limit elevation angle, below which no observations are produced when using the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.simulate_observations` function. Note: this
-    value must be in radians.
-
-Returns
--------
-:class:`ObservationViabilitySettings`
-    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
+ Function for defining elevation angle viability settings for multiple link ends.
+ Each entry in the returned list contains the observation viability settings for one link end.
+ When simulating observations, these settings ensure that any applicable observations, for which the local elevation angle at a link end is less than some limit value, will be omitted.
 
 
+ Parameters
+ ----------
+ link_end_ids : List[ Tuple[str,str] ]
+     List of individual link ends (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`), for which the elevation angle viability setting is to be created.
+     To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
+     For each link end included in this list, it will be checked if a signal received by and/or transmitted (or reflected) by this
+     link end violates the minimum elevation angle constraint.
+
+ elevation_angle : float
+     Limit elevation angle, below which no observations are produced when using the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.simulate_observations` function. Note: this
+     value must be in radians.
+
+ Returns
+ -------
+ :class:`ObservationViabilitySettings`
+     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "body_avoidance_viability_list",
            py::overload_cast< const std::vector< std::pair< std::string, std::string > >,
@@ -3026,44 +3015,44 @@ Returns
            py::arg( "avoidance_angle" ),
            R"doc(
 
-Function for defining list of body avoidance viability settings.
+ Function for defining list of body avoidance viability settings.
 
-Function for defining body avoidance viability settings for multiple link ends.
-Each entry in the returned list contains the observation viability settings for one link end.
-When simulating observations, these settings ensure that any applicable observations, for which the signal path passes 'too close' to a body, will be omitted.
-The definition of 'too close' is computed as the angle between:
+ Function for defining body avoidance viability settings for multiple link ends.
+ Each entry in the returned list contains the observation viability settings for one link end.
+ When simulating observations, these settings ensure that any applicable observations, for which the signal path passes 'too close' to a body, will be omitted.
+ The definition of 'too close' is computed as the angle between:
 
-* The line-of-sight vector from a link end to a given third body
-* The line-of-sight between two link ends
+ * The line-of-sight vector from a link end to a given third body
+ * The line-of-sight between two link ends
 
-This constraint is typically used to prevent the Sun from being too close to the field-of-view of the telescope(s), as defined by
-a so-called 'SPE' (Sun-Probe-Earth) angle constraint. The present viability setting generalizes this constraint.
-
-
-Parameters
-----------
-link_end_ids : List[ Tuple[str,str] ]
-    List of individual link ends (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`), for which the elevation angle viability setting is to be created.
-    To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
-
-body_to_avoid : str
-    Name of the body which the signal path should not pass 'too close' to.
-
-avoidance_angle : float
-    Limit angle (generalization of SPE angle), below which no observations are produced when using the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.simulate_observations` function. Note: this
-    value must be in radians.
-
-Returns
--------
-:class:`ObservationViabilitySettings`
-    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
+ This constraint is typically used to prevent the Sun from being too close to the field-of-view of the telescope(s), as defined by
+ a so-called 'SPE' (Sun-Probe-Earth) angle constraint. The present viability setting generalizes this constraint.
 
 
+ Parameters
+ ----------
+ link_end_ids : List[ Tuple[str,str] ]
+     List of individual link ends (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`), for which the elevation angle viability setting is to be created.
+     To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
+
+ body_to_avoid : str
+     Name of the body which the signal path should not pass 'too close' to.
+
+ avoidance_angle : float
+     Limit angle (generalization of SPE angle), below which no observations are produced when using the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.simulate_observations` function. Note: this
+     value must be in radians.
+
+ Returns
+ -------
+ :class:`ObservationViabilitySettings`
+     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "body_occultation_viability_list",
            py::overload_cast< const std::pair< std::string, std::string >, const std::string >(
@@ -3072,52 +3061,52 @@ Returns
            py::arg( "occulting_body" ),
            R"doc(
 
-Function for defining body occultation viability settings.
+ Function for defining body occultation viability settings.
 
-Function for defining body occultation viability settings for multiple link ends.
-Each entry in the returned list contains the observation viability settings for one link end.
-When simulating observations, these settings ensure that any applicable observations, for which the signal path is occulted by a given body, will be omitted.
-The occultation is computed using the shape model of the specified body.
-
-
-Parameters
-----------
-link_end_ids : List[ Tuple[str,str] ]
-    List of individual link ends (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`), for which the viability settings are to be created.
-    To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""] is entry in this list.
-    For each link end included in this list, it will be checked if a signal received by and/or transmitted (or reflected) by this
-    link end is occulted by the specified body.
-
-body_to_avoid : str
-    Name of the body which the signal path should not be occulted by.
-
-Returns
--------
-:class:`ObservationViabilitySettings`
-    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
+ Function for defining body occultation viability settings for multiple link ends.
+ Each entry in the returned list contains the observation viability settings for one link end.
+ When simulating observations, these settings ensure that any applicable observations, for which the signal path is occulted by a given body, will be omitted.
+ The occultation is computed using the shape model of the specified body.
 
 
+ Parameters
+ ----------
+ link_end_ids : List[ Tuple[str,str] ]
+     List of individual link ends (as defined by body/reference point pair, see :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId`), for which the viability settings are to be created.
+     To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""] is entry in this list.
+     For each link end included in this list, it will be checked if a signal received by and/or transmitted (or reflected) by this
+     link end is occulted by the specified body.
+
+ body_to_avoid : str
+     Name of the body which the signal path should not be occulted by.
+
+ Returns
+ -------
+ :class:`ObservationViabilitySettings`
+     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, each defining the settings for observation viability of one link end.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     py::class_< tss::ObservationSimulationSettings< TIME_TYPE >,
                 std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >(
             m,
             "ObservationSimulationSettings",
             R"doc(
-        Base class for defining settings for simulated observations.
-     )doc" )
+         Base class for defining settings for simulated observations.
+      )doc" )
             .def_property(
                     "viability_settings_list",
                     &tss::ObservationSimulationSettings< TIME_TYPE >::getViabilitySettingsList,
                     &tss::ObservationSimulationSettings< TIME_TYPE >::setViabilitySettingsList,
                     R"doc(
-        viability_settings_list : List[ ObservationViabilitySettings ], default = [ ]) -
-        Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
-     )doc" )
+         viability_settings_list : List[ ObservationViabilitySettings ], default = [ ]) -
+         Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
+      )doc" )
             .def_property(
                     "noise_function",
                     &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationNoiseFunction,
@@ -3125,9 +3114,9 @@ Returns
                             &tss::ObservationSimulationSettings<
                                     TIME_TYPE >::setObservationNoiseFunction ),
                     R"doc(
-        noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None -
-        Function providing the observation noise as a function of observation time (can be constant or time-dependent), default is None.
-     )doc" );
+         noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None -
+         Function providing the observation noise as a function of observation time (can be constant or time-dependent), default is None.
+      )doc" );
     //            .def_property("observable_type",
     //                         &tss::ObservationSimulationSettings<double>::getObservableType,
     //                         &tss::ObservationSimulationSettings<double>::setObservableType,
@@ -3145,54 +3134,54 @@ Returns
             "TabulatedObservationSimulationSettings",
             R"doc(
 
-        Class for defining settings for simulating observations at a predefined set of times.
+         Class for defining settings for simulating observations at a predefined set of times.
 
-        Class for defining settings for simulating observations at a predefined set of times.
-        This type defines predefined time epochs at which applicable observations are to be simulated, stored in a rigid, "tabulated" form.
-        Some observation times may be discarded due to the use of viability settings.
-        Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
-        and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings_list` functions.
+         Class for defining settings for simulating observations at a predefined set of times.
+         This type defines predefined time epochs at which applicable observations are to be simulated, stored in a rigid, "tabulated" form.
+         Some observation times may be discarded due to the use of viability settings.
+         Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
+         and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings_list` functions.
 
-        Associated base class: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
+         Associated base class: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
 
-        Examples
-        --------
-        .. code-block:: python
+         Examples
+         --------
+         .. code-block:: python
 
-            # Code snippet to show the creation of a TabulatedObservationSimulationSettings object
-            import numpy as np
-            from tudatpy.astro.time_conversion import DateTime
-            from tudatpy.numerical_simulation.estimation_setup import observation
+             # Code snippet to show the creation of a TabulatedObservationSimulationSettings object
+             import numpy as np
+             from tudatpy.astro.time_conversion import DateTime
+             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Set simulation start and end epochs
-            simulation_start_epoch = DateTime(2000, 1, 1).epoch()
-            simulation_end_epoch   = DateTime(2000, 1, 4).epoch()
+             # Set simulation start and end epochs
+             simulation_start_epoch = DateTime(2000, 1, 1).epoch()
+             simulation_end_epoch   = DateTime(2000, 1, 4).epoch()
 
-            # Define the uplink link ends for one-way observable
-            link_ends = dict()
-            link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
-            link_ends[observation.receiver] = observation.body_origin_link_end_id("Delfi-C3")
+             # Define the uplink link ends for one-way observable
+             link_ends = dict()
+             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
+             link_ends[observation.receiver] = observation.body_origin_link_end_id("Delfi-C3")
 
-            # Create LinkDefinition Object and set observation settings for each link/observable
-            link_definition = observation.LinkDefinition(link_ends)
-            observation_settings_list = [observation.one_way_doppler_instantaneous(link_definition)]
+             # Create LinkDefinition Object and set observation settings for each link/observable
+             link_definition = observation.LinkDefinition(link_ends)
+             observation_settings_list = [observation.one_way_doppler_instantaneous(link_definition)]
 
-            # Define observation simulation times (separated by steps of 1 minute)
-            observation_times = np.arange(simulation_start_epoch, simulation_end_epoch, 60.0)
+             # Define observation simulation times (separated by steps of 1 minute)
+             observation_times = np.arange(simulation_start_epoch, simulation_end_epoch, 60.0)
 
-            # Create TabulatedObservationSimulationSettings object
-            tabulated_observation_simulation_settings = observation.tabulated_simulation_settings(
-                observation.one_way_instantaneous_doppler_type,
-                link_definition,
-                observation_times
-            )
+             # Create TabulatedObservationSimulationSettings object
+             tabulated_observation_simulation_settings = observation.tabulated_simulation_settings(
+                 observation.one_way_instantaneous_doppler_type,
+                 link_definition,
+                 observation_times
+             )
 
-            # Show that this is indeed a TabulatedObservationSimulationSettings object
-            print(tabulated_observation_simulation_settings)
+             # Show that this is indeed a TabulatedObservationSimulationSettings object
+             print(tabulated_observation_simulation_settings)
 
 
 
-     )doc" );
+      )doc" );
 
     py::class_< tom::ObservationAncilliarySimulationSettings,
                 std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
@@ -3200,41 +3189,41 @@ Returns
             "ObservationAncilliarySimulationSettings",
             R"doc(
 
-        Base class for holding ancilliary settings for observation simulation.
+         Base class for holding ancilliary settings for observation simulation.
 
-        Base class for holding ancilliary settings for observation simulation.
-        The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` function.
+         Base class for holding ancilliary settings for observation simulation.
+         The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` function.
 
-        Examples
-        --------
-        .. code-block:: python
+         Examples
+         --------
+         .. code-block:: python
 
-            # Code snippet to show the creation of an ObservationAncillarySimulationSettings object
-            from tudatpy.numerical_simulation.estimation_setup import observation
+             # Code snippet to show the creation of an ObservationAncillarySimulationSettings object
+             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Example 1: Create ObservationAncillarySimulationSettings object using observation.n_way_range_ancilliary_settings function
-            # In this case the frequency bands of the retransmitter - we set it to x band.
-            n_way_range_ancillary_settings = observation.n_way_range_ancilliary_settings(frequency_bands=[observation.FrequencyBands.x_band])
+             # Example 1: Create ObservationAncillarySimulationSettings object using observation.n_way_range_ancilliary_settings function
+             # In this case the frequency bands of the retransmitter - we set it to x band.
+             n_way_range_ancillary_settings = observation.n_way_range_ancilliary_settings(frequency_bands=[observation.FrequencyBands.x_band])
 
-            # Show that this is indeed an ObservationAncillarySimulationSettings object
-            print(n_way_range_ancillary_settings)
+             # Show that this is indeed an ObservationAncillarySimulationSettings object
+             print(n_way_range_ancillary_settings)
 
-            # Example 2: Create ObservationAncillarySimulationSettings object using observation.one_way_doppler_instantaneous function
-            # In this case the integration time (in seconds) has to be given as input - we set it to 60s
-            doppler_ancillary_settings = observation.doppler_ancilliary_settings(60)
+             # Example 2: Create ObservationAncillarySimulationSettings object using observation.one_way_doppler_instantaneous function
+             # In this case the integration time (in seconds) has to be given as input - we set it to 60s
+             doppler_ancillary_settings = observation.doppler_ancilliary_settings(60)
 
-            # Show that this is indeed an ObservationAncillarySimulationSettings object
-            print(doppler_ancillary_settings)
+             # Show that this is indeed an ObservationAncillarySimulationSettings object
+             print(doppler_ancillary_settings)
 
-            # [OPTIONAL] Verify that we indeed added Frequency Bands as Ancillary Simulation Variables for the n_way_range_ancillary_settings.
-            list_num = n_way_range_ancillary_settings.get_float_list_settings(observation.ObservationAncilliarySimulationVariable.frequency_bands)
-            for num in list_num:
-                name = observation.ObservationAncilliarySimulationVariable(int(num)).name
-                print(f'Ancillary Simulation Variable(s): {name}, corresponding to enumeration object n. {int(num)} of the ObservationAncilliarySimulationVariable Enumeration')
+             # [OPTIONAL] Verify that we indeed added Frequency Bands as Ancillary Simulation Variables for the n_way_range_ancillary_settings.
+             list_num = n_way_range_ancillary_settings.get_float_list_settings(observation.ObservationAncilliarySimulationVariable.frequency_bands)
+             for num in list_num:
+                 name = observation.ObservationAncilliarySimulationVariable(int(num)).name
+                 print(f'Ancillary Simulation Variable(s): {name}, corresponding to enumeration object n. {int(num)} of the ObservationAncilliarySimulationVariable Enumeration')
 
 
 
-     )doc" )
+      )doc" )
             .def( "get_float_settings",
                   &tom::ObservationAncilliarySimulationSettings::getAncilliaryDoubleData,
                   py::arg( "setting_type" ),
@@ -3242,20 +3231,20 @@ Returns
                   R"doc(
 
 
-        Parameters
-        ----------
-        setting_type : ObservationAncilliarySimulationVariable
-            Type of the setting for which the value is to be returned
+         Parameters
+         ----------
+         setting_type : ObservationAncilliarySimulationVariable
+             Type of the setting for which the value is to be returned
 
-        throw_exception : bool, default = false
-            Boolean defining whether to throw an exception if the requested setting does not exist, or does not exist as a floating point value.
+         throw_exception : bool, default = false
+             Boolean defining whether to throw an exception if the requested setting does not exist, or does not exist as a floating point value.
 
-        Returns
-        -------
-        float
-            Value of the requested ancilliary variable (or NaN if it does not exist)
+         Returns
+         -------
+         float
+             Value of the requested ancilliary variable (or NaN if it does not exist)
 
-    )doc" )
+     )doc" )
             .def( "get_float_list_settings",
                   &tom::ObservationAncilliarySimulationSettings::getAncilliaryDoubleVectorData,
                   py::arg( "setting_type" ),
@@ -3263,70 +3252,70 @@ Returns
                   R"doc(
 
 
-        Parameters
-        ----------
-        setting_type : ObservationAncilliarySimulationVariable
-            Type of the setting for which the value is to be returned
+         Parameters
+         ----------
+         setting_type : ObservationAncilliarySimulationVariable
+             Type of the setting for which the value is to be returned
 
-        throw_exception : bool, default = false
-            Boolean defining whether to throw an exception if the requested setting does not exist, or does not exist as list of floating point values.
+         throw_exception : bool, default = false
+             Boolean defining whether to throw an exception if the requested setting does not exist, or does not exist as list of floating point values.
 
-        Returns
-        -------
-        list[ float ]
-            Value of the requested ancilliary variable (or empty list if it does not exist)
+         Returns
+         -------
+         list[ float ]
+             Value of the requested ancilliary variable (or empty list if it does not exist)
 
-        Examples
-        --------
-        .. code-block:: python
+         Examples
+         --------
+         .. code-block:: python
 
-            # Code snippet to show how to retrieve ObservationAncillarySimulationSettings info
-            # using the ObservationAncilliarySimulationSettings.get_float_settings function
+             # Code snippet to show how to retrieve ObservationAncillarySimulationSettings info
+             # using the ObservationAncilliarySimulationSettings.get_float_settings function
 
-            from tudatpy.numerical_simulation.estimation_setup import observation
+             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Create Ancillary Settings
-            n_way_range_ancillary_settings = observation.n_way_range_ancilliary_settings(frequency_bands=[observation.FrequencyBands.x_band])
+             # Create Ancillary Settings
+             n_way_range_ancillary_settings = observation.n_way_range_ancilliary_settings(frequency_bands=[observation.FrequencyBands.x_band])
 
-            # Verify that we indeed added Frequency Bands as Ancillary Simulation Variables, using n_way_range_ancillary_settings.get_float_list_settings
-            list_num = n_way_range_ancillary_settings.get_float_list_settings(observation.ObservationAncilliarySimulationVariable.frequency_bands)
-            for num in list_num:
-                name = observation.ObservationAncilliarySimulationVariable(int(num)).name
-                print(f'Ancillary Simulation Variable(s): {name}, corresponding to enumeration object n. {int(num)} of the ObservationAncilliarySimulationVariable Enumeration')
-
-
+             # Verify that we indeed added Frequency Bands as Ancillary Simulation Variables, using n_way_range_ancillary_settings.get_float_list_settings
+             list_num = n_way_range_ancillary_settings.get_float_list_settings(observation.ObservationAncilliarySimulationVariable.frequency_bands)
+             for num in list_num:
+                 name = observation.ObservationAncilliarySimulationVariable(int(num)).name
+                 print(f'Ancillary Simulation Variable(s): {name}, corresponding to enumeration object n. {int(num)} of the ObservationAncilliarySimulationVariable Enumeration')
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "doppler_ancilliary_settings",
            &tom::getAveragedDopplerAncilliarySettings,
            py::arg( "integration_time" ) = 60.0,
            R"doc(
 
-Function for creating ancilliary settings for averaged Doppler observable.
+ Function for creating ancilliary settings for averaged Doppler observable.
 
-Function for creating ancilliary settings for an averaged Doppler observable. Specifically, this
-function can be used to create settings for the integration time of the observable. Note: in case no retransmission
-delays (or other additional ancilliary settings) are to be defined, this setting may be used for one-, two-, or N-way
-averaged Doppler.
-
-
-Parameters
-----------
-integration_time : float, default = 60.0
-    Integration time that is to be used for the averaged Doppler observable
-Returns
--------
-:class:`ObservationAncilliarySimulationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
+ Function for creating ancilliary settings for an averaged Doppler observable. Specifically, this
+ function can be used to create settings for the integration time of the observable. Note: in case no retransmission
+ delays (or other additional ancilliary settings) are to be defined, this setting may be used for one-, two-, or N-way
+ averaged Doppler.
 
 
+ Parameters
+ ----------
+ integration_time : float, default = 60.0
+     Integration time that is to be used for the averaged Doppler observable
+ Returns
+ -------
+ :class:`ObservationAncilliarySimulationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "two_way_range_ancilliary_settings",
            &tom::getTwoWayRangeAncilliarySettings,
@@ -3335,29 +3324,29 @@ Returns
            // tom::FrequencyBands::x_band,
            R"doc(
 
-Function for creating ancilliary settings for two-way range observable.
+ Function for creating ancilliary settings for two-way range observable.
 
-Function for creating ancilliary settings for a two-way range observable. Specifically, this
-function can be used to create settings for the retransmission delay of the observable. NOTE:
-this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range_ancilliary_settings`
-with a single retransmission delay.
-
-
-Parameters
-----------
-retransmission_delay : float, default = 0.0
-    Retransmission delay that is to be applied to the simulation of the two-way observable
-Returns
--------
-:class:`ObservationAncilliarySimulationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
+ Function for creating ancilliary settings for a two-way range observable. Specifically, this
+ function can be used to create settings for the retransmission delay of the observable. NOTE:
+ this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range_ancilliary_settings`
+ with a single retransmission delay.
 
 
+ Parameters
+ ----------
+ retransmission_delay : float, default = 0.0
+     Retransmission delay that is to be applied to the simulation of the two-way observable
+ Returns
+ -------
+ :class:`ObservationAncilliarySimulationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "two_way_doppler_ancilliary_settings",
            &tom::getTwoWayAveragedDopplerAncilliarySettings,
@@ -3365,31 +3354,31 @@ Returns
            py::arg( "retransmission_delay" ) = 0.0,
            R"doc(
 
-Function for creating ancilliary settings for two-way averaged Doppler observable.
+ Function for creating ancilliary settings for two-way averaged Doppler observable.
 
-Function for creating ancilliary settings for a two-way range observable. Specifically, this
-function can be used to create settings for the retransmission delay of the observable.  NOTE:
-this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_ancilliary_settings`
-with a single retransmission delay.
-
-
-Parameters
-----------
-integration_time : float, default = 60.0
-    Integration time that is to be used for the averaged Doppler observable
-retransmission_delay : float, default = 0.0
-    Retransmission delay that is to be applied to the simulation of the two-way observable
-Returns
--------
-:class:`ObservationAncilliarySimulationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
+ Function for creating ancilliary settings for a two-way range observable. Specifically, this
+ function can be used to create settings for the retransmission delay of the observable.  NOTE:
+ this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_ancilliary_settings`
+ with a single retransmission delay.
 
 
+ Parameters
+ ----------
+ integration_time : float, default = 60.0
+     Integration time that is to be used for the averaged Doppler observable
+ retransmission_delay : float, default = 0.0
+     Retransmission delay that is to be applied to the simulation of the two-way observable
+ Returns
+ -------
+ :class:`ObservationAncilliarySimulationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "n_way_range_ancilliary_settings",
            &tom::getNWayRangeAncilliarySettings,
@@ -3397,27 +3386,27 @@ Returns
            py::arg( "frequency_bands" ) = std::vector< tom::FrequencyBands >( ),
            R"doc(
 
-Function for creating ancilliary settings for n-way range observable.
+ Function for creating ancilliary settings for n-way range observable.
 
-Function for creating ancilliary settings for a n-way range observable. Specifically, this
-function can be used to create settings for the retransmission delays of the observable, for each of the retransmitters.
-
-
-Parameters
-----------
-retransmission_delays : list[ float ], default = None
-    Retransmission delays that are to be applied to the simulation of the n-way observable. If kept empty, this results in 0 retransmission delay at each retransmitter. If defined, this list must be the same length as the number of retransmitters, and the :math:`i^{th}` entry contains the retransmission delay of the :math:`i^{th}` retrasmitter
-Returns
--------
-:class:`ObservationAncilliarySimulationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
+ Function for creating ancilliary settings for a n-way range observable. Specifically, this
+ function can be used to create settings for the retransmission delays of the observable, for each of the retransmitters.
 
 
+ Parameters
+ ----------
+ retransmission_delays : list[ float ], default = None
+     Retransmission delays that are to be applied to the simulation of the n-way observable. If kept empty, this results in 0 retransmission delay at each retransmitter. If defined, this list must be the same length as the number of retransmitters, and the :math:`i^{th}` entry contains the retransmission delay of the :math:`i^{th}` retrasmitter
+ Returns
+ -------
+ :class:`ObservationAncilliarySimulationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "n_way_doppler_ancilliary_settings",
            &tom::getNWayAveragedDopplerAncilliarySettings,
@@ -3426,29 +3415,29 @@ Returns
            py::arg( "frequency_bands" ) = std::vector< tom::FrequencyBands >( ),
            R"doc(
 
-Function for creating ancilliary settings for n-way averaged Doppler observable.
+ Function for creating ancilliary settings for n-way averaged Doppler observable.
 
-Function for creating ancilliary settings for a n-way averaged Doppler observable. Specifically, this
-function can be used to create settings for the integration time of the observable, and the  retransmission delays for each of the retransmitters.
-
-
-Parameters
-----------
-integration_time : float, default = 60.0
-    Integration time that is to be used for the averaged Doppler observable
-retransmission_delays : list[ float ], default = None
-    Retransmission delays that are to be applied to the simulation of the n-way observable. If kept empty, this results in 0 retransmission delay at each retransmitter. If defined, this list must be the same length as the number of retransmitters, and the :math:`i^{th}` entry contains the retransmission delay of the :math:`i^{th}` retrasmitter
-Returns
--------
-:class:`ObservationAncilliarySimulationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
+ Function for creating ancilliary settings for a n-way averaged Doppler observable. Specifically, this
+ function can be used to create settings for the integration time of the observable, and the  retransmission delays for each of the retransmitters.
 
 
+ Parameters
+ ----------
+ integration_time : float, default = 60.0
+     Integration time that is to be used for the averaged Doppler observable
+ retransmission_delays : list[ float ], default = None
+     Retransmission delays that are to be applied to the simulation of the n-way observable. If kept empty, this results in 0 retransmission delay at each retransmitter. If defined, this list must be the same length as the number of retransmitters, and the :math:`i^{th}` entry contains the retransmission delay of the :math:`i^{th}` retrasmitter
+ Returns
+ -------
+ :class:`ObservationAncilliarySimulationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "dsn_n_way_doppler_ancilliary_settings",
            &tom::getDsnNWayAveragedDopplerAncillarySettings,
@@ -3484,40 +3473,40 @@ Returns
            py::arg( "ancilliary_settings" ) = nullptr,
            R"doc(
 
-Function for creating settings object for observation simulation, using a predefined list of observation times.
+ Function for creating settings object for observation simulation, using a predefined list of observation times.
 
-Function for creating single simulation settings object, using a predefined list of observation times.
-The list of resulting observations may be reduced compared to the ``simulation_times`` should be provided here, as
-only observations that meet the viability settings are retained during observation simulation (these may be
-provide directly here through the ``viability_settings`` input, or added later to the resulting settings object).
-
-
-Parameters
-----------
-observable_type : :class:`ObservableType`
-    Observable type of which observations are to be simulated.
-link_ends : LinkDefinition
-    Link ends for which observations are to be simulated.
-simulation_times : List[float]
-    List of times at which to perform the observation simulation.
-reference_link_end_type : :class:`LinkEndType`, default = :class:`LinkEndType.receiver`
-    Defines the link end (via the :class:`LinkEndType`) which is used as a reference time for the observation.
-viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
-    Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
-
-noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None
-    Function providing the observation noise factors as a function of observation time.
-Returns
--------
-:class:`TabulatedObservationSimulationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` class.
+ Function for creating single simulation settings object, using a predefined list of observation times.
+ The list of resulting observations may be reduced compared to the ``simulation_times`` should be provided here, as
+ only observations that meet the viability settings are retained during observation simulation (these may be
+ provide directly here through the ``viability_settings`` input, or added later to the resulting settings object).
 
 
+ Parameters
+ ----------
+ observable_type : :class:`ObservableType`
+     Observable type of which observations are to be simulated.
+ link_ends : LinkDefinition
+     Link ends for which observations are to be simulated.
+ simulation_times : List[float]
+     List of times at which to perform the observation simulation.
+ reference_link_end_type : :class:`LinkEndType`, default = :class:`LinkEndType.receiver`
+     Defines the link end (via the :class:`LinkEndType`) which is used as a reference time for the observation.
+ viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
+     Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
+
+ noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None
+     Function providing the observation noise factors as a function of observation time.
+ Returns
+ -------
+ :class:`TabulatedObservationSimulationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` class.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "tabulated_simulation_settings_list",
            &tss::createTabulatedObservationSimulationSettingsList< TIME_TYPE >,
@@ -3528,39 +3517,39 @@ Returns
                    std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
            R"doc(
 
-Function for creating a list of settings object for observation simulation, using a predefined list of observation times.
+ Function for creating a list of settings object for observation simulation, using a predefined list of observation times.
 
-Function for creating multiple tabulated observation simulation settings objects in a list. This function is
-equivalent to calling the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings` repeatedly, with the different
-observables and link definition provided here through `link_ends_per_observable`.
-During a single call to this function, one simulation settings object is created for each combination of observable type and link geometry given by the `link_ends_per_observable` parameter.
-
-
-Parameters
-----------
-link_ends_per_observable : Dict[:class:`ObservableType`, List[LinkDefinition]]]
-    Link geometry per observable type of which observations are to be simulated.
-simulation_times : List[ float ]
-    List of times at which to perform the observation simulation.
-reference_link_end_type : :class:`LinkEndType`, default = :class:`LinkEndType.receiver`
-    Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
-    The single link end specified here will be considered as the reference link end for all simulation settings object created in the function call.
-
-viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
-    Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
-    The single settings list given here will be considered as potential viability settings for all simulation settings object created in the function call.
-
-Returns
--------
-List[ TabulatedObservationSimulationSettings ]
-    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` objects.
+ Function for creating multiple tabulated observation simulation settings objects in a list. This function is
+ equivalent to calling the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings` repeatedly, with the different
+ observables and link definition provided here through `link_ends_per_observable`.
+ During a single call to this function, one simulation settings object is created for each combination of observable type and link geometry given by the `link_ends_per_observable` parameter.
 
 
+ Parameters
+ ----------
+ link_ends_per_observable : Dict[:class:`ObservableType`, List[LinkDefinition]]]
+     Link geometry per observable type of which observations are to be simulated.
+ simulation_times : List[ float ]
+     List of times at which to perform the observation simulation.
+ reference_link_end_type : :class:`LinkEndType`, default = :class:`LinkEndType.receiver`
+     Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
+     The single link end specified here will be considered as the reference link end for all simulation settings object created in the function call.
+
+ viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
+     Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
+     The single settings list given here will be considered as potential viability settings for all simulation settings object created in the function call.
+
+ Returns
+ -------
+ List[ TabulatedObservationSimulationSettings ]
+     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` objects.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "continuous_arc_simulation_settings",
            &tss::perArcObservationSimulationSettings< TIME_TYPE >,
@@ -3579,65 +3568,65 @@ List[ TabulatedObservationSimulationSettings ]
            py::arg( "noise_function" ) = nullptr,
            R"doc(
 
-Function for creating settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
+ Function for creating settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
 
-Function for creating settings object for observation simulation. Unlike the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
-function, the resulting settings do not define the observation times explicitly. Instead, this settings object determines the observation times adaptively during the
-simulation of the observation, with the requirement that observations should be simulated over a set of contiguous arcs (if possible). The exact algorithm meets the following conditions:
+ Function for creating settings object for observation simulation. Unlike the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
+ function, the resulting settings do not define the observation times explicitly. Instead, this settings object determines the observation times adaptively during the
+ simulation of the observation, with the requirement that observations should be simulated over a set of contiguous arcs (if possible). The exact algorithm meets the following conditions:
 
-* Observations are only simulated within the time span of ``start_time`` and ``end_time``
-* A contiguous tracking arc has simulated observations separated by ``interval_between_observations``
-* Starting from ``start_time``, an observation is simulated each ``interval_between_observations``. Once an observation is unviable, as defined by
-  the ``arc_limiting_constraints`` input, it is checked whether the arc up until that point
-  is longer in duration than ``minimum_arc_duration``. If it is, the arc is added to the simulated observations. If not, the arc is discarded. In either case, a new arc is started once a
-  viable is observation is encountered
-* If the current arc reaches a duration greater than ``maximum_arc_duration``, the arc is added to the existing observations, and a new arc is started
-* If defined (e.g. if not NaN), the current observation time is incremented by ``minimum_time_between_arcs`` when an arc has been added to the observations.
+ * Observations are only simulated within the time span of ``start_time`` and ``end_time``
+ * A contiguous tracking arc has simulated observations separated by ``interval_between_observations``
+ * Starting from ``start_time``, an observation is simulated each ``interval_between_observations``. Once an observation is unviable, as defined by
+   the ``arc_limiting_constraints`` input, it is checked whether the arc up until that point
+   is longer in duration than ``minimum_arc_duration``. If it is, the arc is added to the simulated observations. If not, the arc is discarded. In either case, a new arc is started once a
+   viable is observation is encountered
+ * If the current arc reaches a duration greater than ``maximum_arc_duration``, the arc is added to the existing observations, and a new arc is started
+ * If defined (e.g. if not NaN), the current observation time is incremented by ``minimum_time_between_arcs`` when an arc has been added to the observations.
 
-Nominally, this algorithm ensures that any arc of observations has a minimum and maximum duration. In addition, it ensures that (if desired) there is a minimum time interval
-between two tracking arcs. This behaviour can be modified by adding ``additional_viability_settings``, which are *not* used when computing the tracking arcs, but which are instead only used
-to reduce the set of simulated observations afterwards.
-
-
-Parameters
-----------
-observable_type : :class:`ObservableType`
-    Observable type of which observations are to be simulated.
-link_ends : LinkDefinition
-    Link ends for which observations are to be simulated.
-start_time : float
-    First time at which an observation is to be simulated (and checked for viability).
-end_time : float
-    Maximum time at which an observation is to be simulated (and checked for viability).
-interval_between_observations : float
-    Cadence (in seconds) of subsequent observations in an arc
-arc_limiting_constraints : List[ :class:`ObservationViabilitySettings` ], default = [ ]
-    List of settings for the creation of the viability criteria calculators, which are used to check if an observation is viable, and define
-    whether an arc should be terminated.
-
-minimum_arc_duration : float
-    Minimum permissible time for a tracking arc
-maximum_arc_duration : float
-    Maximum permissible time for a tracking arc
-minimum_time_between_arc : float, default = NaN
-    Minimum time between two tracking arcs. If NaN, this is effectively set to the ``interval_between_observations``
-additional_viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
-    Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
-    These settings are *not* used to determine whether an arc is to be terminated, but are instead applied after the arcs have been computed.
-
-noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None
-    Function providing the observation noise factors as a function of observation time.
-Returns
--------
-:class:`TabulatedObservationSimulationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` class.
+ Nominally, this algorithm ensures that any arc of observations has a minimum and maximum duration. In addition, it ensures that (if desired) there is a minimum time interval
+ between two tracking arcs. This behaviour can be modified by adding ``additional_viability_settings``, which are *not* used when computing the tracking arcs, but which are instead only used
+ to reduce the set of simulated observations afterwards.
 
 
+ Parameters
+ ----------
+ observable_type : :class:`ObservableType`
+     Observable type of which observations are to be simulated.
+ link_ends : LinkDefinition
+     Link ends for which observations are to be simulated.
+ start_time : float
+     First time at which an observation is to be simulated (and checked for viability).
+ end_time : float
+     Maximum time at which an observation is to be simulated (and checked for viability).
+ interval_between_observations : float
+     Cadence (in seconds) of subsequent observations in an arc
+ arc_limiting_constraints : List[ :class:`ObservationViabilitySettings` ], default = [ ]
+     List of settings for the creation of the viability criteria calculators, which are used to check if an observation is viable, and define
+     whether an arc should be terminated.
+
+ minimum_arc_duration : float
+     Minimum permissible time for a tracking arc
+ maximum_arc_duration : float
+     Maximum permissible time for a tracking arc
+ minimum_time_between_arc : float, default = NaN
+     Minimum time between two tracking arcs. If NaN, this is effectively set to the ``interval_between_observations``
+ additional_viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
+     Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
+     These settings are *not* used to determine whether an arc is to be terminated, but are instead applied after the arcs have been computed.
+
+ noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None
+     Function providing the observation noise factors as a function of observation time.
+ Returns
+ -------
+ :class:`TabulatedObservationSimulationSettings`
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` class.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "continuous_arc_simulation_settings_list",
            &tss::perArcObservationSimulationSettingsList< TIME_TYPE >,
@@ -3654,49 +3643,49 @@ Returns
                    std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
            R"doc(
 
-Function for creating a list of settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
+ Function for creating a list of settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
 
-Function for creating multiple settings objects for observation simulation in a list. This function is
-equivalent to calling the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.continuous_arc_simulation_settings` repeatedly, with the different
-observables and link definition provided here through `link_ends_per_observable`.
-During a single call to this function, one simulation settings object is created for each combination of observable type and link geometry given by the `link_ends_per_observable` parameter.
-
-
-Parameters
-----------
-link_ends_per_observable : Dict[:class:`ObservableType`, List[LinkDefinition]]]
-    Link geometry per observable type of which observations are to be simulated.
-start_time : float
-    First time at which an observation is to be simulated (and checked for viability).
-end_time : float
-    Maximum time at which an observation is to be simulated (and checked for viability).
-interval_between_observations : float
-    Cadence (in seconds) of subsequent observations in an arc
-arc_limiting_constraints : List[ :class:`ObservationViabilitySettings` ], default = [ ]
-    List of settings for the creation of the viability criteria calculators, which are used to check if an observation is viable, and define
-    whether an arc should be terminated.
-
-minimum_arc_duration : float
-    Minimum permissible time for a tracking arc
-maximum_arc_duration : float
-    Maximum permissible time for a tracking arc
-minimum_time_between_arc : float, default = NaN
-    Minimum time between two tracking arcs. If NaN, this is effectively set to the ``interval_between_observations``
-additional_viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
-    Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
-    These settings are *not* used to determine whether an arc is to be terminated, but are instead applied after the arcs have been computed.
-
-Returns
--------
-List[ :class:`TabulatedObservationSimulationSettings` ]
-    List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` objects.
+ Function for creating multiple settings objects for observation simulation in a list. This function is
+ equivalent to calling the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.continuous_arc_simulation_settings` repeatedly, with the different
+ observables and link definition provided here through `link_ends_per_observable`.
+ During a single call to this function, one simulation settings object is created for each combination of observable type and link geometry given by the `link_ends_per_observable` parameter.
 
 
+ Parameters
+ ----------
+ link_ends_per_observable : Dict[:class:`ObservableType`, List[LinkDefinition]]]
+     Link geometry per observable type of which observations are to be simulated.
+ start_time : float
+     First time at which an observation is to be simulated (and checked for viability).
+ end_time : float
+     Maximum time at which an observation is to be simulated (and checked for viability).
+ interval_between_observations : float
+     Cadence (in seconds) of subsequent observations in an arc
+ arc_limiting_constraints : List[ :class:`ObservationViabilitySettings` ], default = [ ]
+     List of settings for the creation of the viability criteria calculators, which are used to check if an observation is viable, and define
+     whether an arc should be terminated.
+
+ minimum_arc_duration : float
+     Minimum permissible time for a tracking arc
+ maximum_arc_duration : float
+     Maximum permissible time for a tracking arc
+ minimum_time_between_arc : float, default = NaN
+     Minimum time between two tracking arcs. If NaN, this is effectively set to the ``interval_between_observations``
+ additional_viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
+     Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
+     These settings are *not* used to determine whether an arc is to be terminated, but are instead applied after the arcs have been computed.
+
+ Returns
+ -------
+ List[ :class:`TabulatedObservationSimulationSettings` ]
+     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` objects.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_noise_function_to_all",
            py::overload_cast< const std::vector< std::shared_ptr<
@@ -3707,36 +3696,36 @@ List[ :class:`TabulatedObservationSimulationSettings` ]
            py::arg( "noise_amplitude" ),
            R"doc(
 
-Function for adding a custom noise function to all existing observation simulation settings.
+ Function for adding a custom noise function to all existing observation simulation settings.
 
-Function for including a custom noise function to the simulation settings of all observables.
-The noise settings are added to all :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) in the `observation_simulation_settings`
-list.
+ Function for including a custom noise function to the simulation settings of all observables.
+ The noise settings are added to all :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) in the `observation_simulation_settings`
+ list.
 
-Note: the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects are modified in-place by this function,
-and thus the function does not return anything.
-
-
-Parameters
-----------
-observation_simulation_settings_list : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-
-noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ]
-    Function providing the observation noise factors as a function of observation time.
-
-Returns
--------
-None
-    The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
+ Note: the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects are modified in-place by this function,
+ and thus the function does not return anything.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings_list : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+
+ noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ]
+     Function providing the observation noise factors as a function of observation time.
+
+ Returns
+ -------
+ None
+     The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
 
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_noise_function_to_observable",
            py::overload_cast< const std::vector< std::shared_ptr<
@@ -3749,35 +3738,35 @@ None
            py::arg( "observable_type" ),
            R"doc(
 
-Function for adding a custom noise function to selected existing observation simulation settings of a given observable type.
+ Function for adding a custom noise function to selected existing observation simulation settings of a given observable type.
 
-As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_noise_function_to_all`, except that the function only adds noise to entries of the
-`observation_simulation_settings` list that matches the specified `observable_type`.
-
-
-Parameters
-----------
-observation_simulation_settings_list : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-
-noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ]
-    Function providing the observation noise factors as a function of observation time.
-
-observable_type : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`
-    Identifies the observable type in the observation simulation settings to which the noise is to be added.
-
-Returns
--------
-None
-    The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
+ As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_noise_function_to_all`, except that the function only adds noise to entries of the
+ `observation_simulation_settings` list that matches the specified `observable_type`.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings_list : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+
+ noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ]
+     Function providing the observation noise factors as a function of observation time.
+
+ observable_type : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`
+     Identifies the observable type in the observation simulation settings to which the noise is to be added.
+
+ Returns
+ -------
+ None
+     The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
 
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_noise_function_to_observable_for_link_ends",
            py::overload_cast< const std::vector< std::shared_ptr<
@@ -3792,38 +3781,38 @@ None
            py::arg( "link_ends" ),
            R"doc(
 
-Function for adding a custom noise function to existing observation simulation settings of a given observable type and link definition.
+ Function for adding a custom noise function to existing observation simulation settings of a given observable type and link definition.
 
-As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_noise_function_to_all`, except that the function only adds noise to entries of the
-`observation_simulation_settings` list that matches the specified `observable_type` and `link_definition`.
-
-
-Parameters
-----------
-observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-
-noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ]
-    Function providing the observation noise factors as a function of observation time.
-
-observable_type : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`
-    Identifies the observable type in the observation simulation settings to which the noise is to be added.
-
-link_definition : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition`
-    Identifies the link definition in the observation simulation settings for which the noise is to be added.
-
-Returns
--------
-None
-    The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
+ As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_noise_function_to_all`, except that the function only adds noise to entries of the
+ `observation_simulation_settings` list that matches the specified `observable_type` and `link_definition`.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+
+ noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ]
+     Function providing the observation noise factors as a function of observation time.
+
+ observable_type : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`
+     Identifies the observable type in the observation simulation settings to which the noise is to be added.
+
+ link_definition : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition`
+     Identifies the link definition in the observation simulation settings for which the noise is to be added.
+
+ Returns
+ -------
+ None
+     The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
 
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_gaussian_noise_to_all",
            py::overload_cast< const std::vector< std::shared_ptr<
@@ -3834,34 +3823,34 @@ None
            py::arg( "noise_amplitude" ),
            R"doc(
 
-Function for adding gaussian noise function to all existing observation simulation settings.
+ Function for adding gaussian noise function to all existing observation simulation settings.
 
-Function for including simple time-independent and time-uncorrelated Gaussian noise function to the simulation settings of one or more observable(s).
-The noise settings are added to all :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) in the `observation_simulation_settings`
-list.
+ Function for including simple time-independent and time-uncorrelated Gaussian noise function to the simulation settings of one or more observable(s).
+ The noise settings are added to all :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) in the `observation_simulation_settings`
+ list.
 
-Note: the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects are modified in-place by this function,
-and thus the function does not return anything.
-
-
-Parameters
-----------
-observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-noise_amplitude : float
-    Standard deviation defining the un-biased Gaussian distribution for the noise.
-Returns
--------
-None
-    The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
+ Note: the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects are modified in-place by this function,
+ and thus the function does not return anything.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+ noise_amplitude : float
+     Standard deviation defining the un-biased Gaussian distribution for the noise.
+ Returns
+ -------
+ None
+     The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
 
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_gaussian_noise_to_observable",
            py::overload_cast< const std::vector< std::shared_ptr<
@@ -3874,33 +3863,33 @@ None
            py::arg( "observable_type" ),
            R"doc(
 
-Function for adding gaussian noise function to existing observation simulation settings of a given observable type.
+ Function for adding gaussian noise function to existing observation simulation settings of a given observable type.
 
-As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_gaussian_noise_to_all`, except that the function only adds noise to entries of the
-`observation_simulation_settings` list that matches the specified `observable_type`.
-
-
-Parameters
-----------
-observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-noise_amplitude : float
-    Standard deviation defining the un-biased Gaussian distribution for the noise.
-observable_type : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`
-    Identifies the observable type in the observation simulation settings to which the noise is to be added.
-
-Returns
--------
-None
-    The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
+ As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_gaussian_noise_to_all`, except that the function only adds noise to entries of the
+ `observation_simulation_settings` list that matches the specified `observable_type`.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+ noise_amplitude : float
+     Standard deviation defining the un-biased Gaussian distribution for the noise.
+ observable_type : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`
+     Identifies the observable type in the observation simulation settings to which the noise is to be added.
+
+ Returns
+ -------
+ None
+     The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
 
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_gaussian_noise_to_observable_for_link_ends",
            py::overload_cast< const std::vector< std::shared_ptr<
@@ -3915,36 +3904,36 @@ None
            py::arg( "link_definition" ),
            R"doc(
 
-Function for adding gaussian noise function to existing observation simulation settings of a given observable type and link definition.
+ Function for adding gaussian noise function to existing observation simulation settings of a given observable type and link definition.
 
-As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_gaussian_noise_to_all`, except that the function only adds noise to entries of the
-`observation_simulation_settings` list that matches the specified `observable_type` and `link_definition`.
-
-
-Parameters
-----------
-observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-noise_amplitude : float
-    Standard deviation defining the un-biased Gaussian distribution for the noise.
-observable_type : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`
-    Identifies the observable type in the observation simulation settings to which the noise is to be added.
-
-link_definition : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition`
-    Identifies the link definition in the observation simulation settings for which the noise is to be added.
-
-Returns
--------
-None
-    The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
+ As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_gaussian_noise_to_all`, except that the function only adds noise to entries of the
+ `observation_simulation_settings` list that matches the specified `observable_type` and `link_definition`.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+ noise_amplitude : float
+     Standard deviation defining the un-biased Gaussian distribution for the noise.
+ observable_type : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`
+     Identifies the observable type in the observation simulation settings to which the noise is to be added.
+
+ link_definition : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition`
+     Identifies the link definition in the observation simulation settings for which the noise is to be added.
+
+ Returns
+ -------
+ None
+     The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
 
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_viability_check_to_all",
            py::overload_cast<
@@ -3956,34 +3945,34 @@ None
            py::arg( "viability_settings" ),
            R"doc(
 
-Function for including viability checks into existing observation simulation settings.
+ Function for including viability checks into existing observation simulation settings.
 
-Function for adding viability checks to the observation simulation settings, such that only observations meeting certain conditions are retained.
-The noise settings are added to all :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) in the `observation_simulation_settings`
-list.
-Note: the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects are modified in-place by this function,
-and thus the function does not return anything.
-
-
-Parameters
-----------
-observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-viability_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` ]
-    List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, defining the viability checks to be included.
-
-Returns
--------
-None
-    The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
+ Function for adding viability checks to the observation simulation settings, such that only observations meeting certain conditions are retained.
+ The noise settings are added to all :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) in the `observation_simulation_settings`
+ list.
+ Note: the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects are modified in-place by this function,
+ and thus the function does not return anything.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+ viability_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` ]
+     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, defining the viability checks to be included.
+
+ Returns
+ -------
+ None
+     The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
 
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_viability_check_to_observable",
            py::overload_cast<
@@ -3997,34 +3986,34 @@ None
            py::arg( "observable_type" ),
            R"doc(
 
-Function for including viability checks into existing observation simulation settings.
+ Function for including viability checks into existing observation simulation settings.
 
-As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_viability_check_to_all`, except that the function only adds viabilitt settings to entries of the
-`observation_simulation_settings` list that matches the specified `observable_type`.
-
-
-Parameters
-----------
-observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-viability_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` ]
-    List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, defining the viability checks to be included.
-
-observable_type : :class:`ObservableType`
-    Identifies the observable type in the observation simulation settings for which the viability checks are to be considered.
-
-Returns
--------
-None
-    The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
+ As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_viability_check_to_all`, except that the function only adds viabilitt settings to entries of the
+ `observation_simulation_settings` list that matches the specified `observable_type`.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+ viability_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` ]
+     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, defining the viability checks to be included.
+
+ observable_type : :class:`ObservableType`
+     Identifies the observable type in the observation simulation settings for which the viability checks are to be considered.
+
+ Returns
+ -------
+ None
+     The :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s) are changed in-place.
 
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_viability_check_to_observable_for_link_ends",
            py::overload_cast<
@@ -4040,36 +4029,36 @@ None
            py::arg( "link_ends" ),
            R"doc(
 
-Function for including viability checks into existing observation simulation settings.
+ Function for including viability checks into existing observation simulation settings.
 
-As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_viability_check_to_all`, except that the function only adds noise to entries of the
-`observation_simulation_settings` list that matches the specified `observable_type` and `link_definition`.
-
-
-Parameters
-----------
-observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-viability_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` ]
-    List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, defining the viability checks to be included.
-
-observable_type : :class:`ObservableType`
-    Identifies the observable type in the observation simulation settings for which the viability checks are to be considered.
-
-link_definition : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition`
-    Identifies the link definition in the observation simulation settings for which the viability checks are to be considered.
-
-Returns
--------
-None
+ As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_viability_check_to_all`, except that the function only adds noise to entries of the
+ `observation_simulation_settings` list that matches the specified `observable_type` and `link_definition`.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+ viability_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` ]
+     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationViabilitySettings` objects, defining the viability checks to be included.
+
+ observable_type : :class:`ObservableType`
+     Identifies the observable type in the observation simulation settings for which the viability checks are to be considered.
+
+ link_definition : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition`
+     Identifies the link definition in the observation simulation settings for which the viability checks are to be considered.
+
+ Returns
+ -------
+ None
 
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_ancilliary_settings_to_observable",
            py::overload_cast<
@@ -4103,28 +4092,28 @@ None
             "ObservationDependentVariableSettings",
             R"doc(
 
-        Base class for setting observation dependent variables as part of the observation output.
+         Base class for setting observation dependent variables as part of the observation output.
 
-        Base class for setting observation dependent variables as part of the observation output.
-        The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` function.
-        Note: The associated functionality is not yet mature enough for the end user. Class is exposed for development purposes only.
+         Base class for setting observation dependent variables as part of the observation output.
+         The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` function.
+         Note: The associated functionality is not yet mature enough for the end user. Class is exposed for development purposes only.
 
-        Examples
-        --------
-        .. code-block:: python
+         Examples
+         --------
+         .. code-block:: python
 
-            # Code snippet to show the creation of an ObservationDependentVariableSettings object
-            from tudatpy.numerical_simulation.estimation_setup import observation
+             # Code snippet to show the creation of an ObservationDependentVariableSettings object
+             from tudatpy.numerical_simulation.estimation_setup import observation
 
-            # Create ObservationDependentVariableSettings object
-            elevation_angle_settings = observation.elevation_angle_dependent_variable(observation.receiver)
+             # Create ObservationDependentVariableSettings object
+             elevation_angle_settings = observation.elevation_angle_dependent_variable(observation.receiver)
 
-            # Show that this is indeed an ObservationDependentVariableSettings object
-            print(elevation_angle_settings)
+             # Show that this is indeed an ObservationDependentVariableSettings object
+             print(elevation_angle_settings)
 
 
 
-     )doc" );
+      )doc" );
 
     m.def( "add_dependent_variables_to_all",
            py::overload_cast<
@@ -4139,33 +4128,33 @@ None
            py::arg( "bodies" ),
            R"doc(
 
-Function for including dependent variables into all existing observation simulation settings.
+ Function for including dependent variables into all existing observation simulation settings.
 
-Function for including the computation and reporting of dependent variables into the observation simulation settings of all observables.
-Note: The associated functionality is not yet mature enough for the end user. Function is exposed for development purposes only.
+ Function for including the computation and reporting of dependent variables into the observation simulation settings of all observables.
+ Note: The associated functionality is not yet mature enough for the end user. Function is exposed for development purposes only.
 
-Modifications are applied to all given :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s),
-matching each :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object with the corresponding :class:`ObservationDependentVariableSettings` entry in the `dependent_variable_settings` parameter.
-Note that the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects are modified in-place and thus the function does not return anything.
-
-
-Parameters
-----------
-observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-
-dependent_variable_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` ]
-    List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
-
-bodies : :class:`~tudatpy.numerical_simulation.environment_setup.SystemOfBodies`
-    Object consolidating all bodies and environment models that constitute the physical environment.
+ Modifications are applied to all given :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s),
+ matching each :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object with the corresponding :class:`ObservationDependentVariableSettings` entry in the `dependent_variable_settings` parameter.
+ Note that the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects are modified in-place and thus the function does not return anything.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+
+ dependent_variable_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` ]
+     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
+
+ bodies : :class:`~tudatpy.numerical_simulation.environment_setup.SystemOfBodies`
+     Object consolidating all bodies and environment models that constitute the physical environment.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_dependent_variables_to_observable",
            py::overload_cast<
@@ -4182,32 +4171,32 @@ bodies : :class:`~tudatpy.numerical_simulation.environment_setup.SystemOfBodies`
            py::arg( "observable_type" ),
            R"doc(
 
-Function for including dependent variables into selected existing observation simulation settings.
+ Function for including dependent variables into selected existing observation simulation settings.
 
-As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_dependent_variables_to_all`, except that the function only adds includes the
-computation and reporting of dependent variables to entries of the `observation_simulation_settings` list that matches the specified `observable_type`.
-
-
-Parameters
-----------
-observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-    Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
-
-dependent_variable_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` ]
-    List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
-
-bodies : :class:`~tudatpy.numerical_simulation.environment_setup.SystemOfBodies`
-    Object consolidating all bodies and environment models that constitute the physical environment.
-
-observable_type : :class:`ObservableType`
-    Identifies the observable type in the observation simulation settings for which the dependent variables are to be included.
+ As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_dependent_variables_to_all`, except that the function only adds includes the
+ computation and reporting of dependent variables to entries of the `observation_simulation_settings` list that matches the specified `observable_type`.
 
 
+ Parameters
+ ----------
+ observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+
+ dependent_variable_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` ]
+     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
+
+ bodies : :class:`~tudatpy.numerical_simulation.environment_setup.SystemOfBodies`
+     Object consolidating all bodies and environment models that constitute the physical environment.
+
+ observable_type : :class:`ObservableType`
+     Identifies the observable type in the observation simulation settings for which the dependent variables are to be included.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "add_dependent_variables_to_observable_for_link_ends",
            py::overload_cast<

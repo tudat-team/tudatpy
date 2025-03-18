@@ -49,6 +49,7 @@ namespace tss = tudat::simulation_setup;
 namespace ti = tudat::interpolators;
 namespace tsm = tudat::system_models;
 namespace tom = tudat::observation_models;
+namespace tem = tudat::electromagnetism;
 
 namespace tudat
 {
@@ -135,74 +136,74 @@ PYBIND11_MODULE( expose_environment, m )
             "AerodynamicCoefficientsIndependentVariables",
             R"doc(
 
-        Enumeration of the independent variables that can be used to compute aerodynamic coefficients.
+         Enumeration of the independent variables that can be used to compute aerodynamic coefficients.
 
 
 
 
 
-     )doc" )
+      )doc" )
             .value( "mach_number_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::mach_number_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "angle_of_attack_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::angle_of_attack_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "sideslip_angle_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::angle_of_sideslip_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "altitude_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::altitude_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "time_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "temperature_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::temperature_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "velocity_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::velocity_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "he_number_density_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::he_number_density_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "o_number_density_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::o_number_density_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "n2_number_density_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::n2_number_density_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "o2_number_density_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::o2_number_density_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "ar_number_density_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::ar_number_density_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "h_number_density_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::h_number_density_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "n_number_density_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::n_number_density_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "anomalous_o_number_density_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::
                             anomalous_o_number_density_dependent,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "control_surface_deflection_dependent",
                     ta::AerodynamicCoefficientsIndependentVariables::
                             control_surface_deflection_dependent,
@@ -210,46 +211,46 @@ PYBIND11_MODULE( expose_environment, m )
             .value( "undefined_independent_variable",
                     ta::AerodynamicCoefficientsIndependentVariables::undefined_independent_variable,
                     R"doc(
-Can be used for a custom coefficient interface with other variables, at the expense of being able to use the FlightConditions class to automatically updates the aerodynamic coefficients during propagation.
-     )doc" )
+ Can be used for a custom coefficient interface with other variables, at the expense of being able to use the FlightConditions class to automatically updates the aerodynamic coefficients during propagation.
+      )doc" )
             .export_values( );
 
     py::enum_< ta::AerodynamicCoefficientFrames >( m,
                                                    "AerodynamicCoefficientFrames",
                                                    R"doc(
 
-        Enumeration of reference frames used for definition of aerodynamic coefficients.
+         Enumeration of reference frames used for definition of aerodynamic coefficients.
 
-        Enumeration of reference frames used for definition of aerodynamic coefficients. There is a partial overlap between this enum
-        and the :class:`~tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrames`. This enum combines a subset of those
-        frames (which are typically used for aerodynamic coefficient definition), and a swap in sign. For instance, aerodynamic
-        force coefficients are often defined positive along *negative* axes of the aerodynamic frame (drag, side force and lift coefficients)
-
-
+         Enumeration of reference frames used for definition of aerodynamic coefficients. There is a partial overlap between this enum
+         and the :class:`~tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrames`. This enum combines a subset of those
+         frames (which are typically used for aerodynamic coefficient definition), and a swap in sign. For instance, aerodynamic
+         force coefficients are often defined positive along *negative* axes of the aerodynamic frame (drag, side force and lift coefficients)
 
 
 
-     )doc" )
+
+
+      )doc" )
             .value( "positive_body_fixed_frame_coefficients",
                     ta::AerodynamicCoefficientFrames::body_fixed_frame_coefficients,
                     R"doc(
-The coefficients are defined in the body-fixed frame, with the directions the same as the body-fixed axes. For aerodynamic forces and moments, this results in the typical :math:`C_{x}, C_{y}, C_{y}` (force) and :math:`C_{l}, C_{m}, C_{n}` (moment) coefficients
-     )doc" )
+ The coefficients are defined in the body-fixed frame, with the directions the same as the body-fixed axes. For aerodynamic forces and moments, this results in the typical :math:`C_{x}, C_{y}, C_{y}` (force) and :math:`C_{l}, C_{m}, C_{n}` (moment) coefficients
+      )doc" )
             .value( "negative_body_fixed_frame_coefficients",
                     ta::AerodynamicCoefficientFrames::negative_body_fixed_frame_coefficients,
                     R"doc(
-Same as ``positive_body_fixed_frame_coefficients``, but opposite in direction (so axes along negative body-fixed frame axes)
-     )doc" )
+ Same as ``positive_body_fixed_frame_coefficients``, but opposite in direction (so axes along negative body-fixed frame axes)
+      )doc" )
             .value( "positive_aerodynamic_frame_coefficients",
                     ta::AerodynamicCoefficientFrames::positive_aerodynamic_frame_coefficients,
                     R"doc(
-Same as ``negative_aerodynamic_frame_coefficients``, but opposite in direction (so axes along positive aerodynamic frame axes)
-     )doc" )
+ Same as ``negative_aerodynamic_frame_coefficients``, but opposite in direction (so axes along positive aerodynamic frame axes)
+      )doc" )
             .value( "negative_aerodynamic_frame_coefficients",
                     ta::AerodynamicCoefficientFrames::negative_aerodynamic_frame_coefficients,
                     R"doc(
-The coefficients are defined in aerodynamic frame, with the directions the same as the negative axes. For aerodynamic forces, this results in the typical :math:`C_{D}, C_{S}, C_{D}` force coefficients
-     )doc" )
+ The coefficients are defined in aerodynamic frame, with the directions the same as the negative axes. For aerodynamic forces, this results in the typical :math:`C_{D}, C_{S}, C_{D}` force coefficients
+      )doc" )
             .export_values( );
 
     py::enum_< ta::AtmosphericCompositionSpecies >(
@@ -284,14 +285,14 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
                                                                                "AtmosphereModel",
                                                                                R"doc(
 
-        Object that provides the atmospheric properties of the body.
+         Object that provides the atmospheric properties of the body.
 
-        Object that provides the atmospheric properties of the body, as a function of altitude, latitude, longitude and time. Depending on the implementation, the
-        this dependence may be limited to altitude-only (e.g. standard atmosphere models). This object can be accessed directly by the user to compute atmospheric properties
-        outside the loop of the propagation by calling one of its member functions. During the propagation, each body undergoing aerodynamic forces has a :class:`AtmosphericFlightConditions`
-        object associated with it (accessed from a boyd through :attr:`~Body.flight_condition`) that links the atmosphere model to the aerodynamic model.
+         Object that provides the atmospheric properties of the body, as a function of altitude, latitude, longitude and time. Depending on the implementation, the
+         this dependence may be limited to altitude-only (e.g. standard atmosphere models). This object can be accessed directly by the user to compute atmospheric properties
+         outside the loop of the propagation by calling one of its member functions. During the propagation, each body undergoing aerodynamic forces has a :class:`AtmosphericFlightConditions`
+         object associated with it (accessed from a boyd through :attr:`~Body.flight_condition`) that links the atmosphere model to the aerodynamic model.
 
-    )doc" )
+     )doc" )
             .def( "get_density",
                   &ta::AtmosphereModel::getDensity,
                   py::arg( "altitude" ),
@@ -300,26 +301,26 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
                   py::arg( "time" ),
                   R"doc(
 
-        Function to compute the atmospheric freestream density at a given location.
+         Function to compute the atmospheric freestream density at a given location.
 
-        Parameters
-        ----------
-        altitude : float
-            Local altitude above the body surface at which the property is to be computed
-        latitude : float
-            Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-        longitude : float
-            Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-        time : float
-            Time (in seconds since J2000 TDB) at which the property is to be computed.
+         Parameters
+         ----------
+         altitude : float
+             Local altitude above the body surface at which the property is to be computed
+         latitude : float
+             Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         longitude : float
+             Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         time : float
+             Time (in seconds since J2000 TDB) at which the property is to be computed.
 
-        Returns
-        -------
-        float
-            Freestream density at the given time and location
+         Returns
+         -------
+         float
+             Freestream density at the given time and location
 
 
-    )doc" )
+     )doc" )
             .def( "get_pressure",
                   &ta::AtmosphereModel::getPressure,
                   py::arg( "altitude" ),
@@ -328,26 +329,26 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
                   py::arg( "time" ),
                   R"doc(
 
-        Function to compute the atmospheric freestream static pressure at a given location.
+         Function to compute the atmospheric freestream static pressure at a given location.
 
-        Parameters
-        ----------
-        altitude : float
-            Local altitude above the body surface at which the property is to be computed
-        latitude : float
-            Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-        longitude : float
-            Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-        time : float
-            Time (in seconds since J2000 TDB) at which the property is to be computed.
+         Parameters
+         ----------
+         altitude : float
+             Local altitude above the body surface at which the property is to be computed
+         latitude : float
+             Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         longitude : float
+             Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         time : float
+             Time (in seconds since J2000 TDB) at which the property is to be computed.
 
-        Returns
-        -------
-        float
-            Freestream static pressure at the given time and location
+         Returns
+         -------
+         float
+             Freestream static pressure at the given time and location
 
 
-    )doc" )
+     )doc" )
             .def( "get_temperature",
                   &ta::AtmosphereModel::getTemperature,
                   py::arg( "altitude" ),
@@ -356,26 +357,26 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
                   py::arg( "time" ),
                   R"doc(
 
-        Function to compute the atmospheric freestream temperature at a given location.
+         Function to compute the atmospheric freestream temperature at a given location.
 
-        Parameters
-        ----------
-        altitude : float
-            Local altitude above the body surface at which the property is to be computed
-        latitude : float
-            Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-        longitude : float
-            Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-        time : float
-            Time (in seconds since J2000 TDB) at which the property is to be computed.
+         Parameters
+         ----------
+         altitude : float
+             Local altitude above the body surface at which the property is to be computed
+         latitude : float
+             Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         longitude : float
+             Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         time : float
+             Time (in seconds since J2000 TDB) at which the property is to be computed.
 
-        Returns
-        -------
-        float
-            Freestream temperature at the given time and location
+         Returns
+         -------
+         float
+             Freestream temperature at the given time and location
 
 
-    )doc" )
+     )doc" )
             .def( "get_speed_of_sound",
                   &ta::AtmosphereModel::getSpeedOfSound,
                   py::arg( "altitude" ),
@@ -384,26 +385,26 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
                   py::arg( "time" ),
                   R"doc(
 
-        Function to compute the atmospheric freestream speed of sound at a given location.
+         Function to compute the atmospheric freestream speed of sound at a given location.
 
-        Parameters
-        ----------
-        altitude : float
-            Local altitude above the body surface at which the property is to be computed
-        latitude : float
-            Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-        longitude : float
-            Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-        time : float
-            Time (in seconds since J2000 TDB) at which the property is to be computed.
+         Parameters
+         ----------
+         altitude : float
+             Local altitude above the body surface at which the property is to be computed
+         latitude : float
+             Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         longitude : float
+             Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         time : float
+             Time (in seconds since J2000 TDB) at which the property is to be computed.
 
-        Returns
-        -------
-        float
-            Freestream speed of sound at the given time and location
+         Returns
+         -------
+         float
+             Freestream speed of sound at the given time and location
 
 
-    )doc" )
+     )doc" )
             .def( "get_number_density",
                   &ta::AtmosphereModel::getNumberDensity,
                   py::arg( "species" ),
@@ -413,28 +414,28 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
                   py::arg( "time" ),
                   R"doc(
 
-        Function to compute the atmospheric freestream number density of a given specie at a given location.
+         Function to compute the atmospheric freestream number density of a given specie at a given location.
 
-        Parameters
-        ----------
-        species : AtmosphericCompositionSpecies
-            Atmospheric species for which the number density is to be computed
-        altitude : float
-            Local altitude above the body surface at which the property is to be computed
-        latitude : float
-            Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-        longitude : float
-            Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-        time : float
-            Time (in seconds since J2000 TDB) at which the property is to be computed.
+         Parameters
+         ----------
+         species : AtmosphericCompositionSpecies
+             Atmospheric species for which the number density is to be computed
+         altitude : float
+             Local altitude above the body surface at which the property is to be computed
+         latitude : float
+             Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         longitude : float
+             Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
+         time : float
+             Time (in seconds since J2000 TDB) at which the property is to be computed.
 
-        Returns
-        -------
-        float
-            Freestream number density of the requested specie at the given time and location
+         Returns
+         -------
+         float
+             Freestream number density of the requested specie at the given time and location
 
 
-    )doc" );
+     )doc" );
 
     py::class_< ta::AerodynamicCoefficientInterface,
                 std::shared_ptr< ta::AerodynamicCoefficientInterface > >(
@@ -442,189 +443,189 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
             "AerodynamicCoefficientInterface",
             R"doc(
 
-        Base class for computing the current aerodynamic coefficients of the body
+         Base class for computing the current aerodynamic coefficients of the body
 
 
-        Base class for computing the current aerodynamic coefficients of the body. The implementation of the computation
-        depends on the choice of aerodynamic coefficient model (see :ref:`\`\`aerodynamic_coefficients\`\`` for available options).
-        During the propagation, this object is automatically updated to the current state by the :class:`~AtmosphericFlightConditions` object.
-        The user may override the current aerodynamic coefficients when using, for instance, a custom aerodynamic guidance model
-        (see `here <https://docs.tudat.space/en/latest/_src_getting_started/_src_examples/notebooks/propagation/reentry_trajectory.html>`_ for an example).
-        using the member functions of this class.
+         Base class for computing the current aerodynamic coefficients of the body. The implementation of the computation
+         depends on the choice of aerodynamic coefficient model (see :ref:`\`\`aerodynamic_coefficients\`\`` for available options).
+         During the propagation, this object is automatically updated to the current state by the :class:`~AtmosphericFlightConditions` object.
+         The user may override the current aerodynamic coefficients when using, for instance, a custom aerodynamic guidance model
+         (see `here <https://docs.tudat.space/en/latest/_src_getting_started/_src_examples/notebooks/propagation/reentry_trajectory.html>`_ for an example).
+         using the member functions of this class.
 
 
 
 
 
-     )doc" )
+      )doc" )
             .def_property_readonly( "reference_area",
                                     &ta::AerodynamicCoefficientInterface::getReferenceArea,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The aerodynamic reference area :math:`A` of the coefficients
+         The aerodynamic reference area :math:`A` of the coefficients
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
             .def_property_readonly(
                     "current_force_coefficients",
                     &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficients,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The current aerodynamic force coefficients, in the frame defined by the :attr:`~force_coefficient_frame` attribute,
-        as computed by the last call to the :meth:`~update_coefficients` function.
+         The current aerodynamic force coefficients, in the frame defined by the :attr:`~force_coefficient_frame` attribute,
+         as computed by the last call to the :meth:`~update_coefficients` function.
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly(
                     "current_moment_coefficients",
                     &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficients,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The current aerodynamic moment coefficients, in the frame defined by the :attr:`~moment_coefficient_frame` attribute,
-        as computed by the last call to the :meth:`~update_coefficients` function.
+         The current aerodynamic moment coefficients, in the frame defined by the :attr:`~moment_coefficient_frame` attribute,
+         as computed by the last call to the :meth:`~update_coefficients` function.
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly(
                     "current_coefficients",
                     &ta::AerodynamicCoefficientInterface::getCurrentAerodynamicCoefficients,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Concatenation of :attr:`~current_force_coefficients` and :attr:`~current_moment_coefficients`
+         Concatenation of :attr:`~current_force_coefficients` and :attr:`~current_moment_coefficients`
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "force_coefficient_frame",
                                     &ta::AerodynamicCoefficientInterface::getForceCoefficientsFrame,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Reference frame in which the  :attr:`~current_force_coefficients` are defined
+         Reference frame in which the  :attr:`~current_force_coefficients` are defined
 
 
-        :type: AerodynamicCoefficientFrames
-     )doc" )
+         :type: AerodynamicCoefficientFrames
+      )doc" )
             .def_property_readonly(
                     "moment_coefficient_frame",
                     &ta::AerodynamicCoefficientInterface::getMomentCoefficientsFrame,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Reference frame in which the  :attr:`~current_moment_coefficients` are defined
+         Reference frame in which the  :attr:`~current_moment_coefficients` are defined
 
 
-        :type: AerodynamicCoefficientFrames
-     )doc" )
+         :type: AerodynamicCoefficientFrames
+      )doc" )
             .def_property_readonly(
                     "independent_variable_names",
                     &ta::AerodynamicCoefficientInterface::getIndependentVariableNames,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        List of independent variables from which the aerodynamic coefficients are computed (e.g. required input to :meth:`~update_coefficients` function).
+         List of independent variables from which the aerodynamic coefficients are computed (e.g. required input to :meth:`~update_coefficients` function).
 
 
-        :type: list[AerodynamicCoefficientsIndependentVariables]
-     )doc" )
+         :type: list[AerodynamicCoefficientsIndependentVariables]
+      )doc" )
             .def_property_readonly( "current_control_surface_free_force_coefficients",
                                     &ta::AerodynamicCoefficientInterface::
                                             getCurrentControlSurfaceFreeForceCoefficients,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Same as :attr:`current_force_coefficients`, but without contribution (if any) from control surfaces
+         Same as :attr:`current_force_coefficients`, but without contribution (if any) from control surfaces
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "current_control_surface_free_moment_coefficients",
                                     &ta::AerodynamicCoefficientInterface::
                                             getCurrentControlSurfaceFreeMomentCoefficients,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Same as :attr:`current_moment_coefficients`, but without contribution (if any) from control surfaces
+         Same as :attr:`current_moment_coefficients`, but without contribution (if any) from control surfaces
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly(
                     "control_surface_independent_variable_names",
                     &ta::AerodynamicCoefficientInterface::getControlSurfaceIndependentVariables,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        List of independent variables from which the aerodynamic coefficients of each control surface are computed, with dictionary key being the control surface name (e.g. required input to :meth:`~update_full_coefficients` function).
+         List of independent variables from which the aerodynamic coefficients of each control surface are computed, with dictionary key being the control surface name (e.g. required input to :meth:`~update_full_coefficients` function).
 
 
-        :type: dict[str,list[AerodynamicCoefficientsIndependentVariables]]
-     )doc" )
+         :type: dict[str,list[AerodynamicCoefficientsIndependentVariables]]
+      )doc" )
             .def( "current_control_surface_force_coefficient_increment",
                   &ta::AerodynamicCoefficientInterface::getCurrentForceCoefficientIncrement,
                   py::arg( "control_surface_name" ),
                   R"doc(
 
-        Function to get the contribution from a single control surface to the aerodynamic force coefficient, as compute by last call to :meth:`~update_full_coefficients`
+         Function to get the contribution from a single control surface to the aerodynamic force coefficient, as compute by last call to :meth:`~update_full_coefficients`
 
 
 
-        Parameters
-        ----------
-        control_surface_name : str
-            The name of the control surface for which the contribution is to be retrieved
+         Parameters
+         ----------
+         control_surface_name : str
+             The name of the control surface for which the contribution is to be retrieved
 
-        Returns
-        -------
-        numpy.ndarray
-            Contribution from the requested control surface to the aerodynamic force coefficient
-
-
+         Returns
+         -------
+         numpy.ndarray
+             Contribution from the requested control surface to the aerodynamic force coefficient
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "current_control_surface_moment_coefficient_increment",
                   &ta::AerodynamicCoefficientInterface::getCurrentMomentCoefficientIncrement,
                   py::arg( "control_surface_name" ),
                   R"doc(
 
-        Function to get the contribution from a single control surface to the aerodynamic moment coefficients, as compute by last call to :meth:`~update_full_coefficients`
+         Function to get the contribution from a single control surface to the aerodynamic moment coefficients, as compute by last call to :meth:`~update_full_coefficients`
 
 
 
-        Parameters
-        ----------
-        control_surface_name : str
-            The name of the control surface for which the contribution is to be retrieved
+         Parameters
+         ----------
+         control_surface_name : str
+             The name of the control surface for which the contribution is to be retrieved
 
-        Returns
-        -------
-        numpy.ndarray
-            Contribution from the requested control surface to the aerodynamic moment coefficients
-
-
+         Returns
+         -------
+         numpy.ndarray
+             Contribution from the requested control surface to the aerodynamic moment coefficients
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "set_control_surface_increments",
                   &ta::AerodynamicCoefficientInterface::setControlSurfaceIncrements,
                   py::arg( "control_surface_list" ),
@@ -635,34 +636,34 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
                   py::arg( "time" ),
                   R"doc(
 
-        Function to update the aerodynamic coefficients of the body only
+         Function to update the aerodynamic coefficients of the body only
 
 
-        Function to update the aerodynamic coefficients of the body only (without the control surface contribution),
-        based on the current state. This function may be called by the user, but will set *only* the
-        :attr:`~current_force_coefficients` and :attr:`~current_moment_coefficients` (while leaving the
-        :attr:`~current_control_surface_free_force_coefficients` and :attr:`~current_control_surface_free_moment_coefficients` unchanged)
+         Function to update the aerodynamic coefficients of the body only (without the control surface contribution),
+         based on the current state. This function may be called by the user, but will set *only* the
+         :attr:`~current_force_coefficients` and :attr:`~current_moment_coefficients` (while leaving the
+         :attr:`~current_control_surface_free_force_coefficients` and :attr:`~current_control_surface_free_moment_coefficients` unchanged)
 
 
-        Parameters
-        ----------
-        independent_variables : list[float]
-            List of inputs from which the aerodynamic coefficients are to be computed, with each entry corresponding to the
-            value of the physical variable defined by the :attr:`independent_variable_names` attribute.
+         Parameters
+         ----------
+         independent_variables : list[float]
+             List of inputs from which the aerodynamic coefficients are to be computed, with each entry corresponding to the
+             value of the physical variable defined by the :attr:`independent_variable_names` attribute.
 
-        time : float
-            Current time (in seconds since J2000)
+         time : float
+             Current time (in seconds since J2000)
 
-        Returns
-        -------
-        numpy.ndarray
-            Contribution from the requested control surface to the aerodynamic moment coefficients
-
-
+         Returns
+         -------
+         numpy.ndarray
+             Contribution from the requested control surface to the aerodynamic moment coefficients
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "update_full_coefficients",
                   &ta::AerodynamicCoefficientInterface::updateFullCurrentCoefficients,
                   py::arg( "independent_variables" ),
@@ -671,41 +672,41 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
                   py::arg( "check_force_contribution" ) = true,
                   R"doc(
 
-        Function to update the aerodynamic coefficients, from both the body and its control surfaces
+         Function to update the aerodynamic coefficients, from both the body and its control surfaces
 
 
-        Function to update the aerodynamic coefficients of both the body and its control surfaces,
-        based on the current state. This function will call the :meth:`~update_coefficients` function to update the body coefficients.
-        This function may be called by the user, and will set the following attributes:
-        :attr:`~current_force_coefficients`, :attr:`~current_moment_coefficients` ,
-        :attr:`~current_control_surface_free_force_coefficients` and :attr:`~current_control_surface_free_moment_coefficients`.
-        In addition, it will modify the coefficients returned by the :meth:`~current_control_surface_force_coefficient_increment` and
-        :meth:`~current_control_surface_moment_coefficient_increment` functions
+         Function to update the aerodynamic coefficients of both the body and its control surfaces,
+         based on the current state. This function will call the :meth:`~update_coefficients` function to update the body coefficients.
+         This function may be called by the user, and will set the following attributes:
+         :attr:`~current_force_coefficients`, :attr:`~current_moment_coefficients` ,
+         :attr:`~current_control_surface_free_force_coefficients` and :attr:`~current_control_surface_free_moment_coefficients`.
+         In addition, it will modify the coefficients returned by the :meth:`~current_control_surface_force_coefficient_increment` and
+         :meth:`~current_control_surface_moment_coefficient_increment` functions
 
 
-        Parameters
-        ----------
-        independent_variables : list[float]
-            List of inputs from which the aerodynamic coefficients of the body are to be computed, with each entry corresponding to the
-            value of the physical variable defined by the :attr:`independent_variable_names` attribute.
+         Parameters
+         ----------
+         independent_variables : list[float]
+             List of inputs from which the aerodynamic coefficients of the body are to be computed, with each entry corresponding to the
+             value of the physical variable defined by the :attr:`independent_variable_names` attribute.
 
-        control_surface_independent_variables : dict[str,list[float]]
-            List of inputs from which the control surface aerodynamic coefficients are to be computed (with dictionary key the control surface name),
-            with each entry corresponding to the
-            value of the physical variable defined by the :attr:`control_surface_independent_variable_names` attribute.
+         control_surface_independent_variables : dict[str,list[float]]
+             List of inputs from which the control surface aerodynamic coefficients are to be computed (with dictionary key the control surface name),
+             with each entry corresponding to the
+             value of the physical variable defined by the :attr:`control_surface_independent_variable_names` attribute.
 
-        time : float
-            Current time (in seconds since J2000)
+         time : float
+             Current time (in seconds since J2000)
 
-        check_force_contribution : bool, default = True
-            Boolean that determines if the force contribution to the aerodynamic moments should be added. Note that this input is
-            only used if the :attr:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings.add_force_contribution_to_moments` attribute is set to True.
-
-
+         check_force_contribution : bool, default = True
+             Boolean that determines if the force contribution to the aerodynamic moments should be added. Note that this input is
+             only used if the :attr:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings.add_force_contribution_to_moments` attribute is set to True.
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     py::class_< ta::AerodynamicCoefficientGenerator< 3, 6 >,
                 std::shared_ptr< ta::AerodynamicCoefficientGenerator< 3, 6 > >,
@@ -738,72 +739,72 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
                   py::arg( "save_pressure_coefficients" ) = false,
                   R"doc(
 
-        Class constructor, taking the shape of the vehicle, and various analysis options as input.
+         Class constructor, taking the shape of the vehicle, and various analysis options as input.
 
 
-        Parameters
-        ----------
-        independent_variable_points : list[list[float]]
-            List containing three lists, with each sublist containing the data points of each of the
-            independent variables for the coefficient generation. The physical meaning of each of the
-            three independent variables is: 0 = mach number, 1 = angle of attack, 2 = angle of sideslip.
-            Each of the subvectors must be sorted in ascending order.
+         Parameters
+         ----------
+         independent_variable_points : list[list[float]]
+             List containing three lists, with each sublist containing the data points of each of the
+             independent variables for the coefficient generation. The physical meaning of each of the
+             three independent variables is: 0 = mach number, 1 = angle of attack, 2 = angle of sideslip.
+             Each of the subvectors must be sorted in ascending order.
 
-        body_shape : SurfaceGeometry
-            Class that defines the shape of the vehicle as a continuous surface. The local inclination analysis
-            discretizes the surface of the vehicle into quadrilateral panels, defined by the other inputs to
-            this constructor. In case the :class:`tudat.geometry.SurfaceGeometry` object is made up of multiple
-            sub-shapes, different settings may be used for each
+         body_shape : SurfaceGeometry
+             Class that defines the shape of the vehicle as a continuous surface. The local inclination analysis
+             discretizes the surface of the vehicle into quadrilateral panels, defined by the other inputs to
+             this constructor. In case the :class:`tudat.geometry.SurfaceGeometry` object is made up of multiple
+             sub-shapes, different settings may be used for each
 
-        number_of_lines : List[ float ]
-            Number of discretization points in the first independent surface variable of each of the subparts of body_shape.
-            The size of this list should match the number of parts of which the body_shape is composed. The first independent
-            variable of a subpart typically runs along the longitudinal vehicle direction
+         number_of_lines : List[ float ]
+             Number of discretization points in the first independent surface variable of each of the subparts of body_shape.
+             The size of this list should match the number of parts of which the body_shape is composed. The first independent
+             variable of a subpart typically runs along the longitudinal vehicle direction
 
-        number_of_points : List[ float ]
-            Number of discretization points in the second independent surface variable of each of the subparts of body_shape.
-            The size of this list should match the number of parts of which the body_shape is composed. The first independent
-            variable of a subpart typically runs along the lateral vehicle direction
+         number_of_points : List[ float ]
+             Number of discretization points in the second independent surface variable of each of the subparts of body_shape.
+             The size of this list should match the number of parts of which the body_shape is composed. The first independent
+             variable of a subpart typically runs along the lateral vehicle direction
 
-        invert_orders : List[ bool ]
-            Booleans to denote whether the surface normals of the panels of each discretized body_shape subpart are to be inverted
-            (i.e. inward-facing->outward facing or vice versa). The size of this list should match the number of parts of which the body_shape is composed.
+         invert_orders : List[ bool ]
+             Booleans to denote whether the surface normals of the panels of each discretized body_shape subpart are to be inverted
+             (i.e. inward-facing->outward facing or vice versa). The size of this list should match the number of parts of which the body_shape is composed.
 
-        selected_methods : List[ List[ int ] ]
-            Double list of selected local inclination methods, the first index (outer list) represents compression or expansion (0 and 1),
-            the second index (inner list) denotes the vehicle part index. The size of this inner list should match the number of parts of which the body_shape is composed.
-            The int defining the method type is interpreted as follows.
-            For the compression methods, the following are available:
-            *  0: Newtonian Method.
-            *  1: Modified Newtonian.
-            *  2 and 3: not available at this moment.
-            *  4: Tangent-wedge method.
-            *  5: Tangent-cone method.
-            *  6: Modified Dahlem-Buck method.
-            *  7: VanDyke unified pressure method.
-            *  8: Smyth Delta Wing method.
-            *  9: Hankey flat surface method
-            The expansion method has the following options:
-            *  0: Vacuum Pressure coefficient method.
-            *  1: Zero Pressure function.
-            *  4: High Mach base pressure method.
-            *  3 or 5: Prandtl-Meyer method.
-            *  6: ACM empirical pressure coefficient.
+         selected_methods : List[ List[ int ] ]
+             Double list of selected local inclination methods, the first index (outer list) represents compression or expansion (0 and 1),
+             the second index (inner list) denotes the vehicle part index. The size of this inner list should match the number of parts of which the body_shape is composed.
+             The int defining the method type is interpreted as follows.
+             For the compression methods, the following are available:
+             *  0: Newtonian Method.
+             *  1: Modified Newtonian.
+             *  2 and 3: not available at this moment.
+             *  4: Tangent-wedge method.
+             *  5: Tangent-cone method.
+             *  6: Modified Dahlem-Buck method.
+             *  7: VanDyke unified pressure method.
+             *  8: Smyth Delta Wing method.
+             *  9: Hankey flat surface method
+             The expansion method has the following options:
+             *  0: Vacuum Pressure coefficient method.
+             *  1: Zero Pressure function.
+             *  4: High Mach base pressure method.
+             *  3 or 5: Prandtl-Meyer method.
+             *  6: ACM empirical pressure coefficient.
 
-        reference_area : float
-            Reference area used to non-dimensionalize aerodynamic forces and moments.
+         reference_area : float
+             Reference area used to non-dimensionalize aerodynamic forces and moments.
 
-        moment_reference_point : numpy.ndarray
-            Reference point wrt which aerodynamic moments are calculated.
+         moment_reference_point : numpy.ndarray
+             Reference point wrt which aerodynamic moments are calculated.
 
-        save_pressure_coefficients : Bool
-            Boolean denoting whether to save the pressure coefficients that are computed to files
-
-
+         save_pressure_coefficients : bool
+             Boolean denoting whether to save the pressure coefficients that are computed to files
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "clear_data", &ta::HypersonicLocalInclinationAnalysis::clearData );
 
     py::class_< ta::ControlSurfaceIncrementAerodynamicInterface,
@@ -837,33 +838,33 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
            py::arg( "output_file_prefix" ) = "",
            R"doc(
 
-Function to save the mesh used for a hypersonic local inclination analysis to a file.
+ Function to save the mesh used for a hypersonic local inclination analysis to a file.
 
-Function to save the mesh used for a hypersonic local inclination analysis to a file. This function saves
-two files to the specified directory, with filenames: "ShapeFile.dat" and "SurfaceNormalFile.dat", where these
-files names may be prefixed by an optional string (see below). The first of these files contains four columns defining
-the surface points that define mesh, with Column 0: point index; Column 1: x-position of point; Column 1: y-position of point;
-Column 2: z-position of point. The second file contains four columns with Column 0: point index; Column 1: x-component of surface normal;
-Column 1: y-position of surface normal; Column 2: z-position of surface normal.
-
-
-Parameters
-----------
-local_inclination_analysis_object : HypersonicLocalInclinationAnalysis
-    Object used to calculate the aerodynamics of the vehicle
-
-output_directory : str
-    Directory to which the files are to be saved
-
-output_file_prefix : str, default=''
-    Optional prefix of output file names
+ Function to save the mesh used for a hypersonic local inclination analysis to a file. This function saves
+ two files to the specified directory, with filenames: "ShapeFile.dat" and "SurfaceNormalFile.dat", where these
+ files names may be prefixed by an optional string (see below). The first of these files contains four columns defining
+ the surface points that define mesh, with Column 0: point index; Column 1: x-position of point; Column 1: y-position of point;
+ Column 2: z-position of point. The second file contains four columns with Column 0: point index; Column 1: x-component of surface normal;
+ Column 1: y-position of surface normal; Column 2: z-position of surface normal.
 
 
+ Parameters
+ ----------
+ local_inclination_analysis_object : HypersonicLocalInclinationAnalysis
+     Object used to calculate the aerodynamics of the vehicle
+
+ output_directory : str
+     Directory to which the files are to be saved
+
+ output_file_prefix : str, default=''
+     Optional prefix of output file names
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "get_local_inclination_total_vehicle_area",
            &ta::getTotalSurfaceArea,
@@ -873,18 +874,17 @@ output_file_prefix : str, default=''
            &ta::getVehicleMesh,
            py::arg( "local_inclination_analysis_object" ) );
 
-    py::class_< tsm::VehicleSystems, std::shared_ptr< tsm::VehicleSystems > >( m,
-                                                                               "VehicleSystems",
-                                                                               R"doc(
+    py::class_< tsm::VehicleSystems, std::shared_ptr< tsm::VehicleSystems > >(
+            m, "VehicleSystems", R"doc(
 
-        Object used to store physical (hardware) properties of a vehicle.
-
+         Object used to store physical (hardware) properties of a vehicle.
 
 
 
 
 
-     )doc" )
+
+      )doc" )
             .def( py::init<>( ) )
             .def( "set_control_surface_deflection",
                   &tsm::VehicleSystems::setCurrentControlSurfaceDeflection,
@@ -892,29 +892,29 @@ output_file_prefix : str, default=''
                   py::arg( "deflection_angle" ),
                   R"doc(
 
-        Function to set the current deflection of an aerodynamic control surface.
+         Function to set the current deflection of an aerodynamic control surface.
 
 
-        Function to set the current deflection of an aerodynamic control surface,
-        identified by its name. To set the control surface deflection, the control
-        surface has to exist. A control surface is created whenever control surfaces are
-        defined in a body's aerodynamic coefficient interface.
+         Function to set the current deflection of an aerodynamic control surface,
+         identified by its name. To set the control surface deflection, the control
+         surface has to exist. A control surface is created whenever control surfaces are
+         defined in a body's aerodynamic coefficient interface.
 
 
-        Parameters
-        ----------
-        control_surface_id : str
-            The identified (name) of the given control surface
+         Parameters
+         ----------
+         control_surface_id : str
+             The identified (name) of the given control surface
 
-        deflection_angle : float
-            The deflection (in radians) that the control surface is to be set to. This will
-            typically influence the aerodynamic coefficients of the vehicle
-
-
+         deflection_angle : float
+             The deflection (in radians) that the control surface is to be set to. This will
+             typically influence the aerodynamic coefficients of the vehicle
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "set_transponder_turnaround_ratio",
                   py::overload_cast<
                           std::map< std::pair< tom::FrequencyBands, tom::FrequencyBands >, double >
@@ -930,30 +930,30 @@ output_file_prefix : str, default=''
                   py::arg( "control_surface_id" ),
                   R"doc(
 
-        Function to retrieve the current deflection of an aerodynamic control surface.
+         Function to retrieve the current deflection of an aerodynamic control surface.
 
 
-        Function to retrieve the current deflection of an aerodynamic control surface,
-        identified by its name. To extract the control surface deflection, the control
-        surface has to exist. A control surface is created whenever control surfaces are
-        defined in a body's aerodynamic coefficient interface.
+         Function to retrieve the current deflection of an aerodynamic control surface,
+         identified by its name. To extract the control surface deflection, the control
+         surface has to exist. A control surface is created whenever control surfaces are
+         defined in a body's aerodynamic coefficient interface.
 
 
-        Parameters
-        ----------
-        control_surface_id : str
-            The identified (name) of the given control surface
+         Parameters
+         ----------
+         control_surface_id : str
+             The identified (name) of the given control surface
 
-        Returns
-        -------
-        float
-            Current deflection (in radians) that the control surface
-
-
+         Returns
+         -------
+         float
+             Current deflection (in radians) that the control surface
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "set_reference_point",
                   py::overload_cast< const std::string,
                                      const Eigen::Vector3d &,
@@ -977,78 +977,76 @@ output_file_prefix : str, default=''
                   py::arg( "engine_name" ),
                   R"doc(
 
-        Function to retrieve an engine model from the vehicle
+         Function to retrieve an engine model from the vehicle
 
 
 
-        Parameters
-        ----------
-        engine_name : str
-            The identifier for the engine model that is to be retrieved
+         Parameters
+         ----------
+         engine_name : str
+             The identifier for the engine model that is to be retrieved
 
-        Returns
-        -------
-        EngineModel
-            Model for the engine that is requested
-
-
+         Returns
+         -------
+         EngineModel
+             Model for the engine that is requested
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "set_timing_system",
                   &tsm::VehicleSystems::setTimingSystem,
                   py::arg( "timing_system" ) );
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >(
-            m,
-            "RigidBodyProperties",
-            R"doc(
+            m, "RigidBodyProperties", R"doc(
 
-        Object that defines the mass, center of mass, and inertia tensor as a function of time.
+         Object that defines the mass, center of mass, and inertia tensor as a function of time.
 
-        Object that defines the mass, center of mass, and inertia tensor as a function of time, typically used for evaluation of torques and non-conservative forces
-        in numerical state propagation. Note that this object does *not* define properties of a gravity field (it defines the inertial mass rather than the gravitational mass)
+         Object that defines the mass, center of mass, and inertia tensor as a function of time, typically used for evaluation of torques and non-conservative forces
+         in numerical state propagation. Note that this object does *not* define properties of a gravity field (it defines the inertial mass rather than the gravitational mass)
 
-     )doc" )
+      )doc" )
             .def( "update",
                   &tss::RigidBodyProperties::update,
                   py::arg( "time" ),
                   R"doc(
 
-        Function to update the body properties to the current time. This function is called automatically during a propagation loop.
-        In case these properties are not time-dependent (e.g. when using the :func:`~tudatpy.numerical_simulation.environment_setup.rigid_body.constant_rigid_body_properties` settings)
-        this function does nothing (since no update is needed).
+         Function to update the body properties to the current time. This function is called automatically during a propagation loop.
+         In case these properties are not time-dependent (e.g. when using the :func:`~tudatpy.numerical_simulation.environment_setup.rigid_body.constant_rigid_body_properties` settings)
+         this function does nothing (since no update is needed).
 
-        Parameters
-        ----------
-        current_time : float
-            Time (in seconds since J2000 TDB) to which this object is to be updated
+         Parameters
+         ----------
+         current_time : float
+             Time (in seconds since J2000 TDB) to which this object is to be updated
 
-        Returns
-        -------
+         Returns
+         -------
 
-     )doc" )
+      )doc" )
             .def_property_readonly( "current_mass",
                                     &tss::RigidBodyProperties::getCurrentMass,
                                     R"doc(
 
-        Mass of the object, as set by the latest call to the ``update`` function of this object.
-     )doc" )
+         Mass of the object, as set by the latest call to the ``update`` function of this object.
+      )doc" )
             .def_property_readonly( "current_center_of_mass",
                                     &tss::RigidBodyProperties::getCurrentCenterOfMass,
                                     R"doc(
 
-        Position of the center of mass of the object (in the body-centered, body-fixed frame), as set by the latest call to the ``update`` function of this object.
+         Position of the center of mass of the object (in the body-centered, body-fixed frame), as set by the latest call to the ``update`` function of this object.
 
-     )doc" )
+      )doc" )
             .def_property_readonly( "current_inertia_tensor",
                                     &tss::RigidBodyProperties::getCurrentInertiaTensor,
                                     R"doc(
 
-       Inertia tensor of the object (with axes along those of the body-fixed frame), as set by the latest call to the ``update`` function of this object.
+        Inertia tensor of the object (with axes along those of the body-fixed frame), as set by the latest call to the ``update`` function of this object.
 
-     )doc" );
+      )doc" );
 
     py::class_< tsm::TimingSystem, std::shared_ptr< tsm::TimingSystem > >(
             m,
@@ -1107,128 +1105,127 @@ output_file_prefix : str, default=''
                                                    "AerodynamicsReferenceFrames",
                                                    R"doc(
 
-        Enumeration of reference frame identifiers typical for aerodynamic calculations.
+         Enumeration of reference frame identifiers typical for aerodynamic calculations.
 
-        Enumeration of reference frame identifiers typical for aerodynamic calculations. Note that the frames are also defined
-        in the absence of any aerodynamic forces and/or atmosphere. They define frames of a body w.r.t. a central body, with
-        the details given by Mooij (1994). The chain of frames starts from the inertial frame, to the frame fixed to the
-        central body (corotating), to the vertical frame (defined by the body's relative position), the trajectory and aerodynamic frames
-        (defined by the body's relative velocity) and finally the body's own body-fixed frame.
-
-
+         Enumeration of reference frame identifiers typical for aerodynamic calculations. Note that the frames are also defined
+         in the absence of any aerodynamic forces and/or atmosphere. They define frames of a body w.r.t. a central body, with
+         the details given by Mooij (1994). The chain of frames starts from the inertial frame, to the frame fixed to the
+         central body (corotating), to the vertical frame (defined by the body's relative position), the trajectory and aerodynamic frames
+         (defined by the body's relative velocity) and finally the body's own body-fixed frame.
 
 
 
-     )doc" )
+
+
+      )doc" )
             .value( "inertial_frame",
                     trf::AerodynamicsReferenceFrames::inertial_frame,
                     R"doc(
-The global orientation (which is by definition inertial).
-     )doc" )
+ The global orientation (which is by definition inertial).
+      )doc" )
             .value( "corotating_frame",
                     trf::AerodynamicsReferenceFrames::corotating_frame,
                     R"doc(
-The body-fixed frame of the central body.
-     )doc" )
+ The body-fixed frame of the central body.
+      )doc" )
             .value( "vertical_frame",
                     trf::AerodynamicsReferenceFrames::vertical_frame,
                     R"doc(
-Frame with z-axis pointing towards origin of central body, the x-axis lies in the meridian plane and points towards the central-body-fixed z-axis (the y-axis completes the frame).
-     )doc" )
+ Frame with z-axis pointing towards origin of central body, the x-axis lies in the meridian plane and points towards the central-body-fixed z-axis (the y-axis completes the frame).
+      )doc" )
             .value( "trajectory_frame",
                     trf::AerodynamicsReferenceFrames::trajectory_frame,
                     R"doc(
-The (airspeed-based) trajectory frame has the x-axis in the direction of the velocity vector relative to the atmosphere (airspeed-based velocity vector), z-axis lies in the vertical plane and points downwards (the y-axis completes the frame).
-     )doc" )
+ The (airspeed-based) trajectory frame has the x-axis in the direction of the velocity vector relative to the atmosphere (airspeed-based velocity vector), z-axis lies in the vertical plane and points downwards (the y-axis completes the frame).
+      )doc" )
             .value( "aerodynamic_frame",
                     trf::AerodynamicsReferenceFrames::aerodynamic_frame,
                     R"doc(
-The (airspeed-based) aerodynamic frame has the x-axis in the direction of the velocity vector relative to the atmosphere (airspeed-based velocity vector), z-axis co-linear with the aerodynamic lift vector, pointing in the opposite direction (the y-axis completes the frame)..
-     )doc" )
+ The (airspeed-based) aerodynamic frame has the x-axis in the direction of the velocity vector relative to the atmosphere (airspeed-based velocity vector), z-axis co-linear with the aerodynamic lift vector, pointing in the opposite direction (the y-axis completes the frame)..
+      )doc" )
             .value( "body_frame",
                     trf::AerodynamicsReferenceFrames::body_frame,
                     R"doc(
-The body-fixed frame of the body itself.
-     )doc" )
+ The body-fixed frame of the body itself.
+      )doc" )
             .export_values( );
 
     py::class_< trf::AerodynamicAngleCalculator,
-                std::shared_ptr< trf::AerodynamicAngleCalculator > >( m,
-                                                                      "AerodynamicAngleCalculator",
-                                                                      R"doc(
+                std::shared_ptr< trf::AerodynamicAngleCalculator > >(
+            m, "AerodynamicAngleCalculator", R"doc(
 
-        Object to calculate (aerodynamic) orientation angles, and frame transformations,
-        from current vehicle state.
+         Object to calculate (aerodynamic) orientation angles, and frame transformations,
+         from current vehicle state.
 
 
-        Object to calculate (aerodynamic) orientation angles (list given by the :class:`~AerodynamicsReferenceFrameAngles` enum)
-        and transformations between frames (list given by the :class:`~AerodynamicsReferenceFrames` enum) from current vehicle state.
-
+         Object to calculate (aerodynamic) orientation angles (list given by the :class:`~AerodynamicsReferenceFrameAngles` enum)
+         and transformations between frames (list given by the :class:`~AerodynamicsReferenceFrames` enum) from current vehicle state.
 
 
 
 
-     )doc" )
+
+      )doc" )
             .def( "get_rotation_matrix_between_frames",
                   &trf::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
                   py::arg( "original_frame" ),
                   py::arg( "target_frame" ),
                   R"doc(
 
-        Function to get the rotation matrix between two frames.
+         Function to get the rotation matrix between two frames.
 
 
-        Function to get the rotation matrix between two frames. This function
-        is meant to be used only *during* a numerical propagation, in particular
-        for the definition of a custom (e.g. guidance) model.
+         Function to get the rotation matrix between two frames. This function
+         is meant to be used only *during* a numerical propagation, in particular
+         for the definition of a custom (e.g. guidance) model.
 
 
-        Parameters
-        ----------
-        original_frame : AerodynamicsReferenceFrames
-            The frame :math:`A` from which the rotation matrix is to be calculated
+         Parameters
+         ----------
+         original_frame : AerodynamicsReferenceFrames
+             The frame :math:`A` from which the rotation matrix is to be calculated
 
-        target_frame : AerodynamicsReferenceFrames
-            The frame :math:`B` to which the rotation matrix is to be calculated
+         target_frame : AerodynamicsReferenceFrames
+             The frame :math:`B` to which the rotation matrix is to be calculated
 
-        Returns
-        -------
-        numpy.ndarray
-            Rotation matrix :math:`\mathbf{R}^{B/A}` from frame :math:`A` to frame `B`
-
-
+         Returns
+         -------
+         numpy.ndarray
+             Rotation matrix :math:`\mathbf{R}^{B/A}` from frame :math:`A` to frame `B`
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "get_angle",
                   &trf::AerodynamicAngleCalculator::getAerodynamicAngle,
                   py::arg( "angle_type" ),
                   R"doc(
 
-        Function to get a single orientation angle
+         Function to get a single orientation angle
 
 
-        Function to get a single orientation angle. This function
-        is meant to be used only *during* a numerical propagation, in particular
-        for the definition of a custom (e.g. guidance) model.
+         Function to get a single orientation angle. This function
+         is meant to be used only *during* a numerical propagation, in particular
+         for the definition of a custom (e.g. guidance) model.
 
 
-        Parameters
-        ----------
-        original_frame : AerodynamicsReferenceFrameAngles
-            The identifier for the angle that is to be returnd
+         Parameters
+         ----------
+         original_frame : AerodynamicsReferenceFrameAngles
+             The identifier for the angle that is to be returned
 
-        Returns
-        -------
-        double
-            Value of requested angle
-
-
+         Returns
+         -------
+         double
+             Value of requested angle
 
 
 
-    )doc" )
+
+
+     )doc" )
             // Function removed; error is shown
             .def( "set_body_orientation_angles",
                   &trf::AerodynamicAngleCalculator::setOrientationAngleFunctionsRemoved2,
@@ -1248,30 +1245,29 @@ The body-fixed frame of the body itself.
                   py::arg( "angle_update_function" ) = std::function< void( const double ) >( ),
                   py::arg( "silence_warnings" ) = false );
 
-    py::class_< ta::FlightConditions, std::shared_ptr< ta::FlightConditions > >( m,
-                                                                                 "FlightConditions",
-                                                                                 R"doc(
+    py::class_< ta::FlightConditions, std::shared_ptr< ta::FlightConditions > >(
+            m, "FlightConditions", R"doc(
 
-        Object that calculates various state-derived quantities typically
-        relevant for flight dynamics.
+         Object that calculates various state-derived quantities typically
+         relevant for flight dynamics.
 
 
-        Object that calculates various state-derived quantities typically
-        relevant for flight dynamics, such as latitude, longitude,
-        altitude, etc. It also contains an
-        :py:class:`~AerodynamicAngleCalculator` that computes derived
-        angles (flight path, heading angle, etc.). This object is limited
-        to non-atmospheric flight. For flight through Body objects
-        endowed with an atmosphere model, the derived class
-        :py:class:`~AtmosphericFlightConditions` is used. This object is
-        stored inside a Body object, and represents the flight conditions
-        of a single body w.r.t. a single central body.
-
+         Object that calculates various state-derived quantities typically
+         relevant for flight dynamics, such as latitude, longitude,
+         altitude, etc. It also contains an
+         :py:class:`~AerodynamicAngleCalculator` that computes derived
+         angles (flight path, heading angle, etc.). This object is limited
+         to non-atmospheric flight. For flight through Body objects
+         endowed with an atmosphere model, the derived class
+         :py:class:`~AtmosphericFlightConditions` is used. This object is
+         stored inside a Body object, and represents the flight conditions
+         of a single body w.r.t. a single central body.
 
 
 
 
-     )doc" )
+
+      )doc" )
             //            .def(py::init<
             //                 const
             //                 std::shared_ptr<tudat::basic_astrodynamics::BodyShapeModel>,
@@ -1288,224 +1284,221 @@ The body-fixed frame of the body itself.
                                     &ta::FlightConditions::getAerodynamicAngleCalculator,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The object that is responsible for computing various relevant
-        flight dynamics angles and frame rotations.
+         The object that is responsible for computing various relevant
+         flight dynamics angles and frame rotations.
 
 
-        :type: AerodynamicAngleCalculator
-     )doc" )
+         :type: AerodynamicAngleCalculator
+      )doc" )
             .def_property_readonly( "longitude",
                                     &ta::FlightConditions::getCurrentLongitude,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The body-fixed longitude of the body w.r.t. its central body.
+         The body-fixed longitude of the body w.r.t. its central body.
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
             .def_property_readonly( "latitude",
                                     &ta::FlightConditions::getCurrentLatitude,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The body-fixed geographic latitude of the body w.r.t. its
-        central body.
+         The body-fixed geographic latitude of the body w.r.t. its
+         central body.
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
             .def_property_readonly( "geodetic_latitude",
                                     &ta::FlightConditions::getCurrentGeodeticLatitude,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The body-fixed geographic latitude of the body w.r.t. its
-        central body.
-
-
-        :type: float
-     )doc" )
-            .def_property_readonly( "time",
-                                    &ta::FlightConditions::getCurrentTime,
-                                    R"doc(
-
-        **read-only**
-
-        The current time, at which this object was last updated
+         The body-fixed geographic latitude of the body w.r.t. its
+         central body.
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
+            .def_property_readonly( "time", &ta::FlightConditions::getCurrentTime, R"doc(
+
+         **read-only**
+
+         The current time, at which this object was last updated
+
+
+         :type: float
+      )doc" )
             .def_property_readonly( "body_centered_body_fixed_state",
                                     &ta::FlightConditions::getCurrentBodyCenteredBodyFixedState,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Cartesian translational state, expressed in a frame centered
-        at, and fixed to, the central body. Note that, due to the
-        rotation of the central body, the norm of the body-fixed,
-        body-centered, velocity differs from the norm of the inertial
-        body-centered velocity.
+         Cartesian translational state, expressed in a frame centered
+         at, and fixed to, the central body. Note that, due to the
+         rotation of the central body, the norm of the body-fixed,
+         body-centered, velocity differs from the norm of the inertial
+         body-centered velocity.
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "altitude",
                                     &ta::FlightConditions::getCurrentAltitude,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The current time, at which this object was last updated
+         The current time, at which this object was last updated
 
 
-        :type: float
-     )doc" );
+         :type: float
+      )doc" );
 
     py::class_< ta::AtmosphericFlightConditions,
                 std::shared_ptr< ta::AtmosphericFlightConditions >,
-                ta::FlightConditions >( m,
-                                        "AtmosphericFlightConditions",
-                                        R"doc(
+                ta::FlightConditions >( m, "AtmosphericFlightConditions", R"doc(
 
-        Object that calculates various state-derived quantities typically
-        relevant for flight dynamics, for flight in an atmosphere.
+         Object that calculates various state-derived quantities typically
+         relevant for flight dynamics, for flight in an atmosphere.
 
 
-        Object that calculates various state-derived quantities typically
-        relevant for flight dynamics, for flight in an atmosphere, such
-        as latitude,  longitude, altitude, density, Mach number etc. It
-        also contains an ``AerodynamicAngleCalculator`` that computes
-        derived angles (flight path, heading angle, etc.). This object is
-        derived from ``FlightConditions``, which performs computations for
-        non-atmospheric flight only. This object is stored inside a Body
-        object, and represents the flight conditions of a single body
-        w.r.t. a single central body.
+         Object that calculates various state-derived quantities typically
+         relevant for flight dynamics, for flight in an atmosphere, such
+         as latitude,  longitude, altitude, density, Mach number etc. It
+         also contains an ``AerodynamicAngleCalculator`` that computes
+         derived angles (flight path, heading angle, etc.). This object is
+         derived from ``FlightConditions``, which performs computations for
+         non-atmospheric flight only. This object is stored inside a Body
+         object, and represents the flight conditions of a single body
+         w.r.t. a single central body.
 
 
 
 
 
-     )doc" )
+      )doc" )
             .def_property_readonly( "density",
                                     &ta::AtmosphericFlightConditions::getCurrentDensity,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The freestream atmospheric density at the body's current
-        location.
+         The freestream atmospheric density at the body's current
+         location.
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
             .def_property_readonly(
                     "temperature",
                     &ta::AtmosphericFlightConditions::getCurrentFreestreamTemperature,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The freestream atmospheric temperature at the body's current
-        location.
+         The freestream atmospheric temperature at the body's current
+         location.
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
             .def_property_readonly( "dynamic_pressure",
                                     &ta::AtmosphericFlightConditions::getCurrentDynamicPressure,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The freestream atmospheric dynamic pressure at the body's
-        current location.
+         The freestream atmospheric dynamic pressure at the body's
+         current location.
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
             .def_property_readonly( "pressure",
                                     &ta::AtmosphericFlightConditions::getCurrentPressure,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The freestream atmospheric static pressure at the body's
-        current location.
+         The freestream atmospheric static pressure at the body's
+         current location.
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
             .def_property_readonly( "airspeed",
                                     &ta::AtmosphericFlightConditions::getCurrentAirspeed,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The airspeed of the body w.r.t. the atmosphere.
+         The airspeed of the body w.r.t. the atmosphere.
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
             .def_property_readonly( "mach_number",
                                     &ta::AtmosphericFlightConditions::getCurrentMachNumber,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The freestream Mach number of the body.
+         The freestream Mach number of the body.
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
             .def_property_readonly(
                     "airspeed_velocity",
                     &ta::AtmosphericFlightConditions::getCurrentAirspeedBasedVelocity,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The velocity vector of the body w.r.t. the freestream
-        atmosphere (e.g. vectorial counterpart of airspeed).
+         The velocity vector of the body w.r.t. the freestream
+         atmosphere (e.g. vectorial counterpart of airspeed).
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "speed_of_sound",
                                     &ta::AtmosphericFlightConditions::getCurrentSpeedOfSound,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The freestream atmospheric speed of sound at the body's current
-        location.
+         The freestream atmospheric speed of sound at the body's current
+         location.
 
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
+
             .def_property_readonly(
                     "aero_coefficient_independent_variables",
                     &ta::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        List of current values of independent variables of aerodynamic
-        coefficients. This list is only defined if the body has an
-        :py:class:`~AerodynamicCoefficientInterface` that has
-        dependencies on environmental variables (e.g. Mach number,
-        angle of attack, etc.).
+         List of current values of independent variables of aerodynamic
+         coefficients. This list is only defined if the body has an
+         :py:class:`~AerodynamicCoefficientInterface` that has
+         dependencies on environmental variables (e.g. Mach number,
+         angle of attack, etc.).
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly(
                     "control_surface_aero_coefficient_independent_"
                     "variables",
@@ -1513,33 +1506,33 @@ The body-fixed frame of the body itself.
                             getControlSurfaceAerodynamicCoefficientIndependentVariables,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        List of lists current values of independent variables of
-        aerodynamic coefficients for control surfaces. The outer list
-        defines the control surface, the inner list the values of the
-        independent variables. This list is only defined if the body
-        has an :py:class:`~AerodynamicCoefficientInterface` with
-        control surfaces that have dependencies on environmental
-        variables (e.g. Mach number, angle of attack, etc.).
+         List of lists current values of independent variables of
+         aerodynamic coefficients for control surfaces. The outer list
+         defines the control surface, the inner list the values of the
+         independent variables. This list is only defined if the body
+         has an :py:class:`~AerodynamicCoefficientInterface` with
+         control surfaces that have dependencies on environmental
+         variables (e.g. Mach number, angle of attack, etc.).
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly(
                     "aerodynamic_coefficient_interface",
                     &ta::AtmosphericFlightConditions::getAerodynamicCoefficientInterface,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Object extracted from the same Body object as this
-        :py:class:`~AtmosphericFlightConditions` object, which defines
-        the aerodynamic coefficients.
+         Object extracted from the same Body object as this
+         :py:class:`~AtmosphericFlightConditions` object, which defines
+         the aerodynamic coefficients.
 
 
-        :type: AerodynamicCoefficientInterface
-     )doc" );
+         :type: AerodynamicCoefficientInterface
+      )doc" );
 
     /*!
      **************   EPHEMERIDES  ******************
@@ -1716,206 +1709,204 @@ The body-fixed frame of the body itself.
      */
 
     py::class_< te::RotationalEphemeris, std::shared_ptr< te::RotationalEphemeris > >(
-            m,
-            "RotationalEphemeris",
-            R"doc(
+            m, "RotationalEphemeris", R"doc(
 
-        Object that stores the rotational state of the bodies.
+         Object that stores the rotational state of the bodies.
 
 
-        Object that stores the rotational state of the bodies. This object can be used to calculate rotation matrices,
-        which are used to transform coordinates between reference frames.
+         Object that stores the rotational state of the bodies. This object can be used to calculate rotation matrices,
+         which are used to transform coordinates between reference frames.
 
 
 
 
 
-     )doc" )
+      )doc" )
             .def( "body_fixed_to_inertial_rotation",
                   &te::RotationalEphemeris::getRotationMatrixToBaseFrame,
                   py::arg( "time" ),
                   R"doc(
 
-        Function to get rotation matrix from body-fixed frame to inertial frame over time.
+         Function to get rotation matrix from body-fixed frame to inertial frame over time.
 
 
-        Function to get rotation matrix from body-fixed (target) frame to inertial (base) frame over time.
-        The calculation of this rotation matrix depends on the specific rotation model that has been defined,
-        either from an a priori definition (see :ref:`\`\`rotation_model\`\`` submodule) or from processing
-        the results of propagation of the rotational equations of motion.
+         Function to get rotation matrix from body-fixed (target) frame to inertial (base) frame over time.
+         The calculation of this rotation matrix depends on the specific rotation model that has been defined,
+         either from an a priori definition (see :ref:`\`\`rotation_model\`\`` submodule) or from processing
+         the results of propagation of the rotational equations of motion.
 
 
-        Parameters
-        ----------
-        current_time : float
-            The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix is evaluated
+         Parameters
+         ----------
+         current_time : float
+             The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix is evaluated
 
-        Returns
-        -------
-        numpy.ndarray
-            Rotation matrix :math:`\mathbf{R}^{I/B}` from body-fixed frame :math:`B` to inertial frame `I`
-
-
+         Returns
+         -------
+         numpy.ndarray
+             Rotation matrix :math:`\mathbf{R}^{I/B}` from body-fixed frame :math:`B` to inertial frame `I`
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "time_derivative_body_fixed_to_inertial_rotation",
                   &te::RotationalEphemeris::getDerivativeOfRotationToBaseFrame,
                   py::arg( "time" ),
                   R"doc(
 
-        Function to get time derivative of rotation matrix from body-fixed frame to inertial frame over time.
+         Function to get time derivative of rotation matrix from body-fixed frame to inertial frame over time.
 
 
-        Function to get time derivative of rotation matrix from body-fixed frame to inertial frame over time (see ``body_fixed_to_inertial_rotation``),
-        denoted :math:`\dot{\mathbf{R}}^{(I/B)}`,
+         Function to get time derivative of rotation matrix from body-fixed frame to inertial frame over time (see ``body_fixed_to_inertial_rotation``),
+         denoted :math:`\dot{\mathbf{R}}^{(I/B)}`,
 
 
-        Parameters
-        ----------
-        current_time : float
-            The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix derivative is evaluated
+         Parameters
+         ----------
+         current_time : float
+             The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix derivative is evaluated
 
-        Returns
-        -------
-        numpy.ndarray
-            Rotation matrix :math:`\dot{\mathbf{R}}^{I/B}` from body-fixed frame :math:`B` to inertial frame `I`
-
-
+         Returns
+         -------
+         numpy.ndarray
+             Rotation matrix :math:`\dot{\mathbf{R}}^{I/B}` from body-fixed frame :math:`B` to inertial frame `I`
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "inertial_to_body_fixed_rotation",
                   &te::RotationalEphemeris::getRotationMatrixToTargetFrame,
                   py::arg( "time" ),
                   R"doc(
 
-        Function to get rotation matrix from inertial frame to body-fixed frame over time.
+         Function to get rotation matrix from inertial frame to body-fixed frame over time.
 
 
-        Function computes the inverse (equal to transpose) rotation of the ``body_fixed_to_inertial_rotation`` function.
+         Function computes the inverse (equal to transpose) rotation of the ``body_fixed_to_inertial_rotation`` function.
 
 
-        Parameters
-        ----------
-        current_time : float
-            The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix is evaluated
+         Parameters
+         ----------
+         current_time : float
+             The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix is evaluated
 
 
 
 
 
-    )doc" )
+     )doc" )
             .def( "time_derivative_inertial_to_body_fixed_rotation",
                   &te::RotationalEphemeris::getDerivativeOfRotationToTargetFrame,
                   py::arg( "time" ),
                   R"doc(
 
-        Function to get time derivative of rotation matrix from inertial frame to body-fixed frame over time.
+         Function to get time derivative of rotation matrix from inertial frame to body-fixed frame over time.
 
 
-        Function to get time derivative of rotation matrix from inertial frame to body-fixed frame over time (see ``inertial_to_body_fixed_rotation``),
-        denoted :math:`\dot{\mathbf{R}}^{(B/I)}`,
+         Function to get time derivative of rotation matrix from inertial frame to body-fixed frame over time (see ``inertial_to_body_fixed_rotation``),
+         denoted :math:`\dot{\mathbf{R}}^{(B/I)}`,
 
 
-        Parameters
-        ----------
-        current_time : float
-            The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix derivative is evaluated
+         Parameters
+         ----------
+         current_time : float
+             The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix derivative is evaluated
 
-        Returns
-        -------
-        numpy.ndarray
-            Rotation matrix :math:`\dot{\mathbf{R}}^{B/I}` from inertial frame `I` to body-fixed frame :math:`B`
-
-
+         Returns
+         -------
+         numpy.ndarray
+             Rotation matrix :math:`\dot{\mathbf{R}}^{B/I}` from inertial frame `I` to body-fixed frame :math:`B`
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "angular_velocity_in_body_fixed_frame",
                   &te::RotationalEphemeris::getRotationalVelocityVectorInTargetFrame,
                   py::arg( "time" ),
                   R"doc(
 
-        Function to get the body's angular velocity vector, expressed in the body-fixed frame.
+         Function to get the body's angular velocity vector, expressed in the body-fixed frame.
 
 
-        Function to get the body's angular velocity vector :math:`\boldsymbol{\omega}^{(B)}`, expressed in the body-fixed frame :math:`B`.
-        The calculation of the angular velocity depends on the specific rotation model that has been defined,
-        either from an a priori definition (see :ref:`\`\`rotation_model\`\`` submodule) or from processing
-        the results of propagation of the rotational equations of motion.
-        Note that when numerically propagating rotational dynamics, this angular velocity vector is typically directly defined
-        in the last three entries of the state vector.
+         Function to get the body's angular velocity vector :math:`\boldsymbol{\omega}^{(B)}`, expressed in the body-fixed frame :math:`B`.
+         The calculation of the angular velocity depends on the specific rotation model that has been defined,
+         either from an a priori definition (see :ref:`\`\`rotation_model\`\`` submodule) or from processing
+         the results of propagation of the rotational equations of motion.
+         Note that when numerically propagating rotational dynamics, this angular velocity vector is typically directly defined
+         in the last three entries of the state vector.
 
 
-        Parameters
-        ----------
-        current_time : float
-            The time (in seconds since epoch J2000, TDB time scale) at which the angular velocity vector is evaluated
+         Parameters
+         ----------
+         current_time : float
+             The time (in seconds since epoch J2000, TDB time scale) at which the angular velocity vector is evaluated
 
-        Returns
-        -------
-        numpy.ndarray
-            Angular velocity vector of the body  :math:`\boldsymbol{\omega}^{(B)}` expressed in the body-fixed frame :math:`B`
-
-
+         Returns
+         -------
+         numpy.ndarray
+             Angular velocity vector of the body  :math:`\boldsymbol{\omega}^{(B)}` expressed in the body-fixed frame :math:`B`
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "angular_velocity_in_inertial_frame",
                   &te::RotationalEphemeris::getRotationalVelocityVectorInBaseFrame,
                   py::arg( "time" ),
                   R"doc(
 
-        Function to get the body's angular velocity vector, expressed in the inertial frame.
+         Function to get the body's angular velocity vector, expressed in the inertial frame.
 
 
-        Function to get the body's angular velocity vector :math:`\boldsymbol{\omega}^{(I)}`, expressed in the body-fixed frame :math:`I`.
-        This quantity is computed from :math:`\mathbf{R}^{I/B}\boldsymbol{\omega}^{(B)}`, see the ``angular_velocity_in_body_fixed_frame`` and
-        ``body_fixed_to_inertial_rotation`` functions.
+         Function to get the body's angular velocity vector :math:`\boldsymbol{\omega}^{(I)}`, expressed in the body-fixed frame :math:`I`.
+         This quantity is computed from :math:`\mathbf{R}^{I/B}\boldsymbol{\omega}^{(B)}`, see the ``angular_velocity_in_body_fixed_frame`` and
+         ``body_fixed_to_inertial_rotation`` functions.
 
 
-        Parameters
-        ----------
-        current_time : float
-            The time (in seconds since epoch J2000, TDB time scale) at which the angular velocity vector is evaluated
+         Parameters
+         ----------
+         current_time : float
+             The time (in seconds since epoch J2000, TDB time scale) at which the angular velocity vector is evaluated
 
-        Returns
-        -------
-        numpy.ndarray
-            Angular velocity vector of the body  :math:`\boldsymbol{\omega}^{(B)}` expressed in the body-fixed frame :math:`B`
-
-
+         Returns
+         -------
+         numpy.ndarray
+             Angular velocity vector of the body  :math:`\boldsymbol{\omega}^{(B)}` expressed in the body-fixed frame :math:`B`
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def_property_readonly( "body_fixed_frame_name",
                                     &te::RotationalEphemeris::getTargetFrameOrientation,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The identifier of the body-fixed frame, used in other parts of the simulation to identify it.
+         The identifier of the body-fixed frame, used in other parts of the simulation to identify it.
 
 
-        :type: str
-     )doc" )
+         :type: str
+      )doc" )
             .def_property_readonly( "inertial_frame_name",
                                     &te::RotationalEphemeris::getBaseFrameOrientation,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The identifier of the inertial frame, used in other parts of the simulation to identify it.
+         The identifier of the inertial frame, used in other parts of the simulation to identify it.
 
 
-        :type: str
-     )doc" );
+         :type: str
+      )doc" );
 
     m.def( "transform_to_inertial_orientation",
            &te::transformStateToInertialOrientation< double, double >,
@@ -1924,37 +1915,37 @@ The body-fixed frame of the body itself.
            py::arg( "rotational_ephemeris" ),
            R"doc(
 
-Function to convert a Cartesian state vector from a body-fixed to an inertial frame
+ Function to convert a Cartesian state vector from a body-fixed to an inertial frame
 
-Function to convert a Cartesian state vector from a body-fixed to an inertial frame, using a :class:`~tudatpy.numerical_simulation.environment.RotationalEphemeris`
-object as a model for the rotation. The body-fixed frame from which the conversion takes place is the :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.body_fixed_frame_name` frame,
-the (assumedly) inertial frame to which the conversion is done is :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.inertial_frame_name`.
+ Function to convert a Cartesian state vector from a body-fixed to an inertial frame, using a :class:`~tudatpy.numerical_simulation.environment.RotationalEphemeris`
+ object as a model for the rotation. The body-fixed frame from which the conversion takes place is the :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.body_fixed_frame_name` frame,
+ the (assumedly) inertial frame to which the conversion is done is :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.inertial_frame_name`.
 
-This function calls :func:`~tudaypy.astro.element_conversion.rotate_state_to_frame` (with frame :math:`A` the inertial frame, and frame :math:`B` the body-fixed frame). The present function
-computes the required rotation matrix and its time derivative from the ``rotational_ephemeris`` input given here.
+ This function calls :func:`~tudatpy.astro.element_conversion.rotate_state_to_frame` (with frame :math:`A` the inertial frame, and frame :math:`B` the body-fixed frame). The present function
+ computes the required rotation matrix and its time derivative from the ``rotational_ephemeris`` input given here.
 
-Parameters
-----------
-state_in_body_fixed_frame : numpy.ndarray[numpy.float64[6, 1]]
-    Cartesian state (position and velocity) in the body-fixed frame
+ Parameters
+ ----------
+ state_in_body_fixed_frame : numpy.ndarray[numpy.float64[6, 1]]
+     Cartesian state (position and velocity) in the body-fixed frame
 
-current_time : float
-    Time at which the transformation is to be computed
+ current_time : float
+     Time at which the transformation is to be computed
 
-rotational_ephemeris : RotationalEphemeris
-    Boy rotation model that is to be used to convert the body-fixed state to inertial state
+ rotational_ephemeris : RotationalEphemeris
+     Boy rotation model that is to be used to convert the body-fixed state to inertial state
 
-Returns
--------
-numpy.ndarray[numpy.float64[6, 1]]
-    Cartesian state transformed to inertial frame, using ``rotational_ephemeris`` model, from body-fixed ``state_in_body_fixed_frame``
-
-
+ Returns
+ -------
+ numpy.ndarray[numpy.float64[6, 1]]
+     Cartesian state transformed to inertial frame, using ``rotational_ephemeris`` model, from body-fixed ``state_in_body_fixed_frame``
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     py::class_< te::LongitudeLibrationCalculator,
                 std::shared_ptr< te::LongitudeLibrationCalculator > >(
@@ -1980,13 +1971,11 @@ numpy.ndarray[numpy.float64[6, 1]]
 
     py::class_< teo::EarthOrientationAnglesCalculator,
                 std::shared_ptr< teo::EarthOrientationAnglesCalculator > >(
-            m,
-            "EarthOrientationAnglesCalculator",
-            R"doc(
+            m, "EarthOrientationAnglesCalculator", R"doc(
 
-        Object for computing high-accuracy Earth orientation angles
+         Object for computing high-accuracy Earth orientation angles
 
-    )doc" )
+     )doc" )
             .def( "get_gcrs_to_itrs_rotation_angles",
                   &teo::EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs<
                           TIME_TYPE >,
@@ -1994,51 +1983,49 @@ numpy.ndarray[numpy.float64[6, 1]]
                   py::arg( "time_scale" ) = tba::tdb_scale,
                   R"doc(
 
-        Function to compute high-accuracy Earth orientation angles
+         Function to compute high-accuracy Earth orientation angles
 
-        Function to compute high-accuracy Earth orientation angle quantities :math:`X,Y,s,x_{p},y_{p}` and UT1 (from which :math:`\theta_{E}` is computed)
-        as described in :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.gcrs_to_itrs`
+         Function to compute high-accuracy Earth orientation angle quantities :math:`X,Y,s,x_{p},y_{p}` and UT1 (from which :math:`\theta_{E}` is computed)
+         as described in :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.gcrs_to_itrs`
 
-        Parameters
-        ----------
-        epoch : float
-            Epoch at which the Earth orientation angles are to be compute
-        time_scale : TimeScales
-            Time scale in which the input epoch is given
+         Parameters
+         ----------
+         epoch : float
+             Epoch at which the Earth orientation angles are to be compute
+         time_scale : TimeScales
+             Time scale in which the input epoch is given
 
-        Returns
-        -------
-        tuple[list[float],float]
-            Pair (tuple of size two) with the first entry a list of orientation angles :math:`X,Y,s,x_{p},y_{p}` (in that order) and the second entry the current UT1.
+         Returns
+         -------
+         tuple[list[float],float]
+             Pair (tuple of size two) with the first entry a list of orientation angles :math:`X,Y,s,x_{p},y_{p}` (in that order) and the second entry the current UT1.
 
-    )doc" );
+     )doc" );
 
     py::class_< te::GcrsToItrsRotationModel,
                 std::shared_ptr< te::GcrsToItrsRotationModel >,
-                te::RotationalEphemeris >( m,
-                                           "GcrsToItrsRotationModel",
-                                           R"doc(
+                te::RotationalEphemeris >( m, "GcrsToItrsRotationModel", R"doc(
 
-        Object for high-accuracy GCRS<->ITRS rotation.
+         Object for high-accuracy GCRS<->ITRS rotation.
 
-        Object derived from :class:`~RotationalEphemeris` that implements the high-accuracy GCRS<->ITRS rotation as per the IERS 2010 Conventions. The details of the model are described in
-        :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.gcrs_to_itrs`
-        With the exception of :math:`s'`, the list of angles used to compute the full rotation are computed by an object of type :class:`~EarthOrientationAnglesCalculator` (which can be retrieved from this rotation model
-        through :attr:`~GcrsToItrsRotationModel.angles_calculator`.
+         Object derived from :class:`~RotationalEphemeris` that implements the high-accuracy GCRS<->ITRS rotation as per the IERS 2010 Conventions. The details of the model are described in
+         :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.gcrs_to_itrs`
+         With the exception of :math:`s'`, the list of angles used to compute the full rotation are computed by an object of type :class:`~EarthOrientationAnglesCalculator` (which can be retrieved from this rotation model
+         through :attr:`~GcrsToItrsRotationModel.angles_calculator`.
 
-    )doc" )
+     )doc" )
             .def_property_readonly( "angles_calculator",
                                     &te::GcrsToItrsRotationModel::getAnglesCalculator,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Object that computes the Earth rotation angles :math:`X,Y,s,\theta_{E},x_{p},y_{p}`
+         Object that computes the Earth rotation angles :math:`X,Y,s,\theta_{E},x_{p},y_{p}`
 
 
-        :type: EarthOrientationAnglesCalculator
+         :type: EarthOrientationAnglesCalculator
 
-    )doc" );
+     )doc" );
 
     py::class_< te::DirectionBasedRotationalEphemeris,
                 std::shared_ptr< te::DirectionBasedRotationalEphemeris >,
@@ -2070,17 +2057,17 @@ numpy.ndarray[numpy.float64[6, 1]]
             "GravityFieldModel",
             R"doc(
 
-        Object that provides the gravity field of a body
+         Object that provides the gravity field of a body
 
 
-        Object (typically stored inside a :class:`~Body` object) that provides the gravity field of a body, typically (but not exclusively) for
-        use in gravitational acceleration and torque models. This base class allows access to the gravitational parameter of the body.
-        Specific derived classes are implemented to provide models for more detailed gravity field models (e.g. spherical harmonics, polyhedron).
+         Object (typically stored inside a :class:`~Body` object) that provides the gravity field of a body, typically (but not exclusively) for
+         use in gravitational acceleration and torque models. This base class allows access to the gravitational parameter of the body.
+         Specific derived classes are implemented to provide models for more detailed gravity field models (e.g. spherical harmonics, polyhedron).
 
 
 
 
-    )doc" )
+     )doc" )
             .def( py::init< const double, const std::function< void( ) > >( ),
                   py::arg( "gravitational_parameter" ),
                   py::arg( "update_inertia_tensor" ) =
@@ -2092,78 +2079,76 @@ numpy.ndarray[numpy.float64[6, 1]]
                            &tg::GravityFieldModel::resetGravitationalParameter,
                            R"doc(
 
-        Value of the gravity field's gravitational parameters :math:`\mu`
+         Value of the gravity field's gravitational parameters :math:`\mu`
 
 
-        :type: float
+         :type: float
 
 
 
 
 
-     )doc" );
+      )doc" );
 
     py::class_< tg::SphericalHarmonicsGravityField,
                 std::shared_ptr< tg::SphericalHarmonicsGravityField >,
-                tg::GravityFieldModel >( m,
-                                         "SphericalHarmonicsGravityField",
-                                         R"doc(
+                tg::GravityFieldModel >( m, "SphericalHarmonicsGravityField", R"doc(
 
-        Object that provides a spherical harmonic gravity field of a body.
+         Object that provides a spherical harmonic gravity field of a body.
 
-        Object (typically stored inside a :class:`~Body` object) that provides a spherical harmonic gravity field of a body, typically (but not exclusively) for
-        use in gravitational acceleration and torque models. This class is derived from :class:`~GravityFieldModel`.  This object is typically created using the :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic_gravity`
-        settings function. If any time variations of the gravity field are provided, an object of the derived class :class:`~TimeVariableSphericalHarmonicsGravityField` is created.
+         Object (typically stored inside a :class:`~Body` object) that provides a spherical harmonic gravity field of a body, typically (but not exclusively) for
+         use in gravitational acceleration and torque models. This class is derived from :class:`~GravityFieldModel`.  This object is typically created using the :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`
+         settings function. If any time variations of the gravity field are provided, an object of the derived class :class:`~TimeVariableSphericalHarmonicsGravityField` is created.
 
-    )doc" )
+     )doc" )
             .def_property_readonly( "reference_radius",
                                     &tg::SphericalHarmonicsGravityField::getReferenceRadius,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Reference radius :math:`R` of the gravity field
+         Reference radius :math:`R` of the gravity field
 
-        :type: float
-     )doc" )
+         :type: float
+      )doc" )
             .def_property_readonly( "maximum_degree",
                                     &tg::SphericalHarmonicsGravityField::getDegreeOfExpansion,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Maximum spherical harmonic degree :math:`l_{max}` for which coefficients are defined
+         Maximum spherical harmonic degree :math:`l_{max}` for which coefficients are defined
 
-        :type: int
-     )doc" )
+         :type: int
+      )doc" )
             .def_property_readonly( "maximum_order",
                                     &tg::SphericalHarmonicsGravityField::getOrderOfExpansion,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Maximum spherical harmonic order :math:`m_{max}` for which coefficients are defined
+         Maximum spherical harmonic order :math:`m_{max}` for which coefficients are defined
 
-        :type: int
-     )doc" )
+         :type: int
+      )doc" )
             .def_property( "cosine_coefficients",
                            &tg::SphericalHarmonicsGravityField::getCosineCoefficients,
                            &tg::SphericalHarmonicsGravityField::setCosineCoefficients,
                            R"doc(
 
-        Matrix with cosine spherical harmonic coefficients :math:`\bar{C}_{lm}` (geodesy normalized). Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
+         Matrix with cosine spherical harmonic coefficients :math:`\bar{C}_{lm}` (geodesy normalized). Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
 
-        :type: numpy.ndarray[numpy.float64[l, m]]
-     )doc" )
+         :type: numpy.ndarray[numpy.float64[l, m]]
+      )doc" )
             .def_property( "sine_coefficients",
                            &tg::SphericalHarmonicsGravityField::getSineCoefficients,
                            &tg::SphericalHarmonicsGravityField::setSineCoefficients,
                            R"doc(
 
-        Matrix with sine spherical harmonic coefficients :math:`\bar{S}_{lm}` (geodesy normalized). Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
+         Matrix with sine spherical harmonic coefficients :math:`\bar{S}_{lm}` (geodesy normalized). Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
 
-        :type: numpy.ndarray[numpy.float64[l, m]]
-     )doc" );
+         :type: numpy.ndarray[numpy.float64[l, m]]
+      )doc" );
 
     py::class_< tg::TimeDependentSphericalHarmonicsGravityField,
                 std::shared_ptr< tg::TimeDependentSphericalHarmonicsGravityField >,
@@ -2187,6 +2172,19 @@ numpy.ndarray[numpy.float64[6, 1]]
             m, "GravityFieldVariationModel" );
 
     /*!
+     **************   RADIATION MODELS  ******************
+     */
+    py::class_< tem::RadiationPressureTargetModel,
+                std::shared_ptr< tem::RadiationPressureTargetModel > >(
+            m, "RadiationPressureTargetModel" );
+
+    py::class_< tem::CannonballRadiationPressureTargetModel,
+                std::shared_ptr< tem::CannonballRadiationPressureTargetModel >,
+                tem::RadiationPressureTargetModel >( m, "CannonballRadiationPressureTargetModel" )
+            .def_property( "radiation_pressure_coefficient",
+                           &tem::CannonballRadiationPressureTargetModel::getCoefficient,
+                           &tem::CannonballRadiationPressureTargetModel::resetCoefficient );
+    /*!
      **************   SHAPE MODELS  ******************
      */
 
@@ -2194,25 +2192,23 @@ numpy.ndarray[numpy.float64[6, 1]]
                                                                                "BodyShapeModel",
                                                                                R"doc(
 
-        Object that provides a shape model for a natural body.
+         Object that provides a shape model for a natural body.
 
-        Object (typically stored inside a :class:`~Body` object) that provides a shape model for a body, for instance to compute the altitude from a body-centered state, or w.r.t. which
-        to place ground stations. This shape model is typically only associcated with natural bodies. Shape models for spacecraft (for non-conservative force models) use properties stored inside the
-        :class:`~VehicleSystems` object.
+         Object (typically stored inside a :class:`~Body` object) that provides a shape model for a body, for instance to compute the altitude from a body-centered state, or w.r.t. which
+         to place ground stations. This shape model is typically only associated with natural bodies. Shape models for spacecraft (for non-conservative force models) use properties stored inside the
+         :class:`~VehicleSystems` object.
 
-    )doc" )
-            .def_property_readonly( "average_radius",
-                                    &tba::BodyShapeModel::getAverageRadius,
-                                    R"doc(
+     )doc" )
+            .def_property_readonly( "average_radius", &tba::BodyShapeModel::getAverageRadius, R"doc(
 
-        **read-only**
+         **read-only**
 
-        Average radius of the body, for use in computations that assume a spherical body shape.
+         Average radius of the body, for use in computations that assume a spherical body shape.
 
-        :type: float
+         :type: float
 
 
-    )doc" );
+     )doc" );
 
     /*!
      **************   GROUND STATION FUNCTIONALITY
@@ -2220,17 +2216,15 @@ numpy.ndarray[numpy.float64[6, 1]]
      */
 
     py::class_< tgs::GroundStationState, std::shared_ptr< tgs::GroundStationState > >(
-            m,
-            "GroundStationState",
-            R"doc(
+            m, "GroundStationState", R"doc(
 
-        Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
+         Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
 
-        Object that performs computations of the current (body-fixed) position and frame conversions of the ground station. In the simplest situation,
-        only a Cartesian position is provided, which is then assumed constant. If time variations (for instance due to tides or plate motion) are present,
-        their impact on station position is computed in this object.
+         Object that performs computations of the current (body-fixed) position and frame conversions of the ground station. In the simplest situation,
+         only a Cartesian position is provided, which is then assumed constant. If time variations (for instance due to tides or plate motion) are present,
+         their impact on station position is computed in this object.
 
-    )doc" )
+     )doc" )
             .def( "get_cartesian_state",
                   &tgs::GroundStationState::getCartesianStateInTime,
                   py::arg( "current_time" ),
@@ -2241,88 +2235,88 @@ numpy.ndarray[numpy.float64[6, 1]]
                   py::arg( "target_frame_origin" ) = "",
                   R"doc(
 
-        This function computes the position of the station as a function of time.
+         This function computes the position of the station as a function of time.
 
-        This function computes the position of the station as a function of time, in a frame with body-fixed orientation.
-        Some time-variations of the station position depend on the *origin* of the frame in which the computation is to be
-        used. For instance, relativistic correction to the Earth-fixed position is different in a geocentric or barycentric frame.
-        However, the output of this function is always given in the body-fixed, body-centered frame.
+         This function computes the position of the station as a function of time, in a frame with body-fixed orientation.
+         Some time-variations of the station position depend on the *origin* of the frame in which the computation is to be
+         used. For instance, relativistic correction to the Earth-fixed position is different in a geocentric or barycentric frame.
+         However, the output of this function is always given in the body-fixed, body-centered frame.
 
-        Parameters
-        ----------
-        current_time : float
-            Time (in seconds since J2000 TDB) at which the position is to be computed.
+         Parameters
+         ----------
+         current_time : float
+             Time (in seconds since J2000 TDB) at which the position is to be computed.
 
-        target_frame_origin: str, default = ""
-            Identifier for the frame origin w.r.t. which the computed position is to be used.
+         target_frame_origin: str, default = ""
+             Identifier for the frame origin w.r.t. which the computed position is to be used.
 
-        Returns
-        -------
-        numpy.ndarray
-            Cartesian position of the station at the current epoch, in a body-centered, body-fixed frame
+         Returns
+         -------
+         numpy.ndarray
+             Cartesian position of the station at the current epoch, in a body-centered, body-fixed frame
 
-    )doc" )
+     )doc" )
             .def_property_readonly( "cartesian_positon_at_reference_epoch",
                                     &tgs::GroundStationState::getNominalCartesianPosition,
                                     R"doc(
 
 
-        **read-only**
+         **read-only**
 
-        Cartesian position of the ground station, at the reference epoch, in a body-fixed, body-centered frame.
+         Cartesian position of the ground station, at the reference epoch, in a body-fixed, body-centered frame.
 
-        :type: numpy.ndarray[numpy.float64[3, 1]]
+         :type: numpy.ndarray[numpy.float64[3, 1]]
 
-    )doc" )
+     )doc" )
             .def_property_readonly( "spherical_positon_at_reference_epoch",
                                     &tgs::GroundStationState::getNominalSphericalPosition,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Spherical position of the ground station (distance w.r.t. body center, latitude, longitude), at the reference epoch, in a body-fixed, body-centered frame.
+         Spherical position of the ground station (distance w.r.t. body center, latitude, longitude), at the reference epoch, in a body-fixed, body-centered frame.
 
-        :type: numpy.ndarray[numpy.float64[3, 1]]
+         :type: numpy.ndarray[numpy.float64[3, 1]]
 
-    )doc" )
-            .def_property_readonly( "geodetic_positon_at_reference_epoch",
+     )doc" )
+            .def_property_readonly( "geodetic_position_at_reference_epoch",
                                     &tgs::GroundStationState::getNominalGeodeticPosition,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Geodetic position of the ground station (altitude w.r.t. body shape model, geodetic latitude, longitude), at the reference epoch, in a body-fixed, body-centered frame.
+         Geodetic position of the ground station (altitude w.r.t. body shape model, geodetic latitude, longitude), at the reference epoch, in a body-fixed, body-centered frame.
 
-        :type: numpy.ndarray[numpy.float64[3, 1]]
+         :type: numpy.ndarray[numpy.float64[3, 1]]
 
-    )doc" )
+     )doc" )
             .def_property_readonly(
                     "rotation_matrix_body_fixed_to_topocentric",
                     &tgs::GroundStationState::
                             getConstantRotationMatrixFromBodyFixedToTopocentricFrame,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Rotation matrix from the body-fixed frame (of the station's central body) to the topocentric frame
-        of the ground station. The body-fixed frame is defined by the rotation model of the body object (:attr:`~tudatpy.numerical_simulation.environment.Body.rotation_model`).
-        The axes of the topocentric frame are defined such that the x-axis is in East direction, the z-direction is upwards, perpendicular to the body's surface sphere
-        (with properties defined by the central body's shape model :attr:`~tudatpy.numerical_simulation.environment.Body.shape_model`). The y-axis completes the frame, and is in northern direction.
-        For time-varying ground station positions, this function uses the station position at reference epoch for the computation of the axes.
+         Rotation matrix from the body-fixed frame (of the station's central body) to the topocentric frame
+         of the ground station. The body-fixed frame is defined by the rotation model of the body object (:attr:`~tudatpy.numerical_simulation.environment.Body.rotation_model`).
+         The axes of the topocentric frame are defined such that the x-axis is in East direction, the z-direction is upwards, perpendicular to the body's surface sphere
+         (with properties defined by the central body's shape model :attr:`~tudatpy.numerical_simulation.environment.Body.shape_model`). The y-axis completes the frame, and is in northern direction.
+         For time-varying ground station positions, this function uses the station position at reference epoch for the computation of the axes.
 
-        :type: numpy.ndarray[numpy.float64[3, 3]]
+         :type: numpy.ndarray[numpy.float64[3, 3]]
 
 
-    )doc" );
+     )doc" );
 
     py::class_< tgs::GroundStation, std::shared_ptr< tgs::GroundStation > >(
             m, "GroundStation", R"doc(
 
-        Object used to define and store properties of a ground station.
+         Object used to define and store properties of a ground station.
 
-        Object (typically stored inside a :class:`~Body` object) used to define and store properties of a ground station, typically used in modelling tracking observations to/from a ground station.
+         Object (typically stored inside a :class:`~Body` object) used to define and store properties of a ground station, typically used in modelling tracking observations to/from a ground station.
 
-    )doc" )
+     )doc" )
             .def( "set_transmitting_frequency_calculator",
                   &tgs::GroundStation::setTransmittingFrequencyCalculator,
                   py::arg( "transmitting_frequency_calculator" ) )
@@ -2343,60 +2337,57 @@ numpy.ndarray[numpy.float64[6, 1]]
                            &tgs::GroundStation::setTransmittingFrequencyCalculator,
                            R"doc(
 
-        Object that provides the transmission frequency as a function of time for (radio) tracking stations. This attribute is typically set automatically when loading tracking data files (e.g. ODF, IFMS, TNF, etc.)
+         Object that provides the transmission frequency as a function of time for (radio) tracking stations. This attribute is typically set automatically when loading tracking data files (e.g. ODF, IFMS, TNF, etc.)
 
-        :type: TransmittingFrequencyCalculator
+         :type: TransmittingFrequencyCalculator
 
-    )doc" )
-            .def_property_readonly( "temperature_function",
-                                    &tgs::GroundStation::getTemperatureFunction,
-                                    R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "temperature_function", &tgs::GroundStation::getTemperatureFunction, R"doc(
 
-        Function that provides the local temperature at the ground station (typically use for media corrections) as a function of time
+         Function that provides the local temperature at the ground station (typically use for media corrections) as a function of time
 
-        :type: :type: Callable[[float], float]
+         :type: :type: Callable[[float], float]
 
-    )doc" )
-            .def_property_readonly( "pressure_function",
-                                    &tgs::GroundStation::getPressureFunction,
-                                    R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "pressure_function", &tgs::GroundStation::getPressureFunction, R"doc(
 
-        Function that provides the local pressure at the ground station (typically use for media corrections) as a function of time
+         Function that provides the local pressure at the ground station (typically use for media corrections) as a function of time
 
-        :type: :type: Callable[[float], float]
+         :type: :type: Callable[[float], float]
 
-    )doc" )
+     )doc" )
             .def_property_readonly( "relative_humidity_function",
                                     &tgs::GroundStation::getRelativeHumidityFunction,
                                     R"doc(
 
-        Function that provides the local relative humidity at the ground station (typically use for media corrections) as a function of time
+         Function that provides the local relative humidity at the ground station (typically use for media corrections) as a function of time
 
-        :type: :type: Callable[[float], float]
+         :type: :type: Callable[[float], float]
 
-    )doc" )
+     )doc" )
             .def_property_readonly( "pointing_angles_calculator",
                                     &tgs::GroundStation::getPointingAnglesCalculator,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Object that performs computations of the azimuth and elevation of an arbitrary target as observed by the ground station
+         Object that performs computations of the azimuth and elevation of an arbitrary target as observed by the ground station
 
-        :type: PointingAnglesCalculator
+         :type: PointingAnglesCalculator
 
-    )doc" )
-            .def_property_readonly( "station_state",
-                                    &tgs::GroundStation::getNominalStationState,
-                                    R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "station_state", &tgs::GroundStation::getNominalStationState, R"doc(
 
-        **read-only**
+         **read-only**
 
-        Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
+         Object that performs computations of the current (body-fixed) position and frame conversions of the ground station.
 
-        :type: GroundStationState
+         :type: GroundStationState
 
-    )doc" )
+     )doc" )
             .def( "set_timing_system",
                   &tgs::GroundStation::setTimingSystem,
                   py::arg( "timing_system" ) );
@@ -2409,6 +2400,18 @@ numpy.ndarray[numpy.float64[6, 1]]
                 std::shared_ptr< tgs::ConstantFrequencyInterpolator >,
                 tgs::StationFrequencyInterpolator >( m, "ConstantTransmittingFrequencyCalculator" )
             .def( py::init< double >( ), py::arg( "frequency" ) );
+
+    py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
+                std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
+                tgs::StationFrequencyInterpolator >( m, "PiecewiseLinearFrequencyInterpolator" )
+            .def( py::init< const std::vector< tudat::Time > &,
+                            const std::vector< tudat::Time > &,
+                            const std::vector< double > &,
+                            const std::vector< double > & >( ),
+                  py::arg( "start_times" ),
+                  py::arg( "end_times" ),
+                  py::arg( "ramp_rates" ),
+                  py::arg( "start_frequency" ) );
 
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >(
             m, "PointingAnglesCalculator" )
@@ -2437,522 +2440,513 @@ numpy.ndarray[numpy.float64[6, 1]]
                                                            "Body",
                                                            R"doc(
 
-        Object that stores the environment properties and current state of
-        a single body.
+         Object that stores the environment properties and current state of
+         a single body.
 
 
-        Object that stores the environment properties and current state
-        of a single celestial body (natural or artificial). Each separate
-        environment model (gravity field, ephemeris, etc.) is stored as a
-        member object in this class. During each time step, the Body gets
-        updated to the current time/propagated state, and the current
-        properties, in as much as they are time-dependent, can be
-        extracted from this object
+         Object that stores the environment properties and current state
+         of a single celestial body (natural or artificial). Each separate
+         environment model (gravity field, ephemeris, etc.) is stored as a
+         member object in this class. During each time step, the Body gets
+         updated to the current time/propagated state, and the current
+         properties, in as much as they are time-dependent, can be
+         extracted from this object
 
 
 
 
 
-     )doc" )
-            .def_property( "ephemeris_frame_to_base_frame",
-                           &tss::Body::getEphemerisFrameToBaseFrame,
-                           &tss::Body::setEphemerisFrameToBaseFrame )
-            .def_property_readonly( "state",
-                                    &tss::Body::getState,
-                                    R"doc(
+      )doc" )
+            //            .def_property(
+            //                    "ephemeris_frame_to_base_frame",
+            //                    &tss::Body::getEphemerisFrameToBaseFrame,
+            //                    &tss::Body::setEphemerisFrameToBaseFrame )
+            .def_property_readonly( "state", &tss::Body::getState, R"doc(
 
-        **read-only**
+         **read-only**
 
-        The translational state of the Body, as set during the current
-        step of the numerical propagation. The translational state
-        stored here is always in Cartesian elements, w.r.t. the global
-        frame origin, with axes along the global frame orientation. If
-        the body's translational state is numerically propagated, this
-        property gets extracted from the propagated state vector. If it
-        is not propagated, the state is extracted from this body's
-        ephemeris. In both cases, any required state transformations
-        are automatically applied. Note that this function  is *only*
-        valid during the numerical propagation if any aspects of the
-        dynamics or dependent variables require the body's state.
+         The translational state of the Body, as set during the current
+         step of the numerical propagation. The translational state
+         stored here is always in Cartesian elements, w.r.t. the global
+         frame origin, with axes along the global frame orientation. If
+         the body's translational state is numerically propagated, this
+         property gets extracted from the propagated state vector. If it
+         is not propagated, the state is extracted from this body's
+         ephemeris. In both cases, any required state transformations
+         are automatically applied. Note that this function  is *only*
+         valid during the numerical propagation if any aspects of the
+         dynamics or dependent variables require the body's state.
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "position",
                                     &tss::Body::getPosition,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The translational position of the Body, as set during the
-        current step of the numerical propagation
-        (see :py:attr:`~state`).
+         The translational position of the Body, as set during the
+         current step of the numerical propagation
+         (see :py:attr:`~state`).
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "velocity",
                                     &tss::Body::getVelocity,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The translational velocity of the Body, as set during the
-        current step of the numerical propagation
-        (see :py:attr:`~state`).
+         The translational velocity of the Body, as set during the
+         current step of the numerical propagation
+         (see :py:attr:`~state`).
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "inertial_to_body_fixed_frame",
                                     &tss::Body::getCurrentRotationMatrixToLocalFrame,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The rotation from inertial frame (with global frame
-        orientation) to this Body's body-fixed frame. The rotation is
-        always returned here as a rotation matrix.  If the body's
-        rotational state is numerically propagated, this property gets
-        extracted from the propagated state vector. If it is not
-        propagated, the state is extracted from this body's rotational
-        ephemeris.
+         The rotation from inertial frame (with global frame
+         orientation) to this Body's body-fixed frame. The rotation is
+         always returned here as a rotation matrix.  If the body's
+         rotational state is numerically propagated, this property gets
+         extracted from the propagated state vector. If it is not
+         propagated, the state is extracted from this body's rotational
+         ephemeris.
 
-        .. note:: This function is **only** valid during the
-                  numerical propagation if any aspects of the dynamics
-                  or dependent variables require the body's rotational
-                  state.
+         .. note:: This function is **only** valid during the
+                   numerical propagation if any aspects of the dynamics
+                   or dependent variables require the body's rotational
+                   state.
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "body_fixed_to_inertial_frame",
                                     &tss::Body::getCurrentRotationMatrixToGlobalFrame,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        The rotation from this Body's body-fixed frame to inertial
-        frame (see :py:attr:`~inertial_to_body_fixed_frame`).
+         The rotation from this Body's body-fixed frame to inertial
+         frame (see :py:attr:`~inertial_to_body_fixed_frame`).
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "inertial_to_body_fixed_frame_derivative",
                                     &tss::Body::getCurrentRotationMatrixDerivativeToLocalFrame,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Time derivative of rotation matrix from inertial frame to this
-        Body's body-fixed frame
-        (see :py:attr:`~inertial_to_body_fixed_frame`).
+         Time derivative of rotation matrix from inertial frame to this
+         Body's body-fixed frame
+         (see :py:attr:`~inertial_to_body_fixed_frame`).
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "body_fixed_to_inertial_frame_derivative",
                                     &tss::Body::getCurrentRotationMatrixDerivativeToGlobalFrame,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Time derivative of rotation matrix from this Body's body-fixed
-        frame to inertial frame
-        (see :py:attr:`~inertial_to_body_fixed_frame`).
+         Time derivative of rotation matrix from this Body's body-fixed
+         frame to inertial frame
+         (see :py:attr:`~inertial_to_body_fixed_frame`).
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "inertial_angular_velocity",
                                     &tss::Body::getCurrentAngularVelocityVectorInGlobalFrame,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Angular velocity vector of the body, expressed in inertial
-        frame (see :py:attr:`~inertial_to_body_fixed_frame`).
+         Angular velocity vector of the body, expressed in inertial
+         frame (see :py:attr:`~inertial_to_body_fixed_frame`).
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_property_readonly( "body_fixed_angular_velocity",
                                     &tss::Body::getCurrentAngularVelocityVectorInLocalFrame,
                                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Angular velocity vector of the body, expressed in body-fixed
-        frame (see :py:attr:`~inertial_to_body_fixed_frame`).
-
-
-        :type: numpy.ndarray
-     )doc" )
-            .def_property( "mass",
-                           &tss::Body::getBodyMass,
-                           &tss::Body::setConstantBodyMass,
-                           R"doc(
-
-        The current mass :math:`m` of the vehicle, as used in the calculation of
-        non-conservative acceleration. This attribute is a shorthand for accessing the
-        mass as computed/stored in the :attr:`Body.rigid_body_properties` attribute. For certain
-        types of rigid-body properties, this attribute cannot be used to (re)set the current
-        mass. If the body has no    :attr:`Body.rigid_body_properties`, and this function is used to
-        set a mass, a new object is automatically created, with settings analogous to the
-        the :func:`~tudatpy.numerical_simulation.environment_setup.rigid_body.constant_rigid_body_properties` setting.
-
-        Unlike the attributes containing the state, orientation, angular velocity
-        of the Body, this attribute may be used to retrieve the state during the
-        propagation *and* to define the mass of a vehicle.
+         Angular velocity vector of the body, expressed in body-fixed
+         frame (see :py:attr:`~inertial_to_body_fixed_frame`).
 
 
-        :type: float
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
+            .def_property( "mass", &tss::Body::getBodyMass, &tss::Body::setConstantBodyMass, R"doc(
+
+         The current mass :math:`m` of the vehicle, as used in the calculation of
+         non-conservative acceleration. This attribute is a shorthand for accessing the
+         mass as computed/stored in the :attr:`Body.rigid_body_properties` attribute. For certain
+         types of rigid-body properties, this attribute cannot be used to (re)set the current
+         mass. If the body has no    :attr:`Body.rigid_body_properties`, and this function is used to
+         set a mass, a new object is automatically created, with settings analogous to the
+         the :func:`~tudatpy.numerical_simulation.environment_setup.rigid_body.constant_rigid_body_properties` setting.
+
+         Unlike the attributes containing the state, orientation, angular velocity
+         of the Body, this attribute may be used to retrieve the state during the
+         propagation *and* to define the mass of a vehicle.
+
+
+         :type: float
+      )doc" )
             .def_property( "inertia_tensor",
                            &tss::Body::getBodyInertiaTensor,
                            py::overload_cast< const Eigen::Matrix3d & >(
                                    &tss::Body::setBodyInertiaTensor ),
                            R"doc(
 
-        The current inertia tensor :math:`\mathbf{I}` of the vehicle, as used in the calculation of
-        (for instance) the reponse to torques. This attribute is a shorthand for accessing the
-        inertia tensor as computed/stored in the :attr:`~Body.rigid_body_properties` attribute. For certain
-        types of rigid-body properties, this attribute cannot be used to (re)set the current
-        mass.
+         The current inertia tensor :math:`\mathbf{I}` of the vehicle, as used in the calculation of
+         (for instance) the response to torques. This attribute is a shorthand for accessing the
+         inertia tensor as computed/stored in the :attr:`~Body.rigid_body_properties` attribute. For certain
+         types of rigid-body properties, this attribute cannot be used to (re)set the current
+         mass.
 
-        Unlike the attributes containing the state, orientation, angular velocity
-        of the Body, this attribute may be used to retrieve the state during the
-        propagation *and* to define the mass of a vehicle.
+         Unlike the attributes containing the state, orientation, angular velocity
+         of the Body, this attribute may be used to retrieve the state during the
+         propagation *and* to define the mass of a vehicle.
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def( "state_in_base_frame_from_ephemeris",
                   &tss::Body::getStateInBaseFrameFromEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
                   py::arg( "time" ),
                   R"doc(
 
-        This function returns the body's state, as computed from its ephemeris model (extracted from :attr:`~Body.ephemeris`) at the current time, and (if needed)
-        translates this state to the global frame origin. For the case where the origin of the body's ephemeris (extracted from :attr:`~Ephemeris.frame_origin`) is equal to the
-        global frame origin of the system of bodies it is in (extracted from :attr:`SystemOfBodies.global_frame_origin`), this function is equal to ``Body.ephemeris.cartesian_state( time )``.
-        Where the global frame origin and ephemeris origin is not equal, other bodies' ephemerides are queried as needed to provide this body's state w.r.t. the global frame origin
+         This function returns the body's state, as computed from its ephemeris model (extracted from :attr:`~Body.ephemeris`) at the current time, and (if needed)
+         translates this state to the global frame origin. For the case where the origin of the body's ephemeris (extracted from :attr:`~Ephemeris.frame_origin`) is equal to the
+         global frame origin of the system of bodies it is in (extracted from :attr:`SystemOfBodies.global_frame_origin`), this function is equal to ``Body.ephemeris.cartesian_state( time )``.
+         Where the global frame origin and ephemeris origin is not equal, other bodies' ephemerides are queried as needed to provide this body's state w.r.t. the global frame origin
 
 
-        Parameters
-        ----------
-        time : float
-            Time (in TDB seconds since J2000) at which the state is to be computed
-        Returns
-        -------
-        numpy.ndarray
-            Cartesian state (position and velocity) of the body w.r.t. the global frame origin at the requeste time.
+         Parameters
+         ----------
+         time : float
+             Time (in TDB seconds since J2000) at which the state is to be computed
+         Returns
+         -------
+         numpy.ndarray
+             Cartesian state (position and velocity) of the body w.r.t. the global frame origin at the requested time.
 
 
 
 
 
-    )doc" )
-            .def_property( "ephemeris",
-                           &tss::Body::getEphemeris,
-                           &tss::Body::setEphemeris,
-                           R"doc(
-
-        Object defining the ephemeris model of this body, used to calculate its current state as a function of time.
-        Depending on the selected type of model, the type of this attribute
-        is of type :class:`~Ephemeris`, or a derived class thereof.
-
-
-        :type: Ephemeris
      )doc" )
+            .def_property( "ephemeris", &tss::Body::getEphemeris, &tss::Body::setEphemeris, R"doc(
+
+         Object defining the ephemeris model of this body, used to calculate its current state as a function of time.
+         Depending on the selected type of model, the type of this attribute
+         is of type :class:`~Ephemeris`, or a derived class thereof.
+
+
+         :type: Ephemeris
+      )doc" )
             .def_property( "atmosphere_model",
                            &tss::Body::getAtmosphereModel,
                            &tss::Body::setAtmosphereModel,
                            R"doc(
 
-        Object defining the atmosphere model of this body, used to calculate density, temperature, etc. at a given
-        state/time. Depending on the selected type of model, the type of this attribute
-        is of type :class:`~AtmosphereModel`, or a derived class thereof.
+         Object defining the atmosphere model of this body, used to calculate density, temperature, etc. at a given
+         state/time. Depending on the selected type of model, the type of this attribute
+         is of type :class:`~AtmosphereModel`, or a derived class thereof.
 
 
-        :type: AtmosphereModel
-     )doc" )
-            .def_property( "shape_model",
-                           &tss::Body::getShapeModel,
-                           &tss::Body::setShapeModel,
-                           R"doc(
+         :type: AtmosphereModel
+      )doc" )
+            .def_property(
+                    "shape_model", &tss::Body::getShapeModel, &tss::Body::setShapeModel, R"doc(
 
-        Object defining the a shape model of this body, used to define the exterior shape of the body, for instance for
-        the calculation of vehicle's altitude. Depending on the selected type of model, the type of this attribute
-        is of type BodyShapeModel, or a derived class thereof.
+         Object defining the a shape model of this body, used to define the exterior shape of the body, for instance for
+         the calculation of vehicle's altitude. Depending on the selected type of model, the type of this attribute
+         is of type BodyShapeModel, or a derived class thereof.
 
 
-        :type: BodyShapeModel
-     )doc" )
+         :type: BodyShapeModel
+      )doc" )
             .def_property( "gravity_field_model",
                            &tss::Body::getGravityFieldModel,
                            &tss::Body::setGravityFieldModel,
                            R"doc(
 
-        Object defining the a gravity field model of this body, used to define the exterior gravitational potential, and
-        its gradient(s). Depending on the selected type of model, the type of this attribute
-        is of type GravityFieldModel, or a derived class thereof.
+         Object defining the a gravity field model of this body, used to define the exterior gravitational potential, and
+         its gradient(s). Depending on the selected type of model, the type of this attribute
+         is of type GravityFieldModel, or a derived class thereof.
 
 
-        :type: GravityFieldModel
-     )doc" )
+         :type: GravityFieldModel
+      )doc" )
             .def_property( "aerodynamic_coefficient_interface",
                            &tss::Body::getAerodynamicCoefficientInterface,
                            &tss::Body::setAerodynamicCoefficientInterface,
                            R"doc(
 
-        Object defining the aerodynamic coefficients of the body (force-only, or force and moment)
-        as a function of any number of independent variables. Depending on the selected type of model, the type of this attribute
-        is of type AerodynamicCoefficientInterface, or a derived class thereof.
+         Object defining the aerodynamic coefficients of the body (force-only, or force and moment)
+         as a function of any number of independent variables. Depending on the selected type of model, the type of this attribute
+         is of type AerodynamicCoefficientInterface, or a derived class thereof.
 
 
-        :type: AerodynamicCoefficientInterface
-     )doc" )
+         :type: AerodynamicCoefficientInterface
+      )doc" )
             .def_property( "flight_conditions",
                            &tss::Body::getFlightConditions,
                            &tss::Body::setFlightConditions,
                            R"doc(
 
-        Object used to calculated and store the current flight conditions of a vehicle (altitude, latitude, longitude,
-        flight-path angle, etc.) w.r.t. a central body. In case the central body contains an atmosphere, this object
-        also stores current local density, Mach number, etc. This object is typically used for aerodynamic accelerations,
-        guidance models or other central-body-related custom models.
+         Object used to calculated and store the current flight conditions of a vehicle (altitude, latitude, longitude,
+         flight-path angle, etc.) w.r.t. a central body. In case the central body contains an atmosphere, this object
+         also stores current local density, Mach number, etc. This object is typically used for aerodynamic accelerations,
+         guidance models or other central-body-related custom models.
 
 
-        :type: FlightConditions
-     )doc" )
+         :type: FlightConditions
+      )doc" )
             .def_property( "rotation_model",
                            &tss::Body::getRotationalEphemeris,
                            &tss::Body::setRotationalEphemeris,
                            R"doc(
 
-        Object defining the orientation of the body, used to calculate the rotation to/from a body-fixed
-        frame (and its derivate). Depending on the selected type of model, the type of this attribute
-        is of type RotationalEphemeris, or a derived class thereof.
+         Object defining the orientation of the body, used to calculate the rotation to/from a body-fixed
+         frame (and its derivate). Depending on the selected type of model, the type of this attribute
+         is of type RotationalEphemeris, or a derived class thereof.
 
 
-        :type: RotationalEphemeris
-     )doc" )
+         :type: RotationalEphemeris
+      )doc" )
             .def_property( "system_models",
                            &tss::Body::getVehicleSystems,
                            &tss::Body::setVehicleSystems,
                            R"doc(
 
-        Object used to store physical (hardware) properties of a vehicle, such as engines, control surfaces, etc. This
-        object is typically created automatically whenever such a hardware model needs to be assigned to a vehicle.
+         Object used to store physical (hardware) properties of a vehicle, such as engines, control surfaces, etc. This
+         object is typically created automatically whenever such a hardware model needs to be assigned to a vehicle.
 
 
-        :type: VehicleSystems
-     )doc" )
+         :type: VehicleSystems
+      )doc" )
             .def_property( "rigid_body_properties",
                            &tss::Body::getMassProperties,
                            &tss::Body::setMassProperties,
                            R"doc(
 
-       Object defining the mass, center of mass and inertia tensor of the body. This object is distinct from
-       the gravity field of a body (defined by the :attr:`Body.gravity_field` object). A body endowed with this property does *not*
-       automatically have a gravity field created for it. However, the whenever a body is endowed with a gravity field,
-       a rigid body properties attribute is created to be consistent with this gravity field (e.g. for a spherical harmonic gravity field
-       the mass, center of mass and inertia tensor are created from the gravitational parameter, degree-1 coefficients, and degree-2 coefficients plus mean moment of inertia, respetively).
+        Object defining the mass, center of mass and inertia tensor of the body. This object is distinct from
+        the gravity field of a body (defined by the :attr:`Body.gravity_field` object). A body endowed with this property does *not*
+        automatically have a gravity field created for it. However, the whenever a body is endowed with a gravity field,
+        a rigid body properties attribute is created to be consistent with this gravity field (e.g. for a spherical harmonic gravity field
+        the mass, center of mass and inertia tensor are created from the gravitational parameter, degree-1 coefficients, and degree-2 coefficients plus mean moment of inertia, respectively).
 
-       :type: RigidBodyProperties
-    )doc" )
-            .def_property_readonly( "gravitational_parameter",
-                                    &tss::Body::getGravitationalParameter,
-                                    R"doc(
-
-        **read-only**
-
-        Attribute of convenience, equivalent to ``.gravity_field_model.gravitational_parameter``
-
-
-        :type: float
+        :type: RigidBodyProperties
      )doc" )
+            .def_property( "radiation_pressure_target_models",
+                           &tss::Body::getRadiationPressureTargetModels,
+                           &tss::Body::setRadiationPressureTargetModels )
+            .def_property_readonly(
+                    "gravitational_parameter", &tss::Body::getGravitationalParameter, R"doc(
+         **read-only**
+
+         Attribute of convenience, equivalent to ``.gravity_field_model.gravitational_parameter``
+
+
+         :type: float
+      )doc" )
             .def( "get_ground_station",
                   &tss::Body::getGroundStation,
                   py::arg( "station_name" ),
                   R"doc(
 
-        This function extracts a ground station object from the body.
+         This function extracts a ground station object from the body.
 
-        This function extracts a ground station object, for a station of a given name, from the body.
-        If no station of this name exists, an exception is thrown
-
-
-        Parameters
-        ----------
-        station_name : str
-            Name of the ground station that is to be retrieved.
-
-        Returns
-        -------
-        GroundStation
-            Ground station object of the station of requested name
+         This function extracts a ground station object, for a station of a given name, from the body.
+         If no station of this name exists, an exception is thrown
 
 
+         Parameters
+         ----------
+         station_name : str
+             Name of the ground station that is to be retrieved.
 
-
-
-    )doc" )
-            .def_property_readonly( "ground_station_list",
-                                    &tss::Body::getGroundStationMap,
-                                    R"doc(
-
-        Dictionary of all ground stations that exist in the body, with dictionary key being the name of the station,
-        and the ground station object the key of the dictionary.
-
-
-        :type: dict[str,GroundStation]
-     )doc" );
-
-    py::class_< tss::SystemOfBodies, std::shared_ptr< tss::SystemOfBodies > >( m,
-                                                                               "SystemOfBodies",
-                                                                               R"doc(
-
-        Object that contains a set of Body objects and associated frame
-        information.
-
-
-        Object that contains a set of Body objects and associated frame
-        information. This object stored the entire environment for a
-        typical Tudat numerical simulation, and is fundamental for the
-        overall Tudat architecture.
+         Returns
+         -------
+         GroundStation
+             Ground station object of the station of requested name
 
 
 
 
 
      )doc" )
+            .def_property_readonly( "ground_station_list",
+                                    &tss::Body::getGroundStationMap,
+                                    R"doc(
+
+         Dictionary of all ground stations that exist in the body, with dictionary key being the name of the station,
+         and the ground station object the key of the dictionary.
+
+
+         :type: dict[str,GroundStation]
+      )doc" );
+
+    py::class_< tss::SystemOfBodies, std::shared_ptr< tss::SystemOfBodies > >(
+            m, "SystemOfBodies", R"doc(
+
+         Object that contains a set of Body objects and associated frame
+         information.
+
+
+         Object that contains a set of Body objects and associated frame
+         information. This object stored the entire environment for a
+         typical Tudat numerical simulation, and is fundamental for the
+         overall Tudat architecture.
+
+
+
+
+
+      )doc" )
             .def( "get",
                   &tss::SystemOfBodies::getBody,
                   py::arg( "body_name" ),
                   R"doc(
 
-        This function extracts a single Body object from the SystemOfBodies.
+         This function extracts a single Body object from the SystemOfBodies.
 
 
-        Parameters
-        ----------
-        body_name : str
-            Name of the Body that is to be retrieved.
+         Parameters
+         ----------
+         body_name : str
+             Name of the Body that is to be retrieved.
 
-        Returns
-        -------
-        Body
-            Body object of the requested name
-
-
+         Returns
+         -------
+         Body
+             Body object of the requested name
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "get_body",
                   &tss::SystemOfBodies::getBody,
                   py::arg( "body_name" ),
                   R"doc(
 
-        Deprecated version of :py:func:`~get`
+         Deprecated version of :py:func:`~get`
 
 
 
 
 
-    )doc" )
+     )doc" )
             .def( "create_empty_body",
                   &tss::SystemOfBodies::createEmptyBody< STATE_SCALAR_TYPE, TIME_TYPE >,
                   py::arg( "body_name" ),
                   py::arg( "process_body" ) = 1,
                   R"doc(
 
-        This function creates a new empty body.
+         This function creates a new empty body.
 
-        This function creates a new empty body, and adds it to the
-        :py:class:`~SystemOfBodies`. Since the body is empty, it will
-        not have any environment models defined. These must all be
-        added manually by a user.
-
-
-        Parameters
-        ----------
-        body_name : string
-            Name of the Body that is to be added
-
-        process_body : bool, default=True
-            Variable that defines whether this new Body will have its
-            global frame origin/orientation set to conform to rest of
-            the environment.
-
-            .. warning:: Only in very rare cases should
-                         this variable be anything other than ``True``.
-                         Users are recommended to keep this default value
-                         intact.
+         This function creates a new empty body, and adds it to the
+         :py:class:`~SystemOfBodies`. Since the body is empty, it will
+         not have any environment models defined. These must all be
+         added manually by a user.
 
 
+         Parameters
+         ----------
+         body_name : string
+             Name of the Body that is to be added
+
+         process_body : bool, default=True
+             Variable that defines whether this new Body will have its
+             global frame origin/orientation set to conform to rest of
+             the environment.
+
+             .. warning:: Only in very rare cases should
+                          this variable be anything other than ``True``.
+                          Users are recommended to keep this default value
+                          intact.
 
 
 
-        Examples
-        --------
 
-        This function is often used early on in the environment
-        creation segment of a simulation, following the creation of
-        a :py:class:`~SystemOfBodies` from the default settings
-        for celestial bodies.
 
-        .. code-block:: python
-           :emphasize-lines: 18
+         Examples
+         --------
 
-           # Define string names for bodies to be created from default.
-           bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
+         This function is often used early on in the environment
+         creation segment of a simulation, following the creation of
+         a :py:class:`~SystemOfBodies` from the default settings
+         for celestial bodies.
 
-           # Use "Earth"/"J2000" as global frame origin and orientation.
-           global_frame_origin = "Earth"
-           global_frame_orientation = "J2000"
+         .. code-block:: python
+            :emphasize-lines: 18
 
-           # Create default body settings, usually from `spice`.
-           body_settings = environment_setup.get_default_body_settings(
-               bodies_to_create,
-               global_frame_origin,
-               global_frame_orientation)
+            # Define string names for bodies to be created from default.
+            bodies_to_create = ["Sun", "Earth", "Moon", "Mars", "Venus"]
 
-           # Create system of selected celestial bodies
-           bodies = environment_setup.create_system_of_bodies(body_settings)
+            # Use "Earth"/"J2000" as global frame origin and orientation.
+            global_frame_origin = "Earth"
+            global_frame_orientation = "J2000"
 
-           # Create vehicle objects.
-           bodies.create_empty_body("Delfi-C3")
+            # Create default body settings, usually from `spice`.
+            body_settings = environment_setup.get_default_body_settings(
+                bodies_to_create,
+                global_frame_origin,
+                global_frame_orientation)
 
-    )doc" )
+            # Create system of selected celestial bodies
+            bodies = environment_setup.create_system_of_bodies(body_settings)
+
+            # Create vehicle objects.
+            bodies.create_empty_body("Delfi-C3")
+
+     )doc" )
             .def( "does_body_exist",
                   &tss::SystemOfBodies::doesBodyExist,
                   py::arg( "body_name" ),
                   R"doc(
 
-        Function to check if a body with a given name exists in the SystemOfBodies
+         Function to check if a body with a given name exists in the SystemOfBodies
 
-        Parameters
-        ----------
-        body_name : string
-            Name of the Body whose existence is to be checked
+         Parameters
+         ----------
+         body_name : string
+             Name of the Body whose existence is to be checked
 
-        Returns
-        -------
-        bool
-            True if the body exists in this object, false if not
-
-
+         Returns
+         -------
+         bool
+             True if the body exists in this object, false if not
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "list_of_bodies",
                   &tss::SystemOfBodies::getListOfBodies,
                   R"doc(
 
-        List of names of bodies that are stored in this SystemOfBodies
-    )doc" )
+         List of names of bodies that are stored in this SystemOfBodies
+     )doc" )
             //            .def("get_body_dict",
             //            &tss::SystemOfBodies::getMap,
             //                 get_docstring("SystemOfBodies.get_body_dict").c_str())
@@ -2963,73 +2957,73 @@ numpy.ndarray[numpy.float64[6, 1]]
                   py::arg( "process_body" ) = 1,
                   R"doc(
 
-        This function adds an existing body, which the user has
-        separately created, to the :py:class:`~SystemOfBodies`.
+         This function adds an existing body, which the user has
+         separately created, to the :py:class:`~SystemOfBodies`.
 
 
 
-        Parameters
-        ----------
-        body_to_add : Body
-            Body object that is to be added.
+         Parameters
+         ----------
+         body_to_add : Body
+             Body object that is to be added.
 
-        body_name : numpy.ndarray
-            Name of the Body that is to be added.
+         body_name : numpy.ndarray
+             Name of the Body that is to be added.
 
-        process_body : bool, default=True
-            Variable that defines whether this new Body will have its
-            global frame origin/orientation set to conform to rest of
-            the environment.
+         process_body : bool, default=True
+             Variable that defines whether this new Body will have its
+             global frame origin/orientation set to conform to rest of
+             the environment.
 
-            .. warning:: Only in very rare cases should this variable be
-                         anything other than ``True``. Users are
-                         recommended to keep this default value intact.
-
-
+             .. warning:: Only in very rare cases should this variable be
+                          anything other than ``True``. Users are
+                          recommended to keep this default value intact.
 
 
 
-    )doc" )
+
+
+     )doc" )
             .def( "remove_body",
                   &tss::SystemOfBodies::deleteBody,
                   py::arg( "body_name" ),
                   R"doc(
 
-        This function removes an existing body from the
-        :py:class:`~SystemOfBodies`.
+         This function removes an existing body from the
+         :py:class:`~SystemOfBodies`.
 
 
 
-        .. warning:: This function does *not* necessarily delete the
-                     Body object, it only removes it from this object.
-                     If any existing models in the simulation refer to
-                     this Body, it will persist in memory.
+         .. warning:: This function does *not* necessarily delete the
+                      Body object, it only removes it from this object.
+                      If any existing models in the simulation refer to
+                      this Body, it will persist in memory.
 
 
-        Parameters
-        ----------
-        body_name : numpy.ndarray
-            Name of the Body that is to be removed.
+         Parameters
+         ----------
+         body_name : numpy.ndarray
+             Name of the Body that is to be removed.
 
 
 
 
 
-    )doc" )
+     )doc" )
             .def( "global_frame_orientation",
                   &tss::SystemOfBodies::getFrameOrientation,
                   R"doc(
 
-        Common global frame orientation for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#frame-orientation>`_.
+         Common global frame orientation for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#frame-orientation>`_.
 
-    )doc" )
+     )doc" )
             .def( "global_frame_origin",
                   &tss::SystemOfBodies::getFrameOrigin,
                   R"doc(
 
-        Common global frame origin for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#global-origin>`_.
+         Common global frame origin for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#global-origin>`_.
 
-    )doc" );
+     )doc" );
 
     //            .def_property_readonly("number_of_bodies",
     //            &tss::SystemOfBodies::getNumberOfBodies,

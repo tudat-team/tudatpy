@@ -122,9 +122,11 @@ class DependentVariableDictionary(dict):
         # If the key is an instance of a `VariableSettings`-derived class, return its string ID
         if VariableSettings in getmro(key.__class__):
             key = get_dependent_variable_id(key)
-
+        # Accept an integer key
+        elif isinstance(key, int):
+            key = list(self.keys())[key]
         # Else, ensure it is a string, or else raise a TypeError
-        if not isinstance(key, str):
+        elif not isinstance(key, str):
             raise TypeError(
                 "DependentVariableDictionary keys must be either instances of `VariableSettings`-derived classes, "
                 "or dependent variable string IDs (see `numerical_simulation.propagation_setup.dependent_variable.get_dependent_variable_id`)."
@@ -138,7 +140,9 @@ class DependentVariableDictionary(dict):
         keyword-value pairs (`kwargs`).
         """
         if mapping is not None:
-            mapping = {self.__read_key(key): value for key, value in mapping.items()}
+            mapping = {
+                self.__read_key(key): value for key, value in mapping.items()
+            }
         else:
             mapping = {}
         if kwargs:
@@ -170,7 +174,9 @@ class DependentVariableDictionary(dict):
         """
         return super().__setitem__(self.__read_key(__key), __value)
 
-    def __getitem__(self, __key: VariableSettings):  # -> dict[float: np.ndarray]:
+    def __getitem__(
+        self, __key: VariableSettings
+    ):  # -> dict[float: np.ndarray]:
         """
         Retrieve the time history corresponding to a dependent variable, identified either by
         the dependent variable settings object corresponding to the dependent variable
@@ -184,24 +190,49 @@ class DependentVariableDictionary(dict):
         * Time history of the dependent variable, returned as a `dict` mapping epochs (`float`)
           to `np.ndarray`s containing the value of the dependent variable at each given epoch.
         """
-        return super().__getitem__(self.__read_key(__key))
+        try:
+            return super().__getitem__(self.__read_key(__key))
+        except KeyError as e:
+            width = max([len(ID) for ID in self.keys()]) + 10
+            message = (
+                f'\nDependent variable "{__key}" not found in the DependentVariableDictionary. Valid keys (both indexes and strings):\n'
+                + f'{"-"*width}\n'
+                + self.__summary__()
+            )
+            print(message)
+            raise e
+
+    def __summary__(self) -> str:
+        """
+        Return a string summary of the contents of a `DependentVariableDictionary` for print.
+        """
+
+        width = max([len(ID) for ID in self.keys()]) + 10
+
+        summary_string = (
+            "Index   String ID\n"
+            + f'{"-"*width}\n'
+            + "".join(
+                [
+                    f'{f"[{i}]":<7} "{ID}"\n'
+                    for i, (ID, value) in enumerate(self.items())
+                ]
+            )
+            + f'{"="*width}\n'
+        )
+
+        return summary_string
 
     def __repr__(self) -> str:
         """
         Return a string summary of the contents of a `DependentVariableDictionary` for print.
         """
 
-        width = max([len(ID) for ID in self.keys()]) + 5
+        width = max([len(ID) for ID in self.keys()]) + 10
         title = f'{"Depent Variable Dictionary Summary":^{width}}'
 
         representation_string = (
-            f'\n{"="*width}\n'
-            + title
-            + f'\n{"="*width}\n'
-            + "".join(
-                [f'{f"[{i}]":<4} {ID}\n' for i, (ID, value) in enumerate(self.items())]
-            )
-            + f'{"="*width}\n'
+            f'\n{"="*width}\n' + title + f'\n{"="*width}\n' + self.__summary__()
         )
 
         return representation_string
@@ -248,7 +279,9 @@ def create_dependent_variable_dictionary(
     )
 
     # Retrieve /transposed/ time and dependent variable histories
-    time_history = result2array(dynamics_simulator.dependent_variable_history).T[0, :]
+    time_history = result2array(
+        dynamics_simulator.dependent_variable_history
+    ).T[0, :]
     dependent_variable_history = result2array(
         dynamics_simulator.dependent_variable_history
     ).T[1:, :]
@@ -265,7 +298,9 @@ def create_dependent_variable_dictionary(
     for (i, m), dependent_variable in dependent_variable_settings.items():
 
         # Retrieve dependent variable shape
-        A, B = get_dependent_variable_shape(dependent_variable)
+        A, B = get_dependent_variable_shape(
+            dependent_variable, dynamics_simulator.bodies
+        )
 
         # Save dependent variable history as a tensor of (A, B)-sized
         # matrices with `n` entries, where `n` is the number of epochs
