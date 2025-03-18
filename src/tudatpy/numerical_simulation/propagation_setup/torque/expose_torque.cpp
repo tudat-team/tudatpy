@@ -65,19 +65,19 @@ PYBIND11_MODULE( expose_torque, m )
                                        "AvailableTorque",
                                        R"doc(
 
-        Enumeration of available torque types.
+         Enumeration of available torque types.
 
-        Enumeration of torque types supported by tudat.
-
-
+         Enumeration of torque types supported by tudat.
 
 
 
-     )doc" )
+
+
+      )doc" )
             .value( "torque_free_type",
                     tba::AvailableTorque::torque_free,
                     R"doc(
-     )doc" )
+      )doc" )
             .value( "underfined_type",
                     tba::AvailableTorque::underfined_torque,
                     R"doc(No documentation found.)doc" )
@@ -105,21 +105,21 @@ PYBIND11_MODULE( expose_torque, m )
                                                                                "TorqueSettings",
                                                                                R"doc(
 
-        Functional base class to define settings for torques.
+         Functional base class to define settings for torques.
 
-        This is a functional base class to define settings for torques that require no information in addition to their type.
-        Classes defining settings for torque models requiring additional information must be
-        derived from this class.
-        Bodies exerting and undergoing torque are set outside of this class.
-        This class can be used for the easy setup of torque models
-        (see createTorqueModels.h), but users may also chose to do so manually.
-        (Derived) Class members are all public, for ease of access and modification.
-
-
+         This is a functional base class to define settings for torques that require no information in addition to their type.
+         Classes defining settings for torque models requiring additional information must be
+         derived from this class.
+         Bodies exerting and undergoing torque are set outside of this class.
+         This class can be used for the easy setup of torque models
+         (see createTorqueModels.h), but users may also chose to do so manually.
+         (Derived) Class members are all public, for ease of access and modification.
 
 
 
-     )doc" );
+
+
+      )doc" );
 
     py::class_< tss::SphericalHarmonicTorqueSettings,
                 std::shared_ptr< tss::SphericalHarmonicTorqueSettings >,
@@ -127,51 +127,51 @@ PYBIND11_MODULE( expose_torque, m )
                                        "SphericalHarmonicTorqueSettings",
                                        R"doc(
 
-        `TorqueSettings`-derived class to define settings for torques caused by spherical harmonic gravity.
+         `TorqueSettings`-derived class to define settings for torques caused by spherical harmonic gravity.
 
-        `TorqueSettings`-derived class to define settings for torques caused by spherical harmonic gravity.
-
-
+         `TorqueSettings`-derived class to define settings for torques caused by spherical harmonic gravity.
 
 
 
-     )doc" );
+
+
+      )doc" );
 
     m.def( "aerodynamic",
            &tss::aerodynamicTorque,
            R"doc(
 
-Creates the settings for the aerodynamic torque.
+ Creates the settings for the aerodynamic torque.
 
-Creates the settings for the aerodynamic torque exerted by a body with an atmosphere model and shape model on
-another body. The body exerting the torque needs to have both an atmosphere model and a shape model defined.
-Furthermore, the body undergoing the torque needs to have the aerodynamic coefficient interface and its moment
-coefficients defined. In the case that the aerodynamic coefficients are defined as a function of the vehicle
-orientation (e.g. angle of attack and sideslip angle), these angles can be manually or automatically defined.
+ Creates the settings for the aerodynamic torque exerted by a body with an atmosphere model and shape model on
+ another body. The body exerting the torque needs to have both an atmosphere model and a shape model defined.
+ Furthermore, the body undergoing the torque needs to have the aerodynamic coefficient interface and its moment
+ coefficients defined. In the case that the aerodynamic coefficients are defined as a function of the vehicle
+ orientation (e.g. angle of attack and sideslip angle), these angles can be manually or automatically defined.
 
-Returns
--------
-TorqueSettings
-    Torque settings object.
-
-
+ Returns
+ -------
+ TorqueSettings
+     Torque settings object.
 
 
 
-Examples
---------
-
-In this example, we define the aerodynamic torque exerted by the Earth on the vehicle.
-
-.. code-block:: python
-
-  # Create torque settings dict
-  torque_settings_vehicle = {}
-  # Add aerodynamic torque exerted by the Earth on the vehicle
-  torque_settings_vehicle["Earth"] = [propagation_setup.torque.aerodynamic()]
 
 
-    )doc" );
+ Examples
+ --------
+
+ In this example, we define the aerodynamic torque exerted by the Earth on the vehicle.
+
+ .. code-block:: python
+
+   # Create torque settings dict
+   torque_settings_vehicle = {}
+   # Add aerodynamic torque exerted by the Earth on the vehicle
+   torque_settings_vehicle["Earth"] = [propagation_setup.torque.aerodynamic()]
+
+
+     )doc" );
 
     m.def( "radiation_pressure_torque",
            &tss::radiationPressureTorque,
@@ -181,38 +181,38 @@ In this example, we define the aerodynamic torque exerted by the Earth on the ve
            &tss::secondDegreeGravitationalTorque,
            R"doc(
 
-Creates the settings for the second-degree gravitational torque.
+ Creates the settings for the second-degree gravitational torque.
 
-Torque exerted by a point mass on a body with a degree two spherical harmonics mass distribution.
-A degree two spherical harmonics mass distribution can be represented by an inertia tensor; thus,
-for this torque model, the body undergoing the torque needs to have an inertia tensor defined.
-The body exerting the torque only needs to have a gravitational model defined (either point-mass or spherical
-harmonics).
+ Torque exerted by a point mass on a body with a degree two spherical harmonics mass distribution.
+ A degree two spherical harmonics mass distribution can be represented by an inertia tensor; thus,
+ for this torque model, the body undergoing the torque needs to have an inertia tensor defined.
+ The body exerting the torque only needs to have a gravitational model defined (either point-mass or spherical
+ harmonics).
 
-Returns
--------
-TorqueSettings
-    Torque settings object.
-
-
+ Returns
+ -------
+ TorqueSettings
+     Torque settings object.
 
 
 
-Examples
---------
-
-In this example, we define the second degree gravitational torque
-exerted by the Earth on the vehicle.
-
-.. code-block:: python
-
-  # Create torque settings dict
-  torque_settings_vehicle = {}
-  # Add aerodynamic torque exerted by the Earth on the vehicle
-  torque_settings_vehicle["Earth"] = [propagation_setup.torque.second_degree_gravitational()]
 
 
-    )doc" );
+ Examples
+ --------
+
+ In this example, we define the second degree gravitational torque
+ exerted by the Earth on the vehicle.
+
+ .. code-block:: python
+
+   # Create torque settings dict
+   torque_settings_vehicle = {}
+   # Add aerodynamic torque exerted by the Earth on the vehicle
+   torque_settings_vehicle["Earth"] = [propagation_setup.torque.second_degree_gravitational()]
+
+
+     )doc" );
 
     m.def( "spherical_harmonic_gravitational",
            &tss::sphericalHarmonicGravitationalTorque,
@@ -220,43 +220,43 @@ exerted by the Earth on the vehicle.
            py::arg( "maximum_order" ),
            R"doc(
 
-Creates the settings for the spherical harmonic torque.
+ Creates the settings for the spherical harmonic torque.
 
-Torque exerted by a point mass on a body with an arbitrary degree/order spherical harmonics mass distribution.
-The body exerting the torque only needs to have a gravitational model defined (point-mass or spherical harmonic),
-while the body undergoing the torque needs to have a spherical harmonic gravity field defined.
-
-
-Parameters
-----------
-maximum_degree : int
-    Maximum degree of the spherical harmonic expansion.
-maximum_order : int
-    Maximum order of the spherical harmonic expansion.
-Returns
--------
-TorqueSettings
-    Torque settings object.
+ Torque exerted by a point mass on a body with an arbitrary degree/order spherical harmonics mass distribution.
+ The body exerting the torque only needs to have a gravitational model defined (point-mass or spherical harmonic),
+ while the body undergoing the torque needs to have a spherical harmonic gravity field defined.
 
 
+ Parameters
+ ----------
+ maximum_degree : int
+     Maximum degree of the spherical harmonic expansion.
+ maximum_order : int
+     Maximum order of the spherical harmonic expansion.
+ Returns
+ -------
+ TorqueSettings
+     Torque settings object.
 
 
 
-Examples
---------
-
-In this example, we define the spherical harmonic gravitational torque (up to degree 4 and order 4)
-exerted by the Earth on the vehicle.
-
-.. code-block:: python
-
-  # Create torque settings dict
-  torque_settings_vehicle = {}
-  # Add aerodynamic torque exerted by the Earth on the vehicle
-  torque_settings_vehicle["Earth"] = [propagation_setup.torque.spherical_harmonic_gravitational(4, 4)]
 
 
-    )doc" );
+ Examples
+ --------
+
+ In this example, we define the spherical harmonic gravitational torque (up to degree 4 and order 4)
+ exerted by the Earth on the vehicle.
+
+ .. code-block:: python
+
+   # Create torque settings dict
+   torque_settings_vehicle = {}
+   # Add aerodynamic torque exerted by the Earth on the vehicle
+   torque_settings_vehicle["Earth"] = [propagation_setup.torque.spherical_harmonic_gravitational(4, 4)]
+
+
+     )doc" );
 
     m.def( "custom_torque",
            &tss::customTorqueSettings,

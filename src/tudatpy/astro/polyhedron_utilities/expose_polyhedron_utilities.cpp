@@ -34,31 +34,31 @@ PYBIND11_MODULE( expose_polyhedron_utilities, m )
            py::arg( "vertices_defining_each_facet" ),
            R"doc(
 
-Computes the surface area of a polyhedron [1]_.
+ Computes the surface area of a polyhedron [1]_.
 
 
-Parameters
-----------
-vertices_coordinates : numpy.ndarray
-    Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
-    row per vertex, 3 columns).
+ Parameters
+ ----------
+ vertices_coordinates : numpy.ndarray
+     Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
+     row per vertex, 3 columns).
 
-vertices_defining_each_facet : numpy.ndarray
-    Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
-    the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
-    when seen from the outside of the polyhedron.
+ vertices_defining_each_facet : numpy.ndarray
+     Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
+     the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
+     when seen from the outside of the polyhedron.
 
-Returns
--------
-float
-    Surface area.
-
-
-
+ Returns
+ -------
+ float
+     Surface area.
 
 
 
-    )doc" );
+
+
+
+     )doc" );
 
     m.def( "volume",
            &tba::computePolyhedronVolume,
@@ -66,31 +66,31 @@ float
            py::arg( "vertices_defining_each_facet" ),
            R"doc(
 
-Computes the volume of a polyhedron [1]_.
+ Computes the volume of a polyhedron [1]_.
 
 
-Parameters
-----------
-vertices_coordinates : numpy.ndarray
-    Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
-    row per vertex, 3 columns).
+ Parameters
+ ----------
+ vertices_coordinates : numpy.ndarray
+     Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
+     row per vertex, 3 columns).
 
-vertices_defining_each_facet : numpy.ndarray
-    Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
-    the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
-    when seen from the outside of the polyhedron.
+ vertices_defining_each_facet : numpy.ndarray
+     Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
+     the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
+     when seen from the outside of the polyhedron.
 
-Returns
--------
-float
-    Volume.
-
-
-
+ Returns
+ -------
+ float
+     Volume.
 
 
 
-    )doc" );
+
+
+
+     )doc" );
 
     m.def( "centroid",
            &tba::computePolyhedronCentroidPosition,
@@ -98,31 +98,31 @@ float
            py::arg( "vertices_defining_each_facet" ),
            R"doc(
 
-Computes the position of the centroid of a polyhedron [1]_.
+ Computes the position of the centroid of a polyhedron [1]_.
 
 
-Parameters
-----------
-vertices_coordinates : numpy.ndarray
-    Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
-    row per vertex, 3 columns).
+ Parameters
+ ----------
+ vertices_coordinates : numpy.ndarray
+     Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
+     row per vertex, 3 columns).
 
-vertices_defining_each_facet : numpy.ndarray
-    Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
-    the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
-    when seen from the outside of the polyhedron.
+ vertices_defining_each_facet : numpy.ndarray
+     Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
+     the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
+     when seen from the outside of the polyhedron.
 
-Returns
--------
-numpy.ndarray
-    Position of the centroid.
-
-
-
+ Returns
+ -------
+ numpy.ndarray
+     Position of the centroid.
 
 
 
-    )doc" );
+
+
+
+     )doc" );
 
     m.def( "modify_centroid",
            &tba::modifyPolyhedronCentroidPosition,
@@ -131,37 +131,37 @@ numpy.ndarray
            py::arg( "desired_centroid" ),
            R"doc(
 
-Modifies vertex coordinates of the polyhedron based on the desired position of the centroid.
+ Modifies vertex coordinates of the polyhedron based on the desired position of the centroid.
 
-Modifies the coordinates of the polyhedron vertices, such that the centroid of the modified polyhedron coincides
-with the specified position. The centroid is computed according to Dobrovolskis [1]_.
-
-
-Parameters
-----------
-vertices_coordinates : numpy.ndarray
-    Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
-    row per vertex, 3 columns).
-
-vertices_defining_each_facet : numpy.ndarray
-    Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
-    the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
-    when seen from the outside of the polyhedron.
-
-desired_centroid : numpy.ndarray
-    Desired position of the centroid.
-
-Returns
--------
-numpy.ndarray
-    Vertices coordinates of the modified polyhedron, which has the specified centroid position.
+ Modifies the coordinates of the polyhedron vertices, such that the centroid of the modified polyhedron coincides
+ with the specified position. The centroid is computed according to Dobrovolskis [1]_.
 
 
+ Parameters
+ ----------
+ vertices_coordinates : numpy.ndarray
+     Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
+     row per vertex, 3 columns).
+
+ vertices_defining_each_facet : numpy.ndarray
+     Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
+     the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
+     when seen from the outside of the polyhedron.
+
+ desired_centroid : numpy.ndarray
+     Desired position of the centroid.
+
+ Returns
+ -------
+ numpy.ndarray
+     Vertices coordinates of the modified polyhedron, which has the specified centroid position.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "inertia_tensor_from_density",
            py::overload_cast< const Eigen::MatrixXd &, const Eigen::MatrixXi &, const double >(
@@ -171,39 +171,39 @@ numpy.ndarray
            py::arg( "density" ),
            R"doc(
 
-Compute the inertia tensor of a polyhedron, from the density.
+ Compute the inertia tensor of a polyhedron, from the density.
 
-Computes the inertia tensor of a polyhedron, according to Dobrovolskis [1]_.
+ Computes the inertia tensor of a polyhedron, according to Dobrovolskis [1]_.
 
-The mass distribution is defined using the density of the polyhedron. To instead use the gravitational
-parameter see :func:`~tudatpy.astro.polyhedron_utilities.inertia_tensor_from_gravitational_parameter`.
-
-
-Parameters
-----------
-vertices_coordinates : numpy.ndarray
-    Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
-    row per vertex, 3 columns).
-
-vertices_defining_each_facet : numpy.ndarray
-    Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
-    the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
-    when seen from the outside of the polyhedron.
-
-density : float
-    Density of the polyhedron
-
-Returns
--------
-numpy.ndarray
-    Inertia tensor.
+ The mass distribution is defined using the density of the polyhedron. To instead use the gravitational
+ parameter see :func:`~tudatpy.astro.polyhedron_utilities.inertia_tensor_from_gravitational_parameter`.
 
 
+ Parameters
+ ----------
+ vertices_coordinates : numpy.ndarray
+     Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
+     row per vertex, 3 columns).
+
+ vertices_defining_each_facet : numpy.ndarray
+     Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
+     the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
+     when seen from the outside of the polyhedron.
+
+ density : float
+     Density of the polyhedron
+
+ Returns
+ -------
+ numpy.ndarray
+     Inertia tensor.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "inertia_tensor_from_gravitational_parameter",
            py::overload_cast< const Eigen::MatrixXd &,
@@ -216,38 +216,38 @@ numpy.ndarray
            py::arg( "gravitational_constant" ),
            R"doc(
 
-Compute the inertia tensor of a polyhedron, from the gravitational parameter.
+ Compute the inertia tensor of a polyhedron, from the gravitational parameter.
 
-Computes the inertia tensor of a polyhedron, according to Dobrovolskis [1]_.
+ Computes the inertia tensor of a polyhedron, according to Dobrovolskis [1]_.
 
-The mass distribution is defined using the gravitational parameter of the polyhedron. To instead use the density
-see :func:`~tudatpy.astro.polyhedron_utilities.inertia_tensor_from_density`.
-
-
-Parameters
-----------
-vertices_coordinates : numpy.ndarray
-    Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
-    row per vertex, 3 columns).
-
-vertices_defining_each_facet : numpy.ndarray
-    Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
-    the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
-    when seen from the outside of the polyhedron.
-
-gravitational_parameter : float
-    Gravitational parameter :math:`\mu` of gravity field.
-Returns
--------
-numpy.ndarray
-    Inertia tensor.
+ The mass distribution is defined using the gravitational parameter of the polyhedron. To instead use the density
+ see :func:`~tudatpy.astro.polyhedron_utilities.inertia_tensor_from_density`.
 
 
+ Parameters
+ ----------
+ vertices_coordinates : numpy.ndarray
+     Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
+     row per vertex, 3 columns).
+
+ vertices_defining_each_facet : numpy.ndarray
+     Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
+     the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
+     when seen from the outside of the polyhedron.
+
+ gravitational_parameter : float
+     Gravitational parameter :math:`\mu` of gravity field.
+ Returns
+ -------
+ numpy.ndarray
+     Inertia tensor.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 }
 
 }  // namespace polyhedron_utilities
