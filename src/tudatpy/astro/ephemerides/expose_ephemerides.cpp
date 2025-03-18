@@ -21,6 +21,7 @@ namespace py = pybind11;
 
 namespace te = tudat::ephemerides;
 namespace tss = tudat::simulation_setup;
+namespace ti = tudat::interpolators;
 
 namespace tudatpy
 {
@@ -138,7 +139,25 @@ PYBIND11_MODULE( expose_ephemerides, m )
                   py::arg( "seconds_since_epoch" ) = 0.0 )
             .def( "get_cartesian_velocity",
                   &te::Ephemeris::getCartesianVelocity,
-                  py::arg( "seconds_since_epoch" ) = 0.0 );
+                  py::arg( "seconds_since_epoch" ) = 0.0 )
+            .def_property_readonly( "frame_origin",
+                                    &te::Ephemeris::getReferenceFrameOrigin,
+                                    R"doc(**read-only**
+
+                Name of the reference body/point w.r.t. which the state is defined
+
+                :type: str
+                )doc" )
+            .def_property_readonly( "frame_orientation",
+                                    &te::Ephemeris::getReferenceFrameOrientation,
+                                    R"doc(
+
+                    **read-only**
+
+                    Name of the frame orientation w.r.t which this object provides its states
+
+                    :type: str
+                )doc" );
 
     py::enum_< tss::EphemerisType >( m.attr( "Ephemeris" ), "EphemerisType" )
             .value( "approximate_planet_positions", tss::approximate_planet_positions )
@@ -154,7 +173,7 @@ PYBIND11_MODULE( expose_ephemerides, m )
     // constantEphemeris.h
     //////////////////////////////////////////////////////////////////////////////
     py::class_< te::ConstantEphemeris, std::shared_ptr< te::ConstantEphemeris >, te::Ephemeris >(
-            m, "ConstantEphemeris" )
+            m, "ConstantEphemeris", R"doc(No documentation found.)doc" )
             .def( py::init<
                           const std::function<
                                   Eigen::Vector6d( ) >,  //<pybind11/functional.h>,<pybind11/eigen.h>
@@ -171,14 +190,36 @@ PYBIND11_MODULE( expose_ephemerides, m )
                   py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" )
             .def( "update_constant_state",
                   &te::ConstantEphemeris::updateConstantState,
-                  py::arg( "new_state" ) );
+                  py::arg( "new_state" ),
+                  R"doc(No documentation found.)doc" );
 
     //////////////////////////////////////////////////////////////////////////////
     // keplerEphemeris.h
     //////////////////////////////////////////////////////////////////////////////
 
     py::class_< te::KeplerEphemeris, std::shared_ptr< te::KeplerEphemeris >, te::Ephemeris >(
-            m, "KeplerEphemeris" );
+            m, "KeplerEphemeris", R"doc(No documentation found.)doc" );
+
+    py::class_< te::MultiArcEphemeris, std::shared_ptr< te::MultiArcEphemeris >, te::Ephemeris >(
+            m, "MultiArcEphemeris" )
+            .def( py::init< const std::map< double, std::shared_ptr< te::Ephemeris > > &,
+                            const std::string &,
+                            const std::string & >( ),
+                  py::arg( "single_arc_ephemerides" ),
+                  py::arg( "reference_frame_origin" ) = "SSB",
+                  py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" );
+
+    py::class_< te::TabulatedCartesianEphemeris< double, double >,
+                std::shared_ptr< te::TabulatedCartesianEphemeris< double, double > >,
+                te::Ephemeris >( m, "TabulatedEphemeris" )
+            .def_property(
+                    "interpolator",
+                    &te::TabulatedCartesianEphemeris< double,
+                                                      double >::getDynamicVectorSizeInterpolator,
+                    py::overload_cast< const std::shared_ptr<
+                            ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >(
+                            &te::TabulatedCartesianEphemeris< double,
+                                                              double >::resetInterpolator ) );
 
     //////////////////////////////////////////////////////////////////////////////
     // tleEphemeris.h / tleEphemeris.cpp

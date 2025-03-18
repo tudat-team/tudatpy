@@ -1,5 +1,8 @@
-from tudatpy.data.mpc import get_biases_EFCC18, load_bias_file, BIAS_LOWRES_FILE
-
+from tudatpy.data.mpc.mpc import (
+    get_biases_EFCC18,
+    load_bias_file,
+    BIAS_LOWRES_FILE,
+)
 import numpy as np
 import pytest
 
@@ -42,7 +45,9 @@ bias_input = [
         1.558038,
         int(25 * 365.25 * 86400),
         "a",
-        (0.279 + (25 * -0.49 / 1000)) / np.cos(1.558038) * ((2 * np.pi) / 1296000),
+        (0.279 + (25 * -0.49 / 1000))
+        / np.cos(1.558038)
+        * ((2 * np.pi) / 1296000),
         (0.326 + (25 * -1.04 / 1000)) * ((2 * np.pi) / 1296000),
     ),
 ]
