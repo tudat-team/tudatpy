@@ -15,23 +15,25 @@
 #include <tudat/astro/ephemerides/rotationalEphemeris.h>
 #include <tudat/astro/reference_frames.h>
 
-
 namespace trf = tudat::reference_frames;
 namespace te = tudat::ephemerides;
 
 namespace py = pybind11;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
-    namespace astro {
-        namespace frame_conversion {
+namespace astro
+{
+namespace frame_conversion
+{
 
-            PYBIND11_MODULE(expose_frame_conversion, m) {
-                m.def(
-                    "inertial_to_rsw_rotation_matrix",
-                    &trf::getInertialToRswSatelliteCenteredFrameRotationMatrix,
-                    py::arg("inertial_cartesian_state"),
-                    R"doc(
+PYBIND11_MODULE( expose_frame_conversion, m )
+{
+    m.def( "inertial_to_rsw_rotation_matrix",
+           &trf::getInertialToRswSatelliteCenteredFrameRotationMatrix,
+           py::arg( "inertial_cartesian_state" ),
+           R"doc(
 
 Computes the rotation matrix from inertial to RSW frame.
 
@@ -65,13 +67,12 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "rsw_to_inertial_rotation_matrix",
-                    &trf::getRswSatelliteCenteredToInertialFrameRotationMatrix,
-                    py::arg("inertial_cartesian_state"),
-                    R"doc(
+    m.def( "rsw_to_inertial_rotation_matrix",
+           &trf::getRswSatelliteCenteredToInertialFrameRotationMatrix,
+           py::arg( "inertial_cartesian_state" ),
+           R"doc(
 
 Computes the rotation matrix from RSW to inertial frame.
 
@@ -105,14 +106,14 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("tnw_to_inertial_rotation_matrix",
-                      py::overload_cast<const Eigen::Vector6d &, const bool>(
-                          &trf::getTnwToInertialRotation),
-                      py::arg("inertial_cartesian_state"),
-                      py::arg("n_axis_points_away_from_central_body") = true,
-                      R"doc(
+    m.def( "tnw_to_inertial_rotation_matrix",
+           py::overload_cast< const Eigen::Vector6d &, const bool >(
+                   &trf::getTnwToInertialRotation ),
+           py::arg( "inertial_cartesian_state" ),
+           py::arg( "n_axis_points_away_from_central_body" ) = true,
+           R"doc(
 
 Computes the rotation matrix from TNW to inertial frame.
 
@@ -152,14 +153,14 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("inertial_to_tnw_rotation_matrix",
-                      py::overload_cast<const Eigen::Vector6d &, const bool>(
-                          &trf::getInertialToTnwRotation),
-                      py::arg("inertial_cartesian_state"),
-                      py::arg("n_axis_points_away_from_central_body") = true,
-                      R"doc(
+    m.def( "inertial_to_tnw_rotation_matrix",
+           py::overload_cast< const Eigen::Vector6d &, const bool >(
+                   &trf::getInertialToTnwRotation ),
+           py::arg( "inertial_cartesian_state" ),
+           py::arg( "n_axis_points_away_from_central_body" ) = true,
+           R"doc(
 
 Computes the rotation matrix from inertial to TNW frame.
 
@@ -199,18 +200,15 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-
-                m.def(
-                    "inertial_to_body_fixed_rotation_matrix",
-                    py::overload_cast<const double, const double, const double>(
-                        &trf::
-                            getInertialToPlanetocentricFrameTransformationMatrix),
-                    py::arg("pole_declination"),
-                    py::arg("pole_right_ascension"),
-                    py::arg("prime_meridian_longitude"),
-                    R"doc(
+    m.def( "inertial_to_body_fixed_rotation_matrix",
+           py::overload_cast< const double, const double, const double >(
+                   &trf::getInertialToPlanetocentricFrameTransformationMatrix ),
+           py::arg( "pole_declination" ),
+           py::arg( "pole_right_ascension" ),
+           py::arg( "prime_meridian_longitude" ),
+           R"doc(
 
 Computes the rotation matrix from inertial to body-fixed frame.
 
@@ -250,16 +248,15 @@ Euler angle rotation (see Archinal et al. [1]_).
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "body_fixed_to_inertial_rotation_matrix",
-                    py::overload_cast<const double, const double, const double>(
-                        &trf::
-                            getRotatingPlanetocentricToInertialFrameTransformationMatrix),
-                    py::arg("pole_declination"),
-                    py::arg("pole_right_ascension"), py::arg("pole_meridian"),
-                    R"doc(
+    m.def( "body_fixed_to_inertial_rotation_matrix",
+           py::overload_cast< const double, const double, const double >(
+                   &trf::getRotatingPlanetocentricToInertialFrameTransformationMatrix ),
+           py::arg( "pole_declination" ),
+           py::arg( "pole_right_ascension" ),
+           py::arg( "pole_meridian" ),
+           R"doc(
 
 Computes the rotation matrix from body-fixed to inertial frame.
 
@@ -300,18 +297,18 @@ Euler angle rotation (see Archinal et al. [1]_).
 
 
 
-    )doc");
+    )doc" );
 
+    m.def( "transform_cartesian_state_to_frame",
+           py::overload_cast< const Eigen::Vector6d &,
+                              const Eigen::Matrix3d &,
+                              const Eigen::Matrix3d & >(
+                   &te::transformStateToFrameFromRotations< double > ),
+           py::arg( "original_state" ),
+           py::arg( "rotation_matrix" ),
+           py::arg( "transform_cartesian_state_to_frame" ) );
+}
 
-                m.def("transform_cartesian_state_to_frame",
-                      py::overload_cast<const Eigen::Vector6d &,
-                                        const Eigen::Matrix3d &,
-                                        const Eigen::Matrix3d &>(
-                          &te::transformStateToFrameFromRotations<double>),
-                      py::arg("original_state"), py::arg("rotation_matrix"),
-                      py::arg("transform_cartesian_state_to_frame"));
-            }
-
-        }  // namespace frame_conversion
-    }  // namespace astro
+}  // namespace frame_conversion
+}  // namespace astro
 }  // namespace tudatpy

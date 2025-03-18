@@ -23,34 +23,39 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tpc = tudat::physical_constants;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace rigid_body {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace rigid_body
+{
 
-                PYBIND11_MODULE(expose_rigid_body, m) {
-                    //    py::enum_<tss::RigidBodyPropertiesType>(m,
-                    //    "RigidBodyPropertiesType",
-                    //                                     get_docstring("RigidBodyPropertiesType").c_str())
-                    //        .value("from_function_rigid_body_properties",
-                    //        tss::RigidBodyPropertiesType::from_function_rigid_body_properties,
-                    //        get_docstring("RigidBodyPropertiesType.from_function_rigid_body_properties").c_str())
-                    //        .value("constant_rigid_body_properties",
-                    //        tss::RigidBodyPropertiesType::constant_rigid_body_properties,
-                    //        get_docstring("RigidBodyPropertiesType.constant_rigid_body_properties").c_str())
-                    //        .value("from_gravity_field_rigid_body_properties",
-                    //        tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties,
-                    //        get_docstring("RigidBodyPropertiesType.from_gravity_field_rigid_body_properties").c_str())
-                    //        .value("mass_dependent_rigid_body_properties",
-                    //        tss::RigidBodyPropertiesType::mass_dependent_rigid_body_properties,
-                    //        get_docstring("RigidBodyPropertiesType.mass_dependent_mass_distribution_properties").c_str())
-                    //        .export_values();
-                    //
-                    py::class_<
-                        tss::RigidBodyPropertiesSettings,
-                        std::shared_ptr<tss::RigidBodyPropertiesSettings>>(
-                        m, "RigidBodyPropertiesSettings",
-                        R"doc(
+PYBIND11_MODULE( expose_rigid_body, m )
+{
+    //    py::enum_<tss::RigidBodyPropertiesType>(m,
+    //    "RigidBodyPropertiesType",
+    //                                     get_docstring("RigidBodyPropertiesType").c_str())
+    //        .value("from_function_rigid_body_properties",
+    //        tss::RigidBodyPropertiesType::from_function_rigid_body_properties,
+    //        get_docstring("RigidBodyPropertiesType.from_function_rigid_body_properties").c_str())
+    //        .value("constant_rigid_body_properties",
+    //        tss::RigidBodyPropertiesType::constant_rigid_body_properties,
+    //        get_docstring("RigidBodyPropertiesType.constant_rigid_body_properties").c_str())
+    //        .value("from_gravity_field_rigid_body_properties",
+    //        tss::RigidBodyPropertiesType::from_gravity_field_rigid_body_properties,
+    //        get_docstring("RigidBodyPropertiesType.from_gravity_field_rigid_body_properties").c_str())
+    //        .value("mass_dependent_rigid_body_properties",
+    //        tss::RigidBodyPropertiesType::mass_dependent_rigid_body_properties,
+    //        get_docstring("RigidBodyPropertiesType.mass_dependent_mass_distribution_properties").c_str())
+    //        .export_values();
+    //
+    py::class_< tss::RigidBodyPropertiesSettings,
+                std::shared_ptr< tss::RigidBodyPropertiesSettings > >(
+            m,
+            "RigidBodyPropertiesSettings",
+            R"doc(
 
         Base class for providing settings for rigid body model creation.
 
@@ -61,29 +66,24 @@ namespace tudatpy {
 
 
 
-     )doc")
-                        .def_property_readonly(
-                            "body_mass_property_type",
-                            &tss::RigidBodyPropertiesSettings::
-                                getRigidBodyPropertiesType,
-                            R"doc(
+     )doc" )
+            .def_property_readonly( "body_mass_property_type",
+                                    &tss::RigidBodyPropertiesSettings::getRigidBodyPropertiesType,
+                                    R"doc(
 
         **read-only**
 
         Type of rigid body model that is to be created.
 
         :type: RigidBodyPropertiesType
-     )doc");
+     )doc" );
 
-
-                    m.def("constant_rigid_body_properties",
-                          tss::constantRigidBodyPropertiesSettings,
-                          py::arg("mass"),
-                          py::arg("center_of_mass") =
-                              Eigen::Vector3d::Constant(TUDAT_NAN),
-                          py::arg("inertia_tensor") =
-                              Eigen::Matrix3d::Constant(TUDAT_NAN),
-                          R"doc(
+    m.def( "constant_rigid_body_properties",
+           tss::constantRigidBodyPropertiesSettings,
+           py::arg( "mass" ),
+           py::arg( "center_of_mass" ) = Eigen::Vector3d::Constant( TUDAT_NAN ),
+           py::arg( "inertia_tensor" ) = Eigen::Matrix3d::Constant( TUDAT_NAN ),
+           R"doc(
 
 Function for creating constant rigid body properties.
 
@@ -109,14 +109,14 @@ RigidBodyPropertiesSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("custom_time_dependent_rigid_body_properties",
-                          tss::fromFunctionRigidBodyPropertiesSettings,
-                          py::arg("mass_function"),
-                          py::arg("center_of_mass_function") = nullptr,
-                          py::arg("inertia_tensor_function") = nullptr,
-                          R"doc(
+    m.def( "custom_time_dependent_rigid_body_properties",
+           tss::fromFunctionRigidBodyPropertiesSettings,
+           py::arg( "mass_function" ),
+           py::arg( "center_of_mass_function" ) = nullptr,
+           py::arg( "inertia_tensor_function" ) = nullptr,
+           R"doc(
 
 Function for creating custom (time-dependent) rigid body properties.
 
@@ -143,14 +143,14 @@ RigidBodyPropertiesSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("custom_mass_dependent_rigid_body_properties",
-                          tss::massDependentMassDistributionSettings,
-                          py::arg("mass"),
-                          py::arg("center_of_mass_function") = nullptr,
-                          py::arg("inertia_tensor_function") = nullptr,
-                          R"doc(
+    m.def( "custom_mass_dependent_rigid_body_properties",
+           tss::massDependentMassDistributionSettings,
+           py::arg( "mass" ),
+           py::arg( "center_of_mass_function" ) = nullptr,
+           py::arg( "inertia_tensor_function" ) = nullptr,
+           R"doc(
 
 Function for creating custom (time-dependent) rigid body properties.
 
@@ -176,10 +176,10 @@ RigidBodyPropertiesSettings
 
 
 
-    )doc");
-                }
+    )doc" );
+}
 
-            }  // namespace rigid_body
-        }  // namespace environment_setup
-    }  // namespace numerical_simulation
+}  // namespace rigid_body
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
