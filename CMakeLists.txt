@@ -35,11 +35,7 @@ message(
 )
 
 # Control build based on user input
-if (SKIP_TUDAT)
-    message(STATUS "Skipping tudat (C++) build.")
-else()
-    add_subdirectory(tudat)
-endif()
+add_subdirectory(tudat)
 
 if (SKIP_TUDATPY)
     message(STATUS "Skipping tudatpy (Python) build.")
