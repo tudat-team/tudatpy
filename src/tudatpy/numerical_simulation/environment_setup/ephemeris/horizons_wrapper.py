@@ -1,7 +1,7 @@
 import datetime
 from typing import Union
 
-from tudatpy.data.horizons import HorizonsQuery
+from tudatpy.data.horizons.horizons import HorizonsQuery, HorizonsBatch
 
 
 def jpl_horizons(
@@ -24,7 +24,7 @@ def jpl_horizons(
 
     This function is a wrapper for the tudatpy.data.horizons functionality.
     That api is not available on the api documentation yet.
-    For now, visit the HorizonsQuery souce code for extensive documentation: 
+    For now, visit the HorizonsQuery souce code for extensive documentation:
     https://github.com/tudat-team/tudatpy/blob/master/tudatpy/data/horizons.py
 
     For more information on the Horizons System, visit: https://ssd.jpl.nasa.gov/horizons/manual.html
