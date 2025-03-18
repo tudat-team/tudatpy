@@ -27,21 +27,28 @@ namespace tni = tudat::numerical_integrators;
 namespace trf = tudat::reference_frames;
 namespace tmrf = tudat::root_finders;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace propagation_setup {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace propagation_setup
+{
 
-            PYBIND11_MODULE(expose_propagation_setup, m) {
-                m.def("create_acceleration_models",
-                      py::overload_cast<const tss::SystemOfBodies &,
-                                        const tss::SelectedAccelerationMap &,
-                                        const std::vector<std::string> &,
-                                        const std::vector<std::string> &>(
-                          &tss::createAccelerationModelsMap),
-                      py::arg("body_system"),
-                      py::arg("selected_acceleration_per_body"),
-                      py::arg("bodies_to_propagate"), py::arg("central_bodies"),
-                      R"doc(
+PYBIND11_MODULE( expose_propagation_setup, m )
+{
+    py::module_::import( "tudatpy.numerical_simulation.propagation" );
+
+    m.def( "create_acceleration_models",
+           py::overload_cast< const tss::SystemOfBodies &,
+                              const tss::SelectedAccelerationMap &,
+                              const std::vector< std::string > &,
+                              const std::vector< std::string > & >(
+                   &tss::createAccelerationModelsMap ),
+           py::arg( "body_system" ),
+           py::arg( "selected_acceleration_per_body" ),
+           py::arg( "bodies_to_propagate" ),
+           py::arg( "central_bodies" ),
+           R"doc(
 
 Function to create a set of acceleration models from a dictionary of bodies linked to acceleration model types.
 
@@ -100,13 +107,14 @@ acceleration (``"Vehicle"``).
        bodies, acceleration_settings,  bodies_to_propagate, central_bodies)
 
 
-    )doc");
+    )doc" );
 
-                m.def("create_torque_models", &tss::createTorqueModelsMap,
-                      py::arg("body_system"),
-                      py::arg("selected_torque_per_body"),
-                      py::arg("bodies_to_propagate"),
-                      R"doc(
+    m.def( "create_torque_models",
+           &tss::createTorqueModelsMap,
+           py::arg( "body_system" ),
+           py::arg( "selected_torque_per_body" ),
+           py::arg( "bodies_to_propagate" ),
+           R"doc(
 
 Function to create a set of acceleration models from a dictionary of bodies linked to acceleration model types.
 
@@ -162,13 +170,14 @@ torque.
       bodies, torque_settings,  bodies_to_propagate )
 
 
-    )doc");
+    )doc" );
 
-                m.def("create_mass_rate_models", &tss::createMassRateModelsMap,
-                      py::arg("body_system"),
-                      py::arg("selected_mass_rates_per_body"),
-                      py::arg("acceleration_models") = nullptr,
-                      R"doc(
+    m.def( "create_mass_rate_models",
+           &tss::createMassRateModelsMap,
+           py::arg( "body_system" ),
+           py::arg( "selected_mass_rates_per_body" ),
+           py::arg( "acceleration_models" ) = nullptr,
+           R"doc(
 
 Function to create a set of mass-rate models from associated settings.
 
@@ -195,8 +204,8 @@ MassRateModelMap
 
 
 
-    )doc");
-            }
-        }  // namespace propagation_setup
-    }  // namespace numerical_simulation
+    )doc" );
+}
+}  // namespace propagation_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
