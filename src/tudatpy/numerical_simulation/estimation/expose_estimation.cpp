@@ -633,47 +633,47 @@ PYBIND11_MODULE( expose_estimation, m )
             "ObservationViabilityCalculator",
             R"doc(
 
-        Template class for observation viability calculators.
+         Template class for observation viability calculators.
 
-        Template class for classes which conducts viability calculations on simulated observations.
-        Instances of the applicable ObservationViabilityCalculators are automatically created from the given :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects during the simulation of observations (:func:`~tudatpy.numerical_simulation.estimation.simulate_observations`).
-        The user typically does not interact directly with this class.
-
-
+         Template class for classes which conducts viability calculations on simulated observations.
+         Instances of the applicable ObservationViabilityCalculators are automatically created from the given :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects during the simulation of observations (:func:`~tudatpy.numerical_simulation.estimation.simulate_observations`).
+         The user typically does not interact directly with this class.
 
 
 
-     )doc" )
+
+
+      )doc" )
             .def( "is_observation_viable",
                   &tom::ObservationViabilityCalculator::isObservationViable,
                   py::arg( "link_end_states" ),
                   py::arg( "link_end_times" ),
                   R"doc(
 
-        Function to check whether an observation is viable.
+         Function to check whether an observation is viable.
 
-        Function to check whether an observation is viable.
-        The calculation is performed based on the given times and link end states.
-        Note, that this function is called automatically during the simulation of observations.
-        Direct calls to this function are generally not required.
-
-
-        Parameters
-        ----------
-        link_end_states : List[ numpy.ndarray[numpy.float64[6, 1]] ]
-            Vector of states of the link ends involved in the observation.
-        link_end_times : List[float]
-            Vector of times at the link ends involved in the observation.
-        Returns
-        -------
-        bool
-            True if observation is viable, false if not.
+         Function to check whether an observation is viable.
+         The calculation is performed based on the given times and link end states.
+         Note, that this function is called automatically during the simulation of observations.
+         Direct calls to this function are generally not required.
 
 
+         Parameters
+         ----------
+         link_end_states : List[ numpy.ndarray[numpy.float64[6, 1]] ]
+             Vector of states of the link ends involved in the observation.
+         link_end_times : List[float]
+             Vector of times at the link ends involved in the observation.
+         Returns
+         -------
+         bool
+             True if observation is viable, false if not.
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     py::class_< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >(
@@ -681,16 +681,16 @@ PYBIND11_MODULE( expose_estimation, m )
             "ObservationSimulator",
             R"doc(
 
-        Class hosting the functionality for simulating observations.
+         Class hosting the functionality for simulating observations.
 
-        Class hosting the functionality for simulating a given observable over a defined link geometry.
-        Instances of this class are automatically created from the given :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` objects upon instantiation of the :class:`~tudatpy.numerical_simulation.Estimator` class.
-
-
+         Class hosting the functionality for simulating a given observable over a defined link geometry.
+         Instances of this class are automatically created from the given :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` objects upon instantiation of the :class:`~tudatpy.numerical_simulation.Estimator` class.
 
 
 
-     )doc" );
+
+
+      )doc" );
 
     py::class_< tom::ObservationSimulator< 1, STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tom::ObservationSimulator< 1, STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -719,34 +719,34 @@ PYBIND11_MODULE( expose_estimation, m )
            py::arg( "bodies" ),
            R"doc(
 
-Function to simulate observations.
+ Function to simulate observations.
 
-Function to simulate observations from set observation simulators and observation simulator settings.
-Automatically iterates over all provided observation simulators, generating the full set of simulated observations.
-
-
-Parameters
-----------
-observation_to_simulate : List[ :class:`ObservationSimulationSettings` ]
-    List of settings objects, each object providing the observation time settings for simulating one type of observable and link end set.
-
-observation_simulators : List[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
-    List of :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` objects, each object hosting the functionality for simulating one type of observable and link end set.
-
-bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
-    Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
-
-Returns
--------
-:class:`~tudatpy.numerical_simulation.estimation.ObservationCollection`
-    Object collecting all products of the observation simulation.
+ Function to simulate observations from set observation simulators and observation simulator settings.
+ Automatically iterates over all provided observation simulators, generating the full set of simulated observations.
 
 
+ Parameters
+ ----------
+ observation_to_simulate : List[ :class:`ObservationSimulationSettings` ]
+     List of settings objects, each object providing the observation time settings for simulating one type of observable and link end set.
+
+ observation_simulators : List[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
+     List of :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` objects, each object hosting the functionality for simulating one type of observable and link end set.
+
+ bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+     Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation.ObservationCollection`
+     Object collecting all products of the observation simulation.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "compute_residuals_and_dependent_variables",
            &tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -799,43 +799,43 @@ Returns
            py::arg( "is_station_transmitting" ),
            R"doc(
 
-Function to compute the azimuth angle, elevation angle and range at a ground station.
+ Function to compute the azimuth angle, elevation angle and range at a ground station.
 
-Function to compute the azimuth angle, elevation angle and range at a ground station. This functions is provided as a function of
-convenience, to prevent users having to manually define the relevant settings for this often-needed functionality. This function
-takes an observing station and a target body as input, and provides the observed angles and current range (without correction for aberrations, with correction for light time)
-as observed at that station
-
-
-Parameters
-----------
-bodies : SystemOfBodies
-    System of bodies that defines the full physical environment
-
-station_id : tuple[ str, str]
-    Identifier for the observing station, as a pair of strings: the body name and the station name.
-
-target_body : str
-    Name of body which is observed by ground station
-
-observation_times : list[float]
-    List of times at which the ground station observations are to be analyzed
-
-is_station_transmitting : Bool
-    Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
-    This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
-
-Returns
--------
-dict[float,numpy.ndarray[numpy.float64[3, 1]]]
-    Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
+ Function to compute the azimuth angle, elevation angle and range at a ground station. This functions is provided as a function of
+ convenience, to prevent users having to manually define the relevant settings for this often-needed functionality. This function
+ takes an observing station and a target body as input, and provides the observed angles and current range (without correction for aberrations, with correction for light time)
+ as observed at that station
 
 
+ Parameters
+ ----------
+ bodies : SystemOfBodies
+     System of bodies that defines the full physical environment
+
+ station_id : tuple[ str, str]
+     Identifier for the observing station, as a pair of strings: the body name and the station name.
+
+ target_body : str
+     Name of body which is observed by ground station
+
+ observation_times : list[float]
+     List of times at which the ground station observations are to be analyzed
+
+ is_station_transmitting : bool
+     Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
+     This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
+
+ Returns
+ -------
+ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
+     Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "compute_target_angles_and_range_vectors",
            &tss::getTargetAnglesAndRangeVector,
@@ -846,43 +846,43 @@ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
            py::arg( "is_station_transmitting" ),
            R"doc(
 
-Function to compute the azimuth angle, elevation angle and range at a ground station.
+ Function to compute the azimuth angle, elevation angle and range at a ground station.
 
-Function to compute the azimuth angle, elevation angle and range at a ground station. This functions is provided as a function of
-convenience, to prevent users having to manually define the relevant settings for this often-needed functionality. This function
-takes an observing station and a target body as input, and provides the observed angles and current range (without correction for aberrations, with correction for light time)
-as observed at that station
-
-
-Parameters
-----------
-bodies : SystemOfBodies
-    System of bodies that defines the full physical environment
-
-station_id : tuple[ str, str]
-    Identifier for the observing station, as a pair of strings: the body name and the station name.
-
-target_body : str
-    Name of body which is observed by ground station
-
-observation_times : list[float]
-    List of times at which the ground station observations are to be analyzed
-
-is_station_transmitting : Bool
-    Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
-    This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
-
-Returns
--------
-dict[float,numpy.ndarray[numpy.float64[3, 1]]]
-    Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
+ Function to compute the azimuth angle, elevation angle and range at a ground station. This functions is provided as a function of
+ convenience, to prevent users having to manually define the relevant settings for this often-needed functionality. This function
+ takes an observing station and a target body as input, and provides the observed angles and current range (without correction for aberrations, with correction for light time)
+ as observed at that station
 
 
+ Parameters
+ ----------
+ bodies : SystemOfBodies
+     System of bodies that defines the full physical environment
+
+ station_id : tuple[ str, str]
+     Identifier for the observing station, as a pair of strings: the body name and the station name.
+
+ target_body : str
+     Name of body which is observed by ground station
+
+ observation_times : list[float]
+     List of times at which the ground station observations are to be analyzed
+
+ is_station_transmitting : bool
+     Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
+     This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
+
+ Returns
+ -------
+ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
+     Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "create_filtered_observation_collection",
            py::overload_cast< const std::shared_ptr<

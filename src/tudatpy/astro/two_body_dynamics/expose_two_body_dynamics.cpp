@@ -48,7 +48,7 @@ class PyLambertTargeter : public tms::LambertTargeter
                            getInertialVelocityAtDeparture, /* Name of function in C++
                                                               (must match Python name)
                                                             */
-                           /* Argument(s) */
+                                                           /* Argument(s) */
         );
     }
 
@@ -95,40 +95,40 @@ PYBIND11_MODULE( expose_two_body_dynamics, m )
            py::arg( "excess_velocity" ),
            R"doc(
 
-Compute the escape or capture delta-v budget for a spacecraft.
+ Compute the escape or capture delta-v budget for a spacecraft.
 
-This function calculates the required change in velocity (delta-v) for a spacecraft to escape from or
-be captured by the gravitational influence of a central body. The calculation is based on the pericenter
-of the orbit, the orbital parameters, and the excess velocity of the spacecraft. It is commonly used in
-mission design for estimating propulsion requirements in orbital transfers or interplanetary trajectories.
+ This function calculates the required change in velocity (delta-v) for a spacecraft to escape from or
+ be captured by the gravitational influence of a central body. The calculation is based on the pericenter
+ of the orbit, the orbital parameters, and the excess velocity of the spacecraft. It is commonly used in
+ mission design for estimating propulsion requirements in orbital transfers or interplanetary trajectories.
 
-Parameters
-----------
-gravitational_parameter : float
-    Gravitational parameter of the central body, defined as the product of the gravitational constant (G)
-    and the mass of the body (M).
-semi_major_axis : float
-    Semi-major axis of the spacecraft's orbit, representing the average distance from the central body.
-eccentricity : float
-    Eccentricity of the spacecraft's orbit, which defines its shape. Must be valid for elliptical
-    or hyperbolic orbits (e.g., 0 <= eccentricity < 1 for elliptical orbits).
-excess_velocity : float
-    Excess velocity of the spacecraft, representing its velocity relative to the central body
-    at infinity.
+ Parameters
+ ----------
+ gravitational_parameter : float
+     Gravitational parameter of the central body, defined as the product of the gravitational constant (G)
+     and the mass of the body (M).
+ semi_major_axis : float
+     Semi-major axis of the spacecraft's orbit, representing the average distance from the central body.
+ eccentricity : float
+     Eccentricity of the spacecraft's orbit, which defines its shape. Must be valid for elliptical
+     or hyperbolic orbits (e.g., 0 <= eccentricity < 1 for elliptical orbits).
+ excess_velocity : float
+     Excess velocity of the spacecraft, representing its velocity relative to the central body
+     at infinity.
 
-Returns
--------
-deltaV : float
-    The delta-v required for the escape or capture maneuver. This is the difference between the velocity
-    needed to achieve the specified excess velocity at infinity and the current orbital velocity at the
-    pericenter.
-
-
+ Returns
+ -------
+ deltaV : float
+     The delta-v required for the escape or capture maneuver. This is the difference between the velocity
+     needed to achieve the specified excess velocity at infinity and the current orbital velocity at the
+     pericenter.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     py::class_< tms::PericenterFindingFunctions,
                 std::shared_ptr< tms::PericenterFindingFunctions > >( m,
@@ -303,36 +303,36 @@ deltaV : float
            py::arg( "root_finder" ) = trf::RootFinderPointer( ),
            R"doc(
 
-Function to propagate Keplerian elements to a later epoch, assuming an unperturbed system.
+ Function to propagate Keplerian elements to a later epoch, assuming an unperturbed system.
 
-Function to propagate Keplerian elements to a later epoch, assuming an unperturbed system. This function will
-take the initial Keplerian elements, and propagate the true anomaly in time as per the requested input. This
-is done by converting true anomaly to mean anomaly, apply the constant rate in mean motion for the requested
-time, and converting the result back to true anomaly. Currently both elliptic and hyperbolic orbits are supported.
-Parabolic orbits are not supported and will result in an error message.
-
-
-Parameters
-----------
-initial_kepler_elements : numpy.ndarray
-    Keplerian elements that are to be propagated (see :ref:`\`\`element_conversion\`\`` for order)
-propagation_time : float
-    Time for which the elements are to be propagated w.r.t. the initial elements
-gravitational_parameter : float
-    Gravitational parameter of central body used for propagation
-root_finder : RootFinder, default = None
-    Root finder used to solve Kepler's equation when converting mean to eccentric anomaly. When no root finder is specified, the default option of the mean to eccentric anomaly function is used (see :func:`~mean_to_eccentric_anomaly').
-Returns
--------
-numpy.ndarray
-    Keplerian elements, propagated in time from initial elements assuming unperturbed dynamics. Note that the true anomaly is returned within the -PI to PI spectrum. If the user desires a different spectrum (possibly including the number of revolutions), these should be added by the user a posteriori.
+ Function to propagate Keplerian elements to a later epoch, assuming an unperturbed system. This function will
+ take the initial Keplerian elements, and propagate the true anomaly in time as per the requested input. This
+ is done by converting true anomaly to mean anomaly, apply the constant rate in mean motion for the requested
+ time, and converting the result back to true anomaly. Currently both elliptic and hyperbolic orbits are supported.
+ Parabolic orbits are not supported and will result in an error message.
 
 
+ Parameters
+ ----------
+ initial_kepler_elements : numpy.ndarray
+     Keplerian elements that are to be propagated (see :ref:`\`\`element_conversion\`\`` for order)
+ propagation_time : float
+     Time for which the elements are to be propagated w.r.t. the initial elements
+ gravitational_parameter : float
+     Gravitational parameter of central body used for propagation
+ root_finder : RootFinder, default = None
+     Root finder used to solve Kepler's equation when converting mean to eccentric anomaly. When no root finder is specified, the default option of the mean to eccentric anomaly function is used (see :func:`~mean_to_eccentric_anomaly').
+ Returns
+ -------
+ numpy.ndarray
+     Keplerian elements, propagated in time from initial elements assuming unperturbed dynamics. Note that the true anomaly is returned within the -PI to PI spectrum. If the user desires a different spectrum (possibly including the number of revolutions), these should be added by the user a posteriori.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 }
 }  // namespace two_body_dynamics
 }  // namespace astro

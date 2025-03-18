@@ -12,7 +12,6 @@
 #include <tudat/math/integrators.h>
 
 namespace tni = tudat::numerical_integrators;
-
 namespace py = pybind11;
 
 // typedef std::function<
