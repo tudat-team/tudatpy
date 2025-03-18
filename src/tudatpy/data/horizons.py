@@ -13,13 +13,15 @@ import datetime
 
 from tudatpy import constants
 from tudatpy.numerical_simulation import environment_setup
+from tudatpy.numerical_simulation.environment_setup import ephemeris
 
 import re
 
 # NOTE when updating, also update tudatpy.numerical_simulation.environment_setup.ephemeris.horizons
 
+
 class HorizonsQuery:
-    """This class provides an interface to JPL's Horizon System. 
+    """This class provides an interface to JPL's Horizon System.
     JPL Horizons provides access to highly accurate ephemerides for many solar system objects,
     including asteriuds, comets, planets, moons and select spacecraft.
     The class extends astroquery's to cater to the needs of Tudat users,
@@ -66,38 +68,38 @@ class HorizonsQuery:
         Parameters
         ----------
         query_id : str
-            Query term for object to retrieve data for. The query may be ambiguous, 
-            in which case suggestions for exact objects are presented. 
-            The behaviour for this parameter changes based on the `query_type` 
-            parameter. 
+            Query term for object to retrieve data for. The query may be ambiguous,
+            in which case suggestions for exact objects are presented.
+            The behaviour for this parameter changes based on the `query_type`
+            parameter.
             The default behaviour is the same as the official Horizons API.
 
-            Here are some examples for the default behaviour: 
+            Here are some examples for the default behaviour:
 
-            - `Earth` - ambiguous, will 
+            - `Earth` - ambiguous, will
             suggest 3 (Earth-Moon Barycentre) and 399 (Earth).
 
             - `3` - will retrieve Earth-Moon Barycentre.
-            
+
             - `3;` - semi-colon searches for minor planets.\
             In this case it will search for the minor planet with MPC code 3: Juno.
 
-            - `-3` - A minus sign searches for spacecraft. 
+            - `-3` - A minus sign searches for spacecraft.
             In this case the Mars Orbiter Mission.
 
-            See the Horizons System manual 
-            for an extensive explanation on this parameter and the timespans 
+            See the Horizons System manual
+            for an extensive explanation on this parameter and the timespans
             page for some examples:
-            https://ssd.jpl.nasa.gov/horizons/manual.html#select 
+            https://ssd.jpl.nasa.gov/horizons/manual.html#select
 
-            https://ssd.jpl.nasa.gov/horizons/time_spans.html 
+            https://ssd.jpl.nasa.gov/horizons/time_spans.html
 
         location : str
-            Coordinate centre for the data with syntax `site@body`. 
+            Coordinate centre for the data with syntax `site@body`.
 
             In general, the syntax is: `site@body` but there are several shorthands.
             The sight may be a specific location on the body, such as an observatory.
-            500 specifies the geocentre, and can be left out as a shorthand 
+            500 specifies the geocentre, and can be left out as a shorthand
             (500@399 = @399).
             Here are some examples:
 
@@ -108,7 +110,7 @@ class HorizonsQuery:
 
             - `@0` or `@SSB` - The solar system barycentre.
 
-            - `0` - without the `@` symbol, this location is equivalent to `0@399` 
+            - `0` - without the `@` symbol, this location is equivalent to `0@399`
             which is the observatory with MPC code 0 on Earth and not the SSB.
             In this case: Greenwich Observatory.
 
@@ -120,67 +122,67 @@ class HorizonsQuery:
 
             - `Geocentric` - Equivalent to `500@399`.
 
-            As mistakes can easily made, it is highly recommended to consult 
-            the manual and use specific codes for this parameter: 
+            As mistakes can easily made, it is highly recommended to consult
+            the manual and use specific codes for this parameter:
 
             https://ssd.jpl.nasa.gov/horizons/manual.html#center
         query_type : str, optional
-            The query type constrains the search for the `query_id` parameter. 
-            Can have values: 'default', 'None', 'smallbody', 'designation', 'name', 
+            The query type constrains the search for the `query_id` parameter.
+            Can have values: 'default', 'None', 'smallbody', 'designation', 'name',
             'asteroid_name', 'comet_name', by default "default"
 
-            While all objects can be found with the default parameter, 
-            some queries have ambiguities. Specifying the query type eliminates the 
-            specific syntax. For example searching Juno with `query_type` `spacecraft` 
-            retrieves data for the spacecraft while setting `smallbody` 
-            retrieves data for the asteroid Juno. 
-            See the Horizons system Manual and astroquery documentation for more info: 
+            While all objects can be found with the default parameter,
+            some queries have ambiguities. Specifying the query type eliminates the
+            specific syntax. For example searching Juno with `query_type` `spacecraft`
+            retrieves data for the spacecraft while setting `smallbody`
+            retrieves data for the asteroid Juno.
+            See the Horizons system Manual and astroquery documentation for more info:
 
             https://ssd.jpl.nasa.gov/horizons/manual.html#select
 
             https://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html
 
         epoch_start : Union[datetime.datetime, float, None], optional
-            Starting date to retrieve data for. 
+            Starting date to retrieve data for.
             Must be either a python datetime object or a float seconds since J2000 TDB.
-            Combined with `epoch_end` and 
-            `epoch_step` can be used to retrieve a range of data. 
+            Combined with `epoch_end` and
+            `epoch_step` can be used to retrieve a range of data.
             If `epoch_list` is used, value must be None, by default None
         epoch_end : Union[datetime.datetime, float, None], optional
-            Final date to retrieve data for. 
+            Final date to retrieve data for.
             Must be either a python datetime object or a float seconds since J2000 TDB.
-            If the start stop, and step parameters dont result in an 
-            integer multiple of values,the final date is not used. 
-            Combined with `epoch_end` and 
-            `epoch_step` can be used to retrieve a range of data. 
+            If the start stop, and step parameters dont result in an
+            integer multiple of values,the final date is not used.
+            Combined with `epoch_end` and
+            `epoch_step` can be used to retrieve a range of data.
             If `epoch_list` is used, value must be None, by default None
         epoch_step : Union[str, None], optional
-            Step for the range of epochs to retrieve data for. 
+            Step for the range of epochs to retrieve data for.
             Can be be either a specific timestep such as `15m`,
             or a number of partitions `10` for 10 equidistant steps within the range.
-            For the timestep, quantifiers `m` for minute, `h` for hour and `d` for day 
-            can be used. Seconds are not available, consider using the `epoch_list` 
-            parameter or a number of partitions instead. 
-            Month and Year are normally available in JPL Horizons but are restricted 
+            For the timestep, quantifiers `m` for minute, `h` for hour and `d` for day
+            can be used. Seconds are not available, consider using the `epoch_list`
+            parameter or a number of partitions instead.
+            Month and Year are normally available in JPL Horizons but are restricted
             here because they may produce ambiguous results (leap years etc.).
             If `epoch_list` is used, value must be None, by default None
         epoch_list : Union[list, None], optional
-            List of times in seconds since J2000 TDB. Can be used 
-            to retrieve specific times instead of a range. 
+            List of times in seconds since J2000 TDB. Can be used
+            to retrieve specific times instead of a range.
             Must be None if start, end and step are set, by default None
         extended_query : bool, optional
-            Enables the retrieval of larger collections of data, by default False. 
-            Horizons System has a limit on how much data can be output (90024) lines. 
-            Additionally there is a limit on input length which may be exceeded if a 
-            long list of times is given with the `epoch_list` option (50 epochs). 
-            When enabled, the times are split in to multiple subqueries. 
-            The data of these subqueries is then combined and presented as a single 
-            query. Using a very large number of queries may make data retrieval slow, 
-            especially when using the list option. Consider whether your use case 
-            requires a large number of specific times, 
+            Enables the retrieval of larger collections of data, by default False.
+            Horizons System has a limit on how much data can be output (90024) lines.
+            Additionally there is a limit on input length which may be exceeded if a
+            long list of times is given with the `epoch_list` option (50 epochs).
+            When enabled, the times are split in to multiple subqueries.
+            The data of these subqueries is then combined and presented as a single
+            query. Using a very large number of queries may make data retrieval slow,
+            especially when using the list option. Consider whether your use case
+            requires a large number of specific times,
             or if a range can be used instead.
 
-            The epoch step partitions (`10` not `10h`) is currently unsupported with 
+            The epoch step partitions (`10` not `10h`) is currently unsupported with
             the extended_query.
 
         """
@@ -208,7 +210,11 @@ class HorizonsQuery:
         # epoch range format:
         # epoch_list IS none rest is NOT none
         if epoch_list is None:
-            if (epoch_start is None) or (epoch_end is None) or (epoch_step is None):
+            if (
+                (epoch_start is None)
+                or (epoch_end is None)
+                or (epoch_step is None)
+            ):
                 raise ValueError(
                     "Must specify either a list of times in sec since J2000 "
                     + "or a combined start, end and step parameters"
@@ -227,7 +233,11 @@ class HorizonsQuery:
 
         # epoch list format:
         # start step end IS none, list NOT none
-        elif (epoch_start is None) and (epoch_end is None) and (epoch_step is None):
+        elif (
+            (epoch_start is None)
+            and (epoch_end is None)
+            and (epoch_step is None)
+        ):
             if epoch_list is None:
                 raise ValueError(
                     "Must specify either a list of times in sec since J2000 "
@@ -301,9 +311,11 @@ class HorizonsQuery:
         # query is smaller than limit -> one batch
         # seperate check for list as the num lines is smaller
         elif (
-            (self.epoch_type != "list") and (num_lines < HorizonsQuery.query_limit)
+            (self.epoch_type != "list")
+            and (num_lines < HorizonsQuery.query_limit)
         ) or (
-            (self.epoch_type == "list") and (num_lines < HorizonsQuery.query_limit_list)
+            (self.epoch_type == "list")
+            and (num_lines < HorizonsQuery.query_limit_list)
         ):
             if self.epoch_type == "list":
                 # convert seconds since J2000 TDB to JD TDB
@@ -329,7 +341,9 @@ class HorizonsQuery:
         elif extended_query:
             # case where its a list -> split list
             if self.epoch_type == "list":
-                num_splits = math.ceil(num_lines / HorizonsQuery.query_limit_list)
+                num_splits = math.ceil(
+                    num_lines / HorizonsQuery.query_limit_list
+                )
 
                 epoch_def = self._format_time_list(epoch_list)
                 splits = np.array_split(epoch_def, num_splits)
@@ -347,7 +361,9 @@ class HorizonsQuery:
                     self.query_lengths.append(len(split))
 
             # Case where it is a range.
-            elif (self.epoch_type == "range") or (self.epoch_type == "partition"):
+            elif (self.epoch_type == "range") or (
+                self.epoch_type == "partition"
+            ):
                 if self.epoch_type == "partition":
                     raise NotImplementedError(
                         "Using number of divisions for time "
@@ -371,7 +387,9 @@ class HorizonsQuery:
                 formatt = r"%Y-%m-%d %H:%M:%S.%f"
 
                 while next_limit < end_astro:
-                    query_len = math.ceil((next_limit - next_start) / ts_seconds)
+                    query_len = math.ceil(
+                        (next_limit - next_start) / ts_seconds
+                    )
                     self.query_lengths.append(query_len)
 
                     if self.epoch_type == "partition":
@@ -483,7 +501,9 @@ class HorizonsQuery:
         if self._target_full_name is None:
             self._name = None
         else:
-            num_between_brackets = re.findall(r"\((.*?)\)", self._target_full_name)
+            num_between_brackets = re.findall(
+                r"\((.*?)\)", self._target_full_name
+            )
 
             # comet
             if ("/" in self._target_full_name) and (
@@ -598,7 +618,8 @@ class HorizonsQuery:
         end: Union[datetime.datetime, float],
     ):
         """Internal method to determine the length of the timestep in seconds
-        This is to help partition the queries in the case of an extended query"""
+        This is to help partition the queries in the case of an extended query
+        """
         numerical_part = re.findall(r"\d+", timestep)
         if len(numerical_part) == 0:
             raise ValueError("Timestep is incorrect")
@@ -622,7 +643,9 @@ class HorizonsQuery:
         elif len(alpha_part) == 0:
             time_seconds = None
         else:
-            raise ValueError("Unrecognized time step, use '1d', '1min', '2 hours' etc.")
+            raise ValueError(
+                "Unrecognized time step, use '1d', '1min', '2 hours' etc."
+            )
 
         start_astro = self._convert_time_to_astropy(start)
         end_astro = self._convert_time_to_astropy(end)
@@ -743,7 +766,9 @@ class HorizonsQuery:
             returns an n by 7 array with the time in seconds since J2000 TDB,
             and the cartesian position and velocities.
         """
-        raw = self.vectors(frame_orientation=frame_orientation, aberations=aberations)
+        raw = self.vectors(
+            frame_orientation=frame_orientation, aberations=aberations
+        )
 
         # A.D. 2019-Jan-05 22:40:00.0000
         timeformatt = "A.D. %Y-%b-%d %H:%M:%S.%f"
@@ -752,7 +777,9 @@ class HorizonsQuery:
             raw.to_pandas()
             # format time: first parse the time string and then into seconds since J2000
             .assign(
-                epoch_dt=lambda x: pd.to_datetime(x.datetime_str, format=timeformatt)
+                epoch_dt=lambda x: pd.to_datetime(
+                    x.datetime_str, format=timeformatt
+                )
             )
             .assign(
                 epochJ2000secondsTDB=lambda x: (
@@ -762,19 +789,28 @@ class HorizonsQuery:
                     )
                     * constants.JULIAN_DAY
                 )
-                + ((Time(x.epoch_dt, format="datetime64").jd2) * constants.JULIAN_DAY)
+                + (
+                    (Time(x.epoch_dt, format="datetime64").jd2)
+                    * constants.JULIAN_DAY
+                )
             )
             .assign(x=lambda i: i.x * constants.ASTRONOMICAL_UNIT)
             .assign(y=lambda i: i.y * constants.ASTRONOMICAL_UNIT)
             .assign(z=lambda i: i.z * constants.ASTRONOMICAL_UNIT)
             .assign(
-                vx=lambda i: i.vx * constants.ASTRONOMICAL_UNIT / constants.JULIAN_DAY
+                vx=lambda i: i.vx
+                * constants.ASTRONOMICAL_UNIT
+                / constants.JULIAN_DAY
             )
             .assign(
-                vy=lambda i: i.vy * constants.ASTRONOMICAL_UNIT / constants.JULIAN_DAY
+                vy=lambda i: i.vy
+                * constants.ASTRONOMICAL_UNIT
+                / constants.JULIAN_DAY
             )
             .assign(
-                vz=lambda i: i.vz * constants.ASTRONOMICAL_UNIT / constants.JULIAN_DAY
+                vz=lambda i: i.vz
+                * constants.ASTRONOMICAL_UNIT
+                / constants.JULIAN_DAY
             )
             .loc[:, ["epochJ2000secondsTDB", "x", "y", "z", "vx", "vy", "vz"]]
         )
@@ -786,7 +822,7 @@ class HorizonsQuery:
         frame_origin: str,
         frame_orientation: str = "ECLIPJ2000",
         aberations: str = "geometric",
-    ) -> environment_setup.ephemeris.EphemerisSettings:
+    ) -> ephemeris.EphemerisSettings:
         """Create ephemeris settings for a body using Horizons Vector API.
 
         Parameters
@@ -892,7 +928,9 @@ class HorizonsQuery:
                 query.epochs["stop"] = Time(
                     query.epochs["stop"], format="iso", scale="tdb"
                 ).utc.iso
-            elif isinstance(query.epochs, list) or isinstance(query.epochs, np.ndarray):
+            elif isinstance(query.epochs, list) or isinstance(
+                query.epochs, np.ndarray
+            ):
                 query.epochs = [
                     (
                         Time(x, format="jd", scale="tdb").utc.jd1
@@ -921,7 +959,9 @@ class HorizonsQuery:
                 res["datetime_str"], format_string=timeformatt
             )
 
-            res["datetime_jd"] = new_actual_time_tdb.jd1 + new_actual_time_tdb.jd2
+            res["datetime_jd"] = (
+                new_actual_time_tdb.jd1 + new_actual_time_tdb.jd2
+            )
             res["epochJ2000secondsTDB"] = (
                 (new_actual_time_tdb.jd1 - constants.JULIAN_DAY_ON_J2000)
                 * constants.JULIAN_DAY
@@ -939,7 +979,8 @@ class HorizonsQuery:
                 ).tdb.iso
             elif isinstance(query.epochs, list):
                 query.epochs = [
-                    Time(x, format="jd", scale="utc").tdb.jd for x in query.epochs
+                    Time(x, format="jd", scale="utc").tdb.jd
+                    for x in query.epochs
                 ]
             else:
                 raise ValueError("query epoch has incorrect format")
