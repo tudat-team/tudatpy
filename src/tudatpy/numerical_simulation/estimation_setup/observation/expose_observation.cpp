@@ -215,7 +215,7 @@ namespace estimation_setup
 namespace observation
 {
 
-PYBIND11_MODULE( expose_observation_setup, m )
+PYBIND11_MODULE( expose_observation, m )
 {
     py::module_::import( "tudatpy.numerical_simulation.estimation" );
     py::module_::import( "tudatpy.data" );
