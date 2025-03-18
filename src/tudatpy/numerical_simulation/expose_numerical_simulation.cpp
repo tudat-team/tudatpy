@@ -39,6 +39,20 @@ namespace numerical_simulation
 
 PYBIND11_MODULE( expose_numerical_simulation, m )
 {
+    // Additional imports to solve issues with submodules
+    // Expose IntegratorSettings locally to avoid circular imports
+    py::class_< tni::IntegratorSettings< TIME_TYPE >,
+                std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > > >(
+            m,
+            "IntegratorSettings",
+            py::module_local( ),
+            R"doc(Functional base class to define settings for integrators.
+
+         Class to define settings for numerical integrators, for instance for use in numerical integration of equations of motion/variational equations. This class can be used for simple integrators such as fixed step RK and Euler. Integrators that require more settings to define have their own derived class.)doc" )
+            .def_readwrite( "initial_time",
+                            &tni::IntegratorSettings< TIME_TYPE >::initialTimeDeprecated_ );
+    ///////////////////////////////////////////////////////////////////////////
+
     m.def( "get_integrated_type_and_body_list",
            &tp::getIntegratedTypeAndBodyList< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "propagator_settings" ) );
