@@ -99,36 +99,36 @@ PYBIND11_MODULE( expose_propagation, m )
            py::arg( "initial_time" ),
            R"doc(
 
-Function to get the translational states of a set of bodies, with respect to some set of central bodies, at the requested time.
+ Function to get the translational states of a set of bodies, with respect to some set of central bodies, at the requested time.
 
-Function to get the translational states of a set of bodies, with respect to some set of central bodies, at the requested time. This function
-is typically used to extract an initial state for a propagation of a set of bodies, for which the initial state is extracted from the
-existing ephemerides of the bodies.
-
-
-Parameters
-----------
-bodies_to_propagate : list[str]
-    List of names of bodies for which the state is to be extracted
-central_bodies : list[str]
-    List of central bodies, w.r.t. which the states are to be computed (in the same order as ``bodies_to_propagate``)
-bodies_to_propagate : SystemOfBodies
-    System of bodies that define the environment
-initial_time : float
-    Time at which the states are to be extracted from the environment
-Returns
--------
-numpy.ndarray
-    Vector of size :math:`6\times N`, with the translational states of each entry of body from
-    ``bodies_to_propagate`` w.r.t. the corresponding central body in ``central_bodies``.
+ Function to get the translational states of a set of bodies, with respect to some set of central bodies, at the requested time. This function
+ is typically used to extract an initial state for a propagation of a set of bodies, for which the initial state is extracted from the
+ existing ephemerides of the bodies.
 
 
+ Parameters
+ ----------
+ bodies_to_propagate : list[str]
+     List of names of bodies for which the state is to be extracted
+ central_bodies : list[str]
+     List of central bodies, w.r.t. which the states are to be computed (in the same order as ``bodies_to_propagate``)
+ bodies_to_propagate : SystemOfBodies
+     System of bodies that define the environment
+ initial_time : float
+     Time at which the states are to be extracted from the environment
+ Returns
+ -------
+ numpy.ndarray
+     Vector of size :math:`6\times N`, with the translational states of each entry of body from
+     ``bodies_to_propagate`` w.r.t. the corresponding central body in ``central_bodies``.
 
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "get_initial_state_of_bodies",
            py::overload_cast< const std::vector< std::string > &,
@@ -170,54 +170,54 @@ numpy.ndarray
             "RotationalProperModeDampingResults",
             R"doc(
 
-        Object that stores the results of the algorithm to damp the proper mode of rotational dynamics for an initial state,
-        as computed by the :func:`~get_damped_proper_mode_initial_rotational_state` function
+         Object that stores the results of the algorithm to damp the proper mode of rotational dynamics for an initial state,
+         as computed by the :func:`~get_damped_proper_mode_initial_rotational_state` function
 
 
 
 
 
 
-     )doc" )
+      )doc" )
             .def_readwrite(
                     "damped_initial_state",
                     &tp::DampedInitialRotationalStateResults< TIME_TYPE,
                                                               STATE_SCALAR_TYPE >::initialState_,
                     R"doc(
 
-        Initital state produced by the damping algorithm, for which the signature of the proper mode should be
-        removed (or at least, substantially reduced). Note that this initial state corresponds to the *full* state vector
-        that is provided to the ``get_damped_proper_mode_initial_rotational_state`` function (e.g. is size 7
-        for rotational dynamics of a single body, size 13 for coupled orbital-rotational dynamics of a single body, etc.)
+         Initial state produced by the damping algorithm, for which the signature of the proper mode should be
+         removed (or at least, substantially reduced). Note that this initial state corresponds to the *full* state vector
+         that is provided to the ``get_damped_proper_mode_initial_rotational_state`` function (e.g. is size 7
+         for rotational dynamics of a single body, size 13 for coupled orbital-rotational dynamics of a single body, etc.)
 
 
-        :type: numpy.ndarray
-     )doc" )
+         :type: numpy.ndarray
+      )doc" )
             .def_readwrite(
                     "forward_backward_states",
                     &tp::DampedInitialRotationalStateResults< TIME_TYPE, STATE_SCALAR_TYPE >::
                             forwardBackwardPropagatedStates_,
                     R"doc(
 
-        Data structure that contains the full state histories used by the damping algorithm. The contents are are as follows:
+         Data structure that contains the full state histories used by the damping algorithm. The contents are are as follows:
 
-        * The :math:`i^{th}` entry of the list corresponds to the :math:`i^{th}` iteration of the forward-backward propagation
-        * Each tuple in the list contains two dictionaries, the first one corresponding to the forward propagation results, the seconds one to the backward propagation results
+         * The :math:`i^{th}` entry of the list corresponds to the :math:`i^{th}` iteration of the forward-backward propagation
+         * Each tuple in the list contains two dictionaries, the first one corresponding to the forward propagation results, the seconds one to the backward propagation results
 
 
-        :type: list[tuple[dict[float,numpy.ndarray],dict[float,numpy.ndarray]]]
-     )doc" )
+         :type: list[tuple[dict[float,numpy.ndarray],dict[float,numpy.ndarray]]]
+      )doc" )
             .def_readwrite(
                     "forward_backward_dependent_variables",
                     &tp::DampedInitialRotationalStateResults< TIME_TYPE, STATE_SCALAR_TYPE >::
                             forwardBackwardDependentVariables_,
                     R"doc(
 
-        As ``forward_backward_states``, but for the dependent variables.
+         As ``forward_backward_states``, but for the dependent variables.
 
 
-        :type: list[tuple[dict[float,numpy.ndarray],dict[float,numpy.ndarray]]]
-     )doc" );
+         :type: list[tuple[dict[float,numpy.ndarray],dict[float,numpy.ndarray]]]
+      )doc" );
 
     m.def( "get_damped_proper_mode_initial_rotational_state",
            py::overload_cast<
@@ -236,93 +236,93 @@ numpy.ndarray
            py::arg( "propagate_undamped" ) = true,
            R"doc(
 
-Function to compute an initial rotational state for which the proper mode of rotation is damped.
+ Function to compute an initial rotational state for which the proper mode of rotation is damped.
 
-Function to compute an initial rotational state for which the proper mode of rotation is damped, using the algorithm
-used by Rambaux et al. (2010) to compute an initial rotational state for Phobos. This algorithm propagates the
-dynamics of the system a number of times, with the settings specified by the user and a specific modification to
-damp the proper mode. Since a number of propagations are performed by this function, it may take some time to run.
-Specifically, the algorithm works as follows:
+ Function to compute an initial rotational state for which the proper mode of rotation is damped, using the algorithm
+ used by Rambaux et al. (2010) to compute an initial rotational state for Phobos. This algorithm propagates the
+ dynamics of the system a number of times, with the settings specified by the user and a specific modification to
+ damp the proper mode. Since a number of propagations are performed by this function, it may take some time to run.
+ Specifically, the algorithm works as follows:
 
-* Introduce a damping torque (see below) to damp the proper mode, with damping time :math:`\tau_{d}`
-* Propagate the dynamics forward in time for a period of :math:`10\tau_{d}`
-* Remove the virtual torque, and propagate the dynamics back to the initial time :math:`t_{0}`
-* Repeat the above for the list of damping times provided by the user
+ * Introduce a damping torque (see below) to damp the proper mode, with damping time :math:`\tau_{d}`
+ * Propagate the dynamics forward in time for a period of :math:`10\tau_{d}`
+ * Remove the virtual torque, and propagate the dynamics back to the initial time :math:`t_{0}`
+ * Repeat the above for the list of damping times provided by the user
 
-The state after the final backwards propagation to :math:`t_{0}` is provided as output by this function, to be
-used as damped initial state. The output from this function also provides the user access to the full state history
-and dependent variable history of the forward and backward propagations, to allow a user to track and validate
-the pgress of the algorithm.
+ The state after the final backwards propagation to :math:`t_{0}` is provided as output by this function, to be
+ used as damped initial state. The output from this function also provides the user access to the full state history
+ and dependent variable history of the forward and backward propagations, to allow a user to track and validate
+ the progress of the algorithm.
 
-The damping torque :math:`\Gamma` is defined as follows:
+ The damping torque :math:`\Gamma` is defined as follows:
 
-.. math::
-   \boldsymbol{\Gamma}= -\frac{1}{\tau_{d}}\mathbf{I}\begin{pmatrix}\omega_{x}\\ \omega_{y}\\ \omega_{x}-\omega_{p} \end{pmatrix}
+ .. math::
+    \boldsymbol{\Gamma}= -\frac{1}{\tau_{d}}\mathbf{I}\begin{pmatrix}\omega_{x}\\ \omega_{y}\\ \omega_{x}-\omega_{p} \end{pmatrix}
 
-where :math:\mathbf{I}` is the body's inertia tensor (in its body-fixed frame), :math:`\tau_{d}` the damping time of the
-current propagation, and :math:`\omega_{x}, \omega_{y}, \omega_{z}` the body's current rotation about its
-body-fixed, x-, y- and z-axes, respectively. The damping torque is implemented to damp out all rotations along
-the body-fixed x- and y-axes, and any deviations from constant rotation with frequency :\omega_{p}: about the body-fixed z-axis.
+ where :math:\mathbf{I}` is the body's inertia tensor (in its body-fixed frame), :math:`\tau_{d}` the damping time of the
+ current propagation, and :math:`\omega_{x}, \omega_{y}, \omega_{z}` the body's current rotation about its
+ body-fixed, x-, y- and z-axes, respectively. The damping torque is implemented to damp out all rotations along
+ the body-fixed x- and y-axes, and any deviations from constant rotation with frequency :\omega_{p}: about the body-fixed z-axis.
 
-.. note:: The mean rotation rate of the body :math:`\omega_{p}` is a user-defined input, and must be tuned to the dynamics of the system.
-
-
-Parameters
-----------
-bodies : SystemOfBodies
-    Set of body objects that defines the environment
-propagator_settings : SingleArcPropagatorSettings
-    Propagator settings for the dynamics of which the initial rotational state is to be damped. These propagator
-    settings must be for rotational dynamics only, or for multi-type rotational dynamics that contains rotational
-    dynamics for a single body (e.g. translational-rotational dynamics for a single body)
-
-body_mean_rotational_rate : float
-    Mean rotational rate :math:`\omega_{p}` to which the damping algorithm will force the body-fixed rotation about its z-axis.
-dissipation_times : list[ float ]
-    List of damping times :math:`\tau_{d}` for which the algorithm is to be run. Note that this list should be organized in ascending order for the algorithm to perform properly
-propagate_undamped : bool, default = True
-    Boolean defining whether the first forward/backward propagation performed by the damping algorithm has damping turned off (damping turned off if True, damping turned on if False).
-    Propagating without any damping before starting the damping algorithm is useful for verification purposes, but not required for the algorithm itself.
-
-Returns
--------
-DampedInitialRotationalStateResults
-    Object that contains the results of the damping algorithm (final damped rotational state, and forward/backward propagation results).
+ .. note:: The mean rotation rate of the body :math:`\omega_{p}` is a user-defined input, and must be tuned to the dynamics of the system.
 
 
+ Parameters
+ ----------
+ bodies : SystemOfBodies
+     Set of body objects that defines the environment
+ propagator_settings : SingleArcPropagatorSettings
+     Propagator settings for the dynamics of which the initial rotational state is to be damped. These propagator
+     settings must be for rotational dynamics only, or for multi-type rotational dynamics that contains rotational
+     dynamics for a single body (e.g. translational-rotational dynamics for a single body)
+
+ body_mean_rotational_rate : float
+     Mean rotational rate :math:`\omega_{p}` to which the damping algorithm will force the body-fixed rotation about its z-axis.
+ dissipation_times : list[ float ]
+     List of damping times :math:`\tau_{d}` for which the algorithm is to be run. Note that this list should be organized in ascending order for the algorithm to perform properly
+ propagate_undamped : bool, default = True
+     Boolean defining whether the first forward/backward propagation performed by the damping algorithm has damping turned off (damping turned off if True, damping turned on if False).
+     Propagating without any damping before starting the damping algorithm is useful for verification purposes, but not required for the algorithm itself.
+
+ Returns
+ -------
+ DampedInitialRotationalStateResults
+     Object that contains the results of the damping algorithm (final damped rotational state, and forward/backward propagation results).
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     m.def( "combine_initial_states",
            &tp::createCombinedInitialState< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "propagator_settings_per_type" ),
            R"doc(
 
-Function to retrieve the initial state for a list of propagator settings.
+ Function to retrieve the initial state for a list of propagator settings.
 
-Function to retrieve the initial state for a list of propagator settings. This way, the initial state for
-different quantities to be propagated (e.g., translational state, rotational state, mass) are retrieved and
-organized in a single container.
-
-
-Parameters
-----------
-propagator_settings_per_type : dict
-    Propagator settings where the type of propagation is reported as key and the respective list of propagator settings as value.
-Returns
--------
-numpy.ndarray
-    Vector of initial states, sorted in order of IntegratedStateType, and then in the order of the vector of SingleArcPropagatorSettings of given type.
+ Function to retrieve the initial state for a list of propagator settings. This way, the initial state for
+ different quantities to be propagated (e.g., translational state, rotational state, mass) are retrieved and
+ organized in a single container.
 
 
+ Parameters
+ ----------
+ propagator_settings_per_type : dict
+     Propagator settings where the type of propagation is reported as key and the respective list of propagator settings as value.
+ Returns
+ -------
+ numpy.ndarray
+     Vector of initial states, sorted in order of IntegratedStateType, and then in the order of the vector of SingleArcPropagatorSettings of given type.
 
 
 
 
-    )doc" );
+
+
+     )doc" );
 
     py::class_< tba::AccelerationModel< Eigen::Vector3d >,
                 std::shared_ptr< tba::AccelerationModel< Eigen::Vector3d > > >(
@@ -334,9 +334,9 @@ numpy.ndarray
                                                    "PropagationTerminationReason",
                                                    R"doc(
 
-        Enumeration of types of termination of propagation.
+         Enumeration of types of termination of propagation.
 
-     )doc" )
+      )doc" )
             .value( "propagation_never_run",
                     tp::PropagationTerminationReason::propagation_never_run )
             .value( "unknown_reason",
@@ -355,38 +355,38 @@ numpy.ndarray
             "PropagationTerminationDetails",
             R"doc(
 
-        Class that provides information on the reason for the
-        termination of the propagation.
+         Class that provides information on the reason for the
+         termination of the propagation.
 
 
 
 
 
 
-     )doc" )
+      )doc" )
             .def_property_readonly(
                     "termination_reason",
                     &tp::PropagationTerminationDetails::getPropagationTerminationReason,
                     R"doc(
 
-        Enum defining the reason the propagation was terminated
+         Enum defining the reason the propagation was terminated
 
 
-        :type: PropagationTerminationReason
-     )doc" )
+         :type: PropagationTerminationReason
+      )doc" )
             .def_property_readonly(
                     "terminated_on_exact_condition",
                     &tp::PropagationTerminationDetails::getTerminationOnExactCondition,
                     R"doc(
 
-        Boolean defining whether the propagation was terminated on an *exact* final condition,
-        or once the propagation went *past* the determined final condition. The choice of behaviour is
-        defined by the termination settings provided as input to the Simulator object. This variable only
-        has a meaningful definition if the ``termination_reason`` has value ``termination_condition_reached``
+         Boolean defining whether the propagation was terminated on an *exact* final condition,
+         or once the propagation went *past* the determined final condition. The choice of behaviour is
+         defined by the termination settings provided as input to the Simulator object. This variable only
+         has a meaningful definition if the ``termination_reason`` has value ``termination_condition_reached``
 
 
-        :type: bool
-     )doc" );
+         :type: bool
+      )doc" );
 
     py::class_< tp::PropagationTerminationDetailsFromHybridCondition,
                 std::shared_ptr< tp::PropagationTerminationDetailsFromHybridCondition >,
@@ -395,29 +395,77 @@ numpy.ndarray
             "PropagationTerminationDetailsFromHybridCondition",
             R"doc(
 
-        Class that provides information on the reason for the termination of the propagation, for hybrid termination conditions
+         Class that provides information on the reason for the termination of the propagation, for hybrid termination conditions
 
 
-        Derived class from :class:`PropagationTerminationDetails` that provides information on the reason for the termination of the propagation,
-        for the case of hybrid termination conditions (defined using the :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`)
-        function
+         Derived class from :class:`PropagationTerminationDetails` that provides information on the reason for the termination of the propagation,
+         for the case of hybrid termination conditions (defined using the :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`)
+         function
 
 
 
 
 
-     )doc" )
+      )doc" )
             .def_property_readonly( "was_condition_met_when_stopping",
                                     &tp::PropagationTerminationDetailsFromHybridCondition::
                                             getWasConditionMetWhenStopping,
                                     R"doc(
 
-        List of booleans defining, per entry in ``termination_settings`` when calling :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`,
-        whether the corresponding entry of the hybrid termination settings was met or not
+         List of booleans defining, per entry in ``termination_settings`` when calling :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`,
+         whether the corresponding entry of the hybrid termination settings was met or not.
 
 
-        :type: list[bool]
-     )doc" );
+         :type: list[bool]
+
+         Examples
+         --------
+
+         Assuming the hybrid termination settings were defined similar to the example in the :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`:
+
+         .. code-block:: python
+
+             # Store termination setting objects in a list
+             termination_settings_list = [
+                 time_termination_settings,
+                 altitude_termination_settings,
+                 cpu_termination_settings,
+             ]
+             # Define string representations for output
+             termination_conditions_repr = [
+                 "Time Termination",
+                 "Altitude Termination",
+                 "CPU Time Termination",
+             ]
+
+             # Create hybrid termination settings
+             termination_settings = propagation_setup.propagator.hybrid_termination(
+                 termination_settings_list, fulfill_single_condition=True
+             )
+
+         The ``was_condition_met_when_stopping`` attribute contains a list of booleans, with the same length as the
+         ``termination_settings_list``. The following code can be used to print if the termination condition was met for each
+         of the termination settings:
+
+         .. code-block:: python
+
+             # perform propagation
+             ...
+
+             # post-process propagation results
+             termination_details = dynamics_simulator.propagation_results.termination_details
+             condition_met_flags = termination_details.was_condition_met_when_stopping
+
+             condition_fulfilled = [
+                 f"{condition:<35}: {met}"
+                 for condition, met in zip(termination_conditions_repr, condition_met_flags)
+             ]
+
+             print("Termination Conditions fulfilled:")
+             print("\n".join(condition_fulfilled))
+
+
+      )doc" );
 
     py::class_< tp::DependentVariablesInterface< TIME_TYPE >,
                 std::shared_ptr< tp::DependentVariablesInterface< TIME_TYPE > > >(
@@ -429,15 +477,15 @@ numpy.ndarray
             "SimulationResults",
             R"doc(
 
-        Base class for objects that store all results of a numerical propagation.
+         Base class for objects that store all results of a numerical propagation.
 
-        Base class for objects that store all results of a numerical propagation. Derived class are implemented for single-, multi- and hybrid-arc propagation of botj dynamics and variational equations
-
-
+         Base class for objects that store all results of a numerical propagation. Derived class are implemented for single-, multi- and hybrid-arc propagation of both dynamics and variational equations
 
 
 
-     )doc" )
+
+
+      )doc" )
             .def_property_readonly(
                     "dependent_variable_interface",
                     &tp::SimulationResults< STATE_SCALAR_TYPE,
@@ -451,38 +499,38 @@ numpy.ndarray
             "SingleArcSimulationResults",
             R"doc(
 
-        Class that stores all the results (including logging data) of a single-arc propagation
+         Class that stores all the results (including logging data) of a single-arc propagation
 
 
 
 
 
 
-     )doc" )
+      )doc" )
             .def_property_readonly(
                     "state_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
                             getEquationsOfMotionNumericalSolution,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Numerical solution of the equations of motion as key-value pairs. The key denotes the epoch. The value contains the
-        numerically calculated state at this epoch. For this function, the states are always converted to so-called
-        'processed' formulations (e.g. Cartesian states for translational dynamics), see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`_
-        for details. For the history of the states that were actually propagated, use the ``unprocessed_state_history``.
+         Numerical solution of the equations of motion as key-value pairs. The key denotes the epoch. The value contains the
+         numerically calculated state at this epoch. For this function, the states are always converted to so-called
+         'processed' formulations (e.g. Cartesian states for translational dynamics), see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`_
+         for details. For the history of the states that were actually propagated, use the ``unprocessed_state_history``.
 
-        .. note:: The propagated state at each epoch contains the state types in the following order: Translational ( **T** ), Rotational ( **R** ), Mass ( **M** ), and Custom ( **C** ).
-                  When propagating two bodies, an example of what the output state would look like is for instance:
-                  [ **T** Body 1, **T** Body 2, **R** Body 1, **R** Body 2, **M** Body 1, **M** Body 2 ] The specifics can be retrieved using the :attr:`state_ids` attribute of this class
+         .. note:: The propagated state at each epoch contains the state types in the following order: Translational ( **T** ), Rotational ( **R** ), Mass ( **M** ), and Custom ( **C** ).
+                   When propagating two bodies, an example of what the output state would look like is for instance:
+                   [ **T** Body 1, **T** Body 2, **R** Body 1, **R** Body 2, **M** Body 1, **M** Body 2 ] The specifics can be retrieved using the :attr:`state_ids` attribute of this class
 
-        .. note:: For propagation of translational dynamics using cowell
-                  propagator, the conventional and propagated
-                  coordinates are identical.
+         .. note:: For propagation of translational dynamics using cowell
+                   propagator, the conventional and propagated
+                   coordinates are identical.
 
 
-        :type: dict[float, numpy.ndarray]
-     )doc" )
+         :type: dict[float, numpy.ndarray]
+      )doc" )
             .def_property_readonly(
                     "state_history_float",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -497,63 +545,63 @@ numpy.ndarray
                             getEquationsOfMotionNumericalSolutionRaw,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Numerical solution of the equations of motion as key-value pairs, without any processing applied. The key denotes the epoch. The value contains the
-        numerically calculated state at this epoch. This attribute contains the states of the propagated bodies expressed in the
-        "raw" form in which the propagation took place. For instance, when using a Gauss-Kepler propagation scheme, this
-        attribute will contain the numerically propagated Keplerian elements at each time epoch
+         Numerical solution of the equations of motion as key-value pairs, without any processing applied. The key denotes the epoch. The value contains the
+         numerically calculated state at this epoch. This attribute contains the states of the propagated bodies expressed in the
+         "raw" form in which the propagation took place. For instance, when using a Gauss-Kepler propagation scheme, this
+         attribute will contain the numerically propagated Keplerian elements at each time epoch
 
 
-        :type: dict[float, numpy.ndarray]
-     )doc" )
+         :type: dict[float, numpy.ndarray]
+      )doc" )
             .def_property_readonly(
                     "dependent_variable_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getDependentVariableHistory,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Dependent variables computed during the propagation as key-value pairs.
-        The vector of all dependent variables concatenated into a single vector as value, with the epoch as key.
-        They order of the concatenated dependent variables in a single value is provided by the ``dependent_variable_ids`` attribute of this object.
+         Dependent variables computed during the propagation as key-value pairs.
+         The vector of all dependent variables concatenated into a single vector as value, with the epoch as key.
+         They order of the concatenated dependent variables in a single value is provided by the ``dependent_variable_ids`` attribute of this object.
 
 
-        :type: dict[float, numpy.ndarray]
-     )doc" )
+         :type: dict[float, numpy.ndarray]
+      )doc" )
             .def_property_readonly(
                     "cumulative_computation_time_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
                             getCumulativeComputationTimeHistory,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        History of cumulative computation time in seconds needed during the propagation as key-value
-        pairs. At each epoch (key) the computation time (value) in seconds is the total computation time
-        used up to and including that time step. This includes the total time up to and including the current time step,
-        since the beginning of the (single-arc) propagation.
+         History of cumulative computation time in seconds needed during the propagation as key-value
+         pairs. At each epoch (key) the computation time (value) in seconds is the total computation time
+         used up to and including that time step. This includes the total time up to and including the current time step,
+         since the beginning of the (single-arc) propagation.
 
 
-        :type: dict[float, float]
-     )doc" )
+         :type: dict[float, float]
+      )doc" )
             .def_property_readonly(
                     "cumulative_computation_time_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
                             getCumulativeComputationTimeHistory,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        History of cumulative computation time in seconds needed during the propagation as key-value
-        pairs. At each epoch (key) the computation time (value) in seconds is the total computation time
-        used up to and including that time step. This includes the total time up to and including the current time step,
-        since the beginning of the (single-arc) propagation.
+         History of cumulative computation time in seconds needed during the propagation as key-value
+         pairs. At each epoch (key) the computation time (value) in seconds is the total computation time
+         used up to and including that time step. This includes the total time up to and including the current time step,
+         since the beginning of the (single-arc) propagation.
 
 
-        :type: dict[float, float]
-     )doc" )
+         :type: dict[float, float]
+      )doc" )
             .def_property_readonly(
                     "cumulative_number_of_function_evaluations_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -575,42 +623,42 @@ numpy.ndarray
                                                      TIME_TYPE >::getPropagationTerminationReason,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Object describing the details of the event that triggered the termination of the last propagation.
+         Object describing the details of the event that triggered the termination of the last propagation.
 
 
-        :type: PropagationTerminationDetails
-     )doc" )
+         :type: PropagationTerminationDetails
+      )doc" )
             .def_property_readonly(
                     "integration_completed_successfully",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::integrationCompletedSuccessfully,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Boolean defining whether the last propagation was finished
-        successfully, as defined by the termination conditions, or if
-        it was terminated prematurely (for instance due to an
-        exception, or an Inf/NaN state entry being detected).
+         Boolean defining whether the last propagation was finished
+         successfully, as defined by the termination conditions, or if
+         it was terminated prematurely (for instance due to an
+         exception, or an Inf/NaN state entry being detected).
 
 
-        :type: bool
-     )doc" )
+         :type: bool
+      )doc" )
             .def_property_readonly(
                     "dependent_variable_ids",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getDependentVariableId,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Key-value container with the starting entry of the dependent variables saved (key), along with associated ID (value).
+         Key-value container with the starting entry of the dependent variables saved (key), along with associated ID (value).
 
 
-        :type: dict[[int,int], str]
-     )doc" )
+         :type: dict[[int,int], str]
+      )doc" )
             .def_property_readonly(
                     "ordered_dependent_variable_settings",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -627,26 +675,26 @@ numpy.ndarray
                                                      TIME_TYPE >::getProcessedStateIds,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Key-value container with the starting entry of the states (key), along with associated ID (value).
+         Key-value container with the starting entry of the states (key), along with associated ID (value).
 
 
-        :type: dict[[int,int] str]
-     )doc" )
+         :type: dict[[int,int] str]
+      )doc" )
             .def_property_readonly(
                     "propagated_state_ids",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getPropagatedStateIds,
                     R"doc(
 
-        **read-only**
+         **read-only**
 
-        Key-value container with the starting entry of the states (key), along with associated ID (value).
+         Key-value container with the starting entry of the states (key), along with associated ID (value).
 
 
-        :type: dict[[int,int] str]
-     )doc" )
+         :type: dict[[int,int] str]
+      )doc" )
             .def_property_readonly(
                     "initial_and_final_times",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
