@@ -8,12 +8,12 @@ import math
 import numpy as np
 import pandas as pd
 
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, TYPE_CHECKING
 import datetime
 
 from tudatpy import constants
-from tudatpy.numerical_simulation import environment_setup
 from tudatpy.numerical_simulation.environment_setup import ephemeris
+from tudatpy.numerical_simulation.environment_setup import BodyListSettings
 
 import re
 
@@ -865,7 +865,7 @@ class HorizonsQuery:
 
         table = {x[0]: x[1:7] for x in vector}
 
-        return environment_setup.ephemeris.tabulated(
+        return ephemeris.tabulated(
             body_state_history=table,
             frame_origin=frame_origin,
             frame_orientation=frame_orientation,
@@ -1122,7 +1122,7 @@ class HorizonsBatch:
 
     def add_batch_ephemerides(
         self,
-        body_settings: environment_setup.BodyListSettings,
+        body_settings: BodyListSettings,
         frame_origin: str,
         frame_orientation: str = "ECLIPJ2000",
         aberations: str = "geometric",

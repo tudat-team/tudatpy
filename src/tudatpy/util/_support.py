@@ -1,10 +1,14 @@
 import numpy as np
 from tudatpy.math import interpolators
 from tudatpy import numerical_simulation
-from tudatpy.numerical_simulation import propagation_setup
-from tudatpy.numerical_simulation.propagation_setup.dependent_variable import SingleDependentVariableSaveSettings, get_dependent_variable_id
+from tudatpy.numerical_simulation.propagation_setup import propagator
+from tudatpy.numerical_simulation.propagation_setup.dependent_variable import (
+    SingleDependentVariableSaveSettings,
+    get_dependent_variable_id,
+)
 import os
 from typing import List, Dict, Union
+
 
 def result2array(result: Dict[float, np.array]):
     """Initial prototype function to convert dict result from DynamicsSimulator
@@ -26,7 +30,7 @@ def result2array(result: Dict[float, np.array]):
     `result2array` is a utility function to convert the above into the
     more conventional :class:`numpy.ndarray` as illustrated by:
 
-    .. code-block:: python 
+    .. code-block:: python
 
         states_array = np.array([
             [t[0], pos_x[0], pos_y[0], pos_z[0], vel_x[0], vel_y[0], vel_z[0]],
@@ -63,7 +67,12 @@ def result2array(result: Dict[float, np.array]):
     # Stack horizontally and return.
     return np.hstack((time_array, independent_array))
 
-def compare_results(baseline_results: Dict[float, np.array], new_results: Dict[float, np.array], difference_epochs: List[float]):
+
+def compare_results(
+    baseline_results: Dict[float, np.array],
+    new_results: Dict[float, np.array],
+    difference_epochs: List[float],
+):
     """Compare the results of a baseline simulation with the results of a new different simulation.
 
     This uses a 8th-order Lagrange interpolator to compute the difference in state of the two simulations at specified epochs.
@@ -102,21 +111,34 @@ def compare_results(baseline_results: Dict[float, np.array], new_results: Dict[f
         simulations_difference = util.compare_results(simulation_baseline, simulation_faster, compare_times)
     """
     # Setup an 8th-order Lagrange interpolator
-    interpolator_settings = interpolators.lagrange_interpolation(8, boundary_interpolation=interpolators.use_boundary_value)
+    interpolator_settings = interpolators.lagrange_interpolation(
+        8, boundary_interpolation=interpolators.use_boundary_value
+    )
 
     # Setup the interpolator for the baseline and the new simulations
-    baseline_results_interpolator = interpolators.create_one_dimensional_vector_interpolator(baseline_results, interpolator_settings)
-    new_results_interpolator = interpolators.create_one_dimensional_vector_interpolator(new_results, interpolator_settings)
+    baseline_results_interpolator = (
+        interpolators.create_one_dimensional_vector_interpolator(
+            baseline_results, interpolator_settings
+        )
+    )
+    new_results_interpolator = (
+        interpolators.create_one_dimensional_vector_interpolator(
+            new_results, interpolator_settings
+        )
+    )
 
     # Compute the different between the baseline and the new results
     results_comparison = {
-        epoch: new_results_interpolator.interpolate(epoch) - baseline_results_interpolator.interpolate(epoch)
-        for epoch in difference_epochs }
+        epoch: new_results_interpolator.interpolate(epoch)
+        - baseline_results_interpolator.interpolate(epoch)
+        for epoch in difference_epochs
+    }
 
     # Return the difference between the results
     return results_comparison
 
-class redirect_std():
+
+class redirect_std:
     """Redirect any print that is sent by a noisy function by encapsulating it with this class.
 
     The print will successfully be redirected even if they are sent by a C++ function (or from other language).
@@ -144,16 +166,22 @@ class redirect_std():
         with util.redirect_std(redirect_file_path="C:/log/single_arc_log.txt"):
             simulation_baseline = SingleArcSimulator(...)
     """
+
     # Class adapted from https://stackoverflow.com/q/11130156/11356694
-    def __init__(self, redirect_file_path:Union[None,str]=None, redirect_out: bool=True, redirect_err: bool=True):
+    def __init__(
+        self,
+        redirect_file_path: Union[None, str] = None,
+        redirect_out: bool = True,
+        redirect_err: bool = True,
+    ):
         # Create the file in Dev Null to dispose of the unwanted prints
         if redirect_file_path is None:
-            self.null_files = os.open(os.devnull,os.O_RDWR)
+            self.null_files = os.open(os.devnull, os.O_RDWR)
         # Create the file at the specified path to redirect the print messages
         elif redirect_out or redirect_err:
             f = open(redirect_file_path, "w")
             f.close()
-            self.null_files = os.open(redirect_file_path,os.O_RDWR)
+            self.null_files = os.open(redirect_file_path, os.O_RDWR)
         # Save the streams of the real STD OUT and STD ERR
         self.std_streams = [os.dup(1), os.dup(2)]
         # Save what STD method should be muted
@@ -162,19 +190,22 @@ class redirect_std():
     def __enter__(self):
         # Link any print trough STD OUT to the Null pointer
         if self.redirect_out:
-            os.dup2(self.null_files,1)
+            os.dup2(self.null_files, 1)
         # Link any print trough STD ERR to the Null pointer
         if self.redirect_err:
-            os.dup2(self.null_files,2)
+            os.dup2(self.null_files, 2)
 
     def __exit__(self, *_):
         # Link STD OUT and ERR back to their real stream
-        os.dup2(self.std_streams[0],1), os.dup2(self.std_streams[1],2)
+        os.dup2(self.std_streams[0], 1), os.dup2(self.std_streams[1], 2)
         # Close all links
         for link in [self.null_files] + self.std_streams:
             os.close(link)
 
-def pareto_optimums(points: list, operator:Union[None,List[Union[min,max]]]=None):
+
+def pareto_optimums(
+    points: list, operator: Union[None, List[Union[min, max]]] = None
+):
     """Compute Pareto optimums from a set of points.
 
     These points are all individually optimums, meaning that to be better in one dimension, they have to be worse in another one.
@@ -195,7 +226,7 @@ def pareto_optimums(points: list, operator:Union[None,List[Union[min,max]]]=None
     Examples
     --------
     The following code defines a set of equispaced points in 3 dimensions, with spacing of 0.5, ranging from -0.5 to 1.
-    
+
     Wether each of these points is a Pareto optimum is then computed, taking into account that an optimum is a minimum for x and y, and a maximum for z.
 
     Then, a 3D plot is made, showing the Pareto optimum points in green, and the other ones in red.
@@ -231,16 +262,24 @@ def pareto_optimums(points: list, operator:Union[None,List[Union[min,max]]]=None
         sign = np.ones(points.shape[1])
     else:
         if len(operator) != points.shape[1]:
-            raise IndexError("The length of the sign argument does not correspond with the number of points.")
+            raise IndexError(
+                "The length of the sign argument does not correspond with the number of points."
+            )
         sign = np.asarray([1 if o == min else -1 for o in operator])
-    points = np.asarray([p*sign for p in points])
+    points = np.asarray([p * sign for p in points])
     pareto_optimal = np.ones(points.shape[0], dtype=bool)
     for i, c in enumerate(points):
         if pareto_optimal[i]:
-            pareto_optimal[pareto_optimal] = np.any(points[pareto_optimal]<=c, axis=1)
+            pareto_optimal[pareto_optimal] = np.any(
+                points[pareto_optimal] <= c, axis=1
+            )
     return pareto_optimal
 
-def split_history(state_history: Dict[float, np.array], propagator_settings: propagation_setup.propagator.PropagatorSettings):
+
+def split_history(
+    state_history: Dict[float, np.array],
+    propagator_settings: propagator.PropagatorSettings,
+):
     """Split the state history into a distinct state histories for each body.
 
     Creates a dictionnary of state histories based on the unified `state_history`
@@ -260,14 +299,18 @@ def split_history(state_history: Dict[float, np.array], propagator_settings: pro
     -----------
     state_history_book : Dict[str,[Dict[float, numpy.ndarray]]]
         Dictionnary containing the name of the propagated body as key, and the state history as value.
-    """    
+    """
     # Get the propagated state types and names of the propagated bodies from the integrator settings.
-    integrated_type_and_body_list = numerical_simulation.get_integrated_type_and_body_list(propagator_settings)
+    integrated_type_and_body_list = (
+        numerical_simulation.get_integrated_type_and_body_list(
+            propagator_settings
+        )
+    )
 
     # Extract the states and epochs from the state history.
     states_list = np.asarray(list(state_history.values()))
     epochs = list(state_history.keys())
-    
+
     # Loop trough the state types and bodies name to save them beforehand.
     n_bodies, body_names = None, None
     propagated_states_sizes = []
@@ -276,11 +319,15 @@ def split_history(state_history: Dict[float, np.array], propagator_settings: pro
             n_bodies = len(body_list)
             body_names = [body_list[i][0] for i in range(n_bodies)]
         # Get the state size for the current state type.
-        state_size = numerical_simulation.get_single_integration_size(state_type)
+        state_size = numerical_simulation.get_single_integration_size(
+            state_type
+        )
         propagated_states_sizes.append(state_size)
 
     # Create the empty state history book.
-    state_history_book = {body_name: {epoch: [] for epoch in epochs} for body_name in body_names}
+    state_history_book = {
+        body_name: {epoch: [] for epoch in epochs} for body_name in body_names
+    }
 
     # Loop through the epochs and states to fill the state history book.
     for epoch, state in zip(epochs, states_list):
@@ -290,14 +337,17 @@ def split_history(state_history: Dict[float, np.array], propagator_settings: pro
             # Loop trough the propagated bodies names.
             for body_name in body_names:
                 # Add the section of the state related to the current state type and body to the state history book.
-                state_history_book[body_name][epoch].extend(state[state_idx:state_idx+propagated_state_size])
+                state_history_book[body_name][epoch].extend(
+                    state[state_idx : state_idx + propagated_state_size]
+                )
                 # Update the state index cursor.
                 state_idx += propagated_state_size
 
     # Return the state history book.
     return state_history_book
 
-def vector2matrix(flat_matrix: np.ndarray) :
+
+def vector2matrix(flat_matrix: np.ndarray):
     """Convert a flattened matrix into a matrix.
 
     Following Tudat standards, a rotation matrix is returned as a nine-entry vector in the dependent variable output,
@@ -314,4 +364,4 @@ def vector2matrix(flat_matrix: np.ndarray) :
     rotation_matrix: numpy.ndarray
         Rotation matrix (3x3 orthogonal matrix).
     """
-    return flat_matrix.reshape(3,3)
+    return flat_matrix.reshape(3, 3)
