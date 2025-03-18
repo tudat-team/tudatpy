@@ -27,78 +27,62 @@ namespace tba = tudat::basic_astrodynamics;
 namespace tmg = tudat::mission_geometry;
 namespace tsi = tudat::spice_interface;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
-    namespace astro {
-        namespace element_conversion {
+namespace astro
+{
+namespace element_conversion
+{
 
-            PYBIND11_MODULE(expose_element_conversion, m) {
-                py::enum_<toec::KeplerianElementIndices>(
-                    m, "KeplerianElementIndices")
-                    .value("semi_major_axis_index",
-                           toec::KeplerianElementIndices::semiMajorAxisIndex)
-                    .value("eccentricity_index",
-                           toec::KeplerianElementIndices::eccentricityIndex)
-                    .value("inclination_index",
-                           toec::KeplerianElementIndices::inclinationIndex)
-                    .value(
-                        "argument_of_periapsis_index",
-                        toec::KeplerianElementIndices::argumentOfPeriapsisIndex)
-                    .value("longitude_of_ascending_node_index",
-                           toec::KeplerianElementIndices::
-                               longitudeOfAscendingNodeIndex)
-                    .value("true_anomaly_index",
-                           toec::KeplerianElementIndices::trueAnomalyIndex)
-                    .value("semi_latus_rectum_index",
-                           toec::KeplerianElementIndices::semiLatusRectumIndex)
-                    .export_values();
+PYBIND11_MODULE( expose_element_conversion, m )
+{
+    py::enum_< toec::KeplerianElementIndices >( m, "KeplerianElementIndices" )
+            .value( "semi_major_axis_index", toec::KeplerianElementIndices::semiMajorAxisIndex )
+            .value( "eccentricity_index", toec::KeplerianElementIndices::eccentricityIndex )
+            .value( "inclination_index", toec::KeplerianElementIndices::inclinationIndex )
+            .value( "argument_of_periapsis_index",
+                    toec::KeplerianElementIndices::argumentOfPeriapsisIndex )
+            .value( "longitude_of_ascending_node_index",
+                    toec::KeplerianElementIndices::longitudeOfAscendingNodeIndex )
+            .value( "true_anomaly_index", toec::KeplerianElementIndices::trueAnomalyIndex )
+            .value( "semi_latus_rectum_index", toec::KeplerianElementIndices::semiLatusRectumIndex )
+            .export_values( );
 
-                py::enum_<toec::SphericalOrbitalStateElementIndices>(
-                    m, "SphericalOrbitalStateElementIndices")
-                    .value(
-                        "radius_index",
-                        toec::SphericalOrbitalStateElementIndices::radiusIndex)
-                    .value("latitude_index",
-                           toec::SphericalOrbitalStateElementIndices::
-                               latitudeIndex)
-                    .value("longitude_index",
-                           toec::SphericalOrbitalStateElementIndices::
-                               longitudeIndex)
-                    .value(
-                        "speed_index",
-                        toec::SphericalOrbitalStateElementIndices::speedIndex)
-                    .value("flight_path_index",
-                           toec::SphericalOrbitalStateElementIndices::
-                               flightPathIndex)
-                    .value("heading_angle_index",
-                           toec::SphericalOrbitalStateElementIndices::
-                               headingAngleIndex)
-                    .export_values();
+    py::enum_< toec::SphericalOrbitalStateElementIndices >( m,
+                                                            "SphericalOrbitalStateElementIndices" )
+            .value( "radius_index", toec::SphericalOrbitalStateElementIndices::radiusIndex )
+            .value( "latitude_index", toec::SphericalOrbitalStateElementIndices::latitudeIndex )
+            .value( "longitude_index", toec::SphericalOrbitalStateElementIndices::longitudeIndex )
+            .value( "speed_index", toec::SphericalOrbitalStateElementIndices::speedIndex )
+            .value( "flight_path_index",
+                    toec::SphericalOrbitalStateElementIndices::flightPathIndex )
+            .value( "heading_angle_index",
+                    toec::SphericalOrbitalStateElementIndices::headingAngleIndex )
+            .export_values( );
 
-                py::enum_<tcc::PositionElementTypes>(m, "PositionElementTypes")
-                    .value("cartesian_position_type",
-                           tcc::PositionElementTypes::cartesian_position)
-                    .value("spherical_position_type",
-                           tcc::PositionElementTypes::spherical_position)
-                    .value("geodetic_position_type",
-                           tcc::PositionElementTypes::geodetic_position)
-                    .export_values();
-                /*!
-                 **************   KEPLER ELEMENTS  ******************
-                 */
-                m.def("convert_position_elements",
-                      &tcc::convertPositionElements,
-                      py::arg("original_elements"),
-                      py::arg("original_element_type"),
-                      py::arg("new_element_type"), py::arg("shape_model"),
-                      py::arg("tolerance"), R"doc(No documentation found.)doc");
+    py::enum_< tcc::PositionElementTypes >( m, "PositionElementTypes" )
+            .value( "cartesian_position_type", tcc::PositionElementTypes::cartesian_position )
+            .value( "spherical_position_type", tcc::PositionElementTypes::spherical_position )
+            .value( "geodetic_position_type", tcc::PositionElementTypes::geodetic_position )
+            .export_values( );
+    /*!
+     **************   KEPLER ELEMENTS  ******************
+     */
+    m.def( "convert_position_elements",
+           &tcc::convertPositionElements,
+           py::arg( "original_elements" ),
+           py::arg( "original_element_type" ),
+           py::arg( "new_element_type" ),
+           py::arg( "shape_model" ),
+           py::arg( "tolerance" ),
+           R"doc(No documentation found.)doc" );
 
-
-                m.def("cartesian_to_keplerian",
-                      &toec::convertCartesianToKeplerianElements<double>,
-                      py::arg("cartesian_elements"),
-                      py::arg("gravitational_parameter"),
-                      R"doc(
+    m.def( "cartesian_to_keplerian",
+           &toec::convertCartesianToKeplerianElements< double >,
+           py::arg( "cartesian_elements" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert Cartesian to Keplerian elements.
 
@@ -122,14 +106,14 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("keplerian_to_cartesian",
-                      py::overload_cast<const Eigen::Vector6d&, double>(
-                          &toec::convertKeplerianToCartesianElements<double>),
-                      py::arg("keplerian_elements"),
-                      py::arg("gravitational_parameter"),
-                      R"doc(
+    m.def( "keplerian_to_cartesian",
+           py::overload_cast< const Eigen::Vector6d&, double >(
+                   &toec::convertKeplerianToCartesianElements< double > ),
+           py::arg( "keplerian_elements" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert Keplerian elements to Cartesian.
 
@@ -153,18 +137,19 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("keplerian_to_cartesian_elementwise",
-                      py::overload_cast<double, double, double, double, double,
-                                        double, double>(
-                          &toec::convertKeplerianToCartesianElements<double>),
-                      py::arg("semi_major_axis"), py::arg("eccentricity"),
-                      py::arg("inclination"), py::arg("argument_of_periapsis"),
-                      py::arg("longitude_of_ascending_node"),
-                      py::arg("true_anomaly"),
-                      py::arg("gravitational_parameter"),
-                      R"doc(
+    m.def( "keplerian_to_cartesian_elementwise",
+           py::overload_cast< double, double, double, double, double, double, double >(
+                   &toec::convertKeplerianToCartesianElements< double > ),
+           py::arg( "semi_major_axis" ),
+           py::arg( "eccentricity" ),
+           py::arg( "inclination" ),
+           py::arg( "argument_of_periapsis" ),
+           py::arg( "longitude_of_ascending_node" ),
+           py::arg( "true_anomaly" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert Keplerian elements to Cartesian, with elementwise input.
 
@@ -197,15 +182,13 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "cartesian_to_usm_em",
-                    &toec::
-                        convertCartesianToUnifiedStateModelExponentialMapElements,
-                    py::arg("cartesian_elements"),
-                    py::arg("gravitational_parameter"),
-                    R"doc(
+    m.def( "cartesian_to_usm_em",
+           &toec::convertCartesianToUnifiedStateModelExponentialMapElements,
+           py::arg( "cartesian_elements" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert Cartesian elements to Unified State Model (USM) elements with Exponential map for rotational coordinates.
 
@@ -228,15 +211,13 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "cartesian_to_usm_7",
-                    &toec::
-                        convertCartesianToUnifiedStateModelQuaternionsElements,
-                    py::arg("cartesian_elements"),
-                    py::arg("gravitational_parameter"),
-                    R"doc(
+    m.def( "cartesian_to_usm_7",
+           &toec::convertCartesianToUnifiedStateModelQuaternionsElements,
+           py::arg( "cartesian_elements" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert Cartesian elements to Unified State Model (USM) elements with quaternion for rotational coordinates.
 
@@ -259,15 +240,13 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "cartesian_to_usm_6",
-                    &toec::
-                        convertCartesianToUnifiedStateModelModifiedRodriguesParameterElements,
-                    py::arg("cartesian_elements"),
-                    py::arg("gravitational_parameter"),
-                    R"doc(
+    m.def( "cartesian_to_usm_6",
+           &toec::convertCartesianToUnifiedStateModelModifiedRodriguesParameterElements,
+           py::arg( "cartesian_elements" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert Cartesian elements to Unified State Model (USM) elements with Modified Rodrigues parameters map for rotational coordinates.
 
@@ -290,15 +269,13 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "usm_em_to_cartesian",
-                    &toec::
-                        convertUnifiedStateModelExponentialMapToCartesianElements,
-                    py::arg("usm_em_elements"),
-                    py::arg("gravitational_parameter"),
-                    R"doc(
+    m.def( "usm_em_to_cartesian",
+           &toec::convertUnifiedStateModelExponentialMapToCartesianElements,
+           py::arg( "usm_em_elements" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert Unified State Model (USM) elements with Exponential map for rotational coordinates to Cartesian elements.
 
@@ -321,16 +298,14 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "usm_7_to_cartesian",
-                    &toec::
-                        convertUnifiedStateModelQuaternionsToCartesianElements,
-                    py::arg("usm_7_elements"),
-                    py::arg("gravitational_parameter"),
-                    py::arg("normalize_quaternion") = true,
-                    R"doc(
+    m.def( "usm_7_to_cartesian",
+           &toec::convertUnifiedStateModelQuaternionsToCartesianElements,
+           py::arg( "usm_7_elements" ),
+           py::arg( "gravitational_parameter" ),
+           py::arg( "normalize_quaternion" ) = true,
+           R"doc(
 
 Convert Unified State Model (USM) elements with quaternion for rotational coordinates to Cartesian elements.
 
@@ -353,15 +328,13 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "usm_6_to_cartesian",
-                    &toec::
-                        convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements,
-                    py::arg("usm_6_elements"),
-                    py::arg("gravitational_parameter"),
-                    R"doc(
+    m.def( "usm_6_to_cartesian",
+           &toec::convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements,
+           py::arg( "usm_6_elements" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert Unified State Model (USM) elements with Modified Rodrigues parameters for rotational coordinates to Cartesian elements.
 
@@ -384,14 +357,14 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("keplerian_to_cartesian",
-                      py::overload_cast<const Eigen::Vector6d&, double>(
-                          &toec::convertKeplerianToCartesianElements<double>),
-                      py::arg("keplerian_elements"),
-                      py::arg("gravitational_parameter"),
-                      R"doc(
+    m.def( "keplerian_to_cartesian",
+           py::overload_cast< const Eigen::Vector6d&, double >(
+                   &toec::convertKeplerianToCartesianElements< double > ),
+           py::arg( "keplerian_elements" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert Keplerian elements to Cartesian.
 
@@ -415,15 +388,16 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("mean_to_true_anomaly",
-                      &toec::convertMeanAnomalyToTrueAnomaly<double>,
-                      py::arg("eccentricity"), py::arg("mean_anomaly"),
-                      py::arg("use_default_initial_guess") = true,
-                      py::arg("non_default_initial_guess") = TUDAT_NAN,
-                      py::arg("root_finder") = nullptr,
-                      R"doc(
+    m.def( "mean_to_true_anomaly",
+           &toec::convertMeanAnomalyToTrueAnomaly< double >,
+           py::arg( "eccentricity" ),
+           py::arg( "mean_anomaly" ),
+           py::arg( "use_default_initial_guess" ) = true,
+           py::arg( "non_default_initial_guess" ) = TUDAT_NAN,
+           py::arg( "root_finder" ) = nullptr,
+           R"doc(
 
 Convert mean to true anomaly.
 
@@ -453,12 +427,13 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("true_to_mean_anomaly",
-                      &toec::convertTrueAnomalyToMeanAnomaly<double>,
-                      py::arg("eccentricity"), py::arg("true_anomaly"),
-                      R"doc(
+    m.def( "true_to_mean_anomaly",
+           &toec::convertTrueAnomalyToMeanAnomaly< double >,
+           py::arg( "eccentricity" ),
+           py::arg( "true_anomaly" ),
+           R"doc(
 
 Convert true to mean anomaly.
 
@@ -483,12 +458,13 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("true_to_eccentric_anomaly",
-                      &toec::convertTrueAnomalyToEccentricAnomaly<double>,
-                      py::arg("true_anomaly"), py::arg("eccentricity"),
-                      R"doc(
+    m.def( "true_to_eccentric_anomaly",
+           &toec::convertTrueAnomalyToEccentricAnomaly< double >,
+           py::arg( "true_anomaly" ),
+           py::arg( "eccentricity" ),
+           R"doc(
 
 Convert true to eccentric anomaly.
 
@@ -509,12 +485,13 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("eccentric_to_true_anomaly",
-                      &toec::convertEccentricAnomalyToTrueAnomaly<double>,
-                      py::arg("eccentric_anomaly"), py::arg("eccentricity"),
-                      R"doc(
+    m.def( "eccentric_to_true_anomaly",
+           &toec::convertEccentricAnomalyToTrueAnomaly< double >,
+           py::arg( "eccentric_anomaly" ),
+           py::arg( "eccentricity" ),
+           R"doc(
 
 Convert eccentric to true anomaly.
 
@@ -535,13 +512,13 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-
-                m.def("eccentric_to_mean_anomaly",
-                      &toec::convertEccentricAnomalyToMeanAnomaly<double>,
-                      py::arg("eccentric_anomaly"), py::arg("eccentricity"),
-                      R"doc(
+    m.def( "eccentric_to_mean_anomaly",
+           &toec::convertEccentricAnomalyToMeanAnomaly< double >,
+           py::arg( "eccentric_anomaly" ),
+           py::arg( "eccentricity" ),
+           R"doc(
 
 Convert eccentric to mean anomaly.
 
@@ -562,16 +539,16 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-
-                m.def("mean_to_eccentric_anomaly",
-                      &toec::convertMeanAnomalyToEccentricAnomaly<double>,
-                      py::arg("eccentricity"), py::arg("mean_anomaly"),
-                      py::arg("use_default_initial_guess") = true,
-                      py::arg("non_default_initial_guess") = TUDAT_NAN,
-                      py::arg("root_finder") = nullptr,
-                      R"doc(
+    m.def( "mean_to_eccentric_anomaly",
+           &toec::convertMeanAnomalyToEccentricAnomaly< double >,
+           py::arg( "eccentricity" ),
+           py::arg( "mean_anomaly" ),
+           py::arg( "use_default_initial_guess" ) = true,
+           py::arg( "non_default_initial_guess" ) = TUDAT_NAN,
+           py::arg( "root_finder" ) = nullptr,
+           R"doc(
 
 Convert mean to eccentric anomaly.
 
@@ -598,15 +575,14 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-
-                m.def("elapsed_time_to_delta_mean_anomaly",
-                      &toec::convertElapsedTimeToMeanAnomalyChange<double>,
-                      py::arg("elapsed_time"),
-                      py::arg("gravitational_parameter"),
-                      py::arg("semi_major_axis"),
-                      R"doc(
+    m.def( "elapsed_time_to_delta_mean_anomaly",
+           &toec::convertElapsedTimeToMeanAnomalyChange< double >,
+           py::arg( "elapsed_time" ),
+           py::arg( "gravitational_parameter" ),
+           py::arg( "semi_major_axis" ),
+           R"doc(
 
 Convert elapsed time to the corresponding change in mean anomaly along a Keplerian orbit.
 
@@ -629,14 +605,14 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("delta_mean_anomaly_to_elapsed_time",
-                      &toec::convertMeanAnomalyChangeToElapsedTime<double>,
-                      py::arg("mean_anomaly_change"),
-                      py::arg("gravitational_parameter"),
-                      py::arg("semi_major_axis"),
-                      R"doc(
+    m.def( "delta_mean_anomaly_to_elapsed_time",
+           &toec::convertMeanAnomalyChangeToElapsedTime< double >,
+           py::arg( "mean_anomaly_change" ),
+           py::arg( "gravitational_parameter" ),
+           py::arg( "semi_major_axis" ),
+           R"doc(
 
 Convert change in mean anomaly along a Keplerian orbit to the corresponding elapsed time.
 
@@ -659,13 +635,13 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("mean_motion_to_semi_major_axis",
-                      &toec::convertEllipticalMeanMotionToSemiMajorAxis<double>,
-                      py::arg("mean_motion"),
-                      py::arg("gravitational_parameter"),
-                      R"doc(
+    m.def( "mean_motion_to_semi_major_axis",
+           &toec::convertEllipticalMeanMotionToSemiMajorAxis< double >,
+           py::arg( "mean_motion" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert mean motion to corresponding semi-major axis (in a Keplerian orbit).
 
@@ -686,13 +662,13 @@ float
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("semi_major_axis_to_mean_motion",
-                      &toec::convertSemiMajorAxisToEllipticalMeanMotion<double>,
-                      py::arg("semi_major_axis"),
-                      py::arg("gravitational_parameter"),
-                      R"doc(
+    m.def( "semi_major_axis_to_mean_motion",
+           &toec::convertSemiMajorAxisToEllipticalMeanMotion< double >,
+           py::arg( "semi_major_axis" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert semi-major axis to corresponding mean motion (along a Keplerian orbit).
 
@@ -713,21 +689,19 @@ float
 
 
 
-    )doc");
+    )doc" );
 
+    /*!
+     **************   MODIFIED EQUIONOCTIAL ELEMENTS
+     *******************
+     */
 
-                /*!
-                 **************   MODIFIED EQUIONOCTIAL ELEMENTS
-                 *******************
-                 */
-
-                m.def("keplerian_to_mee_manual_singularity",
-                      py::overload_cast<const Eigen::Vector6d&, const bool>(
-                          &toec::convertKeplerianToModifiedEquinoctialElements<
-                              double>),
-                      py::arg("keplerian_elements"),
-                      py::arg("singularity_at_zero_inclination"),
-                      R"doc(
+    m.def( "keplerian_to_mee_manual_singularity",
+           py::overload_cast< const Eigen::Vector6d&, const bool >(
+                   &toec::convertKeplerianToModifiedEquinoctialElements< double > ),
+           py::arg( "keplerian_elements" ),
+           py::arg( "singularity_at_zero_inclination" ),
+           R"doc(
 
 Convert Keplerian to Modified equinoctial elements.
 
@@ -753,14 +727,13 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("keplerian_to_mee",
-                      py::overload_cast<const Eigen::Vector6d&>(
-                          &toec::convertKeplerianToModifiedEquinoctialElements<
-                              double>),
-                      py::arg("keplerian_elements"),
-                      R"doc(
+    m.def( "keplerian_to_mee",
+           py::overload_cast< const Eigen::Vector6d& >(
+                   &toec::convertKeplerianToModifiedEquinoctialElements< double > ),
+           py::arg( "keplerian_elements" ),
+           R"doc(
 
 Convert Keplerian to Modified equinoctial elements.
 
@@ -784,13 +757,12 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("flip_mee_singularity",
-                      py::overload_cast<const Eigen::Vector6d&>(
-                          &tmg::isOrbitRetrograde),
-                      py::arg("keplerian_elements"),
-                      R"doc(
+    m.def( "flip_mee_singularity",
+           py::overload_cast< const Eigen::Vector6d& >( &tmg::isOrbitRetrograde ),
+           py::arg( "keplerian_elements" ),
+           R"doc(
 
 Function to determine 'optimal' location of the singularity-flipping modified equinoctial element.
 
@@ -812,14 +784,13 @@ bool
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("mee_to_keplerian",
-                      &toec::convertModifiedEquinoctialToKeplerianElements<
-                          double>,
-                      py::arg("modified_equinoctial_elements"),
-                      py::arg("singularity_at_zero_inclination"),
-                      R"doc(
+    m.def( "mee_to_keplerian",
+           &toec::convertModifiedEquinoctialToKeplerianElements< double >,
+           py::arg( "modified_equinoctial_elements" ),
+           py::arg( "singularity_at_zero_inclination" ),
+           R"doc(
 
 Convert Modified equinoctial to Keplerian elements.
 
@@ -844,15 +815,14 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("cartesian_to_mee",
-                      py::overload_cast<const Eigen::Vector6d&, const double>(
-                          &toec::convertCartesianToModifiedEquinoctialElements<
-                              double>),
-                      py::arg("cartesian_elements"),
-                      py::arg("gravitational_parameter"),
-                      R"doc(
+    m.def( "cartesian_to_mee",
+           py::overload_cast< const Eigen::Vector6d&, const double >(
+                   &toec::convertCartesianToModifiedEquinoctialElements< double > ),
+           py::arg( "cartesian_elements" ),
+           py::arg( "gravitational_parameter" ),
+           R"doc(
 
 Convert Cartesian to Modified equinoctial elements.
 
@@ -878,17 +848,15 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("cartesian_to_mee_manual_singularity",
-                      py::overload_cast<const Eigen::Vector6d&, const double,
-                                        const bool>(
-                          &toec::convertCartesianToModifiedEquinoctialElements<
-                              double>),
-                      py::arg("cartesian_elements"),
-                      py::arg("gravitational_parameter"),
-                      py::arg("singularity_at_zero_inclination"),
-                      R"doc(
+    m.def( "cartesian_to_mee_manual_singularity",
+           py::overload_cast< const Eigen::Vector6d&, const double, const bool >(
+                   &toec::convertCartesianToModifiedEquinoctialElements< double > ),
+           py::arg( "cartesian_elements" ),
+           py::arg( "gravitational_parameter" ),
+           py::arg( "singularity_at_zero_inclination" ),
+           R"doc(
 
 Convert Cartesian to Modified equinoctial elements.
 
@@ -916,17 +884,15 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("mee_to_cartesian",
-                      py::overload_cast<const Eigen::Vector6d&, const double,
-                                        const bool>(
-                          &toec::convertModifiedEquinoctialToCartesianElements<
-                              double>),
-                      py::arg("modified_equinoctial_elements"),
-                      py::arg("gravitational_parameter"),
-                      py::arg("singularity_at_zero_inclination"),
-                      R"doc(
+    m.def( "mee_to_cartesian",
+           py::overload_cast< const Eigen::Vector6d&, const double, const bool >(
+                   &toec::convertModifiedEquinoctialToCartesianElements< double > ),
+           py::arg( "modified_equinoctial_elements" ),
+           py::arg( "gravitational_parameter" ),
+           py::arg( "singularity_at_zero_inclination" ),
+           R"doc(
 
 Convert Modified equinoctial to Cartesian elements.
 
@@ -952,21 +918,22 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                /*!
-                 **************   SPHERICAL ELEMENTS  ******************
-                 */
+    /*!
+     **************   SPHERICAL ELEMENTS  ******************
+     */
 
-                m.def(
-                    "spherical_to_cartesian_elementwise",
-                    py::overload_cast<double, double, double, double, double,
-                                      double>(
-                        &toec::convertSphericalOrbitalToCartesianState<double>),
-                    py::arg("radial_distance"), py::arg("latitude"),
-                    py::arg("longitude"), py::arg("speed"),
-                    py::arg("flight_path_angle"), py::arg("heading_angle"),
-                    R"doc(
+    m.def( "spherical_to_cartesian_elementwise",
+           py::overload_cast< double, double, double, double, double, double >(
+                   &toec::convertSphericalOrbitalToCartesianState< double > ),
+           py::arg( "radial_distance" ),
+           py::arg( "latitude" ),
+           py::arg( "longitude" ),
+           py::arg( "speed" ),
+           py::arg( "flight_path_angle" ),
+           py::arg( "heading_angle" ),
+           R"doc(
 
 Convert Spherical elements to Cartesian, with elementwise input.
 
@@ -995,14 +962,13 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "spherical_to_cartesian",
-                    py::overload_cast<const Eigen::Vector6d&>(
-                        &toec::convertSphericalOrbitalToCartesianState<double>),
-                    py::arg("spherical_elements"),
-                    R"doc(
+    m.def( "spherical_to_cartesian",
+           py::overload_cast< const Eigen::Vector6d& >(
+                   &toec::convertSphericalOrbitalToCartesianState< double > ),
+           py::arg( "spherical_elements" ),
+           R"doc(
 
 Convert spherical elements to Cartesian.
 
@@ -1023,12 +989,12 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("cartesian_to_spherical",
-                      &toec::convertCartesianToSphericalOrbitalState,
-                      py::arg("cartesian_elements"),
-                      R"doc(
+    m.def( "cartesian_to_spherical",
+           &toec::convertCartesianToSphericalOrbitalState,
+           py::arg( "cartesian_elements" ),
+           R"doc(
 
 Convert Cartesian to spherical elements.
 
@@ -1049,17 +1015,16 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
+    /*!
+     **************   QUATERNIONS  ******************
+     */
 
-                /*!
-                 **************   QUATERNIONS  ******************
-                 */
-
-                m.def("quaternion_entries_to_rotation_matrix",
-                      &tla::convertVectorQuaternionToMatrixFormat,
-                      py::arg("quaternion_entries"),
-                      R"doc(
+    m.def( "quaternion_entries_to_rotation_matrix",
+           &tla::convertVectorQuaternionToMatrixFormat,
+           py::arg( "quaternion_entries" ),
+           R"doc(
 
 Converts an array of four quaternion elements to the equivalent rotation matrix.
 
@@ -1082,12 +1047,12 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("rotation_matrix_to_quaternion_entries",
-                      &tla::convertMatrixToVectorQuaternionFormat,
-                      py::arg("rotation_matrix"),
-                      R"doc(
+    m.def( "rotation_matrix_to_quaternion_entries",
+           &tla::convertMatrixToVectorQuaternionFormat,
+           py::arg( "rotation_matrix" ),
+           R"doc(
 
 Converts a rotation matrix to the equivalent array of four quaternion elements.
 
@@ -1108,14 +1073,12 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "quaternion_to_modified_rodrigues_parameters",
-                    &toec::
-                        convertQuaternionsToModifiedRodriguesParameterElements,
-                    py::arg("quaternion_entries"),
-                    R"doc(
+    m.def( "quaternion_to_modified_rodrigues_parameters",
+           &toec::convertQuaternionsToModifiedRodriguesParameterElements,
+           py::arg( "quaternion_entries" ),
+           R"doc(
 
 Converts quaternion elements to the equivalent modified Rodrigues parameters (for rotation representation).
 
@@ -1133,14 +1096,12 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "modified_rodrigues_parameters_to_quaternion",
-                    &toec::
-                        convertModifiedRodriguesParametersToQuaternionElements,
-                    py::arg("modified_rodrigues_parameters"),
-                    R"doc(
+    m.def( "modified_rodrigues_parameters_to_quaternion",
+           &toec::convertModifiedRodriguesParametersToQuaternionElements,
+           py::arg( "modified_rodrigues_parameters" ),
+           R"doc(
 
 Converts modified Rodrigues parameters to the equivalent array of four quaternion elements (for rotation representation).
 
@@ -1154,12 +1115,12 @@ numpy.ndarray
     Equivalent quaternion elements
 
 
-    )doc");
+    )doc" );
 
-                m.def("quaternion_to_exponential_map",
-                      &toec::convertQuaternionsToExponentialMapElements,
-                      py::arg("quaternion_entries"),
-                      R"doc(
+    m.def( "quaternion_to_exponential_map",
+           &toec::convertQuaternionsToExponentialMapElements,
+           py::arg( "quaternion_entries" ),
+           R"doc(
 
 Converts quaternion elements to the equivalent exponential map (for rotation representation).
 
@@ -1177,12 +1138,12 @@ numpy.ndarray
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("exponential_map_to_quaternion",
-                      &toec::convertExponentialMapToQuaternionElements,
-                      py::arg("exponential_map"),
-                      R"doc(
+    m.def( "exponential_map_to_quaternion",
+           &toec::convertExponentialMapToQuaternionElements,
+           py::arg( "exponential_map" ),
+           R"doc(
 
 Converts modified Rodrigues parameters to the equivalent exponential map (for rotation representation).
 
@@ -1196,13 +1157,12 @@ numpy.ndarray
     Equivalent quaternion elements
 
 
-    )doc");
-                /*!
-                 **************   TLE  ******************
+    )doc" );
+    /*!
+     **************   TLE  ******************
 
-                 */
-                m.def("teme_to_j2000", &te::getRotationMatrixFromTemeToJ2000,
-                      py::arg("epoch"), R"doc(
+     */
+    m.def( "teme_to_j2000", &te::getRotationMatrixFromTemeToJ2000, py::arg( "epoch" ), R"doc(
 
 Computes the rotation matrix from the TEME (True Equator Mean Equinox) frame to the J2000 frame, using the following:
 
@@ -1225,10 +1185,9 @@ numpy.ndarray
     Rotation matrix from TEME to J2000 frame
 
 
-    )doc");
+    )doc" );
 
-                m.def("j2000_to_teme", &te::getRotationMatrixFromTemeToJ2000,
-                      py::arg("epoch"), R"doc(
+    m.def( "j2000_to_teme", &te::getRotationMatrixFromTemeToJ2000, py::arg( "epoch" ), R"doc(
 
 Computes the rotation matrix from the J2000 to the TEME (True Equator Mean Equinox) frame, which is the inverse of the :func:`~teme_to_j2000` function.
 
@@ -1242,15 +1201,15 @@ numpy.ndarray
     Rotation matrix from J2000 to TEME frame
 
 
-    )doc");
+    )doc" );
 
-                /*!
-             **************   STANDARD FRAMES  ******************
+    /*!
+ **************   STANDARD FRAMES  ******************
 
-             */
-                m.def("j2000_to_eclipj2000",
-                      &tsi::getRotationFromJ2000ToEclipJ2000,
-                      R"doc(
+ */
+    m.def( "j2000_to_eclipj2000",
+           &tsi::getRotationFromJ2000ToEclipJ2000,
+           R"doc(
 
 Provides the (constant) rotation matrix from the J2000 to the ECLIPJ2000 frame, as defined in the SPICE library (see :ref:`\`\`spice\`\`` for more details on our interface with this library).
 
@@ -1260,11 +1219,11 @@ numpy.ndarray
     Rotation matrix from J2000 to ECLIPJ2000 frame
 
 
-    )doc");
+    )doc" );
 
-                m.def("eclipj2000_to_j2000",
-                      &tsi::getRotationFromEclipJ2000ToJ2000,
-                      R"doc(
+    m.def( "eclipj2000_to_j2000",
+           &tsi::getRotationFromEclipJ2000ToJ2000,
+           R"doc(
 
 Provides the (constant) rotation matrix from the ECLIPJ2000 to the J2000 frame, as defined in the SPICE library (see :ref:`\`\`spice\`\`` for more details on our interface with this library).
 
@@ -1274,22 +1233,22 @@ numpy.ndarray
     Rotation matrix from ECLIPJ2000 to J2000 frame
 
 
-    )doc");
+    )doc" );
 
-                /*!
-            **************   TRANSFORMATION FUNCTIONS  ******************
+    /*!
+**************   TRANSFORMATION FUNCTIONS  ******************
 
-            */
+*/
 
-                m.def("rotate_state_to_frame",
-                      py::overload_cast<const Eigen::Vector6d&,
-                                        const Eigen::Matrix3d&,
-                                        const Eigen::Matrix3d&>(
-                          &te::transformStateToFrameFromRotations<double>),
-                      py::arg("original_state"), py::arg("rotation_matrix"),
-                      py::arg("rotation_matrix_time_derivative") =
-                          Eigen::Matrix3d::Zero(),
-                      R"doc(
+    m.def( "rotate_state_to_frame",
+           py::overload_cast< const Eigen::Vector6d&,
+                              const Eigen::Matrix3d&,
+                              const Eigen::Matrix3d& >(
+                   &te::transformStateToFrameFromRotations< double > ),
+           py::arg( "original_state" ),
+           py::arg( "rotation_matrix" ),
+           py::arg( "rotation_matrix_time_derivative" ) = Eigen::Matrix3d::Zero( ),
+           R"doc(
 
 Rotates a Cartesian state (position and velocity) from one frame :math:`B` to another frame :math:`A`, using the rotation matrix :math:`\mathbf{R}^{(A/B)}` from frame :math:`B` to :math:`A`, and its time derivative
 :math:`\dot{\mathbf{R}}^{(A/B)}`.
@@ -1313,8 +1272,8 @@ numpy.ndarray
     Input state in frame :math:`B`, rotated to frame :math:`A`
 
 
-    )doc");
-            }
-        }  // namespace element_conversion
-    }  // namespace astro
+    )doc" );
+}
+}  // namespace element_conversion
+}  // namespace astro
 }  // namespace tudatpy
