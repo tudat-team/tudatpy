@@ -8,11 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include <pybind11/pybind11.h>
 #include <tudat/math/integrators.h>
 
 namespace tni = tudat::numerical_integrators;
+
 namespace py = pybind11;
 
 // typedef std::function<
@@ -21,29 +21,32 @@ namespace py = pybind11;
 //         const Eigen::VectorXd &)>
 //     StateDerivativeFunction;
 
-typedef std::function<Eigen::Matrix<double, Eigen::Dynamic, 1>(
-    const double, const Eigen::Matrix<double, Eigen::Dynamic, 1>&)>
-    stateDerivativeFunction;
+typedef std::function< Eigen::Matrix< double, Eigen::Dynamic, 1 >(
+        const double,
+        const Eigen::Matrix< double, Eigen::Dynamic, 1 >& ) >
+        stateDerivativeFunction;
 
-namespace tudatpy {
+namespace tudatpy
+{
 
-    PYBIND11_MODULE(expose_numerical_integrators, m) {
-        //  py::class_<tni::NumericalIntegrator<>>(m, "NumericalIntegrator");
-        //  //      .def(py::init<>);
-        //  //
+PYBIND11_MODULE( expose_numerical_integrators, m )
+{
+    //  py::class_<tni::NumericalIntegrator<>>(m, "NumericalIntegrator");
+    //  //      .def(py::init<>);
+    //  //
 
-        //  //
-        ////  py::class_<tni::RungeKutta4Integrator < double, Eigen::VectorXd,
-        /// Eigen::VectorXd >,//      tni::NumericalIntegrator<double,
-        /// Eigen::VectorXd, Eigen::VectorXd, double> /
-        /// std::shared_ptr<tni::RungeKutta4Integrator < double,
-        /// Eigen::VectorXd, Eigen::VectorXd >> /             >(m,
-        /// "RungeKutta4Integrator") / .def(py::init< /           const
-        /// stateDerivativeFunction &, / const double, /           const double
-        /// &>());
+    //  //
+    ////  py::class_<tni::RungeKutta4Integrator < double, Eigen::VectorXd,
+    /// Eigen::VectorXd >,//      tni::NumericalIntegrator<double,
+    /// Eigen::VectorXd, Eigen::VectorXd, double> /
+    /// std::shared_ptr<tni::RungeKutta4Integrator < double,
+    /// Eigen::VectorXd, Eigen::VectorXd >> /             >(m,
+    /// "RungeKutta4Integrator") / .def(py::init< /           const
+    /// stateDerivativeFunction &, / const double, /           const double
+    /// &>());
 
-        //  // Alias
-        //  //  m.def("rk4", m.attr("RungeKutta4Integrator"))
-    }
+    //  // Alias
+    //  //  m.def("rk4", m.attr("RungeKutta4Integrator"))
+}
 
 }  // namespace tudatpy
