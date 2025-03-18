@@ -31,252 +31,230 @@ namespace tom = tudat::observation_models;
 namespace trf = tudat::reference_frames;
 namespace te = tudat::ephemerides;
 
+namespace tudat
+{
 
-namespace tudat {
+namespace propagators
+{
 
-    namespace propagators {
-
-        std::map<double, Eigen::MatrixXd> propagateCovarianceRsw(
-            const std::shared_ptr<
-                tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>>
+std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
+        const std::shared_ptr< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >
                 estimationOutput,
-            const std::shared_ptr<
-                tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>>
+        const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > >
                 orbitDeterminationManager,
-            const std::vector<double> evaluationTimes) {
-            std::map<double, Eigen::MatrixXd> propagatedCovariance;
-            tp::propagateCovariance(
-                propagatedCovariance,
-                estimationOutput->getUnnormalizedCovarianceMatrix(),
-                orbitDeterminationManager
-                    ->getStateTransitionAndSensitivityMatrixInterface(),
-                evaluationTimes);
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::MatrixXd > propagatedCovariance;
+    tp::propagateCovariance(
+            propagatedCovariance,
+            estimationOutput->getUnnormalizedCovarianceMatrix( ),
+            orbitDeterminationManager->getStateTransitionAndSensitivityMatrixInterface( ),
+            evaluationTimes );
 
-            tss::SystemOfBodies bodies = orbitDeterminationManager->getBodies();
+    tss::SystemOfBodies bodies = orbitDeterminationManager->getBodies( );
 
-            std::shared_ptr<tep::EstimatableParameterSet<STATE_SCALAR_TYPE>>
-                parameterSet =
-                    orbitDeterminationManager->getParametersToEstimate();
+    std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > > parameterSet =
+            orbitDeterminationManager->getParametersToEstimate( );
 
-            std::map<int,
-                     std::shared_ptr<tep::EstimatableParameter<
-                         Eigen::Matrix<STATE_SCALAR_TYPE, Eigen::Dynamic, 1>>>>
-                initialStates = parameterSet->getInitialStateParameters();
-            std::map<std::pair<std::string, std::string>, std::vector<int>>
-                transformationList;
-            for(auto it : initialStates) {
-                if(std::dynamic_pointer_cast<
-                       tep::InitialTranslationalStateParameter<
-                           STATE_SCALAR_TYPE>>(it.second)) {
-                    std::shared_ptr<tep::InitialTranslationalStateParameter<
-                        STATE_SCALAR_TYPE>>
-                        currentInitialState = std::dynamic_pointer_cast<
-                            tep::InitialTranslationalStateParameter<
-                                STATE_SCALAR_TYPE>>(it.second);
-                    transformationList
-                        [std::make_pair(currentInitialState->getParameterName()
-                                            .second.first,
-                                        currentInitialState->getCentralBody())]
-                            .push_back(it.first);
+    std::map< int,
+              std::shared_ptr< tep::EstimatableParameter<
+                      Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > > >
+            initialStates = parameterSet->getInitialStateParameters( );
+    std::map< std::pair< std::string, std::string >, std::vector< int > > transformationList;
+    for( auto it: initialStates )
+    {
+        if( std::dynamic_pointer_cast<
+                    tep::InitialTranslationalStateParameter< STATE_SCALAR_TYPE > >( it.second ) )
+        {
+            std::shared_ptr< tep::InitialTranslationalStateParameter< STATE_SCALAR_TYPE > >
+                    currentInitialState = std::dynamic_pointer_cast<
+                            tep::InitialTranslationalStateParameter< STATE_SCALAR_TYPE > >(
+                            it.second );
+            transformationList[ std::make_pair(
+                                        currentInitialState->getParameterName( ).second.first,
+                                        currentInitialState->getCentralBody( ) ) ]
+                    .push_back( it.first );
+        }
+        else if( std::dynamic_pointer_cast<
+                         tep::ArcWiseInitialTranslationalStateParameter< STATE_SCALAR_TYPE > >(
+                         it.second ) )
+        {
+            throw std::runtime_error(
+                    "Error, multi-arc not yet supported in automatic "
+                    "covariance conversion" );
+        }
+    }
 
-                } else if(std::dynamic_pointer_cast<
-                              tep::ArcWiseInitialTranslationalStateParameter<
-                                  STATE_SCALAR_TYPE>>(it.second)) {
-                    throw std::runtime_error(
-                        "Error, multi-arc not yet supported in automatic "
-                        "covariance conversion");
-                }
+    Eigen::Matrix3d currentInertialToRswPosition;
+    Eigen::Matrix6d currentInertialToRswState;
+    Eigen::MatrixXd currentFullInertialToRswState = Eigen::MatrixXd::Zero( 6, 6 );
+
+    std::map< double, Eigen::MatrixXd > propagatedRswCovariance;
+    for( auto it: propagatedCovariance )
+    {
+        double currentTime = static_cast< double >( it.first );
+        Eigen::MatrixXd currentCovariance = it.second;
+        currentFullInertialToRswState.setZero( );
+
+        for( auto it_body: transformationList )
+        {
+            Eigen::Vector6d relativeState =
+                    bodies.getBody( it_body.first.first )
+                            ->getStateInBaseFrameFromEphemeris( currentTime ) -
+                    bodies.getBody( it_body.first.second )
+                            ->getStateInBaseFrameFromEphemeris( currentTime );
+            currentInertialToRswPosition =
+                    trf::getInertialToRswSatelliteCenteredFrameRotationMatrix( relativeState );
+            currentInertialToRswState.block( 0, 0, 3, 3 ) = currentInertialToRswPosition;
+            currentInertialToRswState.block( 3, 3, 3, 3 ) = currentInertialToRswPosition;
+            for( unsigned int j = 0; j < it_body.second.size( ); j++ )
+            {
+                int currentStartIndex = it_body.second.at( j );
+                currentFullInertialToRswState.block( currentStartIndex, currentStartIndex, 6, 6 ) =
+                        currentInertialToRswState;
             }
-
-            Eigen::Matrix3d currentInertialToRswPosition;
-            Eigen::Matrix6d currentInertialToRswState;
-            Eigen::MatrixXd currentFullInertialToRswState =
-                Eigen::MatrixXd::Zero(6, 6);
-
-            std::map<double, Eigen::MatrixXd> propagatedRswCovariance;
-            for(auto it : propagatedCovariance) {
-                double currentTime = static_cast<double>(it.first);
-                Eigen::MatrixXd currentCovariance = it.second;
-                currentFullInertialToRswState.setZero();
-
-                for(auto it_body : transformationList) {
-                    Eigen::Vector6d relativeState =
-                        bodies.getBody(it_body.first.first)
-                            ->getStateInBaseFrameFromEphemeris(currentTime) -
-                        bodies.getBody(it_body.first.second)
-                            ->getStateInBaseFrameFromEphemeris(currentTime);
-                    currentInertialToRswPosition = trf::
-                        getInertialToRswSatelliteCenteredFrameRotationMatrix(
-                            relativeState);
-                    currentInertialToRswState.block(0, 0, 3, 3) =
-                        currentInertialToRswPosition;
-                    currentInertialToRswState.block(3, 3, 3, 3) =
-                        currentInertialToRswPosition;
-                    for(unsigned int j = 0; j < it_body.second.size(); j++) {
-                        int currentStartIndex = it_body.second.at(j);
-                        currentFullInertialToRswState.block(
-                            currentStartIndex, currentStartIndex, 6, 6) =
-                            currentInertialToRswState;
-                    }
-                }
-                propagatedRswCovariance[currentTime] =
-                    currentFullInertialToRswState * currentCovariance *
-                    currentFullInertialToRswState.transpose();
-            }
-            return propagatedRswCovariance;
         }
+        propagatedRswCovariance[ currentTime ] = currentFullInertialToRswState * currentCovariance *
+                currentFullInertialToRswState.transpose( );
+    }
+    return propagatedRswCovariance;
+}
 
-
-        std::pair<std::vector<double>, std::vector<Eigen::MatrixXd>>
-        propagateCovarianceVectorsRsw(
-            const std::shared_ptr<
-                tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>>
+std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectorsRsw(
+        const std::shared_ptr< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >
                 estimationOutput,
-            const std::shared_ptr<
-                tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>>
+        const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > >
                 orbitDeterminationManager,
-            const std::vector<double> evaluationTimes) {
-            std::map<double, Eigen::MatrixXd> propagatedRswCovariance =
-                propagateCovarianceRsw(estimationOutput,
-                                       orbitDeterminationManager,
-                                       evaluationTimes);
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::MatrixXd > propagatedRswCovariance =
+            propagateCovarianceRsw( estimationOutput, orbitDeterminationManager, evaluationTimes );
 
-            return std::make_pair(
-                utilities::createVectorFromMapKeys(propagatedRswCovariance),
-                utilities::createVectorFromMapValues(propagatedRswCovariance));
-        }
+    return std::make_pair( utilities::createVectorFromMapKeys( propagatedRswCovariance ),
+                           utilities::createVectorFromMapValues( propagatedRswCovariance ) );
+}
 
-        std::map<double, Eigen::VectorXd> propagateFormalErrorsRsw(
-            const std::shared_ptr<
-                tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>>
+std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
+        const std::shared_ptr< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >
                 estimationOutput,
-            const std::shared_ptr<
-                tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>>
+        const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > >
                 orbitDeterminationManager,
-            const std::vector<double> evaluationTimes) {
-            std::map<double, Eigen::MatrixXd> propagatedCovariance;
-            std::map<double, Eigen::VectorXd> propagatedFormalErrors;
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::MatrixXd > propagatedCovariance;
+    std::map< double, Eigen::VectorXd > propagatedFormalErrors;
 
-            propagatedCovariance = propagateCovarianceRsw(
-                estimationOutput, orbitDeterminationManager, evaluationTimes);
-            tp::convertCovarianceHistoryToFormalErrorHistory(
-                propagatedFormalErrors, propagatedCovariance);
+    propagatedCovariance =
+            propagateCovarianceRsw( estimationOutput, orbitDeterminationManager, evaluationTimes );
+    tp::convertCovarianceHistoryToFormalErrorHistory( propagatedFormalErrors,
+                                                      propagatedCovariance );
 
-            return propagatedFormalErrors;
-        }
+    return propagatedFormalErrors;
+}
 
-        std::pair<std::vector<double>, std::vector<Eigen::VectorXd>>
-        propagateFormalErrorVectorsRsw(
-            const std::shared_ptr<
-                tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>>
+std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectorsRsw(
+        const std::shared_ptr< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >
                 estimationOutput,
-            const std::shared_ptr<
-                tss::OrbitDeterminationManager<STATE_SCALAR_TYPE, TIME_TYPE>>
+        const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > >
                 orbitDeterminationManager,
-            const std::vector<double> evaluationTimes) {
-            std::map<double, Eigen::VectorXd> propagatedFormalErrors =
-                propagateFormalErrorsRsw(estimationOutput,
-                                         orbitDeterminationManager,
-                                         evaluationTimes);
-            tp::propagateFormalErrorsRsw(
-                estimationOutput, orbitDeterminationManager, evaluationTimes);
-            return std::make_pair(
-                utilities::createVectorFromMapKeys(propagatedFormalErrors),
-                utilities::createVectorFromMapValues(propagatedFormalErrors));
-        }
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::VectorXd > propagatedFormalErrors = propagateFormalErrorsRsw(
+            estimationOutput, orbitDeterminationManager, evaluationTimes );
+    tp::propagateFormalErrorsRsw( estimationOutput, orbitDeterminationManager, evaluationTimes );
+    return std::make_pair( utilities::createVectorFromMapKeys( propagatedFormalErrors ),
+                           utilities::createVectorFromMapValues( propagatedFormalErrors ) );
+}
 
-
-        std::pair<std::vector<double>, std::vector<Eigen::MatrixXd>>
-        propagateCovarianceVectors(
-            const Eigen::MatrixXd initialCovariance,
-            const std::shared_ptr<
-                tp::CombinedStateTransitionAndSensitivityMatrixInterface>
+std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectors(
+        const Eigen::MatrixXd initialCovariance,
+        const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >
                 stateTransitionInterface,
-            const std::vector<double> evaluationTimes) {
-            std::map<double, Eigen::MatrixXd> propagatedCovariance;
-            tp::propagateCovariance(propagatedCovariance, initialCovariance,
-                                    stateTransitionInterface, evaluationTimes);
-            return std::make_pair(
-                utilities::createVectorFromMapKeys(propagatedCovariance),
-                utilities::createVectorFromMapValues(propagatedCovariance));
-        }
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::MatrixXd > propagatedCovariance;
+    tp::propagateCovariance(
+            propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
+    return std::make_pair( utilities::createVectorFromMapKeys( propagatedCovariance ),
+                           utilities::createVectorFromMapValues( propagatedCovariance ) );
+}
 
-        std::pair<std::vector<double>, std::vector<Eigen::VectorXd>>
-        propagateFormalErrorVectors(
-            const Eigen::MatrixXd initialCovariance,
-            const std::shared_ptr<
-                tp::CombinedStateTransitionAndSensitivityMatrixInterface>
+std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectors(
+        const Eigen::MatrixXd initialCovariance,
+        const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >
                 stateTransitionInterface,
-            const std::vector<double> evaluationTimes) {
-            std::map<double, Eigen::VectorXd> propagatedFormalErrors;
-            tp::propagateFormalErrors(propagatedFormalErrors, initialCovariance,
-                                      stateTransitionInterface,
-                                      evaluationTimes);
-            return std::make_pair(
-                utilities::createVectorFromMapKeys(propagatedFormalErrors),
-                utilities::createVectorFromMapValues(propagatedFormalErrors));
-        }
+        const std::vector< double > evaluationTimes )
+{
+    std::map< double, Eigen::VectorXd > propagatedFormalErrors;
+    tp::propagateFormalErrors(
+            propagatedFormalErrors, initialCovariance, stateTransitionInterface, evaluationTimes );
+    return std::make_pair( utilities::createVectorFromMapKeys( propagatedFormalErrors ),
+                           utilities::createVectorFromMapValues( propagatedFormalErrors ) );
+}
 
-    }  // namespace propagators
+}  // namespace propagators
 
-    namespace simulation_setup {
+namespace simulation_setup
+{
 
-        std::pair<std::vector<double>, std::vector<Eigen::VectorXd>>
-        getTargetAnglesAndRangeVector(
-            const simulation_setup::SystemOfBodies& bodies,
-            const std::pair<std::string, std::string> groundStationId,
-            const std::string& targetBody, const std::vector<double> times,
-            const bool transmittingToTarget) {
-            std::map<double, Eigen::VectorXd> targetAnglesAndRange =
-                getTargetAnglesAndRange(bodies, groundStationId, targetBody,
-                                        times, transmittingToTarget);
-            return std::make_pair(
-                utilities::createVectorFromMapKeys(targetAnglesAndRange),
-                utilities::createVectorFromMapValues(targetAnglesAndRange));
-        }
+std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > getTargetAnglesAndRangeVector(
+        const simulation_setup::SystemOfBodies& bodies,
+        const std::pair< std::string, std::string > groundStationId,
+        const std::string& targetBody,
+        const std::vector< double > times,
+        const bool transmittingToTarget )
+{
+    std::map< double, Eigen::VectorXd > targetAnglesAndRange = getTargetAnglesAndRange(
+            bodies, groundStationId, targetBody, times, transmittingToTarget );
+    return std::make_pair( utilities::createVectorFromMapKeys( targetAnglesAndRange ),
+                           utilities::createVectorFromMapValues( targetAnglesAndRange ) );
+}
 
-        template <typename ObservationScalarType = double,
-                  typename TimeType = double>
-        std::shared_ptr<
-            tom::SingleObservationSet<ObservationScalarType, TimeType>>
-        singleObservationSetWithoutDependentVariables(
-            const tom::ObservableType observableType,
-            const tom::LinkDefinition& linkEnds,
-            const std::vector<Eigen::Matrix<ObservationScalarType,
-                                            Eigen::Dynamic, 1>>& observations,
-            const std::vector<TimeType> observationTimes,
-            const tom::LinkEndType referenceLinkEnd,
-            const std::shared_ptr<
-                observation_models::ObservationAncilliarySimulationSettings>
-                ancilliarySettings = nullptr) {
-            return std::make_shared<
-                tom::SingleObservationSet<ObservationScalarType, TimeType>>(
-                observableType, linkEnds, observations, observationTimes,
-                referenceLinkEnd, std::vector<Eigen::VectorXd>(), nullptr,
-                ancilliarySettings);
-        }
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > >
+singleObservationSetWithoutDependentVariables(
+        const tom::ObservableType observableType,
+        const tom::LinkDefinition& linkEnds,
+        const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >&
+                observations,
+        const std::vector< TimeType > observationTimes,
+        const tom::LinkEndType referenceLinkEnd,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
+                ancilliarySettings = nullptr )
+{
+    return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >(
+            observableType,
+            linkEnds,
+            observations,
+            observationTimes,
+            referenceLinkEnd,
+            std::vector< Eigen::VectorXd >( ),
+            nullptr,
+            ancilliarySettings );
+}
 
-
-    }  // namespace simulation_setup
+}  // namespace simulation_setup
 
 }  // namespace tudat
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace estimation {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace estimation
+{
 
+PYBIND11_MODULE( expose_estimation, m )
+{
+    /*!
+     *************** PARAMETERS ***************
+     */
 
-            PYBIND11_MODULE(expose_estimation, m) {
-                /*!
-                 *************** PARAMETERS ***************
-                 */
-
-
-                py::class_<tep::EstimatableParameterSet<STATE_SCALAR_TYPE>,
-                           std::shared_ptr<tep::EstimatableParameterSet<
-                               STATE_SCALAR_TYPE>>>(m,
-                                                    "EstimatableParameterSet",
-                                                    R"doc(
+    py::class_< tep::EstimatableParameterSet< STATE_SCALAR_TYPE >,
+                std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > > >(
+            m,
+            "EstimatableParameterSet",
+            R"doc(
 
         Class containing a consolidated set of estimatable parameters.
 
@@ -288,84 +266,80 @@ namespace tudatpy {
 
 
 
-     )doc")
-                    .def_property_readonly(
-                        "parameter_set_size",
-                        &tep::EstimatableParameterSet<
-                            STATE_SCALAR_TYPE>::getEstimatedParameterSetSize,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "parameter_set_size",
+                                    &tep::EstimatableParameterSet<
+                                            STATE_SCALAR_TYPE >::getEstimatedParameterSetSize,
+                                    R"doc(
 
         **read-only**
 
         Size of the parameter set, i.e. amount of estimatable parameters contained in the set.
 
         :type: int
-     )doc")
-                    .def_property_readonly(
-                        "initial_states_size",
-                        &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::
-                            getInitialDynamicalStateParameterSize,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "initial_states_size",
+                    &tep::EstimatableParameterSet<
+                            STATE_SCALAR_TYPE >::getInitialDynamicalStateParameterSize,
+                    R"doc(
 
         **read-only**
 
         Amount of initial state parameters contained in the set.
 
         :type: int
-     )doc")
-                    .def_property_readonly(
-                        "initial_single_arc_states_size",
-                        &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::
-                            getInitialDynamicalSingleArcStateParameterSize,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "initial_single_arc_states_size",
+                    &tep::EstimatableParameterSet<
+                            STATE_SCALAR_TYPE >::getInitialDynamicalSingleArcStateParameterSize,
+                    R"doc(
 
         **read-only**
 
         Amount of initial state parameters in the set, which are treated in a single-arc fashion.
 
         :type: int
-     )doc")
-                    .def_property_readonly(
-                        "initial_multi_arc_states_size",
-                        &tep::EstimatableParameterSet<STATE_SCALAR_TYPE>::
-                            getInitialDynamicalMultiArcStateParameterSize,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "initial_multi_arc_states_size",
+                    &tep::EstimatableParameterSet<
+                            STATE_SCALAR_TYPE >::getInitialDynamicalMultiArcStateParameterSize,
+                    R"doc(
 
         **read-only**
 
         Amount of initial state parameters in the set, which are treated in a multi-arc fashion.
 
         :type: int
-     )doc")
-                    .def_property_readonly(
-                        "constraints_size",
-                        &tep::EstimatableParameterSet<
-                            STATE_SCALAR_TYPE>::getConstraintSize,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "constraints_size",
+                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getConstraintSize,
+                    R"doc(
 
         **read-only**
 
         Total size of linear constraint that is to be applied during estimation.
 
         :type: int
-     )doc")
-                    .def_property(
-                        "parameter_vector",
-                        &tep::EstimatableParameterSet<
-                            STATE_SCALAR_TYPE>::getFullParameterValues<double>,
-                        &tep::EstimatableParameterSet<
-                            STATE_SCALAR_TYPE>::resetParameterValues<double>,
-                        R"doc(
+     )doc" )
+            .def_property( "parameter_vector",
+                           &tep::EstimatableParameterSet<
+                                   STATE_SCALAR_TYPE >::getFullParameterValues< double >,
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValues<
+                                   double >,
+                           R"doc(
 
         Vector containing the parameter values of all parameters in the set.
 
         :type: numpy.ndarray[numpy.float64[m, 1]]
-     )doc")
-                    .def("indices_for_parameter_type",
-                         &tep::EstimatableParameterSet<
-                             STATE_SCALAR_TYPE>::getIndicesForParameterType,
-                         py::arg("parameter_type"),
-                         R"doc(
+     )doc" )
+            .def( "indices_for_parameter_type",
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterType,
+                  py::arg( "parameter_type" ),
+                  R"doc(
 
         Function to retrieve the indices of a given type of parameter.
 
@@ -386,311 +360,278 @@ namespace tudatpy {
 
 
 
-    )doc");
+    )doc" );
 
-                /*!
-                 *************** OBSERVATIONS ***************
-                 */
+    /*!
+     *************** OBSERVATIONS ***************
+     */
 
-                py::enum_<tom::ObservationFilterType>(
-                    m, "ObservationFilterType",
-                    R"doc(No documentation found.)doc")
-                    .value("residual_filtering",
-                           tom::ObservationFilterType::residual_filtering)
-                    .value("absolute_value_filtering",
-                           tom::ObservationFilterType::absolute_value_filtering)
-                    .value("epochs_filtering",
-                           tom::ObservationFilterType::epochs_filtering)
-                    .value("time_bounds_filtering",
-                           tom::ObservationFilterType::time_bounds_filtering)
-                    .value("dependent_variable_filtering",
-                           tom::ObservationFilterType::
-                               dependent_variable_filtering)
-                    .export_values();
+    py::enum_< tom::ObservationFilterType >(
+            m, "ObservationFilterType", R"doc(No documentation found.)doc" )
+            .value( "residual_filtering", tom::ObservationFilterType::residual_filtering )
+            .value( "absolute_value_filtering",
+                    tom::ObservationFilterType::absolute_value_filtering )
+            .value( "epochs_filtering", tom::ObservationFilterType::epochs_filtering )
+            .value( "time_bounds_filtering", tom::ObservationFilterType::time_bounds_filtering )
+            .value( "dependent_variable_filtering",
+                    tom::ObservationFilterType::dependent_variable_filtering )
+            .export_values( );
 
-                py::enum_<tom::ObservationSetSplitterType>(
-                    m, "ObservationSetSplitterType",
-                    R"doc(No documentation found.)doc")
-                    .value("time_tags_splitter",
-                           tom::ObservationSetSplitterType::time_tags_splitter)
-                    .value(
-                        "time_interval_splitter",
-                        tom::ObservationSetSplitterType::time_interval_splitter)
-                    .value("time_span_splitter",
-                           tom::ObservationSetSplitterType::time_span_splitter)
-                    .value("nb_observations_splitter",
-                           tom::ObservationSetSplitterType::
-                               nb_observations_splitter)
-                    .export_values();
+    py::enum_< tom::ObservationSetSplitterType >(
+            m, "ObservationSetSplitterType", R"doc(No documentation found.)doc" )
+            .value( "time_tags_splitter", tom::ObservationSetSplitterType::time_tags_splitter )
+            .value( "time_interval_splitter",
+                    tom::ObservationSetSplitterType::time_interval_splitter )
+            .value( "time_span_splitter", tom::ObservationSetSplitterType::time_span_splitter )
+            .value( "nb_observations_splitter",
+                    tom::ObservationSetSplitterType::nb_observations_splitter )
+            .export_values( );
 
-                py::enum_<tom::ObservationParserType>(
-                    m, "ObservationParserType",
-                    R"doc(No documentation found.)doc")
-                    .value("empty_parser",
-                           tom::ObservationParserType::empty_parser)
-                    .value("observable_type_parser",
-                           tom::ObservationParserType::observable_type_parser)
-                    .value("link_ends_parser",
-                           tom::ObservationParserType::link_ends_parser)
-                    .value("link_end_str_parser",
-                           tom::ObservationParserType::link_end_string_parser)
-                    .value("link_end_id_parser",
-                           tom::ObservationParserType::link_end_id_parser)
-                    .value("link_end_type_parser",
-                           tom::ObservationParserType::link_end_type_parser)
-                    .value("single_link_end_parser",
-                           tom::ObservationParserType::single_link_end_parser)
-                    .value("time_bounds_parser",
-                           tom::ObservationParserType::time_bounds_parser)
-                    .value(
-                        "ancillary_settings_parser",
-                        tom::ObservationParserType::ancillary_settings_parser)
-                    .value("multi_type_parser",
-                           tom::ObservationParserType::multi_type_parser)
-                    .export_values();
+    py::enum_< tom::ObservationParserType >(
+            m, "ObservationParserType", R"doc(No documentation found.)doc" )
+            .value( "empty_parser", tom::ObservationParserType::empty_parser )
+            .value( "observable_type_parser", tom::ObservationParserType::observable_type_parser )
+            .value( "link_ends_parser", tom::ObservationParserType::link_ends_parser )
+            .value( "link_end_str_parser", tom::ObservationParserType::link_end_string_parser )
+            .value( "link_end_id_parser", tom::ObservationParserType::link_end_id_parser )
+            .value( "link_end_type_parser", tom::ObservationParserType::link_end_type_parser )
+            .value( "single_link_end_parser", tom::ObservationParserType::single_link_end_parser )
+            .value( "time_bounds_parser", tom::ObservationParserType::time_bounds_parser )
+            .value( "ancillary_settings_parser",
+                    tom::ObservationParserType::ancillary_settings_parser )
+            .value( "multi_type_parser", tom::ObservationParserType::multi_type_parser )
+            .export_values( );
 
-                py::class_<tom::ObservationFilterBase,
-                           std::shared_ptr<tom::ObservationFilterBase>>(
-                    m, "ObservationFilterBase",
-                    R"doc(No documentation found.)doc");
+    py::class_< tom::ObservationFilterBase, std::shared_ptr< tom::ObservationFilterBase > >(
+            m, "ObservationFilterBase", R"doc(No documentation found.)doc" );
 
-                m.def("observation_filter",
-                      py::overload_cast<tom::ObservationFilterType,
-                                        const double, const bool, const bool>(
-                          &tom::observationFilter),
-                      py::arg("filter_type"), py::arg("filter_value"),
-                      py::arg("filter_out") = true,
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_filter",
+           py::overload_cast< tom::ObservationFilterType, const double, const bool, const bool >(
+                   &tom::observationFilter ),
+           py::arg( "filter_type" ),
+           py::arg( "filter_value" ),
+           py::arg( "filter_out" ) = true,
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_filter",
-                      py::overload_cast<tom::ObservationFilterType,
-                                        const std::vector<double>, const bool,
-                                        const bool>(&tom::observationFilter),
-                      py::arg("filter_type"), py::arg("filter_value"),
-                      py::arg("filter_out") = true,
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_filter",
+           py::overload_cast< tom::ObservationFilterType,
+                              const std::vector< double >,
+                              const bool,
+                              const bool >( &tom::observationFilter ),
+           py::arg( "filter_type" ),
+           py::arg( "filter_value" ),
+           py::arg( "filter_out" ) = true,
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                //    m.def("observation_filter",
-                //          py::overload_cast< tom::ObservationFilterType,
-                //          const std::pair< double, double >, const bool, const
-                //          bool >( &tom::observationFilter ),
-                //          py::arg("filter_type"),
-                //          py::arg("filter_value"),
-                //          py::arg("filter_out") = true,
-                //          py::arg("use_opposite_condition") = false,
-                //          get_docstring("observation_filter").c_str() );
+    //    m.def("observation_filter",
+    //          py::overload_cast< tom::ObservationFilterType,
+    //          const std::pair< double, double >, const bool, const
+    //          bool >( &tom::observationFilter ),
+    //          py::arg("filter_type"),
+    //          py::arg("filter_value"),
+    //          py::arg("filter_out") = true,
+    //          py::arg("use_opposite_condition") = false,
+    //          get_docstring("observation_filter").c_str() );
 
-                m.def(
-                    "observation_filter",
-                    py::overload_cast<tom::ObservationFilterType, const double,
-                                      const double, const bool, const bool>(
-                        &tom::observationFilter),
-                    py::arg("filter_type"), py::arg("first_filter_value"),
-                    py::arg("second_filter_value"),
-                    py::arg("filter_out") = true,
-                    py::arg("use_opposite_condition") = false,
-                    R"doc(No documentation found.)doc");
+    m.def( "observation_filter",
+           py::overload_cast< tom::ObservationFilterType,
+                              const double,
+                              const double,
+                              const bool,
+                              const bool >( &tom::observationFilter ),
+           py::arg( "filter_type" ),
+           py::arg( "first_filter_value" ),
+           py::arg( "second_filter_value" ),
+           py::arg( "filter_out" ) = true,
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_filter",
-                      py::overload_cast<tom::ObservationFilterType,
-                                        const Eigen::VectorXd&, const bool,
-                                        const bool>(&tom::observationFilter),
-                      py::arg("filter_type"), py::arg("filter_value"),
-                      py::arg("filter_out") = true,
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_filter",
+           py::overload_cast< tom::ObservationFilterType,
+                              const Eigen::VectorXd&,
+                              const bool,
+                              const bool >( &tom::observationFilter ),
+           py::arg( "filter_type" ),
+           py::arg( "filter_value" ),
+           py::arg( "filter_out" ) = true,
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_filter",
-                      py::overload_cast<
-                          std::shared_ptr<
-                              tss::ObservationDependentVariableSettings>,
-                          const Eigen::VectorXd&, const bool, const bool>(
-                          &tom::observationFilter),
-                      py::arg("dependent_variable_settings"),
-                      py::arg("filter_value"), py::arg("filter_out") = true,
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_filter",
+           py::overload_cast< std::shared_ptr< tss::ObservationDependentVariableSettings >,
+                              const Eigen::VectorXd&,
+                              const bool,
+                              const bool >( &tom::observationFilter ),
+           py::arg( "dependent_variable_settings" ),
+           py::arg( "filter_value" ),
+           py::arg( "filter_out" ) = true,
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                py::class_<tom::ObservationSetSplitterBase,
-                           std::shared_ptr<tom::ObservationSetSplitterBase>>(
-                    m, "ObservationSetSplitterBase",
-                    R"doc(No documentation found.)doc");
+    py::class_< tom::ObservationSetSplitterBase,
+                std::shared_ptr< tom::ObservationSetSplitterBase > >(
+            m, "ObservationSetSplitterBase", R"doc(No documentation found.)doc" );
 
-                m.def("observation_set_splitter",
-                      py::overload_cast<tom::ObservationSetSplitterType,
-                                        const std::vector<double>, const int>(
-                          &tom::observationSetSplitter),
-                      py::arg("splitter_type"), py::arg("splitter_value"),
-                      py::arg("min_number_observations") = 0,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_set_splitter",
+           py::overload_cast< tom::ObservationSetSplitterType,
+                              const std::vector< double >,
+                              const int >( &tom::observationSetSplitter ),
+           py::arg( "splitter_type" ),
+           py::arg( "splitter_value" ),
+           py::arg( "min_number_observations" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_set_splitter",
-                      py::overload_cast<tom::ObservationSetSplitterType,
-                                        const double, const int>(
-                          &tom::observationSetSplitter),
-                      py::arg("splitter_type"), py::arg("splitter_value"),
-                      py::arg("min_number_observations") = 0,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_set_splitter",
+           py::overload_cast< tom::ObservationSetSplitterType, const double, const int >(
+                   &tom::observationSetSplitter ),
+           py::arg( "splitter_type" ),
+           py::arg( "splitter_value" ),
+           py::arg( "min_number_observations" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_set_splitter",
-                      py::overload_cast<tom::ObservationSetSplitterType,
-                                        const int, const int>(
-                          &tom::observationSetSplitter),
-                      py::arg("splitter_type"), py::arg("splitter_value"),
-                      py::arg("min_number_observations") = 0,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_set_splitter",
+           py::overload_cast< tom::ObservationSetSplitterType, const int, const int >(
+                   &tom::observationSetSplitter ),
+           py::arg( "splitter_type" ),
+           py::arg( "splitter_value" ),
+           py::arg( "min_number_observations" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                py::class_<tom::ObservationCollectionParser,
-                           std::shared_ptr<tom::ObservationCollectionParser>>(
-                    m, "ObservationCollectionParser",
-                    R"doc(No documentation found.)doc");
+    py::class_< tom::ObservationCollectionParser,
+                std::shared_ptr< tom::ObservationCollectionParser > >(
+            m, "ObservationCollectionParser", R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<>(&tom::observationParser),
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast<>( &tom::observationParser ),
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const tom::ObservableType, const bool>(
-                          &tom::observationParser),
-                      py::arg("observable_type"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const tom::ObservableType, const bool >( &tom::observationParser ),
+           py::arg( "observable_type" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const std::vector<tom::ObservableType>&,
-                                        const bool>(&tom::observationParser),
-                      py::arg("observable_type_vector"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::vector< tom::ObservableType >&, const bool >(
+                   &tom::observationParser ),
+           py::arg( "observable_type_vector" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const tom::LinkEnds, const bool>(
-                          &tom::observationParser),
-                      py::arg("link_ends"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const tom::LinkEnds, const bool >( &tom::observationParser ),
+           py::arg( "link_ends" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const std::vector<tom::LinkEnds>&,
-                                        const bool>(&tom::observationParser),
-                      py::arg("link_ends_vector"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::vector< tom::LinkEnds >&, const bool >(
+                   &tom::observationParser ),
+           py::arg( "link_ends_vector" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const std::string, const bool,
-                                        const bool>(&tom::observationParser),
-                      py::arg("link_ends_str"),
-                      py::arg("is_reference_point") = false,
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::string, const bool, const bool >(
+                   &tom::observationParser ),
+           py::arg( "link_ends_str" ),
+           py::arg( "is_reference_point" ) = false,
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const std::vector<std::string>&,
-                                        const bool, const bool>(
-                          &tom::observationParser),
-                      py::arg("link_ends_str_vector"),
-                      py::arg("is_reference_point") = false,
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::vector< std::string >&, const bool, const bool >(
+                   &tom::observationParser ),
+           py::arg( "link_ends_str_vector" ),
+           py::arg( "is_reference_point" ) = false,
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def(
-                    "observation_parser",
-                    py::overload_cast<
-                        const std::pair<std::string, std::string>&, const bool>(
-                        &tom::observationParser),
-                    py::arg("link_end_id"),
-                    py::arg("use_opposite_condition") = false,
-                    R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::pair< std::string, std::string >&, const bool >(
+                   &tom::observationParser ),
+           py::arg( "link_end_id" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def(
-                    "observation_parser",
-                    py::overload_cast<
-                        const std::vector<std::pair<std::string, std::string>>&,
-                        const bool>(&tom::observationParser),
-                    py::arg("link_end_ids_vector"),
-                    py::arg("use_opposite_condition") = false,
-                    R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::vector< std::pair< std::string, std::string > >&,
+                              const bool >( &tom::observationParser ),
+           py::arg( "link_end_ids_vector" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const tom::LinkEndType&, const bool>(
-                          &tom::observationParser),
-                      py::arg("link_end_type"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const tom::LinkEndType&, const bool >( &tom::observationParser ),
+           py::arg( "link_end_type" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const std::vector<tom::LinkEndType>&,
-                                        const bool>(&tom::observationParser),
-                      py::arg("link_end_types_vector"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::vector< tom::LinkEndType >&, const bool >(
+                   &tom::observationParser ),
+           py::arg( "link_end_types_vector" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<
-                          const std::pair<tom::LinkEndType, tom::LinkEndId>&,
-                          const bool>(&tom::observationParser),
-                      py::arg("single_link_end"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::pair< tom::LinkEndType, tom::LinkEndId >&, const bool >(
+                   &tom::observationParser ),
+           py::arg( "single_link_end" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const std::vector<std::pair<
-                                            tom::LinkEndType, tom::LinkEndId>>&,
-                                        const bool>(&tom::observationParser),
-                      py::arg("single_link_ends_vector"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::vector< std::pair< tom::LinkEndType, tom::LinkEndId > >&,
+                              const bool >( &tom::observationParser ),
+           py::arg( "single_link_ends_vector" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const std::pair<double, double>&,
-                                        const bool>(&tom::observationParser),
-                      py::arg("time_bounds"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::pair< double, double >&, const bool >(
+                   &tom::observationParser ),
+           py::arg( "time_bounds" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<
-                          const std::vector<std::pair<double, double>>&,
-                          const bool>(&tom::observationParser),
-                      py::arg("time_bounds_vector"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::vector< std::pair< double, double > >&, const bool >(
+                   &tom::observationParser ),
+           py::arg( "time_bounds_vector" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<
-                          const std::shared_ptr<
-                              tom::ObservationAncilliarySimulationSettings>,
-                          const bool>(&tom::observationParser),
-                      py::arg("ancillary_settings"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >,
+                              const bool >( &tom::observationParser ),
+           py::arg( "ancillary_settings" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<
-                          const std::vector<std::shared_ptr<
-                              tom::ObservationAncilliarySimulationSettings>>&,
-                          const bool>(&tom::observationParser),
-                      py::arg("ancillary_settings_vector"),
-                      py::arg("use_opposite_condition") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast< const std::vector< std::shared_ptr<
+                                      tom::ObservationAncilliarySimulationSettings > >&,
+                              const bool >( &tom::observationParser ),
+           py::arg( "ancillary_settings_vector" ),
+           py::arg( "use_opposite_condition" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def("observation_parser",
-                      py::overload_cast<const std::vector<std::shared_ptr<
-                                            tom::ObservationCollectionParser>>&,
-                                        const bool>(&tom::observationParser),
-                      py::arg("observation_parsers"),
-                      py::arg("combine_conditions") = false,
-                      R"doc(No documentation found.)doc");
+    m.def( "observation_parser",
+           py::overload_cast<
+                   const std::vector< std::shared_ptr< tom::ObservationCollectionParser > >&,
+                   const bool >( &tom::observationParser ),
+           py::arg( "observation_parsers" ),
+           py::arg( "combine_conditions" ) = false,
+           R"doc(No documentation found.)doc" );
 
-
-                py::class_<
-                    tom::ObservationViabilityCalculator,
-                    std::shared_ptr<tom::ObservationViabilityCalculator>>(
-                    m, "ObservationViabilityCalculator",
-                    R"doc(
+    py::class_< tom::ObservationViabilityCalculator,
+                std::shared_ptr< tom::ObservationViabilityCalculator > >(
+            m,
+            "ObservationViabilityCalculator",
+            R"doc(
 
         Template class for observation viability calculators.
 
@@ -702,12 +643,12 @@ namespace tudatpy {
 
 
 
-     )doc")
-                    .def("is_observation_viable",
-                         &tom::ObservationViabilityCalculator::
-                             isObservationViable,
-                         py::arg("link_end_states"), py::arg("link_end_times"),
-                         R"doc(
+     )doc" )
+            .def( "is_observation_viable",
+                  &tom::ObservationViabilityCalculator::isObservationViable,
+                  py::arg( "link_end_states" ),
+                  py::arg( "link_end_times" ),
+                  R"doc(
 
         Function to check whether an observation is viable.
 
@@ -732,14 +673,13 @@ namespace tudatpy {
 
 
 
-    )doc");
+    )doc" );
 
-                py::class_<
-                    tom::ObservationSimulatorBase<STATE_SCALAR_TYPE, TIME_TYPE>,
-                    std::shared_ptr<tom::ObservationSimulatorBase<
-                        STATE_SCALAR_TYPE, TIME_TYPE>>>(m,
-                                                        "ObservationSimulator",
-                                                        R"doc(
+    py::class_< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m,
+            "ObservationSimulator",
+            R"doc(
 
         Class hosting the functionality for simulating observations.
 
@@ -750,49 +690,34 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-                py::class_<
-                    tom::ObservationSimulator<1, STATE_SCALAR_TYPE, TIME_TYPE>,
-                    std::shared_ptr<tom::ObservationSimulator<
-                        1, STATE_SCALAR_TYPE, TIME_TYPE>>,
-                    tom::ObservationSimulatorBase<STATE_SCALAR_TYPE,
-                                                  TIME_TYPE>>(
-                    m, "ObservationSimulator_1",
-                    R"doc(No documentation found.)doc");
+    py::class_< tom::ObservationSimulator< 1, STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tom::ObservationSimulator< 1, STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > >(
+            m, "ObservationSimulator_1", R"doc(No documentation found.)doc" );
 
-                py::class_<
-                    tom::ObservationSimulator<2, STATE_SCALAR_TYPE, TIME_TYPE>,
-                    std::shared_ptr<tom::ObservationSimulator<
-                        2, STATE_SCALAR_TYPE, TIME_TYPE>>,
-                    tom::ObservationSimulatorBase<STATE_SCALAR_TYPE,
-                                                  TIME_TYPE>>(
-                    m, "ObservationSimulator_2",
-                    R"doc(No documentation found.)doc");
+    py::class_< tom::ObservationSimulator< 2, STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tom::ObservationSimulator< 2, STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > >(
+            m, "ObservationSimulator_2", R"doc(No documentation found.)doc" );
 
-                py::class_<
-                    tom::ObservationSimulator<3, STATE_SCALAR_TYPE, TIME_TYPE>,
-                    std::shared_ptr<tom::ObservationSimulator<
-                        3, STATE_SCALAR_TYPE, TIME_TYPE>>,
-                    tom::ObservationSimulatorBase<STATE_SCALAR_TYPE,
-                                                  TIME_TYPE>>(
-                    m, "ObservationSimulator_3",
-                    R"doc(No documentation found.)doc");
+    py::class_< tom::ObservationSimulator< 3, STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tom::ObservationSimulator< 3, STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > >(
+            m, "ObservationSimulator_3", R"doc(No documentation found.)doc" );
 
-                py::class_<
-                    tom::ObservationSimulator<6, STATE_SCALAR_TYPE, TIME_TYPE>,
-                    std::shared_ptr<tom::ObservationSimulator<
-                        6, STATE_SCALAR_TYPE, TIME_TYPE>>,
-                    tom::ObservationSimulatorBase<STATE_SCALAR_TYPE,
-                                                  TIME_TYPE>>(
-                    m, "ObservationSimulator_6",
-                    R"doc(No documentation found.)doc");
+    py::class_< tom::ObservationSimulator< 6, STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tom::ObservationSimulator< 6, STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > >(
+            m, "ObservationSimulator_6", R"doc(No documentation found.)doc" );
 
-                m.def("simulate_observations",
-                      &tss::simulateObservations<STATE_SCALAR_TYPE, TIME_TYPE>,
-                      py::arg("simulation_settings"),
-                      py::arg("observation_simulators"), py::arg("bodies"),
-                      R"doc(
+    m.def( "simulate_observations",
+           &tss::simulateObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "simulation_settings" ),
+           py::arg( "observation_simulators" ),
+           py::arg( "bodies" ),
+           R"doc(
 
 Function to simulate observations.
 
@@ -821,98 +746,58 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                m.def("compute_residuals_and_dependent_variables",
-                      &tss::computeResidualsAndDependentVariables<
-                          STATE_SCALAR_TYPE, TIME_TYPE>,
-                      py::arg("observation_collection"),
-                      py::arg("observation_simulators"), py::arg("bodies"),
-                      R"doc(No documentation found.)doc");
+    m.def( "compute_residuals_and_dependent_variables",
+           &tss::computeResidualsAndDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observation_collection" ),
+           py::arg( "observation_simulators" ),
+           py::arg( "bodies" ),
+           R"doc(No documentation found.)doc" );
 
+    m.def( "create_pseudo_observations_and_models",
+           &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE >,
+           py::arg( "bodies" ),
+           py::arg( "observed_bodies" ),
+           py::arg( "central_bodies" ),
+           py::arg( "initial_time" ),
+           py::arg( "final_time" ),
+           py::arg( "time_step" ),
+           R"doc(No documentation found.)doc" );
 
-                m.def("create_pseudo_observations_and_models",
-                      &tss::simulatePseudoObservations<TIME_TYPE,
-                                                       STATE_SCALAR_TYPE>,
-                      py::arg("bodies"), py::arg("observed_bodies"),
-                      py::arg("central_bodies"), py::arg("initial_time"),
-                      py::arg("final_time"), py::arg("time_step"),
-                      R"doc(No documentation found.)doc");
+    m.def( "create_best_fit_to_ephemeris",
+           &tss::createBestFitToCurrentEphemeris< TIME_TYPE, STATE_SCALAR_TYPE >,
+           py::arg( "bodies" ),
+           py::arg( "acceleration_models" ),
+           py::arg( "observed_bodies" ),
+           py::arg( "central_bodies" ),
+           py::arg( "integrator_settings" ),
+           py::arg( "initial_time" ),
+           py::arg( "final_time" ),
+           py::arg( "data_point_interval" ),
+           py::arg( "additional_parameter_names" ) =
+                   std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
+           py::arg( "number_of_iterations" ) = 3,
+           py::arg( "reintegrate_variational_equations" ) = true,
+           py::arg( "results_print_frequency" ) = 0.0,
+           R"doc(No documentation found.)doc" );
 
-                m.def("create_best_fit_to_ephemeris",
-                      &tss::createBestFitToCurrentEphemeris<TIME_TYPE,
-                                                            STATE_SCALAR_TYPE>,
-                      py::arg("bodies"), py::arg("acceleration_models"),
-                      py::arg("observed_bodies"), py::arg("central_bodies"),
-                      py::arg("integrator_settings"), py::arg("initial_time"),
-                      py::arg("final_time"), py::arg("data_point_interval"),
-                      py::arg("additional_parameter_names") = std::vector<
-                          std::shared_ptr<tep::EstimatableParameterSettings>>(),
-                      py::arg("number_of_iterations") = 3,
-                      py::arg("reintegrate_variational_equations") = true,
-                      py::arg("results_print_frequency") = 0.0,
-                      R"doc(No documentation found.)doc");
+    m.def( "set_existing_observations",
+           &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observations" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancilliary_settings_per_observatble" ) =
+                   std::map< tom::ObservableType,
+                             std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ) );
 
-                m.def(
-                    "set_existing_observations",
-                    &tss::setExistingObservations<STATE_SCALAR_TYPE, TIME_TYPE>,
-                    py::arg("observations"), py::arg("reference_link_end"),
-                    py::arg("ancilliary_settings_per_observatble") = std::map<
-                        tom::ObservableType,
-                        std::shared_ptr<
-                            tom::ObservationAncilliarySimulationSettings>>());
-
-                m.def("compute_target_angles_and_range",
-                      &tss::getTargetAnglesAndRange, py::arg("bodies"),
-                      py::arg("station_id"), py::arg("target_body"),
-                      py::arg("observation_times"),
-                      py::arg("is_station_transmitting"),
-                      R"doc(
-
-Function to compute the azimuth angle, elevation angle and range at a ground station.
-
-Function to compute the azimuth angle, elevation angle and range at a ground station. This functions is provided as a function of
-convenience, to prevent users having to manually define the relevant settings for this often-needed functionality. This function
-takes an observing station and a target body as input, and provides the observed angles and current range (without correction for aberrations, with correction for light time)
-as observed at that station
-
-
-Parameters
-----------
-bodies : SystemOfBodies
-    System of bodies that defines the full physical environment
-
-station_id : tuple[ str, str]
-    Identifier for the observing station, as a pair of strings: the body name and the station name.
-
-target_body : str
-    Name of body which is observed by ground station
-
-observation_times : list[float]
-    List of times at which the ground station observations are to be analyzed
-
-is_station_transmitting : Bool
-    Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
-    This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
-
-Returns
--------
-dict[float,numpy.ndarray[numpy.float64[3, 1]]]
-    Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
-
-
-
-
-
-
-    )doc");
-
-                m.def("compute_target_angles_and_range_vectors",
-                      &tss::getTargetAnglesAndRangeVector, py::arg("bodies"),
-                      py::arg("station_id"), py::arg("target_body"),
-                      py::arg("observation_times"),
-                      py::arg("is_station_transmitting"),
-                      R"doc(
+    m.def( "compute_target_angles_and_range",
+           &tss::getTargetAnglesAndRange,
+           py::arg( "bodies" ),
+           py::arg( "station_id" ),
+           py::arg( "target_body" ),
+           py::arg( "observation_times" ),
+           py::arg( "is_station_transmitting" ),
+           R"doc(
 
 Function to compute the azimuth angle, elevation angle and range at a ground station.
 
@@ -950,59 +835,97 @@ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "create_filtered_observation_collection",
-                    py::overload_cast<
-                        const std::shared_ptr<tom::ObservationCollection<
-                            STATE_SCALAR_TYPE, TIME_TYPE>>,
-                        const std::map<
-                            std::shared_ptr<tom::ObservationCollectionParser>,
-                            std::shared_ptr<tom::ObservationFilterBase>>&>(
-                        &tom::filterObservations<STATE_SCALAR_TYPE, TIME_TYPE>),
-                    py::arg("original_observation_collection"),
-                    py::arg("observation_filters_map"),
-                    R"doc(No documentation found.)doc");
+    m.def( "compute_target_angles_and_range_vectors",
+           &tss::getTargetAnglesAndRangeVector,
+           py::arg( "bodies" ),
+           py::arg( "station_id" ),
+           py::arg( "target_body" ),
+           py::arg( "observation_times" ),
+           py::arg( "is_station_transmitting" ),
+           R"doc(
 
-                m.def(
-                    "create_filtered_observation_collection",
-                    py::overload_cast<
-                        const std::shared_ptr<tom::ObservationCollection<
-                            STATE_SCALAR_TYPE, TIME_TYPE>>,
-                        const std::shared_ptr<tom::ObservationFilterBase>,
-                        const std::shared_ptr<
-                            tom::ObservationCollectionParser>>(
-                        &tom::filterObservations<STATE_SCALAR_TYPE, TIME_TYPE>),
-                    py::arg("original_observation_collection"),
-                    py::arg("observation_filter"),
-                    py::arg("observation_parser") =
-                        std::make_shared<tom::ObservationCollectionParser>(),
-                    R"doc(No documentation found.)doc");
+Function to compute the azimuth angle, elevation angle and range at a ground station.
 
-                m.def("split_observation_collection",
-                      &tom::splitObservationSets<STATE_SCALAR_TYPE, TIME_TYPE>,
-                      py::arg("original_observation_collection"),
-                      py::arg("observation_set_splitter"),
-                      py::arg("observation_parser") =
-                          std::make_shared<tom::ObservationCollectionParser>(),
-                      R"doc(No documentation found.)doc");
-
-                m.def("create_new_observation_collection",
-                      &tom::createNewObservationCollection<STATE_SCALAR_TYPE,
-                                                           TIME_TYPE>,
-                      py::arg("original_observation_collection"),
-                      py::arg("observation_parser") =
-                          std::make_shared<tom::ObservationCollectionParser>(),
-                      R"doc(No documentation found.)doc");
+Function to compute the azimuth angle, elevation angle and range at a ground station. This functions is provided as a function of
+convenience, to prevent users having to manually define the relevant settings for this often-needed functionality. This function
+takes an observing station and a target body as input, and provides the observed angles and current range (without correction for aberrations, with correction for light time)
+as observed at that station
 
 
-                py::class_<
-                    tom::ObservationCollection<STATE_SCALAR_TYPE, TIME_TYPE>,
-                    std::shared_ptr<tom::ObservationCollection<
-                        STATE_SCALAR_TYPE, TIME_TYPE>>>(m,
-                                                        "ObservationCollection",
-                                                        R"doc(
+Parameters
+----------
+bodies : SystemOfBodies
+    System of bodies that defines the full physical environment
+
+station_id : tuple[ str, str]
+    Identifier for the observing station, as a pair of strings: the body name and the station name.
+
+target_body : str
+    Name of body which is observed by ground station
+
+observation_times : list[float]
+    List of times at which the ground station observations are to be analyzed
+
+is_station_transmitting : Bool
+    Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
+    This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
+
+Returns
+-------
+dict[float,numpy.ndarray[numpy.float64[3, 1]]]
+    Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
+
+
+
+
+
+
+    )doc" );
+
+    m.def( "create_filtered_observation_collection",
+           py::overload_cast< const std::shared_ptr<
+                                      tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                              const std::map< std::shared_ptr< tom::ObservationCollectionParser >,
+                                              std::shared_ptr< tom::ObservationFilterBase > >& >(
+                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_filters_map" ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "create_filtered_observation_collection",
+           py::overload_cast< const std::shared_ptr<
+                                      tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                              const std::shared_ptr< tom::ObservationFilterBase >,
+                              const std::shared_ptr< tom::ObservationCollectionParser > >(
+                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_filter" ),
+           py::arg( "observation_parser" ) =
+                   std::make_shared< tom::ObservationCollectionParser >( ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "split_observation_collection",
+           &tom::splitObservationSets< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_set_splitter" ),
+           py::arg( "observation_parser" ) =
+                   std::make_shared< tom::ObservationCollectionParser >( ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "create_new_observation_collection",
+           &tom::createNewObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_parser" ) =
+                   std::make_shared< tom::ObservationCollectionParser >( ),
+           R"doc(No documentation found.)doc" );
+
+    py::class_< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m,
+            "ObservationCollection",
+            R"doc(
 
         Class collecting all observations and associated data for use in an estimation.
 
@@ -1014,224 +937,196 @@ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
 
 
 
-     )doc")
-                    .def(py::init<std::vector<
-                             std::shared_ptr<tom::SingleObservationSet<
-                                 STATE_SCALAR_TYPE, TIME_TYPE>>>>(),
-                         py::arg("observation_sets"))
-                    .def_property_readonly(
-                        "concatenated_times",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getConcatenatedTimeVector,
-                        R"doc(
+     )doc" )
+            .def( py::init< std::vector< std::shared_ptr<
+                          tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > > >( ),
+                  py::arg( "observation_sets" ) )
+            .def_property_readonly(
+                    "concatenated_times",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::getConcatenatedTimeVector,
+                    R"doc(
 
         **read-only**
 
         Vector containing concatenated observation times. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_ for details on storage order
 
         :type: numpy.ndarray[numpy.float64[m, 1]]
-     )doc")
-                    .def_property_readonly(
-                        "concatenated_float_times",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getConcatenatedDoubleTimeVector,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "concatenated_float_times",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::getConcatenatedDoubleTimeVector,
+                    R"doc(
 
         **read-only**
 
         Vector containing concatenated observation times. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_ for details on storage order
 
         :type: numpy.ndarray[numpy.float64[m, 1]]
-     )doc")
-                    .def_property_readonly(
-                        "concatenated_weights",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getUnparsedConcatenatedWeights,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "concatenated_observations",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE, TIME_TYPE>::getObservationVector,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "concatenated_weights",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::getUnparsedConcatenatedWeights,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "concatenated_observations",
+                                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                                 TIME_TYPE >::getObservationVector,
+                                    R"doc(
 
         **read-only**
 
         Vector containing concatenated observable values. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_ for details on storage order
 
         :type: numpy.ndarray[numpy.float64[m, 1]]
-     )doc")
-                    .def_property_readonly(
-                        "concatenated_link_definition_ids",
-                        py::overload_cast<>(
-                            &tom::ObservationCollection<
-                                STATE_SCALAR_TYPE,
-                                TIME_TYPE>::getConcatenatedLinkEndIds),
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "concatenated_link_definition_ids",
+                    py::overload_cast<>(
+                            &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                         TIME_TYPE >::getConcatenatedLinkEndIds ),
+                    R"doc(
 
         **read-only**
 
         Vector containing concatenated indices identifying the link ends. Each set of link ends is assigned a unique integer identifier (for a given instance of this class). The definition of a given integer identifier with the link ends is given by this class' :func:`link_definition_ids` function. See `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_ for details on storage order of the present vector.
 
         :type: numpy.ndarray[ int ]
-     )doc")
-                    .def_property_readonly(
-                        "link_definition_ids",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getInverseLinkEndIdentifierMap,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "link_definition_ids",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::getInverseLinkEndIdentifierMap,
+                    R"doc(
 
         **read-only**
 
         Dictionaty mapping a link end integer identifier to the specific link ends
 
         :type: dict[ int, dict[ LinkEndType, LinkEndId ] ]
-     )doc")
-                    .def_property_readonly(
-                        "observable_type_start_index_and_size",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getObservationTypeStartAndSize,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "observable_type_start_index_and_size",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::getObservationTypeStartAndSize,
+                    R"doc(
 
         **read-only**
 
         Dictionary defining per obervable type (dict key), the index in the full observation vector (:func:`concatenated_observations`) where the given observable type starts, and the number of subsequent entries in this vector containing a value of an observable of this type
 
         :type: dict[ ObservableType, [ int, int ] ]
-     )doc")
-                    .def_property_readonly(
-                        "observation_set_start_index_and_size",
-                        &tom::ObservationCollection<STATE_SCALAR_TYPE,
-                                                    TIME_TYPE>::
-                            getObservationSetStartAndSizePerLinkEndIndex,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "observation_set_start_index_and_size",
+                                    &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                            getObservationSetStartAndSizePerLinkEndIndex,
+                                    R"doc(
 
         **read-only**
 
         The nested dictionary/list returned by this property mirrors the structure of the :func:`sorted_observation_sets` property of this class. The present function provides the start index and size of the observables in the full observation vector that come from the correspoding `SingleObservationSet` in the :func:`sorted_observation_sets` Consequently, the present property returns a nested dictionary defining per obervable type, link end identifier, and `SingleObservationSet` index (for the given observable type and link end identifier), where the observables in the given `SingleObservationSet` starts, and the number of subsequent entries in this vector containing data from it.
 
         :type: dict[ ObservableType, dict[ int, list[ int, int ] ] ]
-     )doc")
-                    .def_property_readonly(
-                        "observation_vector_size",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getTotalObservableSize,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "observation_vector_size",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::getTotalObservableSize,
+                    R"doc(
 
         **read-only**
 
         Length of the total vector of observations
 
         :type: int
-     )doc")
-                    .def_property_readonly(
-                        "sorted_observation_sets",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getSortedObservationSets,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "sorted_observation_sets",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::getSortedObservationSets,
+                    R"doc(
 
         **read-only**
 
         The nested dictionary/list contains the list of `SingleObservationSet` objects, in the same method as they are stored internally in the present class. Specifics on the storage order are given in the `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_
 
         :type: dict[ ObservableType, dict[ int, list[ SingleObservationSet ] ] ]
-     )doc")
-                    .def_property_readonly(
-                        "link_ends_per_observable_type",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getLinkEndsPerObservableType,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "link_definitions_per_observable",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getLinkDefinitionsPerObservable,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "time_bounds",
-                        &tom::ObservationCollection<STATE_SCALAR_TYPE,
-                                                    TIME_TYPE>::getTimeBounds,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "sorted_per_set_time_bounds",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getSortedObservationSetsTimeBounds,
-                        R"doc(No documentation found.)doc")
-                    .def(
-                        "set_observations",
-                        py::overload_cast<const Eigen::Matrix<
-                            STATE_SCALAR_TYPE, Eigen::Dynamic, 1>&>(
-                            &tom::ObservationCollection<
-                                STATE_SCALAR_TYPE, TIME_TYPE>::setObservations),
-                        py::arg("observations"),
-                        R"doc(No documentation found.)doc")
-                    .def(
-                        "set_observations",
-                        py::overload_cast<
-                            const Eigen::Matrix<STATE_SCALAR_TYPE,
-                                                Eigen::Dynamic, 1>&,
-                            const std::shared_ptr<
-                                tom::ObservationCollectionParser>>(
-                            &tom::ObservationCollection<
-                                STATE_SCALAR_TYPE, TIME_TYPE>::setObservations),
-                        py::arg("observations"), py::arg("observation_parser"),
-                        R"doc(No documentation found.)doc")
-                    .def(
-                        "set_observations",
-                        py::overload_cast<const std::map<
-                            std::shared_ptr<tom::ObservationCollectionParser>,
-                            Eigen::Matrix<STATE_SCALAR_TYPE, Eigen::Dynamic,
-                                          1>>&>(
-                            &tom::ObservationCollection<
-                                STATE_SCALAR_TYPE, TIME_TYPE>::setObservations),
-                        py::arg("observations_per_parser"),
-                        R"doc(No documentation found.)doc")
-                    .def("set_residuals",
-                         py::overload_cast<const Eigen::Matrix<
-                             STATE_SCALAR_TYPE, Eigen::Dynamic, 1>&>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE, TIME_TYPE>::setResiduals),
-                         py::arg("residuals"),
-                         R"doc(No documentation found.)doc")
-                    .def("set_residuals",
-                         py::overload_cast<
-                             const Eigen::Matrix<STATE_SCALAR_TYPE,
-                                                 Eigen::Dynamic, 1>&,
-                             const std::shared_ptr<
-                                 tom::ObservationCollectionParser>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE, TIME_TYPE>::setResiduals),
-                         py::arg("residuals"), py::arg("observation_parser"),
-                         R"doc(No documentation found.)doc")
-                    .def("set_residuals",
-                         py::overload_cast<const std::map<
-                             std::shared_ptr<tom::ObservationCollectionParser>,
-                             Eigen::Matrix<STATE_SCALAR_TYPE, Eigen::Dynamic,
-                                           1>>&>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE, TIME_TYPE>::setResiduals),
-                         py::arg("residuals_per_parser"),
-                         R"doc(No documentation found.)doc")
-                    .def("get_link_definitions_for_observables",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getLinkDefinitionsForSingleObservable,
-                         py::arg("observable_type"),
-                         R"doc(No documentation found.)doc")
-                    .def("get_single_link_and_type_observations",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getSingleLinkAndTypeObservationSets,
-                         py::arg("observable_type"), py::arg("link_definition"),
-                         R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "link_ends_per_observable_type",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::getLinkEndsPerObservableType,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "link_definitions_per_observable",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::getLinkDefinitionsPerObservable,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "time_bounds",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBounds,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "sorted_per_set_time_bounds",
+                    &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::getSortedObservationSetsTimeBounds,
+                    R"doc(No documentation found.)doc" )
+            .def( "set_observations",
+                  py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setObservations ),
+                  py::arg( "observations" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_observations",
+                  py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >&,
+                                     const std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setObservations ),
+                  py::arg( "observations" ),
+                  py::arg( "observation_parser" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_observations",
+                  py::overload_cast< const std::map<
+                          std::shared_ptr< tom::ObservationCollectionParser >,
+                          Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setObservations ),
+                  py::arg( "observations_per_parser" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_residuals",
+                  py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setResiduals ),
+                  py::arg( "residuals" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_residuals",
+                  py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >&,
+                                     const std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setResiduals ),
+                  py::arg( "residuals" ),
+                  py::arg( "observation_parser" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_residuals",
+                  py::overload_cast< const std::map<
+                          std::shared_ptr< tom::ObservationCollectionParser >,
+                          Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setResiduals ),
+                  py::arg( "residuals_per_parser" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_link_definitions_for_observables",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getLinkDefinitionsForSingleObservable,
+                  py::arg( "observable_type" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_single_link_and_type_observations",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getSingleLinkAndTypeObservationSets,
+                  py::arg( "observable_type" ),
+                  py::arg( "link_definition" ),
+                  R"doc(
 
         Function to get all observation sets for a given observable type and link definition.
 
@@ -1251,447 +1146,383 @@ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
 
 
 
-    )doc")
-                    .def("get_observable_types",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE, TIME_TYPE>::getObservableTypes,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_bodies_in_link_ends",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE, TIME_TYPE>::getBodiesInLinkEnds,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_reference_points_in_link_ends",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getReferencePointsInLinkEnds,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_time_bounds_list",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE, TIME_TYPE>::getTimeBoundsList,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_time_bounds_per_set",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE, TIME_TYPE>::getTimeBoundsPerSet,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def(
-                        "get_observations",
-                        &tom::ObservationCollection<STATE_SCALAR_TYPE,
-                                                    TIME_TYPE>::getObservations,
-                        py::arg("observation_parser") = std::make_shared<
-                            tom::ObservationCollectionParser>(),
-                        R"doc(No documentation found.)doc")
-                    .def("get_concatenated_observations",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getConcatenatedObservations,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_observation_times",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE, TIME_TYPE>::getObservationTimes,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_concatenated_observation_times",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getConcatenatedObservationTimes,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_concatenated_float_observation_times",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getConcatenatedDoubleObservationTimes,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_observations_and_times",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getObservationsAndTimes,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_concatenated_observations_and_times",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getConcatenatedObservationsAndTimes,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_concatenated_link_definition_ids",
-                         py::overload_cast<
-                             std::shared_ptr<tom::ObservationCollectionParser>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::getConcatenatedLinkEndIds),
-                         py::arg("observation_parser"),
-                         R"doc(No documentation found.)doc")
-                    .def("get_weights",
-                         &tom::ObservationCollection<STATE_SCALAR_TYPE,
-                                                     TIME_TYPE>::getWeights,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_concatenated_weights",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getConcatenatedWeights,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_residuals",
-                         &tom::ObservationCollection<STATE_SCALAR_TYPE,
-                                                     TIME_TYPE>::getResiduals,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_concatenated_residuals",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getConcatenatedResiduals,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def(
-                        "get_rms_residuals",
-                        &tom::ObservationCollection<STATE_SCALAR_TYPE,
-                                                    TIME_TYPE>::getRmsResiduals,
-                        py::arg("observation_parser") = std::make_shared<
-                            tom::ObservationCollectionParser>(),
-                        R"doc(No documentation found.)doc")
-                    .def("get_mean_residuals",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE, TIME_TYPE>::getMeanResiduals,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_computed_observations",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getComputedObservations,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_concatenated_computed_observations",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getConcatenatedComputedObservations,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("set_constant_weight",
-                         py::overload_cast<
-                             const double,
-                             const std::shared_ptr<
-                                 tom::ObservationCollectionParser>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setConstantWeight),
-                         py::arg("weight"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("set_constant_weight",
-                         py::overload_cast<
-                             const Eigen::VectorXd,
-                             const std::shared_ptr<
-                                 tom::ObservationCollectionParser>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setConstantWeight),
-                         py::arg("weight"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("set_constant_weight_per_observation_parser",
-                         py::overload_cast<std::map<
-                             std::shared_ptr<tom::ObservationCollectionParser>,
-                             double>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setConstantWeightPerObservable),
-                         py::arg("weights_per_observation_parser"),
-                         R"doc(No documentation found.)doc")
-                    .def("set_constant_weight_per_observation_parser",
-                         py::overload_cast<std::map<
-                             std::shared_ptr<tom::ObservationCollectionParser>,
-                             Eigen::VectorXd>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setConstantWeightPerObservable),
-                         py::arg("weights_per_observation_parser"),
-                         R"doc(No documentation found.)doc")
-                    .def("set_tabulated_weights",
-                         py::overload_cast<
-                             const Eigen::VectorXd,
-                             const std::shared_ptr<
-                                 tom::ObservationCollectionParser>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setTabulatedWeights),
-                         py::arg("tabulated_weights"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("set_tabulated_weights",
-                         py::overload_cast<std::map<
-                             std::shared_ptr<tom::ObservationCollectionParser>,
-                             Eigen::VectorXd>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setTabulatedWeights),
-                         py::arg("tabulated_weights"),
-                         R"doc(No documentation found.)doc")
-                    .def("append",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::appendObservationCollection,
-                         py::arg("observation_collection_to_append"))
-                    .def("filter_observations",
-                         py::overload_cast<
-                             const std::map<
-                                 std::shared_ptr<
-                                     tom::ObservationCollectionParser>,
-                                 std::shared_ptr<tom::ObservationFilterBase>>&,
-                             const bool>(&tom::ObservationCollection<
-                                         STATE_SCALAR_TYPE,
-                                         TIME_TYPE>::filterObservations),
-                         py::arg("observation_filters"),
-                         py::arg("save_filtered_observations") = true,
-                         R"doc(No documentation found.)doc")
-                    .def("filter_observations",
-                         py::overload_cast<
-                             std::shared_ptr<tom::ObservationFilterBase>,
-                             std::shared_ptr<tom::ObservationCollectionParser>,
-                             const bool>(&tom::ObservationCollection<
-                                         STATE_SCALAR_TYPE,
-                                         TIME_TYPE>::filterObservations),
-                         py::arg("observation_filters"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         py::arg("save_filtered_observations") = true,
-                         R"doc(No documentation found.)doc")
-                    .def("split_observation_sets",
-                         py::overload_cast<
-                             std::shared_ptr<tom::ObservationSetSplitterBase>,
-                             std::shared_ptr<tom::ObservationCollectionParser>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::splitObservationSets),
-                         py::arg("observation_set_splitter"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("get_single_observation_sets",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getSingleObservationSets,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("print_observation_sets_start_and_size",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::printObservationSetsStartAndSize,
-                         R"doc(No documentation found.)doc")
-                    .def("remove_single_observation_sets",
-                         py::overload_cast<
-                             std::shared_ptr<tom::ObservationCollectionParser>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::removeSingleObservationSets),
-                         py::arg("observation_parser"),
-                         R"doc(No documentation found.)doc")
-                    .def("set_reference_point",
-                         py::overload_cast<
-                             tss::SystemOfBodies&, const Eigen::Vector3d&,
-                             const std::string&, const std::string&,
-                             const tom::LinkEndType,
-                             const std::shared_ptr<
-                                 tom::ObservationCollectionParser>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setReferencePoint),
-                         py::arg("bodies"), py::arg("antenna_position"),
-                         py::arg("antenna_name"), py::arg("spacecraft_name"),
-                         py::arg("link_end_type"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("set_reference_points",
-                         py::overload_cast<
-                             tss::SystemOfBodies&,
-                             const std::map<double, Eigen::Vector3d>&,
-                             const std::string&, const tom::LinkEndType,
-                             const std::shared_ptr<
-                                 tom::ObservationCollectionParser>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setReferencePoints),
-                         py::arg("bodies"), py::arg("antenna_switch_history"),
-                         py::arg("spacecraft_name"), py::arg("link_end_type"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("set_reference_point",
-                         py::overload_cast<
-                             tss::SystemOfBodies&,
-                             const std::shared_ptr<te::Ephemeris>,
-                             const std::string&, const std::string&,
-                             const tom::LinkEndType,
-                             const std::shared_ptr<
-                                 tom::ObservationCollectionParser>>(
-                             &tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setReferencePoint),
-                         py::arg("bodies"),
-                         py::arg("antenna_body_fixed_ephemeris"),
-                         py::arg("antenna_name"), py::arg("spacecraft_name"),
-                         py::arg("link_end_type"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("set_transponder_delay",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE, TIME_TYPE>::setTransponderDelay,
-                         py::arg("spacecraft_name"),
-                         py::arg("transponder_delay"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("remove_empty_observation_sets",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::removeEmptySingleObservationSets,
-                         R"doc(No documentation found.)doc")
-                    .def(
-                        "add_dependent_variable",
-                        &tom::ObservationCollection<
-                            STATE_SCALAR_TYPE, TIME_TYPE>::addDependentVariable,
-                        py::arg("dependent_variable_settings"),
-                        py::arg("bodies"),
-                        py::arg("observation_parser") = std::make_shared<
-                            tom::ObservationCollectionParser>(),
-                        R"doc(No documentation found.)doc")
-                    .def("dependent_variable",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getDependentVariables,
-                         py::arg("dependent_variable_settings"),
-                         py::arg("first_compatible_settings") = false,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("concatenated_dependent_variable",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getConcatenatedDependentVariables,
-                         py::arg("dependent_variable_settings"),
-                         py::arg("first_compatible_settings") = false,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("compatible_dependent_variable_settings",
-                         &tom::ObservationCollection<STATE_SCALAR_TYPE,
-                                                     TIME_TYPE>::
-                             getCompatibleDependentVariablesSettingsList,
-                         py::arg("dependent_variable_settings"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("compatible_dependent_variables_list",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getAllCompatibleDependentVariables,
-                         py::arg("dependent_variable_settings"),
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("dependent_variable_history_per_set",
-                         &tom::ObservationCollection<STATE_SCALAR_TYPE,
-                                                     TIME_TYPE>::
-                             getDependentVariableHistoryPerObservationSet,
-                         py::arg("dependent_variable_settings"),
-                         py::arg("first_compatible_settings") = false,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc")
-                    .def("dependent_variable_history",
-                         &tom::ObservationCollection<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getDependentVariableHistory,
-                         py::arg("dependent_variable_settings"),
-                         py::arg("first_compatible_settings") = false,
-                         py::arg("observation_parser") = std::make_shared<
-                             tom::ObservationCollectionParser>(),
-                         R"doc(No documentation found.)doc");
+    )doc" )
+            .def( "get_observable_types",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableTypes,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_bodies_in_link_ends",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getBodiesInLinkEnds,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_reference_points_in_link_ends",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getReferencePointsInLinkEnds,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_time_bounds_list",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsList,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_time_bounds_per_set",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBoundsPerSet,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_observations",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservations,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_concatenated_observations",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getConcatenatedObservations,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_observation_times",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimes,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_concatenated_observation_times",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getConcatenatedObservationTimes,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_concatenated_float_observation_times",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getConcatenatedDoubleObservationTimes,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_observations_and_times",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getObservationsAndTimes,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_concatenated_observations_and_times",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getConcatenatedObservationsAndTimes,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_concatenated_link_definition_ids",
+                  py::overload_cast< std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::getConcatenatedLinkEndIds ),
+                  py::arg( "observation_parser" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_weights",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getWeights,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_concatenated_weights",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getConcatenatedWeights,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_residuals",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getResiduals,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_concatenated_residuals",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getConcatenatedResiduals,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_rms_residuals",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getRmsResiduals,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_mean_residuals",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::getMeanResiduals,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_computed_observations",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getComputedObservations,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_concatenated_computed_observations",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getConcatenatedComputedObservations,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_weight",
+                  py::overload_cast< const double,
+                                     const std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setConstantWeight ),
+                  py::arg( "weight" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_weight",
+                  py::overload_cast< const Eigen::VectorXd,
+                                     const std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setConstantWeight ),
+                  py::arg( "weight" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_weight_per_observation_parser",
+                  py::overload_cast<
+                          std::map< std::shared_ptr< tom::ObservationCollectionParser >, double > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                  setConstantWeightPerObservable ),
+                  py::arg( "weights_per_observation_parser" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_weight_per_observation_parser",
+                  py::overload_cast< std::map< std::shared_ptr< tom::ObservationCollectionParser >,
+                                               Eigen::VectorXd > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                  setConstantWeightPerObservable ),
+                  py::arg( "weights_per_observation_parser" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_tabulated_weights",
+                  py::overload_cast< const Eigen::VectorXd,
+                                     const std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setTabulatedWeights ),
+                  py::arg( "tabulated_weights" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_tabulated_weights",
+                  py::overload_cast< std::map< std::shared_ptr< tom::ObservationCollectionParser >,
+                                               Eigen::VectorXd > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setTabulatedWeights ),
+                  py::arg( "tabulated_weights" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "append",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::appendObservationCollection,
+                  py::arg( "observation_collection_to_append" ) )
+            .def( "filter_observations",
+                  py::overload_cast<
+                          const std::map< std::shared_ptr< tom::ObservationCollectionParser >,
+                                          std::shared_ptr< tom::ObservationFilterBase > >&,
+                          const bool >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::filterObservations ),
+                  py::arg( "observation_filters" ),
+                  py::arg( "save_filtered_observations" ) = true,
+                  R"doc(No documentation found.)doc" )
+            .def( "filter_observations",
+                  py::overload_cast< std::shared_ptr< tom::ObservationFilterBase >,
+                                     std::shared_ptr< tom::ObservationCollectionParser >,
+                                     const bool >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::filterObservations ),
+                  py::arg( "observation_filters" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  py::arg( "save_filtered_observations" ) = true,
+                  R"doc(No documentation found.)doc" )
+            .def( "split_observation_sets",
+                  py::overload_cast< std::shared_ptr< tom::ObservationSetSplitterBase >,
+                                     std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::splitObservationSets ),
+                  py::arg( "observation_set_splitter" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_single_observation_sets",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getSingleObservationSets,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "print_observation_sets_start_and_size",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::printObservationSetsStartAndSize,
+                  R"doc(No documentation found.)doc" )
+            .def( "remove_single_observation_sets",
+                  py::overload_cast< std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::removeSingleObservationSets ),
+                  py::arg( "observation_parser" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_reference_point",
+                  py::overload_cast< tss::SystemOfBodies&,
+                                     const Eigen::Vector3d&,
+                                     const std::string&,
+                                     const std::string&,
+                                     const tom::LinkEndType,
+                                     const std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setReferencePoint ),
+                  py::arg( "bodies" ),
+                  py::arg( "antenna_position" ),
+                  py::arg( "antenna_name" ),
+                  py::arg( "spacecraft_name" ),
+                  py::arg( "link_end_type" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_reference_points",
+                  py::overload_cast< tss::SystemOfBodies&,
+                                     const std::map< double, Eigen::Vector3d >&,
+                                     const std::string&,
+                                     const tom::LinkEndType,
+                                     const std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setReferencePoints ),
+                  py::arg( "bodies" ),
+                  py::arg( "antenna_switch_history" ),
+                  py::arg( "spacecraft_name" ),
+                  py::arg( "link_end_type" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_reference_point",
+                  py::overload_cast< tss::SystemOfBodies&,
+                                     const std::shared_ptr< te::Ephemeris >,
+                                     const std::string&,
+                                     const std::string&,
+                                     const tom::LinkEndType,
+                                     const std::shared_ptr< tom::ObservationCollectionParser > >(
+                          &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                                       TIME_TYPE >::setReferencePoint ),
+                  py::arg( "bodies" ),
+                  py::arg( "antenna_body_fixed_ephemeris" ),
+                  py::arg( "antenna_name" ),
+                  py::arg( "spacecraft_name" ),
+                  py::arg( "link_end_type" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_transponder_delay",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setTransponderDelay,
+                  py::arg( "spacecraft_name" ),
+                  py::arg( "transponder_delay" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "remove_empty_observation_sets",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::removeEmptySingleObservationSets,
+                  R"doc(No documentation found.)doc" )
+            .def( "add_dependent_variable",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::addDependentVariable,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "bodies" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "dependent_variable",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getDependentVariables,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "first_compatible_settings" ) = false,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "concatenated_dependent_variable",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getConcatenatedDependentVariables,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "first_compatible_settings" ) = false,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "compatible_dependent_variable_settings",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::
+                          getCompatibleDependentVariablesSettingsList,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "compatible_dependent_variables_list",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getAllCompatibleDependentVariables,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "dependent_variable_history_per_set",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::
+                          getDependentVariableHistoryPerObservationSet,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "first_compatible_settings" ) = false,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" )
+            .def( "dependent_variable_history",
+                  &tom::ObservationCollection< STATE_SCALAR_TYPE,
+                                               TIME_TYPE >::getDependentVariableHistory,
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "first_compatible_settings" ) = false,
+                  py::arg( "observation_parser" ) =
+                          std::make_shared< tom::ObservationCollectionParser >( ),
+                  R"doc(No documentation found.)doc" );
 
-                m.def("merge_observation_collections",
-                      &tss::mergeObservationCollections<STATE_SCALAR_TYPE,
-                                                        TIME_TYPE>,
-                      py::arg("observation_collection_list"));
+    m.def( "merge_observation_collections",
+           &tss::mergeObservationCollections< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observation_collection_list" ) );
 
-                m.def("create_single_observation_set",
-                      py::overload_cast<
-                          const tom::ObservableType, const tom::LinkEnds&,
-                          const std::vector<Eigen::Matrix<STATE_SCALAR_TYPE,
-                                                          Eigen::Dynamic, 1>>&,
-                          const std::vector<TIME_TYPE>, const tom::LinkEndType,
-                          const std::shared_ptr<
-                              tom::ObservationAncilliarySimulationSettings>>(
-                          &tom::createSingleObservationSet<STATE_SCALAR_TYPE,
-                                                           TIME_TYPE>),
-                      py::arg("observable_type"), py::arg("link_ends"),
-                      py::arg("observations"), py::arg("observation_times"),
-                      py::arg("reference_link_end"),
-                      py::arg("ancillary_settings"),
-                      R"doc(No documentation found.)doc");
+    m.def( "create_single_observation_set",
+           py::overload_cast<
+                   const tom::ObservableType,
+                   const tom::LinkEnds&,
+                   const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
+                   const std::vector< TIME_TYPE >,
+                   const tom::LinkEndType,
+                   const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
+                   &tom::createSingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           py::arg( "observations" ),
+           py::arg( "observation_times" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancillary_settings" ),
+           R"doc(No documentation found.)doc" );
 
-                m.def(
-                    "filter_observations",
-                    py::overload_cast<
-                        const std::shared_ptr<tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE, TIME_TYPE>>,
-                        const std::shared_ptr<tom::ObservationFilterBase>,
-                        const bool>(
-                        &tom::filterObservations<STATE_SCALAR_TYPE, TIME_TYPE>),
-                    py::arg("original_observation_set"),
-                    py::arg("observation_filter"),
-                    py::arg("save_filtered_observations") = false,
-                    R"doc(No documentation found.)doc");
+    m.def( "filter_observations",
+           py::overload_cast< const std::shared_ptr<
+                                      tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                              const std::shared_ptr< tom::ObservationFilterBase >,
+                              const bool >(
+                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "original_observation_set" ),
+           py::arg( "observation_filter" ),
+           py::arg( "save_filtered_observations" ) = false,
+           R"doc(No documentation found.)doc" );
 
-                m.def(
-                    "split_observation_set",
-                    py::overload_cast<
-                        const std::shared_ptr<tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE, TIME_TYPE>>,
-                        const std::shared_ptr<tom::ObservationSetSplitterBase>,
-                        const bool>(&tom::splitObservationSet<STATE_SCALAR_TYPE,
-                                                              TIME_TYPE>),
-                    py::arg("original_observation_set"),
-                    py::arg("observation_splitter"),
-                    py::arg("print_warning") = true,
-                    R"doc(No documentation found.)doc");
+    m.def( "split_observation_set",
+           py::overload_cast< const std::shared_ptr<
+                                      tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                              const std::shared_ptr< tom::ObservationSetSplitterBase >,
+                              const bool >(
+                   &tom::splitObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "original_observation_set" ),
+           py::arg( "observation_splitter" ),
+           py::arg( "print_warning" ) = true,
+           R"doc(No documentation found.)doc" );
 
-                py::class_<
-                    tom::SingleObservationSet<STATE_SCALAR_TYPE, TIME_TYPE>,
-                    std::shared_ptr<tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                              TIME_TYPE>>>(
-                    m, "SingleObservationSet",
-                    R"doc(
+    py::class_< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m,
+            "SingleObservationSet",
+            R"doc(
 
         Class collecting a single set of observations and associated data, of a given observable type, link ends, and ancilliary data.
 
@@ -1699,314 +1530,267 @@ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
 
 
 
-     )doc")
-                    .def(
-                        "set_observations",
-                        py::overload_cast<const std::vector<Eigen::Matrix<
-                            STATE_SCALAR_TYPE, Eigen::Dynamic, 1>>&>(
-                            &tom::SingleObservationSet<
-                                STATE_SCALAR_TYPE, TIME_TYPE>::setObservations),
-                        py::arg("observations"),
-                        R"doc(No documentation found.)doc")
-                    .def(
-                        "set_observations",
-                        py::overload_cast<const Eigen::Matrix<
-                            STATE_SCALAR_TYPE, Eigen::Dynamic, 1>&>(
-                            &tom::SingleObservationSet<
-                                STATE_SCALAR_TYPE, TIME_TYPE>::setObservations),
-                        py::arg("observations"),
-                        R"doc(No documentation found.)doc")
-                    .def("set_residuals",
-                         py::overload_cast<const std::vector<Eigen::Matrix<
-                             STATE_SCALAR_TYPE, Eigen::Dynamic, 1>>&>(
-                             &tom::SingleObservationSet<
-                                 STATE_SCALAR_TYPE, TIME_TYPE>::setResiduals),
-                         py::arg("residuals"),
-                         R"doc(No documentation found.)doc")
-                    .def("set_residuals",
-                         py::overload_cast<const Eigen::Matrix<
-                             STATE_SCALAR_TYPE, Eigen::Dynamic, 1>&>(
-                             &tom::SingleObservationSet<
-                                 STATE_SCALAR_TYPE, TIME_TYPE>::setResiduals),
-                         py::arg("residuals"),
-                         R"doc(No documentation found.)doc")
-                    .def("set_constant_weight",
-                         py::overload_cast<const double>(
-                             &tom::SingleObservationSet<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setConstantWeight),
-                         py::arg("weight"), R"doc(No documentation found.)doc")
-                    .def("set_constant_weight",
-                         py::overload_cast<
-                             const Eigen::Matrix<double, Eigen::Dynamic, 1>&>(
-                             &tom::SingleObservationSet<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setConstantWeight),
-                         py::arg("weight"), R"doc(No documentation found.)doc")
-                    .def("set_tabulated_weights",
-                         py::overload_cast<const Eigen::VectorXd&>(
-                             &tom::SingleObservationSet<
-                                 STATE_SCALAR_TYPE,
-                                 TIME_TYPE>::setTabulatedWeights),
-                         py::arg("weights"), R"doc(No documentation found.)doc")
-                    .def("filter_observations",
-                         &tom::SingleObservationSet<
-                             STATE_SCALAR_TYPE, TIME_TYPE>::filterObservations,
-                         py::arg("filter"), py::arg("save_filtered_obs") = true,
-                         R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "observable_type",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE, TIME_TYPE>::getObservableType,
-                        R"doc(
+     )doc" )
+            .def( "set_observations",
+                  py::overload_cast< const std::vector<
+                          Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                      TIME_TYPE >::setObservations ),
+                  py::arg( "observations" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_observations",
+                  py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                      TIME_TYPE >::setObservations ),
+                  py::arg( "observations" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_residuals",
+                  py::overload_cast< const std::vector<
+                          Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                      TIME_TYPE >::setResiduals ),
+                  py::arg( "residuals" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_residuals",
+                  py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                      TIME_TYPE >::setResiduals ),
+                  py::arg( "residuals" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_weight",
+                  py::overload_cast< const double >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                      TIME_TYPE >::setConstantWeight ),
+                  py::arg( "weight" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_weight",
+                  py::overload_cast< const Eigen::Matrix< double, Eigen::Dynamic, 1 >& >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                      TIME_TYPE >::setConstantWeight ),
+                  py::arg( "weight" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_tabulated_weights",
+                  py::overload_cast< const Eigen::VectorXd& >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                      TIME_TYPE >::setTabulatedWeights ),
+                  py::arg( "weights" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "filter_observations",
+                  &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::filterObservations,
+                  py::arg( "filter" ),
+                  py::arg( "save_filtered_obs" ) = true,
+                  R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "observable_type",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType,
+                    R"doc(
 
         **read-only**
 
         Type of observable for which the object stores observations
 
         :type: ObservableType
-     )doc")
-                    .def_property(
-                        "link_definition",
-                        &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                   TIME_TYPE>::getLinkEnds,
-                        &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                   TIME_TYPE>::setLinkEnds,
-                        R"doc(
+     )doc" )
+            .def_property( "link_definition",
+                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getLinkEnds,
+                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setLinkEnds,
+                           R"doc(
 
         **read-only**
 
         Definition of the link ends for which the object stores observations
 
         :type: LinkDefinition
-     )doc")
-                    .def_property_readonly(
-                        "reference_link_end",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE, TIME_TYPE>::getReferenceLinkEnd,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "reference_link_end",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getReferenceLinkEnd,
+                    R"doc(
 
         **read-only**
 
         Reference link end for all stored observations
 
         :type: LinkEndType
-     )doc")
-                    .def_property_readonly(
-                        "number_of_observables",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getNumberOfObservables,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "single_observable_size",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getSingleObservableSize,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "total_observation_set_size",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getTotalObservationSetSize,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "time_bounds",
-                        &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                   TIME_TYPE>::getTimeBounds,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "list_of_observations",
-                        &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                   TIME_TYPE>::getObservations,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "number_of_observables",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                                TIME_TYPE >::getNumberOfObservables,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "single_observable_size",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                TIME_TYPE >::getSingleObservableSize,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "total_observation_set_size",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                TIME_TYPE >::getTotalObservationSetSize,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "time_bounds",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBounds,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "list_of_observations",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservations,
+                    R"doc(
 
         **read-only**
 
         List of separate stored observations. Each entry of this list is a vector containing a single observation. In cases where the observation is single-valued (range, Doppler), the vector is size 1, but for multi-valued observations such as angular position, each vector in the list will have size >1
 
         :type: list[ numpy.ndarray[numpy.float64[m, 1]] ]
-     )doc")
-                    .def_property_readonly(
-                        "observation_times",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE, TIME_TYPE>::getObservationTimes,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "observation_times",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimes,
+                    R"doc(
 
         **read-only**
 
         Reference time for each of the observations in ``list_of_observations``
 
         :type: list[ float]
-     )doc")
-                    .def_property_readonly(
-                        "concatenated_observations",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getObservationsVector,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "concatenated_observations",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                                TIME_TYPE >::getObservationsVector,
+                                    R"doc(
 
         **read-only**
 
         Concatenated vector of all stored observations
 
         :type: numpy.ndarray[numpy.float64[m, 1]]
-     )doc")
-                    .def_property_readonly(
-                        "computed_observations",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getComputedObservations,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "concatenated_computed_observations",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getComputedObservationsVector,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "residuals",
-                        &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                   TIME_TYPE>::getResiduals,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "concatenated_residuals",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE, TIME_TYPE>::getResidualsVector,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "rms_residuals",
-                        &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                   TIME_TYPE>::getRmsResiduals,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "mean_residuals",
-                        &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                   TIME_TYPE>::getMeanResiduals,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "weights",
-                        &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                   TIME_TYPE>::getWeights,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "concatenad_weights",
-                        &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                   TIME_TYPE>::getWeightsVector,
-                        R"doc(No documentation found.)doc")
-                    .def_property(
-                        "dependent_variables",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getObservationsDependentVariables,
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::setObservationsDependentVariables,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "dependent_variables_history",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getDependentVariableHistory,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "observations_history",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getObservationsHistory,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "computed_observations",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                TIME_TYPE >::getComputedObservations,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "concatenated_computed_observations",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                TIME_TYPE >::getComputedObservationsVector,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "residuals",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getResiduals,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "concatenated_residuals",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualsVector,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "rms_residuals",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getRmsResiduals,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "mean_residuals",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getMeanResiduals,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "weights",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeights,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "concatenad_weights",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsVector,
+                    R"doc(No documentation found.)doc" )
+            .def_property(
+                    "dependent_variables",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                TIME_TYPE >::getObservationsDependentVariables,
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                TIME_TYPE >::setObservationsDependentVariables,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "dependent_variables_history",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                TIME_TYPE >::getDependentVariableHistory,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "observations_history",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                                TIME_TYPE >::getObservationsHistory,
+                                    R"doc(
 
         **read-only**
 
         Dictionary of observations sorted by time. Created by making a dictionaty with ``observation_times`` as keys and  ``list_of_observations`` as values
 
         :type: dict[ float, numpy.ndarray[numpy.float64[m, 1]] ]
-     )doc")
-                    .def_property_readonly(
-                        "ancilliary_settings",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getAncilliarySettings,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "ancilliary_settings",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                                TIME_TYPE >::getAncilliarySettings,
+                                    R"doc(
 
         **read-only**
 
         Ancilliary settings all stored observations
 
         :type: ObservationAncilliarySimulationSettings
-     )doc")
-                    .def_property(
-                        "weights_vector",
-                        &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                   TIME_TYPE>::getWeightsVector,
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE, TIME_TYPE>::setTabulatedWeights,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "filtered_observation_set",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getFilteredObservationSet,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "number_filtered_observations",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getNumberOfFilteredObservations,
-                        R"doc(No documentation found.)doc")
-                    .def(
-                        "single_dependent_variable",
-                        py::overload_cast<
-                            std::shared_ptr<
-                                tss::ObservationDependentVariableSettings>,
-                            const bool>(&tom::SingleObservationSet<
-                                        STATE_SCALAR_TYPE,
-                                        TIME_TYPE>::getSingleDependentVariable),
-                        py::arg("dependent_variable_settings"),
-                        py::arg("return_first_compatible_settings") = false,
-                        R"doc(No documentation found.)doc")
-                    .def("compatible_dependent_variable_settings",
-                         &tom::SingleObservationSet<STATE_SCALAR_TYPE,
-                                                    TIME_TYPE>::
-                             getCompatibleDependentVariablesSettingsList,
-                         R"doc(No documentation found.)doc")
-                    .def("compatible_dependent_variables_list",
-                         &tom::SingleObservationSet<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getAllCompatibleDependentVariables,
-                         R"doc(No documentation found.)doc")
-                    .def("single_dependent_variable_history",
-                         &tom::SingleObservationSet<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::getSingleDependentVariableHistory,
-                         R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "dependent_variables_matrix",
-                        &tom::SingleObservationSet<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getObservationsDependentVariablesMatrix,
-                        R"doc(No documentation found.)doc");
+     )doc" )
+            .def_property(
+                    "weights_vector",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsVector,
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setTabulatedWeights,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "filtered_observation_set",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                TIME_TYPE >::getFilteredObservationSet,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "number_filtered_observations",
+                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                TIME_TYPE >::getNumberOfFilteredObservations,
+                    R"doc(No documentation found.)doc" )
+            .def( "single_dependent_variable",
+                  py::overload_cast< std::shared_ptr< tss::ObservationDependentVariableSettings >,
+                                     const bool >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                                      TIME_TYPE >::getSingleDependentVariable ),
+                  py::arg( "dependent_variable_settings" ),
+                  py::arg( "return_first_compatible_settings" ) = false,
+                  R"doc(No documentation found.)doc" )
+            .def( "compatible_dependent_variable_settings",
+                  &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::
+                          getCompatibleDependentVariablesSettingsList,
+                  R"doc(No documentation found.)doc" )
+            .def( "compatible_dependent_variables_list",
+                  &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                              TIME_TYPE >::getAllCompatibleDependentVariables,
+                  R"doc(No documentation found.)doc" )
+            .def( "single_dependent_variable_history",
+                  &tom::SingleObservationSet< STATE_SCALAR_TYPE,
+                                              TIME_TYPE >::getSingleDependentVariableHistory,
+                  R"doc(No documentation found.)doc" )
+            .def_property_readonly( "dependent_variables_matrix",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                            getObservationsDependentVariablesMatrix,
+                                    R"doc(No documentation found.)doc" );
 
+    m.def( "single_observation_set",
+           &tss::singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observable_type" ),
+           py::arg( "link_definition" ),
+           py::arg( "observations" ),
+           py::arg( "observation_times" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancilliary_settings" ) = nullptr,
+           R"doc(No documentation found.)doc" );
 
-                m.def("single_observation_set",
-                      &tss::singleObservationSetWithoutDependentVariables<
-                          STATE_SCALAR_TYPE, TIME_TYPE>,
-                      py::arg("observable_type"), py::arg("link_definition"),
-                      py::arg("observations"), py::arg("observation_times"),
-                      py::arg("reference_link_end"),
-                      py::arg("ancilliary_settings") = nullptr,
-                      R"doc(No documentation found.)doc");
+    /*!
+     *************** STATE TRANSITION INTERFACE ***************
+     */
 
-                /*!
-                 *************** STATE TRANSITION INTERFACE ***************
-                 */
-
-                py::class_<
-                    tp::CombinedStateTransitionAndSensitivityMatrixInterface,
-                    std::shared_ptr<
-                        tp::CombinedStateTransitionAndSensitivityMatrixInterface>>(
-                    m, "CombinedStateTransitionAndSensitivityMatrixInterface",
-                    R"doc(
+    py::class_< tp::CombinedStateTransitionAndSensitivityMatrixInterface,
+                std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface > >(
+            m,
+            "CombinedStateTransitionAndSensitivityMatrixInterface",
+            R"doc(
 
         Class establishing an interface with the simulation's State Transition and Sensitivity Matrices.
 
@@ -2018,17 +1802,14 @@ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
 
 
 
-     )doc")
-                    .def(
-                        "state_transition_sensitivity_at_epoch",
-                        &tp::
-                            CombinedStateTransitionAndSensitivityMatrixInterface::
-                                getCombinedStateTransitionAndSensitivityMatrix,
-                        py::arg("time"),
-                        py::arg("add_central_body_dependency") = true,
-                        py::arg("arc_defining_bodies") =
-                            std::vector<std::string>(),
-                        R"doc(
+     )doc" )
+            .def( "state_transition_sensitivity_at_epoch",
+                  &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
+                          getCombinedStateTransitionAndSensitivityMatrix,
+                  py::arg( "time" ),
+                  py::arg( "add_central_body_dependency" ) = true,
+                  py::arg( "arc_defining_bodies" ) = std::vector< std::string >( ),
+                  R"doc(
 
         Function to get the concatenated state transition and sensitivity matrix at a given time.
 
@@ -2049,16 +1830,14 @@ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
 
 
 
-    )doc")
-                    .def(
-                        "full_state_transition_sensitivity_at_epoch",
-                        &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
-                            getFullCombinedStateTransitionAndSensitivityMatrix,
-                        py::arg("time"),
-                        py::arg("add_central_body_dependency") = true,
-                        py::arg("arc_defining_bodies") =
-                            std::vector<std::string>(),
-                        R"doc(
+    )doc" )
+            .def( "full_state_transition_sensitivity_at_epoch",
+                  &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
+                          getFullCombinedStateTransitionAndSensitivityMatrix,
+                  py::arg( "time" ),
+                  py::arg( "add_central_body_dependency" ) = true,
+                  py::arg( "arc_defining_bodies" ) = std::vector< std::string >( ),
+                  R"doc(
 
 
         Parameters
@@ -2074,88 +1853,78 @@ dict[float,numpy.ndarray[numpy.float64[3, 1]]]
 
 
 
-    )doc")
-                    .def_property_readonly(
-                        "state_transition_size",
-                        &tp::
-                            CombinedStateTransitionAndSensitivityMatrixInterface::
-                                getStateTransitionMatrixSize,
-                        R"doc(
+    )doc" )
+            .def_property_readonly( "state_transition_size",
+                                    &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
+                                            getStateTransitionMatrixSize,
+                                    R"doc(
 
         **read-only**
 
         Size of the (square) state transition matrix.
 
         :type: int
-     )doc")
-                    .def_property_readonly(
-                        "sensitivity_size",
-                        &tp::
-                            CombinedStateTransitionAndSensitivityMatrixInterface::
-                                getSensitivityMatrixSize,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "sensitivity_size",
+                                    &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
+                                            getSensitivityMatrixSize,
+                                    R"doc(
 
         **read-only**
 
         Number of columns in the sensitivity matrix.
 
         :type: int
-     )doc")
-                    .def_property_readonly(
-                        "full_parameter_size",
-                        &tp::
-                            CombinedStateTransitionAndSensitivityMatrixInterface::
-                                getFullParameterVectorSize,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "full_parameter_size",
+                                    &tp::CombinedStateTransitionAndSensitivityMatrixInterface::
+                                            getFullParameterVectorSize,
+                                    R"doc(
 
         **read-only**
 
         Full amount of parameters w.r.t. which partials have been set up via State Transition and Sensitivity Matrices.
 
         :type: int
-     )doc");
+     )doc" );
 
-                /*!
-                 *************** COVARIANCE ***************
-                 */
+    /*!
+     *************** COVARIANCE ***************
+     */
 
-                m.def("propagate_covariance_rsw_split_output",
-                      &tp::propagateCovarianceVectorsRsw,
-                      py::arg("covariance_output"), py::arg("estimator"),
-                      py::arg("output_times"),
-                      R"doc(No documentation found.)doc");
+    m.def( "propagate_covariance_rsw_split_output",
+           &tp::propagateCovarianceVectorsRsw,
+           py::arg( "covariance_output" ),
+           py::arg( "estimator" ),
+           py::arg( "output_times" ),
+           R"doc(No documentation found.)doc" );
 
+    m.def( "propagate_formal_errors_rsw_split_output",
+           &tp::propagateFormalErrorVectorsRsw,
+           py::arg( "covariance_output" ),
+           py::arg( "estimator" ),
+           py::arg( "output_times" ),
+           R"doc(No documentation found.)doc" );
 
-                m.def("propagate_formal_errors_rsw_split_output",
-                      &tp::propagateFormalErrorVectorsRsw,
-                      py::arg("covariance_output"), py::arg("estimator"),
-                      py::arg("output_times"),
-                      R"doc(No documentation found.)doc");
+    m.def( "propagate_covariance_split_output",
+           py::overload_cast< const Eigen::MatrixXd,
+                              const std::shared_ptr<
+                                      tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+                              const std::vector< double > >( &tp::propagateCovarianceVectors ),
+           py::arg( "initial_covariance" ),
+           py::arg( "state_transition_interface" ),
+           py::arg( "output_times" ),
+           R"doc(No documentation found.)doc" );
 
-                m.def(
-                    "propagate_covariance_split_output",
-                    py::overload_cast<
-                        const Eigen::MatrixXd,
-                        const std::shared_ptr<
-                            tp::CombinedStateTransitionAndSensitivityMatrixInterface>,
-                        const std::vector<double>>(
-                        &tp::propagateCovarianceVectors),
-                    py::arg("initial_covariance"),
-                    py::arg("state_transition_interface"),
-                    py::arg("output_times"),
-                    R"doc(No documentation found.)doc");
-
-                m.def(
-                    "propagate_covariance",
-                    py::overload_cast<
-                        const Eigen::MatrixXd,
-                        const std::shared_ptr<
-                            tp::CombinedStateTransitionAndSensitivityMatrixInterface>,
-                        const std::vector<double>>(&tp::propagateCovariance),
-                    py::arg("initial_covariance"),
-                    py::arg("state_transition_interface"),
-                    py::arg("output_times"),
-                    R"doc(
+    m.def( "propagate_covariance",
+           py::overload_cast< const Eigen::MatrixXd,
+                              const std::shared_ptr<
+                                      tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+                              const std::vector< double > >( &tp::propagateCovariance ),
+           py::arg( "initial_covariance" ),
+           py::arg( "state_transition_interface" ),
+           py::arg( "output_times" ),
+           R"doc(
 
 Function to propagate system covariance through time.
 
@@ -2188,20 +1957,17 @@ Dict[ float, numpy.ndarray[numpy.float64[m, n]] ]
 
 
 
-    )doc");
+    )doc" );
 
-                m.def(
-                    "propagate_formal_errors_split_output",
-                    py::overload_cast<
-                        const Eigen::MatrixXd,
-                        const std::shared_ptr<
-                            tp::CombinedStateTransitionAndSensitivityMatrixInterface>,
-                        const std::vector<double>>(
-                        &tp::propagateFormalErrorVectors),
-                    py::arg("initial_covariance"),
-                    py::arg("state_transition_interface"),
-                    py::arg("output_times"),
-                    R"doc(
+    m.def( "propagate_formal_errors_split_output",
+           py::overload_cast< const Eigen::MatrixXd,
+                              const std::shared_ptr<
+                                      tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+                              const std::vector< double > >( &tp::propagateFormalErrorVectors ),
+           py::arg( "initial_covariance" ),
+           py::arg( "state_transition_interface" ),
+           py::arg( "output_times" ),
+           R"doc(
 
 Function to propagate system formal errors through time.
 
@@ -2235,20 +2001,17 @@ Dict[ float, numpy.ndarray[numpy.float64[m, 1]] ]
 
 
 
-    )doc");
+    )doc" );
 
-
-                m.def(
-                    "propagate_formal_errors",
-                    py::overload_cast<
-                        const Eigen::MatrixXd,
-                        const std::shared_ptr<
-                            tp::CombinedStateTransitionAndSensitivityMatrixInterface>,
-                        const std::vector<double>>(&tp::propagateFormalErrors),
-                    py::arg("initial_covariance"),
-                    py::arg("state_transition_interface"),
-                    py::arg("output_times"),
-                    R"doc(
+    m.def( "propagate_formal_errors",
+           py::overload_cast< const Eigen::MatrixXd,
+                              const std::shared_ptr<
+                                      tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
+                              const std::vector< double > >( &tp::propagateFormalErrors ),
+           py::arg( "initial_covariance" ),
+           py::arg( "state_transition_interface" ),
+           py::arg( "output_times" ),
+           R"doc(
 
 Function to propagate system formal errors through time.
 
@@ -2282,17 +2045,17 @@ Dict[ float, numpy.ndarray[numpy.float64[m, 1]] ]
 
 
 
-    )doc");
+    )doc" );
 
+    /*!
+     *************** ESTIMATION ***************
+     */
 
-                /*!
-                 *************** ESTIMATION ***************
-                 */
-
-                py::class_<tss::EstimationConvergenceChecker,
-                           std::shared_ptr<tss::EstimationConvergenceChecker>>(
-                    m, "EstimationConvergenceChecker",
-                    R"doc(
+    py::class_< tss::EstimationConvergenceChecker,
+                std::shared_ptr< tss::EstimationConvergenceChecker > >(
+            m,
+            "EstimationConvergenceChecker",
+            R"doc(
 
         Class defining the convergence criteria for an estimation.
 
@@ -2303,15 +2066,15 @@ Dict[ float, numpy.ndarray[numpy.float64[m, 1]] ]
 
 
 
-     )doc");
+     )doc" );
 
-                m.def("estimation_convergence_checker",
-                      &tss::estimationConvergenceChecker,
-                      py::arg("maximum_iterations") = 5,
-                      py::arg("minimum_residual_change") = 0.0,
-                      py::arg("minimum_residual") = 0.0,
-                      py::arg("number_of_iterations_without_improvement") = 2,
-                      R"doc(
+    m.def( "estimation_convergence_checker",
+           &tss::estimationConvergenceChecker,
+           py::arg( "maximum_iterations" ) = 5,
+           py::arg( "minimum_residual_change" ) = 0.0,
+           py::arg( "minimum_residual" ) = 0.0,
+           py::arg( "number_of_iterations_without_improvement" ) = 2,
+           R"doc(
 
 Function for creating an :class:`~tudatpy.numerical_simulation.estimation.EstimationConvergenceChecker` object.
 
@@ -2338,15 +2101,13 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-
-                py::class_<
-                    tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>,
-                    std::shared_ptr<tss::CovarianceAnalysisInput<
-                        STATE_SCALAR_TYPE, TIME_TYPE>>>(
-                    m, "CovarianceAnalysisInput",
-                    R"doc(
+    py::class_< tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m,
+            "CovarianceAnalysisInput",
+            R"doc(
 
         Class for defining all specific inputs to a covariance analysis.
 
@@ -2354,17 +2115,15 @@ Returns
 
 
 
-     )doc")
-                    .def(py::init<
-                             const std::shared_ptr<tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE, TIME_TYPE>>&,
-                             const Eigen::MatrixXd, const Eigen::MatrixXd>(),
-                         py::arg("observations_and_times"),
-                         py::arg("inverse_apriori_covariance") =
-                             Eigen::MatrixXd::Zero(0, 0),
-                         py::arg("consider_covariance") =
-                             Eigen::MatrixXd::Zero(0, 0),
-                         R"doc(
+     )doc" )
+            .def( py::init< const std::shared_ptr<
+                                    tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >&,
+                            const Eigen::MatrixXd,
+                            const Eigen::MatrixXd >( ),
+                  py::arg( "observations_and_times" ),
+                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  R"doc(
 
         Class constructor.
 
@@ -2386,13 +2145,12 @@ Returns
 
 
 
-    )doc")
-                    .def("set_constant_weight",
-                         &tss::CovarianceAnalysisInput<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::setConstantWeightsMatrix,
-                         py::arg("weight"),
-                         R"doc(
+    )doc" )
+            .def( "set_constant_weight",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::setConstantWeightsMatrix,
+                  py::arg( "weight" ),
+                  R"doc(
 
         Function to set a constant weight matrix for all observables.
 
@@ -2413,53 +2171,51 @@ Returns
 
 
 
-    )doc")
-                    .def("set_weights_from_observation_collection",
-                         &tss::CovarianceAnalysisInput<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::setWeightsFromObservationCollection,
-                         R"doc(No documentation found.)doc")
-                    .def("set_constant_single_observable_weight",
-                         &tss::CovarianceAnalysisInput<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::setConstantSingleObservableWeights,
-                         py::arg("observable_type"), py::arg("weight"),
-                         R"doc(No documentation found.)doc")
-                    .def("set_constant_single_observable_vector_weight",
-                         &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE,
-                                                       TIME_TYPE>::
-                             setConstantSingleObservableVectorWeights,
-                         py::arg("observable_type"), py::arg("weight"),
-                         R"doc(No documentation found.)doc")
-                    .def("set_constant_single_observable_and_link_end_weight",
-                         &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE,
-                                                       TIME_TYPE>::
-                             setConstantSingleObservableAndLinkEndsWeights,
-                         py::arg("observable_type"), py::arg("link_ends"),
-                         py::arg("weight"), R"doc(No documentation found.)doc")
-                    .def(
-                        "set_constant_single_observable_and_link_end_vector_"
-                        "weight",
-                        &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE,
-                                                      TIME_TYPE>::
-                            setConstantSingleObservableAndLinkEndsVectorWeights,
-                        py::arg("observable_type"), py::arg("link_ends"),
-                        py::arg("weight"), R"doc(No documentation found.)doc")
-                    .def(
-                        "set_total_single_observable_and_link_end_vector_"
-                        "weight",
-                        &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE,
-                                                      TIME_TYPE>::
-                            setTabulatedSingleObservableAndLinkEndsWeights,
-                        py::arg("observable_type"), py::arg("link_ends"),
-                        py::arg("weight_vector"),
-                        R"doc(No documentation found.)doc")
-                    .def("set_constant_weight_per_observable",
-                         &tss::CovarianceAnalysisInput<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::setConstantPerObservableWeightsMatrix,
-                         py::arg("weight_per_observable"),
-                         R"doc(
+    )doc" )
+            .def( "set_weights_from_observation_collection",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::setWeightsFromObservationCollection,
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_single_observable_weight",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::setConstantSingleObservableWeights,
+                  py::arg( "observable_type" ),
+                  py::arg( "weight" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_single_observable_vector_weight",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                          setConstantSingleObservableVectorWeights,
+                  py::arg( "observable_type" ),
+                  py::arg( "weight" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_single_observable_and_link_end_weight",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                          setConstantSingleObservableAndLinkEndsWeights,
+                  py::arg( "observable_type" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "weight" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_single_observable_and_link_end_vector_"
+                  "weight",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                          setConstantSingleObservableAndLinkEndsVectorWeights,
+                  py::arg( "observable_type" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "weight" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_total_single_observable_and_link_end_vector_"
+                  "weight",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                          setTabulatedSingleObservableAndLinkEndsWeights,
+                  py::arg( "observable_type" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "weight_vector" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "set_constant_weight_per_observable",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::setConstantPerObservableWeightsMatrix,
+                  py::arg( "weight_per_observable" ),
+                  R"doc(
 
         Function to set a constant weight matrix for a given type of observable.
 
@@ -2480,24 +2236,21 @@ Returns
 
 
 
-    )doc")
-                    .def("set_constant_vector_weight_per_observable",
-                         &tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE,
-                                                       TIME_TYPE>::
-                             setConstantPerObservableVectorWeightsMatrix,
-                         py::arg("weight_per_observable"),
-                         R"doc(No documentation found.)doc")
-                    .def("define_covariance_settings",
-                         &tss::CovarianceAnalysisInput<
-                             STATE_SCALAR_TYPE,
-                             TIME_TYPE>::defineCovarianceSettings,
-                         py::arg("reintegrate_equations_on_first_iteration") =
-                             true,
-                         py::arg("reintegrate_variational_equations") = true,
-                         py::arg("save_design_matrix") = true,
-                         py::arg("print_output_to_terminal") = true,
-                         py::arg("limit_condition_number_for_warning") = 1.0E8,
-                         R"doc(
+    )doc" )
+            .def( "set_constant_vector_weight_per_observable",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                          setConstantPerObservableVectorWeightsMatrix,
+                  py::arg( "weight_per_observable" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "define_covariance_settings",
+                  &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE,
+                                                 TIME_TYPE >::defineCovarianceSettings,
+                  py::arg( "reintegrate_equations_on_first_iteration" ) = true,
+                  py::arg( "reintegrate_variational_equations" ) = true,
+                  py::arg( "save_design_matrix" ) = true,
+                  py::arg( "print_output_to_terminal" ) = true,
+                  py::arg( "limit_condition_number_for_warning" ) = 1.0E8,
+                  R"doc(
 
         Function to define specific settings for covariance analysis process
 
@@ -2530,30 +2283,26 @@ Returns
 
 
 
-    )doc")
-                    .def_property("weight_matrix_diagonal",
-                                  &tss::CovarianceAnalysisInput<
-                                      STATE_SCALAR_TYPE,
-                                      TIME_TYPE>::getWeightsMatrixDiagonals,
-                                  &tss::CovarianceAnalysisInput<
-                                      STATE_SCALAR_TYPE,
-                                      TIME_TYPE>::setWeightsMatrixDiagonals,
-                                  R"doc(
+    )doc" )
+            .def_property( "weight_matrix_diagonal",
+                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE,
+                                                          TIME_TYPE >::getWeightsMatrixDiagonals,
+                           &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE,
+                                                          TIME_TYPE >::setWeightsMatrixDiagonals,
+                           R"doc(
 
         **read-only**
 
         Complete diagonal of the weights matrix that is to be used
 
         :type: numpy.ndarray[numpy.float64[n, 1]]
-     )doc");
+     )doc" );
 
-                py::class_<
-                    tss::EstimationInput<STATE_SCALAR_TYPE, TIME_TYPE>,
-                    std::shared_ptr<
-                        tss::EstimationInput<STATE_SCALAR_TYPE, TIME_TYPE>>,
-                    tss::CovarianceAnalysisInput<STATE_SCALAR_TYPE, TIME_TYPE>>(
-                    m, "EstimationInput",
-                    R"doc(
+    py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                                "EstimationInput",
+                                                                                R"doc(
 
         Class for defining all inputs to the estimation.
 
@@ -2561,25 +2310,22 @@ Returns
 
 
 
-     )doc")
-                    .def(py::init<
-                             const std::shared_ptr<tom::ObservationCollection<
-                                 STATE_SCALAR_TYPE, TIME_TYPE>>&,
-                             const Eigen::MatrixXd,
-                             std::shared_ptr<tss::EstimationConvergenceChecker>,
-                             const Eigen::MatrixXd, const Eigen::VectorXd,
-                             const bool>(),
-                         py::arg("observations_and_times"),
-                         py::arg("inverse_apriori_covariance") =
-                             Eigen::MatrixXd::Zero(0, 0),
-                         py::arg("convergence_checker") = std::make_shared<
-                             tss::EstimationConvergenceChecker>(),
-                         py::arg("consider_covariance") =
-                             Eigen::MatrixXd::Zero(0, 0),
-                         py::arg("consider_parameters_deviations") =
-                             Eigen::VectorXd::Zero(0),
-                         py::arg("apply_final_parameter_correction") = true,
-                         R"doc(
+     )doc" )
+            .def( py::init< const std::shared_ptr<
+                                    tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >&,
+                            const Eigen::MatrixXd,
+                            std::shared_ptr< tss::EstimationConvergenceChecker >,
+                            const Eigen::MatrixXd,
+                            const Eigen::VectorXd,
+                            const bool >( ),
+                  py::arg( "observations_and_times" ),
+                  py::arg( "inverse_apriori_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg( "convergence_checker" ) =
+                          std::make_shared< tss::EstimationConvergenceChecker >( ),
+                  py::arg( "consider_covariance" ) = Eigen::MatrixXd::Zero( 0, 0 ),
+                  py::arg( "consider_parameters_deviations" ) = Eigen::VectorXd::Zero( 0 ),
+                  py::arg( "apply_final_parameter_correction" ) = true,
+                  R"doc(
 
         Class constructor.
 
@@ -2603,23 +2349,18 @@ Returns
 
 
 
-    )doc")
-                    .def(
-                        "define_estimation_settings",
-                        &tss::EstimationInput<STATE_SCALAR_TYPE, TIME_TYPE>::
-                            defineEstimationSettings,
-                        py::arg("reintegrate_equations_on_first_iteration") =
-                            true,
-                        py::arg("reintegrate_variational_equations") = true,
-                        py::arg("save_design_matrix") = true,
-                        py::arg("print_output_to_terminal") = true,
-                        py::arg("save_residuals_and_parameters_per_iteration") =
-                            true,
-                        py::arg("save_state_history_per_iteration") = false,
-                        py::arg("limit_condition_number_for_warning") = 1.0E8,
-                        py::arg("condition_number_warning_each_iteration") =
-                            true,
-                        R"doc(
+    )doc" )
+            .def( "define_estimation_settings",
+                  &tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineEstimationSettings,
+                  py::arg( "reintegrate_equations_on_first_iteration" ) = true,
+                  py::arg( "reintegrate_variational_equations" ) = true,
+                  py::arg( "save_design_matrix" ) = true,
+                  py::arg( "print_output_to_terminal" ) = true,
+                  py::arg( "save_residuals_and_parameters_per_iteration" ) = true,
+                  py::arg( "save_state_history_per_iteration" ) = false,
+                  py::arg( "limit_condition_number_for_warning" ) = 1.0E8,
+                  py::arg( "condition_number_warning_each_iteration" ) = true,
+                  R"doc(
 
         Function to define specific settings for the estimation process
 
@@ -2658,17 +2399,15 @@ Returns
 
 
 
-    )doc");
+    )doc" );
 
-                m.attr("PodInput") = m.attr("EstimationInput");
+    m.attr( "PodInput" ) = m.attr( "EstimationInput" );
 
-
-                py::class_<
-                    tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE, TIME_TYPE>,
-                    std::shared_ptr<tss::CovarianceAnalysisOutput<
-                        STATE_SCALAR_TYPE, TIME_TYPE>>>(
-                    m, "CovarianceAnalysisOutput",
-                    R"doc(
+    py::class_< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+            m,
+            "CovarianceAnalysisOutput",
+            R"doc(
 
         Class collecting all outputs from the covariance analysis process.
 
@@ -2676,187 +2415,163 @@ Returns
 
 
 
-     )doc")
-                    .def_property_readonly(
-                        "inverse_covariance",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getUnnormalizedInverseCovarianceMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "inverse_covariance",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                            getUnnormalizedInverseCovarianceMatrix,
+                                    R"doc(
 
         **read-only**
 
         (Unnormalized) inverse estimation covariance matrix :math:`\mathbf{P}^{-1}`.
 
         :type: numpy.ndarray[numpy.float64[m, m]]
-     )doc")
-                    .def_property_readonly(
-                        "covariance",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getUnnormalizedCovarianceMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "covariance",
+                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
+                                                    TIME_TYPE >::getUnnormalizedCovarianceMatrix,
+                    R"doc(
 
         **read-only**
 
         (Unnormalized) estimation covariance matrix :math:`\mathbf{P}`.
 
         :type: numpy.ndarray[numpy.float64[m, m]]
-     )doc")
-                    .def_property_readonly(
-                        "inverse_normalized_covariance",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getNormalizedInverseCovarianceMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "inverse_normalized_covariance",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                            getNormalizedInverseCovarianceMatrix,
+                                    R"doc(
 
         **read-only**
 
         Normalized inverse estimation covariance matrix :math:`\mathbf{\tilde{P}}^{-1}`.
 
         :type: numpy.ndarray[numpy.float64[m, m]]
-     )doc")
-                    .def_property_readonly(
-                        "normalized_covariance",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getNormalizedCovarianceMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "normalized_covariance",
+                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
+                                                    TIME_TYPE >::getNormalizedCovarianceMatrix,
+                    R"doc(
 
         **read-only**
 
         Normalized estimation covariance matrix :math:`\mathbf{\tilde{P}}`.
 
         :type: numpy.ndarray[numpy.float64[m, m]]
-     )doc")
-                    .def_property_readonly(
-                        "formal_errors",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE, TIME_TYPE>::getFormalErrorVector,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "formal_errors",
+                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
+                                                    TIME_TYPE >::getFormalErrorVector,
+                    R"doc(
 
         **read-only**
 
         Formal error vector :math:`\boldsymbol{\sigma}` of the estimation result (e.g. square root of diagonal entries of covariance)s
 
         :type: numpy.ndarray[numpy.float64[m, 1]]s
-     )doc")
-                    .def_property_readonly(
-                        "correlations",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE, TIME_TYPE>::getCorrelationMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "correlations",
+                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
+                                                    TIME_TYPE >::getCorrelationMatrix,
+                    R"doc(
 
         **read-only**
 
         Correlation matrix of the estimation result. Entry :math:`i,j` is equal to :math:`P_{i,j}/(\sigma_{i}\sigma_{j})`
 
         :type: numpy.ndarray[numpy.float64[m, m]]
-     )doc")
-                    .def_property_readonly(
-                        "design_matrix",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getUnnormalizedDesignMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "design_matrix",
+                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
+                                                    TIME_TYPE >::getUnnormalizedDesignMatrix,
+                    R"doc(
 
         **read-only**
 
         Matrix of unnormalized partial derivatives :math:`\mathbf{H}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}}`.
 
         :type: numpy.ndarray[numpy.float64[m, n]]
-     )doc")
-                    .def_property_readonly(
-                        "normalized_design_matrix",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getNormalizedDesignMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "normalized_design_matrix",
+                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
+                                                    TIME_TYPE >::getNormalizedDesignMatrix,
+                    R"doc(
 
         **read-only**
 
         Matrix of normalized partial derivatives :math:`\tilde{\mathbf{H}}`.
 
         :type: numpy.ndarray[numpy.float64[m, n]]
-     )doc")
-                    .def_property_readonly(
-                        "weighted_design_matrix",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getUnnormalizedWeightedDesignMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "weighted_design_matrix",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                            getUnnormalizedWeightedDesignMatrix,
+                                    R"doc(
 
         **read-only**
 
         Matrix of weighted partial derivatives, equal to :math:`\mathbf{W}^{1/2}{\mathbf{H}}`
 
         :type: numpy.ndarray[numpy.float64[m, n]]
-     )doc")
-                    .def_property_readonly(
-                        "weighted_normalized_design_matrix",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getNormalizedWeightedDesignMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "weighted_normalized_design_matrix",
+                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
+                                                    TIME_TYPE >::getNormalizedWeightedDesignMatrix,
+                    R"doc(
 
         **read-only**
 
         Matrix of weighted, normalized partial derivatives, equal to :math:`\mathbf{W}^{1/2}\tilde{\mathbf{H}}`
 
         :type: numpy.ndarray[numpy.float64[m, n]]
-     )doc")
-                    .def_property_readonly(
-                        "consider_covariance_contribution",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getConsiderCovarianceContribution,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "normalized_covariance_with_consider_parameters",
-                        &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE,
-                                                       TIME_TYPE>::
-                            getNormalizedCovarianceWithConsiderParameters,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "unnormalized_covariance_with_consider_parameters",
-                        &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE,
-                                                       TIME_TYPE>::
-                            getUnnormalizedCovarianceWithConsiderParameters,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "normalized_design_matrix_consider_parameters",
-                        &tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE,
-                                                       TIME_TYPE>::
-                            getNormalizedDesignMatrixConsiderParameters,
-                        R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "consider_normalization_factors",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::getConsiderNormalizationFactors,
-                        R"doc(No documentation found.)doc")
-                    .def_readonly(
-                        "normalization_terms",
-                        &tss::CovarianceAnalysisOutput<
-                            STATE_SCALAR_TYPE,
-                            TIME_TYPE>::designMatrixTransformationDiagonal_,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "consider_covariance_contribution",
+                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
+                                                    TIME_TYPE >::getConsiderCovarianceContribution,
+                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "normalized_covariance_with_consider_parameters",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                            getNormalizedCovarianceWithConsiderParameters,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "unnormalized_covariance_with_consider_parameters",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                            getUnnormalizedCovarianceWithConsiderParameters,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "normalized_design_matrix_consider_parameters",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                            getNormalizedDesignMatrixConsiderParameters,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly(
+                    "consider_normalization_factors",
+                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
+                                                    TIME_TYPE >::getConsiderNormalizationFactors,
+                    R"doc(No documentation found.)doc" )
+            .def_readonly( "normalization_terms",
+                           &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                   designMatrixTransformationDiagonal_,
+                           R"doc(
 
         **read-only**
 
         Vector of normalization terms used for covariance and design matrix
 
         :type: numpy.ndarray[numpy.float64[m, 1]]
-     )doc");
+     )doc" );
 
-
-                py::class_<tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>,
-                           std::shared_ptr<tss::EstimationOutput<
-                               STATE_SCALAR_TYPE, TIME_TYPE>>,
-                           tss::CovarianceAnalysisOutput<STATE_SCALAR_TYPE,
-                                                         TIME_TYPE>>(
-                    m, "EstimationOutput",
-                    R"doc(
+    py::class_< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                                 "EstimationOutput",
+                                                                                 R"doc(
 
         Class collecting all outputs from the iterative estimation process.
 
@@ -2864,68 +2579,61 @@ Returns
 
 
 
-     )doc")
-                    .def_property_readonly(
-                        "residual_history",
-                        &tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>::
-                            getResidualHistoryMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "residual_history",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE,
+                                                            TIME_TYPE >::getResidualHistoryMatrix,
+                                    R"doc(
 
         **read-only**
 
         Residual vectors, concatenated per iteration into a matrix; the :math:`i^{th}` column has the residuals from the :math:`i^{th}` iteration.
 
         :type: numpy.ndarray[numpy.float64[m, n]]
-     )doc")
-                    .def_property_readonly(
-                        "parameter_history",
-                        &tss::EstimationOutput<STATE_SCALAR_TYPE, TIME_TYPE>::
-                            getParameterHistoryMatrix,
-                        R"doc(
+     )doc" )
+            .def_property_readonly( "parameter_history",
+                                    &tss::EstimationOutput< STATE_SCALAR_TYPE,
+                                                            TIME_TYPE >::getParameterHistoryMatrix,
+                                    R"doc(
 
         **read-only**
 
         Parameter vectors, concatenated per iteration into a matrix. Column 0 contains pre-estimation values. The :math:`(i+1)^{th}` column has the residuals from the :math:`i^{th}` iteration.
 
         :type: numpy.ndarray[numpy.float64[m, n]]
-     )doc")
-                    .def_property_readonly(
-                        "simulation_results_per_iteration",
-                        &tss::EstimationOutput<STATE_SCALAR_TYPE,
-                                               TIME_TYPE>::getSimulationResults,
-                        R"doc(
+     )doc" )
+            .def_property_readonly(
+                    "simulation_results_per_iteration",
+                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getSimulationResults,
+                    R"doc(
 
         **read-only**
 
         List of complete numerical propagation results, with the :math:`i^{th}` entry of thee list thee results of the :math:`i^{th}` propagation
 
         :type: list[SimulationResults]
-     )doc")
-                    .def_readonly("final_residuals",
-                                  &tss::EstimationOutput<STATE_SCALAR_TYPE,
-                                                         TIME_TYPE>::residuals_,
-                                  R"doc(
+     )doc" )
+            .def_readonly( "final_residuals",
+                           &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::residuals_,
+                           R"doc(
 
         **read-only**
 
         Vector of post-fit observation residuals, for the iteration with the lowest rms residuals.
 
         :type: numpy.ndarray[numpy.float64[m, 1]]
-     )doc")
-                    .def_readonly(
-                        "final_parameters",
-                        &tss::EstimationOutput<STATE_SCALAR_TYPE,
-                                               TIME_TYPE>::parameterEstimate_,
-                        R"doc(No documentation found.)doc")
-                    .def_readonly(
-                        "best_iteration",
-                        &tss::EstimationOutput<STATE_SCALAR_TYPE,
-                                               TIME_TYPE>::bestIteration_,
-                        R"doc(No documentation found.)doc");
+     )doc" )
+            .def_readonly(
+                    "final_parameters",
+                    &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::parameterEstimate_,
+                    R"doc(No documentation found.)doc" )
+            .def_readonly( "best_iteration",
+                           &tss::EstimationOutput< STATE_SCALAR_TYPE, TIME_TYPE >::bestIteration_,
+                           R"doc(No documentation found.)doc" );
 
-                m.attr("PodOutput") = m.attr("EstimationOutput");
-            }
+    m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );
+}
 
-        }  // namespace estimation
-    }  // namespace numerical_simulation
+}  // namespace estimation
+}  // namespace numerical_simulation
 }  // namespace tudatpy

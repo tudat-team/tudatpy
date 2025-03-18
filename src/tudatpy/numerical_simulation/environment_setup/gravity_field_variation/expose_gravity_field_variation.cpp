@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
@@ -24,72 +23,81 @@ namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 namespace tg = tudat::gravitation;
 
-namespace tudat {
+namespace tudat
+{
 
-    namespace simulation_setup {
+namespace simulation_setup
+{
 
-        inline std::shared_ptr<GravityFieldVariationSettings>
-        degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
-            const std::vector<std::string>& deformingBodies,
-            const std::map<int, std::vector<double>> loveNumber) {
-            std::map<int, std::vector<std::complex<double>>> loveNumbers;
-            for(auto loveNumberIt : loveNumber) {
-                for(unsigned int i = 0; i < loveNumberIt.second.size(); i++) {
-                    loveNumbers[loveNumberIt.first].push_back(
-                        std::complex<double>(loveNumberIt.second.at(i), 0));
-                }
-            }
-            return std::make_shared<
-                BasicSolidBodyGravityFieldVariationSettings>(
-                deformingBodies, loveNumbers, nullptr);
+inline std::shared_ptr< GravityFieldVariationSettings >
+degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+        const std::vector< std::string >& deformingBodies,
+        const std::map< int, std::vector< double > > loveNumber )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    for( auto loveNumberIt: loveNumber )
+    {
+        for( unsigned int i = 0; i < loveNumberIt.second.size( ); i++ )
+        {
+            loveNumbers[ loveNumberIt.first ].push_back(
+                    std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
         }
+    }
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+            deformingBodies, loveNumbers, nullptr );
+}
 
-        inline std::shared_ptr<GravityFieldVariationSettings>
-        degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
-            const std::string deformingBody,
-            const std::map<int, std::vector<double>> loveNumber) {
-            std::map<int, std::vector<std::complex<double>>> loveNumbers;
-            for(auto loveNumberIt : loveNumber) {
-                for(unsigned int i = 0; i < loveNumberIt.second.size(); i++) {
-                    loveNumbers[loveNumberIt.first].push_back(
-                        std::complex<double>(loveNumberIt.second.at(i), 0));
-                }
-            }
-            return std::make_shared<
-                BasicSolidBodyGravityFieldVariationSettings>(
-                std::vector<std::string>({deformingBody}), loveNumbers,
-                nullptr);
+inline std::shared_ptr< GravityFieldVariationSettings >
+degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+        const std::string deformingBody,
+        const std::map< int, std::vector< double > > loveNumber )
+{
+    std::map< int, std::vector< std::complex< double > > > loveNumbers;
+    for( auto loveNumberIt: loveNumber )
+    {
+        for( unsigned int i = 0; i < loveNumberIt.second.size( ); i++ )
+        {
+            loveNumbers[ loveNumberIt.first ].push_back(
+                    std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
         }
+    }
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+            std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
+}
 
-        inline std::shared_ptr<GravityFieldVariationSettings>
-        degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
-            const std::string deformingBody,
-            const std::map<int, std::vector<std::complex<double>>> loveNumber) {
-            return std::make_shared<
-                BasicSolidBodyGravityFieldVariationSettings>(
-                std::vector<std::string>({deformingBody}), loveNumber, nullptr);
-        }
+inline std::shared_ptr< GravityFieldVariationSettings >
+degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+        const std::string deformingBody,
+        const std::map< int, std::vector< std::complex< double > > > loveNumber )
+{
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+            std::vector< std::string >( { deformingBody } ), loveNumber, nullptr );
+}
 
-    }  // namespace simulation_setup
+}  // namespace simulation_setup
 
 }  // namespace tudat
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace gravity_field_variation {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace gravity_field_variation
+{
 
-                PYBIND11_MODULE(expose_gravity_field_variation, m) {
-                    py::enum_<tg::BodyDeformationTypes>(
-                        m, "BodyDeformationTypes", "<no_doc>")
-                        .value("basic_solid_body", tg::basic_solid_body)
-                        .value("tabulated_deformation", tg::tabulated_variation)
-                        .export_values();
+PYBIND11_MODULE( expose_gravity_field_variation, m )
+{
+    py::enum_< tg::BodyDeformationTypes >( m, "BodyDeformationTypes", "<no_doc>" )
+            .value( "basic_solid_body", tg::basic_solid_body )
+            .value( "tabulated_deformation", tg::tabulated_variation )
+            .export_values( );
 
-                    py::class_<
-                        tss::GravityFieldVariationSettings,
-                        std::shared_ptr<tss::GravityFieldVariationSettings>>(
-                        m, "GravityFieldVariationSettings",
-                        R"doc(
+    py::class_< tss::GravityFieldVariationSettings,
+                std::shared_ptr< tss::GravityFieldVariationSettings > >(
+            m,
+            "GravityFieldVariationSettings",
+            R"doc(
 
         Base class for providing settings for gravity field variations.
 
@@ -97,16 +105,13 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-
-                    py::class_<
-                        tss::BasicSolidBodyGravityFieldVariationSettings,
-                        std::shared_ptr<
-                            tss::BasicSolidBodyGravityFieldVariationSettings>,
-                        tss::GravityFieldVariationSettings>(
-                        m, "BasicSolidBodyGravityFieldVariationSettings",
-                        R"doc(
+    py::class_< tss::BasicSolidBodyGravityFieldVariationSettings,
+                std::shared_ptr< tss::BasicSolidBodyGravityFieldVariationSettings >,
+                tss::GravityFieldVariationSettings >( m,
+                                                      "BasicSolidBodyGravityFieldVariationSettings",
+                                                      R"doc(
 
         Class for providing settings for solid body tidal gravity field variations, derived from GravityFieldVariationSettings.
 
@@ -114,17 +119,15 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-                    m.def(
-                        "solid_body_tide",
-                        py::overload_cast<const std::string, const double,
-                                          const int>(
-                            &tss::
-                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
-                        py::arg("tide_raising_body"), py::arg("love_number"),
-                        py::arg("degree"),
-                        R"doc(
+    m.def( "solid_body_tide",
+           py::overload_cast< const std::string, const double, const int >(
+                   &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
+           py::arg( "tide_raising_body" ),
+           py::arg( "love_number" ),
+           py::arg( "degree" ),
+           R"doc(
 
 Function for creating solid body tides.
 
@@ -163,18 +166,15 @@ In this example, we create gravity field variations of Earth for a tide raised b
    body_settings.get( "Earth" ).gravity_field_variation_settings = gravity_field_variation_list
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "solid_body_tide_complex_k",
-                        py::overload_cast<const std::string,
-                                          const std::complex<double>,
-                                          const int>(
-                            &tss::
-                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
-                        py::arg("tide_raising_body"), py::arg("love_number"),
-                        py::arg("degree"),
-                        R"doc(
+    m.def( "solid_body_tide_complex_k",
+           py::overload_cast< const std::string, const std::complex< double >, const int >(
+                   &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
+           py::arg( "tide_raising_body" ),
+           py::arg( "love_number" ),
+           py::arg( "degree" ),
+           R"doc(
 
 Function for creating solid body tides.
 
@@ -199,17 +199,14 @@ BasicSolidBodyGravityFieldVariationSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "solid_body_tide_degree_variable_k",
-                        py::overload_cast<const std::string,
-                                          std::map<int, double>>(
-                            &tss::
-                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
-                        py::arg("tide_raising_body"),
-                        py::arg("love_number_per_degree"),
-                        R"doc(
+    m.def( "solid_body_tide_degree_variable_k",
+           py::overload_cast< const std::string, std::map< int, double > >(
+                   &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
+           py::arg( "tide_raising_body" ),
+           py::arg( "love_number_per_degree" ),
+           R"doc(
 
 Function for creating solid body tides.
 
@@ -247,18 +244,14 @@ In this example, we create gravity field variations of Earth for a tide raised b
    body_settings.get( "Earth" ).gravity_field_variation_settings = gravity_field_variation_list
 
 
-    )doc");
+    )doc" );
 
-
-                    m.def(
-                        "solid_body_tide_degree_variable_complex_k",
-                        py::overload_cast<const std::string,
-                                          std::map<int, std::complex<double>>>(
-                            &tss::
-                                fixedSingleDegreeLoveNumberGravityFieldVariationSettings),
-                        py::arg("tide_raising_body"),
-                        py::arg("love_number_per_degree"),
-                        R"doc(
+    m.def( "solid_body_tide_degree_variable_complex_k",
+           py::overload_cast< const std::string, std::map< int, std::complex< double > > >(
+                   &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings ),
+           py::arg( "tide_raising_body" ),
+           py::arg( "love_number_per_degree" ),
+           R"doc(
 
 Function for creating solid body tides.
 
@@ -281,18 +274,14 @@ BasicSolidBodyGravityFieldVariationSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "solid_body_tide_degree_order_variable_k",
-                        py::overload_cast<
-                            const std::string,
-                            const std::map<int, std::vector<double>>>(
-                            &tss::
-                                degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
-                        py::arg("tide_raising_body"),
-                        py::arg("love_number_per_degree_and_order"),
-                        R"doc(
+    m.def( "solid_body_tide_degree_order_variable_k",
+           py::overload_cast< const std::string, const std::map< int, std::vector< double > > >(
+                   &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy ),
+           py::arg( "tide_raising_body" ),
+           py::arg( "love_number_per_degree_and_order" ),
+           R"doc(
 
 Function for creating solid body tides.
 
@@ -332,30 +321,23 @@ In this example, we create gravity field variations of the Moon, for a tide rais
    body_settings.get( "Earth" ).gravity_field_variation_settings = gravity_field_variation_list
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "solid_multi_body_tide_degree_order_variable_k",
-                        py::overload_cast<
-                            const std::vector<std::string>&,
-                            const std::map<int, std::vector<double>>>(
-                            &tss::
-                                degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
-                        py::arg("tide_raising_bodies"),
-                        py::arg("love_number_per_degree_and_order"),
-                        R"doc(No documentation found.)doc");
+    m.def( "solid_multi_body_tide_degree_order_variable_k",
+           py::overload_cast< const std::vector< std::string >&,
+                              const std::map< int, std::vector< double > > >(
+                   &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy ),
+           py::arg( "tide_raising_bodies" ),
+           py::arg( "love_number_per_degree_and_order" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "solid_body_tide_degree_order_variable_complex_k",
-                        py::overload_cast<
-                            const std::string,
-                            const std::map<int,
-                                           std::vector<std::complex<double>>>>(
-                            &tss::
-                                degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
-                        py::arg("tide_raising_body"),
-                        py::arg("love_number_per_degree_and_order"),
-                        R"doc(
+    m.def( "solid_body_tide_degree_order_variable_complex_k",
+           py::overload_cast< const std::string,
+                              const std::map< int, std::vector< std::complex< double > > > >(
+                   &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy ),
+           py::arg( "tide_raising_body" ),
+           py::arg( "love_number_per_degree_and_order" ),
+           R"doc(
 
 Function for creating solid body tides.
 
@@ -378,19 +360,15 @@ BasicSolidBodyGravityFieldVariationSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "solid_body_tide_degree_order_variable_complex_k",
-                        py::overload_cast<
-                            const std::string,
-                            const std::map<int,
-                                           std::vector<std::complex<double>>>>(
-                            &tss::
-                                degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy),
-                        py::arg("tide_raising_body"),
-                        py::arg("love_number_per_degree_and_order"),
-                        R"doc(
+    m.def( "solid_body_tide_degree_order_variable_complex_k",
+           py::overload_cast< const std::string,
+                              const std::map< int, std::vector< std::complex< double > > > >(
+                   &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy ),
+           py::arg( "tide_raising_body" ),
+           py::arg( "love_number_per_degree_and_order" ),
+           R"doc(
 
 Function for creating solid body tides.
 
@@ -413,68 +391,67 @@ BasicSolidBodyGravityFieldVariationSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def(
-                        "single_period_periodic",
-                        &tss::
-                            periodicGravityFieldVariationsSettingsSingleFrequency,
-                        py::arg("cosine_coefficient_amplitude_cosine_time"),
-                        py::arg("cosine_coefficient_amplitude_sine_time"),
-                        py::arg("sine_coefficient_amplitude_cosine_time"),
-                        py::arg("sine_coefficient_amplitude_sine_time"),
-                        py::arg("frequency"), py::arg("reference_epoch"),
-                        py::arg("minimum_degree") = 2,
-                        py::arg("minimum_order") = 0,
-                        R"doc(No documentation found.)doc");
+    m.def( "single_period_periodic",
+           &tss::periodicGravityFieldVariationsSettingsSingleFrequency,
+           py::arg( "cosine_coefficient_amplitude_cosine_time" ),
+           py::arg( "cosine_coefficient_amplitude_sine_time" ),
+           py::arg( "sine_coefficient_amplitude_cosine_time" ),
+           py::arg( "sine_coefficient_amplitude_sine_time" ),
+           py::arg( "frequency" ),
+           py::arg( "reference_epoch" ),
+           py::arg( "minimum_degree" ) = 2,
+           py::arg( "minimum_order" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                    m.def("periodic",
-                          &tss::periodicGravityFieldVariationsSettings,
-                          py::arg("cosine_coefficient_amplitudes_cosine_time"),
-                          py::arg("cosine_coefficient_amplitudes_sine_time"),
-                          py::arg("sine_coefficient_amplitudes_cosine_time"),
-                          py::arg("sine_coefficient_amplitudes_sine_time"),
-                          py::arg("frequencies"), py::arg("reference_epoch"),
-                          py::arg("minimum_degree") = 2,
-                          py::arg("minimum_order") = 0,
-                          R"doc(No documentation found.)doc");
+    m.def( "periodic",
+           &tss::periodicGravityFieldVariationsSettings,
+           py::arg( "cosine_coefficient_amplitudes_cosine_time" ),
+           py::arg( "cosine_coefficient_amplitudes_sine_time" ),
+           py::arg( "sine_coefficient_amplitudes_cosine_time" ),
+           py::arg( "sine_coefficient_amplitudes_sine_time" ),
+           py::arg( "frequencies" ),
+           py::arg( "reference_epoch" ),
+           py::arg( "minimum_degree" ) = 2,
+           py::arg( "minimum_order" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "single_power_polynomial",
-                        &tss::
-                            polynomialGravityFieldVariationsSettingsSinglePower,
-                        py::arg("cosine_amplitudes"),
-                        py::arg("sine_amplitudes"), py::arg("polynomial_power"),
-                        py::arg("reference_epoch"),
-                        py::arg("minimum_degree") = 2,
-                        py::arg("minimum_order") = 0,
-                        R"doc(No documentation found.)doc");
+    m.def( "single_power_polynomial",
+           &tss::polynomialGravityFieldVariationsSettingsSinglePower,
+           py::arg( "cosine_amplitudes" ),
+           py::arg( "sine_amplitudes" ),
+           py::arg( "polynomial_power" ),
+           py::arg( "reference_epoch" ),
+           py::arg( "minimum_degree" ) = 2,
+           py::arg( "minimum_order" ) = 0,
+           R"doc(No documentation found.)doc" );
 
-                    m.def(
-                        "mode_coupled_solid_body_tide",
-                        &tss::modeCoupledSolidBodyGravityFieldVariationSettings,
-                        py::arg("deforming_bodies"), py::arg("love_numbers"),
-                        R"doc(No documentation found.)doc");
+    m.def( "mode_coupled_solid_body_tide",
+           &tss::modeCoupledSolidBodyGravityFieldVariationSettings,
+           py::arg( "deforming_bodies" ),
+           py::arg( "love_numbers" ),
+           R"doc(No documentation found.)doc" );
 
-                    m.def("polynomial",
-                          &tss::polynomialGravityFieldVariationsSettings,
-                          py::arg("cosine_amplitudes_per_power"),
-                          py::arg("sine_amplitudes_per_power"),
-                          py::arg("reference_epoch"),
-                          py::arg("minimum_degree") = 2,
-                          py::arg("minimum_order") = 0,
-                          R"doc(No documentation found.)doc");
+    m.def( "polynomial",
+           &tss::polynomialGravityFieldVariationsSettings,
+           py::arg( "cosine_amplitudes_per_power" ),
+           py::arg( "sine_amplitudes_per_power" ),
+           py::arg( "reference_epoch" ),
+           py::arg( "minimum_degree" ) = 2,
+           py::arg( "minimum_order" ) = 0,
+           R"doc(No documentation found.)doc" );
 
+    m.def( "tabulated",
+           &tss::tabulatedGravityFieldVariationSettings,
+           py::arg( "cosine_variations_table" ),
+           py::arg( "sine_variations_table" ),
+           py::arg( "minimum_degree" ),
+           py::arg( "minimum_order" ),
+           py::arg( "interpolation_settings" ) );
+}
 
-                    m.def("tabulated",
-                          &tss::tabulatedGravityFieldVariationSettings,
-                          py::arg("cosine_variations_table"),
-                          py::arg("sine_variations_table"),
-                          py::arg("minimum_degree"), py::arg("minimum_order"),
-                          py::arg("interpolation_settings"));
-                }
-
-            }  // namespace gravity_field_variation
-        }  // namespace environment_setup
-    }  // namespace numerical_simulation
+}  // namespace gravity_field_variation
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy

@@ -8,9 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #include <tudat/simulation/environment_setup.h>
-
 
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -23,16 +21,21 @@
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
 
-namespace tudatpy {
-    namespace numerical_simulation {
-        namespace environment_setup {
-            namespace vehicle_systems {
+namespace tudatpy
+{
+namespace numerical_simulation
+{
+namespace environment_setup
+{
+namespace vehicle_systems
+{
 
-                PYBIND11_MODULE(expose_vehicle_systems, m) {
-                    py::class_<tss::BodyPanelGeometrySettings,
-                               std::shared_ptr<tss::BodyPanelGeometrySettings>>(
-                        m, "BodyPanelGeometrySettings",
-                        R"doc(
+PYBIND11_MODULE( expose_vehicle_systems, m )
+{
+    py::class_< tss::BodyPanelGeometrySettings, std::shared_ptr< tss::BodyPanelGeometrySettings > >(
+            m,
+            "BodyPanelGeometrySettings",
+            R"doc(
 
         Base class for defining the geometrical properties of a single panel on the vehicle's exterior
 
@@ -40,15 +43,15 @@ namespace tudatpy {
 
 
 
-     )doc");
+     )doc" );
 
-                    m.def("frame_fixed_panel_geometry",
-                          py::overload_cast<const Eigen::Vector3d&,
-                                            const double, const std::string&>(
-                              tss::frameFixedPanelGeometry),
-                          py::arg("surface_normal"), py::arg("area"),
-                          py::arg("frame_orientation") = "",
-                          R"doc(
+    m.def( "frame_fixed_panel_geometry",
+           py::overload_cast< const Eigen::Vector3d&, const double, const std::string& >(
+                   tss::frameFixedPanelGeometry ),
+           py::arg( "surface_normal" ),
+           py::arg( "area" ),
+           py::arg( "frame_orientation" ) = "",
+           R"doc(
 
 Function for creating settings for a vehicle exterior panel that is fixed to a given frame.
 
@@ -84,16 +87,16 @@ BodyPanelGeometrySettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("body_tracking_panel_geometry",
-                          py::overload_cast<const std::string&, const bool,
-                                            const double, const std::string&>(
-                              &tss::bodyTrackingPanelGeometry),
-                          py::arg("body_to_track"),
-                          py::arg("towards_tracked_body"), py::arg("area"),
-                          py::arg("frame_orientation") = "",
-                          R"doc(
+    m.def( "body_tracking_panel_geometry",
+           py::overload_cast< const std::string&, const bool, const double, const std::string& >(
+                   &tss::bodyTrackingPanelGeometry ),
+           py::arg( "body_to_track" ),
+           py::arg( "towards_tracked_body" ),
+           py::arg( "area" ),
+           py::arg( "frame_orientation" ) = "",
+           R"doc(
 
 Function for creating settings for a vehicle exterior panel where the surface normal tracks a given body.
 
@@ -125,16 +128,16 @@ BodyPanelGeometrySettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("time_varying_panel_geometry",
-                          py::overload_cast<
-                              const std::function<Eigen::Vector3d()>&,
-                              const double, const std::string&>(
-                              &tss::timeVaryingPanelGeometry),
-                          py::arg("surface_normal_function"), py::arg("area"),
-                          py::arg("frame_orientation"),
-                          R"doc(
+    m.def( "time_varying_panel_geometry",
+           py::overload_cast< const std::function< Eigen::Vector3d( ) >&,
+                              const double,
+                              const std::string& >( &tss::timeVaryingPanelGeometry ),
+           py::arg( "surface_normal_function" ),
+           py::arg( "area" ),
+           py::arg( "frame_orientation" ),
+           R"doc(
 
 Function for creating settings for a vehicle exterior panel that has time-variable orientation in a given frame.
 
@@ -159,12 +162,12 @@ BodyPanelGeometrySettings
 
 
 
-    )doc");
+    )doc" );
 
-                    py::class_<tss::BodyPanelSettings,
-                               std::shared_ptr<tss::BodyPanelSettings>>(
-                        m, "BodyPanelSettings",
-                        R"doc(
+    py::class_< tss::BodyPanelSettings, std::shared_ptr< tss::BodyPanelSettings > >(
+            m,
+            "BodyPanelSettings",
+            R"doc(
 
         Class for defining the complete properties of a single panel on the vehicle's exterior
 
@@ -172,16 +175,16 @@ BodyPanelGeometrySettings
 
 
 
-     )doc")
-                        .def_readwrite(
-                            "reflection_law_settings",
-                            &tss::BodyPanelSettings::reflectionLawSettings_);
+     )doc" )
+            .def_readwrite( "reflection_law_settings",
+                            &tss::BodyPanelSettings::reflectionLawSettings_ );
 
-                    m.def("body_panel_settings", &tss::bodyPanelSettings,
-                          py::arg("panel_geometry"),
-                          py::arg("panel_reflection_law") = nullptr,
-                          py::arg("panel_type_id") = "",
-                          R"doc(
+    m.def( "body_panel_settings",
+           &tss::bodyPanelSettings,
+           py::arg( "panel_geometry" ),
+           py::arg( "panel_reflection_law" ) = nullptr,
+           py::arg( "panel_type_id" ) = "",
+           R"doc(
 
 Function for creating settings for a full panel
 
@@ -209,12 +212,12 @@ BodyPanelSettings
 
 
 
-    )doc");
+    )doc" );
 
-                    py::class_<tss::FullPanelledBodySettings,
-                               std::shared_ptr<tss::FullPanelledBodySettings>>(
-                        m, "FullPanelledBodySettings",
-                        R"doc(
+    py::class_< tss::FullPanelledBodySettings, std::shared_ptr< tss::FullPanelledBodySettings > >(
+            m,
+            "FullPanelledBodySettings",
+            R"doc(
 
         Class for providing the complete settings for a panelled body exterior
 
@@ -222,16 +225,14 @@ BodyPanelSettings
 
 
 
-     )doc");
+     )doc" );
 
-
-                    m.def("full_panelled_body_settings",
-                          &tss::fullPanelledBodySettings,
-                          py::arg("panel_settings"),
-                          py::arg("part_rotation_model_settings") = std::map<
-                              std::string,
-                              std::shared_ptr<tss::RotationModelSettings>>(),
-                          R"doc(
+    m.def( "full_panelled_body_settings",
+           &tss::fullPanelledBodySettings,
+           py::arg( "panel_settings" ),
+           py::arg( "part_rotation_model_settings" ) =
+                   std::map< std::string, std::shared_ptr< tss::RotationModelSettings > >( ),
+           R"doc(
 
 Function for creating settings for a full panelled vehicle exterior
 
@@ -263,20 +264,21 @@ FullPanelledBodySettings
 
 
 
-    )doc");
+    )doc" );
 
-                    m.def("box_wing_panelled_body_settings",
-                          &tss::bodyWingPanelledGeometry, py::arg("length"),
-                          py::arg("width"), py::arg("height"),
-                          py::arg("solar_array_area"),
-                          py::arg("box_specular_reflectivity"),
-                          py::arg("box_diffuse_reflectivity"),
-                          py::arg("solar_array_specular_reflectivity"),
-                          py::arg("solar_array_diffuse_reflectivity"),
-                          py::arg("box_instantaneous_reradiation ") = true,
-                          py::arg("solar_array_instantaneous_reradiation ") =
-                              true,
-                          R"doc(
+    m.def( "box_wing_panelled_body_settings",
+           &tss::bodyWingPanelledGeometry,
+           py::arg( "length" ),
+           py::arg( "width" ),
+           py::arg( "height" ),
+           py::arg( "solar_array_area" ),
+           py::arg( "box_specular_reflectivity" ),
+           py::arg( "box_diffuse_reflectivity" ),
+           py::arg( "solar_array_specular_reflectivity" ),
+           py::arg( "solar_array_diffuse_reflectivity" ),
+           py::arg( "box_instantaneous_reradiation " ) = true,
+           py::arg( "solar_array_instantaneous_reradiation " ) = true,
+           R"doc(
 
 Function for creating a simple box-wing spacecraft exterior shape with reflection law settings.
 
@@ -322,10 +324,10 @@ FullPanelledBodySettings
 
 
 
-    )doc");
-                }
+    )doc" );
+}
 
-            }  // namespace vehicle_systems
-        }  // namespace environment_setup
-    }  // namespace numerical_simulation
+}  // namespace vehicle_systems
+}  // namespace environment_setup
+}  // namespace numerical_simulation
 }  // namespace tudatpy
