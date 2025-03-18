@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import os
+import argparse
 
 
 def usage() -> None:
@@ -12,25 +13,29 @@ def usage() -> None:
     return None
 
 
+# Globals
+CONDA_PREFIX = Path(os.environ["CONDA_PREFIX"]).resolve()
+
+# Argument parser
+parser = argparse.ArgumentParser(
+    prog="uninstall.py",
+    description="Uninstall Tudat and TudatPy from active conda environment",
+)
+parser.add_argument(
+    "--build-dir",
+    metavar="<path>",
+    type=str,
+    default="build",
+    help="Build directory",
+)
+
 if __name__ == "__main__":
 
-    ARGUMENTS = {"BUILD_DIR": "build"}
-    ENVIRONMENT = os.environ
-
-    # Define arguments
-    args = iter(sys.argv[1:])
-    for arg in args:
-        if arg == "--build-dir":
-            ARGUMENTS["BUILD_DIR"] = next(args)
-        elif arg in ("--help", "-h"):
-            usage()
-            exit(0)
-        else:
-            usage()
-            raise ValueError("Invalid argument")
+    # Parse command line arguments
+    args = parser.parse_args()
 
     # Ensure that build dir exists
-    build_dir = Path(ARGUMENTS["BUILD_DIR"]).resolve()
+    build_dir = Path(args.build_dir).resolve()
     if not build_dir.exists():
         raise FileNotFoundError("Failed to cd into build directory")
 
