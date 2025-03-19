@@ -16,18 +16,6 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
-#include "expose_environment_setup/expose_aerodynamic_coefficient_setup.h"
-#include "expose_environment_setup/expose_atmosphere_setup.h"
-#include "expose_environment_setup/expose_ephemeris_setup.h"
-#include "expose_environment_setup/expose_gravity_field_setup.h"
-#include "expose_environment_setup/expose_gravity_field_variation_setup.h"
-#include "expose_environment_setup/expose_ground_station_setup.h"
-#include "expose_environment_setup/expose_radiation_pressure_setup.h"
-#include "expose_environment_setup/expose_rigid_body_setup.h"
-#include "expose_environment_setup/expose_rotation_model_setup.h"
-#include "expose_environment_setup/expose_shape_deformation_setup.h"
-#include "expose_environment_setup/expose_shape_setup.h"
-#include "expose_environment_setup/expose_vehicle_systems_setup.h"
 #include "scalarTypes.h"
 
 namespace py = pybind11;
