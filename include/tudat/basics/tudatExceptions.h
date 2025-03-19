@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <string>
+#include <boost/lexical_cast.hpp>
 
 namespace tudat
 {
@@ -28,19 +29,42 @@ public:
     ~TudatError( ) { }
 };
 
+template< typename T >
 class InterpolationOutOfBoundsError : public TudatError
 {
 private:
 public:
     InterpolationOutOfBoundsError( const std::string& errorMessage ): exceptions::TudatError( errorMessage ) { }
+    InterpolationOutOfBoundsError( const T requestedValue, const T lowerBound, const T upperBound ):
+        exceptions::TudatError( "Error in interpolator, requesting data point outside of boundaries, requested data at " +
+                                boost::lexical_cast< std::string >( requestedValue ) + " but limit values are " +
+                                boost::lexical_cast< std::string >( lowerBound ) + " and " +
+                                boost::lexical_cast< std::string >( upperBound ) ),
+        requestedValue( requestedValue ), lowerBound( lowerBound ), upperBound( upperBound )
+    { }
+    InterpolationOutOfBoundsError( const T requestedValue, const T lowerBound, const T upperBound, const unsigned int requestDimension ):
+        exceptions::TudatError( "Error in interpolator, requesting data point outside of boundaries, requested data of dimension " +
+                                boost::lexical_cast< std::string >( requestDimension ) + " at " +
+                                boost::lexical_cast< std::string >( requestedValue ) + " but limit values are " +
+                                boost::lexical_cast< std::string >( lowerBound ) + " and " +
+                                boost::lexical_cast< std::string >( upperBound ) ),
+        requestedValue( requestedValue ), lowerBound( lowerBound ), upperBound( upperBound )
+    { }
+
     ~InterpolationOutOfBoundsError( ) { }
+
+    T requestedValue;
+    T lowerBound;
+    T upperBound;
 };
 
-class LagrangeInterpolationOutOfBoundsError : public InterpolationOutOfBoundsError
+template< typename T >
+class LagrangeInterpolationOutOfBoundsError : public InterpolationOutOfBoundsError< T >
 {
 private:
 public:
-    LagrangeInterpolationOutOfBoundsError( const std::string& errorMessage ): exceptions::InterpolationOutOfBoundsError( errorMessage ) { }
+    LagrangeInterpolationOutOfBoundsError( const std::string& errorMessage ): exceptions::InterpolationOutOfBoundsError< T >( errorMessage )
+    { }
     ~LagrangeInterpolationOutOfBoundsError( ) { }
 };
 
