@@ -354,7 +354,7 @@ private:
                 interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
                 break;
             case lagrange_no_boundary_interpolation:
-                throw tudat::exceptions::LagrangeInterpolationOutOfBoundsError(
+                throw tudat::exceptions::LagrangeInterpolationOutOfBoundsError< IndependentVariableType >(
                         "Error: Lagrange interpolator called outside permitted bounds, at " +
                         std::to_string( static_cast< double >( targetIndependentVariableValue ) ) );
                 break;
