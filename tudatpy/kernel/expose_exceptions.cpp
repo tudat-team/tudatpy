@@ -14,6 +14,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "scalarTypes.h"
 #include "expose_exceptions.h"
 #include <tudat/basics/tudatExceptions.h>
 
@@ -30,12 +31,12 @@ void expose_exceptions( py::module &m )
     auto tudatErrorExp = py::register_exception< te::TudatError >( m, "TudatError", PyExc_RuntimeError );
     tudatErrorExp.doc( ) = R"(Base Error thrown by Tudat.)";
 
-    auto interpolationOutOfBoundsErrorExp =
-            py::register_exception< te::InterpolationOutOfBoundsError >( m, "InterpolationOutOfBoundsError", tudatErrorExp.ptr( ) );
+    auto interpolationOutOfBoundsErrorExp = py::register_exception< te::InterpolationOutOfBoundsError< TIME_TYPE > >(
+            m, "InterpolationOutOfBoundsError", tudatErrorExp.ptr( ) );
     interpolationOutOfBoundsErrorExp.doc( ) =
             R"(Error thrown when the independent variable data point is out of the bounds of the data to be interpolated.)";
 
-    auto lagrangeInterpolationOutOfBoundsErrorExp = py::register_exception< te::LagrangeInterpolationOutOfBoundsError >(
+    auto lagrangeInterpolationOutOfBoundsErrorExp = py::register_exception< te::LagrangeInterpolationOutOfBoundsError< TIME_TYPE > >(
             m, "LagrangeInterpolationOutOfBoundsError", interpolationOutOfBoundsErrorExp.ptr( ) );
     lagrangeInterpolationOutOfBoundsErrorExp.doc( ) =
             R"(Error thrown when the independent variable data point of a Lagrange interpolation is outside the reliable bounds of the data to be interpolated. For more information, see :func:`~tudatpy.math.interpolators.lagrange_interpolation`)";
