@@ -219,13 +219,11 @@ protected:
                 switch( boundaryHandling_.at( currentDimension ) )
                 {
                     case throw_exception_at_boundary: {
-                        // Throw exception
-                        std::string errorMessage =
-                                "Error in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                                std::to_string( currentDimension ) + " at " + std::to_string( currentIndependentVariable ) +
-                                " but limit values are " + std::to_string( independentValues_.at( currentDimension ).front( ) ) + " and " +
-                                std::to_string( independentValues_.at( currentDimension ).back( ) );
-                        throw tudat::exceptions::InterpolationOutOfBoundsError( errorMessage );
+                        throw tudat::exceptions::InterpolationOutOfBoundsError< IndependentVariableType >(
+                                currentIndependentVariable,
+                                independentValues_.at( currentDimension ).front( ),
+                                independentValues_.at( currentDimension ).back( ),
+                                currentDimension );
                         break;
                     }
                     case extrapolate_at_boundary_with_warning: {
