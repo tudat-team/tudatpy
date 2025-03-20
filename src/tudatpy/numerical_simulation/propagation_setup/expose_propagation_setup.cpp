@@ -37,6 +37,7 @@ namespace propagation_setup
 PYBIND11_MODULE( expose_propagation_setup, m )
 {
     py::module_::import( "tudatpy.numerical_simulation.propagation" );
+    py::module_::import( "tudatpy.numerical_simulation.propagation_setup.acceleration" );
 
     m.def( "create_acceleration_models",
            py::overload_cast< const tss::SystemOfBodies &,

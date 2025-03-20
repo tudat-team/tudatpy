@@ -5,78 +5,82 @@ configure_file(
     @ONLY
 )
 
-include(YacmaExtension)
+# include(YacmaExtension)
+include(PythonExtension)
 
 # Setup the installation path.
 set(TUDATPY_INSTALL_PATH "${YACMA_PYTHON_MODULES_INSTALL_PATH}/tudatpy")
 # Add extensions
 ##################################
 
+# add_extension(numerical_simulation)
+# message(FATAL_ERROR "FINISHED VOLUNTARILY")
+
 # Interface - Spice
-yacma_extension(tudatpy.interface.spice)
+add_extension(interface.spice)
 
 # Data
-yacma_extension(tudatpy.data)
+add_extension(data)
 
 # Astro
-yacma_extension(tudatpy.astro.element_conversion)
-yacma_extension(tudatpy.astro.ephemerides)
-yacma_extension(tudatpy.astro.frame_conversion)
-yacma_extension(tudatpy.astro.fundamentals)
-yacma_extension(tudatpy.astro.gravitation)
-yacma_extension(tudatpy.astro.polyhedron_utilities)
-yacma_extension(tudatpy.astro.time_conversion)
-yacma_extension(tudatpy.astro.two_body_dynamics)
+add_extension(astro.element_conversion)
+add_extension(astro.ephemerides)
+add_extension(astro.frame_conversion)
+add_extension(astro.fundamentals)
+add_extension(astro.gravitation)
+add_extension(astro.polyhedron_utilities)
+add_extension(astro.time_conversion)
+add_extension(astro.two_body_dynamics)
 
 # Constants
-yacma_extension(tudatpy.constants)
+add_extension(constants)
 
 # Math
-yacma_extension(tudatpy.math.geometry)
-yacma_extension(tudatpy.math.interpolators)
-yacma_extension(tudatpy.math.numerical_integrators)
-yacma_extension(tudatpy.math.root_finders)
-yacma_extension(tudatpy.math.statistics)
+add_extension(math.geometry)
+add_extension(math.interpolators)
+add_extension(math.numerical_integrators)
+add_extension(math.root_finders)
+add_extension(math.statistics)
 
 # Numerical simulation
-yacma_extension(tudatpy.numerical_simulation)
-yacma_extension(tudatpy.numerical_simulation.propagation)
-yacma_extension(tudatpy.numerical_simulation.environment)
-yacma_extension(tudatpy.numerical_simulation.estimation)
+add_extension(numerical_simulation)
+add_extension(numerical_simulation.propagation)
+add_extension(numerical_simulation.environment)
+add_extension(numerical_simulation.estimation)
 
 # Numerical simulation - Environment setup
-yacma_extension(tudatpy.numerical_simulation.environment_setup)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.atmosphere)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.ephemeris)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.gravity_field)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.gravity_field_variation)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.ground_station)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.radiation_pressure)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.rigid_body)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.rotation_model)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.shape)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.shape_deformation)
-yacma_extension(tudatpy.numerical_simulation.environment_setup.vehicle_systems)
+add_extension(numerical_simulation.environment_setup)
+add_extension(numerical_simulation.environment_setup.aerodynamic_coefficients)
+add_extension(numerical_simulation.environment_setup.atmosphere)
+add_extension(numerical_simulation.environment_setup.ephemeris)
+add_extension(numerical_simulation.environment_setup.gravity_field)
+add_extension(numerical_simulation.environment_setup.gravity_field_variation)
+add_extension(numerical_simulation.environment_setup.ground_station)
+add_extension(numerical_simulation.environment_setup.radiation_pressure)
+add_extension(numerical_simulation.environment_setup.rigid_body)
+add_extension(numerical_simulation.environment_setup.rotation_model)
+add_extension(numerical_simulation.environment_setup.shape)
+add_extension(numerical_simulation.environment_setup.shape_deformation)
+add_extension(numerical_simulation.environment_setup.vehicle_systems)
 
 # Numerical simulation - Propagation setup
-yacma_extension(tudatpy.numerical_simulation.propagation_setup)
-yacma_extension(tudatpy.numerical_simulation.propagation_setup.acceleration)
-yacma_extension(tudatpy.numerical_simulation.propagation_setup.dependent_variable)
-yacma_extension(tudatpy.numerical_simulation.propagation_setup.integrator)
-yacma_extension(tudatpy.numerical_simulation.propagation_setup.mass_rate)
-yacma_extension(tudatpy.numerical_simulation.propagation_setup.propagator)
-yacma_extension(tudatpy.numerical_simulation.propagation_setup.thrust)
-yacma_extension(tudatpy.numerical_simulation.propagation_setup.torque)
+add_extension(numerical_simulation.propagation_setup)
+add_extension(numerical_simulation.propagation_setup.acceleration)
+add_extension(numerical_simulation.propagation_setup.dependent_variable)
+add_extension(numerical_simulation.propagation_setup.integrator)
+add_extension(numerical_simulation.propagation_setup.mass_rate)
+add_extension(numerical_simulation.propagation_setup.propagator)
+add_extension(numerical_simulation.propagation_setup.thrust)
+add_extension(numerical_simulation.propagation_setup.torque)
 
 # Numerical simulation - Estimation setup
-yacma_extension(tudatpy.numerical_simulation.estimation_setup)
-yacma_extension(tudatpy.numerical_simulation.estimation_setup.observation)
-yacma_extension(tudatpy.numerical_simulation.estimation_setup.parameter)
+add_extension(numerical_simulation.estimation_setup)
+add_extension(numerical_simulation.estimation_setup.observation)
+add_extension(numerical_simulation.estimation_setup.parameter)
 
 # Trajectory design
-yacma_extension(tudatpy.trajectory_design.shape_based_thrust)
-yacma_extension(tudatpy.trajectory_design.transfer_trajectory)
+add_extension(trajectory_design.shape_based_thrust)
+add_extension(trajectory_design.transfer_trajectory)
 
 # Install
 ######################################################
