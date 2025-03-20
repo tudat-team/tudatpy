@@ -1539,170 +1539,170 @@ PYBIND11_MODULE( expose_environment, m )
      */
     // HAS BEEN MOVED TO tudatpy/astro/ephemerides/expose_ephemerides.cpp
 
-    // py::class_< te::Ephemeris, std::shared_ptr< te::Ephemeris > >( m, "Ephemeris", R"doc(
+     py::class_< te::Ephemeris, std::shared_ptr< te::Ephemeris > >( m, "Ephemeris", R"doc(
 
-    //     Object that computes the state of a body as a function of time
+         Object that computes the state of a body as a function of time
 
-    //     Object (typically stored inside a :class:`~Body` object) that computes the state of a
-    //     body as a function of time, both outside of a propagation, and during a propagation if
-    //     the given body's translational state is not propagated. Note that this object computes
-    //     the state w.r.t. its own origin (defined by ``frame_origin``), which need not be the same
-    //     as the global frame origin of the environment.
+         Object (typically stored inside a :class:`~Body` object) that computes the state of a
+         body as a function of time, both outside of a propagation, and during a propagation if
+         the given body's translational state is not propagated. Note that this object computes
+         the state w.r.t. its own origin (defined by ``frame_origin``), which need not be the same
+         as the global frame origin of the environment.
 
-    //  )doc" )
-    //         .def( "cartesian_state",
-    //               &te::Ephemeris::getCartesianState,
-    //               py::arg( "current_time" ),
-    //               R"doc(
+      )doc" )
+             .def( "cartesian_state",
+                   &te::Ephemeris::getCartesianState,
+                   py::arg( "current_time" ),
+                   R"doc(
 
-    //     This function returns the Cartesian state (position and velocity) at the given time,
-    //     w.r.t. the ``frame_origin``.
+         This function returns the Cartesian state (position and velocity) at the given time,
+         w.r.t. the ``frame_origin``.
 
-    //     Parameters
-    //     ----------
-    //     current_time : float
-    //         Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
+         Parameters
+         ----------
+         current_time : float
+             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
 
-    //     Returns
-    //     -------
-    //     numpy.ndarray
-    //         Requested Cartesian state
+         Returns
+         -------
+         numpy.ndarray
+             Requested Cartesian state
 
-    // )doc" )
-    //         .def( "cartesian_position",
-    //               &te::Ephemeris::getCartesianPosition,
-    //               py::arg( "current_time" ),
-    //               R"doc(
+     )doc" )
+             .def( "cartesian_position",
+                   &te::Ephemeris::getCartesianPosition,
+                   py::arg( "current_time" ),
+                   R"doc(
 
-    //     As ``cartesian_state``, but only the three position components
+         As ``cartesian_state``, but only the three position components
 
-    //     Parameters
-    //     ----------
-    //     current_time : float
-    //         Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
+         Parameters
+         ----------
+         current_time : float
+             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
 
-    //     Returns
-    //     -------
-    //     numpy.ndarray
-    //         Requested Cartesian position
+         Returns
+         -------
+         numpy.ndarray
+             Requested Cartesian position
 
-    // )doc" )
-    //         .def( "cartesian_velocity",
-    //               &te::Ephemeris::getCartesianVelocity,
-    //               py::arg( "current_time" ),
-    //               R"doc(
+     )doc" )
+             .def( "cartesian_velocity",
+                   &te::Ephemeris::getCartesianVelocity,
+                   py::arg( "current_time" ),
+                   R"doc(
 
-    //     As ``cartesian_state``, but only the three velocity components
+         As ``cartesian_state``, but only the three velocity components
 
-    //     Parameters
-    //     ----------
-    //     current_time : float
-    //         Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
+         Parameters
+         ----------
+         current_time : float
+             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
 
-    //     Returns
-    //     -------
-    //     numpy.ndarray
-    //         Requested Cartesian velocity
+         Returns
+         -------
+         numpy.ndarray
+             Requested Cartesian velocity
 
-    // )doc" )
-    //         .def_property_readonly( "frame_origin",
-    //                                 &te::Ephemeris::getReferenceFrameOrigin,
-    //                                 R"doc(
+     )doc" )
+             .def_property_readonly( "frame_origin",
+                                     &te::Ephemeris::getReferenceFrameOrigin,
+                                     R"doc(
 
-    //     **read-only**
+         **read-only**
 
-    //     Name of the reference body/point w.r.t. which this object provides its states
+         Name of the reference body/point w.r.t. which this object provides its states
 
-    //     :type: str
-    //  )doc" )
-    //         .def_property_readonly( "frame_orientation",
-    //                                 &te::Ephemeris::getReferenceFrameOrientation,
-    //                                 R"doc(
+         :type: str
+      )doc" )
+             .def_property_readonly( "frame_orientation",
+                                     &te::Ephemeris::getReferenceFrameOrientation,
+                                     R"doc(
 
-    //     **read-only**
+         **read-only**
 
-    //     Name of the frame orientation w.r.t which this object provides its states
+         Name of the frame orientation w.r.t which this object provides its states
 
-    //     :type: str
-    //  )doc" );
+         :type: str
+      )doc" );
 
-    // py::class_< te::ConstantEphemeris, std::shared_ptr< te::ConstantEphemeris >, te::Ephemeris >(
-    //         m,
-    //         "ConstantEphemeris",
-    //         R"doc(No documentation found.)doc" )
-    //         .def( py::init<
-    //                       const std::function<
-    //                               Eigen::Vector6d( ) >,
-    //                               //<pybind11/functional.h>,<pybind11/eigen.h>
-    //                       const std::string &,
-    //                       const std::string & >( ),
-    //               py::arg( "constant_state_function" ),
-    //               py::arg( "reference_frame_origin" ) = "SSB",
-    //               py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" )
-    //         .def( py::init< const Eigen::Vector6d,  //<pybind11/eigen.h>
-    //                         const std::string &,
-    //                         const std::string & >( ),
-    //               py::arg( "constant_state" ),
-    //               py::arg( "reference_frame_origin" ) = "SSB",
-    //               py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" )
-    //         .def( "update_constant_state",
-    //               &te::ConstantEphemeris::updateConstantState,
-    //               py::arg( "new_state" ),
-    //               R"doc(No documentation found.)doc" );
+     py::class_< te::ConstantEphemeris, std::shared_ptr< te::ConstantEphemeris >, te::Ephemeris >(
+             m,
+             "ConstantEphemeris",
+             R"doc(No documentation found.)doc" )
+             .def( py::init<
+                           const std::function<
+                                   Eigen::Vector6d( ) >,
+                                   //<pybind11/functional.h>,<pybind11/eigen.h>
+                           const std::string &,
+                           const std::string & >( ),
+                   py::arg( "constant_state_function" ),
+                   py::arg( "reference_frame_origin" ) = "SSB",
+                   py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" )
+             .def( py::init< const Eigen::Vector6d,  //<pybind11/eigen.h>
+                             const std::string &,
+                             const std::string & >( ),
+                   py::arg( "constant_state" ),
+                   py::arg( "reference_frame_origin" ) = "SSB",
+                   py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" )
+             .def( "update_constant_state",
+                   &te::ConstantEphemeris::updateConstantState,
+                   py::arg( "new_state" ),
+                   R"doc(No documentation found.)doc" );
 
-    // py::class_< te::KeplerEphemeris, std::shared_ptr< te::KeplerEphemeris >, te::Ephemeris >(
-    //         m, "KeplerEphemeris" );
+     py::class_< te::KeplerEphemeris, std::shared_ptr< te::KeplerEphemeris >, te::Ephemeris >(
+             m, "KeplerEphemeris" );
 
-    // py::class_< te::MultiArcEphemeris, std::shared_ptr< te::MultiArcEphemeris >, te::Ephemeris >(
-    //         m, "MultiArcEphemeris" )
-    //         .def( py::init< const std::map< double, std::shared_ptr< te::Ephemeris > > &,
-    //                         const std::string &,
-    //                         const std::string & >( ),
-    //               py::arg( "single_arc_ephemerides" ),
-    //               py::arg( "reference_frame_origin" ) = "SSB",
-    //               py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" );
+     py::class_< te::MultiArcEphemeris, std::shared_ptr< te::MultiArcEphemeris >, te::Ephemeris >(
+             m, "MultiArcEphemeris" )
+             .def( py::init< const std::map< double, std::shared_ptr< te::Ephemeris > > &,
+                             const std::string &,
+                             const std::string & >( ),
+                   py::arg( "single_arc_ephemerides" ),
+                   py::arg( "reference_frame_origin" ) = "SSB",
+                   py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" );
 
-    // py::class_< te::TabulatedCartesianEphemeris< double, double >,
-    //             std::shared_ptr< te::TabulatedCartesianEphemeris< double, double > >,
-    //             te::Ephemeris >( m, "TabulatedEphemeris" )
-    //         .def_property(
-    //                 "interpolator",
-    //                 &te::TabulatedCartesianEphemeris< double,
-    //                                                   double >::getDynamicVectorSizeInterpolator,
-    //                 py::overload_cast< const std::shared_ptr<
-    //                         ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >(
-    //                         &te::TabulatedCartesianEphemeris< double,
-    //                                                           double >::resetInterpolator ) );
+     py::class_< te::TabulatedCartesianEphemeris< double, double >,
+                 std::shared_ptr< te::TabulatedCartesianEphemeris< double, double > >,
+                 te::Ephemeris >( m, "TabulatedEphemeris" )
+             .def_property(
+                     "interpolator",
+                     &te::TabulatedCartesianEphemeris< double,
+                                                       double >::getDynamicVectorSizeInterpolator,
+                     py::overload_cast< const std::shared_ptr<
+                             ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >(
+                             &te::TabulatedCartesianEphemeris< double,
+                                                               double >::resetInterpolator ) );
 
-    // py::class_< te::Tle, std::shared_ptr< te::Tle > >( m, "Tle" )
-    //         .def( py::init<  // ctor 1
-    //                       const std::string & >( ),
-    //               py::arg( "lines" ) )
-    //         .def( py::init<  // ctor 2
-    //                       const std::string &,
-    //                       const std::string & >( ),
-    //               py::arg( "line_1" ),
-    //               py::arg( "line_2" ) )
-    //         .def( "get_epoch", &te::Tle::getEpoch )
-    //         .def( "get_b_star", &te::Tle::getBStar )
-    //         .def( "get_epoch", &te::Tle::getEpoch )
-    //         .def( "get_inclination", &te::Tle::getInclination )
-    //         .def( "get_right_ascension", &te::Tle::getRightAscension )
-    //         .def( "get_eccentricity", &te::Tle::getEccentricity )
-    //         .def( "get_arg_of_perigee", &te::Tle::getArgOfPerigee )
-    //         .def( "get_mean_anomaly", &te::Tle::getMeanAnomaly )
-    //         .def( "get_mean_motion", &te::Tle::getMeanMotion );
+     py::class_< te::Tle, std::shared_ptr< te::Tle > >( m, "Tle" )
+             .def( py::init<  // ctor 1
+                           const std::string & >( ),
+                   py::arg( "lines" ) )
+             .def( py::init<  // ctor 2
+                           const std::string &,
+                           const std::string & >( ),
+                   py::arg( "line_1" ),
+                   py::arg( "line_2" ) )
+             .def( "get_epoch", &te::Tle::getEpoch )
+             .def( "get_b_star", &te::Tle::getBStar )
+             .def( "get_epoch", &te::Tle::getEpoch )
+             .def( "get_inclination", &te::Tle::getInclination )
+             .def( "get_right_ascension", &te::Tle::getRightAscension )
+             .def( "get_eccentricity", &te::Tle::getEccentricity )
+             .def( "get_arg_of_perigee", &te::Tle::getArgOfPerigee )
+             .def( "get_mean_anomaly", &te::Tle::getMeanAnomaly )
+             .def( "get_mean_motion", &te::Tle::getMeanMotion );
 
-    // py::class_< te::TleEphemeris, std::shared_ptr< te::TleEphemeris >, te::Ephemeris >(
-    //         m, "TleEphemeris" )
-    //         .def( py::init< const std::string &,
-    //                         const std::string &,
-    //                         const std::shared_ptr< te::Tle >,
-    //                         const bool >( ),
-    //               py::arg( "frame_origin" ) = "Earth",
-    //               py::arg( "frame_orientation" ) = "J2000",
-    //               py::arg( "tle" ) = nullptr,
-    //               py::arg( "use_sdp" ) = false );
+     py::class_< te::TleEphemeris, std::shared_ptr< te::TleEphemeris >, te::Ephemeris >(
+             m, "TleEphemeris" )
+             .def( py::init< const std::string &,
+                             const std::string &,
+                             const std::shared_ptr< te::Tle >,
+                             const bool >( ),
+                   py::arg( "frame_origin" ) = "Earth",
+                   py::arg( "frame_orientation" ) = "J2000",
+                   py::arg( "tle" ) = nullptr,
+                   py::arg( "use_sdp" ) = false );
 
     /*!
      **************   ROTATION MODELS  ******************
