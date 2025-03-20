@@ -1,20 +1,37 @@
-macro (yacma_extension import_path)
+macro (add_extension import_path)
 
     # Get module name and path from import path
     string(REPLACE "." ";" extension_path_list ${import_path})
     list(GET extension_path_list -1 extension_name)
     set(extension_name expose_${extension_name})
-    list(SUBLIST extension_path_list 1 -1 extension_path_list)
     list(JOIN extension_path_list "/" extension_path)
+    set(source_dir ${TUDATPY_SOURCE_DIR}/${extension_path})
+
+    # Find all source files for extension [All .cpp files in source_dir]
+    file(GLOB sources RELATIVE "${TUDATPY_SOURCE_DIR}" "${source_dir}/*.cpp")
+    # string(REPLACE ";" " " sources "${sources}")
+
+    # Update output directory for extension
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${source_dir})
+
+    # Create YACMA extension
+    YACMA_PYTHON_MODULE(${extension_name} ${sources})
+
+    # message(STATUS "sources: ${sources}")
+
+    # message(STATUS "TUDATPY_SOURCE_DIR: ${TUDATPY_SOURCE_DIR}")
+    # message(STATUS "extension_path: ${extension_path}")
+    # message(STATUS "")
+    # message(FATAL_ERROR "Import path: ${import_path}")
 
 
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TUDATPY_SOURCE_DIR}/${extension_path})
+    # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TUDATPY_SOURCE_DIR}/${extension_path})
 
-    # Add extension
-    YACMA_PYTHON_MODULE(
-        ${extension_name}
-        ${extension_path}/${extension_name}.cpp
-    )
+    # # Add extension
+    # YACMA_PYTHON_MODULE(
+    #     ${extension_name}
+    #     ${extension_path}/${extension_name}.cpp
+    # )
 
     target_link_libraries(${extension_name} PRIVATE
         ${Boost_LIBRARIES}
