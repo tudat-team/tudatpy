@@ -31,21 +31,21 @@ namespace trampoline
 
 class PyEphemeris : public te::Ephemeris
 {
-   public:
-    /* Inherit the constructors */
-    using te::Ephemeris::Ephemeris;
-
-    Eigen::Vector6d getCartesianState( const double seconds_since_epoch ) override
-    {
-        PYBIND11_OVERLOAD_PURE( Eigen::Vector6d,    /* Return type */
-                                te::Ephemeris,      /* Parent class */
-                                getCartesianState,  /* Name of function in C++ (must match
-                                                       Python name) */
-                                seconds_since_epoch /* Argument(s) */
-        );
-    }
-
-    //  Eigen::Matrix<long double, 6, 1> getCartesianLongState(const
+//   public:
+//    /* Inherit the constructors */
+//    using te::Ephemeris::Ephemeris;
+//
+//    Eigen::Vector6d getCartesianState( const double seconds_since_epoch ) override
+//    {
+//        PYBIND11_OVERLOAD_PURE( Eigen::Vector6d,    /* Return type */
+//                                te::Ephemeris,      /* Parent class */
+//                                getCartesianState,  /* Name of function in C++ (must match
+//                                                       Python name) */
+//                                seconds_since_epoch /* Argument(s) */
+//        );
+//    }
+//
+//    //  Eigen::Matrix<long double, 6, 1> getCartesianLongState(const
     //  double seconds_since_epoch) override {
     //    PYBIND11_OVERLOAD_PURE(
     //        Eigen::Matrix<long double, 6, 1>, /* Return type */
