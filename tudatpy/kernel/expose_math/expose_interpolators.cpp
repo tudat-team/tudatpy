@@ -534,6 +534,41 @@ as input to create the object that can perform the actual interpolation
 
 Parameters
 ----------
+data_to_interpolate : dict[float | tudat::time, float]
+    Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
+interpolator_settings : InterpolatorSettings
+    Settings that define the type of interpolator that is to be used
+data_first_derivatives : list[float] = []
+    List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in ``data_to_interpolate``. This input is *only* required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).
+Returns
+-------
+OneDimensionalInterpolatorScalar
+    Interpolator object
+
+
+
+
+
+
+    )doc" );
+
+
+    m.def( "create_one_dimensional_scalar_interpolator_from_float",
+           &ti::createOneDimensionalInterpolatorBasic< double, STATE_SCALAR_TYPE >,
+           py::arg( "data_to_interpolate" ),
+           py::arg( "interpolator_settings" ),
+           py::arg( "data_first_derivatives" ) = std::vector< double >( ),
+           R"doc(
+
+Function to create an interpolator for scalar dependent variables.
+
+Function to create an interpolator for scalar dependent variables, with a single independent
+variable. This function takes the interpolator settings, and the data that is to be interpolated,
+as input to create the object that can perform the actual interpolation
+
+
+Parameters
+----------
 data_to_interpolate : dict[float, float]
     Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed
 interpolator_settings : InterpolatorSettings
@@ -551,6 +586,7 @@ OneDimensionalInterpolatorScalar
 
 
     )doc" );
+
 
     m.def( "create_one_dimensional_vector_interpolator",
            &ti::createOneDimensionalInterpolatorBasic< TIME_TYPE, Eigen::VectorXd >,
