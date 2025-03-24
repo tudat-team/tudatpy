@@ -10,7 +10,8 @@ from tudatpy.numerical_simulation.environment_setup import (
     create_system_of_bodies,
 )
 from tudatpy.numerical_simulation.estimation_setup import observation
-from tudatpy.data import processTrk234
+from tudatpy.data.processTrk234.processor import Trk234Processor
+from tudatpy.data.processTrk234 import converters as cnv
 
 
 # -----------------------------------------------------------------------------
@@ -35,7 +36,8 @@ def test_single_ramp():
         },
     ]
     df = pd.DataFrame(data)
-    result = processTrk234.merge_ramp_dfs([df])
+    converter = cnv.RampConverter()
+    result = converter.process(df)
     expected = pd.DataFrame(
         [
             {
@@ -73,7 +75,8 @@ def test_continuation():
         },
     ]
     df = pd.DataFrame(data)
-    result = processTrk234.merge_ramp_dfs([df])
+    converter = cnv.RampConverter()
+    result = converter.process(df)
     expected = pd.DataFrame(
         [
             {
@@ -119,7 +122,8 @@ def test_new_ramp_non_continuation():
         },
     ]
     df = pd.DataFrame(data)
-    result = processTrk234.merge_ramp_dfs([df])
+    converter = cnv.RampConverter()
+    result = converter.process(df)
     expected = pd.DataFrame(
         [
             {
@@ -158,8 +162,8 @@ def test_end_without_open_ramp():
         },
     ]
     df = pd.DataFrame(data)
-    result = processTrk234.merge_ramp_dfs([df])
-    expected = pd.DataFrame()
+    converter = cnv.RampConverter()
+    result = converter.process(df)
     # Simply assert that the resulting DataFrame is empty.
     assert result.empty, "Expected an empty DataFrame when no open ramp exists."
 
@@ -202,7 +206,12 @@ def test_multiple_stations():
     ]
     df_A = pd.DataFrame(data_A)
     df_B = pd.DataFrame(data_B)
-    result = processTrk234.merge_ramp_dfs([df_A, df_B])
+
+    all_ramps = pd.concat([df_A, df_B], ignore_index=True)
+    all_ramps.sort_values("epoch", inplace=True)
+    all_ramps.reset_index(drop=True, inplace=True)
+    converter = cnv.RampConverter()
+    result = converter.process(all_ramps)
 
     expected_A = pd.DataFrame(
         [
@@ -262,9 +271,13 @@ def test_reader():
     bodies = create_system_of_bodies(body_settings)
 
     # Create observation collection from the TNF file.
-    observationCollection = processTrk234.create_observation_collection_from_tnf(
-        [local_filename], bodies, spacecraftName=None
+    trkProcessor = Trk234Processor(
+        [local_filename],
+        ["doppler"],
+        spacecraft_name="-202",
     )
+    observationCollection = trkProcessor.process()
+    trkProcessor.set_tnf_information_in_bodies(bodies)
 
     single_obs_sets = observationCollection.get_single_observation_sets()
     assert single_obs_sets, "No observation sets found in the observation collection."
