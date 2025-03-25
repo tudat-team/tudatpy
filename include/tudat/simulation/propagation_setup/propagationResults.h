@@ -94,7 +94,7 @@ public:
 
     std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( )
     {
-        return clone( );
+        return cloneDerived( );
     }
 
 
@@ -477,7 +477,7 @@ public:
 
     std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( )
     {
-        return clone( );
+        return cloneDerived( );
     }
 
     void reset( )
