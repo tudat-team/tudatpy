@@ -65,6 +65,11 @@ private:
 public:
     LagrangeInterpolationOutOfBoundsError( const std::string& errorMessage ): exceptions::InterpolationOutOfBoundsError< T >( errorMessage )
     { }
+
+    LagrangeInterpolationOutOfBoundsError( const T requestedValue, const T lowerBound, const T upperBound ):
+        exceptions::InterpolationOutOfBoundsError< T >( requestedValue, lowerBound, upperBound )
+    { }
+
     ~LagrangeInterpolationOutOfBoundsError( ) { }
 };
 
