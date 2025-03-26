@@ -55,11 +55,11 @@ def test_basic_environment_setup() -> None:
     acceleration_settings = {
         "Delfi-C3": {
             "Sun": [
-                # acceleration.cannonball_radiation_pressure(),
+                acceleration.cannonball_radiation_pressure(),
                 acceleration.point_mass_gravity(),
             ],
             "Earth": [
-                acceleration.point_mass_gravity(),
+                acceleration.spherical_harmonic_gravity(5, 5),
                 acceleration.aerodynamic(),
             ],
             "Moon": [acceleration.point_mass_gravity()],
