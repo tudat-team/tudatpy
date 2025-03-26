@@ -1,1 +1,4 @@
-from .horizons import Horizons, HorizonsQuery, HorizonsBatch
+from ...numerical_simulation.environment_setup.ephemeris import (
+    HorizonsBatch,
+    HorizonsQuery,
+)

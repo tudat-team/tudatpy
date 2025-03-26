@@ -1,16 +1,14 @@
 import numpy as np
 from tudatpy.math import interpolators
 from tudatpy import numerical_simulation
-from tudatpy.numerical_simulation.propagation_setup import propagator
-from tudatpy.numerical_simulation.propagation_setup.dependent_variable import (
-    SingleDependentVariableSaveSettings,
-    get_dependent_variable_id,
-)
 import os
-from typing import List, Dict, Union
+from typing import Union, TYPE_CHECKING, Callable
+
+if TYPE_CHECKING:
+    from ..numerical_simulation.propagation_setup import propagator
 
 
-def result2array(result: Dict[float, np.array]):
+def result2array(result: dict[float, np.ndarray]):
     """Initial prototype function to convert dict result from DynamicsSimulator
 
     The `state_history` and `dependent_history` retrieved from classes
@@ -69,9 +67,9 @@ def result2array(result: Dict[float, np.array]):
 
 
 def compare_results(
-    baseline_results: Dict[float, np.array],
-    new_results: Dict[float, np.array],
-    difference_epochs: List[float],
+    baseline_results: dict[float, np.ndarray],
+    new_results: dict[float, np.ndarray],
+    difference_epochs: list[float],
 ):
     """Compare the results of a baseline simulation with the results of a new different simulation.
 
@@ -204,7 +202,7 @@ class redirect_std:
 
 
 def pareto_optimums(
-    points: list, operator: Union[None, List[Union[min, max]]] = None
+    _points: list, operator: Union[None, list[Callable]] = None
 ):
     """Compute Pareto optimums from a set of points.
 
@@ -257,7 +255,7 @@ def pareto_optimums(
         # Show the plot
         plt.show()
     """
-    points = np.asarray(points)
+    points = np.asarray(_points)
     if operator is None:
         sign = np.ones(points.shape[1])
     else:
@@ -277,8 +275,8 @@ def pareto_optimums(
 
 
 def split_history(
-    state_history: Dict[float, np.array],
-    propagator_settings: propagator.PropagatorSettings,
+    state_history: dict[float, np.ndarray],
+    propagator_settings: "propagator.PropagatorSettings",
 ):
     """Split the state history into a distinct state histories for each body.
 
