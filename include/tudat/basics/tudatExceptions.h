@@ -34,7 +34,6 @@ class InterpolationOutOfBoundsError : public TudatError
 {
 private:
 public:
-    InterpolationOutOfBoundsError( const std::string& errorMessage ): exceptions::TudatError( errorMessage ) { }
     InterpolationOutOfBoundsError( const T requestedValue, const T lowerBound, const T upperBound ):
         exceptions::TudatError( "Error in interpolator, requesting data point outside of boundaries, requested data at " +
                                 boost::lexical_cast< std::string >( requestedValue ) + " but limit values are " +
@@ -53,9 +52,9 @@ public:
 
     ~InterpolationOutOfBoundsError( ) { }
 
-    T requestedValue;
-    T lowerBound;
-    T upperBound;
+    const T requestedValue;
+    const T lowerBound;
+    const T upperBound;
 };
 
 template< typename T >
@@ -63,9 +62,6 @@ class LagrangeInterpolationOutOfBoundsError : public InterpolationOutOfBoundsErr
 {
 private:
 public:
-    LagrangeInterpolationOutOfBoundsError( const std::string& errorMessage ): exceptions::InterpolationOutOfBoundsError< T >( errorMessage )
-    { }
-
     LagrangeInterpolationOutOfBoundsError( const T requestedValue, const T lowerBound, const T upperBound ):
         exceptions::InterpolationOutOfBoundsError< T >( requestedValue, lowerBound, upperBound )
     { }
@@ -77,8 +73,16 @@ class MaximumIterationsExceededError : public TudatError
 {
 private:
 public:
-    MaximumIterationsExceededError( const std::string& errorMessage ): exceptions::TudatError( errorMessage ) { }
+    MaximumIterationsExceededError( const unsigned int numberOfIterations, const unsigned int maximumNumberOfIterations ):
+        exceptions::TudatError( "Root-finder did not converge within maximum number of iterations! " +
+                                std::to_string( numberOfIterations ) + " iterations completed, maximum number of iterations is " +
+                                std::to_string( maximumNumberOfIterations ) ),
+        numberOfIterations( numberOfIterations ), maximumNumberOfIterations( maximumNumberOfIterations )
+    { }
     ~MaximumIterationsExceededError( ) { }
+
+    const unsigned int numberOfIterations;
+    const unsigned int maximumNumberOfIterations;
 };
 
 class StepSizeViolationError : public TudatError
@@ -89,12 +93,20 @@ public:
     ~StepSizeViolationError( ) { }
 };
 
+template< typename TimeStepType >
 class MinimumStepSizeViolatedError : public StepSizeViolationError
 {
 private:
 public:
-    MinimumStepSizeViolatedError( const std::string& errorMessage ): exceptions::StepSizeViolationError( errorMessage ) { }
+    MinimumStepSizeViolatedError( const TimeStepType minimumStepSize, const TimeStepType recommendedStepSize ):
+        exceptions::StepSizeViolationError( "Error in step-size control, minimum step size " + std::to_string( minimumStepSize ) +
+                                            " is higher than required time step " + std::to_string( recommendedStepSize ) ),
+        minimumStepSize( minimumStepSize ), recommendedStepSize( recommendedStepSize )
+    { }
     ~MinimumStepSizeViolatedError( ) { }
+
+    const TimeStepType minimumStepSize;
+    const TimeStepType recommendedStepSize;
 };
 
 }  // namespace exceptions
