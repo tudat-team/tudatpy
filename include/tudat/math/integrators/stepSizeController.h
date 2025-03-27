@@ -96,9 +96,7 @@ public:
         {
             if( minimumIntegrationTimeStepHandling_ == throw_exception_below_minimum )
             {
-                throw tudat::exceptions::MinimumStepSizeViolatedError(
-                        "Error in step-size control, minimum step size " + std::to_string( minimumStep_ ) +
-                        " is higher than required time step " + std::to_string( recommendedStep.first ) );
+                throw tudat::exceptions::MinimumStepSizeViolatedError< TimeStepType >( minimumStep_, recommendedStep.first );
             }
             else
             {
