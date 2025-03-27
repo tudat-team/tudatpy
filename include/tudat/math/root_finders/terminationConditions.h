@@ -56,10 +56,9 @@ inline bool checkMaximumIterationsExceeded( const unsigned int numberOfIteration
             case accept_result:
                 break;
             case accept_result_with_warning:
-                static std::string errorMessage = "Root-finder did not converge within maximum number of iterations! " +
-                        std::to_string( numberOfIterations ) + " iterations completed, maximum number of iterations is " +
-                        std::to_string( maximumNumberOfIterations );
-                std::cerr << errorMessage << std::endl;
+                std::cerr << "Root-finder did not converge within maximum number of iterations! " + std::to_string( numberOfIterations ) +
+                                " iterations completed, maximum number of iterations is " + std::to_string( maximumNumberOfIterations )
+                          << std::endl;
                 break;
             case throw_exception:
                 throw tudat::exceptions::MaximumIterationsExceededError( numberOfIterations, maximumNumberOfIterations );
