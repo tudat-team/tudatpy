@@ -176,7 +176,7 @@
              {
                  // Use default space weather file stored in tudatBundle and geomagnetic storm conditions when no settings provided
                  spaceWeatherFilePath = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt";
-                 geomagneticActivity = -1;  // Default geomagnetic activity when no settings provided
+                 geomagneticActivity = 1;  // Default geomagnetic activity when no settings provided
              }
              else if (nrlmsise00AtmosphereSettings->getSpaceWeatherFile().empty())
              {
