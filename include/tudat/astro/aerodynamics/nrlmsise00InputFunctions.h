@@ -118,7 +118,7 @@
                                         const tudat::input_output::solar_activity::SolarActivityContainer& solarActivityContainer,
                                         const bool adjustSolarTime = false,
                                         const double localSolarTime = 0.0,
-                                        const int geomagneticActivity = -1 );
+                                        const int geomagneticActivity = 1 );
  
  }  // namespace aerodynamics
  }  // namespace tudat

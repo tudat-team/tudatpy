@@ -138,7 +138,7 @@
      }
  
      NRLMSISE00Atmosphere( const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData, 
-                           const bool useIdealGasLaw = true, const int geomagneticActivity = -1 ): solarActivityContainer_( solarActivityData )
+                           const bool useIdealGasLaw = true, const int geomagneticActivity = 1 ): solarActivityContainer_( solarActivityData )
      {
          nrlmsise00InputFunction_ = std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
                                                std::placeholders::_1,
@@ -170,7 +170,7 @@
      NRLMSISE00Atmosphere( const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData,
                            const double specificHeatRatio,
                            const GasComponentProperties gasProperties,
-                           const bool useIdealGasLaw = true, const int geomagneticActivity = -1 ): solarActivityContainer_( solarActivityData )
+                           const bool useIdealGasLaw = true, const int geomagneticActivity = 1 ): solarActivityContainer_( solarActivityData )
      {
          nrlmsise00InputFunction_ = std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
                                                std::placeholders::_1,
