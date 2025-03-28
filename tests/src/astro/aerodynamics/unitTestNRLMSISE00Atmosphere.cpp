@@ -1176,7 +1176,7 @@
  //    BOOST_CHECK_CLOSE_FRACTION( verificationData[ 5 ] * 1000, computedDensity, 1E-11 );
  //}
 
- 
+
  BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
  // int main( )
  {
@@ -1215,6 +1215,219 @@
      BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, "Earth", "ECLIPJ2000" );
      bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
      bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< simulation_setup::AtmosphereSettings >( nrlmsise00 );
+ 
+     // Create Earth object
+     simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
+ 
+     // Create vehicle objects.
+     bodies.createEmptyBody( "Apollo" );
+     bodies.at( "Apollo" )->setConstantBodyMass( 2000.0 );
+ 
+     // Create vehicle aerodynamic coefficients
+     double referenceArea = 4.0;
+     double aerodynamicCoefficient = 1.2;
+     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+             std::make_shared< ConstantAerodynamicCoefficientSettings >(
+                     referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), negative_aerodynamic_frame_coefficients );
+ 
+     // Create and set aerodynamic coefficients object
+     bodies.at( "Apollo" )
+             ->setAerodynamicCoefficientInterface(
+                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Apollo", bodies ) );
+ 
+     // Define propagator settings variables.
+     SelectedAccelerationMap accelerationMap;
+     std::vector< std::string > bodiesToPropagate;
+     std::vector< std::string > centralBodies;
+ 
+     // Define acceleration model settings.
+     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+     accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+     accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
+     accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+     accelerationMap[ "Apollo" ] = accelerationsOfApollo;
+ 
+     bodiesToPropagate.push_back( "Apollo" );
+     centralBodies.push_back( "Earth" );
+ 
+     // Set initial state
+     Eigen::Vector6d systemInitialState = apolloInitialState;
+ 
+     // Define list of dependent variables to save.
+     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+     dependentVariables.push_back(
+             std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "Apollo", "Earth" ) );
+     dependentVariables.push_back(
+             std::make_shared< SingleDependentVariableSaveSettings >( local_density_dependent_variable, "Apollo", "Earth" ) );
+     dependentVariables.push_back(
+             std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_relative_spherical_position, "Apollo", "Earth" ) );
+     dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >( nrlmsise_input_data, "Apollo", "Earth" ) );
+ 
+     // Create acceleration models and propagation settings.
+     basic_astrodynamics::AccelerationMap accelerationModelMap =
+             createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
+ 
+     std::shared_ptr< IntegratorSettings<> > integratorSettings =
+             std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+ 
+     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+             std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                     centralBodies,
+                     accelerationModelMap,
+                     bodiesToPropagate,
+                     systemInitialState,
+                     simulationStartEpoch,
+                     integratorSettings,
+                     std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
+                     cowell,
+                     dependentVariables );
+ 
+     // Create simulation object and propagate dynamics.
+     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
+ 
+     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
+             dynamicsSimulator.getDependentVariableHistory( );
+ 
+     nrlmsise_flags flags;
+     nrlmsise_input input;
+     nrlmsise_output output;
+     auto nrlmsiseInputFunction =
+             std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
+ 
+     for( auto it: dependentVariableOutput )
+     {
+         double altitude = it.second( 0 );
+         double density = it.second( 1 );
+         Eigen::Vector3d sphericalPosition = it.second.segment( 2, 3 );
+         Eigen::VectorXd nrlmsiseInputVector = it.second.segment( 5, 17 );
+ 
+         NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
+ 
+         BOOST_CHECK_EQUAL( nrlmsiseInputVector( 0 ), inputData.year );
+         BOOST_CHECK_EQUAL( nrlmsiseInputVector( 1 ), inputData.dayOfTheYear );
+         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 2 ), inputData.secondOfTheDay, 1.0E-14 );
+         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 3 ) * 1000.0, altitude, 1.0E-14 );
+         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 4 ), sphericalPosition( 1 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
+         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 5 ), sphericalPosition( 2 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
+         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 6 ), inputData.localSolarTime, 1.0E-14 );
+         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 7 ), inputData.f107, 1.0E-14 );
+         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 8 ), inputData.f107a, 1.0E-14 );
+         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 9 ), inputData.apDaily, 1.0E-14 );
+         for( int i = 0; i < 6; i++ )
+         {
+             BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 10 + i ), inputData.apVector.at( i ), 1.0E-14 );
+         }
+
+        
+         // Print input data with full precision for only the last iteration
+        if( it.first == dependentVariableOutput.rbegin( )->first )
+        {
+            std::cout << std::fixed << std::setprecision(16) << "Year: " << nrlmsiseInputVector( 0 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Day of the year: " << nrlmsiseInputVector( 1 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Second of the day: " << nrlmsiseInputVector( 2 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Altitude: " << nrlmsiseInputVector( 3 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Latitude: " << nrlmsiseInputVector( 4 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Longitude: " << nrlmsiseInputVector( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Local solar time: " << nrlmsiseInputVector( 6 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "F107: " << nrlmsiseInputVector( 7 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "F107a: " << nrlmsiseInputVector( 8 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Ap daily: " << nrlmsiseInputVector( 9 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 0 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 1 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 2 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 3 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 4 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 0 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 1 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 2 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 3 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 4 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 6 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 7 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 8 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 9 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 10 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 11 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 12 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 13 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 14 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 15 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 16 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 17 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 18 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 19 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 20 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 21 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 22 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 23 ) << std::endl;
+            std::cout << std::fixed << std::setprecision(16) << "Density: " << density << std::endl;
+        }
+ 
+         BOOST_CHECK_EQUAL( inputData.f107, 130.1 );
+         BOOST_CHECK_EQUAL( inputData.f107a, 166.2 );
+         BOOST_CHECK_EQUAL( inputData.apDaily, 30 );
+         BOOST_CHECK_EQUAL( inputData.apVector.at( 0 ), 0 );
+         BOOST_CHECK_EQUAL( inputData.apVector.at( 1 ), 0 );
+         BOOST_CHECK_EQUAL( inputData.apVector.at( 2 ), 0 );
+         BOOST_CHECK_EQUAL( inputData.apVector.at( 3 ), 0 );
+         BOOST_CHECK_EQUAL( inputData.apVector.at( 4 ), 0 );
+         BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 0 );
+ 
+         double manualDensity = std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
+                                        ->getDensity( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
+         BOOST_CHECK_CLOSE_FRACTION( density, manualDensity, 1.0E-14 );
+ 
+         //        std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
+         //
+         //
+         //        gtd7(&input_, &flags, &output );
+         //
+         //        // Retrieve density and temperature
+         //        double reconstructeDensity_ = output_.d[ 5 ] * 1000.0;
+     }
+ }
+
+ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
+ // int main( )
+ {
+     using namespace aerodynamics;
+     using namespace numerical_integrators;
+     using namespace simulation_setup;
+     using namespace propagators;
+     using namespace basic_mathematics;
+     using namespace basic_astrodynamics;
+     using namespace orbital_element_conversions;
+     using namespace spice_interface;
+ 
+     // Load Spice kernels.
+     loadStandardSpiceKernels( );
+ 
+     // Set simulation start epoch.
+     const double simulationStartEpoch = 0.0;
+     const double simulationEndEpoch = 300.0;
+     const double fixedStepSize = 1.0;
+ 
+     // Set Keplerian elements for Capsule.
+     Eigen::Vector6d apolloInitialStateInKeplerianElements;
+     apolloInitialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+     apolloInitialStateInKeplerianElements( eccentricityIndex ) = 0.005;
+     apolloInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+     apolloInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+     apolloInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+     apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+ 
+     // Convert apollo state from Keplerian elements to Cartesian elements.
+     const double earthGravitationalParameter = getBodyGravitationalParameter( "Earth" );
+     const Eigen::Vector6d apolloInitialState =
+             convertKeplerianToCartesianElements( apolloInitialStateInKeplerianElements, earthGravitationalParameter );
+ 
+     // Define simulation body settings.
+     BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, "Earth", "ECLIPJ2000" );
+     bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+     bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< simulation_setup::NRLMSISE00AtmosphereSettings >(
+        paths::getSpaceWeatherDataPath() + "/sw19571001.txt", -1 );
  
      // Create Earth object
      simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
@@ -1374,220 +1587,6 @@
          BOOST_CHECK_EQUAL( inputData.apVector.at( 3 ), 39 );
          BOOST_CHECK_EQUAL( inputData.apVector.at( 4 ), 34.5 );
          BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 19.25 );
- 
-         double manualDensity = std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
-                                        ->getDensity( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
-         BOOST_CHECK_CLOSE_FRACTION( density, manualDensity, 1.0E-14 );
- 
-         //        std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
-         //
-         //
-         //        gtd7(&input_, &flags, &output );
-         //
-         //        // Retrieve density and temperature
-         //        double reconstructeDensity_ = output_.d[ 5 ] * 1000.0;
-     }
- }
-
- BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation_no_geomagnetic_activity )
- // int main( )
- {
-     using namespace aerodynamics;
-     using namespace numerical_integrators;
-     using namespace simulation_setup;
-     using namespace propagators;
-     using namespace basic_mathematics;
-     using namespace basic_astrodynamics;
-     using namespace orbital_element_conversions;
-     using namespace spice_interface;
- 
-     // Load Spice kernels.
-     loadStandardSpiceKernels( );
- 
-     // Set simulation start epoch.
-     const double simulationStartEpoch = 0.0;
-     const double simulationEndEpoch = 300.0;
-     const double fixedStepSize = 1.0;
- 
-     // Set Keplerian elements for Capsule.
-     Eigen::Vector6d apolloInitialStateInKeplerianElements;
-     apolloInitialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
-     apolloInitialStateInKeplerianElements( eccentricityIndex ) = 0.005;
-     apolloInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
-     apolloInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
-     apolloInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
-     apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
- 
-     // Convert apollo state from Keplerian elements to Cartesian elements.
-     const double earthGravitationalParameter = getBodyGravitationalParameter( "Earth" );
-     const Eigen::Vector6d apolloInitialState =
-             convertKeplerianToCartesianElements( apolloInitialStateInKeplerianElements, earthGravitationalParameter );
- 
-     // Define simulation body settings.
-     BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, "Earth", "ECLIPJ2000" );
-     bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
-     bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< simulation_setup::NRLMSISE00AtmosphereSettings >(
-        paths::getSpaceWeatherDataPath() + "/sw19571001.txt", 1 );
- 
-     // Create Earth object
-     simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
- 
-     // Create vehicle objects.
-     bodies.createEmptyBody( "Apollo" );
-     bodies.at( "Apollo" )->setConstantBodyMass( 2000.0 );
- 
-     // Create vehicle aerodynamic coefficients
-     double referenceArea = 4.0;
-     double aerodynamicCoefficient = 1.2;
-     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-             std::make_shared< ConstantAerodynamicCoefficientSettings >(
-                     referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), negative_aerodynamic_frame_coefficients );
- 
-     // Create and set aerodynamic coefficients object
-     bodies.at( "Apollo" )
-             ->setAerodynamicCoefficientInterface(
-                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Apollo", bodies ) );
- 
-     // Define propagator settings variables.
-     SelectedAccelerationMap accelerationMap;
-     std::vector< std::string > bodiesToPropagate;
-     std::vector< std::string > centralBodies;
- 
-     // Define acceleration model settings.
-     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-     accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-     accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-     accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
-     accelerationMap[ "Apollo" ] = accelerationsOfApollo;
- 
-     bodiesToPropagate.push_back( "Apollo" );
-     centralBodies.push_back( "Earth" );
- 
-     // Set initial state
-     Eigen::Vector6d systemInitialState = apolloInitialState;
- 
-     // Define list of dependent variables to save.
-     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-     dependentVariables.push_back(
-             std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "Apollo", "Earth" ) );
-     dependentVariables.push_back(
-             std::make_shared< SingleDependentVariableSaveSettings >( local_density_dependent_variable, "Apollo", "Earth" ) );
-     dependentVariables.push_back(
-             std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_relative_spherical_position, "Apollo", "Earth" ) );
-     dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >( nrlmsise_input_data, "Apollo", "Earth" ) );
- 
-     // Create acceleration models and propagation settings.
-     basic_astrodynamics::AccelerationMap accelerationModelMap =
-             createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
- 
-     std::shared_ptr< IntegratorSettings<> > integratorSettings =
-             std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
- 
-     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-             std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                     centralBodies,
-                     accelerationModelMap,
-                     bodiesToPropagate,
-                     systemInitialState,
-                     simulationStartEpoch,
-                     integratorSettings,
-                     std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
-                     cowell,
-                     dependentVariables );
- 
-     // Create simulation object and propagate dynamics.
-     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
- 
-     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
-             dynamicsSimulator.getDependentVariableHistory( );
- 
-     nrlmsise_flags flags;
-     nrlmsise_input input;
-     nrlmsise_output output;
-     auto nrlmsiseInputFunction =
-             std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
- 
-     for( auto it: dependentVariableOutput )
-     {
-         double altitude = it.second( 0 );
-         double density = it.second( 1 );
-         Eigen::Vector3d sphericalPosition = it.second.segment( 2, 3 );
-         Eigen::VectorXd nrlmsiseInputVector = it.second.segment( 5, 17 );
- 
-         NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
- 
-         BOOST_CHECK_EQUAL( nrlmsiseInputVector( 0 ), inputData.year );
-         BOOST_CHECK_EQUAL( nrlmsiseInputVector( 1 ), inputData.dayOfTheYear );
-         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 2 ), inputData.secondOfTheDay, 1.0E-14 );
-         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 3 ) * 1000.0, altitude, 1.0E-14 );
-         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 4 ), sphericalPosition( 1 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
-         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 5 ), sphericalPosition( 2 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
-         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 6 ), inputData.localSolarTime, 1.0E-14 );
-         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 7 ), inputData.f107, 1.0E-14 );
-         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 8 ), inputData.f107a, 1.0E-14 );
-         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 9 ), inputData.apDaily, 1.0E-14 );
-         for( int i = 0; i < 6; i++ )
-         {
-             BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 10 + i ), inputData.apVector.at( i ), 1.0E-14 );
-         }
-
-        
-         // Print input data with full precision for only the last iteration
-        if( it.first == dependentVariableOutput.rbegin( )->first )
-        {
-            std::cout << std::fixed << std::setprecision(16) << "Year: " << nrlmsiseInputVector( 0 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Day of the year: " << nrlmsiseInputVector( 1 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Second of the day: " << nrlmsiseInputVector( 2 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Altitude: " << nrlmsiseInputVector( 3 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Latitude: " << nrlmsiseInputVector( 4 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Longitude: " << nrlmsiseInputVector( 5 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Local solar time: " << nrlmsiseInputVector( 6 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "F107: " << nrlmsiseInputVector( 7 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "F107a: " << nrlmsiseInputVector( 8 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Ap daily: " << nrlmsiseInputVector( 9 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 0 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 1 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 2 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 3 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 4 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Ap vector: " << inputData.apVector.at( 5 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 0 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 1 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 2 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 3 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 4 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 5 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 6 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 7 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 8 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 9 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 10 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 11 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 12 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 13 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 14 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 15 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 16 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 17 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 18 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 19 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 20 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 21 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 22 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Switches: " << inputData.switches.at( 23 ) << std::endl;
-            std::cout << std::fixed << std::setprecision(16) << "Density: " << density << std::endl;
-        }
-
- 
-         BOOST_CHECK_EQUAL( inputData.f107, 130.1 );
-         BOOST_CHECK_EQUAL( inputData.f107a, 166.2 );
-         BOOST_CHECK_EQUAL( inputData.apDaily, 30 );
-         BOOST_CHECK_EQUAL( inputData.apVector.at( 0 ), 0 );
-         BOOST_CHECK_EQUAL( inputData.apVector.at( 1 ), 0 );
-         BOOST_CHECK_EQUAL( inputData.apVector.at( 2 ), 0 );
-         BOOST_CHECK_EQUAL( inputData.apVector.at( 3 ), 0 );
-         BOOST_CHECK_EQUAL( inputData.apVector.at( 4 ), 0 );
-         BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 0 );
  
          double manualDensity = std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
                                         ->getDensity( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );

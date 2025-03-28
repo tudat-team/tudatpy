@@ -507,7 +507,7 @@
       *  \param spaceWeatherFile File containing space weather data, as in
       *  https://celestrak.com/SpaceData/sw19571001.txt
       */
-     NRLMSISE00AtmosphereSettings( const std::string& spaceWeatherFile, const int geomagneticActivity = -1 ):
+     NRLMSISE00AtmosphereSettings( const std::string& spaceWeatherFile, const int geomagneticActivity = 1 ):
              AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile ), geomagneticActivity_( geomagneticActivity ) 
      { }
  
@@ -544,7 +544,7 @@
       *  Default (-1) uses full vector of Ap values.
       *  Set to 1 to use daily Ap value.
       */
-     int geomagneticActivity_ = -1;
+     int geomagneticActivity_ = 1;
  };
  
  //  AtmosphereSettings for defining an atmosphere with tabulated data from file.
@@ -973,7 +973,7 @@
  //! @get_docstring(nrlmsise00AtmosphereSettings)
  inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings( const std::string dataFile = paths::getSpaceWeatherDataPath( ) +
                                                                                     "/sw19571001.txt",
-                                                                                    const int geomagneticActivity = -1 )
+                                                                                    const int geomagneticActivity = 1 )
  {
      return std::make_shared< NRLMSISE00AtmosphereSettings >( dataFile, geomagneticActivity);
  }
