@@ -50,10 +50,52 @@ void NRLMSISE00Atmosphere::computeProperties( const double altitude, const doubl
     }
     hashKey_ = hashKey;
 
-    setInputStruct( altitude, longitude, latitude, time );
+    // Define the shape model for Earth (WGS-84)
+    double equatorialRadius = 6378137.0;
+    double flattening = 1.0 / 298.257223563;
 
-    // Call NRLMSISE00
-    gtd7( &input_, &flags_, &output_ );
+    // Compute ellipsoide emi-minor axis
+    const double polarRadius = equatorialRadius * (1.0 - flattening);
+
+    // Compute square of first eccentricity
+    const double eccentricitySquared = 1.0 - (polarRadius * polarRadius) / (equatorialRadius * equatorialRadius);
+
+    // Define initial guess for geodetic latitude as the geocentric latitude
+    double geodeticLatitudeGuess = latitude;
+
+    // Find geodetic latitude through iterative computation
+    const double tolerance = 1.0E-16;
+    const int maxIterations = 10;
+    double geodeticLatitude = 0.0;
+    for (int i = 0; i < maxIterations; ++i)
+    {
+        // Compute prime vertical radius
+        const double curvatureRadius = equatorialRadius / std::sqrt(1.0 - eccentricitySquared * std::sin(geodeticLatitudeGuess) * std::sin(geodeticLatitudeGuess));
+
+        // Compute corrected geodetic latitude
+        geodeticLatitude = std::atan(std::tan(latitude) / (1.0 - eccentricitySquared * equatorialRadius / (equatorialRadius + altitude)));
+
+        // Check for convergence
+        if (std::abs(geodeticLatitude - geodeticLatitudeGuess) < tolerance)
+        { 
+            break;
+        }
+
+        // Update geodetic latitude for the next iteration
+        geodeticLatitudeGuess = geodeticLatitude;
+
+        // Throw an exception if the maximum number of iterations is reached
+        if (i == maxIterations - 1)
+        {
+            throw std::runtime_error("Maximum number of iterations reached in the computation of geodetic latitude.");
+        }
+
+    }
+
+    setInputStruct( altitude, longitude, geodeticLatitude, time );
+
+    // Call NRLMSISE00 accounting for the contributions from anomalous oxygen
+    gtd7d( &input_, &flags_, &output_ );
 
     // Retrieve density and temperature
     density_ = output_.d[ 5 ] * 1000.0;  // GM/CM3 to kg/M3
