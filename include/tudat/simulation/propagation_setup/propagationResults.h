@@ -42,7 +42,7 @@ public:
 
     virtual ~SimulationResults( ) { }
 
-    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) = 0;
+    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const = 0;
 
     virtual std::shared_ptr< DependentVariablesInterface< TimeType > > getDependentVariablesInterface( ) = 0;
 };
@@ -87,12 +87,12 @@ public:
 
     ~SingleArcSimulationResults( ){ }
 
-    std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > cloneDerived( )
+    std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > cloneDerived( ) const
     {
         return std::make_shared< SingleArcSimulationResults< StateScalarType, TimeType > >( *this );
     }
 
-    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( )
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
     {
         return cloneDerived( );
     }
@@ -468,14 +468,22 @@ public:
         sensitivityMatrixSize_( sensitivityMatrixSize )
     { }
 
+    SingleArcVariationalSimulationResults(
+        const SingleArcVariationalSimulationResults< StateScalarType, TimeType >& resultsToCopy ):
+        singleArcDynamicsResults_( resultsToCopy.getDynamicsResults( )->cloneDerived( ) ),
+        stateTransitionMatrixSize_( resultsToCopy.stateTransitionMatrixSize_ ),
+        sensitivityMatrixSize_( resultsToCopy.sensitivityMatrixSize_ ),
+        stateTransitionSolution_( resultsToCopy.stateTransitionSolution_ ),
+        sensitivitySolution_( resultsToCopy.sensitivitySolution_ ){ }
+
     ~SingleArcVariationalSimulationResults( ){ }
 
-    std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > cloneDerived( )
+    std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > cloneDerived( ) const
     {
         return std::make_shared< SingleArcVariationalSimulationResults< StateScalarType, TimeType > >( *this );
     }
 
-    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( )
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
     {
         return cloneDerived( );
     }
@@ -545,7 +553,7 @@ public:
         return sensitivitySolution_;
     }
 
-    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > getDynamicsResults( )
+    const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > getDynamicsResults( ) const
     {
         return singleArcDynamicsResults_;
     }
@@ -644,7 +652,7 @@ public:
     ~MultiArcSimulationResults( ) { }
 
 
-    std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > cloneDerived( )
+    std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > cloneDerived( ) const
     {
         std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > clonedSingleArcResults;
         for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
@@ -654,7 +662,7 @@ public:
         return std::make_shared< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >( clonedSingleArcResults, dependentVariableInterface_ );
     }
 
-    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( )
+    std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
     {
         return cloneDerived( );
     }
@@ -913,7 +921,7 @@ public:
 
     ~HybridArcSimulationResults( ) { }
 
-    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( )
+    virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
     {
         return std::make_shared< HybridArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >(
             singleArcResults_->cloneDerived( ), multiArcResults_->cloneDerived( ) );
