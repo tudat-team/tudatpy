@@ -85,7 +85,7 @@ public:
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     { }
 
-    ~SingleArcSimulationResults( ){ }
+    ~SingleArcSimulationResults( ) { }
 
     std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > cloneDerived( ) const
     {
@@ -96,8 +96,6 @@ public:
     {
         return cloneDerived( );
     }
-
-
 
     //! Function that resets the state of this object, typically to signal that a new propagation is to be performed.
     void reset( )
@@ -468,15 +466,14 @@ public:
         sensitivityMatrixSize_( sensitivityMatrixSize )
     { }
 
-    SingleArcVariationalSimulationResults(
-        const SingleArcVariationalSimulationResults< StateScalarType, TimeType >& resultsToCopy ):
+    SingleArcVariationalSimulationResults( const SingleArcVariationalSimulationResults< StateScalarType, TimeType >& resultsToCopy ):
         singleArcDynamicsResults_( resultsToCopy.getDynamicsResults( )->cloneDerived( ) ),
         stateTransitionMatrixSize_( resultsToCopy.stateTransitionMatrixSize_ ),
-        sensitivityMatrixSize_( resultsToCopy.sensitivityMatrixSize_ ),
-        stateTransitionSolution_( resultsToCopy.stateTransitionSolution_ ),
-        sensitivitySolution_( resultsToCopy.sensitivitySolution_ ){ }
+        sensitivityMatrixSize_( resultsToCopy.sensitivityMatrixSize_ ), stateTransitionSolution_( resultsToCopy.stateTransitionSolution_ ),
+        sensitivitySolution_( resultsToCopy.sensitivitySolution_ )
+    { }
 
-    ~SingleArcVariationalSimulationResults( ){ }
+    ~SingleArcVariationalSimulationResults( ) { }
 
     std::shared_ptr< SingleArcVariationalSimulationResults< StateScalarType, TimeType > > cloneDerived( ) const
     {
@@ -651,7 +648,6 @@ public:
 
     ~MultiArcSimulationResults( ) { }
 
-
     std::shared_ptr< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > > cloneDerived( ) const
     {
         std::vector< std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > > clonedSingleArcResults;
@@ -659,14 +655,14 @@ public:
         {
             clonedSingleArcResults.push_back( singleArcResults_.at( i )->cloneDerived( ) );
         }
-        return std::make_shared< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >( clonedSingleArcResults, dependentVariableInterface_ );
+        return std::make_shared< MultiArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >( clonedSingleArcResults,
+                                                                                                             dependentVariableInterface_ );
     }
 
     std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
     {
         return cloneDerived( );
     }
-
 
     bool getPropagationIsPerformed( )
     {
@@ -924,7 +920,7 @@ public:
     virtual std::shared_ptr< SimulationResults< StateScalarType, TimeType > > clone( ) const
     {
         return std::make_shared< HybridArcSimulationResults< SingleArcResults, StateScalarType, TimeType > >(
-            singleArcResults_->cloneDerived( ), multiArcResults_->cloneDerived( ) );
+                singleArcResults_->cloneDerived( ), multiArcResults_->cloneDerived( ) );
     }
 
     std::shared_ptr< SingleArcResults< StateScalarType, TimeType > > getSingleArcResults( )
