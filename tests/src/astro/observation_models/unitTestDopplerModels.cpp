@@ -240,11 +240,9 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                         correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
 
                                 transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter, nullptr );
-                double lightTimeCorrectionWrtReceiverTime =
-                    correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                double lightTimeCorrectionWrtReceiverTime = correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
                         transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), receiver, nullptr );
-                double lightTimeCorrectionWrtTransmitterTime =
-                    correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                double lightTimeCorrectionWrtTransmitterTime = correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
                         transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter, nullptr );
 
                 double numericalCorrectionPartial = ( lightTimeCorrectionUp - lightTimeCorrectionDown ) / ( 2.0 * timePerturbation );
