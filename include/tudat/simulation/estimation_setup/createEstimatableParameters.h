@@ -2103,21 +2103,6 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
                 break;
             }
-            case polar_motion_amplitude: {
-                if( std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
-                {
-                    std::string errorMessage = "Warning, no full planetary rotational ephemeris" + currentBodyName +
-                            " when making polar motion amplitude parameter";
-                    throw std::runtime_error( errorMessage );
-                }
-                else
-                {
-                    vectorParameterToEstimate = std::make_shared< PolarMotionAmplitude >(
-                            std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ),
-                            currentBodyName );
-                }
-                break;
-            }
             case global_polynomial_clock_corrections: {
                 std::shared_ptr< GlobalPolynomialClockCorrectionsParameterSettings > polynomialClockParameterSettings =
                         std::dynamic_pointer_cast< GlobalPolynomialClockCorrectionsParameterSettings >( vectorParameterName );
