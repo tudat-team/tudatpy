@@ -132,7 +132,6 @@ public:
         return std::bind( &StationMeteoData::getTemperature, meteoData_, std::placeholders::_1 );
     }
 
-
     std::function< double( const double time ) > getPressureFunction( )
     {
         if( meteoData_ == nullptr )
@@ -143,7 +142,6 @@ public:
         return std::bind( &StationMeteoData::getPressure, meteoData_, std::placeholders::_1 );
     }
 
-
     std::function< double( const double time ) > getWaterVaporPartialPressureFunction( )
     {
         if( meteoData_ == nullptr )
@@ -153,7 +151,6 @@ public:
         }
         return std::bind( &StationMeteoData::getWaterVaporPartialPressure, meteoData_, std::placeholders::_1 );
     }
-
 
     std::function< double( const double time ) > getRelativeHumidityFunction( )
     {
@@ -214,6 +211,7 @@ public:
     {
         troposphereData_ = troposphereData;
     }
+
 private:
     //! Object to define and compute the state of the ground station.
     std::shared_ptr< GroundStationState > nominalStationState_;
@@ -236,7 +234,6 @@ private:
     //! Container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
 };
-
 
 }  // namespace ground_stations
 

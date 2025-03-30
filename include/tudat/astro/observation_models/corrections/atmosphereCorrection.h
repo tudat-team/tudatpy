@@ -608,7 +608,6 @@ public:
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
 
-
     // Returns the function that computes the dry zenith correction as a function of time.
     std::function< double( double time ) > getDryZenithRangeCorrectionFunction( )
     {
@@ -633,7 +632,6 @@ protected:
 
     // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
     bool isUplinkCorrection_;
-
 };
 
 // Class to compute the tabulated tropospheric corrections using DSN data, according to Moyer (2000), section 10.2.1.
@@ -744,9 +742,9 @@ private:
     std::function< double( const double ) > waterVaporPartialPressureFunction_;
 };
 //
-//class VMF1TroposphericCorrection : public MappedTroposphericCorrection
+// class VMF1TroposphericCorrection : public MappedTroposphericCorrection
 //{
-//public:
+// public:
 //    /*!
 //     * Constructor
 //     * @param lightTimeCorrectionType Type of light-time correction represented by instance of class.
@@ -771,7 +769,7 @@ private:
 //        const double currentModifiedJulianDay );
 //
 //
-//protected:
+// protected:
 //
 //    // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
 //    bool isUplinkCorrection_;

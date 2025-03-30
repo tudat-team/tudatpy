@@ -52,7 +52,8 @@ public:
     // Names of the files from which the data originaets
     std::vector< std::string > fileNames_;
 
-    // Time since J2000 [s UTC]; { Dew point [K]; Temperature [K]; Pressure [Pa]; Water vapor partial pressure [Pa]; Relative humidity [-] (defined in [0,1]) }
+    // Time since J2000 [s UTC]; { Dew point [K]; Temperature [K]; Pressure [Pa]; Water vapor partial pressure [Pa]; Relative humidity [-]
+    // (defined in [0,1]) }
     std::map< double, Eigen::VectorXd > meteoDataMap_;
 
 private:
@@ -65,9 +66,10 @@ private:
     void readSingleFileWeatherData( const std::string& weatherFile );
 };
 
-inline bool compareEstrackWeatherDataEntries( std::map< double, Eigen::VectorXd >& firstMap, std::map< double, Eigen::VectorXd >& secondMap )
+inline bool compareEstrackWeatherDataEntries( std::map< double, Eigen::VectorXd >& firstMap,
+                                              std::map< double, Eigen::VectorXd >& secondMap )
 {
-    return firstMap.begin( )->first < secondMap.begin()->first;
+    return firstMap.begin( )->first < secondMap.begin( )->first;
 }
 
 class EstrackWeatherData
@@ -90,7 +92,6 @@ public:
     }
 
 private:
-
     void readSingleWeatherDataFile( const std::string& weatherFile );
 
     void readWeatherDataFiles( const std::vector< std::string >& weatherFiles )
@@ -180,11 +181,11 @@ inline void setDsnWeatherDataInGroundStations(
 }
 
 void setEstrackWeatherDataInGroundStation(
-    simulation_setup::SystemOfBodies& bodies,
-    const std::vector< std::string >& weatherFiles,
-    const std::string groundStation,
-    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
-    const std::string& bodyWithGroundStations = "Earth" );
+        simulation_setup::SystemOfBodies& bodies,
+        const std::vector< std::string >& weatherFiles,
+        const std::string groundStation,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
+        const std::string& bodyWithGroundStations = "Earth" );
 
 }  // namespace input_output
 

@@ -22,17 +22,17 @@ namespace input_output
 
 void VMFData::validate( )
 {
-    if( ( delayData.size( ) != meteoData.size( ) ) && ( meteoData.size() > 0 ) )
+    if( ( delayData.size( ) != meteoData.size( ) ) && ( meteoData.size( ) > 0 ) )
     {
         throw std::runtime_error( "Error, meteo data is of incompatible size in VMF data" );
     }
 
-    if( ( delayData.size( ) != gradientData.size( ) ) && ( gradientData.size() > 0 ) )
+    if( ( delayData.size( ) != gradientData.size( ) ) && ( gradientData.size( ) > 0 ) )
     {
         throw std::runtime_error( "Error, gradient data is of incompatible size in VMF data" );
     }
 
-    for( auto it : delayData )
+    for( auto it: delayData )
     {
         if( meteoData.size( ) > 0 )
         {
@@ -53,7 +53,7 @@ void VMFData::validate( )
 }
 
 void VMFData::getFullDataSet( std::map< double, Eigen::VectorXd >& processedTroposphereData,
-                     std::map< double, Eigen::VectorXd >& processedMeteoData )
+                              std::map< double, Eigen::VectorXd >& processedMeteoData )
 {
     validate( );
 
@@ -64,7 +64,7 @@ void VMFData::getFullDataSet( std::map< double, Eigen::VectorXd >& processedTrop
     Eigen::VectorXd currentData = Eigen::VectorXd::Zero( singleEntrySize );
     double mjdAtJ2000 = basic_astrodynamics::getModifiedJulianDayOnJ2000< double >( );
 
-    for( auto it : delayData )
+    for( auto it: delayData )
     {
         double currentMjd = it.first;
         double currentTt = ( it.first - mjdAtJ2000 ) * physical_constants::JULIAN_DAY;
@@ -85,11 +85,10 @@ void VMFData::getFullDataSet( std::map< double, Eigen::VectorXd >& processedTrop
     }
 }
 
-void readVMFFile(
-    const std::string& fileName,
-    std::map< std::string, VMFData >& vmfData,
-    const bool fileHasMeteo,
-    const bool fileHasGradient )
+void readVMFFile( const std::string& fileName,
+                  std::map< std::string, VMFData >& vmfData,
+                  const bool fileHasMeteo,
+                  const bool fileHasGradient )
 {
     // Open file
     std::ifstream stream( fileName, std::ios_base::in );
@@ -121,59 +120,53 @@ void readVMFFile(
                 // Trim input string (removes all leading and trailing whitespaces).
                 boost::algorithm::trim( currentLine );
                 boost::algorithm::split(
-                    currentSplitLine, currentLine, boost::algorithm::is_any_of( " \t" ),
-                    boost::algorithm::token_compress_on );
+                        currentSplitLine, currentLine, boost::algorithm::is_any_of( " \t" ), boost::algorithm::token_compress_on );
                 std::string stationName = currentSplitLine.at( 0 );
-                if ( vmfData.count( stationName ) == 0 )
+                if( vmfData.count( stationName ) == 0 )
                 {
                     vmfData[ stationName ] = VMFData( );
                 }
 
-                double currentMjd = std::stod( currentSplitLine.at( 1 ));
+                double currentMjd = std::stod( currentSplitLine.at( 1 ) );
                 int currentIndex = 2;
                 int currentStartIndex = currentIndex;
 
-                for ( ; currentIndex < currentStartIndex + 4; currentIndex++ )
+                for( ; currentIndex < currentStartIndex + 4; currentIndex++ )
                 {
-                    currentDelayData[ currentIndex - currentStartIndex ] = std::stod( currentSplitLine.at( currentIndex ));
+                    currentDelayData[ currentIndex - currentStartIndex ] = std::stod( currentSplitLine.at( currentIndex ) );
                 }
                 vmfData[ stationName ].delayData[ currentMjd ] = currentDelayData;
 
-                if ( fileHasMeteo )
+                if( fileHasMeteo )
                 {
                     currentStartIndex = currentIndex;
-                    for ( ; currentIndex < currentStartIndex + 3; currentIndex++ )
+                    for( ; currentIndex < currentStartIndex + 3; currentIndex++ )
                     {
-                        currentMeteoData[ currentIndex - currentStartIndex ] =
-                            std::stod( currentSplitLine.at( currentIndex ));
+                        currentMeteoData[ currentIndex - currentStartIndex ] = std::stod( currentSplitLine.at( currentIndex ) );
                         switch( currentIndex - currentStartIndex )
                         {
-                        case 0:
-                            currentMeteoData[ currentIndex - currentStartIndex ] *= 100.0;
-                            break;
-                        case 1:
-                            currentMeteoData[ currentIndex - currentStartIndex ] += 273.15;
-                            break;
-                        case 2:
-                            currentMeteoData[ currentIndex - currentStartIndex ] *= 100.0;
-                            break;
-                        default:
-                            throw std::runtime_error( "Error when reading meteo data from VMF file, index is incompatible" );
+                            case 0:
+                                currentMeteoData[ currentIndex - currentStartIndex ] *= 100.0;
+                                break;
+                            case 1:
+                                currentMeteoData[ currentIndex - currentStartIndex ] += 273.15;
+                                break;
+                            case 2:
+                                currentMeteoData[ currentIndex - currentStartIndex ] *= 100.0;
+                                break;
+                            default:
+                                throw std::runtime_error( "Error when reading meteo data from VMF file, index is incompatible" );
                         }
-
                     }
                     vmfData[ stationName ].meteoData[ currentMjd ] = currentMeteoData;
-
                 }
 
-
-                if ( fileHasGradient )
+                if( fileHasGradient )
                 {
                     currentStartIndex = currentIndex;
-                    for ( ; currentIndex < currentStartIndex + 4; currentIndex++ )
+                    for( ; currentIndex < currentStartIndex + 4; currentIndex++ )
                     {
-                        currentGradientData[ currentIndex - currentStartIndex ] =
-                            std::stod( currentSplitLine.at( currentIndex ));
+                        currentGradientData[ currentIndex - currentStartIndex ] = std::stod( currentSplitLine.at( currentIndex ) );
                     }
                     vmfData[ stationName ].gradientData[ currentMjd ] = currentGradientData;
                 }
@@ -185,11 +178,10 @@ void readVMFFile(
     stream.close( );
 }
 
-void readVMFFiles(
-    const std::vector< std::string >& fileName,
-    std::map< std::string, VMFData >& vmfData,
-    const bool fileHasMeteo,
-    const bool fileHasGradient )
+void readVMFFiles( const std::vector< std::string >& fileName,
+                   std::map< std::string, VMFData >& vmfData,
+                   const bool fileHasMeteo,
+                   const bool fileHasGradient )
 {
     for( unsigned int i = 0; i < fileName.size( ); i++ )
     {

@@ -597,12 +597,12 @@ public:
     }
 
     ObservationScalarType getPartialOfLightTimeWrtLinkEndTime(
-        const Eigen::Vector6d& transmitterState,
-        const Eigen::Vector6d& receiverState,
-        const double transmitterTime,
-        const double receiverTime,
-        const bool isPartialWrtReceiver,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmitterTime,
+            const double receiverTime,
+            const bool isPartialWrtReceiver,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
     {
         setTotalLightTimeCorrection( transmitterState.template cast< ObservationScalarType >( ),
                                      receiverState.template cast< ObservationScalarType >( ),
@@ -614,17 +614,15 @@ public:
 
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
-            partialWrtLinkEndTime += correctionFunctions_.at( i )
-                                             ->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                                                 transmitterState.template cast< double >( ),
-                                                 receiverState.template cast< double >( ),
-                                                 transmitterTime,
-                                                 receiverTime,
-                                                 isPartialWrtReceiver ? receiver : transmitter ) *
-                                         physical_constants::SPEED_OF_LIGHT;
+            partialWrtLinkEndTime += correctionFunctions_.at( i )->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                                             transmitterState.template cast< double >( ),
+                                             receiverState.template cast< double >( ),
+                                             transmitterTime,
+                                             receiverTime,
+                                             isPartialWrtReceiver ? receiver : transmitter ) *
+                    physical_constants::SPEED_OF_LIGHT;
         }
         return partialWrtLinkEndTime;
-
     }
 
     //! Function to get list of light-time correction functions

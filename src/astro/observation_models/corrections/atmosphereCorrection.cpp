@@ -337,17 +337,15 @@ double NiellTroposphericMapping::computeDryCoefficient(
     return dryCoefficient;
 }
 
-MappedTroposphericCorrection::MappedTroposphericCorrection(
-    const LightTimeCorrectionType lightTimeCorrectionType,
-    std::shared_ptr< TroposhericElevationMapping > elevationMapping,
-    bool isUplinkCorrection,
-    std::function< double( double time ) > dryZenithRangeCorrectionFunction,
-    std::function< double( double time ) > wetZenithRangeCorrectionFunction ):
+MappedTroposphericCorrection::MappedTroposphericCorrection( const LightTimeCorrectionType lightTimeCorrectionType,
+                                                            std::shared_ptr< TroposhericElevationMapping > elevationMapping,
+                                                            bool isUplinkCorrection,
+                                                            std::function< double( double time ) > dryZenithRangeCorrectionFunction,
+                                                            std::function< double( double time ) > wetZenithRangeCorrectionFunction ):
     LightTimeCorrection( lightTimeCorrectionType ), dryZenithRangeCorrectionFunction_( dryZenithRangeCorrectionFunction ),
     wetZenithRangeCorrectionFunction_( wetZenithRangeCorrectionFunction ), elevationMapping_( elevationMapping ),
     isUplinkCorrection_( isUplinkCorrection )
 { }
-
 
 double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
         const std::vector< Eigen::Vector6d >& linkEndsStates,
@@ -377,84 +375,84 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLin
     }
 
     // Moyer (2000), eq. 10-1
-    double delay = ( dryZenithRangeCorrectionFunction_( stationTime ) *
-                     elevationMapping_->computeDryTroposphericMapping( transmitterState, receiverState, transmissionTime, receptionTime ) +
-             wetZenithRangeCorrectionFunction_( stationTime ) *
-                     elevationMapping_->computeWetTroposphericMapping(
-                             transmitterState, receiverState, transmissionTime, receptionTime ) ) /
+    double delay =
+            ( dryZenithRangeCorrectionFunction_( stationTime ) *
+                      elevationMapping_->computeDryTroposphericMapping( transmitterState, receiverState, transmissionTime, receptionTime ) +
+              wetZenithRangeCorrectionFunction_( stationTime ) *
+                      elevationMapping_->computeWetTroposphericMapping(
+                              transmitterState, receiverState, transmissionTime, receptionTime ) ) /
             physical_constants::getSpeedOfLight< double >( );
     return delay;
 }
 
-//double VMF1TroposphericCorrection::getDryMappingFunctions(
-//    const double dryACoefficient,
-//    const double wetACoefficient,
-//    const double elevationAngle,
-//    const double stationLatitude,
-//    const double currentModifiedJulianDay )
+// double VMF1TroposphericCorrection::getDryMappingFunctions(
+//     const double dryACoefficient,
+//     const double wetACoefficient,
+//     const double elevationAngle,
+//     const double stationLatitude,
+//     const double currentModifiedJulianDay )
 //{
 //
-//    double bh = 0.0029;
-//    double c0h = 0.062;
-//    double c11h, c10h, quadrant;
+//     double bh = 0.0029;
+//     double c0h = 0.062;
+//     double c11h, c10h, quadrant;
 //
-//    if (stationLatitude < 0 )
-//    {
-//        quadrant = mathematical_constants::PI;
-//        c11h = 0.007;
-//        c10h = 0.002;
-//    }
-//    else
-//    {
-//        quadrant = 0.0;
-//        c11h = 0.005;
-//        c10h = 0.001;
-//    }
+//     if (stationLatitude < 0 )
+//     {
+//         quadrant = mathematical_constants::PI;
+//         c11h = 0.007;
+//         c10h = 0.002;
+//     }
+//     else
+//     {
+//         quadrant = 0.0;
+//         c11h = 0.005;
+//         c10h = 0.001;
+//     }
 //
-//    double dayOfYear = currentModifiedJulianDay  - 44239.0 + 1.0 - 28.0;
-//    double ch = c0h + ( ( std::cos( dayOfYear/365.25 * 2.0 * mathematical_constants::PI + quadrant ) + 1.0 )* c11h / 2.0 + c10h )*
-//        (1.0 - std::cos( stationLatitude ) );
+//     double dayOfYear = currentModifiedJulianDay  - 44239.0 + 1.0 - 28.0;
+//     double ch = c0h + ( ( std::cos( dayOfYear/365.25 * 2.0 * mathematical_constants::PI + quadrant ) + 1.0 )* c11h / 2.0 + c10h )*
+//         (1.0 - std::cos( stationLatitude ) );
 //
-//    double sineElevation   = std::sin( elevationAngle );
-//    double beta   = bh / ( sineElevation + ch  );
-//    double gamma  = ah/( sineElevation + beta);
-//    double topcon = (1.d0 + ah/(1.d0 + bh/(1.d0 + ch)));
-//    return topcon / ( sineElevation+gamma );
-//}
+//     double sineElevation   = std::sin( elevationAngle );
+//     double beta   = bh / ( sineElevation + ch  );
+//     double gamma  = ah/( sineElevation + beta);
+//     double topcon = (1.d0 + ah/(1.d0 + bh/(1.d0 + ch)));
+//     return topcon / ( sineElevation+gamma );
+// }
 
-//double VMF1TroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
-//    const std::vector< Eigen::Vector6d >& linkEndsStates,
-//    const std::vector< double >& linkEndsTimes,
-//    const unsigned int currentMultiLegTransmitterIndex,
-//    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+// double VMF1TroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+//     const std::vector< Eigen::Vector6d >& linkEndsStates,
+//     const std::vector< double >& linkEndsTimes,
+//     const unsigned int currentMultiLegTransmitterIndex,
+//     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
 //{
 //
-//    // Retrieve state and time of receiver and transmitter
-//    Eigen::Vector6d transmitterState, receiverState;
-//    double transmissionTime, receptionTime;
-//    getTransmissionReceptionTimesAndStates( linkEndsStates,
-//                                            linkEndsTimes,
-//                                            currentMultiLegTransmitterIndex,
-//                                            transmitterState,
-//                                            receiverState,
-//                                            transmissionTime,
-//                                            receptionTime );
+//     // Retrieve state and time of receiver and transmitter
+//     Eigen::Vector6d transmitterState, receiverState;
+//     double transmissionTime, receptionTime;
+//     getTransmissionReceptionTimesAndStates( linkEndsStates,
+//                                             linkEndsTimes,
+//                                             currentMultiLegTransmitterIndex,
+//                                             transmitterState,
+//                                             receiverState,
+//                                             transmissionTime,
+//                                             receptionTime );
 //
-//    double stationTime;
-//    if( isUplinkCorrection_ )
-//    {
-//        stationTime = transmissionTime;
-//    }
-//    else
-//    {
-//        stationTime = receptionTime;
-//    }
+//     double stationTime;
+//     if( isUplinkCorrection_ )
+//     {
+//         stationTime = transmissionTime;
+//     }
+//     else
+//     {
+//         stationTime = receptionTime;
+//     }
 //
-//    Eigen::Vector2d zenithDelays = troposphereData_->getZenithDelay( stationTime );
-//    Eigen::Vector2d mappingFunctionParameters = troposphereData_->getMappingFunction( stationTime );
-//    Eigen::Vector4d gradientParameters = troposphereData_->getGradient( stationTime );
-//}
-
+//     Eigen::Vector2d zenithDelays = troposphereData_->getZenithDelay( stationTime );
+//     Eigen::Vector2d mappingFunctionParameters = troposphereData_->getMappingFunction( stationTime );
+//     Eigen::Vector4d gradientParameters = troposphereData_->getGradient( stationTime );
+// }
 
 double SaastamoinenTroposphericCorrection::computeDryZenithRangeCorrection( const double stationTime )
 {
@@ -729,19 +727,19 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
 
     // Retrieve frequency bands
     std::vector< FrequencyBands > frequencyBands = std::vector< FrequencyBands >( { x_band } );
-//    if( ancillarySettings == nullptr )
-//    {
-//        throw std::runtime_error( "Error when computing mapped VTEC ionospheric corrections: no ancillary settings found. " );
-//    }
-//    try
-//    {
-//        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
-//    }
-//    catch( std::runtime_error& caughtException )
-//    {
-//        throw std::runtime_error( "Error when retrieving frequency bands for mapped VTEC ionospheric corrections: " +
-//                                  std::string( caughtException.what( ) ) );
-//    }
+    //    if( ancillarySettings == nullptr )
+    //    {
+    //        throw std::runtime_error( "Error when computing mapped VTEC ionospheric corrections: no ancillary settings found. " );
+    //    }
+    //    try
+    //    {
+    //        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+    //    }
+    //    catch( std::runtime_error& caughtException )
+    //    {
+    //        throw std::runtime_error( "Error when retrieving frequency bands for mapped VTEC ionospheric corrections: " +
+    //                                  std::string( caughtException.what( ) ) );
+    //    }
 
     double elevation = elevationFunction_( spacecraftState.segment( 0, 3 ) - groundStationState.segment( 0, 3 ), groundStationTime );
     double azimuth = azimuthFunction_( spacecraftState.segment( 0, 3 ) - groundStationState.segment( 0, 3 ), groundStationTime );

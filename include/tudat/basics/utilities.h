@@ -1109,7 +1109,7 @@ bool compareStlVectors( const std::vector< T >& v1, const std::vector< T >& v2 )
 template< typename T, typename S >
 T getKeyByIndex( const std::map< T, S >& mapToIterate, const unsigned int index )
 {
-    if( index >= mapToIterate.size() )
+    if( index >= mapToIterate.size( ) )
     {
         throw std::runtime_error( "Error when getting mpa key by index, size of map is insufficient" );
     }
@@ -1122,20 +1122,20 @@ T getKeyByIndex( const std::map< T, S >& mapToIterate, const unsigned int index 
 }
 
 template< typename S, typename T >
-std::vector<std::map<S, T>> mergeMaps(const std::vector<std::map<S, T>>& data, const S tolerance = 1.0 )
+std::vector< std::map< S, T > > mergeMaps( const std::vector< std::map< S, T > >& data, const S tolerance = 1.0 )
 {
-    std::vector<std::map<S, T>> mergedData;
+    std::vector< std::map< S, T > > mergedData;
 
-    if( data.empty() )
+    if( data.empty( ) )
     {
         return mergedData;
     }
     else
     {
         auto currentMap = data.front( );
-        for ( unsigned int i = 1; i < data.size( ); i++ )
+        for( unsigned int i = 1; i < data.size( ); i++ )
         {
-            const auto &nextMap = data[ i ];
+            const auto& nextMap = data[ i ];
 
             // Get the last key of the current map and the first key of the next map
             S lastKey = currentMap.rbegin( )->first;
@@ -1151,9 +1151,9 @@ std::vector<std::map<S, T>> mergeMaps(const std::vector<std::map<S, T>>& data, c
             S spacingThreshold = std::max( currentSpacing, nextSpacing );
 
             // Check if the maps should be merged
-            if (( nextKey - lastKey ) <= spacingThreshold * tolerance )
+            if( ( nextKey - lastKey ) <= spacingThreshold * tolerance )
             {
-                currentMap.insert( nextMap.begin( ), nextMap.end( ));
+                currentMap.insert( nextMap.begin( ), nextMap.end( ) );
             }
             else
             {
@@ -1168,8 +1168,6 @@ std::vector<std::map<S, T>> mergeMaps(const std::vector<std::map<S, T>>& data, c
         return mergedData;
     }
 }
-
-
 
 }  // namespace utilities
 
