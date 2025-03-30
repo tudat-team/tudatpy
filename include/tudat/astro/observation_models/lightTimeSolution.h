@@ -615,14 +615,14 @@ public:
 
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
-            partialWrtLinkEndTime += correctionFunctions_.at( i )
-                                             ->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                                                 transmitterState.template cast< double >( ),
-                                                 receiverState.template cast< double >( ),
-                                                 transmitterTime,
-                                                 receiverTime,
-                                                 isPartialWrtReceiver ? receiver : transmitter, ancillarySettings ) *
-                                         physical_constants::SPEED_OF_LIGHT;
+            partialWrtLinkEndTime += correctionFunctions_.at( i )->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                                             transmitterState.template cast< double >( ),
+                                             receiverState.template cast< double >( ),
+                                             transmitterTime,
+                                             receiverTime,
+                                             isPartialWrtReceiver ? receiver : transmitter,
+                                             ancillarySettings ) *
+                    physical_constants::SPEED_OF_LIGHT;
         }
         return partialWrtLinkEndTime;
     }
@@ -816,9 +816,8 @@ public:
                 ephemerisOfTransmittingBody, ephemerisOfReceivingBody, correctionFunctions, lightTimeConvergenceCriteria ) );
     }
 
-    void resetLinkEndDelays(
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
-        const bool performFullComputation = true )
+    void resetLinkEndDelays( const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+                             const bool performFullComputation = true )
     {
         linkEndsDelays_.clear( );
         if( ancillarySettings != nullptr )
@@ -834,7 +833,7 @@ public:
                 linkEndsDelays_.insert( linkEndsDelays_.begin( ), 0.0 );
                 linkEndsDelays_.push_back( 0.0 );
             }
-            else  if( linkEndsDelays_.size( ) != numberOfLinkEnds_ )
+            else if( linkEndsDelays_.size( ) != numberOfLinkEnds_ )
             {
                 throw std::runtime_error( "Error when computing multi-leg light time: size of retransmission delays (" +
                                           std::to_string( linkEndsDelays_.size( ) ) + ") is invalid, should be " +
@@ -860,9 +859,9 @@ public:
             if( linkEndsDelays_.at( startLinkEndIndex_ ) != 0.0 )
             {
                 throw std::runtime_error(
-                    "Error when computing light time with reference link end that is not receiver or transmitter: "
-                    "dealing with non-zero retransmission delays at the reference link end is not implemented. It "
-                    "would require distinguishing between reception and transmission delays at the retransmitting link end." );
+                        "Error when computing light time with reference link end that is not receiver or transmitter: "
+                        "dealing with non-zero retransmission delays at the reference link end is not implemented. It "
+                        "would require distinguishing between reception and transmission delays at the retransmitting link end." );
             }
         }
     }
@@ -888,15 +887,13 @@ public:
         // corrections depend on the state/time at other legs)
         if( iterateMultiLegLightTime_ )
         {
-            previousLightTimeEstimate =
-                    calculateMultiLegLightTimeEstimate( time, linkEndTimes, linkEndStates, ancillarySettings, false );
+            previousLightTimeEstimate = calculateMultiLegLightTimeEstimate( time, linkEndTimes, linkEndStates, ancillarySettings, false );
         }
         // If none of the legs' light-times depends on the other legs, directly compute the first light time estimate with
         // corrections
         else
         {
-            previousLightTimeEstimate =
-                    calculateMultiLegLightTimeEstimate( time, linkEndTimes, linkEndStates, ancillarySettings, true );
+            previousLightTimeEstimate = calculateMultiLegLightTimeEstimate( time, linkEndTimes, linkEndStates, ancillarySettings, true );
         }
 
         ObservationScalarType newLightTimeEstimate;
@@ -904,7 +901,7 @@ public:
         // Iterate light times only if necessary, i.e. don't iterate if the model is constituted by a single leg or if
         // it is consituted by multiple legs but doesn't require multiple leg iterations.
         iterationCounter_ = 0;
-        if ( numberOfLinks_ == 1 || !iterateMultiLegLightTime_ )
+        if( numberOfLinks_ == 1 || !iterateMultiLegLightTime_ )
         {
             newLightTimeEstimate = previousLightTimeEstimate;
         }
@@ -912,15 +909,12 @@ public:
         {
             bool isToleranceReached = false;
 
-            while ( !isToleranceReached )
+            while( !isToleranceReached )
             {
-                newLightTimeEstimate =
-                    calculateMultiLegLightTimeEstimate( time, linkEndTimes, linkEndStates,
-                                                        ancillarySettings, true );
+                newLightTimeEstimate = calculateMultiLegLightTimeEstimate( time, linkEndTimes, linkEndStates, ancillarySettings, true );
 
                 isToleranceReached = isMultiLegLightTimeSolutionConverged(
-                    lightTimeConvergenceCriteria_, previousLightTimeEstimate, newLightTimeEstimate,
-                    iterationCounter_, time );
+                        lightTimeConvergenceCriteria_, previousLightTimeEstimate, newLightTimeEstimate, iterationCounter_, time );
 
                 // Update light time for next iteration
                 previousLightTimeEstimate = newLightTimeEstimate;
@@ -934,17 +928,16 @@ public:
         linkEndsStatesOutput.clear( );
         linkEndsTimesOutput.resize( 2 * numberOfLinks_ );
         linkEndsStatesOutput.resize( 2 * numberOfLinks_ );
-        for ( unsigned int i = 0; i < linkEndTimes.size( ); ++i )
+        for( unsigned int i = 0; i < linkEndTimes.size( ); ++i )
         {
-            linkEndsStatesOutput.at( i ) = linkEndStates.at( i ).template cast<double>( );
+            linkEndsStatesOutput.at( i ) = linkEndStates.at( i ).template cast< double >( );
             linkEndsTimesOutput.at( i ) = linkEndTimes.at( i );
         }
         return newLightTimeEstimate;
     }
 
-    ObservationScalarType calculateFirstIterationLightTimeWithLinkEndsStates(
-        const TimeType time,
-        const LinkEndType linkEndAssociatedWithTime )
+    ObservationScalarType calculateFirstIterationLightTimeWithLinkEndsStates( const TimeType time,
+                                                                              const LinkEndType linkEndAssociatedWithTime )
     {
         resetLinkEndDelays( nullptr, false );
         setStartLinkIndex( linkEndAssociatedWithTime );

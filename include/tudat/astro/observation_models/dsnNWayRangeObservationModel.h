@@ -50,7 +50,7 @@ public:
             const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
             const std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >&
-            turnaroundRatio,
+                    turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
@@ -168,10 +168,12 @@ public:
 
         if( true )
         {
-            setTransmissionReceptionFrequencies(
-                lightTimeCalculator_, terrestrialTimeScaleConverter_,
-                transmittingFrequencyCalculator_, time, ancillarySettings, currentTurnAroundRatio );
-
+            setTransmissionReceptionFrequencies( lightTimeCalculator_,
+                                                 terrestrialTimeScaleConverter_,
+                                                 transmittingFrequencyCalculator_,
+                                                 time,
+                                                 ancillarySettings,
+                                                 currentTurnAroundRatio );
         }
 
         TimeType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(

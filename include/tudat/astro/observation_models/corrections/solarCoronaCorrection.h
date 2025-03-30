@@ -43,10 +43,9 @@ public:
      * @param transmittedFrequencyFunction Function calculating the frequency at the current link given a vector with
      *     the frequency bands in each link of the model and the transmission time.
      */
-    SolarCoronaCorrection(
-            const LightTimeCorrectionType lightTimeCorrectionType,
-            const ObservableType observableType,
-            const std::function< Eigen::Vector6d( double time ) > sunStateFunction ):
+    SolarCoronaCorrection( const LightTimeCorrectionType lightTimeCorrectionType,
+                           const ObservableType observableType,
+                           const std::function< Eigen::Vector6d( double time ) > sunStateFunction ):
         LightTimeCorrection( lightTimeCorrectionType ), sunStateFunction_( sunStateFunction )
     {
         // Sign according to Moyer (2000), section 10.4.2
@@ -83,7 +82,6 @@ protected:
      * @return Distance
      */
     double computeMinimumDistanceOfLineOfSight( Eigen::Vector3d transmitterPositionWrtSun, Eigen::Vector3d receiverPositionWrtSun );
-
 
     /*!
      * Computes the electron density at a certain position and time.
@@ -150,9 +148,9 @@ public:
             const std::vector< double >& positiveExponents = { 2.0 },
             const double criticalPlasmaDensityDelayCoefficient = 40.3,
             const double sunRadius = 696e6 ):
-        SolarCoronaCorrection( inverse_power_series_solar_corona, observableType, sunStateFunction ),
-        coefficients_( coefficients ), positiveExponents_( positiveExponents ),
-        criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ), sunRadius_( sunRadius )
+        SolarCoronaCorrection( inverse_power_series_solar_corona, observableType, sunStateFunction ), coefficients_( coefficients ),
+        positiveExponents_( positiveExponents ), criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ),
+        sunRadius_( sunRadius )
     {
         if( coefficients.size( ) != positiveExponents.size( ) )
         {
