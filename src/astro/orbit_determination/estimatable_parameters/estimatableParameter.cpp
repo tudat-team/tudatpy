@@ -21,7 +21,6 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     std::string parameterDescription;
     switch( parameterType )
     {
-<<<<<<< HEAD
         case arc_wise_initial_body_state:
             parameterDescription = "arc-wise translational state ";
             break;
@@ -220,7 +219,6 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     bool isDoubleParameter;
     switch( parameterType )
     {
-<<<<<<< HEAD
         case gravitational_parameter:
             isDoubleParameter = true;
             break;
@@ -384,7 +382,6 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
     bool flag;
     switch( parameterType )
     {
-<<<<<<< HEAD
         case constant_rotation_rate:
             flag = true;
             break;
