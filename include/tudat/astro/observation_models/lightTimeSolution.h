@@ -235,61 +235,6 @@ public:
         return lightTimeCorrectionFunction_( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
     }
 
-    //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
-    /*!
-     * Function to compute the partial derivative of the light-time correction w.r.t. observation time. NOTE: FUNCTION IS NOT
-     * YET IMPLEMENTED, EACH OBJECT PRINTS A WARNING ONCE WHEN THIS FUNCTION IS CALLED.
-     * \param transmitterState State of transmitted at transmission time
-     * \param receiverState State of receiver at reception time
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param fixedLinkEnd Reference link end for observation
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
-     * \return Light-time correction w.r.t. observation time
-     */
-    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
-                                                                        const Eigen::Vector6d& receiverState,
-                                                                        const double transmissionTime,
-                                                                        const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
-                                                                        const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        if( !isWarningProvided_ )
-        {
-            std::cerr << "Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper." << std::endl;
-            isWarningProvided_ = true;
-        }
-
-        return 0.0;
-    }
-
-    //! Function to compute the partial derivative of the light-time correction w.r.t. link end position
-    /*!
-     * Function to compute the partial derivative of the light-time correction w.r.t. link end position. NOTE: FUNCTION IS NOT
-     * YET IMPLEMENTED, EACH OBJECT PRINTS A WARNING ONCE WHEN THIS FUNCTION IS CALLED.
-     * \param transmitterState State of transmitted at transmission time
-     * \param receiverState State of receiver at reception time
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
-     * \return Light-time correction w.r.t. link end position
-     */
-    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-            const Eigen::Vector6d& transmitterState,
-            const Eigen::Vector6d& receiverState,
-            const double transmissionTime,
-            const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        if( !isWarningProvided_ )
-        {
-            std::cerr << "Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper." << std::endl;
-            isWarningProvided_ = true;
-        }
-
-        return Eigen::Matrix< double, 3, 1 >::Zero( );
-    }
-
 private:
     //! Custom light-time correction functions, as a function of transmitter and receiver state and time.
     LightTimeCorrectionFunctionMultiLeg lightTimeCorrectionFunction_;
@@ -649,6 +594,37 @@ public:
                     physical_constants::SPEED_OF_LIGHT;
         }
         return partialWrtLinkEndPosition;
+    }
+
+    ObservationScalarType getPartialOfLightTimeWrtLinkEndTime(
+        const Eigen::Vector6d& transmitterState,
+        const Eigen::Vector6d& receiverState,
+        const double transmitterTime,
+        const double receiverTime,
+        const bool isPartialWrtReceiver,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+    {
+        setTotalLightTimeCorrection( transmitterState.template cast< ObservationScalarType >( ),
+                                     receiverState.template cast< ObservationScalarType >( ),
+                                     transmitterTime,
+                                     receiverTime,
+                                     ancillarySettings );
+
+        ObservationScalarType partialWrtLinkEndTime = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
+
+        for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
+        {
+            partialWrtLinkEndTime += correctionFunctions_.at( i )
+                                             ->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                                                 transmitterState.template cast< double >( ),
+                                                 receiverState.template cast< double >( ),
+                                                 transmitterTime,
+                                                 receiverTime,
+                                                 isPartialWrtReceiver ? receiver : transmitter ) *
+                                         physical_constants::SPEED_OF_LIGHT;
+        }
+        return partialWrtLinkEndTime;
+
     }
 
     //! Function to get list of light-time correction functions
