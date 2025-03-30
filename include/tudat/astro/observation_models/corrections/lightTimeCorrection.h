@@ -51,8 +51,8 @@ public:
      * \param lightTimeCorrectionType Type of light-time correction represented by instance of class.
      */
     LightTimeCorrection( const LightTimeCorrectionType lightTimeCorrectionType ):
-    lightTimeCorrectionType_( lightTimeCorrectionType ),
-    timePerturbation_( 15.0 ), positionRelativePerturbation_( 1.0E-4 ) { }
+        lightTimeCorrectionType_( lightTimeCorrectionType ), timePerturbation_( 15.0 ), positionRelativePerturbation_( 1.0E-4 )
+    { }
 
     //! Destructor
     virtual ~LightTimeCorrection( ) { }
@@ -134,8 +134,6 @@ public:
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated );
 
-
-
     //! Function to retrieve the type of light-time correction represented by instance of class.
     /*!
      *  Function to retrieve the type of light-time correction represented by instance of class.
@@ -172,7 +170,6 @@ protected:
 
     //! Type of light-time correction represented by instance of class.
     LightTimeCorrectionType lightTimeCorrectionType_;
-
 
     double timePerturbation_;
 
