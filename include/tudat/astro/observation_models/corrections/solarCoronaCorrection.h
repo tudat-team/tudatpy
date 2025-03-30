@@ -77,27 +77,6 @@ public:
         }
     }
 
-    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
-                                                                        const Eigen::Vector6d& receiverState,
-                                                                        const double transmissionTime,
-                                                                        const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
-                                                                        const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        // TODO: Add computation of partial
-        return 0.0;
-    }
-
-    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-            const Eigen::Vector6d& transmitterState,
-            const Eigen::Vector6d& receiverState,
-            const double transmissionTime,
-            const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        // TODO: Add computation of partial
-        return Eigen::Vector3d::Zero( );
-    }
 
 protected:
     /*!

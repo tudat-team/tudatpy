@@ -52,23 +52,8 @@ public:
     // Names of the files from which the data originaets
     std::vector< std::string > fileNames_;
 
-    // Time since J2000 [s]
-    std::vector< double > time_;
-
-    // Dew point [K]
-    std::vector< double > dewPoint_;
-
-    // Temperature [K]
-    std::vector< double > temperature_;
-
-    // Pressure [Pa]
-    std::vector< double > pressure_;
-
-    // Water vapor partial pressure [Pa]
-    std::vector< double > waterVaporPartialPressure_;
-
-    // Relative humidity [-] (defined in [0,1])
-    std::vector< double > relativeHumidity_;
+    // Time since J2000 [s UTC]; { Dew point [K]; Temperature [K]; Pressure [Pa]; Water vapor partial pressure [Pa]; Relative humidity [-] (defined in [0,1]) }
+    std::map< double, Eigen::VectorXd > meteoDataMap_;
 
 private:
     /*!
@@ -78,6 +63,51 @@ private:
      * @param weatherFile File name.
      */
     void readSingleFileWeatherData( const std::string& weatherFile );
+};
+
+inline bool compareEstrackWeatherDataEntries( std::map< double, Eigen::VectorXd >& firstMap, std::map< double, Eigen::VectorXd >& secondMap )
+{
+    return firstMap.begin( )->first < secondMap.begin()->first;
+}
+
+class EstrackWeatherData
+{
+public:
+    /*!
+     * Constructor. Reads weather file and saves the data.
+     *
+     * @param weatherFile File name.
+     */
+    EstrackWeatherData( const std::vector< std::string >& weatherFiles )
+    {
+        readWeatherDataFiles( weatherFiles );
+        processWeatherData( );
+    }
+
+    std::vector< std::map< double, Eigen::VectorXd > > getMeteoDataPerFile( )
+    {
+        return meteoDataPerFile_;
+    }
+
+private:
+
+    void readSingleWeatherDataFile( const std::string& weatherFile );
+
+    void readWeatherDataFiles( const std::vector< std::string >& weatherFiles )
+    {
+        for( unsigned int i = 0; i < weatherFiles.size( ); i++ )
+        {
+            readSingleWeatherDataFile( weatherFiles.at( i ) );
+        }
+    }
+
+    void processWeatherData( )
+    {
+        std::sort( meteoDataPerFile_.begin( ), meteoDataPerFile_.end( ), &compareEstrackWeatherDataEntries );
+        meteoDataPerFile_ = utilities::mergeMaps( meteoDataPerFile_, 2.0 );
+    }
+
+    std::vector< std::map< double, Eigen::VectorXd > > meteoDataPerFile_;
 };
 
 /*!
@@ -148,6 +178,13 @@ inline void setDsnWeatherDataInGroundStations(
     setDsnWeatherDataInGroundStations(
             bodies, readDsnWeatherDataFiles( weatherFiles ), interpolatorSettings, groundStationsPerComplex, bodyWithGroundStations );
 }
+
+void setEstrackWeatherDataInGroundStation(
+    simulation_setup::SystemOfBodies& bodies,
+    const std::vector< std::string >& weatherFiles,
+    const std::string groundStation,
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::linearInterpolation( ),
+    const std::string& bodyWithGroundStations = "Earth" );
 
 }  // namespace input_output
 
