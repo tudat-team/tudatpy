@@ -61,28 +61,6 @@ double SolarCoronaCorrection::computeElectronDensityIntegralNumerically( const E
     return quadrature.getQuadrature( ) * ( receiverPositionWrtSun - transmitterPositionWrtSun ).norm( );
 }
 
-double SolarCoronaCorrection::getCurrentFrequency(
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings,
-        const double transmissionTime )
-{
-    // Retrieve frequency bands
-    std::vector< FrequencyBands > frequencyBands;
-    if( ancillarySettings == nullptr )
-    {
-        throw std::runtime_error( "Error when computing solar corona corrections: no ancillary settings found. " );
-    }
-    try
-    {
-        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
-    }
-    catch( std::runtime_error& caughtException )
-    {
-        throw std::runtime_error( "Error when retrieving frequency bands for solar corona corrections: " +
-                                  std::string( caughtException.what( ) ) );
-    }
-
-    return transmittedFrequencyFunction_( frequencyBands, transmissionTime );
-}
 
 double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
         const std::vector< Eigen::Vector6d >& linkEndsStates,
@@ -139,9 +117,39 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
                 transmitterPositionWrtSun, receiverPositionWrtSun, ( legReceptionTime + legTransmissionTime ) / 2.0 );
     }
 
+    double currentFrequency = TUDAT_NAN;
+    if( currentMultiLegTransmitterIndex == 0 )
+    {
+        try
+        {
+            currentFrequency = ancillarySettings->getIntermediateDoubleData( transmitter_frequency_intermediate, true );
+
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error when computing solar corona correction, uplink frequency not set." );
+        }
+    }
+    else if( currentMultiLegTransmitterIndex == 2 )
+    {
+        try
+        {
+            currentFrequency = ancillarySettings->getIntermediateDoubleData( received_frequency_intermediate,true );
+
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error when computing solar corona correction, downlink frequency not set." + std::to_string( currentMultiLegTransmitterIndex ) );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when computing solar corona correction, only 2/3-way data is supported, but link index " );
+    }
+
     // Verma et al. (2013), eq. 1
     return sign_ * criticalPlasmaDensityDelayCoefficient_ /
-            std::pow( getCurrentFrequency( ancillarySettings, linkEndsTimes.front( ) ), 2.0 ) * electronDensityIntegral /
+            std::pow( currentFrequency, 2.0 ) * electronDensityIntegral /
             physical_constants::getSpeedOfLight< double >( );
 }
 
