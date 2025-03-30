@@ -42,6 +42,11 @@ enum ObservationAncilliarySimulationVariable {
     range_conversion_factor,
 };
 
+enum ObservationIntermediateSimulationVariable {
+    transmitter_frequency_intermediate,
+    received_frequency_intermediate
+};
+
 struct ObservationAncilliarySimulationSettings {
 public:
     ObservationAncilliarySimulationSettings( ) { }
@@ -199,6 +204,54 @@ public:
         return name;
     }
 
+    void setIntermediateDoubleData( const ObservationIntermediateSimulationVariable &variableType, const double variable )
+    {
+        switch( variableType )
+        {
+        case transmitter_frequency_intermediate:
+        case received_frequency_intermediate:
+            doubleIntermediateData_[ variableType ] = variable;
+            break;
+        default:
+            throw std::runtime_error(
+                "Error when setting double intermediate observation "
+                "data; could not set type " + static_cast< int >( variableType ) );
+        }
+    }
+
+    double getIntermediateDoubleData( const ObservationIntermediateSimulationVariable &variableType, const bool throwException = true )
+    {
+        double returnVariable = TUDAT_NAN;
+        try
+        {
+            switch( variableType )
+            {
+            case transmitter_frequency_intermediate:
+            case received_frequency_intermediate:
+                returnVariable = doubleIntermediateData_.at( variableType );
+                break;
+            default:
+                if( throwException )
+                {
+                    throw std::runtime_error(
+                        "Error when getting double intermediate observation "
+                        "data; could not retrieve type " + static_cast< int >( variableType ) );
+                }
+                break;
+            }
+        }
+        catch( ... )
+        {
+            if( throwException )
+            {
+                throw std::runtime_error(
+                    "Error when getting double intermediate observation "
+                    "data; could not retrieve type " + variableType );
+            }
+        }
+        return returnVariable;
+    }
+
     bool operator==( const ObservationAncilliarySimulationSettings &rightSettings )
     {
         return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
@@ -217,6 +270,9 @@ public:
 protected:
     std::map< ObservationAncilliarySimulationVariable, double > doubleData_;
     std::map< ObservationAncilliarySimulationVariable, std::vector< double > > doubleVectorData_;
+
+    std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
+
 };
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getAveragedDopplerAncilliarySettings(

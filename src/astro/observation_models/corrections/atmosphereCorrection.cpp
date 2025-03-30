@@ -528,47 +528,50 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
                                             legTransmissionTime,
                                             legReceptionTime );
 
-    double stationTime;
+//    // Retrieve frequency bands
+//    std::vector< FrequencyBands > frequencyBands;
+//    if( ancillarySettings == nullptr )
+//    {
+//        throw std::runtime_error( "Error when computing tabulated ionospheric corrections: no ancillary settings found. " );
+//    }
+//    try
+//    {
+//        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+//    }
+//    catch( std::runtime_error& caughtException )
+//    {
+//        throw std::runtime_error( "Error when retrieving frequency bands for tabulated ionospheric corrections: " +
+//                                  std::string( caughtException.what( ) ) );
+//    }
+
+    // Compute light-time correction
+    double stationTime = TUDAT_NAN;
+    double lightTimeCorrection = 0.0;
+    double currentFrequency = TUDAT_NAN;
     if( isUplinkCorrection_ )
     {
         stationTime = legTransmissionTime;
+        currentFrequency = ancillarySettings->getIntermediateDoubleData( transmitter_frequency_intermediate, true );
     }
     else
     {
         stationTime = legReceptionTime;
+        currentFrequency = ancillarySettings->getIntermediateDoubleData( received_frequency_intermediate, true );
     }
-
-    double firstLegTransmissionTime = linkEndsTimes.front( );
-
-    // Retrieve frequency bands
-    std::vector< FrequencyBands > frequencyBands;
-    if( ancillarySettings == nullptr )
-    {
-        throw std::runtime_error( "Error when computing tabulated ionospheric corrections: no ancillary settings found. " );
-    }
-    try
-    {
-        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
-    }
-    catch( std::runtime_error& caughtException )
-    {
-        throw std::runtime_error( "Error when retrieving frequency bands for tabulated ionospheric corrections: " +
-                                  std::string( caughtException.what( ) ) );
-    }
-
-    // Convert times from TDB TO UTC. To speed up the conversion, we actually convert from TT to UTC. This approximation should be accurate
-    // enough for ionospheric delay computation.
-    double firstLegTransmissionTimeUtc = sofa_interface::convertTTtoUTC( firstLegTransmissionTime );
     double stationTimeUtc = sofa_interface::convertTTtoUTC( stationTime );
 
-    // Compute light-time correction
-    double lightTimeCorrection = 0.0;
-    double transmittedFrequency = transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTimeUtc );
-    if( !std::isnan( transmittedFrequency ) )
+//    // Convert times from TDB TO UTC. To speed up the conversion, we actually convert from TT to UTC. This approximation should be accurate
+//    // enough for ionospheric delay computation.
+//    double firstLegTransmissionTime = linkEndsTimes.front( );
+//    double firstLegTransmissionTimeUtc = sofa_interface::convertTTtoUTC( firstLegTransmissionTime );
+//    double stationTimeUtc = sofa_interface::convertTTtoUTC( stationTime );
+
+
+    if( !std::isnan( currentFrequency ) )
     {
         lightTimeCorrection =
                 ( sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTimeUtc ) *
-                  std::pow( referenceFrequency_ / transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTimeUtc ), 2.0 ) ) /
+                  std::pow( referenceFrequency_ / currentFrequency, 2.0 ) ) /
                 physical_constants::getSpeedOfLight< double >( );
     }
 
@@ -710,36 +713,27 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
 
     double groundStationTime;
     Eigen::Vector6d groundStationState, spacecraftState;
+    double currentFrequency = TUDAT_NAN;
+
     if( isUplinkCorrection_ )
     {
         groundStationTime = legTransmissionTime;
         groundStationState = legTransmitterState;
         spacecraftState = legReceiverState;
+        currentFrequency = ancillarySettings->getIntermediateDoubleData( transmitter_frequency_intermediate, true );
     }
     else
     {
         groundStationTime = legReceptionTime;
         groundStationState = legReceiverState;
         spacecraftState = legTransmitterState;
+        currentFrequency = ancillarySettings->getIntermediateDoubleData( received_frequency_intermediate, true );
     }
 
-    double firstLegTransmissionTime = linkEndsTimes.front( );
+//    double firstLegTransmissionTime = linkEndsTimes.front( );
 
     // Retrieve frequency bands
     std::vector< FrequencyBands > frequencyBands = std::vector< FrequencyBands >( { x_band } );
-    //    if( ancillarySettings == nullptr )
-    //    {
-    //        throw std::runtime_error( "Error when computing mapped VTEC ionospheric corrections: no ancillary settings found. " );
-    //    }
-    //    try
-    //    {
-    //        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
-    //    }
-    //    catch( std::runtime_error& caughtException )
-    //    {
-    //        throw std::runtime_error( "Error when retrieving frequency bands for mapped VTEC ionospheric corrections: " +
-    //                                  std::string( caughtException.what( ) ) );
-    //    }
 
     double elevation = elevationFunction_( spacecraftState.segment( 0, 3 ) - groundStationState.segment( 0, 3 ), groundStationTime );
     double azimuth = azimuthFunction_( spacecraftState.segment( 0, 3 ) - groundStationState.segment( 0, 3 ), groundStationTime );
@@ -771,7 +765,7 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
     // Mapping of VTEC to STEC: 1 / cos(zenithAngle)
     return ( sign_ * firstOrderDelayCoefficient_ *
              vtecCalculator_->calculateVtec( groundStationTime, subIonosphericPointGeodeticPosition ) /
-             std::pow( transmittedFrequencyFunction_( frequencyBands, firstLegTransmissionTime ), 2.0 ) / std::cos( zenithAngle ) ) /
+             std::pow( currentFrequency, 2.0 ) / std::cos( zenithAngle ) ) /
             physical_constants::getSpeedOfLight< double >( );
 }
 

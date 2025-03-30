@@ -106,7 +106,8 @@ public:
                                                                              const observation_models::LinkEndType gradientLinkEnd )
     {
         return std::make_pair( correctionCalculator_->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                                       states.at( 0 ), states.at( 1 ), times.at( 0 ), times.at( 1 ), gradientLinkEnd ) /
+                                       states.at( 0 ), states.at( 1 ), times.at( 0 ), times.at( 1 ), gradientLinkEnd,
+                                       nullptr ) /
                                        ( correctionCalculator_->getPpnParameterGammaFunction_( )( ) + 1.0 ),
                                gradientLinkEnd == observation_models::receiver ? times.at( 1 ) : times.at( 0 ) );
     }

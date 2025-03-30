@@ -388,7 +388,7 @@ BOOST_AUTO_TEST_CASE( testJakowskiIonosphericCorrectionGodot )
 
     std::shared_ptr< ObservationAncilliarySimulationSettings > dummyAncillarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
-    dummyAncillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+//    dummyAncillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
 
     // Corrections computed for Doppler observations (i.e. they should be negative)
 
@@ -463,6 +463,8 @@ BOOST_AUTO_TEST_CASE( testJakowskiIonosphericCorrectionGodot )
                                                      true,
                                                      earthEquatorialRadius );
 
+            dummyAncillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, frequencies.at( j ) );
+
             BOOST_CHECK_CLOSE_FRACTION( ionosphericCorrection.calculateLightTimeCorrectionWithMultiLegLinkEndStates(
                                                 { Eigen::Vector6d::Zero( ), Eigen::Vector6d::Zero( ) },
                                                 { times.at( j ), times.at( j ) },
@@ -530,7 +532,8 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
 
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+//    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+    ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, frequency );
 
     double time = initialTime - timeStep;
     for( unsigned int i = 0; i < numberOfPoints; ++i )
@@ -608,8 +611,9 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
     linkEnds[ receiver ] = LinkEndId( "MRO" );
 
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+        std::make_shared< ObservationAncilliarySimulationSettings >( );
+//    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+    ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, frequency );
 
     // Create Saastamoinen corrections
     for( int test = 0; test < 2; test++ )
@@ -676,17 +680,27 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
             delays.push_back( mediaCorrectionModel->calculateLightTimeCorrection(
                     linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), ancillarySettings ) );
 
-            delaysWrtTransmitter.push_back( mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter ) );
 
-            delaysWrtReceiver.push_back( mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver ) );
+            delaysWrtTransmitter.push_back(
+                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
+                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter, ancillarySettings ));
+
+            delaysWrtReceiver.push_back(
+                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
+                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver, ancillarySettings ));
 
             delaysWrtTime.push_back(
-                    mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                            linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter ) +
-                    mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                            linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver ) );
+                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
+                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter, ancillarySettings  ) +
+                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
+                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver, ancillarySettings ) );
+
+            transmitterVelocities.push_back( linkEndsStates.at( 0 ).segment( 3, 3 ));
+            receiverVelocities.push_back( linkEndsStates.at( 1 ).segment( 3, 3 ));
 
             transmitterVelocities.push_back( linkEndsStates.at( 0 ).segment( 3, 3 ) );
             receiverVelocities.push_back( linkEndsStates.at( 1 ).segment( 3, 3 ) );
@@ -717,8 +731,6 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
                 double absoluteError =
                         std::fabs( numericalDerivativesWrtTime.at( counter ) - reconstructedDerivativesWrtTime.at( counter ) );
 
-                std::cout << delays.at( i ) << " " << absoluteError << " " << elevationAngles.at( i ) << " "
-                          << numericalDerivativesWrtTime.at( counter ) << " " << reconstructedDerivativesWrtTime.at( counter ) << std::endl;
                 BOOST_CHECK_SMALL( absoluteError, 5.0E-14 * ( test == 0 ? 1.0 : 1.0E-4 ) );
 
                 double relativeError = absoluteError / numericalDerivativesWrtTime.at( counter );
