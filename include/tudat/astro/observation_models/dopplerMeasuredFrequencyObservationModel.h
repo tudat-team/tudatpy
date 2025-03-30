@@ -173,10 +173,12 @@ public:
         double currentTurnAroundRatio = turnaroundRatio_( uplinkBand, downlinkBand );
         if( true )
         {
-            setTransmissionReceptionFrequencies(
-                lighTimeCalculator_, terrestrialTimeScaleConverter_,
-                transmittingFrequencyCalculator_, time, ancillarySettings, currentTurnAroundRatio );
-
+            setTransmissionReceptionFrequencies( lighTimeCalculator_,
+                                                 terrestrialTimeScaleConverter_,
+                                                 transmittingFrequencyCalculator_,
+                                                 time,
+                                                 ancillarySettings,
+                                                 currentTurnAroundRatio );
         }
         // Calculate the light time
         TimeType lightTime = lighTimeCalculator_->calculateLightTimeWithLinkEndsStates(

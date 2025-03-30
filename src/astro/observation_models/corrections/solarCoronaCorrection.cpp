@@ -61,7 +61,6 @@ double SolarCoronaCorrection::computeElectronDensityIntegralNumerically( const E
     return quadrature.getQuadrature( ) * ( receiverPositionWrtSun - transmitterPositionWrtSun ).norm( );
 }
 
-
 double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
         const std::vector< Eigen::Vector6d >& linkEndsStates,
         const std::vector< double >& linkEndsTimes,
@@ -123,7 +122,6 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
         try
         {
             currentFrequency = ancillarySettings->getIntermediateDoubleData( transmitter_frequency_intermediate, true );
-
         }
         catch( std::runtime_error& caughtException )
         {
@@ -134,12 +132,12 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
     {
         try
         {
-            currentFrequency = ancillarySettings->getIntermediateDoubleData( received_frequency_intermediate,true );
-
+            currentFrequency = ancillarySettings->getIntermediateDoubleData( received_frequency_intermediate, true );
         }
         catch( std::runtime_error& caughtException )
         {
-            throw std::runtime_error( "Error when computing solar corona correction, downlink frequency not set." + std::to_string( currentMultiLegTransmitterIndex ) );
+            throw std::runtime_error( "Error when computing solar corona correction, downlink frequency not set." +
+                                      std::to_string( currentMultiLegTransmitterIndex ) );
         }
     }
     else
@@ -148,8 +146,7 @@ double InversePowerSeriesSolarCoronaCorrection::calculateLightTimeCorrectionWith
     }
 
     // Verma et al. (2013), eq. 1
-    return sign_ * criticalPlasmaDensityDelayCoefficient_ /
-            std::pow( currentFrequency, 2.0 ) * electronDensityIntegral /
+    return sign_ * criticalPlasmaDensityDelayCoefficient_ / std::pow( currentFrequency, 2.0 ) * electronDensityIntegral /
             physical_constants::getSpeedOfLight< double >( );
 }
 

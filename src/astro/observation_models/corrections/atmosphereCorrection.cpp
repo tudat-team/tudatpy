@@ -528,21 +528,21 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
                                             legTransmissionTime,
                                             legReceptionTime );
 
-//    // Retrieve frequency bands
-//    std::vector< FrequencyBands > frequencyBands;
-//    if( ancillarySettings == nullptr )
-//    {
-//        throw std::runtime_error( "Error when computing tabulated ionospheric corrections: no ancillary settings found. " );
-//    }
-//    try
-//    {
-//        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
-//    }
-//    catch( std::runtime_error& caughtException )
-//    {
-//        throw std::runtime_error( "Error when retrieving frequency bands for tabulated ionospheric corrections: " +
-//                                  std::string( caughtException.what( ) ) );
-//    }
+    //    // Retrieve frequency bands
+    //    std::vector< FrequencyBands > frequencyBands;
+    //    if( ancillarySettings == nullptr )
+    //    {
+    //        throw std::runtime_error( "Error when computing tabulated ionospheric corrections: no ancillary settings found. " );
+    //    }
+    //    try
+    //    {
+    //        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+    //    }
+    //    catch( std::runtime_error& caughtException )
+    //    {
+    //        throw std::runtime_error( "Error when retrieving frequency bands for tabulated ionospheric corrections: " +
+    //                                  std::string( caughtException.what( ) ) );
+    //    }
 
     // Compute light-time correction
     double stationTime = TUDAT_NAN;
@@ -560,18 +560,17 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
     }
     double stationTimeUtc = sofa_interface::convertTTtoUTC( stationTime );
 
-//    // Convert times from TDB TO UTC. To speed up the conversion, we actually convert from TT to UTC. This approximation should be accurate
-//    // enough for ionospheric delay computation.
-//    double firstLegTransmissionTime = linkEndsTimes.front( );
-//    double firstLegTransmissionTimeUtc = sofa_interface::convertTTtoUTC( firstLegTransmissionTime );
-//    double stationTimeUtc = sofa_interface::convertTTtoUTC( stationTime );
-
+    //    // Convert times from TDB TO UTC. To speed up the conversion, we actually convert from TT to UTC. This approximation should be
+    //    accurate
+    //    // enough for ionospheric delay computation.
+    //    double firstLegTransmissionTime = linkEndsTimes.front( );
+    //    double firstLegTransmissionTimeUtc = sofa_interface::convertTTtoUTC( firstLegTransmissionTime );
+    //    double stationTimeUtc = sofa_interface::convertTTtoUTC( stationTime );
 
     if( !std::isnan( currentFrequency ) )
     {
-        lightTimeCorrection =
-                ( sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTimeUtc ) *
-                  std::pow( referenceFrequency_ / currentFrequency, 2.0 ) ) /
+        lightTimeCorrection = ( sign_ * referenceCorrectionCalculator_->computeMediaCorrection( stationTimeUtc ) *
+                                std::pow( referenceFrequency_ / currentFrequency, 2.0 ) ) /
                 physical_constants::getSpeedOfLight< double >( );
     }
 
@@ -730,7 +729,7 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
         currentFrequency = ancillarySettings->getIntermediateDoubleData( received_frequency_intermediate, true );
     }
 
-//    double firstLegTransmissionTime = linkEndsTimes.front( );
+    //    double firstLegTransmissionTime = linkEndsTimes.front( );
 
     // Retrieve frequency bands
     std::vector< FrequencyBands > frequencyBands = std::vector< FrequencyBands >( { x_band } );
@@ -764,8 +763,8 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
     // Jakowski et al. (2011), eqs. 1 and 2; IERS conventions 2010, section 9.4
     // Mapping of VTEC to STEC: 1 / cos(zenithAngle)
     return ( sign_ * firstOrderDelayCoefficient_ *
-             vtecCalculator_->calculateVtec( groundStationTime, subIonosphericPointGeodeticPosition ) /
-             std::pow( currentFrequency, 2.0 ) / std::cos( zenithAngle ) ) /
+             vtecCalculator_->calculateVtec( groundStationTime, subIonosphericPointGeodeticPosition ) / std::pow( currentFrequency, 2.0 ) /
+             std::cos( zenithAngle ) ) /
             physical_constants::getSpeedOfLight< double >( );
 }
 

@@ -32,29 +32,24 @@ namespace observation_models
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
 void setTransmissionReceptionFrequencies(
-    const std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
-    const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
-    const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
-    const TimeType receptionTdbTime,
-    const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
-    const double turnAroundratio )
+        const std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
+        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
+        const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
+        const TimeType receptionTdbTime,
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const double turnAroundratio )
 {
-    TimeType approximateTdbTransmissionTime = receptionTdbTime - multiLegLightTimeCalculator->
-            calculateFirstIterationLightTimeWithLinkEndsStates( receptionTdbTime, receiver );
+    TimeType approximateTdbTransmissionTime = receptionTdbTime -
+            multiLegLightTimeCalculator->calculateFirstIterationLightTimeWithLinkEndsStates( receptionTdbTime, receiver );
 
-    TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime<TimeType>(
-        basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTdbTransmissionTime );
+    TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(
+            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTdbTransmissionTime );
 
     double approximateTransmissionFrequency =
-        transmittingFrequencyCalculator->getTemplatedCurrentFrequency<double, TimeType>(
-            approximateUtcTransmissionTime );
-    ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate,
-                                                  approximateTransmissionFrequency * turnAroundratio );
-    ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate,
-                                                  approximateTransmissionFrequency );
-
+            transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >( approximateUtcTransmissionTime );
+    ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate, approximateTransmissionFrequency * turnAroundratio );
+    ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, approximateTransmissionFrequency );
 }
-
 
 /*! Calculate the scaling factor for computing partials via DifferencedObservablePartial.
  *
@@ -250,7 +245,8 @@ public:
 
         // Set approximate up- and down-link frequencies.
         ObservationScalarType currentTurnAroundRatio = static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
-        ObservationScalarType currentReferenceTurnAroundRatio = static_cast< ObservationScalarType >( turnaroundRatio_( referenceUplinkBand, downlinkBand ) );
+        ObservationScalarType currentReferenceTurnAroundRatio =
+                static_cast< ObservationScalarType >( turnaroundRatio_( referenceUplinkBand, downlinkBand ) );
 
         Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 )
                 ? Eigen::Vector3d::Zero( )
@@ -266,17 +262,19 @@ public:
         TimeType receptionTdbEndTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
                 basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, receptionUtcEndTime, nominalReceivingStationState );
 
-
         Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )
-                                                          ? Eigen::Vector3d::Zero( )
-                                                          : stationStates_.at( transmitter )->getNominalCartesianPosition( );
+                ? Eigen::Vector3d::Zero( )
+                : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
         // Set frequencies for ionosphere/corona
         if( true )
         {
-            setTransmissionReceptionFrequencies(
-                arcStartObservationModel_->getMultiLegLightTimeCalculator( ), terrestrialTimeScaleConverter_,
-                transmittingFrequencyCalculator_, receptionTdbStartTime, ancillarySettings, currentTurnAroundRatio );
+            setTransmissionReceptionFrequencies( arcStartObservationModel_->getMultiLegLightTimeCalculator( ),
+                                                 terrestrialTimeScaleConverter_,
+                                                 transmittingFrequencyCalculator_,
+                                                 receptionTdbStartTime,
+                                                 ancillarySettings,
+                                                 currentTurnAroundRatio );
         }
 
         TimeType startLightTime =
@@ -288,21 +286,22 @@ public:
         // Set frequencies for ionosphere/corona
         if( true )
         {
-            setTransmissionReceptionFrequencies(
-                arcEndObservationModel_->getMultiLegLightTimeCalculator( ), terrestrialTimeScaleConverter_,
-                transmittingFrequencyCalculator_, receptionTdbEndTime, ancillarySettings, currentTurnAroundRatio );
-
+            setTransmissionReceptionFrequencies( arcEndObservationModel_->getMultiLegLightTimeCalculator( ),
+                                                 terrestrialTimeScaleConverter_,
+                                                 transmittingFrequencyCalculator_,
+                                                 receptionTdbEndTime,
+                                                 ancillarySettings,
+                                                 currentTurnAroundRatio );
         }
         TimeType endLightTime =
                 arcEndObservationModel_->computeIdealObservationsWithLinkEndData(
-                        receptionTdbEndTime, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancillarySettings )
-                        ( 0, 0 ) /
+                        receptionTdbEndTime, linkEndAssociatedWithTime, arcEndLinkEndTimes, arcEndLinkEndStates, ancillarySettings )( 0,
+                                                                                                                                      0 ) /
                 physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         // Moyer (2000), eqs. 13-52 and 13-53
         TimeType transmissionTdbStartTime = receptionTdbStartTime - startLightTime;
         TimeType transmissionTdbEndTime = receptionTdbEndTime - endLightTime;
-
 
         TimeType transmissionUtcStartTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbStartTime, nominalTransmittingStationState );
@@ -315,11 +314,10 @@ public:
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
-                ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )
-                  << currentReferenceTurnAroundRatio * referenceFrequency +
+                ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << currentReferenceTurnAroundRatio * referenceFrequency +
                           ( subtractDopplerSignature_ ? mathematical_constants::getFloatingInteger< ObservationScalarType >( -1.0 )
                                                       : mathematical_constants::getFloatingInteger< ObservationScalarType >( 1.0 ) ) *
-                              currentTurnAroundRatio / static_cast< ObservationScalarType >( integrationTime ) *
+                                  currentTurnAroundRatio / static_cast< ObservationScalarType >( integrationTime ) *
                                   transmitterFrequencyIntegral )
                         .finished( );
 
