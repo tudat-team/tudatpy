@@ -388,7 +388,7 @@ BOOST_AUTO_TEST_CASE( testJakowskiIonosphericCorrectionGodot )
 
     std::shared_ptr< ObservationAncilliarySimulationSettings > dummyAncillarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
-//    dummyAncillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+    //    dummyAncillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
 
     // Corrections computed for Doppler observations (i.e. they should be negative)
 
@@ -532,7 +532,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
 
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
-//    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+    //    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
     ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, frequency );
 
     double time = initialTime - timeStep;
@@ -611,8 +611,8 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
     linkEnds[ receiver ] = LinkEndId( "MRO" );
 
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-        std::make_shared< ObservationAncilliarySimulationSettings >( );
-//    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+            std::make_shared< ObservationAncilliarySimulationSettings >( );
+    //    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
     ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, frequency );
 
     // Create Saastamoinen corrections
@@ -680,27 +680,38 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
             delays.push_back( mediaCorrectionModel->calculateLightTimeCorrection(
                     linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), ancillarySettings ) );
 
-
             delaysWrtTransmitter.push_back(
-                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
-                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter, ancillarySettings ));
+                    mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition( linkEndsStates.at( 0 ),
+                                                                                                           linkEndsStates.at( 1 ),
+                                                                                                           linkEndsTimes.at( 0 ),
+                                                                                                           linkEndsTimes.at( 1 ),
+                                                                                                           transmitter,
+                                                                                                           ancillarySettings ) );
 
             delaysWrtReceiver.push_back(
-                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
-                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver, ancillarySettings ));
+                    mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition( linkEndsStates.at( 0 ),
+                                                                                                           linkEndsStates.at( 1 ),
+                                                                                                           linkEndsTimes.at( 0 ),
+                                                                                                           linkEndsTimes.at( 1 ),
+                                                                                                           receiver,
+                                                                                                           ancillarySettings ) );
 
             delaysWrtTime.push_back(
-                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
-                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter, ancillarySettings  ) +
-                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
-                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver, ancillarySettings ) );
+                    mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( linkEndsStates.at( 0 ),
+                                                                                                       linkEndsStates.at( 1 ),
+                                                                                                       linkEndsTimes.at( 0 ),
+                                                                                                       linkEndsTimes.at( 1 ),
+                                                                                                       transmitter,
+                                                                                                       ancillarySettings ) +
+                    mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( linkEndsStates.at( 0 ),
+                                                                                                       linkEndsStates.at( 1 ),
+                                                                                                       linkEndsTimes.at( 0 ),
+                                                                                                       linkEndsTimes.at( 1 ),
+                                                                                                       receiver,
+                                                                                                       ancillarySettings ) );
 
-            transmitterVelocities.push_back( linkEndsStates.at( 0 ).segment( 3, 3 ));
-            receiverVelocities.push_back( linkEndsStates.at( 1 ).segment( 3, 3 ));
+            transmitterVelocities.push_back( linkEndsStates.at( 0 ).segment( 3, 3 ) );
+            receiverVelocities.push_back( linkEndsStates.at( 1 ).segment( 3, 3 ) );
 
             transmitterVelocities.push_back( linkEndsStates.at( 0 ).segment( 3, 3 ) );
             receiverVelocities.push_back( linkEndsStates.at( 1 ).segment( 3, 3 ) );

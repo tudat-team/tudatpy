@@ -2467,8 +2467,8 @@ public:
                     }
 
                     // Determine the turnaround ratio function
-                    std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) > turnaroundRatioFunction =
-                        getTurnaroundFunction( bodies, linkEnds );
+                    std::function< double( observation_models::FrequencyBands, observation_models::FrequencyBands ) >
+                            turnaroundRatioFunction = getTurnaroundFunction( bodies, linkEnds );
 
                     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
                             getTransmittingFrequencyInterpolator( bodies, linkEnds );
@@ -2487,7 +2487,12 @@ public:
                     }
 
                     observationModel = std::make_shared< DsnNWayRangeObservationModel< ObservationScalarType, TimeType > >(
-                            linkEnds, multiLegLightTimeCalculator, transmittingFrequencyInterpolator, turnaroundRatioFunction, observationBias, stationStates );
+                            linkEnds,
+                            multiLegLightTimeCalculator,
+                            transmittingFrequencyInterpolator,
+                            turnaroundRatioFunction,
+                            observationBias,
+                            stationStates );
                 }
                 catch( const std::exception& caughtException )
                 {

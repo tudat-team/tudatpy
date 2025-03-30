@@ -110,12 +110,13 @@ public:
      * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
      * \return Light-time correction w.r.t. observation time
      */
-    virtual double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
-                                                                                const Eigen::Vector6d& receiverState,
-                                                                                const double transmissionTime,
-                                                                                const double receptionTime,
-                                                                                const LinkEndType linkEndAtWhichPartialIsEvaluated,
-                                                                                const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings );
+    virtual double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings );
 
     //! Pure virtual function to compute the partial derivative of the light-time correction w.r.t. link end position
     /*!

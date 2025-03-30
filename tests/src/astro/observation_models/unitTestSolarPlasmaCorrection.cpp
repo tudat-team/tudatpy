@@ -54,7 +54,6 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
     // Convert 2-way range correction to 1-way range (assuming it's identical both ways)
     for( unsigned int i = 0; i < expectedRangeCorrection.size( ); ++i ) expectedRangeCorrection.at( i ) *= 0.5;
 
-
     // Set coefficients
     const std::vector< double > coefficients = { 1.3e14, 0.5e12 };
     const std::vector< double > integerPositiveExponents = { 6.0, 2.0 };
