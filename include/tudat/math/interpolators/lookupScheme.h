@@ -144,9 +144,7 @@ public:
             }
             else if( valueToLookup < independentVariableValues_.at( 0 ) )
             {
-                throw std::runtime_error( "Error in nearest neighbour search: input value " + std::to_string(
-                    static_cast< double >( valueToLookup ) )
-                + " is below minimum value " + std::to_string( static_cast< double >( independentVariableValues_.at( 0 ) ) ) );
+                newNearestLowerIndex = 0;
             }
             // Otherwise, perform hunting algorithm.
             else
