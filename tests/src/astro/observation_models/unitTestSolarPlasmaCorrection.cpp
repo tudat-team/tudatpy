@@ -54,13 +54,6 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
     // Convert 2-way range correction to 1-way range (assuming it's identical both ways)
     for( unsigned int i = 0; i < expectedRangeCorrection.size( ); ++i ) expectedRangeCorrection.at( i ) *= 0.5;
 
-    // Define frequency function. They say X-band, i.e. 7 to 8 GHz
-    // Morley and Budnik (2007) say they use X-band
-    // Wikipedia: X-band for uplink: 7.145 - 7.190 GHz, for downlink 8.4 - 8.45 GHz (https://en.wikipedia.org/wiki/Deep_space_bands)
-    // Selected the frequency to make one of the points coincide
-    std::function< double( std::vector< FrequencyBands >, double ) > frequencyFunction = []( std::vector< FrequencyBands >, double ) {
-        return 7.66e9;
-    };
 
     // Set coefficients
     const std::vector< double > coefficients = { 1.3e14, 0.5e12 };
@@ -74,14 +67,22 @@ BOOST_AUTO_TEST_CASE( testInversePowerSeriesCorrectionMorley )
     earthState( 0 ) = 1.0 * physical_constants::ASTRONOMICAL_UNIT;
 
     InversePowerSeriesSolarCoronaCorrection coronaCorrectionAnalytical = InversePowerSeriesSolarCoronaCorrection(
-            observation_models::n_way_range, sunStateFunction, frequencyFunction, coefficients, integerPositiveExponents );
+            observation_models::n_way_range, sunStateFunction, coefficients, integerPositiveExponents );
 
     InversePowerSeriesSolarCoronaCorrection coronaCorrectionNumerical = InversePowerSeriesSolarCoronaCorrection(
-            observation_models::n_way_range, sunStateFunction, frequencyFunction, coefficients, doublePositiveExponents );
+            observation_models::n_way_range, sunStateFunction, coefficients, doublePositiveExponents );
 
     std::shared_ptr< ObservationAncilliarySimulationSettings > dummyAncillarySettings =
             std::make_shared< ObservationAncilliarySimulationSettings >( );
     dummyAncillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
+
+    // Define frequency function. They say X-band, i.e. 7 to 8 GHz
+    // Morley and Budnik (2007) say they use X-band
+    // Wikipedia: X-band for uplink: 7.145 - 7.190 GHz, for downlink 8.4 - 8.45 GHz (https://en.wikipedia.org/wiki/Deep_space_bands)
+    // Selected the frequency to make one of the points coincide
+    // TODO: remnant from old code, correct this so that it uses the right frequencies
+    dummyAncillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, 7.66e9 );
+    dummyAncillarySettings->setIntermediateDoubleData( received_frequency_intermediate, 7.66e9 );
 
     for( unsigned int i = 0; i < sepAngle.size( ); ++i )
     {
