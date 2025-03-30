@@ -76,19 +76,20 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     createGroundStation( bodies.at( "Earth" ), "Station1", stationCartesianPosition, cartesian_position );
 
     Eigen::Vector3d dummyMeteo;
-    dummyMeteo<<1.0E8, 280.0, 1.0E3;
+    dummyMeteo << 1.0E8, 280.0, 1.0E3;
     std::map< double, Eigen::VectorXd > dummyMeteoMap;
     dummyMeteoMap[ initialEphemerisTime ] = dummyMeteo;
     dummyMeteoMap[ finalEphemerisTime ] = dummyMeteo;
 
-    std::map< ground_stations::MeteoDataEntries, int > vmfMeteoEntries =
-        {{ ground_stations::temperature_meteo_data, 1 },
-         { ground_stations::pressure_meteo_data, 0 },
-         { ground_stations::water_vapor_pressure_meteo_data, 2 }};
+    std::map< ground_stations::MeteoDataEntries, int > vmfMeteoEntries = { { ground_stations::temperature_meteo_data, 1 },
+                                                                           { ground_stations::pressure_meteo_data, 0 },
+                                                                           { ground_stations::water_vapor_pressure_meteo_data, 2 } };
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > meteoDataInterpolator =
-        interpolators::createOneDimensionalInterpolator( dummyMeteoMap, interpolators::linearInterpolation( ) );
-    bodies.at( "Earth" )->getGroundStation( "Station1" )->setMeteoData( std::make_shared< ContinuousInterpolatedMeteoData >( meteoDataInterpolator, vmfMeteoEntries ) );
+            interpolators::createOneDimensionalInterpolator( dummyMeteoMap, interpolators::linearInterpolation( ) );
+    bodies.at( "Earth" )
+            ->getGroundStation( "Station1" )
+            ->setMeteoData( std::make_shared< ContinuousInterpolatedMeteoData >( meteoDataInterpolator, vmfMeteoEntries ) );
     // Create Spacecraft
     Eigen::Vector6d spacecraftOrbitalElements;
     spacecraftOrbitalElements( semiMajorAxisIndex ) = 10000.0E3;
@@ -238,18 +239,18 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                 Eigen::Matrix< double, 3, 1 > lightTimeCorrectionWrtTransmitter =
                         correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
                                 transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter );
-                double lightTimeCorrectionWrtReceiverTime =
-                    correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                double lightTimeCorrectionWrtReceiverTime = correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
                         transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), receiver );
-                double lightTimeCorrectionWrtTransmitterTime =
-                    correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                double lightTimeCorrectionWrtTransmitterTime = correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
                         transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter );
 
                 double numericalCorrectionPartial = ( lightTimeCorrectionUp - lightTimeCorrectionDown ) / ( 2.0 * timePerturbation );
-                double analyticalCorrectionPartial = lightTimeCorrectionWrtTransmitterTime + lightTimeCorrectionWrtReceiverTime + lightTimeCorrectionWrtReceiver.dot( receiverState.segment( 3, 3 ) ) +
-                                                     lightTimeCorrectionWrtTransmitter.dot( transmitterState.segment( 3, 3 ) );
+                double analyticalCorrectionPartial = lightTimeCorrectionWrtTransmitterTime + lightTimeCorrectionWrtReceiverTime +
+                        lightTimeCorrectionWrtReceiver.dot( receiverState.segment( 3, 3 ) ) +
+                        lightTimeCorrectionWrtTransmitter.dot( transmitterState.segment( 3, 3 ) );
 
-                BOOST_CHECK_CLOSE_FRACTION( numericalCorrectionPartial, analyticalCorrectionPartial, ( useCorrections == 1 ? 1.0E2 : 1.0 ) * 1.0E-5 );
+                BOOST_CHECK_CLOSE_FRACTION(
+                        numericalCorrectionPartial, analyticalCorrectionPartial, ( useCorrections == 1 ? 1.0E2 : 1.0 ) * 1.0E-5 );
             }
         }
     }
@@ -289,7 +290,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithoutCorrections =
-                ObservationModelCreator< 1, double, double >::createObservationModel( observableSettingsWithoutCorrections, bodies, one_way_doppler );
+                ObservationModelCreator< 1, double, double >::createObservationModel(
+                        observableSettingsWithoutCorrections, bodies, one_way_doppler );
 
         // Create observation settings
         std::shared_ptr< ObservationModelSettings > observableSettingsWithCorrections =
@@ -301,7 +303,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithCorrections =
-                ObservationModelCreator< 1, double, double >::createObservationModel( observableSettingsWithCorrections, bodies, one_way_doppler );
+                ObservationModelCreator< 1, double, double >::createObservationModel(
+                        observableSettingsWithCorrections, bodies, one_way_doppler );
 
         double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
 

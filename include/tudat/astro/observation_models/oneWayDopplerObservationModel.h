@@ -111,10 +111,12 @@ ObservationScalarType computeOneWayFirstOrderDopplerTaylorSeriesExpansion(
         const int taylorSeriesOrder )
 {
     // Compute projected velocity components
-    ObservationScalarType transmitterTerm = ( - lightTimeWrtTransmitterTime - ( lightTimeWrtTransmitterPositionPartial * ( transmitterState.segment( 3, 3 ) ) )( 0 ) ) /
-                                              physical_constants::getSpeedOfLight< ObservationScalarType >( );
-    ObservationScalarType receiverTerm = ( lightTimeWrtReceiverTime + ( lightTimeWrtReceiverPositionPartial * ( receiverState.segment( 3, 3 ) ) )( 0 ) )/
-                                           physical_constants::getSpeedOfLight< ObservationScalarType >( );
+    ObservationScalarType transmitterTerm =
+            ( -lightTimeWrtTransmitterTime - ( lightTimeWrtTransmitterPositionPartial * ( transmitterState.segment( 3, 3 ) ) )( 0 ) ) /
+            physical_constants::getSpeedOfLight< ObservationScalarType >( );
+    ObservationScalarType receiverTerm =
+            ( lightTimeWrtReceiverTime + ( lightTimeWrtReceiverPositionPartial * ( receiverState.segment( 3, 3 ) ) )( 0 ) ) /
+            physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
     // Compute Taylor series of 1/(1-r21*v2) up to required order
     ObservationScalarType currentTaylorSeriesTerm = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
@@ -607,10 +609,10 @@ public:
         lightTimePartialWrtTransmitterPosition_ = lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
                 linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
 
-        lightTimePartialWrtReceiverTime_= lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndTime(
-            linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true );
-        lightTimePartialWrtTransmitterTime_= lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndTime(
-            linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
+        lightTimePartialWrtReceiverTime_ = lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndTime(
+                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), true );
+        lightTimePartialWrtTransmitterTime_ = lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndTime(
+                linkEndStates.at( 0 ), linkEndStates.at( 1 ), linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), false );
 
         ObservationScalarType firstOrderDopplerObservable = computeOneWayFirstOrderDopplerTaylorSeriesExpansion< ObservationScalarType >(
                 linkEndStates.at( 0 ).template cast< ObservationScalarType >( ),

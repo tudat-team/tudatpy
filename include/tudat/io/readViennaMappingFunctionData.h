@@ -26,8 +26,7 @@ namespace tudat
 namespace input_output
 {
 
-struct VMFData
-{
+struct VMFData {
 public:
     std::map< double, std::vector< double > > delayData;
     std::map< double, std::vector< double > > meteoData;
@@ -39,17 +38,15 @@ public:
                          std::map< double, Eigen::VectorXd >& processedMeteoData );
 };
 
-void readVMFFile(
-    const std::string& fileName,
-    std::map< std::string, VMFData >& vmfData,
-    const bool fileHasMeteo,
-    const bool fileHasGradient );
+void readVMFFile( const std::string& fileName,
+                  std::map< std::string, VMFData >& vmfData,
+                  const bool fileHasMeteo,
+                  const bool fileHasGradient );
 
-void readVMFFiles(
-    const std::vector< std::string >& fileName,
-    std::map< std::string, VMFData >& vmfData,
-    const bool fileHasMeteo,
-    const bool fileHasGradient );
+void readVMFFiles( const std::vector< std::string >& fileName,
+                   std::map< std::string, VMFData >& vmfData,
+                   const bool fileHasMeteo,
+                   const bool fileHasGradient );
 
 }  // namespace input_output
 

@@ -18,7 +18,6 @@ namespace tudat
 namespace ground_stations
 {
 
-
 double calculateBeanAndDuttonWaterVaporPartialPressure( double relativeHumidity, double temperature )
 {
     if( relativeHumidity < 0 || relativeHumidity > 1 )
@@ -33,28 +32,27 @@ double calculateBeanAndDuttonWaterVaporPartialPressure( double relativeHumidity,
 }
 
 std::function< double( const double ) > getBeanAndDuttonWaterVaporPartialPressureFunction(
-    std::function< double( const double time ) > relativeHumidity,
-    std::function< double( const double time ) > temperature )
+        std::function< double( const double time ) > relativeHumidity,
+        std::function< double( const double time ) > temperature )
 {
     return [ = ]( double time ) {
         return calculateBeanAndDuttonWaterVaporPartialPressure( relativeHumidity( time ), temperature( time ) );
     };
 }
 
-
 // Function to compute saturation vapor pressure (Pa) using Tetens' formula
-double computeSaturationWaterVaporPressure( const double temperature)
+double computeSaturationWaterVaporPressure( const double temperature )
 {
-    double temperatureInCelsius = temperature - 273.15; // Convert Kelvin to Celsius
-    return 611.2 * exp((17.62 * temperatureInCelsius) / (temperatureInCelsius + 243.12));
+    double temperatureInCelsius = temperature - 273.15;  // Convert Kelvin to Celsius
+    return 611.2 * exp( ( 17.62 * temperatureInCelsius ) / ( temperatureInCelsius + 243.12 ) );
 }
 
 // Magnus formula
 double computeDewPoint( const double relativeHumidity, const double temperature )
 {
-    double temperatureInCelsius = temperature - 273.15; // Convert Kelvin to Celsius
+    double temperatureInCelsius = temperature - 273.15;  // Convert Kelvin to Celsius
     double gamma = std::log( relativeHumidity ) + 17.625 * temperatureInCelsius / ( 243.04 + temperatureInCelsius );
-    return 243.04 * gamma / ( 17.625  - gamma ) + 273.15;
+    return 243.04 * gamma / ( 17.625 - gamma ) + 273.15;
 }
 
 void ContinuousInterpolatedMeteoData::updateData( const double currentUtc )

@@ -1745,8 +1745,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > getEx
     // Check parameter type
     switch( singleArcSettings->getStateType( ) )
     {
-        case translational_state:
-        {
+        case translational_state: {
             // Check single-arc consistency
             std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > singleArcTranslationalSettings =
                     std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( singleArcSettings );

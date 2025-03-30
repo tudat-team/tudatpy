@@ -248,13 +248,13 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 }
                 else if( troposphericCorrectionSettings->getWaterVaporPartialPressureModelType( ) == bean_and_dutton )
                 {
-                    waterVaporPartialPressureFunction =
-                            ground_stations::getBeanAndDuttonWaterVaporPartialPressureFunction( bodies.getBody( groundStation.bodyName_ )
-                                                                                       ->getGroundStation( groundStation.stationName_ )
-                                                                                       ->getRelativeHumidityFunction( ),
-                                                                               bodies.getBody( groundStation.bodyName_ )
-                                                                                       ->getGroundStation( groundStation.stationName_ )
-                                                                                       ->getTemperatureFunction( ) );
+                    waterVaporPartialPressureFunction = ground_stations::getBeanAndDuttonWaterVaporPartialPressureFunction(
+                            bodies.getBody( groundStation.bodyName_ )
+                                    ->getGroundStation( groundStation.stationName_ )
+                                    ->getRelativeHumidityFunction( ),
+                            bodies.getBody( groundStation.bodyName_ )
+                                    ->getGroundStation( groundStation.stationName_ )
+                                    ->getTemperatureFunction( ) );
                 }
                 else
                 {
@@ -579,7 +579,6 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
     return troposphericMappingModel;
 }
 
-
 void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
                                    const bool fileHasMeteo,
                                    const bool fileHasGradient,
@@ -591,13 +590,13 @@ void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
     std::map< std::string, input_output::VMFData > vmfData;
     input_output::readVMFFiles( dataFiles, vmfData, fileHasMeteo, fileHasGradient );
 
-    for( auto it : vmfData )
+    for( auto it: vmfData )
     {
         std::string currentStationName = it.first;
-        if( bodies.at( "Earth")->getGroundStationMap( ).count( currentStationName ) > 0 )
+        if( bodies.at( "Earth" )->getGroundStationMap( ).count( currentStationName ) > 0 )
         {
             std::shared_ptr< ground_stations::GroundStation > currentStation =
-                bodies.at( "Earth")->getGroundStationMap( ).at( currentStationName );
+                    bodies.at( "Earth" )->getGroundStationMap( ).at( currentStationName );
 
             std::map< double, Eigen::VectorXd > processedTroposphereData;
             std::map< double, Eigen::VectorXd > processedMeteoData;
@@ -605,27 +604,25 @@ void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
 
             if( setMeteoData )
             {
-
-                std::map< ground_stations::MeteoDataEntries, int > vmfMeteoEntries =
-                    {{ ground_stations::temperature_meteo_data, 1 },
-                     { ground_stations::pressure_meteo_data, 0 },
-                     { ground_stations::water_vapor_pressure_meteo_data, 2 }};
+                std::map< ground_stations::MeteoDataEntries, int > vmfMeteoEntries = { { ground_stations::temperature_meteo_data, 1 },
+                                                                                       { ground_stations::pressure_meteo_data, 0 },
+                                                                                       { ground_stations::water_vapor_pressure_meteo_data,
+                                                                                         2 } };
 
                 std::shared_ptr< ground_stations::StationMeteoData > meteoData =
-                    std::make_shared<ground_stations::ContinuousInterpolatedMeteoData>(
-                interpolators::createOneDimensionalInterpolator( processedMeteoData, interpolatorSettings ), vmfMeteoEntries );
-
+                        std::make_shared< ground_stations::ContinuousInterpolatedMeteoData >(
+                                interpolators::createOneDimensionalInterpolator( processedMeteoData, interpolatorSettings ),
+                                vmfMeteoEntries );
 
                 currentStation->setMeteoData( meteoData );
             }
 
             if( setTropospherData )
             {
-                currentStation->setTroposphereData(
-                    std::make_shared<ground_stations::InterpolatedStationTroposphereData>(
-                        interpolators::createOneDimensionalInterpolator( processedTroposphereData,
-                                                                         interpolatorSettings ),
-                                                                         fileHasMeteo, fileHasGradient ));
+                currentStation->setTroposphereData( std::make_shared< ground_stations::InterpolatedStationTroposphereData >(
+                        interpolators::createOneDimensionalInterpolator( processedTroposphereData, interpolatorSettings ),
+                        fileHasMeteo,
+                        fileHasGradient ) );
             }
         }
     }

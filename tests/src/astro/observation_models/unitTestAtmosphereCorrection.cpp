@@ -579,7 +579,7 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
 {
     double initialTime = 544795200.0 + 100.0;
     DateTime initialDate = getCalendarDateFromTime< double >( initialTime );
-    std::cout<<initialDate.isoString( )<<std::endl;
+    std::cout << initialDate.isoString( ) << std::endl;
 
     // Create bodies
     spice_interface::loadStandardSpiceKernels( );
@@ -594,31 +594,27 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
 
     simulation_setup::SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-    setDsnWeatherDataInGroundStations(
-        bodies,
-        std::vector< std::string >{ paths::getTudatTestDataPath( ) + "2017_001_2017_365_w10.tab" } );
+    setDsnWeatherDataInGroundStations( bodies, std::vector< std::string >{ paths::getTudatTestDataPath( ) + "2017_001_2017_365_w10.tab" } );
 
     // Set transmitting frequency calculator
     double frequency = 8e9;
     bodies.getBody( "Earth" )
-        ->getGroundStation( "DSS-26" )
-        ->setTransmittingFrequencyCalculator( std::make_shared< ground_stations::ConstantFrequencyInterpolator >( frequency ) );
-
+            ->getGroundStation( "DSS-26" )
+            ->setTransmittingFrequencyCalculator( std::make_shared< ground_stations::ConstantFrequencyInterpolator >( frequency ) );
 
     // Create link ends
     LinkEnds linkEnds;
     linkEnds[ transmitter ] = LinkEndId( "Earth", "DSS-26" );
     linkEnds[ receiver ] = LinkEndId( "MRO" );
 
-
     std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-        std::make_shared< ObservationAncilliarySimulationSettings >( );
+            std::make_shared< ObservationAncilliarySimulationSettings >( );
     ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { TUDAT_NAN } );
 
     // Create Saastamoinen corrections
-    for( int test = 0; test < 2 ; test++ )
+    for( int test = 0; test < 2; test++ )
     {
-        std::shared_ptr<LightTimeCorrectionSettings> correctionSettings;
+        std::shared_ptr< LightTimeCorrectionSettings > correctionSettings;
         if( test == 0 )
         {
             correctionSettings = saastamoinenTroposphericCorrectionSettings( );
@@ -627,8 +623,8 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
         {
             correctionSettings = jakowskiIonosphericCorrectionSettings( );
         }
-        std::shared_ptr<LightTimeCorrection> mediaCorrectionModel = createLightTimeCorrections(
-            correctionSettings, bodies, linkEnds, transmitter, receiver, observation_models::n_way_range );
+        std::shared_ptr< LightTimeCorrection > mediaCorrectionModel =
+                createLightTimeCorrections( correctionSettings, bodies, linkEnds, transmitter, receiver, observation_models::n_way_range );
 
         double timeStep = 30.0;
         unsigned int numberOfPoints = 10000;
@@ -636,40 +632,41 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
         unsigned int currentMultiLegTransmitterIndex = 0;
 
         double time = initialTime - timeStep;
-        std::vector<double> delays;
-        std::vector<Eigen::Vector3d> delaysWrtReceiver;
-        std::vector<Eigen::Vector3d> delaysWrtTransmitter;
-        std::vector<Eigen::Vector3d> receiverVelocities;
-        std::vector<Eigen::Vector3d> transmitterVelocities;
-        std::vector<double> delaysWrtTime;
-        std::vector<double> elevationAngles;
+        std::vector< double > delays;
+        std::vector< Eigen::Vector3d > delaysWrtReceiver;
+        std::vector< Eigen::Vector3d > delaysWrtTransmitter;
+        std::vector< Eigen::Vector3d > receiverVelocities;
+        std::vector< Eigen::Vector3d > transmitterVelocities;
+        std::vector< double > delaysWrtTime;
+        std::vector< double > elevationAngles;
 
-        for ( unsigned int i = 0; i < numberOfPoints; ++i )
+        for( unsigned int i = 0; i < numberOfPoints; ++i )
         {
             time += timeStep;
 
             // Approximate light time
             double lightTime = ( bodies.getBody( "Mars" )->getStateInBaseFrameFromEphemeris( time ) -
-                                 bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( time ))
-                                   .segment( 0, 3 )
-                                   .norm( ) /
-                               SPEED_OF_LIGHT;
+                                 bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( time ) )
+                                       .segment( 0, 3 )
+                                       .norm( ) /
+                    SPEED_OF_LIGHT;
 
-            std::vector<Eigen::Vector6d> linkEndsStates;
-            std::vector<double> linkEndsTimes;
+            std::vector< Eigen::Vector6d > linkEndsStates;
+            std::vector< double > linkEndsTimes;
 
             // Approximate state and time of DSS-26
-            linkEndsStates.push_back( bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( time ));
+            linkEndsStates.push_back( bodies.getBody( "Earth" )->getStateInBaseFrameFromEphemeris( time ) );
             linkEndsTimes.push_back( time );
 
             // Approximate state and time of MRO
-            linkEndsStates.push_back( bodies.getBody( "Mars" )->getStateInBaseFrameFromEphemeris( time + lightTime ));
+            linkEndsStates.push_back( bodies.getBody( "Mars" )->getStateInBaseFrameFromEphemeris( time + lightTime ) );
             linkEndsTimes.push_back( time + lightTime );
 
-            double currentElevation =
-                bodies.at( "Earth" )->getGroundStation(
-                    "DSS-26" )->getPointingAnglesCalculator( )->calculateElevationAngleFromInertialVector(
-                    ( linkEndsStates.at( 1 ) - linkEndsStates.at( 0 )).segment( 0, 3 ), time );
+            double currentElevation = bodies.at( "Earth" )
+                                              ->getGroundStation( "DSS-26" )
+                                              ->getPointingAnglesCalculator( )
+                                              ->calculateElevationAngleFromInertialVector(
+                                                      ( linkEndsStates.at( 1 ) - linkEndsStates.at( 0 ) ).segment( 0, 3 ), time );
 
             elevationAngles.push_back( currentElevation );
 
@@ -677,33 +674,23 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
             double computedTabulatedCorrection;
 
             delays.push_back( mediaCorrectionModel->calculateLightTimeCorrection(
-                linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
-                linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ),
-                ancillarySettings ));
+                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), ancillarySettings ) );
 
-            delaysWrtTransmitter.push_back(
-                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
-                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter ));
+            delaysWrtTransmitter.push_back( mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter ) );
 
-            delaysWrtReceiver.push_back(
-                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
-                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver ));
+            delaysWrtReceiver.push_back( mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver ) );
 
             delaysWrtTime.push_back(
-                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
-                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter ) +
-                mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                    linkEndsStates.at( 0 ), linkEndsStates.at( 1 ),
-                    linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver ) );
+                    mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                            linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), transmitter ) +
+                    mediaCorrectionModel->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                            linkEndsStates.at( 0 ), linkEndsStates.at( 1 ), linkEndsTimes.at( 0 ), linkEndsTimes.at( 1 ), receiver ) );
 
-            transmitterVelocities.push_back( linkEndsStates.at( 0 ).segment( 3, 3 ));
-            receiverVelocities.push_back( linkEndsStates.at( 1 ).segment( 3, 3 ));
-
+            transmitterVelocities.push_back( linkEndsStates.at( 0 ).segment( 3, 3 ) );
+            receiverVelocities.push_back( linkEndsStates.at( 1 ).segment( 3, 3 ) );
         }
-
 
         double maxError = 0.0;
         double minError = 1.0E100;
@@ -712,25 +699,29 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
         double maxErrorRelative = TUDAT_NAN;
         double minErrorRelative = TUDAT_NAN;
 
-        std::vector<double> numericalDerivativesWrtTime;
-        std::vector<double> reconstructedDerivativesWrtTime;
+        std::vector< double > numericalDerivativesWrtTime;
+        std::vector< double > reconstructedDerivativesWrtTime;
         int counter = 0;
-        for ( unsigned int i = 2; i < delays.size( ) - 2; i++ )
+        for( unsigned int i = 2; i < delays.size( ) - 2; i++ )
         {
             // Why the fuck does the ionosphere partial go all wobbly around 1 radian elevation???
-            if ( ( elevationAngles.at( i ) > 10.0 * mathematical_constants::PI / 180.0 ) && ( std::fabs( elevationAngles.at( i ) - 1.0 ) > 0.02 ) )
+            if( ( elevationAngles.at( i ) > 10.0 * mathematical_constants::PI / 180.0 ) &&
+                ( std::fabs( elevationAngles.at( i ) - 1.0 ) > 0.02 ) )
             {
-                numericalDerivativesWrtTime.push_back(( -delays.at( i + 2 ) + 8.0 * delays.at( i + 1 ) - 8.0 * delays.at( i - 1 ) + delays.at( i - 2 )) / ( 12.0 * timeStep ));
-                reconstructedDerivativesWrtTime.push_back(
-                    delaysWrtTime.at( i ) + delaysWrtReceiver.at( i ).dot( receiverVelocities.at( i )) +
-                    delaysWrtTransmitter.at( i ).dot( transmitterVelocities.at( i )));
-                double absoluteError = std::fabs(
-                    numericalDerivativesWrtTime.at( counter ) - reconstructedDerivativesWrtTime.at( counter ));
+                numericalDerivativesWrtTime.push_back(
+                        ( -delays.at( i + 2 ) + 8.0 * delays.at( i + 1 ) - 8.0 * delays.at( i - 1 ) + delays.at( i - 2 ) ) /
+                        ( 12.0 * timeStep ) );
+                reconstructedDerivativesWrtTime.push_back( delaysWrtTime.at( i ) +
+                                                           delaysWrtReceiver.at( i ).dot( receiverVelocities.at( i ) ) +
+                                                           delaysWrtTransmitter.at( i ).dot( transmitterVelocities.at( i ) ) );
+                double absoluteError =
+                        std::fabs( numericalDerivativesWrtTime.at( counter ) - reconstructedDerivativesWrtTime.at( counter ) );
 
-                std::cout<<delays.at( i )<<" "<<absoluteError<<" "<<elevationAngles.at( i )<<" "<<numericalDerivativesWrtTime.at( counter )<<" "<<reconstructedDerivativesWrtTime.at( counter )<<std::endl;
+                std::cout << delays.at( i ) << " " << absoluteError << " " << elevationAngles.at( i ) << " "
+                          << numericalDerivativesWrtTime.at( counter ) << " " << reconstructedDerivativesWrtTime.at( counter ) << std::endl;
                 BOOST_CHECK_SMALL( absoluteError, 5.0E-14 * ( test == 0 ? 1.0 : 1.0E-4 ) );
 
-                double relativeError =  absoluteError / numericalDerivativesWrtTime.at( counter );
+                double relativeError = absoluteError / numericalDerivativesWrtTime.at( counter );
                 if( absoluteError > maxError )
                 {
                     maxError = absoluteError;
@@ -747,9 +738,8 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
                 counter++;
             }
         }
-        std::cout<<maxError<<" "<<maxErrorRelative<<" "<<maxErrorElevation<<std::endl;
+        std::cout << maxError << " " << maxErrorRelative << " " << maxErrorElevation << std::endl;
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
