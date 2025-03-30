@@ -77,7 +77,6 @@ public:
         }
     }
 
-
 protected:
     /*!
      * Computes the minimum distance along the line of sight to the Sun. Used in some solar correction models.

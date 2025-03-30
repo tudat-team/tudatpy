@@ -27,7 +27,6 @@ namespace tudat
 namespace ground_stations
 {
 
-
 /*! Calculate the partial vapor pressure.
  *
  * Calculate the partial vapor pressure according to the Bean and Dutton (1966) model, as described by Estefan and Sovers
@@ -48,17 +47,15 @@ double calculateBeanAndDuttonWaterVaporPartialPressure( double relativeHumidity,
  * @return Water vapor partial pressure as a function of time.
  */
 std::function< double( const double time ) > getBeanAndDuttonWaterVaporPartialPressureFunction(
-    std::function< double( const double time ) > relativeHumidity,
-    std::function< double( const double time ) > temperature );
+        std::function< double( const double time ) > relativeHumidity,
+        std::function< double( const double time ) > temperature );
 
 // Function to compute saturation vapor pressure (Pa) using Tetens' formula
-double computeSaturationWaterVaporPressure( const double temperature);
+double computeSaturationWaterVaporPressure( const double temperature );
 
 double computeDewPoint( const double relativeHumidity, const double temperature );
 
-
-enum MeteoDataEntries
-{
+enum MeteoDataEntries {
     temperature_meteo_data,
     pressure_meteo_data,
     water_vapor_pressure_meteo_data,
@@ -70,14 +67,12 @@ class StationMeteoData
 {
 public:
     StationMeteoData( const std::map< MeteoDataEntries, int > vectorEntries ):
-        vectorEntries_( vectorEntries ),
-        currentUtc_( TUDAT_NAN ),
-        currentData_( Eigen::VectorXd::Zero( vectorEntries.size( ) ) )
+        vectorEntries_( vectorEntries ), currentUtc_( TUDAT_NAN ), currentData_( Eigen::VectorXd::Zero( vectorEntries.size( ) ) )
     {
         setAndValidateInput( vectorEntries );
     }
 
-    virtual ~StationMeteoData( ){ }
+    virtual ~StationMeteoData( ) { }
 
     double getTemperature( const double currentUtc )
     {
@@ -96,12 +91,11 @@ public:
         if( hasVaporPressure_ )
         {
             updateData( currentUtc );
-            return currentData_( vectorEntries_.at( water_vapor_pressure_meteo_data ));
+            return currentData_( vectorEntries_.at( water_vapor_pressure_meteo_data ) );
         }
         else
         {
-            return getRelativeHumidity( currentUtc ) *
-                   computeSaturationWaterVaporPressure( getTemperature( currentUtc ));
+            return getRelativeHumidity( currentUtc ) * computeSaturationWaterVaporPressure( getTemperature( currentUtc ) );
         }
     }
 
@@ -110,12 +104,11 @@ public:
         if( hasRelativeHumidity_ )
         {
             updateData( currentUtc );
-            return currentData_( vectorEntries_.at( relative_humidity_meteo_data ));
+            return currentData_( vectorEntries_.at( relative_humidity_meteo_data ) );
         }
         else
         {
-            return getWaterVaporPartialPressure( currentUtc ) /
-                   computeSaturationWaterVaporPressure( getTemperature( currentUtc ));
+            return getWaterVaporPartialPressure( currentUtc ) / computeSaturationWaterVaporPressure( getTemperature( currentUtc ) );
         }
     }
 
@@ -124,16 +117,15 @@ public:
         if( hasDewPoint_ )
         {
             updateData( currentUtc );
-            return currentData_( vectorEntries_.at( dew_point_meteo_data ));
+            return currentData_( vectorEntries_.at( dew_point_meteo_data ) );
         }
         else
         {
-            return computeDewPoint( getRelativeHumidity( currentUtc ), getTemperature( currentUtc ));
+            return computeDewPoint( getRelativeHumidity( currentUtc ), getTemperature( currentUtc ) );
         }
     }
 
 protected:
-
     virtual void updateData( const double currentUtc ) = 0;
 
     void setAndValidateInput( const std::map< MeteoDataEntries, int >& vectorEntries )
@@ -167,39 +159,33 @@ protected:
     bool hasRelativeHumidity_;
 
     bool hasDewPoint_;
-
-
 };
 
-
-class ContinuousInterpolatedMeteoData: public StationMeteoData
+class ContinuousInterpolatedMeteoData : public StationMeteoData
 {
 public:
-
     ContinuousInterpolatedMeteoData(
-        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > meteoDataInterpolator,
-        const std::map< MeteoDataEntries, int > vectorEntries ):StationMeteoData( vectorEntries ),
-        meteoDataInterpolator_( meteoDataInterpolator ){ }
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > meteoDataInterpolator,
+            const std::map< MeteoDataEntries, int > vectorEntries ):
+        StationMeteoData( vectorEntries ), meteoDataInterpolator_( meteoDataInterpolator )
+    { }
 
-    ~ContinuousInterpolatedMeteoData( ){ }
+    ~ContinuousInterpolatedMeteoData( ) { }
 
 private:
-
     void updateData( const double currentUtc );
 
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > meteoDataInterpolator_;
-
 };
 
-
-class PiecewiseInterpolatedMeteoData: public StationMeteoData
+class PiecewiseInterpolatedMeteoData : public StationMeteoData
 {
 public:
-
     PiecewiseInterpolatedMeteoData(
-        const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > meteoDataInterpolators,
-        const std::map< MeteoDataEntries, int > vectorEntries ):StationMeteoData( vectorEntries ),
-        meteoDataInterpolators_( meteoDataInterpolators )
+            const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > >
+                    meteoDataInterpolators,
+            const std::map< MeteoDataEntries, int > vectorEntries ):
+        StationMeteoData( vectorEntries ), meteoDataInterpolators_( meteoDataInterpolators )
     {
         for( unsigned int i = 0; i < meteoDataInterpolators_.size( ); i++ )
         {
@@ -209,7 +195,7 @@ public:
         lookUpScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( startTimes_ );
     }
 
-    ~PiecewiseInterpolatedMeteoData( ){ }
+    ~PiecewiseInterpolatedMeteoData( ) { }
 
     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > getMeteoDataInterpolators( )
     {
@@ -227,7 +213,6 @@ public:
     }
 
 private:
-
     void updateData( const double currentUtc );
 
     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > meteoDataInterpolators_;
@@ -244,27 +229,25 @@ private:
 class StationTroposphereData
 {
 public:
-
-    virtual ~StationTroposphereData( ){ }
+    virtual ~StationTroposphereData( ) { }
 
     virtual Eigen::Vector2d getZenithDelay( const double currentUtc ) = 0;
 
     virtual Eigen::Vector2d getMappingFunction( const double currentUtc ) = 0;
 
     virtual Eigen::Vector4d getGradient( const double currentUtc ) = 0;
-
 };
 
-class InterpolatedStationTroposphereData: public StationTroposphereData
+class InterpolatedStationTroposphereData : public StationTroposphereData
 {
 public:
-
     InterpolatedStationTroposphereData(
-        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > troposphereInterpolator,
-        const bool dataHasMappingFunction,
-        const bool dataHasGradient ): gradientStartIndex_( dataHasMappingFunction ? 4 : 2 ){ }
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > troposphereInterpolator,
+            const bool dataHasMappingFunction,
+            const bool dataHasGradient ): gradientStartIndex_( dataHasMappingFunction ? 4 : 2 )
+    { }
 
-    ~InterpolatedStationTroposphereData( ){ }
+    ~InterpolatedStationTroposphereData( ) { }
 
     Eigen::Vector2d getZenithDelay( const double currentUtc )
     {
@@ -299,7 +282,6 @@ public:
     }
 
 private:
-
     void updateData( const double currentUtc )
     {
         if( !( currentUtc == currentUtc_ ) )
@@ -309,16 +291,13 @@ private:
         }
     }
 
-
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > troposphereInterpolator_;
 
     bool dataHasMappingFunction_;
 
     bool dataHasGradient_;
 
-
     int gradientStartIndex_;
-
 
     Eigen::VectorXd currentData_;
 

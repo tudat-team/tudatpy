@@ -458,14 +458,14 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         const LinkEndId& receiver,
         const bool isUplinkCorrection );
 
-void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
-                                   const bool fileHasMeteo,
-                                   const bool fileHasGradient,
-                                   const simulation_setup::SystemOfBodies& bodies,
-                                   const bool setTropospherData = true,
-                                   const bool setMeteoData = true,
-                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-                                       interpolators::cubicSplineInterpolation( ) );
+void setVmfTroposphereCorrections(
+        const std::vector< std::string >& dataFiles,
+        const bool fileHasMeteo,
+        const bool fileHasGradient,
+        const simulation_setup::SystemOfBodies& bodies,
+        const bool setTropospherData = true,
+        const bool setMeteoData = true,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::cubicSplineInterpolation( ) );
 
 /*!
  * Creates a function that returns the frequency at a given link, as a function of the frequency band used in each link
