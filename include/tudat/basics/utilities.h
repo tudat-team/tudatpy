@@ -1114,7 +1114,7 @@ T getKeyByIndex( const std::map< T, S >& mapToIterate, const unsigned int index 
         throw std::runtime_error( "Error when getting mpa key by index, size of map is insufficient" );
     }
     auto it = mapToIterate.begin( );
-    for( int i = 0; i < index; i++ )
+    for( unsigned int i = 0; i < index; i++ )
     {
         it++;
     }
