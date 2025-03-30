@@ -40,13 +40,6 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
     LinkEndId transmitter = linkEnds.at( transmittingLinkEndType );
     LinkEndId receiver = linkEnds.at( receivingLinkEndType );
 
-    if( observableType == two_way_doppler && requiresMultiLegIterations( correctionSettings->getCorrectionType( ) ) )
-    {
-        throw std::runtime_error( "Error when creating 2-way Doppler light time corrections: selected correction (" +
-                                  getLightTimeCorrectionName( correctionSettings->getCorrectionType( ) ) +
-                                  ") requires multi-leg light iterations, which aren't implemented for 2-way Doppler." );
-    }
-
     // Identify type of light time correction to be created.
     switch( correctionSettings->getCorrectionType( ) )
     {
@@ -497,7 +490,6 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
             lightTimeCorrection = std::make_shared< InversePowerSeriesSolarCoronaCorrection >(
                     observableType,
                     sunStateFunction,
-                    createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
                     coronaCorrectionSettings->getCoefficients( ),
                     coronaCorrectionSettings->getPositiveExponents( ),
                     coronaCorrectionSettings->getCriticalPlasmaDensityDelayCoefficient( ),
