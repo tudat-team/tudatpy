@@ -235,14 +235,17 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
                 Eigen::Matrix< double, 3, 1 > lightTimeCorrectionWrtReceiver =
                         correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                                transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), receiver );
+                                transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), receiver, nullptr );
                 Eigen::Matrix< double, 3, 1 > lightTimeCorrectionWrtTransmitter =
                         correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                                transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter );
-                double lightTimeCorrectionWrtReceiverTime = correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                        transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), receiver );
-                double lightTimeCorrectionWrtTransmitterTime = correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
-                        transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter );
+
+                                transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter, nullptr );
+                double lightTimeCorrectionWrtReceiverTime =
+                    correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                        transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), receiver, nullptr );
+                double lightTimeCorrectionWrtTransmitterTime =
+                    correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                        transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter, nullptr );
 
                 double numericalCorrectionPartial = ( lightTimeCorrectionUp - lightTimeCorrectionDown ) / ( 2.0 * timePerturbation );
                 double analyticalCorrectionPartial = lightTimeCorrectionWrtTransmitterTime + lightTimeCorrectionWrtReceiverTime +
