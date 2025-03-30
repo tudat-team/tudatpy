@@ -36,7 +36,8 @@ set(io_SOURCES
         "readTabulatedWeatherData.cpp"
         "readTrackingTxtFile.cpp"
         "readVariousPdsFiles.cpp"
-        )
+        "readViennaMappingFunctionData.cpp"
+)
 
 # Add header files.
 set(io_HEADERS
