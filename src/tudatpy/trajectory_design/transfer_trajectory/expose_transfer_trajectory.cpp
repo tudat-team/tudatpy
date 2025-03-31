@@ -12,10 +12,11 @@
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h>
+#include <tudat/astro/low_thrust/shape_based/getRecommendedBaseFunctionsHodographicShaping.h>
 #include <tudat/astro/mission_segments/createTransferTrajectory.h>
 #include <tudat/simulation/propagation_setup/accelerationSettings.h>
 
-#include "tudat/astro/mission_segments/createTransferTrajectory.h"
 #include "tudat/math/root_finders.h"
 
 namespace py = pybind11;
@@ -34,6 +35,8 @@ namespace transfer_trajectory
 
 PYBIND11_MODULE( expose_transfer_trajectory, m )
 {
+    py::module_::import( "tudatpy.trajectory_design.shape_based_thrust" );
+
     m.attr( "DEFAULT_MINIMUM_PERICENTERS" ) = tms::DEFAULT_MINIMUM_PERICENTERS;
 
     py::enum_< tms::TransferLegTypes >( m,
