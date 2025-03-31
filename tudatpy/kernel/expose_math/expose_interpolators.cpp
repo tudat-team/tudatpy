@@ -141,7 +141,7 @@ With this option, the algorithm uses a binary search algorithm to find the neare
 
      )doc" )
             .value( "lagrange_cubic_spline_boundary_interpolation",
-                    ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation,
+                    ti::LagrangeInterpolatorBoundaryHandling::lagrange_cubic_spline_boundary_interpolation,
                     R"doc(
 A cubic-spline interpolator is created from the first and last :math:`\max(m/2-1,4)` data points of the full data set, and these cubic spline interpolators are used when an interpolation at :math:`t<t_{(m/2-1)}` or :math:`t<t_{N-(m/2)}` is called
      )doc" )
