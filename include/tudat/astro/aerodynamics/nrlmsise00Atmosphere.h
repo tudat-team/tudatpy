@@ -101,7 +101,9 @@
      //! Molar mass of Atomic Oxygen in kg/mole
      double molarMassAtomicOxygen;
  };
- 
+
+ GasComponentProperties gasComponentProperties_;
+
  //! NRLMSISE-00 atmosphere model class.
  /*!
   *  NRLMSISE-00 atmosphere model class. This class uses the NRLMSISE00 atmosphere model to calculate atmospheric
@@ -126,51 +128,22 @@
       * (altitude, longitude, latitude, time ).
       * \param useIdealGasLaw Variable denoting whether to use the ideal gas law for computation of pressure.
       */
-     NRLMSISE00Atmosphere( const NRLMSISE00InputFunction nrlmsise00InputFunction, const bool useIdealGasLaw = true ):
-         nrlmsise00InputFunction_( nrlmsise00InputFunction )
+     NRLMSISE00Atmosphere( const NRLMSISE00InputFunction nrlmsise00InputFunction,
+                           const bool useIdealGasLaw = true,
+                           const bool useAnomalousOxygen = true ):
+         nrlmsise00InputFunction_( nrlmsise00InputFunction ),
+         useAnomalousOxygen_( useAnomalousOxygen )
      {
          resetHashKey( );
-         molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
          specificHeatRatio_ = 1.4;
-         GasComponentProperties gasProperties;
-         gasComponentProperties_ = gasProperties;  // Default gas properties
          useIdealGasLaw_ = useIdealGasLaw;
      }
  
-     NRLMSISE00Atmosphere( const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData, 
-                           const bool useIdealGasLaw = true, const int geomagneticActivity = 1 ): solarActivityContainer_( solarActivityData )
-     {
-         nrlmsise00InputFunction_ = std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
-                                               std::placeholders::_1,
-                                               std::placeholders::_2,
-                                               std::placeholders::_3,
-                                               std::placeholders::_4,
-                                               solarActivityContainer_,
-                                               false,
-                                               TUDAT_NAN,
-                                               geomagneticActivity );
- 
-         resetHashKey( );
-         molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
-         specificHeatRatio_ = 1.4;
-         GasComponentProperties gasProperties;
-         gasComponentProperties_ = gasProperties;  // Default gas properties
-         useIdealGasLaw_ = useIdealGasLaw;
-     }
- 
-     //! Constructor
-     /*!
-      * Constructor that sets the gas component properties and specific heat ratio.
-      * \param nrlmsise00InputFunction shared function pointer to provide all necessary input.
-      * \param specificHeatRatio value of the specific heat ratio.
-      * \param gasProperties a GasComponentProperties data structure that contains
-      *  the molecule collision diameters and the molar mass.
-      * \param useIdealGasLaw Boolean denoting whether the ideal gas law is to be used.
-      */
      NRLMSISE00Atmosphere( const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData,
-                           const double specificHeatRatio,
-                           const GasComponentProperties gasProperties,
-                           const bool useIdealGasLaw = true, const int geomagneticActivity = 1 ): solarActivityContainer_( solarActivityData )
+                           const bool useIdealGasLaw = true,
+                           const bool useStormConditions = true,
+                           const bool useAnomalousOxygen = true ): solarActivityContainer_( solarActivityData ),
+                                                                   useAnomalousOxygen_( useAnomalousOxygen )
      {
          nrlmsise00InputFunction_ = std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
                                                std::placeholders::_1,
@@ -180,26 +153,14 @@
                                                solarActivityContainer_,
                                                false,
                                                TUDAT_NAN,
-                                               geomagneticActivity );
+                                               useStormConditions ? -1 : 1 );
  
          resetHashKey( );
-         molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
-         specificHeatRatio_ = specificHeatRatio;
-         gasComponentProperties_ = gasProperties;
+         specificHeatRatio_ = 1.4;
          useIdealGasLaw_ = useIdealGasLaw;
      }
- 
-     //! Set gas component properties.
-     /*!
-      * Sets the gas component properties.
-      * These are required for the calculation of the speed of sound and the mean free path.
-      * \param gasComponentProperties Properties of the gas components
-      */
-     void setGasComponentProperties( const GasComponentProperties gasComponentProperties )
-     {
-         gasComponentProperties_ = gasComponentProperties;
-     }
- 
+
+
      //! Get local density.
      /*!
       * Returns the local density of the atmosphere in kg per meter^3.
@@ -429,7 +390,8 @@
  
      //! Use the ideal gas law for the computation of the pressure.
      bool useIdealGasLaw_;
- 
+
+
      //! Current key hash
      size_t hashKey_;
  
@@ -470,15 +432,9 @@
      //! mean molar mass (kg/mole)
      double meanMolarMass_;
  
-     //! Data structure that contains the colision diameter
-     GasComponentProperties gasComponentProperties_;
- 
      //! Specific heat ratio
      double specificHeatRatio_;
- 
-     //! Molar gas constant (J/mol K)
-     double molarGasConstant_;
- 
+
      //! Flags set for NRLMSISE computations
      nrlmsise_flags flags_;
  
@@ -583,10 +539,16 @@
      NRLMSISE00Input inputData_;
  
      input_output::solar_activity::SolarActivityContainer solarActivityContainer_;
- 
+
+     bool useAnomalousOxygen_;
+
      std::map< AtmosphericCompositionSpecies, int > speciesIndices = { { he_species, 0 }, { o_species, 1 },          { n2_species, 2 },
                                                                        { o2_species, 3 }, { ar_species, 4 },         { h_species, 5 },
                                                                        { n_species, 6 },  { anomalous_o_species, 7 } };
+
+     // Define the shape model for Earth (WGS-84)
+     const double equatorialRadius_ = 6378137.0;
+     const double flattening_ = 1.0 / 298.257223563;
  };
  
  Eigen::VectorXd getNrlmsiseInputAsVector( const nrlmsise_input& input );

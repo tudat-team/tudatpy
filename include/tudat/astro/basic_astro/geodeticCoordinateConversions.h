@@ -152,6 +152,14 @@ Eigen::Vector3d convertCartesianToGeodeticCoordinates( const Eigen::Vector3d car
                                                        const double flattening,
                                                        const double tolerance );
 
+double convertGeographicToGeodeticLatitude( const double geographicLatitude,
+                                                       const double equatorialRadius,
+                                                       const double flattening,
+                                                     const double altitude,
+                                                     const double tolerance = std::numeric_limits< double >::epsilon( ) * 2.0 * mathematical_constants::PI,
+                                                     const int maximumNumberOfIterations = 10 );
+
+
 }  // namespace coordinate_conversions
 
 }  // namespace tudat
