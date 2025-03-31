@@ -1052,7 +1052,6 @@ Function to convert an array of four quaternion elements to the equivalent rotat
 are for instance used when propagating rotational dynamics in Tudat, and this function can be used to convert the
 numerical results to a usable rotation matrix. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html?highlight=rotational%20states#rotational-states>`_ for more details.
 
-
 Parameters
 ----------
 quaternion_entries : numpy.ndarray
@@ -27104,7 +27103,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 
     )";
     }
-    else if( name == "GroundStationState.geodetic_positon_at_reference_epoch" )
+    else if( name == "GroundStationState.geodetic_position_at_reference_epoch" )
     {
         return R"(
 

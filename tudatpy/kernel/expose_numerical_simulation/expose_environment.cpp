@@ -2013,7 +2013,7 @@ numpy.ndarray[numpy.float64[6, 1]]
         Object that provides a spherical harmonic gravity field of a body.
 
         Object (typically stored inside a :class:`~Body` object) that provides a spherical harmonic gravity field of a body, typically (but not exclusively) for
-        use in gravitational acceleration and torque models. This class is derived from :class:`~GravityFieldModel`.  This object is typically created using the :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic_gravity`
+        use in gravitational acceleration and torque models. This class is derived from :class:`~GravityFieldModel`.  This object is typically created using the :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`
         settings function. If any time variations of the gravity field are provided, an object of the derived class :class:`~TimeVariableSphericalHarmonicsGravityField` is created.
 
     )doc" )
@@ -2202,7 +2202,7 @@ numpy.ndarray[numpy.float64[6, 1]]
         :type: numpy.ndarray[numpy.float64[3, 1]]
 
     )doc" )
-            .def_property_readonly( "geodetic_positon_at_reference_epoch",
+            .def_property_readonly( "geodetic_position_at_reference_epoch",
                                     &tgs::GroundStationState::getNominalGeodeticPosition,
                                     R"doc(
 

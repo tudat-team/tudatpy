@@ -41,10 +41,11 @@ void expose_ground_station_setup( py::module &m )
         Base class for providing settings for the creation of a ground station.
 
 
-     )doc" )
-            .def_property( "station_position",
-                           &tss::GroundStationSettings::getGroundStationPosition,
-                           &tss::GroundStationSettings::resetGroundStationPosition );
+     )doc")
+                        .def_property("station_position", &tss::GroundStationSettings::getGroundStationPosition,
+                                      &tss::GroundStationSettings::resetGroundStationPosition )
+
+                        .def_property_readonly("station_name", &tss::GroundStationSettings::getStationName);
 
     py::class_< tss::GroundStationMotionSettings, std::shared_ptr< tss::GroundStationMotionSettings > >( m,
                                                                                                          "GroundStationMotionSettings",
@@ -106,10 +107,11 @@ void expose_ground_station_setup( py::module &m )
 
      )doc" );
 
-    m.def( "add_motion_model_to_each_groun_station",
-           &tss::addStationMotionModelToEachGroundStation,
-           py::arg( "ground_station_settings_list" ),
-           py::arg( "station_motion_setting" ) );
+
+                    m.def("add_motion_model_to_each_groun_station",
+                          &tss::addStationMotionModelToEachGroundStation,
+                          py::arg("ground_station_settings_list"),
+                          py::arg("station_motion_setting"));
 
     m.def( "basic_station",
            &tss::groundStationSettings,
@@ -183,16 +185,41 @@ Returns
 list[ GroundStationSettings ]
     List of settings to create DSN stations
 
+    )doc" );
 
+    m.def( "evn_stations",
+        &tss::getEvnStationSettings,
+        R"doc(
 
+Function for creating settings for all EVN stations.
 
+Function for creating settings for all EVN stations. EVN stations are defined by nominal positions and linear velocities, as defined by the glo.sit station file, see `this link <https://gitlab.com/gofrito/pysctrack/-/blob/master/cats/glo.sit?ref_type=heads>`_.
+Note that calling these settings will use the Cartesian elements provided by these documents and apply them to the Earth-fixed station positions, regardless of the selected Earth rotation model.
 
+Returns
+-------
+list[ GroundStationSettings ]
+    List of settings to create EVN stations
 
     )doc" );
 
-    m.def( "evn_stations", &tss::getEvnStationSettings, R"doc(No documentation found.)doc" );
+    m.def( "radio_telescope_stations",
+        &tss::getRadioTelescopeStationSettings,
+        R"doc(
 
-    m.def( "radio_telescope_stations", &tss::getRadioTelescopeStationSettings, R"doc(No documentation found.)doc" );
+Function for creating settings for all DSN and EVN stations.
+
+Function for creating settings for all DSN and EVN stations.
+DSN stations are defined by nominal positions and linear velocities, as defined by Cartesian elements in DSN No. 810-005, 301, Rev. K., see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`_.
+EVN stations are defined by nominal positions and linear velocities, as defined by the glo.sit station file, see `this link <https://gitlab.com/gofrito/pysctrack/-/blob/master/cats/glo.sit?ref_type=heads>`_.
+Note that calling these settings will use the Cartesian elements provided by these documents and apply them to the Earth-fixed station positions, regardless of the selected Earth rotation model.
+
+Returns
+-------
+list[ GroundStationSettings ]
+    List of settings to create DSN + EVN stations
+
+    )doc" );
 
     m.def( "linear_station_motion",
            &tss::linearGroundStationMotionSettings,
@@ -215,9 +242,6 @@ Returns
 -------
 GroundStationMotionSettings
     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.GroundStationMotionSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.LinearGroundStationMotionSettings` class
-
-
-
 
 
 
