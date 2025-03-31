@@ -105,6 +105,7 @@ from tudatpy.kernel.numerical_simulation.estimation_setup.observation import \
      retransmission_delays_dependent_variable, \
      saastamoinen_tropospheric_light_time_correction, \
      set_odf_information_in_bodies, \
+     set_vmf_troposphere_data, \
      tabulated_simulation_settings, \
      tabulated_simulation_settings_list, \
      target_range_between_link_ends_dependent_variable, \
