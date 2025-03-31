@@ -8,7 +8,12 @@ macro (add_extension import_path)
     set(source_dir ${TUDATPY_SOURCE_DIR}/${extension_path})
 
     # Find all source files for extension [All .cpp files in source_dir]
-    file(GLOB sources RELATIVE "${TUDATPY_SOURCE_DIR}" "${source_dir}/*.cpp")
+    if (${ARGN})
+        file(GLOB_RECURSE sources RELATIVE "${TUDATPY_SOURCE_DIR}" "${source_dir}/*.cpp" ${ARGN})
+        message(STATUS "SOURCES FOR ${extension_name}: ${sources}")
+    else()
+        file(GLOB sources RELATIVE "${TUDATPY_SOURCE_DIR}" "${source_dir}/*.cpp")
+    endif()
     # string(REPLACE ";" " " sources "${sources}")
 
     # Update output directory for extension

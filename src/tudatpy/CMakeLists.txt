@@ -79,8 +79,9 @@ add_extension(numerical_simulation.estimation_setup.observation)
 add_extension(numerical_simulation.estimation_setup.parameter)
 
 # Trajectory design
-add_extension(trajectory_design.shape_based_thrust)
-add_extension(trajectory_design.transfer_trajectory)
+# add_extension(trajectory_design.shape_based_thrust)
+# add_extension(trajectory_design.transfer_trajectory)
+add_extension(trajectory_design 1)
 
 # Install
 ######################################################
