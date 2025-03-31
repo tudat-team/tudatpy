@@ -307,7 +307,7 @@ Such a model can be useful for, for instance, approximate rotation of tidally lo
 Parameters
 ----------
 central_body_name : str
-    Name of the base frame of rotation model.
+    Name of the central body of synchronous rotation.
 base_frame : str
     Name of the base frame of rotation model.
 target_frame : str
