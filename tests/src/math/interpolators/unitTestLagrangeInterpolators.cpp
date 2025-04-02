@@ -15,6 +15,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/basics/tudatExceptions.h"
 
 #include "tudat/math/interpolators/lagrangeInterpolator.h"
 
@@ -306,7 +307,7 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
                                 independentVariableVector.at( i ) + static_cast< double >( j ) * currentStepSize;
                         lagrangeInterpolator.interpolate( currentTestIndependentVariable );
                     }
-                    catch( std::runtime_error const& )
+                    catch( tudat::exceptions::LagrangeInterpolationOutOfBoundsError< double > const& )
                     {
                         runtimeErrorOccurred = 1;
                     }
@@ -330,7 +331,7 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
                                 static_cast< double >( j ) * currentStepSize;
                         lagrangeInterpolator.interpolate( currentTestIndependentVariable );
                     }
-                    catch( std::runtime_error const& )
+                    catch( tudat::exceptions::LagrangeInterpolationOutOfBoundsError< double > const& )
                     {
                         runtimeErrorOccurred = true;
                     }
