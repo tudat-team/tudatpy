@@ -22,6 +22,7 @@
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
 namespace tuc = tudat::unit_conversions;
+namespace ti = tudat::interpolators;
 
 namespace tudat
 {
@@ -4362,6 +4363,17 @@ observable_type : :class:`ObservableType`
     //          py::arg("mean") = 0.0,
     //          py::arg("seed") = time(NULL),
     //          py::arg("observable_size") = 1);
+
+    m.def( "set_vmf_troposphere_data",
+           &tom::setVmfTroposphereCorrections,
+           py::arg( "data_files" ),
+           py::arg( "file_has_meteo" ),
+           py::arg( "file_has_gradient" ),
+           py::arg( "bodies" ),
+           py::arg( "set_troposphere_data" ) = true,
+           py::arg( "set_meteo_data" ) = true,
+           py::arg( "interpolator_settings" ) = ti::cubicSplineInterpolation( )  );
+
 }
 
 }  // namespace observation

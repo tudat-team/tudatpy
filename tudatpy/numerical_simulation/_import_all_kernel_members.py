@@ -27,4 +27,5 @@ from tudatpy.kernel.numerical_simulation import \
      MultiArcSimulator, \
      SingleArcSimulator, \
      SingleArcVariationalSimulator, \
-     Time
+     Time, \
+     VariationalSimulator

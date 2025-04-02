@@ -244,79 +244,79 @@ Dict[float, numpy.ndarray]
 
     )doc" );
 
-    py::class_< tudat::input_output::MissileDatcomData, std::shared_ptr< tudat::input_output::MissileDatcomData > >(
-            m, "missile_DATCOM_data", R"doc(No documentation available.)doc" )
-            .def( py::init< const std::string & >( ), py::arg( "file_name_and_path" ) )
-            .def( "get_static_coefficient",
-                  &tudat::input_output::MissileDatcomData::getStaticCoefficient,
-                  py::arg( "mach_index" ),
-                  py::arg( "angle_of_attack_index" ),
-                  py::arg( "coefficient_index" ),
-                  R"doc(No documentation available.)doc" )
-            .def( "get_dynamic_coefficient",
-                  &tudat::input_output::MissileDatcomData::getDynamicCoefficient,
-                  py::arg( "mach_index" ),
-                  py::arg( "angle_of_attack_index" ),
-                  py::arg( "coefficient_index" ),
-                  R"doc(No documentation available.)doc" )
-            .def( "get_angle_of_attacks",
-                  &tudat::input_output::MissileDatcomData::getAngleOfAttacks,
-                  R"doc(No documentation available.)doc" )
-            .def( "get_mach_numbers", &tudat::input_output::MissileDatcomData::getMachNumbers )
-            .def( "get_Reynolds_numbers",
-                  &tudat::input_output::MissileDatcomData::getReynoldsNumbers,
-                  R"doc(No documentation available.)doc" )
-            .def( "write_all_coefficients_to_files",
-                  &tudat::input_output::MissileDatcomData::writeAllCoefficientsToFiles,
-                  py::arg( "file_name_base" ),
-                  py::arg( "base_precision" ) = 15,
-                  py::arg( "exponent_width" ) = 2,
-                  R"doc(No documentation available.)doc" )
-            .def( "write_force_and_moment_coefficients_to_files",
-                  &tudat::input_output::MissileDatcomData::writeForceAndMomentCoefficientsToFiles,
-                  py::arg( "file_name_base" ),
-                  py::arg( "base_precision" ) = 15,
-                  py::arg( "exponent_width" ) = 2,
-                  R"doc(No documentation available.)doc" );
-
-    py::enum_< tudat::input_output::MissileDatcomData::DynamicCoefficientNames >(
-            m, "DynamicCoefficientNames" )
-            .value( "cnq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnq )
-            .value( "cmq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmq )
-            .value( "caq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::caq )
-            .value( "cyq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyq )
-            .value( "clnq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnq )
-            .value( "cllq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllq )
-            .value( "cnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnr )
-            .value( "cmr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmr )
-            .value( "car", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car )
-            .value( "cyr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyr )
-            .value( "clnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnr )
-            .value( "cllr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllr )
-            .value( "cnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnp )
-            .value( "cmp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmp )
-            .value( "cap", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cap )
-            .value( "cyp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyp )
-            .value( "clnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnp )
-            .value( "cllp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllp )
-            .value( "cnad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnad )
-            .value( "cmad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmad )
-            .export_values( );
-
-    py::enum_< tudat::input_output::MissileDatcomData::StaticCoefficientNames >(
-            m, "StaticCoefficientNames" )
-            .value( "cn", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cn )
-            .value( "cm", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cm )
-            .value( "ca", tudat::input_output::MissileDatcomData::StaticCoefficientNames::ca )
-            .value( "cy", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cy )
-            .value( "cln", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cln )
-            .value( "cll", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cll )
-            .value( "cna", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cna )
-            .value( "cma", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cma )
-            .value( "cyb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cyb )
-            .value( "cnb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cnb )
-            .value( "clb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::clb )
-            .export_values( );
+//    py::class_< tudat::input_output::MissileDatcomData, std::shared_ptr< tudat::input_output::MissileDatcomData > >(
+//            m, "missile_DATCOM_data", R"doc(No documentation available.)doc" )
+//            .def( py::init< const std::string & >( ), py::arg( "file_name_and_path" ) )
+//            .def( "get_static_coefficient",
+//                  &tudat::input_output::MissileDatcomData::getStaticCoefficient,
+//                  py::arg( "mach_index" ),
+//                  py::arg( "angle_of_attack_index" ),
+//                  py::arg( "coefficient_index" ),
+//                  R"doc(No documentation available.)doc" )
+//            .def( "get_dynamic_coefficient",
+//                  &tudat::input_output::MissileDatcomData::getDynamicCoefficient,
+//                  py::arg( "mach_index" ),
+//                  py::arg( "angle_of_attack_index" ),
+//                  py::arg( "coefficient_index" ),
+//                  R"doc(No documentation available.)doc" )
+//            .def( "get_angle_of_attacks",
+//                  &tudat::input_output::MissileDatcomData::getAngleOfAttacks,
+//                  R"doc(No documentation available.)doc" )
+//            .def( "get_mach_numbers", &tudat::input_output::MissileDatcomData::getMachNumbers )
+//            .def( "get_Reynolds_numbers",
+//                  &tudat::input_output::MissileDatcomData::getReynoldsNumbers,
+//                  R"doc(No documentation available.)doc" )
+//            .def( "write_all_coefficients_to_files",
+//                  &tudat::input_output::MissileDatcomData::writeAllCoefficientsToFiles,
+//                  py::arg( "file_name_base" ),
+//                  py::arg( "base_precision" ) = 15,
+//                  py::arg( "exponent_width" ) = 2,
+//                  R"doc(No documentation available.)doc" )
+//            .def( "write_force_and_moment_coefficients_to_files",
+//                  &tudat::input_output::MissileDatcomData::writeForceAndMomentCoefficientsToFiles,
+//                  py::arg( "file_name_base" ),
+//                  py::arg( "base_precision" ) = 15,
+//                  py::arg( "exponent_width" ) = 2,
+//                  R"doc(No documentation available.)doc" );
+//
+//    py::enum_< tudat::input_output::MissileDatcomData::DynamicCoefficientNames >(
+//            m, "DynamicCoefficientNames" )
+//            .value( "cnq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnq )
+//            .value( "cmq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmq )
+//            .value( "caq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::caq )
+//            .value( "cyq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyq )
+//            .value( "clnq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnq )
+//            .value( "cllq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllq )
+//            .value( "cnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnr )
+//            .value( "cmr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmr )
+//            .value( "car", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car )
+//            .value( "cyr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyr )
+//            .value( "clnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnr )
+//            .value( "cllr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllr )
+//            .value( "cnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnp )
+//            .value( "cmp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmp )
+//            .value( "cap", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cap )
+//            .value( "cyp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyp )
+//            .value( "clnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnp )
+//            .value( "cllp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllp )
+//            .value( "cnad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnad )
+//            .value( "cmad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmad )
+//            .export_values( );
+//
+//    py::enum_< tudat::input_output::MissileDatcomData::StaticCoefficientNames >(
+//            m, "StaticCoefficientNames" )
+//            .value( "cn", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cn )
+//            .value( "cm", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cm )
+//            .value( "ca", tudat::input_output::MissileDatcomData::StaticCoefficientNames::ca )
+//            .value( "cy", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cy )
+//            .value( "cln", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cln )
+//            .value( "cll", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cll )
+//            .value( "cna", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cna )
+//            .value( "cma", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cma )
+//            .value( "cyb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cyb )
+//            .value( "cnb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cnb )
+//            .value( "clb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::clb )
+//            .export_values( );
 
     py::class_< tio::solar_activity::SolarActivityData, std::shared_ptr< tio::solar_activity::SolarActivityData > >(
             m, "SolarActivityData", R"doc(No documentation available.)doc" );
@@ -352,10 +352,25 @@ Reads a space weather data file and produces a dictionary with solar activity da
                               const std::string & >( &tio::setDsnWeatherDataInGroundStations ),
            py::arg( "bodies" ),
            py::arg( "weather_file_names" ),
-           py::arg( "interpolator_settings" ) = tudat::interpolators::linearInterpolation( ),
+           py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation( ),
            py::arg( "ground_stations_per_complex" ) = tudat::simulation_setup::getDefaultDsnStationNamesPerComplex( ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
            R"doc(No documentation available.)doc" );
+
+    m.def("set_estrack_weather_data_in_ground_stations",
+            py::overload_cast< tudat::simulation_setup::SystemOfBodies &,
+                   const std::vector< std::string > &,
+                   const std::string,
+                   std::shared_ptr< tudat::interpolators::InterpolatorSettings >,
+                   const std::string & >( &tio::setEstrackWeatherDataInGroundStation ),
+
+            py::arg( "bodies" ),
+            py::arg( "weather_file_names" ),
+            py::arg( "ground_station_name" ),
+            py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation( ),
+            py::arg( "body_with_ground_stations_name" ) = "Earth",
+            R"doc(No documentation available.)doc" );
+
 
     m.def( "read_tracking_txt_file",
            &tio::createTrackingTxtFileContents,
