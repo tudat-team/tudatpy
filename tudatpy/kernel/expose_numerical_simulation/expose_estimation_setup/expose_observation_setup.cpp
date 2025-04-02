@@ -1305,19 +1305,22 @@ Returns
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
-Function for creating settings for an angular position observable.
+Function for creating settings for a relative angular position observable.
 
-Function for creating observation model settings of angular position type observables (as right ascension :math:`\alpha` and declination :math:`\delta`),
-for a single link definition. The associated observation model creates an observable :math:`\mathbf{h}_{_{\text{ang.pos.}}}` of type two as follows (in the unbiased case):
+Function for creating observation model settings of relative angular position type observables (as right ascension difference :math:`\Delta \alpha` and declination difference :math:`\Delta \delta`),
+from two link definitions. The associated observation model creates an observable :math:`\mathbf{h}_{_{\text{ang.pos.}}}` of type two as follows (in the unbiased case):
 
 .. math::
-   \Delta\mathbf{r}=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})\\
-   \tan\alpha=\frac{\Delta r_{y}}{\Delta r_{x}}\\
-   \delta=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
-   \mathbf{h}_{_{\text{ang.pos.}}} = [\alpha;\delta]
+    \Delta\mathbf{r}_1=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T1}(t_{T1})             \\
+    \tan\alpha_{1} =\frac{\Delta r_{1y}}{\Delta r_{1x}}                          \\
+    \delta_{1} =\frac{\Delta r_{1z}}{\sqrt{\Delta r_{1x}^{2}+\Delta r_{1y}^{2}}} \\
+    \Delta\mathbf{r}_2=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T2}(t_{T2})             \\
+    \tan\alpha_{2} =\frac{\Delta r_{2y}}{\Delta r_{2x}}                          \\
+    \delta_{2} =\frac{\Delta r_{2z}}{\sqrt{\Delta r_{2x}^{2}+\Delta r_{2y}^{2}}} \\
+    \mathbf{h}_{_{\text{rel.ang.pos.}}} = [\alpha_{2}-\alpha_{1};\delta_{2}-\delta_{1}]
 
-The relative position vector :math:`\Delta\mathbf{r}` is computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`
-The angular position observable can be used for optical astrometry, VLBI, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
+The relative position vectors :math:`\Delta\mathbf{r}_1` and :math:`\Delta\mathbf{r}_2` are computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`
+The relative angular position observable can be used for optical astrometry, optical navigation, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
 environment.
 
 
@@ -1325,7 +1328,7 @@ Parameters
 ----------
 link_ends : LinkDefinition
     Set of link ends that define the geometry of the observation. This observable requires the
-    `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+    `transmitter`, `transmitter2` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
 
 light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
     List of corrections for the light-time that are to be used. Default is none, which will result
@@ -1340,7 +1343,7 @@ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default
 Returns
 -------
 :class:`ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the angular position observable.
+    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the relative angular position observable.
 
 
 
@@ -4372,8 +4375,7 @@ observable_type : :class:`ObservableType`
            py::arg( "bodies" ),
            py::arg( "set_troposphere_data" ) = true,
            py::arg( "set_meteo_data" ) = true,
-           py::arg( "interpolator_settings" ) = ti::cubicSplineInterpolation( )  );
-
+           py::arg( "interpolator_settings" ) = ti::cubicSplineInterpolation( ) );
 }
 
 }  // namespace observation
